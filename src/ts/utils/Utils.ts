@@ -579,6 +579,48 @@ class Utils {
       ''
     )
   }
+
+  /** 长按事件，长按鼠标左键或长按屏幕触发 */
+  static longPress(el: HTMLElement, callback: Function, delay: number = 500) {
+    let timer: ReturnType<typeof setTimeout> | null = null
+    let isLongPress = false
+
+    const start = (e: MouseEvent | TouchEvent) => {
+      if (e instanceof MouseEvent && e.button !== 0) return
+      isLongPress = false
+      timer = setTimeout(() => {
+        isLongPress = true
+        callback()
+      }, delay)
+    }
+
+    const cancel = () => {
+      if (timer !== null) {
+        clearTimeout(timer)
+        timer = null
+      }
+    }
+
+    // 长按触发后，拦截随后的 click 事件，避免触发 A/BUTTON 的默认行为
+    const handleClick = (e: MouseEvent) => {
+      if (isLongPress) {
+        e.preventDefault()
+        e.stopPropagation()
+        isLongPress = false
+      }
+    }
+
+    el.addEventListener('mousedown', start)
+    el.addEventListener('mouseup', cancel)
+    el.addEventListener('mouseleave', cancel)
+    el.addEventListener('click', handleClick)
+
+    el.addEventListener('touchstart', start, { passive: true })
+    el.addEventListener('touchend', cancel)
+    el.addEventListener('touchcancel', cancel)
+    // 手指移动时（如滚动）取消长按
+    el.addEventListener('touchmove', cancel, { passive: true })
+  }
 }
 
 export { Utils }

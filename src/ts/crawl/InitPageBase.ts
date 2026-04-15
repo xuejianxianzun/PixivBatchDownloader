@@ -732,7 +732,9 @@ abstract class InitPageBase {
     const msg = lang.transl('_抓取结果为零请检查筛选条件')
     log.error(msg)
     log.log('')
-    msgBox.error(msg)
+    if (!states.timedCrawlMode) {
+      msgBox.error(msg)
+    }
   }
 
   // 抓取完成后，对结果进行排序

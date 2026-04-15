@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 

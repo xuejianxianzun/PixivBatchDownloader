@@ -234,6 +234,10 @@
       position: relative;
       max-width: @formContentWidth;
 
+      .optionAnchor {
+        display: none;
+      }
+
       // 使选项里的元素在交叉轴上（垂直）对齐到顶部
       p.option {
         position: relative;
@@ -243,8 +247,28 @@
         column-gap: 4px;
         margin: 2px 0;
 
+        // 在选项左侧显示置顶按钮
+        .pinButton {
+          position: absolute;
+          z-index: 1;
+          left: -26px;
+          top: 0;
+          cursor: pointer;
+          display: none;
+          opacity: 0.6;
+        }
+
+        &.pinned .pinButton,
+        &:hover .pinButton {
+          display: block;
+        }
+
+        &.pinned .pinButton {
+          opacity: 1;
+        }
+
+        // 在选项左侧显示 new 图标
         &.new::before {
-          // 在左上角显示 new 标记
           content: '✨';
           position: absolute;
           z-index: 1;
@@ -254,6 +278,12 @@
           top: -1px;
           text-align: center;
           font-size: 1.1em;
+        }
+
+        // 鼠标经过或显示置顶按钮时，不显示 new 图标，以避免重叠
+        &:hover::before,
+        &.pinned.new::before {
+          display: none;
         }
 
         // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
@@ -269,6 +299,7 @@
           flex-wrap: nowrap;
           align-items: flex-start;
           justify-content: center;
+
           button,
           .textButton {
             flex-shrink: 0;
@@ -297,6 +328,10 @@
 
           & > * {
             line-height: @height;
+          }
+
+          &.noGrow {
+            flex-grow: 0;
           }
         }
 
@@ -505,7 +540,7 @@
         padding-right: 5px;
       }
 
-      .tabsContnet {
+      .tabsContent {
         display: none;
 
         &:first-child {

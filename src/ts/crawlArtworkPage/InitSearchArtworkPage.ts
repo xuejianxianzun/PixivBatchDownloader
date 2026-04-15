@@ -304,7 +304,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected async nextStep() {
-    if (settings.previewResult) {
+    if (settings.previewResult && !states.timedCrawlMode) {
       log.warning(
         lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载')
       )

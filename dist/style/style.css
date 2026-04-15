@@ -664,6 +664,9 @@ body.mobile #quickCrawlBtn {
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
 }
+.centerWrap .centerWrap_con .settingForm .optionAnchor {
+  display: none;
+}
 .centerWrap .centerWrap_con .settingForm p.option {
   position: relative;
   display: flex;
@@ -671,6 +674,22 @@ body.mobile #quickCrawlBtn {
   align-items: flex-start;
   column-gap: 4px;
   margin: 2px 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option .pinButton {
+  position: absolute;
+  z-index: 1;
+  left: -26px;
+  top: 0;
+  cursor: pointer;
+  display: none;
+  opacity: 0.6;
+}
+.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton,
+.centerWrap .centerWrap_con .settingForm p.option:hover .pinButton {
+  display: block;
+}
+.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton {
+  opacity: 1;
 }
 .centerWrap .centerWrap_con .settingForm p.option.new::before {
   content: '✨';
@@ -682,6 +701,10 @@ body.mobile #quickCrawlBtn {
   top: -1px;
   text-align: center;
   font-size: 1.1em;
+}
+.centerWrap .centerWrap_con .settingForm p.option:hover::before,
+.centerWrap .centerWrap_con .settingForm p.option.pinned.new::before {
+  display: none;
 }
 .centerWrap .centerWrap_con .settingForm p.option > * {
   line-height: 26px;
@@ -717,6 +740,9 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
   line-height: 26px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap.noGrow {
+  flex-grow: 0;
 }
 .centerWrap .centerWrap_con .settingForm p.option[data-no='12'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='35'] .subOptionWrap,
@@ -878,10 +904,10 @@ body.mobile #quickCrawlBtn {
   cursor: pointer;
   padding-right: 5px;
 }
-.centerWrap .centerWrap_con .settingForm .tabsContnet {
+.centerWrap .centerWrap_con .settingForm .tabsContent {
   display: none;
 }
-.centerWrap .centerWrap_con .settingForm .tabsContnet:first-child {
+.centerWrap .centerWrap_con .settingForm .tabsContent:first-child {
   display: block;
 }
 .centerWrap .centerWrap_con .settingForm label.active {

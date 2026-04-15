@@ -2392,7 +2392,12 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
-        <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
+      <p id="tipPinOption" style="line-height: 1.6;">
+        💡<span data-xztext="_提示可以置顶选项"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
+      <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
         💡<span data-xztext="_提示"></span>
         <span>: </span>
         <span data-xztext="_建议您关闭询问文件保存位置"></span>
@@ -2565,7 +2570,7 @@ class CenterPanel {
     // 设置激活的选项卡
     activeTab(no = 0) {
         // 显示选项卡的内容
-        const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet');
+        const allTabCon = this.centerPanel.querySelectorAll('.tabsContent');
         for (let index = 0; index < allTabCon.length; index++) {
             allTabCon[index].style.display = index === no ? 'block' : 'none';
         }
@@ -2815,6 +2820,10 @@ class Config {
         'Janaan AI',
     ];
     static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
+    /**始终保持显示的选项 */
+    static optionWhiteList = [
+        2, 4, 13, 17, 26, 28, 32, 44, 50, 51, 57, 64, 37, 99, 100, 101,
+    ];
 }
 
 
@@ -6904,8 +6913,8 @@ class PPDTask {
     list = [];
     /** 添加一个配置。由于使用了索引来存储配置，所以可以重复添加同一个配置，这样用起来比较方便 */
     // index 的范围按照命令的作用来区分：
-    // 0 - 9: 设置抓取、下载流程里用于调试的 flag
-    // 10 - 19: 导出内容，例如抓取一些数据然后导出
+    // 0 - 9: 设置一些用于调试的 flag，以便在不修改代码的情况下开启或关闭一些调试功能
+    // 10 - 19: 导出内容，例如抓取作品发布时间的数据然后导出、或者导出下载器在 browser.storage.local 里的数据
     // 20 - 29: 测试下载器的一些功能，例如输出 Tools 里一些方法的结果、测试连续输出日志、打开所有测试用的标签页
     register(index, description, cb) {
         // 为了防止不同命令的 index 冲突导致错误的覆盖，当这个 index 已经被注册时，检查 description 是否相同
@@ -12671,6 +12680,15 @@ class Tools {
                 return 'R-18G';
         }
     }
+    /** 获取指定编号的选项元素 */
+    static getOption(allOption, no) {
+        for (const option of allOption) {
+            if (option.dataset.no === no.toString()) {
+                return option;
+            }
+        }
+        throw `Not found this option: ${no}`;
+    }
 }
 
 // 测试 Tools 里的一些功能是否正常
@@ -13890,9 +13908,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -13910,8 +13926,8 @@ class CrawlLatestFewWorks {
     }
     get canUse() {
         return (this.enable &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorks &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber > 0);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorks &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber > 0);
     }
     bindEvents() {
         // 在不启用的页面类型里，隐藏这个设置项
@@ -13920,15 +13936,16 @@ class CrawlLatestFewWorks {
     }
     hideOption() {
         // 在公开版本里，这个设置项始终隐藏
+        // 在定制版本里是默认显示的，所以需要在切换到不可使用的页面时隐藏它
         // if (!this.enable) {
-        window.setTimeout(() => {
-            _setting_Options__WEBPACK_IMPORTED_MODULE_4__.options.hideOption([15]);
-        }, 0);
+        // window.setTimeout(() => {
+        //   options.hideOption([15])
+        // }, 0)
         // }
     }
     showLog() {
         if (this.canUse) {
-            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber} `);
+            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber} `);
         }
     }
     filter(idList) {
@@ -13937,7 +13954,7 @@ class CrawlLatestFewWorks {
             const sorted = idList.toSorted((a, b) => {
                 return parseInt(b.id) - parseInt(a.id);
             });
-            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber;
+            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber;
             const newIdList = [];
             for (let i = 0; i < Math.min(needNumber, sorted.length); i++) {
                 newIdList.push(sorted[i]);
@@ -14592,7 +14609,9 @@ class InitPageBase {
         const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零请检查筛选条件');
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
-        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.timedCrawlMode) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+        }
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
@@ -14926,8 +14945,6 @@ class TimedCrawl {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
     // max: 2147483647 / 60 / 1000
     timeMinuteMax = 35791;
-    /**这次抓取是否是由本模块发起的 */
-    crawlBySelf = false;
     /**启动定时抓取任务。
      *
      * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
@@ -14975,7 +14992,7 @@ class TimedCrawl {
             if (!this.callback) {
                 return;
             }
-            this.crawlBySelf = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = true;
             _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
             this.callback();
             this.execute();
@@ -14984,7 +15001,7 @@ class TimedCrawl {
     reset() {
         this.callback = undefined;
         window.clearTimeout(this.timer);
-        this.crawlBySelf = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = false;
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = false;
     }
     bindEvents() {
@@ -15000,13 +15017,13 @@ class TimedCrawl {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
                     // 需要延迟执行，在日志提示显示之后再复位状态
-                    this.crawlBySelf = false;
+                    _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = false;
                 }, 50);
             });
         }
         // 显示一些提示
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlStart, () => {
-            if (!this.crawlBySelf) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode) {
                 return;
             }
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始定时抓取'));
@@ -15016,7 +15033,7 @@ class TimedCrawl {
         for (const ev of tipWaitNextCrawl) {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
-                    if (this.crawlBySelf) {
+                    if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode) {
                         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
                         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_等待下一次定时抓取'));
                     }
@@ -16490,7 +16507,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     deleteId = 0; // 手动删除时，要删除的作品的 id
     showPreviewIntervalId = 0; // showPreview 定时器的 id
     removeBlockIntervalId = 0; // removeBlockOnHotBar 定时器的 id
-    causeResultChange = ['onlyCrawlFirstFewImagesSwitch', 'onlyCrawlFirstFewImagesCount']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+    causeResultChange = [
+        'onlyCrawlFirstFewImagesSwitch',
+        'onlyCrawlFirstFewImagesCount',
+    ]; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
     crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
     previewCount = 0; // 共显示了多少个作品的预览图
     showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
@@ -16586,7 +16606,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
     }
     async nextStep() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.previewResult) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.previewResult && !_store_States__WEBPACK_IMPORTED_MODULE_13__.states.timedCrawlMode) {
             _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'));
         }
         this.setSlowCrawl();
@@ -27123,26 +27143,31 @@ class CheckIndexForMultiImageWork {
         // 先检查不抓取特定图片的规则，满足任意一个规则就直接排除，不再继续检查
         const notCrawlFirst = this.doNotCrawlFirstImages(index, pageCount);
         if (!notCrawlFirst) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片'), 'checkDoNotCrawlFirstImages');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片'), 'checkDoNotCrawlFirstImages');
             return false;
         }
         const notCrawlLast = this.doNotCrawlLastImages(index, pageCount);
         if (!notCrawlLast) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片'), 'checkDoNotCrawlLastImages');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片'), 'checkDoNotCrawlLastImages');
             return false;
         }
         const forSpecialUser = this.forSpecialUser(index, pageCount, userId);
         if (!forSpecialUser) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_特定用户的多图作品不下载最后几张图片'), 'checkDoNotDownloadLastFewImagesForSpecialUser');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_特定用户的多图作品不下载最后几张图片'), 'checkDoNotDownloadLastFewImagesForSpecialUser');
             return false;
         }
         // 如果图片没有被“不抓取”规则排除，才会检查“只抓取”的规则
         // 如果没有启用任何只抓取规则，就保留这个图片
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
             return true;
         }
         let and = false;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
             // 如果同时启用了两个只抓取规则，则使用 OR（只要满足任意一个只抓取规则就保留）
             // 这意味这用户可以设置同时抓取第一张和最后一张图片，跳过中间的图片
             and = false;
@@ -28409,7 +28434,8 @@ class ShowEnabledFilter {
     /** 提示多图作品不抓取后几张图片 */
     getDoNotCrawlLastImage() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' + `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesCount}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
+                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesCount}`);
         }
     }
     /** 提示必须包含的tag */
@@ -33720,12 +33746,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
     ],
     _定时抓取的推荐用法: [
-        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
-        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
-        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
-        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
-        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
-        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
+        `推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，或者搜索页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不抓取下载过的作品”和“不下载重复文件”功能，以提高效率。`,
+        `推薦用法：增量抓取新作品。例如在關注用戶的新作品頁面裡，或者搜索頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用「不抓取下載過的作品」和「不下載重複檔案」功能，以提高效率。`,
+        `Recommended usage: Incrementally crawl new works. For example, on the new works page of followed users, or on the search page, set the number of crawl pages to 2, then start timed crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not crawl downloaded works" and "Do not download duplicate files" features to improve efficiency.`,
+        `おすすめの使い方：新作を増分クロールします。例えばフォローしているユーザーの新作ページや検索ページで、クロールページ数を2に設定し、定時クロールを開始します。これによりダウンローダーが新作を自動的にダウンロードできます。<br>効率を高めるため、「ダウンロード済みの作品をクロールしない」と「重複ファイルをダウンロードしない」機能を有効にすることをおすすめします。`,
+        `추천 사용법: 증분으로 새 작품을 크롤링합니다. 예를 들어 팔로우한 사용자의 새 작품 페이지나 검색 페이지에서 크롤링 페이지 수를 2로 설정한 후 정기 크롤링을 시작하세요. 이렇게 하면 다운로더가 새 작품을 자동으로 다운로드할 수 있습니다.<br>효율성을 높이기 위해 "다운로드된 작품을 크롤링하지 않음"과 "중복 파일 다운로드하지 않음" 기능을 활성화하는 것을 권장합니다.`,
+        `Рекомендуемый способ использования: Инкрементный краулинг новых работ. Например, на странице новых работ отслеживаемых пользователей или на странице поиска установите количество страниц для краулинга равным 2, а затем запустите периодический краулинг. Таким образом загрузчик сможет автоматически скачивать новые работы.<br>Рекомендуется включить функции «Не краулить загруженные работы» и «Не загружать повторяющиеся файлы» для повышения эффективности.`,
     ],
     _定时抓取已启动的提示2: [
         '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
@@ -37216,12 +37242,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取后几张图片的说明: [
-        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br><br>
+    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
+    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br><br>
+    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br><br>
+    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br><br>
+    Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
+    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br><br>
+    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br><br>
+    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
+    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
+    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br><br>
+    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br><br>
+    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
     ],
     _多图作品不抓取前几张图片: [
         `多图作品不抓取<span class="key">前几张</span>图片`,
@@ -37232,12 +37270,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取前几张图片的说明: [
-        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br><br>
+    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
+    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br><br>
+    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br><br>
+    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br><br>
+    Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
+    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br><br>
+    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br><br>
+    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br><br>
+    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
+    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br><br>
+    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br><br>
+    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
     ],
     _多图作品只抓取前几张图片: [
         `多图作品只抓取<span class="key">前几张</span>图片`,
@@ -37248,12 +37298,18 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
     ],
     _多图作品只抓取前几张图片的说明: [
-        `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
-        `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
-        `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
-        `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
-        `일반적인 사용 시나리오: 다중 이미지 작품에서 너무 많은 이미지를 다운로드하고 싶지 않거나 첫 번째 이미지가 가장 가치 있다고 생각한다면 이 설정을 활성화할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
-        `Распространённые сценарии использования: Если вы не хотите скачивать слишком много изображений из многоизображных работ или считаете, что первая картинка наиболее ценная, вы можете включить эту настройку.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+        `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br><br>
+    提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br><br>
+    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br><br>
+    Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br><br>
+    ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 다중 이미지 작품에서 너무 많은 이미지를 다운로드하고 싶지 않거나 첫 번째 이미지가 가장 가치 있다고 생각한다면 이 설정을 활성화할 수 있습니다.<br><br>
+    팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Если вы не хотите скачивать слишком много изображений из многоизображных работ или считаете, что первая картинка наиболее ценная, вы можете включить эту настройку.<br><br>
+    Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
     ],
     _多图作品只抓取后几张图片: [
         `多图作品只抓取<span class="key">后几张</span>图片`,
@@ -37264,12 +37320,18 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Краулить только <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品只抓取后几张图片的说明: [
-        `常见的使用场景：一些用户在发布恋活（Koikatu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
-        `常見的使用場景：一些用戶在發佈戀活（Koikatu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
-        `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
-        `よくある使用シーン：一部のユーザーがKoikatuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
-        `일반적인 사용 시나리오: 일부 사용자가 Koikatu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
-        `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+        `常见的使用场景：一些用户在发布恋活（Koikatsu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br><br>
+    提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：一些用戶在發佈戀活（Koikatsu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br><br>
+    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatsu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br><br>
+    Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：一部のユーザーがKoikatsuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br><br>
+    ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 일부 사용자가 Koikatsu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br><br>
+    팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatsu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br><br>
+    Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
     ],
     _设置的值不正确需要是数字: [
         `设置的值不正确，需要是数字：`,
@@ -37279,6 +37341,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `설정 값이 올바르지 않습니다. 숫자여야 합니다:`,
         `Значение настройки неверно, оно должно быть числом:`,
     ],
+    _设置的值不正确需要是数组: [
+        `设置的值不正确，需要是数组：`,
+        `設定的值不正確，需要是陣列：`,
+        `The setting value is incorrect, it must be an array:`,
+        `設定値が正しくありません。配列である必要があります：`,
+        `설정 값이 올바르지 않습니다. 배열이어야 합니다:`,
+        `Значение настройки неверно, оно должно быть массивом:`,
+    ],
     _日期和时间的值不正确: [
         `日期和时间的值不正确：`,
         `日期和時間的值不正確：`,
@@ -37286,6 +37356,31 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `日付と時刻の値が正しくありません：`,
         `날짜와 시간 값이 올바르지 않습니다:`,
         `Значение даты и времени неверно:`,
+    ],
+    _置顶: [
+        `置顶`,
+        `置頂`,
+        `Pin to top`,
+        `トップに固定`,
+        `상단 고정`,
+        `Закрепить сверху`,
+    ],
+    _提示可以置顶选项: [
+        `你可以置顶自己常用的选项，它们会显示在选项卡的顶部，并且即使未启用“显示高级设置”也会始终显示。方法 1: 把鼠标指针放到选项上，然后点击左侧的置顶图标。方法 2: 长按选项名称 0.5 秒。`,
+        `你可以置頂自己常用的選項，它們會顯示在選項卡的頂部，並且即使未啟用「顯示高級設定」也會始終顯示。方法 1: 把滑鼠指標放到選項上，然後點擊左側的置頂圖示。方法 2: 長按選項名稱 0.5 秒。`,
+        `You can pin your frequently used options to the top. They will appear at the top of the options tab and will always be displayed even if "Show advanced settings" is not enabled. Method 1: Hover the mouse pointer over the option, then click the pin icon on the left. Method 2: Long press the option name for 0.5 seconds.`,
+        `よく使うオプションをトップに固定できます。これらは設定タブの最上部に表示され、「高度な設定を表示」が有効になっていなくても常に表示されます。方法 1: マウスカーソルをオプションに合わせ、左側のピンアイコンをクリックします。方法 2: オプション名を0.5秒長押しします。`,
+        `자주 사용하는 옵션을 상단에 고정할 수 있습니다. 이 옵션들은 옵션 탭의 맨 위에 표시되며, "고급 설정 표시"가 활성화되지 않았더라도 항상 표시됩니다. 방법 1: 마우스 포인터를 옵션 위에 올린 후 왼쪽의 고정 아이콘을 클릭하세요. 방법 2: 옵션 이름을 0.5초 동안 길게 누르세요.`,
+        `Вы можете закрепить часто используемые параметры сверху. Они будут отображаться в верхней части вкладки параметров и всегда будут видны, даже если «Показывать расширенные настройки» не включено. Способ 1: Наведите указатель мыши на параметр, затем нажмите на иконку закрепления слева. Способ 2: Долгое нажатие на название параметра в течение 0.5 секунды.`,
+    ],
+    _已置顶: [`已置顶`, `已置頂`, `Pinned`, `固定済み`, `고정됨`, `Закреплено`],
+    _取消置顶: [
+        `取消置顶`,
+        `取消置頂`,
+        `Unpin`,
+        `固定を解除`,
+        `고정 해제`,
+        `Открепить`,
     ],
 };
 
@@ -40401,6 +40496,10 @@ class Form {
     /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
     tipAreaConfig = [
         {
+            key: 'tipPinOption',
+            selector: 'p#tipPinOption',
+        },
+        {
             key: 'tipCloseAskFileSaveLocation',
             selector: 'p#tipCloseAskFileSaveLocation',
         },
@@ -40432,109 +40531,26 @@ class Form {
     }
     /**点击一些按钮时，切换显示对应的帮助区域 */
     toggleHelpArea() {
-        // 显示系列小说的命名规则的提示
-        this.form
-            .querySelector('#showSeriesNovelNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#seriesNovelNameTip')));
-        // 显示命名字段提示
-        this.form
-            .querySelector('#showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
-        // 显示复制内容的格式的提示
-        this.form
-            .querySelector('#showCopyWorkInfoFormatTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
-        // 显示日期格式提示
-        this.form
-            .querySelector('#showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
-        // 显示标签分隔提示
-        this.form
-            .querySelector('#showTagsSeparatorTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
-        // 显示长按鼠标右键查看大图时的快捷键列表
-        this.form
-            .querySelector('#showShowOriginImageShortcutTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#showOriginImageShortcutTip')));
-        // 显示预览作品的快捷键列表
-        this.form
-            .querySelector('#showPreviewWorkShortcutTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
+        const btns = this.form.querySelectorAll('.toggleArea');
+        btns.forEach((btn) => {
+            const targetSelector = btn.dataset.toggleTarget;
+            const target = document.querySelector(targetSelector);
+            btn.addEventListener('click', () => {
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(target);
+            });
+        });
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
     showMsgWhenClickBtn() {
-        const config = [
-            {
-                selector: '#showLooseMatchOriginalTip',
-                title: '_原创作品',
-                content: '_宽松匹配原创作品的说明',
-            },
-            {
-                selector: '#showPathLengthLimitTip',
-                title: '_文件名长度限制',
-                content: '_文件名长度限制的说明',
-            },
-            {
-                selector: '#showFilterSearchResultsTip',
-                title: '_过滤搜索页面的作品',
-                content: '_过滤搜索页面的作品的说明',
-            },
-            {
-                selector: '#showR18FolderNameTip',
-                title: '_把r18作品存入指定的文件夹里',
-                content: '_把r18作品存入指定的文件夹里可以使用命名标记替代的说明',
-            },
-            {
-                selector: '#showRememberTheLastSaveLocationTip',
-                title: '_把文件保存到用户上次选择的位置',
-                content: '_把文件保存到用户上次选择的位置的说明',
-            },
-            {
-                selector: '#showCopyWorkDataTip',
-                title: '_复制内容',
-                content: '_对复制的内容的说明',
-            },
-            {
-                selector: '#showRemoveBlockedUsersWorkTip',
-                title: '_用户阻止名单',
-                content: '_用户阻止名单的说明2',
-            },
-            {
-                selector: '#showSetWantWorkTip',
-                title: '_抓取多少作品',
-                content: '_抓取多少作品的提示',
-            },
-            {
-                selector: '#showSetWantPageTip',
-                title: '_抓取多少页面',
-                content: '_抓取多少页面的提示',
-            },
-            {
-                selector: '#deduplicationHelp',
-                title: '_不下载重复文件',
-                content: '_不下载重复文件的提示',
-            },
-            {
-                selector: '#downloadRecordHelp',
-                title: '_管理下载记录',
-                content: '_管理下载记录的提示',
-            },
-            {
-                selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
-                title: '_不抓取下载过的作品',
-                content: '_不抓取下载过的作品的帮助信息',
-            },
-        ];
-        config.forEach((item) => {
-            const el = this.form.querySelector(item.selector);
-            el?.addEventListener('click', () => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(item.content), {
-                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(item.title),
+        const btns = this.form.querySelectorAll('.showMsgBtn');
+        btns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const title = btn.dataset.title;
+                const msg = btn.dataset.msg;
+                _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(msg), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(title),
                 });
             });
-            if (!el) {
-                console.error(item);
-            }
         });
     }
     /**绑定功能按钮，点击按钮后会执行特定操作 */
@@ -40650,40 +40666,44 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   formHtml: () => (/* binding */ formHtml)
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
-
-// 设置项编号从 0 开始，现在最大是 103
+// 设置项编号从 0 开始，现在最大是 104
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
 const formHtml = `
 <form class="settingForm">
-  <div class="tabsContnet">
+  <div class="tabsContent">
+
+    <div class="pinnedOptionTarget"></div>
+
+    <span class="optionAnchor" data-for-no="0" aria-hidden="true"></span>
     <p class="option" data-no="0">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(0)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
       <input type="text" name="setWantWork" class="setinput_style1 blue" value="-1">
-      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
-      <button class="textButton grayButton" type="button" role="setMax"></button>
+      <button type="button" class="textButton grayButton mr0" role="setMin"></button>
+      <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantWorkTip" type="button" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="1" aria-hidden="true"></span>
     <p class="option" data-no="1">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(1)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
       <input type="text" name="setWantPage" class="setinput_style1 blue" value="-1">
-      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
-      <button class="textButton grayButton" type="button" role="setMax"></button>
+      <button type="button" class="textButton grayButton mr0" role="setMin"></button>
+      <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantPageTip" type="button" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少页面" data-msg="_抓取多少页面的提示"" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="2" aria-hidden="true"></span>
     <p class="option" data-no="2">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(2)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_作品类型"></span>
       </a>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
@@ -40700,8 +40720,9 @@ const formHtml = `
       <label for="setWorkType3" data-xztext="_小说"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="44" aria-hidden="true"></span>
     <p class="option" data-no="44">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(44)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_年龄限制"></span>
       </a>
       <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
@@ -40715,8 +40736,9 @@ const formHtml = `
       <label for="downR18G"> R-18G</label>
     </p>
 
+    <span class="optionAnchor" data-for-no="81" aria-hidden="true"></span>
     <p class="option" data-no="81">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(81)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_AI作品"></span>
       </a>
       <input type="checkbox" name="AIGenerated" id="AIGenerated" class="need_beautify checkbox_common" checked>
@@ -40730,8 +40752,9 @@ const formHtml = `
       <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="96" aria-hidden="true"></span>
     <p class="option" data-no="96">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(96)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_原创作品"></span>
       </a>
       <input type="checkbox" name="crawlOriginalWork" id="setCrawlOriginalWork" class="need_beautify checkbox_common" checked>
@@ -40745,11 +40768,12 @@ const formHtml = `
       <input type="checkbox" name="looseMatchOriginal" id="looseMatchOriginal" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
-      <button class="gray1 textButton" id="showLooseMatchOriginalTip" type="button" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_原创作品" data-msg="_宽松匹配原创作品的说明" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="6" aria-hidden="true"></span>
     <p class="option" data-no="6">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(6)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_收藏状态"></span>
       </a>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
@@ -40760,8 +40784,9 @@ const formHtml = `
       <label for="setDownBookmarked" data-xztext="_已收藏"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="23" aria-hidden="true"></span>
     <p class="option" data-no="23">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(23)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片色彩"></span>
       </a>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
@@ -40772,8 +40797,9 @@ const formHtml = `
       <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="21" aria-hidden="true"></span>
     <p class="option" data-no="21">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(21)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片数量"></span>
       </a>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
@@ -40784,8 +40810,9 @@ const formHtml = `
       <label for="setDownMultiImg" data-xztext="_多图作品"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="51" aria-hidden="true"></span>
     <p class="option" data-no="51">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(51)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40793,18 +40820,20 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="99" aria-hidden="true"></span>
     <p class="option" data-no="99">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(99)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
         <span data-xztext="_不抓取下载过的作品"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button class="gray1 textButton" id="showDonotCrawlAlreadyDownloadedWorksTip" type="button" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不抓取下载过的作品" data-msg="_不抓取下载过的作品的帮助信息" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="15" aria-hidden="true"></span>
     <p class="option" data-no="15">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40815,8 +40844,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="5" aria-hidden="true"></span>
     <p class="option" data-no="5">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(5)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
         <span data-xztext="_收藏数量"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40842,8 +40872,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="7" aria-hidden="true"></span>
     <p class="option" data-no="7">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(7)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
         <span data-xztext="_图片的宽高"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40873,8 +40904,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="8" aria-hidden="true"></span>
     <p class="option" data-no="8">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(8)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
         <span data-xztext="_图片的宽高比例"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40914,8 +40946,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="9" aria-hidden="true"></span>
     <p class="option" data-no="9">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(9)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
         <span data-xztext="_id范围"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40952,8 +40985,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="10" aria-hidden="true"></span>
     <p class="option" data-no="10">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(10)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
         <span data-xztext="_投稿时间"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40961,17 +40995,18 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="postDate">
         <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2009-01-01T00:00">
-        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
-        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
+        <button type="button" class="textButton grayButton mr0" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
+        <button type="button" class="textButton grayButton" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
         -&nbsp;
         <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2100-01-01T00:00">
-        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
-        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
+        <button type="button" class="textButton grayButton mr0" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
+        <button type="button" class="textButton grayButton" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="11" aria-hidden="true"></span>
     <p class="option" data-no="11">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(11)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
         <span data-xztext="_必须含有tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40988,8 +41023,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="12" aria-hidden="true"></span>
     <p class="option" data-no="12">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(12)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41008,8 +41044,9 @@ const formHtml = `
       </span>
     </p>
     
+    <span class="optionAnchor" data-for-no="94" aria-hidden="true"></span>
     <p class="option" data-no="94">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(94)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
         <span data-xztext="_标题必须含有"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41021,8 +41058,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="95" aria-hidden="true"></span>
     <p class="option" data-no="95">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(95)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
         <span data-xztext="_标题不能含有"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41045,9 +41083,13 @@ const formHtml = `
       <slot data-name="selectWorkBtns"></slot>
     </div>
   </div>
-  <div class="tabsContnet">
+  <div class="tabsContent">
+
+    <div class="pinnedOptionTarget"></div>
+
+    <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(13)}" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -41084,7 +41126,7 @@ const formHtml = `
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" id="showFileNameTip" type="button" data-xztext="_提示"></button>
+      <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-xztext="_提示"></button>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
@@ -41188,14 +41230,16 @@ const formHtml = `
       <span data-xztext="_命名标记p_num"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
     <p class="option" data-no="50">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(50)}" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
     <p class="option" data-no="64">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(64)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
         <span data-xztext="_只有一个抓取结果时不建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41203,15 +41247,17 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
     <p class="option" data-no="16">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(16)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
       </a>
       <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
     </p>
 
+    <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
     <p class="option" data-no="17">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(17)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
         <span data-xztext="_自动开始下载"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41219,8 +41265,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="33" aria-hidden="true"></span>
     <p class="option" data-no="33">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41235,12 +41282,16 @@ const formHtml = `
     <slot data-name="downloadArea"></slot>
     <slot data-name="progressBar"></slot>
   </div>
-  <div class="tabsContnet">
+  <div class="tabsContent">
     <div class="centerWrap_btns">
       <slot data-name="otherBtns"></slot>
     </div>
+
+    <div class="pinnedOptionTarget"></div>
+
+    <span class="optionAnchor" data-for-no="57" aria-hidden="true"></span>
     <p class="option" data-no="57">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(57)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41252,8 +41303,9 @@ const formHtml = `
       <span data-xztext="_抓取"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="75" aria-hidden="true"></span>
     <p class="option" data-no="75">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(75)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
         <span data-xztext="_减慢抓取速度"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41268,8 +41320,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="47" aria-hidden="true"></span>
     <p class="option" data-no="47">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41281,64 +41334,69 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="3" aria-hidden="true"></span>
     <p class="option" data-no="3">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取前几张图片的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlFirstFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlFirstFewImagesSwitch">
         <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取前几张图片" data-msg="_多图作品只抓取前几张图片的说明" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="104" aria-hidden="true"></span>
     <p class="option" data-no="104">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(104)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取后几张图片的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlLastFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlLastFewImagesSwitch">
         <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取后几张图片" data-msg="_多图作品只抓取后几张图片的说明" data-xztext="_帮助"></button>
     </p>
     
+    <span class="optionAnchor" data-for-no="103" aria-hidden="true"></span>
     <p class="option" data-no="103">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(103)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取前几张图片的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlFirstImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlFirstImagesSwitch">
         <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取前几张图片" data-msg="_多图作品不抓取前几张图片的说明" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="69" aria-hidden="true"></span>
     <p class="option" data-no="69">      
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取后几张图片的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlLastImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlLastImagesSwitch">
         <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取后几张图片" data-msg="_多图作品不抓取后几张图片的说明" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="79" aria-hidden="true"></span>
     <p class="option" data-no="79">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(79)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
 
+    <span class="optionAnchor" data-for-no="35" aria-hidden="true"></span>
     <p class="option" data-no="35">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(35)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
         <span data-xztext="_用户阻止名单"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41350,12 +41408,13 @@ const formHtml = `
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
-        <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_用户阻止名单" data-msg="_用户阻止名单的说明2" data-xztext="_帮助"></button>
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="39" aria-hidden="true"></span>
     <p class="option" data-no="39">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(39)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
         <span data-xztext="_针对特定用户屏蔽tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41366,17 +41425,19 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="74" aria-hidden="true"></span>
     <p class="option" data-no="74">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(74)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="120">
+      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
       <span class="settingNameStyle" data-xztext="_分钟"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
     <p class="option" data-no="54">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(54)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
         <span data-xztext="_自动导出抓取结果"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41397,8 +41458,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="85" aria-hidden="true"></span>
     <p class="option" data-no="85">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(85)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
         <span data-xztext="_导出ID列表"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41410,8 +41472,9 @@ const formHtml = `
       <span data-xztext="_命名"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
     <p class="option" data-no="19">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(19)}" target="_blank" class="settingNameStyle" data-xztext="_为作品建立单独的文件夹"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为作品建立单独的文件夹"></a>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="workDir">
@@ -41423,8 +41486,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
     <p class="option" data-no="42">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(42)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
         <span data-xztext="_根据作品类型自动建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41454,8 +41518,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(43)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
         <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41466,8 +41531,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
     <p class="option" data-no="80">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(80)}" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
@@ -41475,19 +41541,21 @@ const formHtml = `
       </span>
     </p>
     
+    <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
     <p class="option" data-no="38">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_把r18作品存入指定的文件夹里" data-msg="_把r18作品存入指定的文件夹里可以使用命名标记替代的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="98" aria-hidden="true"></span>
     <p class="option" data-no="98">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(98)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
         <span data-xztext="_序号起始值"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41499,8 +41567,9 @@ const formHtml = `
       <label for="serialNoStart1"> 1 </label>
     </p>
     
+    <span class="optionAnchor" data-for-no="22" aria-hidden="true"></span>
     <p class="option" data-no="22">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(22)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41519,8 +41588,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="46" aria-hidden="true"></span>
     <p class="option" data-no="46">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(46)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
         <span data-xztext="_在序号前面填充0"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41532,8 +41602,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="29" aria-hidden="true"></span>
     <p class="option" data-no="29">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(29)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
       </a>
       <input type="checkbox" name="fullNameLengthLimitSwitch" class="need_beautify checkbox_switch" checked>
@@ -41541,30 +41612,33 @@ const formHtml = `
 
       <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
         <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
-      <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_文件名长度限制" data-msg="_文件名长度限制的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="83" aria-hidden="true"></span>
     <p class="option" data-no="83">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     
+    <span class="optionAnchor" data-for-no="97" aria-hidden="true"></span>
     <p class="option" data-no="97">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(97)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_移除文件名里的emoji"></span>
       </a>
       <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="67" aria-hidden="true"></span>
     <p class="option" data-no="67">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(67)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41572,18 +41646,20 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="66" aria-hidden="true"></span>
     <p class="option" data-no="66">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(66)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
         <span data-xztext="_自定义用户名"></span>
         <span class="gray1"> ? </span>
       </a>
       <slot data-name="setUserNameSlot"></slot>
     </p>
 
+    <span class="optionAnchor" data-for-no="31" aria-hidden="true"></span>
     <p class="option" data-no="31">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="dateFormatTip">
@@ -41613,19 +41689,21 @@ const formHtml = `
       <span data-xztext="_下载"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="101" aria-hidden="true"></span>
     <p class="option" data-no="101">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(101)}" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
-      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-      <button class="textButton gray1" type="button" id="downloadRecordHelp" data-xztext="_帮助"></button>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
+      <button type="button" class="textButton gray1" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button type="button" class="textButton gray1" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button type="button" class="textButton gray1" id="clearDownloadRecord" data-xztext="_清除"></button>
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_管理下载记录" data-msg="_管理下载记录的提示" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="28" aria-hidden="true"></span>
     <p class="option" data-no="28">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="deduplication">
         <span data-xztext="_策略"></span>
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
@@ -41634,14 +41712,15 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
-      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_不下载重复文件" data-msg="_不下载重复文件的提示" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="100" aria-hidden="true"></span>
     <p class="option" data-no="100">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(100)}" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showBorderOnDownloadedWorks" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="showBorderOnDownloadedWorks">
         <span data-xztext="_宽度"></span>
         <input type="text" name="borderWidth" class="setinput_style1 blue w20" value="3">
         px
@@ -41651,37 +41730,41 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="90" aria-hidden="true"></span>
     <p class="option" data-no="90">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(90)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
       <span data-xztext="_当文件数量大于"></span>
-      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="150">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>
       <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
       <span data-xztext="_秒"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="76" aria-hidden="true"></span>
     <p class="option" data-no="76">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(76)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击收藏按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="77" aria-hidden="true"></span>
     <p class="option" data-no="77">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(77)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击点赞按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <p class="option" data-no="4">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(4)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
         <span data-xztext="_动图保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41699,16 +41782,18 @@ const formHtml = `
       <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
     <p class="option" data-no="24">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(24)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
         <span data-xztext="_同时转换多少个动图"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
     </p>
 
+    <span class="optionAnchor" data-for-no="26" aria-hidden="true"></span>
     <p class="option" data-no="26">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(26)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41720,8 +41805,9 @@ const formHtml = `
       <label for="novelSaveAs2"> EPUB </label>
     </p>
 
+    <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
     <p class="option" data-no="73">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(73)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
         <span data-xztext="_自动合并系列小说"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41735,11 +41821,12 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
     <p class="option" data-no="91">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
-        <button class="showFileNameTip textButton" id="showSeriesNovelNameTip" type="button" data-xztext="_提示"></button>
+        <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-xztext="_提示"></button>
       </span>
     </p>
 
@@ -41811,8 +41898,9 @@ const formHtml = `
       <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
     <p class="option" data-no="27">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41820,20 +41908,23 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="70" aria-hidden="true"></span>
     <p class="option" data-no="70">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(70)}" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
       <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="72" aria-hidden="true"></span>
     <p class="option" data-no="72">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(72)}" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
       <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="49" aria-hidden="true"></span>
     <p class="option" data-no="49">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(49)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
         <span data-xztext="_保存作品的元数据"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41859,8 +41950,9 @@ const formHtml = `
       <label for="saveMetaFormatJSON"> JSON </label>
     </p>
 
+    <span class="optionAnchor" data-for-no="89" aria-hidden="true"></span>
     <p class="option" data-no="89">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(89)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
         <span data-xztext="_保存作品的简介"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41878,8 +41970,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="30" aria-hidden="true"></span>
     <p class="option" data-no="30">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(30)}" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize1" data-xztext="_原图"></label>
@@ -41897,8 +41990,9 @@ const formHtml = `
       <label for="imageSize4" class="gray1">(250px)</label>
     </p>
 
+    <span class="optionAnchor" data-for-no="25" aria-hidden="true"></span>
     <p class="option" data-no="25">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(25)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
         <span data-xztext="_文件体积限制"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41911,8 +42005,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="82" aria-hidden="true"></span>
     <p class="option" data-no="82">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(82)}" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
       <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="setFileDownloadOrder">
@@ -41937,18 +42032,20 @@ const formHtml = `
     </p>
 
     
+    <span class="optionAnchor" data-for-no="20" aria-hidden="true"></span>
     <p class="option" data-no="20">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
         <span data-xztext="_把文件保存到用户上次选择的位置"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_把文件保存到用户上次选择的位置" data-msg="_把文件保存到用户上次选择的位置的说明" data-xztext="_帮助"></button>
     </p>
     
+    <span class="optionAnchor" data-for-no="52" aria-hidden="true"></span>
     <p class="option" data-no="52">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(52)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
         <span data-xztext="_下载完成后显示通知"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41960,8 +42057,9 @@ const formHtml = `
       <span data-xztext="_增强"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
     <p class="option" data-no="84">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(84)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41969,8 +42067,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="68" aria-hidden="true"></span>
     <p class="option" data-no="68">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(68)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41978,8 +42077,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="63" aria-hidden="true"></span>
     <p class="option" data-no="63">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(63)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
         <span data-xztext="_替换方形缩略图以显示图片比例"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41987,8 +42087,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="55" aria-hidden="true"></span>
     <p class="option" data-no="55">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(55)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
         <span data-xztext="_预览作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42019,7 +42120,7 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -42027,14 +42128,16 @@ const formHtml = `
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="71" aria-hidden="true"></span>
     <p class="option" data-no="71">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(71)}" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
       <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
     <p class="option" data-no="62">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(62)}" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="showOriginImage">
@@ -42046,7 +42149,7 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="showOriginImageSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showShowOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -42054,8 +42157,9 @@ const formHtml = `
       <span data-xztext="_查看作品大图时的快捷键"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="102" aria-hidden="true"></span>
     <p class="option" data-no="102">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(102)}" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
+      <a href="" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
         <span data-xztext="_缩略图上按钮的位置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42067,8 +42171,9 @@ const formHtml = `
       <label for="magnifierPosition2" data-xztext="_右侧"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="40" aria-hidden="true"></span>
     <p class="option" data-no="40">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(40)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="magnifier">
@@ -42082,14 +42187,16 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="56" aria-hidden="true"></span>
     <p class="option" data-no="56">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(56)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="14" aria-hidden="true"></span>
     <p class="option" data-no="14">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
         <span data-xztext="_复制按钮"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42108,7 +42215,7 @@ const formHtml = `
       <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatHtml">text/html</label>
-      <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_复制内容" data-msg="_对复制的内容的说明" data-xztext="_帮助"></button>
       <span class="verticalSplit"></span>
 
       <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
@@ -42122,7 +42229,7 @@ const formHtml = `
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-      <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
@@ -42136,8 +42243,9 @@ const formHtml = `
       <br>
     </p>
 
+    <span class="optionAnchor" data-for-no="86" aria-hidden="true"></span>
     <p class="option" data-no="86">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(86)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
         <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42145,8 +42253,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="87" aria-hidden="true"></span>
     <p class="option" data-no="87">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
         <span data-xztext="_预览作品的详细信息"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42159,8 +42268,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="48" aria-hidden="true"></span>
     <p class="option" data-no="48">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(48)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
         <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42168,17 +42278,19 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="92" aria-hidden="true"></span>
     <p class="option" data-no="92">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(92)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_过滤搜索页面的作品"></span>
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showFilterSearchResultsTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_过滤搜索页面的作品" data-msg="_过滤搜索页面的作品的说明" data-xztext="_帮助"></button>
     </p>
 
+    <span class="optionAnchor" data-for-no="88" aria-hidden="true"></span>
     <p class="option" data-no="88">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(88)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
         <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42186,8 +42298,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="18" aria-hidden="true"></span>
     <p class="option" data-no="18">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(18)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
         <span data-xztext="_预览搜索结果"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42199,8 +42312,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="34" aria-hidden="true"></span>
     <p class="option" data-no="34">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(34)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
         <span data-xztext="_收藏设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42223,8 +42337,9 @@ const formHtml = `
       <span data-xztext="_其他"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="93" aria-hidden="true"></span>
     <p class="option" data-no="93">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(93)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
         <span data-xztext="_日志区域的默认可见性"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42236,8 +42351,9 @@ const formHtml = `
       <label for="logVisibleDefault2" data-xztext="_隐藏"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="78" aria-hidden="true"></span>
     <p class="option" data-no="78">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(78)}" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
       <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="exportLog">
@@ -42262,8 +42378,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="36" aria-hidden="true"></span>
     <p class="option" data-no="36">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(36)}" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="theme1" data-xztext="_自动检测"></label>
@@ -42275,16 +42392,17 @@ const formHtml = `
       <label for="theme3">Dark</label>
     </p>
 
+    <span class="optionAnchor" data-for-no="41" aria-hidden="true"></span>
     <p class="option" data-no="41">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(41)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
         <span data-xztext="_背景图片"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="bgDisplay">
-        <button class="textButton gray1" type="button" id="selectBG" data-xztext="_选择文件"></button>
-        <button class="textButton gray1" type="button" id="clearBG" data-xztext="_清除"></button>
+        <button type="button" class="textButton gray1" id="selectBG" data-xztext="_选择文件"></button>
+        <button type="button" class="textButton gray1" id="clearBG" data-xztext="_清除"></button>
         &nbsp;
         <span data-xztext="_对齐方式"></span>&nbsp;
         <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
@@ -42298,8 +42416,9 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="45" aria-hidden="true"></span>
     <p class="option" data-no="45">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(45)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
         <span data-xztext="_选项卡切换方式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42311,8 +42430,9 @@ const formHtml = `
       <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
     </p>
 
+    <span class="optionAnchor" data-for-no="53" aria-hidden="true"></span>
     <p class="option" data-no="53">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(53)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
         <span data-xztext="_高亮显示关键字"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42320,8 +42440,9 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <span class="optionAnchor" data-for-no="32" aria-hidden="true"></span>
     <p class="option" data-no="32">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(32)}" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
+      <a href="" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="userSetLang1" data-xztext="_自动检测"></label>
@@ -42345,15 +42466,16 @@ const formHtml = `
       <label for="userSetLang7">Русский</label>
     </p>
 
+    <span class="optionAnchor" data-for-no="37" aria-hidden="true"></span>
     <p class="option" data-no="37">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(37)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
         <span data-xztext="_管理设置"></span>
         <span class="gray1"> ? </span>
       </a>
-      <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
-      <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
-      <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
-      <button class="textButton gray1" type="button" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
+      <button type="button" class="textButton gray1" id="exportSettings" data-xztext="_导出设置"></button>
+      <button type="button" class="textButton gray1" id="importSettings" data-xztext="_导入设置"></button>
+      <button type="button" class="textButton gray1" id="resetSettings" data-xztext="_重置设置"></button>
+      <button type="button" class="textButton gray1" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
     </p>
 
   </div>
@@ -42996,6 +43118,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PinOptions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PinOptions */ "./src/ts/setting/PinOptions.ts");
+/* harmony import */ var _ShowNewIcon__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ShowNewIcon */ "./src/ts/setting/ShowNewIcon.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
 
 
 
@@ -43005,96 +43137,31 @@ class Options {
     init(allOption) {
         this.allOption = allOption;
         this.bindEvents();
+        _PinOptions__WEBPACK_IMPORTED_MODULE_6__.pinOption.init(allOption);
+        _ShowNewIcon__WEBPACK_IMPORTED_MODULE_7__.showNewIcon.init(allOption);
     }
     allOption;
-    /**始终保持显示的选项 */
-    whiteList = [
-        2, 4, 13, 17, 20, 26, 32, 44, 50, 51, 57, 64, 37,
-    ];
-    // 90 天内添加的设置项，显示 new 角标
-    newRange = 7776000000;
-    newOptions = [
-        {
-            // 日志区域的默认可见性
-            id: 93,
-            // 2026-02-28
-            time: 1772287652821,
-        },
-        {
-            // 标题必须含有
-            id: 94,
-            // 2026-03-22
-            time: 1774137600000,
-        },
-        {
-            // 标题不能含有
-            id: 95,
-            // 2026-03-22
-            time: 1774137600000,
-        },
-        {
-            // 原创作品
-            id: 96,
-            // 2026-03-24
-            time: 1774310400000,
-        },
-        {
-            // 移除文件名里的 Emoji
-            id: 97,
-            // 2026-04-08
-            time: 1775579018462,
-        },
-        {
-            // 序号起始值
-            id: 98,
-            // 2026-04-08
-            time: 1775633245633,
-        },
-        {
-            // 不抓取下载过的作品
-            id: 99,
-            // 2026-04-10
-            time: 1775755273036,
-        },
-        {
-            // 在已下载的作品上显示边框
-            id: 100,
-            // 2026-04-11
-            time: 1775914625357,
-        },
-        {
-            // 管理下载记录
-            id: 101,
-            // 2026-04-14
-            time: 1776098259792,
-        },
-        {
-            // 缩略图上按钮的位置
-            id: 102,
-            // 2026-04-14
-            time: 1776098259792,
-        },
-        {
-            // 多图作品不抓取后几张图片
-            id: 69,
-            // 2026-04-14
-            time: 1776147641055,
-        },
-        {
-            // 多图作品不抓取前几张图片
-            id: 103,
-            // 2026-04-14
-            time: 1776147641055,
-        },
-        {
-            // 多图作品只抓取后几张图片
-            id: 104,
-            // 2026-04-14
-            time: 1776147641055,
-        },
+    /** 定制的设置项，不在公开版本里显示 */
+    customOptions = [15, 79, 80, 92];
+    /** 一些设置在移动端不会生效，所以隐藏它们 */
+    // 主要是和作品缩略图相关的一些设置、增强功能
+    hideOnMobile = [18, 68, 55, 71, 62, 40];
+    /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
+    hideOnPixivision = [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
+        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
+        48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+        69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+        88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
     ];
     bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
+            this.display();
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized) {
+                return;
+            }
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
                 this.display();
@@ -43106,99 +43173,254 @@ class Options {
             }, 0);
         });
     }
-    display() {
-        this.handleShowAdvancedSettings();
-        this.alwaysHideSomeOption();
-        this.showNewIcon();
-    }
     /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
-    handleShowAdvancedSettings() {
+    display() {
+        const isPixiv = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.isPixiv();
         for (const option of this.allOption) {
             if (option.dataset.no === undefined) {
                 continue;
             }
             const no = Number.parseInt(option.dataset.no);
-            // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
-                // 然后判断是否在白名单里
-                if (this.whiteList.includes(no)) {
+            // 先判断它是否需要隐藏
+            const needHide = this.needHideOption(no);
+            if (needHide) {
+                this.hideOption([no]);
+                continue;
+            }
+            // 然后处理需要始终显示的选项
+            if (isPixiv) {
+                // 显示白名单里的选项、置顶的选项
+                if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no) ||
+                    _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.pinnedOptions.includes(no)) {
                     this.showOption([no]);
-                }
-                else {
-                    this.hideOption([no]);
+                    continue;
                 }
             }
+            // 剩余的选项都是高级设置，它们默认是显示的
+            // 在 pixivision 上，不处理高级设置，所以剩余的选项都会显示
+            if (!isPixiv) {
+                continue;
+            }
+            // 在 Pixiv 上，显示或隐藏高级设置
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
+                this.hideOption([no]);
+            }
             else {
-                // 如果需要显示高级设置
                 this.showOption([no]);
             }
         }
     }
-    /**总是隐藏某些设置 */
-    alwaysHideSomeOption() {
-        this.hideOption([15, 79, 80, 92]);
-        // 某些设置在移动端不会生效，所以隐藏它们
-        // 主要是和作品缩略图相关的一些设置、增强功能
+    /** 判断是否需要隐藏某个设置 */
+    needHideOption(no) {
+        if (this.customOptions.includes(no)) {
+            return true;
+        }
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([18, 68, 55, 71, 62, 40]);
+            if (this.hideOnMobile.includes(no)) {
+                return true;
+            }
         }
-        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            this.hideOption([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
-                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
-                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-                66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
-            ]);
-        }
-    }
-    /**显示 new 角标 */
-    showNewIcon() {
-        const now = Date.now();
-        this.newOptions.forEach((option) => {
-            if (now - option.time <= this.newRange) {
-                const el = this.getOption(option.id);
-                el.classList.add('new');
-            }
-        });
-    }
-    // 使用编号获取指定选项的元素
-    getOption(no) {
-        for (const option of this.allOption) {
-            if (option.dataset.no === no.toString()) {
-                return option;
+            if (this.hideOnPixivision.includes(no)) {
+                return true;
             }
         }
-        throw `Not found this option: ${no}`;
+        return false;
     }
-    // 显示或隐藏指定的选项
-    setOptionDisplay(no, display) {
+    /** 隐藏指定的选项 */
+    hideOption(no) {
+        this.setDisplay(no, 'none');
+    }
+    /** 显示指定的选项 */
+    showOption(no) {
+        this.setDisplay(no, 'flex');
+    }
+    /** 显示或隐藏指定的选项 */
+    setDisplay(no, display) {
         for (const number of no) {
             // 抓取多少页面/作品的显示与否不是在这里控制的，所以跳过它们
             if (number === 0 || number === 1) {
                 continue;
             }
-            this.getOption(number).style.display = display;
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOption(this.allOption, number).style.display = display;
         }
-    }
-    // 显示所有选项
-    // 在切换不同页面时使用
-    showAllOption() {
-        for (const el of this.allOption) {
-            el.style.display = 'flex';
-        }
-    }
-    // 隐藏指定的选项。参数是数组，传递设置项的编号。
-    hideOption(no) {
-        this.setOptionDisplay(no, 'none');
-    }
-    // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
-    showOption(no) {
-        this.setOptionDisplay(no, 'flex');
     }
 }
 const options = new Options();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/PinOptions.ts":
+/*!**************************************!*\
+  !*** ./src/ts/setting/PinOptions.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   pinOption: () => (/* binding */ pinOption)
+/* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+
+
+
+
+/** 管理置顶的选项 */
+class PinOptions {
+    init(allOption) {
+        // 不在 pixivision 上启用
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv()) {
+            return;
+        }
+        this.allOption = allOption;
+        this.bindEvents();
+    }
+    allOption;
+    pinnedClassName = 'pinned';
+    /** 保存当前置顶选项的列表 */
+    list;
+    bindEvents() {
+        // 在设置初始化之后，第一次执行 display
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
+            this.addPinButton();
+            this.display();
+            this.list = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
+        });
+        // 初始化之后，如果用户修改了置顶选项列表，则再次执行 display
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                return;
+            }
+            const data = ev.detail.data;
+            if (data.name === 'pinnedOptions') {
+                // 对比新旧列表，找出有哪些选项被取消了置顶
+                const removed = this.list.filter((no) => !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(no));
+                // 传入被取消置顶的选项
+                this.display(removed);
+                // 保存新的列表
+                this.list = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
+            }
+        });
+    }
+    /** 在每个选项前面添加置顶按钮 */
+    // 对于未置顶的选项，在鼠标经过时添加并显示置顶按钮；对于已置顶的选项，直接显示置顶按钮
+    addPinButton() {
+        for (const option of this.allOption) {
+            // 跳过分类标题
+            if (option.classList.contains('settingCategoryName')) {
+                continue;
+            }
+            const no = option.dataset.no;
+            if (!no) {
+                continue;
+            }
+            const noNum = Number.parseInt(no);
+            // 已置顶的选项，直接显示置顶按钮
+            if (_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(noNum)) {
+                option.classList.add(this.pinnedClassName);
+                this.bindTogglePinEvent(option, noNum);
+            }
+            else {
+                // 未置顶的选项，在鼠标经过时才会添加置顶按钮，以减少 DOM 元素数量
+                option.addEventListener('mouseover', () => {
+                    this.bindTogglePinEvent(option, noNum);
+                });
+            }
+        }
+    }
+    createPinButton(option) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.classList.add('pinButton');
+        btn.textContent = '📌';
+        btn.dataset.title = '_置顶';
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(btn);
+        option.insertAdjacentElement('afterbegin', btn);
+        return btn;
+    }
+    /** 点击置顶按钮，或者长按选项的名称时，切换该选项的置顶状态 */
+    bindTogglePinEvent(option, noNum) {
+        const existingBtn = option.querySelector('.pinButton');
+        if (existingBtn) {
+            return;
+        }
+        const btn = this.createPinButton(option);
+        btn.addEventListener('click', () => {
+            this.tooglePinOption(noNum);
+        });
+        const a = option.querySelector('a.settingNameStyle');
+        if (a) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.longPress(a, () => {
+                this.tooglePinOption(noNum);
+            });
+        }
+    }
+    /** 切换该选项的置顶状态 */
+    tooglePinOption(noNum) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(noNum)) {
+            // 已置顶，取消置顶
+            _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.filter((no) => no !== noNum);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消置顶'));
+        }
+        else {
+            // 未置顶，添加置顶
+            _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.push(noNum);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已置顶'));
+        }
+        // 保存设置
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('pinnedOptions', _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions);
+    }
+    /** 设置选项的显示与隐藏 */
+    display(removed = []) {
+        // 倒序遍历，把置顶的选项显示在顶部
+        // 如果正序遍历的话，前面的选项（先置顶的选项）会被后置顶的选项挤下去，导致显示的顺序与添加的顺序相反
+        for (const no of _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice().reverse()) {
+            const option = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, no);
+            option.classList.add(this.pinnedClassName);
+            // 总是显示置顶的选项，即使用户没有启用“不显示高级设置”，也依然会显示
+            // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，不在这里处理
+            if (no !== 0 && no !== 1) {
+                option.style.display = 'flex';
+            }
+            // 在该选项所在的选项卡容器里查找插入点，并把选项显示在插入点后面
+            const target = option.parentElement.querySelector('.pinnedOptionTarget');
+            target.insertAdjacentElement('afterend', option);
+        }
+        // 处理被取消置顶的选项
+        for (const no of removed) {
+            const option = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, no);
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(no)) {
+                // 移除类名
+                option.classList.remove(this.pinnedClassName);
+                // 如果它不在始终显示的选项里，并且未启用“显示高级设置”，则隐藏它
+                if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no) &&
+                    !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.showAdvancedSettings) {
+                    option.style.display = 'none';
+                }
+                // 查找锚点，并把它移动回原来的位置
+                const anchor = document.querySelector(`.centerWrap_con .optionAnchor[data-for-no="${no}"]`);
+                if (anchor) {
+                    anchor.insertAdjacentElement('afterend', option);
+                }
+            }
+        }
+    }
+}
+const pinOption = new PinOptions();
 
 
 
@@ -43365,7 +43587,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
-// settings 保存了下载器的所有设置项
+// settings 保存了下载器的所有设置项。这些设置都是可以被用户修改的
 // 获取设置项的值：
 // settings[name]
 // 修改设置项的值：
@@ -43831,7 +44053,7 @@ class Settings {
         previewUgoira: true,
         tipPreviewWork: true,
         tipHotkeysViewLargeImage: true,
-        timedCrawlInterval: 120,
+        timedCrawlInterval: 30,
         slowCrawl: true,
         slowCrawlOnWorksNumber: 100,
         downloadOnClickBookmark: false,
@@ -43887,6 +44109,7 @@ class Settings {
         filterSearchResults: false,
         logVisibleDefault: 'show',
         tipCloseAskFileSaveLocation: true,
+        tipPinOption: true,
         tipCloseAskFileSaveLocationOnce: true,
         titleIncludeSwitch: false,
         titleIncludeList: [],
@@ -43908,6 +44131,8 @@ class Settings {
         onlyCrawlLastFewImagesCount: 1,
         doNotCrawlFirstImagesSwitch: false,
         doNotCrawlFirstImagesCount: 1,
+        pinnedOptions: [],
+        debugForWiki: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -43919,7 +44144,7 @@ class Settings {
     ];
     // 值为整数的设置不必单独列出
     // 值为 number[] 的设置（目前没有）
-    numberArrayKeys = [];
+    numberArrayKeys = ['pinnedOptions'];
     // 值为字符串数组的设置
     stringArrayKeys = [
         'namingRuleList',
@@ -44064,6 +44289,7 @@ class Settings {
         this.setSetting('tipOpenWikiLink', true);
         this.setSetting('tipCloseAskFileSaveLocationOnce', true);
         this.setSetting('tipCloseAskFileSaveLocation', true);
+        this.setSetting('tipPinOption', true);
         this.setSetting('tipCopyWorkInfoButton', true);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助'));
     }
@@ -44136,21 +44362,24 @@ class Settings {
                     value = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.string2array(value);
                 }
             }
-            // 因为目前 numberArrayKeys 没有任何项，所以这部分代码先注释掉，否则会导致 TS 类型错误
-            // if (this.numberArrayKeys.includes(key)) {
-            //   // 把数组转换成 number[]
-            //   if (Array.isArray(value)) {
-            //     value = (value as any[]).map((val: string | number) => {
-            //       if (typeof val !== 'number') {
-            //         return Number(val)
-            //       } else {
-            //         return val
-            //       }
-            //     })
-            //   } else {
-            //     return
-            //   }
-            // }
+            // 处理 number[] 类型的设置项
+            if (this.numberArrayKeys.includes(key)) {
+                // 把数组转换成 number[]
+                if (Array.isArray(value)) {
+                    value = value.map((val) => {
+                        if (typeof val !== 'number') {
+                            return Number(val);
+                        }
+                        else {
+                            return val;
+                        }
+                    });
+                }
+                else {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_设置的值不正确需要是数组') + ' ' + key;
+                    return _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
+                }
+            }
         }
         // 对于一些不合法的值，重置为默认值
         if (key === 'slowCrawlDealy' && value < 1000) {
@@ -44178,10 +44407,10 @@ class Settings {
                 value = 250;
             }
         }
-        if ((key === 'onlyCrawlFirstFewImagesCount' ||
+        if (key === 'onlyCrawlFirstFewImagesCount' ||
             key === 'onlyCrawlLastFewImagesCount' ||
             key === 'doNotCrawlFirstImagesCount' ||
-            key === 'doNotCrawlLastImagesCount')) {
+            key === 'doNotCrawlLastImagesCount') {
             if (value < 1 || isNaN(value)) {
                 value = 1;
             }
@@ -44227,6 +44456,132 @@ class Settings {
 const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
+
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/ShowNewIcon.ts":
+/*!***************************************!*\
+  !*** ./src/ts/setting/ShowNewIcon.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   showNewIcon: () => (/* binding */ showNewIcon)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
+/** 在新添加的设置上显示 new 角标 */
+class ShowNewIcon {
+    init(allOption) {
+        this.allOption = allOption;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            this.showNewIcon();
+        });
+    }
+    allOption;
+    // 90 天内添加的设置项，显示 new 角标
+    newRange = 7776000000;
+    newOptions = [
+        {
+            // 日志区域的默认可见性
+            id: 93,
+            // 2026-02-28
+            time: 1772287652821,
+        },
+        {
+            // 标题必须含有
+            id: 94,
+            // 2026-03-22
+            time: 1774137600000,
+        },
+        {
+            // 标题不能含有
+            id: 95,
+            // 2026-03-22
+            time: 1774137600000,
+        },
+        {
+            // 原创作品
+            id: 96,
+            // 2026-03-24
+            time: 1774310400000,
+        },
+        {
+            // 移除文件名里的 Emoji
+            id: 97,
+            // 2026-04-08
+            time: 1775579018462,
+        },
+        {
+            // 序号起始值
+            id: 98,
+            // 2026-04-08
+            time: 1775633245633,
+        },
+        {
+            // 不抓取下载过的作品
+            id: 99,
+            // 2026-04-10
+            time: 1775755273036,
+        },
+        {
+            // 在已下载的作品上显示边框
+            id: 100,
+            // 2026-04-11
+            time: 1775914625357,
+        },
+        {
+            // 管理下载记录
+            id: 101,
+            // 2026-04-14
+            time: 1776098259792,
+        },
+        {
+            // 缩略图上按钮的位置
+            id: 102,
+            // 2026-04-14
+            time: 1776098259792,
+        },
+        {
+            // 多图作品不抓取后几张图片
+            id: 69,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品不抓取前几张图片
+            id: 103,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品只抓取后几张图片
+            id: 104,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+    ];
+    /**显示 new 角标 */
+    showNewIcon() {
+        const now = Date.now();
+        this.newOptions.forEach((option) => {
+            if (now - option.time <= this.newRange) {
+                const el = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getOption(this.allOption, option.id);
+                el.classList.add('new');
+            }
+        });
+    }
+}
+const showNewIcon = new ShowNewIcon();
 
 
 
@@ -44530,6 +44885,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+
 
 
 /**储存每个设置和按钮在 Wiki 上的链接 */
@@ -44541,7 +44906,26 @@ __webpack_require__.r(__webpack_exports__);
 // 2. 如果把一个设置从一个分类移动到另一个分类，需要修改它在 groupConfig 里所属的分类
 class Wiki {
     constructor() {
-        this.bindEvnents();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            this.setOptionLink();
+        });
+        // 当用户修改了语言时，重设每个设置项的链接
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                this.setOptionLink();
+            }
+        });
+        // 切换 Wiki 网址为本地调试的网址或者线上网址
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(3, 'Switch Wiki Home', () => {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('debugForWiki', !_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki);
+            const msg = `debugForWiki: ${_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki}`;
+            console.log(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            this.setOptionLink();
+        });
     }
     // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
     useLang() {
@@ -44550,41 +44934,20 @@ class Wiki {
         }
         return 'en';
     }
-    nowLang = this.useLang();
-    /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
-    // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
-    // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
-    // 之后由 Wiki 页面上的代码定位到具体的设置项
-    // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
-    link(id) {
-        if (id === undefined) {
-            console.error('link id is undefined');
-            console.trace();
-            return '';
-        }
-        const lang = this.nowLang;
-        for (const group in this.groupConfig) {
-            const groupName = group;
-            if (this.groupConfig[groupName].includes(id)) {
-                const home = this.home[lang];
-                const page = this.groupPage[lang][groupName];
-                return `${home}${page}?flag=${id}`;
-            }
-        }
-        return `https://xuejianxianzun.github.io/PBDWiki/`;
-    }
-    openLink(id) {
-        const link = this.link(id);
-        window.open(link, '_blank');
-    }
-    // 每种语言对应的 Wiki 首页路径
+    /** 储存每种语言的 Wiki 首页路径 */
     home = {
-        'zh-cn': 'https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/',
-        en: 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
-        // 'zh-cn': 'http://localhost:3000/#/zh-cn/',
-        // en: 'http://localhost:3000/#/en/',
+        'zh-cn': '',
+        en: '',
     };
-    /**储存每个分类对应的页面 */
+    resetHomeConfig() {
+        let HomePrefix = 'https://xuejianxianzun.github.io/PBDWiki/';
+        if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki) {
+            HomePrefix = 'http://localhost:3000/';
+        }
+        this.home['zh-cn'] = HomePrefix + '#/zh-cn/';
+        this.home['en'] = HomePrefix + '#/en/';
+    }
+    /**储存每个分类在 Wiki 里的哪个页面上 */
     groupPage = {
         'zh-cn': {
             Crawl: '设置-抓取',
@@ -44623,7 +44986,7 @@ class Wiki {
             0, 1, 2, 44, 81, 6, 23, 21, 51, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96, 99,
         ],
         Download: [13, 50, 64, 16, 17, 33],
-        'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85],
+        'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85, 103, 104],
         'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
@@ -44695,58 +45058,57 @@ class Wiki {
             'saveUserCoverImage',
         ],
     };
-    bindEvnents() {
-        // 当语言变化时（用户在设置里修改了语言），修改 FormHTML 里的 URL 为对应的语言
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
-            const newLang = this.useLang();
-            if (newLang !== this.nowLang) {
-                this.nowLang = newLang;
-                window.setTimeout(() => {
-                    this.resetWikiLink();
-                }, 100);
-            }
-        });
-    }
-    /**在 btn 上长按鼠标左键，或长按屏幕时，如果持续时间超过 500 ms 还未松开，则打开链接 */
-    registerBtn(btn) {
-        let timer;
-        btn.addEventListener('mousedown', (ev) => {
-            if (ev.button === 0) {
-                timer = window.setTimeout(() => {
-                    this.openLink(btn.id);
-                }, 500);
-            }
-        });
-        btn.addEventListener('mouseup', (ev) => {
-            if (ev.button === 0) {
-                window.clearTimeout(timer);
-            }
-        });
-        btn.addEventListener('touchstart', (ev) => {
-            timer = window.setTimeout(() => {
-                this.openLink(btn.id);
-            }, 500);
-        });
-        btn.addEventListener('touchend', (ev) => {
-            window.clearTimeout(timer);
-        });
-        btn.addEventListener('touchcancel', (ev) => {
-            window.clearTimeout(timer);
-        });
-    }
-    /**当下载器的语言变化时，重设每个设置项的 href 属性 */
-    resetWikiLink() {
+    /** 设置每个设置项名称上的 href 属性 */
+    setOptionLink() {
+        this.resetHomeConfig();
         // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
-        const allLinks = document.querySelectorAll('a.settingNameStyle');
-        allLinks.forEach((el) => {
+        const allLinks = document.querySelectorAll('.centerWrap_con a.settingNameStyle');
+        allLinks.forEach(async (el) => {
             // 查找其父元素，如 <p class='option' data-no='0'>
             const p = el.parentElement;
             if (p.dataset.no) {
                 const id = Number(p.dataset.no);
-                const link = this.link(id);
+                const link = await this.link(id);
                 el.setAttribute('href', link);
             }
         });
+    }
+    /** 为每个功能按钮绑定事件，长按时生成 Wiki 链接并打开 */
+    registerBtn(btn) {
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async () => {
+            const link = await this.link(btn.id);
+            window.open(link, '_blank');
+        });
+    }
+    /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
+    // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
+    // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
+    // 之后由 Wiki 页面上的代码定位到具体的设置项
+    // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
+    async link(id) {
+        if (id === undefined) {
+            console.error('link id is undefined');
+            console.trace();
+            return '';
+        }
+        while (true) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                break;
+            }
+            else {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(50);
+            }
+        }
+        const lang = this.useLang();
+        for (const group in this.groupConfig) {
+            const groupName = group;
+            if (this.groupConfig[groupName].includes(id)) {
+                const home = this.home[lang];
+                const page = this.groupPage[lang][groupName];
+                return `${home}${page}?flag=${id}`;
+            }
+        }
+        return '';
     }
 }
 const wiki = new Wiki();
@@ -45220,6 +45582,9 @@ class States {
     downloadCompleteTime = 0;
     /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
     quickMergeNovel = false;
+    /** 是否在定时抓取模式下 */
+    // 在定时抓取模式下，不显示一些提示
+    timedCrawlMode = false;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;
@@ -63686,6 +64051,43 @@ class Utils {
     /** 移除字符串里的 emoji */
     static removeEmojis(str) {
         return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+    }
+    /** 长按事件，长按鼠标左键或长按屏幕触发 */
+    static longPress(el, callback, delay = 500) {
+        let timer = null;
+        let isLongPress = false;
+        const start = (e) => {
+            if (e instanceof MouseEvent && e.button !== 0)
+                return;
+            isLongPress = false;
+            timer = setTimeout(() => {
+                isLongPress = true;
+                callback();
+            }, delay);
+        };
+        const cancel = () => {
+            if (timer !== null) {
+                clearTimeout(timer);
+                timer = null;
+            }
+        };
+        // 长按触发后，拦截随后的 click 事件，避免触发 A/BUTTON 的默认行为
+        const handleClick = (e) => {
+            if (isLongPress) {
+                e.preventDefault();
+                e.stopPropagation();
+                isLongPress = false;
+            }
+        };
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', cancel);
+        el.addEventListener('mouseleave', cancel);
+        el.addEventListener('click', handleClick);
+        el.addEventListener('touchstart', start, { passive: true });
+        el.addEventListener('touchend', cancel);
+        el.addEventListener('touchcancel', cancel);
+        // 手指移动时（如滚动）取消长按
+        el.addEventListener('touchmove', cancel, { passive: true });
     }
 }
 

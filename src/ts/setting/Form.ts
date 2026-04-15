@@ -154,6 +154,10 @@ class Form {
   /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
   private readonly tipAreaConfig: { key: SettingKeys; selector: string }[] = [
     {
+      key: 'tipPinOption',
+      selector: 'p#tipPinOption',
+    },
+    {
       key: 'tipCloseAskFileSaveLocation',
       selector: 'p#tipCloseAskFileSaveLocation',
     },
@@ -193,146 +197,31 @@ class Form {
 
   /**点击一些按钮时，切换显示对应的帮助区域 */
   private toggleHelpArea() {
-    // 显示系列小说的命名规则的提示
-    this.form
-      .querySelector('#showSeriesNovelNameTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(
-          document.querySelector('#seriesNovelNameTip')! as HTMLElement
-        )
-      )
-
-    // 显示命名字段提示
-    this.form
-      .querySelector('#showFileNameTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(document.querySelector('#fileNameTip')! as HTMLElement)
-      )
-
-    // 显示复制内容的格式的提示
-    this.form
-      .querySelector('#showCopyWorkInfoFormatTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(
-          document.querySelector('#copyWorkInfoFormatTip')! as HTMLElement
-        )
-      )
-
-    // 显示日期格式提示
-    this.form
-      .querySelector('#showDateTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(document.querySelector('#dateFormatTip')! as HTMLElement)
-      )
-
-    // 显示标签分隔提示
-    this.form
-      .querySelector('#showTagsSeparatorTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(
-          document.querySelector('#tagsSeparatorTip')! as HTMLElement
-        )
-      )
-
-    // 显示长按鼠标右键查看大图时的快捷键列表
-    this.form
-      .querySelector('#showShowOriginImageShortcutTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(
-          document.querySelector('#showOriginImageShortcutTip')! as HTMLElement
-        )
-      )
-
-    // 显示预览作品的快捷键列表
-    this.form
-      .querySelector('#showPreviewWorkShortcutTip')!
-      .addEventListener('click', () =>
-        Utils.toggleEl(
-          document.querySelector('#previewWorkShortcutTip')! as HTMLElement
-        )
-      )
+    const btns = this.form.querySelectorAll(
+      '.toggleArea'
+    ) as NodeListOf<HTMLButtonElement>
+    btns.forEach((btn) => {
+      const targetSelector = btn.dataset.toggleTarget!
+      const target = document.querySelector(targetSelector) as HTMLElement
+      btn.addEventListener('click', () => {
+        Utils.toggleEl(target)
+      })
+    })
   }
 
   /**点击一些按钮时，通过 msgBox 显示帮助 */
   private showMsgWhenClickBtn() {
-    const config: {
-      selector: string
-      title: LangTextKey
-      content: LangTextKey
-    }[] = [
-      {
-        selector: '#showLooseMatchOriginalTip',
-        title: '_原创作品',
-        content: '_宽松匹配原创作品的说明',
-      },
-      {
-        selector: '#showPathLengthLimitTip',
-        title: '_文件名长度限制',
-        content: '_文件名长度限制的说明',
-      },
-      {
-        selector: '#showFilterSearchResultsTip',
-        title: '_过滤搜索页面的作品',
-        content: '_过滤搜索页面的作品的说明',
-      },
-      {
-        selector: '#showR18FolderNameTip',
-        title: '_把r18作品存入指定的文件夹里',
-        content: '_把r18作品存入指定的文件夹里可以使用命名标记替代的说明',
-      },
-      {
-        selector: '#showRememberTheLastSaveLocationTip',
-        title: '_把文件保存到用户上次选择的位置',
-        content: '_把文件保存到用户上次选择的位置的说明',
-      },
-      {
-        selector: '#showCopyWorkDataTip',
-        title: '_复制内容',
-        content: '_对复制的内容的说明',
-      },
-      {
-        selector: '#showRemoveBlockedUsersWorkTip',
-        title: '_用户阻止名单',
-        content: '_用户阻止名单的说明2',
-      },
-      {
-        selector: '#showSetWantWorkTip',
-        title: '_抓取多少作品',
-        content: '_抓取多少作品的提示',
-      },
-      {
-        selector: '#showSetWantPageTip',
-        title: '_抓取多少页面',
-        content: '_抓取多少页面的提示',
-      },
-      {
-        selector: '#deduplicationHelp',
-        title: '_不下载重复文件',
-        content: '_不下载重复文件的提示',
-      },
-      {
-        selector: '#downloadRecordHelp',
-        title: '_管理下载记录',
-        content: '_管理下载记录的提示',
-      },
-      {
-        selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
-        title: '_不抓取下载过的作品',
-        content: '_不抓取下载过的作品的帮助信息',
-      },
-    ]
-
-    config.forEach((item) => {
-      const el = this.form.querySelector(item.selector) as HTMLButtonElement
-      el?.addEventListener('click', () => {
-        msgBox.show(lang.transl(item.content), {
-          title: lang.transl(item.title),
+    const btns = this.form.querySelectorAll(
+      '.showMsgBtn'
+    ) as NodeListOf<HTMLButtonElement>
+    btns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const title = btn.dataset.title! as LangTextKey
+        const msg = btn.dataset.msg! as LangTextKey
+        msgBox.show(lang.transl(msg), {
+          title: lang.transl(title),
         })
       })
-
-      if (!el) {
-        console.error(item)
-      }
     })
   }
 

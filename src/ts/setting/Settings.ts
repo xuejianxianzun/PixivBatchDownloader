@@ -1,4 +1,4 @@
-// settings 保存了下载器的所有设置项
+// settings 保存了下载器的所有设置项。这些设置都是可以被用户修改的
 
 // 获取设置项的值：
 // settings[name]
@@ -333,6 +333,7 @@ interface XzSetting {
   seriesNovelNameRule: string
   filterSearchResults: boolean
   logVisibleDefault: 'show' | 'hide'
+  tipPinOption: boolean
   tipCloseAskFileSaveLocation: boolean
   tipCloseAskFileSaveLocationOnce: boolean
   titleIncludeSwitch: boolean
@@ -355,6 +356,8 @@ interface XzSetting {
   onlyCrawlLastFewImagesCount: number
   doNotCrawlFirstImagesSwitch: boolean
   doNotCrawlFirstImagesCount: number
+  pinnedOptions: number[]
+  debugForWiki: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -779,7 +782,7 @@ class Settings {
     previewUgoira: true,
     tipPreviewWork: true,
     tipHotkeysViewLargeImage: true,
-    timedCrawlInterval: 120,
+    timedCrawlInterval: 30,
     slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,
@@ -837,6 +840,7 @@ class Settings {
     filterSearchResults: false,
     logVisibleDefault: 'show',
     tipCloseAskFileSaveLocation: true,
+    tipPinOption: true,
     tipCloseAskFileSaveLocationOnce: true,
     titleIncludeSwitch: false,
     titleIncludeList: [],
@@ -858,6 +862,8 @@ class Settings {
     onlyCrawlLastFewImagesCount: 1,
     doNotCrawlFirstImagesSwitch: false,
     doNotCrawlFirstImagesCount: 1,
+    pinnedOptions: [],
+    debugForWiki: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -873,7 +879,7 @@ class Settings {
   // 值为整数的设置不必单独列出
 
   // 值为 number[] 的设置（目前没有）
-  private numberArrayKeys = []
+  private numberArrayKeys = ['pinnedOptions']
 
   // 值为字符串数组的设置
   private stringArrayKeys = [
@@ -1041,6 +1047,7 @@ class Settings {
     this.setSetting('tipOpenWikiLink', true)
     this.setSetting('tipCloseAskFileSaveLocationOnce', true)
     this.setSetting('tipCloseAskFileSaveLocation', true)
+    this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
 
     toast.success(lang.transl('_重新显示帮助'))
@@ -1121,21 +1128,22 @@ class Settings {
         }
       }
 
-      // 因为目前 numberArrayKeys 没有任何项，所以这部分代码先注释掉，否则会导致 TS 类型错误
-      // if (this.numberArrayKeys.includes(key)) {
-      //   // 把数组转换成 number[]
-      //   if (Array.isArray(value)) {
-      //     value = (value as any[]).map((val: string | number) => {
-      //       if (typeof val !== 'number') {
-      //         return Number(val)
-      //       } else {
-      //         return val
-      //       }
-      //     })
-      //   } else {
-      //     return
-      //   }
-      // }
+      // 处理 number[] 类型的设置项
+      if (this.numberArrayKeys.includes(key)) {
+        // 把数组转换成 number[]
+        if (Array.isArray(value)) {
+          value = (value as any[]).map((val: string | number) => {
+            if (typeof val !== 'number') {
+              return Number(val)
+            } else {
+              return val
+            }
+          })
+        } else {
+          const msg = lang.transl('_设置的值不正确需要是数组') + ' ' + key
+          return msgBox.error(msg)
+        }
+      }
     }
 
     // 对于一些不合法的值，重置为默认值

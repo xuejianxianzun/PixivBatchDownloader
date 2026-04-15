@@ -73,6 +73,10 @@ class Config {
     'Janaan AI',
   ]
   static readonly AITagsLower = Config.AITags.map((tag) => tag.toLowerCase())
+  /**始终保持显示的选项 */
+  static readonly optionWhiteList: number[] = [
+    2, 4, 13, 17, 26, 28, 32, 44, 50, 51, 57, 64, 37, 99, 100, 101,
+  ]
 }
 
 export { Config }

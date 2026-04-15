@@ -91,7 +91,12 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
-        <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
+      <p id="tipPinOption" style="line-height: 1.6;">
+        💡<span data-xztext="_提示可以置顶选项"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
+      <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
         💡<span data-xztext="_提示"></span>
         <span>: </span>
         <span data-xztext="_建议您关闭询问文件保存位置"></span>
@@ -315,7 +320,7 @@ class CenterPanel {
   private activeTab(no = 0) {
     // 显示选项卡的内容
     const allTabCon = this.centerPanel.querySelectorAll(
-      '.tabsContnet'
+      '.tabsContent'
     ) as NodeListOf<HTMLElement>
     for (let index = 0; index < allTabCon.length; index++) {
       allTabCon[index].style.display = index === no ? 'block' : 'none'
