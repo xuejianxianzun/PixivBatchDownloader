@@ -10,24 +10,30 @@ import { settings, setSetting } from './Settings'
 /** 管理置顶的选项 */
 class PinOptions {
   public init(allOption: NodeListOf<HTMLElement>) {
+    // 不在 pixivision 上启用
+    if (!Utils.isPixiv()) {
+      return
+    }
+
     this.allOption = allOption
     this.bindEvents()
   }
 
   private allOption!: NodeListOf<HTMLElement>
   private pinnedClassName = 'pinned'
-  private oldList!: number[]
+  /** 保存当前置顶选项的列表 */
+  private list!: number[]
 
   private bindEvents() {
-    // 在设置初始化之后，第一次执行 displayPinOption
+    // 在设置初始化之后，第一次执行 display
     window.addEventListener(EVT.list.settingInitialized, () => {
-      this.showPinButton()
-      this.displayPinOption()
-      this.oldList = settings.pinnedOptions.slice()
+      this.addPinButton()
+      this.display()
+      this.list = settings.pinnedOptions.slice()
     })
 
+    // 初始化之后，如果用户修改了置顶选项列表，则再次执行 display
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      // 初始化之后，如果该设置变化，则再次执行 displayPinOption
       if (!states.settingInitialized) {
         return
       }
@@ -35,20 +41,20 @@ class PinOptions {
       const data = ev.detail.data as any
       if (data.name === 'pinnedOptions') {
         // 对比新旧列表，找出有哪些选项被取消了置顶
-        const removed = this.oldList.filter(
+        const removed = this.list.filter(
           (no) => !settings.pinnedOptions.includes(no)
         )
         // 传入被取消置顶的选项
-        this.displayPinOption(removed)
+        this.display(removed)
         // 保存新的列表
-        this.oldList = settings.pinnedOptions.slice()
+        this.list = settings.pinnedOptions.slice()
       }
     })
   }
 
   /** 在每个选项前面添加置顶按钮 */
   // 对于未置顶的选项，在鼠标经过时添加并显示置顶按钮；对于已置顶的选项，直接显示置顶按钮
-  private showPinButton() {
+  private addPinButton() {
     for (const option of this.allOption) {
       // 跳过分类标题
       if (option.classList.contains('settingCategoryName')) {
@@ -94,19 +100,19 @@ class PinOptions {
 
     const btn = this.createPinButton(option)
     btn.addEventListener('click', () => {
-      this.tooglePinOption(option, noNum)
+      this.tooglePinOption(noNum)
     })
 
     const a = option.querySelector('a.settingNameStyle') as HTMLAnchorElement
     if (a) {
       Utils.longPress(a, () => {
-        this.tooglePinOption(option, noNum)
+        this.tooglePinOption(noNum)
       })
     }
   }
 
   /** 切换该选项的置顶状态 */
-  private tooglePinOption(option: HTMLElement, noNum: number) {
+  private tooglePinOption(noNum: number) {
     if (settings.pinnedOptions.includes(noNum)) {
       // 已置顶，取消置顶
       settings.pinnedOptions = settings.pinnedOptions.filter(
@@ -123,20 +129,16 @@ class PinOptions {
     setSetting('pinnedOptions', settings.pinnedOptions)
   }
 
-  /** 把置顶的选项显示在顶部 */
-  // 有 3 个执行时机：
-  // 1. 设置初始化之后
-  // 2. 用户点击置顶按钮之后
-  // 3. 用户在设置里切换了“显示高级设置”的开关之后（如果不在这里执行 displayPinOption 的话，那么当用户切换了“显示高级设置”的开关之后，之前置顶的选项可能会被隐藏）
-  public displayPinOption(removed: number[] = []) {
-    // 倒序遍历
+  /** 设置选项的显示与隐藏 */
+  private display(removed: number[] = []) {
+    // 倒序遍历，把置顶的选项显示在顶部
     // 如果正序遍历的话，前面的选项（先置顶的选项）会被后置顶的选项挤下去，导致显示的顺序与添加的顺序相反
     for (const no of settings.pinnedOptions.slice().reverse()) {
       const option = Tools.getOption(this.allOption, no)
       option.classList.add(this.pinnedClassName)
       // 总是显示置顶的选项，即使用户没有启用“不显示高级设置”，也依然会显示
-      // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，这里不要单独处理
-      if (Utils.isPixiv() && no !== 0 && no !== 1) {
+      // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，不在这里处理
+      if (no !== 0 && no !== 1) {
         option.style.display = 'flex'
       }
       // 在该选项所在的选项卡容器里查找插入点，并把选项显示在插入点后面

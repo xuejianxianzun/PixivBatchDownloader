@@ -13908,9 +13908,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -13928,8 +13926,8 @@ class CrawlLatestFewWorks {
     }
     get canUse() {
         return (this.enable &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorks &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber > 0);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorks &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber > 0);
     }
     bindEvents() {
         // 在不启用的页面类型里，隐藏这个设置项
@@ -13938,15 +13936,16 @@ class CrawlLatestFewWorks {
     }
     hideOption() {
         // 在公开版本里，这个设置项始终隐藏
+        // 在定制版本里是默认显示的，所以需要在切换到不可使用的页面时隐藏它
         // if (!this.enable) {
-        window.setTimeout(() => {
-            _setting_Options__WEBPACK_IMPORTED_MODULE_4__.options.hideOption([15]);
-        }, 0);
+        // window.setTimeout(() => {
+        //   options.hideOption([15])
+        // }, 0)
         // }
     }
     showLog() {
         if (this.canUse) {
-            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber} `);
+            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber} `);
         }
     }
     filter(idList) {
@@ -13955,7 +13954,7 @@ class CrawlLatestFewWorks {
             const sorted = idList.toSorted((a, b) => {
                 return parseInt(b.id) - parseInt(a.id);
             });
-            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber;
+            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlLatestFewWorksNumber;
             const newIdList = [];
             for (let i = 0; i < Math.min(needNumber, sorted.length); i++) {
                 newIdList.push(sorted[i]);
@@ -43119,9 +43118,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PinOptions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PinOptions */ "./src/ts/setting/PinOptions.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PinOptions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PinOptions */ "./src/ts/setting/PinOptions.ts");
+/* harmony import */ var _ShowNewIcon__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ShowNewIcon */ "./src/ts/setting/ShowNewIcon.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 
@@ -43134,100 +43137,34 @@ class Options {
     init(allOption) {
         this.allOption = allOption;
         this.bindEvents();
-        _PinOptions__WEBPACK_IMPORTED_MODULE_4__.pinOption.init(allOption);
+        _PinOptions__WEBPACK_IMPORTED_MODULE_6__.pinOption.init(allOption);
+        _ShowNewIcon__WEBPACK_IMPORTED_MODULE_7__.showNewIcon.init(allOption);
     }
     allOption;
-    // 90 天内添加的设置项，显示 new 角标
-    newRange = 7776000000;
-    newOptions = [
-        {
-            // 日志区域的默认可见性
-            id: 93,
-            // 2026-02-28
-            time: 1772287652821,
-        },
-        {
-            // 标题必须含有
-            id: 94,
-            // 2026-03-22
-            time: 1774137600000,
-        },
-        {
-            // 标题不能含有
-            id: 95,
-            // 2026-03-22
-            time: 1774137600000,
-        },
-        {
-            // 原创作品
-            id: 96,
-            // 2026-03-24
-            time: 1774310400000,
-        },
-        {
-            // 移除文件名里的 Emoji
-            id: 97,
-            // 2026-04-08
-            time: 1775579018462,
-        },
-        {
-            // 序号起始值
-            id: 98,
-            // 2026-04-08
-            time: 1775633245633,
-        },
-        {
-            // 不抓取下载过的作品
-            id: 99,
-            // 2026-04-10
-            time: 1775755273036,
-        },
-        {
-            // 在已下载的作品上显示边框
-            id: 100,
-            // 2026-04-11
-            time: 1775914625357,
-        },
-        {
-            // 管理下载记录
-            id: 101,
-            // 2026-04-14
-            time: 1776098259792,
-        },
-        {
-            // 缩略图上按钮的位置
-            id: 102,
-            // 2026-04-14
-            time: 1776098259792,
-        },
-        {
-            // 多图作品不抓取后几张图片
-            id: 69,
-            // 2026-04-14
-            time: 1776147641055,
-        },
-        {
-            // 多图作品不抓取前几张图片
-            id: 103,
-            // 2026-04-14
-            time: 1776147641055,
-        },
-        {
-            // 多图作品只抓取后几张图片
-            id: 104,
-            // 2026-04-14
-            time: 1776147641055,
-        },
+    /** 定制的设置项，不在公开版本里显示 */
+    customOptions = [15, 79, 80, 92];
+    /** 一些设置在移动端不会生效，所以隐藏它们 */
+    // 主要是和作品缩略图相关的一些设置、增强功能
+    hideOnMobile = [18, 68, 55, 71, 62, 40];
+    /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
+    hideOnPixivision = [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
+        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
+        48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+        69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+        88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
     ];
     bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
+            this.display();
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized) {
+                return;
+            }
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
                 this.display();
-                // 在设置初始化之前不在这里执行 displayPinOption，以避免短时间内不必要的重复执行
-                if (_store_States__WEBPACK_IMPORTED_MODULE_6__.states.settingInitialized) {
-                    _PinOptions__WEBPACK_IMPORTED_MODULE_4__.pinOption.displayPinOption();
-                }
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
@@ -43236,88 +43173,77 @@ class Options {
             }, 0);
         });
     }
-    display() {
-        this.handleShowAdvancedSettings();
-        this.alwaysHideSomeOption();
-        this.showNewIcon();
-    }
     /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
-    handleShowAdvancedSettings() {
+    display() {
+        const isPixiv = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.isPixiv();
         for (const option of this.allOption) {
             if (option.dataset.no === undefined) {
                 continue;
             }
             const no = Number.parseInt(option.dataset.no);
-            // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
-                // 然后判断是否在白名单里
-                if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no)) {
+            // 先判断它是否需要隐藏
+            const needHide = this.needHideOption(no);
+            if (needHide) {
+                this.hideOption([no]);
+                continue;
+            }
+            // 然后处理需要始终显示的选项
+            if (isPixiv) {
+                // 显示白名单里的选项、置顶的选项
+                if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no) ||
+                    _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.pinnedOptions.includes(no)) {
                     this.showOption([no]);
-                }
-                else {
-                    this.hideOption([no]);
+                    continue;
                 }
             }
+            // 剩余的选项都是高级设置，它们默认是显示的
+            // 在 pixivision 上，不处理高级设置，所以剩余的选项都会显示
+            if (!isPixiv) {
+                continue;
+            }
+            // 在 Pixiv 上，显示或隐藏高级设置
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
+                this.hideOption([no]);
+            }
             else {
-                // 如果需要显示高级设置
                 this.showOption([no]);
             }
         }
     }
-    /**总是隐藏某些设置 */
-    alwaysHideSomeOption() {
-        this.hideOption([15, 79, 80, 92]);
-        // 某些设置在移动端不会生效，所以隐藏它们
-        // 主要是和作品缩略图相关的一些设置、增强功能
+    /** 判断是否需要隐藏某个设置 */
+    needHideOption(no) {
+        if (this.customOptions.includes(no)) {
+            return true;
+        }
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([18, 68, 55, 71, 62, 40]);
-        }
-        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            this.hideOption([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
-                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
-                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-                66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102,
-                103, 104,
-            ]);
-        }
-    }
-    /**显示 new 角标 */
-    showNewIcon() {
-        const now = Date.now();
-        this.newOptions.forEach((option) => {
-            if (now - option.time <= this.newRange) {
-                const el = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, option.id);
-                el.classList.add('new');
+            if (this.hideOnMobile.includes(no)) {
+                return true;
             }
-        });
+        }
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
+            if (this.hideOnPixivision.includes(no)) {
+                return true;
+            }
+        }
+        return false;
     }
-    // 显示或隐藏指定的选项
-    setOptionDisplay(no, display) {
+    /** 隐藏指定的选项 */
+    hideOption(no) {
+        this.setDisplay(no, 'none');
+    }
+    /** 显示指定的选项 */
+    showOption(no) {
+        this.setDisplay(no, 'flex');
+    }
+    /** 显示或隐藏指定的选项 */
+    setDisplay(no, display) {
         for (const number of no) {
             // 抓取多少页面/作品的显示与否不是在这里控制的，所以跳过它们
             if (number === 0 || number === 1) {
                 continue;
             }
-            _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, number).style.display = display;
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOption(this.allOption, number).style.display = display;
         }
-    }
-    // 显示所有选项
-    // 在切换不同页面时使用
-    showAllOption() {
-        for (const el of this.allOption) {
-            el.style.display = 'flex';
-        }
-    }
-    // 隐藏指定的选项。参数是数组，传递设置项的编号。
-    hideOption(no) {
-        this.setOptionDisplay(no, 'none');
-    }
-    // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
-    showOption(no) {
-        this.setOptionDisplay(no, 'flex');
     }
 }
 const options = new Options();
@@ -43356,38 +43282,43 @@ __webpack_require__.r(__webpack_exports__);
 /** 管理置顶的选项 */
 class PinOptions {
     init(allOption) {
+        // 不在 pixivision 上启用
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv()) {
+            return;
+        }
         this.allOption = allOption;
         this.bindEvents();
     }
     allOption;
     pinnedClassName = 'pinned';
-    oldList;
+    /** 保存当前置顶选项的列表 */
+    list;
     bindEvents() {
-        // 在设置初始化之后，第一次执行 displayPinOption
+        // 在设置初始化之后，第一次执行 display
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
-            this.showPinButton();
-            this.displayPinOption();
-            this.oldList = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
+            this.addPinButton();
+            this.display();
+            this.list = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
         });
+        // 初始化之后，如果用户修改了置顶选项列表，则再次执行 display
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
-            // 初始化之后，如果该设置变化，则再次执行 displayPinOption
             if (!_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
                 return;
             }
             const data = ev.detail.data;
             if (data.name === 'pinnedOptions') {
                 // 对比新旧列表，找出有哪些选项被取消了置顶
-                const removed = this.oldList.filter((no) => !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(no));
+                const removed = this.list.filter((no) => !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(no));
                 // 传入被取消置顶的选项
-                this.displayPinOption(removed);
+                this.display(removed);
                 // 保存新的列表
-                this.oldList = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
+                this.list = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice();
             }
         });
     }
     /** 在每个选项前面添加置顶按钮 */
     // 对于未置顶的选项，在鼠标经过时添加并显示置顶按钮；对于已置顶的选项，直接显示置顶按钮
-    showPinButton() {
+    addPinButton() {
         for (const option of this.allOption) {
             // 跳过分类标题
             if (option.classList.contains('settingCategoryName')) {
@@ -43429,17 +43360,17 @@ class PinOptions {
         }
         const btn = this.createPinButton(option);
         btn.addEventListener('click', () => {
-            this.tooglePinOption(option, noNum);
+            this.tooglePinOption(noNum);
         });
         const a = option.querySelector('a.settingNameStyle');
         if (a) {
             _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.longPress(a, () => {
-                this.tooglePinOption(option, noNum);
+                this.tooglePinOption(noNum);
             });
         }
     }
     /** 切换该选项的置顶状态 */
-    tooglePinOption(option, noNum) {
+    tooglePinOption(noNum) {
         if (_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(noNum)) {
             // 已置顶，取消置顶
             _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions = _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.filter((no) => no !== noNum);
@@ -43453,20 +43384,16 @@ class PinOptions {
         // 保存设置
         (0,_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('pinnedOptions', _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions);
     }
-    /** 把置顶的选项显示在顶部 */
-    // 有 3 个执行时机：
-    // 1. 设置初始化之后
-    // 2. 用户点击置顶按钮之后
-    // 3. 用户在设置里切换了“显示高级设置”的开关之后（如果不在这里执行 displayPinOption 的话，那么当用户切换了“显示高级设置”的开关之后，之前置顶的选项可能会被隐藏）
-    displayPinOption(removed = []) {
-        // 倒序遍历
+    /** 设置选项的显示与隐藏 */
+    display(removed = []) {
+        // 倒序遍历，把置顶的选项显示在顶部
         // 如果正序遍历的话，前面的选项（先置顶的选项）会被后置顶的选项挤下去，导致显示的顺序与添加的顺序相反
         for (const no of _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice().reverse()) {
             const option = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, no);
             option.classList.add(this.pinnedClassName);
             // 总是显示置顶的选项，即使用户没有启用“不显示高级设置”，也依然会显示
-            // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，这里不要单独处理
-            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv() && no !== 0 && no !== 1) {
+            // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，不在这里处理
+            if (no !== 0 && no !== 1) {
                 option.style.display = 'flex';
             }
             // 在该选项所在的选项卡容器里查找插入点，并把选项显示在插入点后面
@@ -44534,6 +44461,132 @@ const setSetting = self.setSetting.bind(self);
 
 /***/ }),
 
+/***/ "./src/ts/setting/ShowNewIcon.ts":
+/*!***************************************!*\
+  !*** ./src/ts/setting/ShowNewIcon.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   showNewIcon: () => (/* binding */ showNewIcon)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
+/** 在新添加的设置上显示 new 角标 */
+class ShowNewIcon {
+    init(allOption) {
+        this.allOption = allOption;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            this.showNewIcon();
+        });
+    }
+    allOption;
+    // 90 天内添加的设置项，显示 new 角标
+    newRange = 7776000000;
+    newOptions = [
+        {
+            // 日志区域的默认可见性
+            id: 93,
+            // 2026-02-28
+            time: 1772287652821,
+        },
+        {
+            // 标题必须含有
+            id: 94,
+            // 2026-03-22
+            time: 1774137600000,
+        },
+        {
+            // 标题不能含有
+            id: 95,
+            // 2026-03-22
+            time: 1774137600000,
+        },
+        {
+            // 原创作品
+            id: 96,
+            // 2026-03-24
+            time: 1774310400000,
+        },
+        {
+            // 移除文件名里的 Emoji
+            id: 97,
+            // 2026-04-08
+            time: 1775579018462,
+        },
+        {
+            // 序号起始值
+            id: 98,
+            // 2026-04-08
+            time: 1775633245633,
+        },
+        {
+            // 不抓取下载过的作品
+            id: 99,
+            // 2026-04-10
+            time: 1775755273036,
+        },
+        {
+            // 在已下载的作品上显示边框
+            id: 100,
+            // 2026-04-11
+            time: 1775914625357,
+        },
+        {
+            // 管理下载记录
+            id: 101,
+            // 2026-04-14
+            time: 1776098259792,
+        },
+        {
+            // 缩略图上按钮的位置
+            id: 102,
+            // 2026-04-14
+            time: 1776098259792,
+        },
+        {
+            // 多图作品不抓取后几张图片
+            id: 69,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品不抓取前几张图片
+            id: 103,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品只抓取后几张图片
+            id: 104,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+    ];
+    /**显示 new 角标 */
+    showNewIcon() {
+        const now = Date.now();
+        this.newOptions.forEach((option) => {
+            if (now - option.time <= this.newRange) {
+                const el = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getOption(this.allOption, option.id);
+                el.classList.add('new');
+            }
+        });
+    }
+}
+const showNewIcon = new ShowNewIcon();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts":
 /*!************************************************************!*\
   !*** ./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts ***!
@@ -44865,7 +44918,7 @@ class Wiki {
                 this.setOptionLink();
             }
         });
-        // 把 wiki 的 url 切换到本地调试的网址或者线上网址
+        // 切换 Wiki 网址为本地调试的网址或者线上网址
         _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(3, 'Switch Wiki Home', () => {
             (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('debugForWiki', !_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki);
             const msg = `debugForWiki: ${_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki}`;

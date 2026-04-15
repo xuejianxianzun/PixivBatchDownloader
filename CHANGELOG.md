@@ -198,6 +198,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 - DownloadRecord 负责添加和查询下载记录
 - DownloadRecordManager 负责导入、导出、清空下载记录
 
+### ♻️拆分了在新增的设置左边显示 new 图标的代码
+
+之前这部分代码在 Option.ts 里，导致内容杂乱，现在拆分到 ShowNewIcon.ts 里。
+
 ### ♻️简化了帮助按钮的配置
 
 之前每个帮助按钮都要在 Form.ts 里配置它的 id、title、msg，每添加一个按钮就要在 Form 里添加一份配置。

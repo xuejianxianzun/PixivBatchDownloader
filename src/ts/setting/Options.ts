@@ -2,14 +2,11 @@ import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings } from './Settings'
-import { pinOption } from './PinOptions'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
-
-type NewOption = {
-  id: number
-  time: number
-}
+import { pinOption } from './PinOptions'
+import { showNewIcon } from './ShowNewIcon'
+import { Utils } from '../utils/Utils'
 
 /**控制每个设置的隐藏和显示 */
 class Options {
@@ -18,102 +15,40 @@ class Options {
     this.bindEvents()
 
     pinOption.init(allOption)
+    showNewIcon.init(allOption)
   }
 
   private allOption!: NodeListOf<HTMLElement>
 
-  // 90 天内添加的设置项，显示 new 角标
-  private readonly newRange = 7776000000
-  private readonly newOptions: NewOption[] = [
-    {
-      // 日志区域的默认可见性
-      id: 93,
-      // 2026-02-28
-      time: 1772287652821,
-    },
-    {
-      // 标题必须含有
-      id: 94,
-      // 2026-03-22
-      time: 1774137600000,
-    },
-    {
-      // 标题不能含有
-      id: 95,
-      // 2026-03-22
-      time: 1774137600000,
-    },
-    {
-      // 原创作品
-      id: 96,
-      // 2026-03-24
-      time: 1774310400000,
-    },
-    {
-      // 移除文件名里的 Emoji
-      id: 97,
-      // 2026-04-08
-      time: 1775579018462,
-    },
-    {
-      // 序号起始值
-      id: 98,
-      // 2026-04-08
-      time: 1775633245633,
-    },
-    {
-      // 不抓取下载过的作品
-      id: 99,
-      // 2026-04-10
-      time: 1775755273036,
-    },
-    {
-      // 在已下载的作品上显示边框
-      id: 100,
-      // 2026-04-11
-      time: 1775914625357,
-    },
-    {
-      // 管理下载记录
-      id: 101,
-      // 2026-04-14
-      time: 1776098259792,
-    },
-    {
-      // 缩略图上按钮的位置
-      id: 102,
-      // 2026-04-14
-      time: 1776098259792,
-    },
-    {
-      // 多图作品不抓取后几张图片
-      id: 69,
-      // 2026-04-14
-      time: 1776147641055,
-    },
-    {
-      // 多图作品不抓取前几张图片
-      id: 103,
-      // 2026-04-14
-      time: 1776147641055,
-    },
-    {
-      // 多图作品只抓取后几张图片
-      id: 104,
-      // 2026-04-14
-      time: 1776147641055,
-    },
+  /** 定制的设置项，不在公开版本里显示 */
+  private customOptions = [15, 79, 80, 92]
+
+  /** 一些设置在移动端不会生效，所以隐藏它们 */
+  // 主要是和作品缩略图相关的一些设置、增强功能
+  private hideOnMobile = [18, 68, 55, 71, 62, 40]
+
+  /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
+  private hideOnPixivision = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
+    24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
+    48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+    69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+    88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
   ]
 
   private bindEvents() {
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.display()
+    })
+
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      if (!states.settingInitialized) {
+        return
+      }
+
       const data = ev.detail.data as any
       if (data.name === 'showAdvancedSettings') {
         this.display()
-        // 在设置初始化之前不在这里执行 displayPinOption，以避免短时间内不必要的重复执行
-        if (states.settingInitialized) {
-          pinOption.displayPinOption()
-        }
       }
     })
 
@@ -124,14 +59,9 @@ class Options {
     })
   }
 
-  private display() {
-    this.handleShowAdvancedSettings()
-    this.alwaysHideSomeOption()
-    this.showNewIcon()
-  }
-
   /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
-  private handleShowAdvancedSettings() {
+  private display() {
+    const isPixiv = Utils.isPixiv()
     for (const option of this.allOption) {
       if (option.dataset.no === undefined) {
         continue
@@ -139,57 +69,72 @@ class Options {
 
       const no = Number.parseInt(option.dataset.no)
 
-      // 如果需要隐藏高级设置
-      if (!settings.showAdvancedSettings) {
-        // 然后判断是否在白名单里
-        if (Config.optionWhiteList.includes(no)) {
+      // 先判断它是否需要隐藏
+      const needHide = this.needHideOption(no)
+      if (needHide) {
+        this.hideOption([no])
+        continue
+      }
+
+      // 然后处理需要始终显示的选项
+      if (isPixiv) {
+        // 显示白名单里的选项、置顶的选项
+        if (
+          Config.optionWhiteList.includes(no) ||
+          settings.pinnedOptions.includes(no)
+        ) {
           this.showOption([no])
-        } else {
-          this.hideOption([no])
+          continue
         }
+      }
+
+      // 剩余的选项都是高级设置，它们默认是显示的
+      // 在 pixivision 上，不处理高级设置，所以剩余的选项都会显示
+      if (!isPixiv) {
+        continue
+      }
+
+      // 在 Pixiv 上，显示或隐藏高级设置
+      if (!settings.showAdvancedSettings) {
+        this.hideOption([no])
       } else {
-        // 如果需要显示高级设置
         this.showOption([no])
       }
     }
   }
 
-  /**总是隐藏某些设置 */
-  private alwaysHideSomeOption() {
-    this.hideOption([15, 79, 80, 92])
+  /** 判断是否需要隐藏某个设置 */
+  private needHideOption(no: number) {
+    if (this.customOptions.includes(no)) {
+      return true
+    }
 
-    // 某些设置在移动端不会生效，所以隐藏它们
-    // 主要是和作品缩略图相关的一些设置、增强功能
     if (Config.mobile) {
-      this.hideOption([18, 68, 55, 71, 62, 40])
-    }
-
-    // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
-    if (pageType.type === pageType.list.Pixivision) {
-      this.hideOption([
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
-        23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
-        46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-        66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-        84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102,
-        103, 104,
-      ])
-    }
-  }
-
-  /**显示 new 角标 */
-  private showNewIcon() {
-    const now = Date.now()
-    this.newOptions.forEach((option) => {
-      if (now - option.time <= this.newRange) {
-        const el = Tools.getOption(this.allOption, option.id)
-        el.classList.add('new')
+      if (this.hideOnMobile.includes(no)) {
+        return true
       }
-    })
+    }
+
+    if (pageType.type === pageType.list.Pixivision) {
+      if (this.hideOnPixivision.includes(no)) {
+        return true
+      }
+    }
+    return false
   }
 
-  // 显示或隐藏指定的选项
-  private setOptionDisplay(no: number[], display: string) {
+  /** 隐藏指定的选项 */
+  public hideOption(no: number[]) {
+    this.setDisplay(no, 'none')
+  }
+
+  /** 显示指定的选项 */
+  public showOption(no: number[]) {
+    this.setDisplay(no, 'flex')
+  }
+
+  /** 显示或隐藏指定的选项 */
+  private setDisplay(no: number[], display: string) {
     for (const number of no) {
       // 抓取多少页面/作品的显示与否不是在这里控制的，所以跳过它们
       if (number === 0 || number === 1) {
@@ -197,24 +142,6 @@ class Options {
       }
       Tools.getOption(this.allOption, number).style.display = display
     }
-  }
-
-  // 显示所有选项
-  // 在切换不同页面时使用
-  public showAllOption() {
-    for (const el of this.allOption) {
-      el.style.display = 'flex'
-    }
-  }
-
-  // 隐藏指定的选项。参数是数组，传递设置项的编号。
-  public hideOption(no: number[]) {
-    this.setOptionDisplay(no, 'none')
-  }
-
-  // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
-  public showOption(no: number[]) {
-    this.setOptionDisplay(no, 'flex')
   }
 }
 
