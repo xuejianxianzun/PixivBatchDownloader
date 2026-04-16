@@ -207,6 +207,22 @@ class FileName {
         value: Config.worksTypeName[data.type],
         safe: true,
       },
+      '{type_illust}': {
+        value: data.type === 0 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_manga}': {
+        value: data.type === 1 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_ugoira}': {
+        value: data.type === 2 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_novel}': {
+        value: data.type === 3 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
       '{AI}': {
         value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
         safe: true,
@@ -235,21 +251,6 @@ class FileName {
     // 3 根据某些设置向结果中添加新的文件夹
     // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
 
-    // 根据作品类型自动创建对应的文件夹
-    if (settings.createFolderByType) {
-      // 根据作品类型和对应开关确定是否需要要为其建立文件夹
-      const allSwitch = [
-        settings.createFolderByTypeIllust,
-        settings.createFolderByTypeManga,
-        settings.createFolderByTypeUgoira,
-        settings.createFolderByTypeNovel,
-      ]
-      if (allSwitch[data.type]) {
-        const folder = Config.worksTypeName[data.type]
-        result = this.appendFolder(result, folder)
-      }
-    }
-
     // 根据第一个匹配的 tag 建立文件夹
     if (settings.createFolderByTag && settings.createFolderTagList.length > 0) {
       const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
@@ -277,8 +278,6 @@ class FileName {
         this.generateFileName(r18FolderName, schema)
       )
     }
-
-    // 为每个作品创建单独的文件夹
 
     // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
     result = this.handleEdgeCases(result)

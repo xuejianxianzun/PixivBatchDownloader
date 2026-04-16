@@ -437,6 +437,10 @@ export const formHtml = `
         <option value="{tags_transl_only}">{tags_transl_only}</option>
         <option value="{page_tag}">{page_tag}</option>
         <option value="{type}">{type}</option>
+        <option value="{type_illust}">{type_illust}</option>
+        <option value="{type_manga}">{type_manga}</option>
+        <option value="{type_ugoira}">{type_ugoira}</option>
+        <option value="{type_novel}">{type_novel}</option>
         <option value="{AI}">{AI}</option>
         <option value="{age}">{age}</option>
         <option value="{age_r}">{age_r}</option>
@@ -503,6 +507,18 @@ export const formHtml = `
       <br>
       <span class="blue name">{type}</span>
       <span data-xztext="_命名标记type"></span>
+      <br>
+      * <span class="blue name">{type_illust}</span>
+      <span data-xztext="_命名标记type_illust"></span>
+      <br>
+      * <span class="blue name">{type_manga}</span>
+      <span data-xztext="_命名标记type_manga"></span>
+      <br>
+      * <span class="blue name">{type_ugoira}</span>
+      <span data-xztext="_命名标记type_ugoira"></span>
+      <br>
+      * <span class="blue name">{type_novel}</span>
+      <span data-xztext="_命名标记type_novel"></span>
       <br>
       * <span class="blue name">{AI}</span>
       <span data-xztext="_命名标记AI"></span>
@@ -827,46 +843,14 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
     <p class="option" data-no="19">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品建立单独的文件夹"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品添加一层文件夹"></a>
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品建立单独的文件夹" data-msg="为多图作品建立单独的文件夹的帮助" data-xztext="_帮助"></button>
-    </p>
-
-    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
-    <p class="option" data-no="42">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
-        <span data-xztext="_根据作品类型自动建立文件夹"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="createFolderByType">
-        <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeIllust" class="has_tip" data-tip="${Config.worksTypeName[0]}">
-          <span data-xztext="_插画"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeManga" class="has_tip" data-tip="${Config.worksTypeName[1]}">
-          <span data-xztext="_漫画"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${Config.worksTypeName[2]}">
-          <span data-xztext="_动图"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeNovel" class="has_tip" data-tip="${Config.worksTypeName[3]}">
-          <span data-xztext="_小说"></span>
-        </label>
-      </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>

@@ -1339,12 +1339,12 @@ Zip 파일이 원본 파일입니다.`,
     `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его.`,
   ],
   _命名标记_sl: [
-    `图像作品数据里的 sl 属性，值是以下数字之一：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小说作品没有这个属性，会忽略这个标记。`,
-    `圖像作品數據裡的 sl 屬性，值是以下數字之一：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小說作品沒有這個屬性，會忽略這個標記。`,
-    `The sl property in the image work data has a value of one of the following numbers: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. Novel works do not have this property and will ignore this marker.`,
-    `画像作品データ内の sl 属性の値は以下の数字のいずれかです：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小説作品にはこの属性がなく、このマーカーは無視されます。`,
-    `이미지 작품 데이터의 sl 속성 값은 다음 숫자 중 하나입니다: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. 소설 작품에는 이 속성이 없으며, 이 마커를 무시합니다.`,
-    `Атрибут sl в данных изображений работ принимает одно из следующих значений: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. Новеллы не имеют этого атрибута и будут игнорировать эту метку.`,
+    `图像作品的 sanity_level 属性，值是以下数字之一：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小说作品没有这个属性，会忽略这个标记。`,
+    `圖像作品的 sanity_level 屬性，值是以下數字之一：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小說作品沒有這個屬性，會忽略這個標記。`,
+    `The sanity_level property of image works has a value of one of the following numbers: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. Novel works do not have this property and will ignore this marker.`,
+    `画像作品の sanity_level 属性の値は以下の数字のいずれかです：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小説作品にはこの属性がなく、このマーカーは無視されます。`,
+    `이미지 작품의 sanity_level 속성 값은 다음 숫자 중 하나입니다: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. 소설 작품에는 이 속성이 없으며 이 마커를 무시합니다.`,
+    `Атрибут sanity_level изображений работ принимает одно из следующих значений: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. Новеллы не имеют этого атрибута и будут игнорировать эту метку.`,
   ],
   _命名标记_multi_image_folder: [
     `它代表“为多图作品建立单独的文件夹”里设置的文件夹规则。如果你启用了“为多图作品建立单独的文件夹”，那么下载器在为多图作品创建文件名时，会把它替换为你设置的文件夹规则。非多图作品会忽略这个标记。`,
@@ -1395,12 +1395,44 @@ Zip 파일이 원본 파일입니다.`,
     `Рейтинг работы в лидерборде. Например <span class="blue">#1</span>, <span class="blue">#2</span> ... Можно использовать только на странице лидерборда, на других страницах будет игнорироваться。`,
   ],
   _命名标记type: [
-    '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+    `输出作品类型。插画输出 <span class="blue">Illustration</span>, 漫画输出 <span class="blue">Manga</span>, 动图输出 <span class="blue">Ugoira</span>, 小说输出 <span class="blue">Novel</span>。`,
+    `輸出作品類型。插畫輸出 <span class="blue">Illustration</span>, 漫畫輸出 <span class="blue">Manga</span>, 動圖輸出 <span class="blue">Ugoira</span>, 小說輸出 <span class="blue">Novel</span>。`,
+    `Output the work type. Illustration outputs <span class="blue">Illustration</span>, manga outputs <span class="blue">Manga</span>, Ugoira outputs <span class="blue">Ugoira</span>, novel outputs <span class="blue">Novel</span>.`,
+    `作品タイプを出力します。イラストの場合は <span class="blue">Illustration</span>、漫画の場合は <span class="blue">Manga</span>、動画像の場合は <span class="blue">Ugoira</span>、小説の場合は <span class="blue">Novel</span> を出力します。`,
+    `작품 유형을 출력합니다. 일러스트는 <span class="blue">Illustration</span>, 만화는 <span class="blue">Manga</span>, 동화는 <span class="blue">Ugoira</span>, 소설은 <span class="blue">Novel</span>을 출력합니다.`,
+    `Выводить тип работы. Для иллюстрации выводится <span class="blue">Illustration</span>, для манги — <span class="blue">Manga</span>, для Ugoira — <span class="blue">Ugoira</span>, для новеллы — <span class="blue">Novel</span>.`,
+  ],
+  _命名标记type_illust: [
+    `仅当作品是插画时，输出 <span class="blue">Illustration</span>。`,
+    `僅當作品是插畫時，輸出 <span class="blue">Illustration</span>。`,
+    `Output <span class="blue">Illustration</span> only when the work is an illustration.`,
+    `作品がイラストの場合のみ、<span class="blue">Illustration</span>を出力します。`,
+    `작품이 일러스트일 때만 <span class="blue">Illustration</span>을 출력합니다.`,
+    `Выводить <span class="blue">Illustration</span> только когда работа является иллюстрацией.`,
+  ],
+  _命名标记type_manga: [
+    `仅当作品是漫画时，输出 <span class="blue">Manga</span>。`,
+    `僅當作品是漫畫時，輸出 <span class="blue">Manga</span>。`,
+    `Output <span class="blue">Manga</span> only when the work is a manga.`,
+    `作品が漫画の場合のみ、<span class="blue">Manga</span>を出力します。`,
+    `작품이 만화일 때만 <span class="blue">Manga</span>을 출력합니다.`,
+    `Выводить <span class="blue">Manga</span> только когда работа является мангой.`,
+  ],
+  _命名标记type_ugoira: [
+    `仅当作品是动图时，输出 <span class="blue">Ugoira</span>。`,
+    `僅當作品是動圖時，輸出 <span class="blue">Ugoira</span>。`,
+    `Output <span class="blue">Ugoira</span> only when the work is a Ugoira.`,
+    `作品が動画像の場合のみ、<span class="blue">Ugoira</span>を出力します。`,
+    `작품이 동화(Ugoira)일 때만 <span class="blue">Ugoira</span>을 출력합니다.`,
+    `Выводить <span class="blue">Ugoira</span> только когда работа является Ugoira.`,
+  ],
+  _命名标记type_novel: [
+    `仅当作品是小说时，输出 <span class="blue">Novel</span>。`,
+    `僅當作品是小說時，輸出 <span class="blue">Novel</span>。`,
+    `Output <span class="blue">Novel</span> only when the work is a novel.`,
+    `作品が小説の場合のみ、<span class="blue">Novel</span>を出力します。`,
+    `작품이 소설일 때만 <span class="blue">Novel</span>을 출력합니다.`,
+    `Выводить <span class="blue">Novel</span> только когда работа является новеллой.`,
   ],
   _命名标记AI: [
     `如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>，否则忽略它。`,
@@ -3617,15 +3649,15 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '모든 작품 유형 제외',
     'Исключены все типы работ',
   ],
-  _为多图作品建立单独的文件夹: [
-    `为<span class="key">多图</span>作品建立单独的文件夹`,
-    `為<span class="key">多圖</span>作品建立單獨的資料夾`,
-    `Create separate folder for <span class="key">multi-image</span> works`,
-    `<span class="key">複数画像</span>作品用の個別フォルダを作成`,
-    `<span class="key">다중 이미지</span> 작품에 대해 별도의 폴더 생성`,
-    `Создавать отдельную папку для <span class="key">многоизображных</span> работ`,
+  _为多图作品添加一层文件夹: [
+    `为<span class="key">多图</span>作品添加一层文件夹`,
+    `為<span class="key">多圖</span>作品添加一層資料夾`,
+    `Add a folder layer for <span class="key">multi-image</span> works`,
+    `<span class="key">複数画像</span>作品に1層のフォルダを追加`,
+    `<span class="key">다중 이미지</span> 작품에 한 층의 폴더 추가`,
+    `Добавить слой папки для <span class="key">многоизображных</span> работ`,
   ],
-  为多图作品建立单独的文件夹的帮助: [
+  为多图作品添加一层文件夹的帮助: [
     `如果你想为多图作品添加一层文件夹来保存（并且不为单图作品添加这个文件夹），可以启用这个设置。<br>
 <br>
 使用方法：<br>
@@ -3979,40 +4011,6 @@ Output its age restriction only when the work is restricted, divided into: <span
   ],
   _顶部: ['顶部', '頂部', 'top', '上揃え', '상단', 'топ'],
   _居中: ['居中', '居中', 'center', '中央揃え', '중앙', 'центр'],
-  _根据作品类型自动建立文件夹: [
-    '根据作品<span class="key">类型</span>自动建立文件夹',
-    '根據作品<span class="key">類型</span>自動建立資料夾',
-    'Create folders based on the <span class="key">type</span> of work',
-    '作品<span class="key">種類</span>に応じてフォルダを自動作成',
-    '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
-    'Создание папок на основе <span class="key">вида</span> работы',
-  ],
-  _根据作品类型自动建立文件夹的说明: [
-    `插画的文件夹名字：Illustration<br>
-漫画的文件夹名字：Manga<br>
-动图的文件夹名字：Ugoira<br>
-小说的文件夹名字：Novel`,
-    `插畫的資料夾名字：Illustration<br>
-漫畫的資料夾名字：Manga<br>
-動圖的資料夾名字：Ugoira<br>
-小說的資料夾名字：Novel`,
-    `Illustration folder name: Illustration<br>
-Manga folder name: Manga<br>
-Ugoira folder name: Ugoira<br>
-Novel folder name: Novel`,
-    `イラストフォルダ名：Illustration<br>
-漫画フォルダ名：Manga<br>
-うごイラフォルダ名：Ugoira<br>
-小説フォルダ名: Novel`,
-    `일러스트 폴더 이름: Illustration<br>
-만화 폴더 이름: Manga<br>
-움직이는 일러스트 폴더 이름: Ugoira<br>
-소설 폴더 이름: Novel`,
-    `Имя папки с Иллюстрации: Illustration<br>
-Имя папки Манга: Manga<br>
-Имя папки Ugoira(гиф): Ugoira<br>
-Имя папки Новеллы: Novel`,
-  ],
   _使用第一个匹配的tag建立文件夹: [
     '使用第一个匹配的<span class="key">标签</span>建立文件夹',
     '使用第一個符合的<span class="key">標籤</span>建立資料夾',

@@ -198,11 +198,6 @@ interface XzSetting {
   bgDisplay: boolean
   bgOpacity: number
   bgPositionY: 'center' | 'top'
-  createFolderByType: boolean
-  createFolderByTypeIllust: boolean
-  createFolderByTypeManga: boolean
-  createFolderByTypeUgoira: boolean
-  createFolderByTypeNovel: boolean
   createFolderByTag: boolean
   createFolderTagList: string[]
   downloadUgoiraFirst: boolean
@@ -691,11 +686,6 @@ class Settings {
     bgDisplay: false,
     bgOpacity: 60,
     bgPositionY: 'center',
-    createFolderByType: false,
-    createFolderByTypeIllust: false,
-    createFolderByTypeManga: false,
-    createFolderByTypeUgoira: false,
-    createFolderByTypeNovel: false,
     createFolderByTag: false,
     createFolderTagList: [],
     downloadUgoiraFirst: false,

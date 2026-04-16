@@ -78,11 +78,6 @@ export interface SettingsForm extends HTMLFormElement {
   bgDisplay: HTMLInputElement
   bgOpacity: HTMLInputElement
   bgPositionY: HTMLInputElement
-  createFolderByType: HTMLInputElement
-  createFolderByTypeIllust: HTMLInputElement
-  createFolderByTypeManga: HTMLInputElement
-  createFolderByTypeUgoira: HTMLInputElement
-  createFolderByTypeNovel: HTMLInputElement
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
   downAllAges: HTMLInputElement
