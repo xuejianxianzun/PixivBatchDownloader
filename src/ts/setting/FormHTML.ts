@@ -462,6 +462,7 @@ export const formHtml = `
         <option value="{p_num}">{p_num}</option>
         <option value="{sl}">{sl}</option>
         <option value="{multi_image_folder}">{multi_image_folder}</option>
+        <option value="{match_tag_folder}">{match_tag_folder}</option>
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
@@ -585,6 +586,9 @@ export const formHtml = `
       <br>
       * <span class="blue name">{multi_image_folder}</span>
       <span data-xztext="_命名标记_multi_image_folder"></span>
+      <br>
+      * <span class="blue name">{match_tag_folder}</span>
+      <span data-xztext="_命名标记_match_tag_folder"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
@@ -855,12 +859,12 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
-        <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
-        <span class="gray1"> ? </span>
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_使用第一个匹配的标签建立文件夹"></span>
       </a>
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="createFolderByTag">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>

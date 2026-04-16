@@ -19,24 +19,74 @@ interface NamingSchema {
 class FileName {
   private readonly addStr = '[downloader_add]'
 
+  /** 获取 为多图作品建立单独的文件夹 的返回值 */
+  private getMultiImageFolder(
+    rule: string,
+    flag: string,
+    data: Result
+  ): string {
+    if (rule.includes(flag)) {
+      // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
+      if (settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
+        return settings.folderForMultiImageWorksRule
+      } else {
+        return ''
+      }
+    }
+    return ''
+  }
+
+  /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
+  private getMatchTagFolder(rule: string, flag: string, data: Result): string {
+    if (rule.includes(flag)) {
+      if (
+        settings.createFolderByTag &&
+        settings.createFolderTagList.length > 0
+      ) {
+        // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
+        // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+        // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+        // 例如 用户输入顺序：巨乳 欧派
+        // 作品 tag 里的顺序：欧派 巨乳
+        const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+        for (const userTag of settings.createFolderTagList) {
+          // 查找匹配的时候转换成小写
+          if (workTags.includes(userTag.toLowerCase())) {
+            return userTag
+          }
+        }
+        return ''
+      } else {
+        return ''
+      }
+    }
+    return ''
+  }
+
+  /** 特定标记与其对应的处理函数的映射 */
+  private readonly flagToSettingValue: {
+    flag: string
+    func: (rule: string, flag: string, data: Result) => string
+  }[] = [
+    {
+      flag: '{multi_image_folder}',
+      func: this.getMultiImageFolder.bind(this),
+    },
+    {
+      flag: '{match_tag_folder}',
+      func: this.getMatchTagFolder.bind(this),
+    },
+  ]
+
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
     // 确定要使用的命名规则
     let userSetName = nameRuleManager.rule
 
     // 把特定标记替换成它所代表的设置的值
-
-    // 为多图作品建立单独的文件夹
-    if (userSetName.includes('{multi_image_folder}')) {
-      // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
-      if (settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
-        userSetName = userSetName.replace(
-          '{multi_image_folder}',
-          settings.folderForMultiImageWorksRule
-        )
-      } else {
-        userSetName = userSetName.replace('{multi_image_folder}', '')
-      }
+    for (const item of this.flagToSettingValue) {
+      const value = item.func(userSetName, item.flag, data)
+      userSetName = userSetName.replaceAll(item.flag, value)
     }
 
     // 处理一个定制功能：如果作品含有某些标签，则对这个作品使用另一种命名规则
@@ -250,26 +300,6 @@ class FileName {
 
     // 3 根据某些设置向结果中添加新的文件夹
     // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
-
-    // 根据第一个匹配的 tag 建立文件夹
-    if (settings.createFolderByTag && settings.createFolderTagList.length > 0) {
-      const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-
-      // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
-      // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
-      // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
-      // 例如 用户输入顺序：巨乳 欧派
-      // 作品 tag 里的顺序：欧派 巨乳
-      for (const tag of settings.createFolderTagList) {
-        // 查找匹配的时候转换成小写
-        const nowTag = tag.toLowerCase()
-        if (workTags.includes(nowTag)) {
-          // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-          result = this.appendFolder(result, tag)
-          break
-        }
-      }
-    }
 
     // 把 R18(G) 作品存入指定目录里
     if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {

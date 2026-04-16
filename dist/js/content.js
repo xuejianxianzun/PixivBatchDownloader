@@ -3902,13 +3902,43 @@ class FileName {
         let userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.rule;
         // 把特定标记替换成它所代表的设置的值
         // 为多图作品建立单独的文件夹
-        if (userSetName.includes('{multi_image_folder}')) {
+        const multi_image_folder = '{multi_image_folder}';
+        if (userSetName.includes(multi_image_folder)) {
             // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
-                userSetName = userSetName.replace('{multi_image_folder}', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule);
+                userSetName = userSetName.replaceAll(multi_image_folder, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule);
             }
             else {
-                userSetName = userSetName.replace('{multi_image_folder}', '');
+                userSetName = userSetName.replaceAll(multi_image_folder, '');
+            }
+        }
+        // 使用第一个匹配的标签建立文件夹
+        const match_tag_folder = '{match_tag_folder}';
+        if (userSetName.includes(match_tag_folder)) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList.length > 0) {
+                // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
+                // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+                // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+                // 例如 用户输入顺序：巨乳 欧派
+                // 作品 tag 里的顺序：欧派 巨乳
+                let found = false;
+                const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
+                for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
+                    // 查找匹配的时候转换成小写
+                    if (workTags.includes(userTag.toLowerCase())) {
+                        // 设置为文件夹名字
+                        found = true;
+                        userSetName = userSetName.replaceAll(match_tag_folder, userTag);
+                        break;
+                    }
+                }
+                // 如果没有找到匹配项，就替换成空字符串
+                if (!found) {
+                    userSetName = userSetName.replaceAll(match_tag_folder, '');
+                }
+            }
+            else {
+                userSetName = userSetName.replaceAll(match_tag_folder, '');
             }
         }
         // 处理一个定制功能：如果作品含有某些标签，则对这个作品使用另一种命名规则
@@ -4114,24 +4144,6 @@ class FileName {
         let result = this.generateFileName(userSetName, schema);
         // 3 根据某些设置向结果中添加新的文件夹
         // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
-        // 根据第一个匹配的 tag 建立文件夹
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList.length > 0) {
-            const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
-            // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
-            // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
-            // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
-            // 例如 用户输入顺序：巨乳 欧派
-            // 作品 tag 里的顺序：欧派 巨乳
-            for (const tag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
-                // 查找匹配的时候转换成小写
-                const nowTag = tag.toLowerCase();
-                if (workTags.includes(nowTag)) {
-                    // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-                    result = this.appendFolder(result, tag);
-                    break;
-                }
-            }
-        }
         // 把 R18(G) 作品存入指定目录里
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
             result = this.appendFolder(result, this.generateFileName(r18FolderName, schema));
@@ -30173,6 +30185,14 @@ Zip 파일이 원본 파일입니다.`,
         `이는 "다중 이미지 작품에 대해 별도의 폴더 생성"에서 설정한 폴더 규칙을 나타냅니다. "다중 이미지 작품에 대해 별도의 폴더 생성"을 활성화한 경우, 다운로더는 다중 이미지 작품의 파일명을 생성할 때 이를 설정한 폴더 규칙으로 대체합니다. 비다중 이미지 작품은 이 마커를 무시합니다.`,
         `Оно представляет правило папки, установленное в «Создавать отдельную папку для многоизображных работ». Если вы включили «Создавать отдельную папку для многоизображных работ», загрузчик при генерации имени файла для многоизображных работ заменит его на правило папки, которое вы задали. Работы, не являющиеся многоизображными, будут игнорировать эту метку.`,
     ],
+    _命名标记_match_tag_folder: [
+        `它代表“使用第一个匹配的标签建立文件夹”设置。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+        `它代表「使用第一個匹配的標籤建立資料夾」設定。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+        `It represents the "Create folder using the first matched tag" setting. If you have enabled this setting and a tag you set is matched, it will output that tag; otherwise it will be ignored.`,
+        `これは「最初の一致したタグを使用してフォルダを作成」設定を表します。この設定を有効にしていて、設定したタグに一致した場合、そのタグを出力します。一致しなかった場合は無視されます。`,
+        `이는 "첫 번째 일치하는 태그로 폴더 생성" 설정을 나타냅니다. 이 설정을 활성화하고 설정한 태그와 일치하는 경우 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+        `Оно представляет настройку «Создавать папку с использованием первого совпавшего тега». Если вы включили эту настройку и совпал один из заданных вами тегов, она выведет этот тег; в противном случае будет проигнорирована.`,
+    ],
     _命名标记tags_trans: [
         '作品的标签列表，附带翻译后的标签（如果有）',
         '作品的標籤清單，包含翻譯後的標籤（如果有的話）。',
@@ -32815,7 +32835,7 @@ Output its age restriction only when the work is restricted, divided into: <span
     ],
     _顶部: ['顶部', '頂部', 'top', '上揃え', '상단', 'топ'],
     _居中: ['居中', '居中', 'center', '中央揃え', '중앙', 'центр'],
-    _使用第一个匹配的tag建立文件夹: [
+    _使用第一个匹配的标签建立文件夹: [
         '使用第一个匹配的<span class="key">标签</span>建立文件夹',
         '使用第一個符合的<span class="key">標籤</span>建立資料夾',
         'Create a folder with the first matched <span class="key">tag</span>',
@@ -32823,13 +32843,67 @@ Output its age restriction only when the work is restricted, divided into: <span
         '첫 번째 일치하는 <span class="key">태그</span>로 디렉토리 생성',
         'Создать папку с первым совпавшим <span class="key">тегом</span>',
     ],
-    _使用匹配的tag建立文件夹的说明: [
-        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个匹配到的标签）',
-        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個匹配到的標籤）',
-        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (Only the first matching tag)',
-        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初に一致するタグのみ)',
-        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 일치하는 태그만)',
-        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (Только первый совпадающий тег)',
+    _使用第一个匹配的标签建立文件夹的说明: [
+        `如果作品含有某个标签，就使用它来建立一层文件夹。<br>
+<br>
+使用方法：<br>
+首先在这里输入目标标签，如果有多个标签，使用英语逗号 <span class="blue">,</span> 分割。<br>
+然后修改“命名规则”设置，在需要的地方插入<span class="blue">/{match_tag_folder}/</span>来添加一层文件夹。示例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+下载器在生成文件名时，会在作品的标签列表里查找你设置的标签。先查找第一个标签，如果找不到，再查找第二个，以此类推。一旦找到匹配的标签，就使用它替换命名规则中的<span class="blue">{match_tag_folder}</span>。<br>
+匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
+如果作品里含有你设置的多个标签，下载器只会使用第一个匹配的标签来建立文件夹。<br>
+<br>`,
+        `如果作品含有某個標籤，就使用它來建立一層資料夾。<br>
+<br>
+使用方法：<br>
+首先在這裡輸入目標標籤，如果有多個標籤，使用英語逗號 <span class="blue">,</span> 分割。<br>
+然後修改「命名規則」設定，在需要的地方插入<span class="blue">/{match_tag_folder}/</span>來添加一層資料夾。示例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+下載器在產生檔名時，會在作品的標籤列表裡查找你設定的標籤。先查找第一個標籤，如果找不到，再查找第二個，以此類推。一旦找到匹配的標籤，就使用它替換命名規則中的<span class="blue">{match_tag_folder}</span>。<br>
+匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
+如果作品裡含有你設定的多個標籤，下載器只會使用第一個匹配的標籤來建立資料夾。<br>
+<br>`,
+        `If a work contains a certain tag, it will be used to create a folder layer.<br>
+<br>
+Usage:<br>
+First, enter the target tags here. If there are multiple tags, separate them with English commas <span class="blue">,</span>.<br>
+Then modify the "naming rule" setting and insert <span class="blue">/{match_tag_folder}/</span> where needed to add a folder layer. Example: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+When the downloader generates the filename, it will search the work's tag list for the tags you set. It starts with the first tag, and if not found, proceeds to the second, and so on. Once a matching tag is found, it replaces <span class="blue">{match_tag_folder}</span> in the naming rule with that tag.<br>
+The matching is exact and case-insensitive. If you set <span class="blue">A</span>, it can match <span class="blue">a</span> or <span class="blue">A</span>, but will not match <span class="blue">abc</span>.<br>
+If the work contains multiple tags you set, the downloader will only use the first matched tag to create the folder.<br>
+<br>`,
+        `作品に特定のタグが含まれている場合、それを使用して1層のフォルダを作成します。<br>
+<br>
+使用方法：<br>
+まずここにターゲットタグを入力します。複数のタグがある場合は、英語のカンマ <span class="blue">,</span> で区切ります。<br>
+次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{match_tag_folder}/</span>を挿入して1層のフォルダを追加します。例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+ダウンローダーがファイル名を生成する際、作品のタグリストから設定したタグを検索します。最初のタグから検索し、見つからなければ次のタグを検索し、というように続けます。一致するタグが見つかると、命名規則内の<span class="blue">{match_tag_folder}</span>をそのタグに置き換えます。<br>
+一致は完全一致で、大文字小文字を区別しません。<span class="blue">A</span>を設定した場合、<span class="blue">a</span> または <span class="blue">A</span> に一致しますが、<span class="blue">abc</span> には一致しません。<br>
+作品に設定した複数のタグが含まれている場合、ダウンローダーは最初に一致したタグのみを使用してフォルダを作成します。<br>
+<br>`,
+        `작품에 특정 태그가 포함되어 있으면 해당 태그를 사용하여 한 층의 폴더를 생성합니다.<br>
+<br>
+사용 방법:<br>
+먼저 여기에 대상 태그를 입력하세요. 여러 태그가 있는 경우 영어 쉼표 <span class="blue">,</span>로 구분합니다.<br>
+그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{match_tag_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요. 예시: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+다운로더가 파일명을 생성할 때 작품의 태그 목록에서 설정한 태그를 검색합니다. 첫 번째 태그부터 검색하고, 없으면 두 번째 태그를 검색하는 식으로 진행합니다. 일치하는 태그를 찾으면 명명 규칙의 <span class="blue">{match_tag_folder}</span>를 해당 태그로 대체합니다.<br>
+일치 모드는 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span>를 설정하면 <span class="blue">a</span> 또는 <span class="blue">A</span>와 일치하지만 <span class="blue">abc</span>와는 일치하지 않습니다.<br>
+작품에 설정한 여러 태그가 포함되어 있으면 다운로더는 첫 번째 일치하는 태그만 사용하여 폴더를 생성합니다.<br>
+<br>`,
+        `Если работа содержит определённый тег, он будет использован для создания слоя папки.<br>
+<br>
+Способ использования:<br>
+Сначала введите здесь целевые теги. Если тегов несколько, разделяйте их английскими запятыми <span class="blue">,</span>.<br>
+Затем измените настройку «naming rule» и вставьте <span class="blue">/{match_tag_folder}/</span> в нужном месте, чтобы добавить слой папки. Пример: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+<br>
+При генерации имени файла загрузчик будет искать в списке тегов работы теги, которые вы задали. Поиск начинается с первого тега, если не найден — переходит ко второму и так далее. Как только найдётся совпадающий тег, он заменит <span class="blue">{match_tag_folder}</span> в правиле именования на этот тег.<br>
+Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, оно совпадёт с <span class="blue">a</span> или <span class="blue">A</span>, но не с <span class="blue">abc</span>.<br>
+Если в работе содержится несколько заданных вами тегов, загрузчик использует только первый совпавший тег для создания папки.<br>
+<br>`,
     ],
     _全年龄: [
         '全年龄',
@@ -41244,6 +41318,7 @@ const formHtml = `
         <option value="{p_num}">{p_num}</option>
         <option value="{sl}">{sl}</option>
         <option value="{multi_image_folder}">{multi_image_folder}</option>
+        <option value="{match_tag_folder}">{match_tag_folder}</option>
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
@@ -41367,6 +41442,9 @@ const formHtml = `
       <br>
       * <span class="blue name">{multi_image_folder}</span>
       <span data-xztext="_命名标记_multi_image_folder"></span>
+      <br>
+      * <span class="blue name">{match_tag_folder}</span>
+      <span data-xztext="_命名标记_match_tag_folder"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
@@ -41637,12 +41715,12 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
-        <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
-        <span class="gray1"> ? </span>
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_使用第一个匹配的标签建立文件夹"></span>
       </a>
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="createFolderByTag">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
