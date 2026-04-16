@@ -242,7 +242,10 @@ interface XzSetting {
   tipHowToUse: boolean
   whatIsNewFlag: string
   replaceSquareThumb: boolean
-  notFolderWhenOneFile: boolean
+  noFolderSwitch: boolean
+  noFolderWhenSingleImageWork: boolean
+  noFolderWhenMultiImageWork: boolean
+  noFolderWhenNovel: boolean
   noSerialNo: boolean
   noSerialNoForSingleImg: boolean
   noSerialNoForMultiImg: boolean
@@ -759,7 +762,10 @@ class Settings {
     tipHowToUse: true,
     whatIsNewFlag: Config.whatIsNewFlagDefault,
     replaceSquareThumb: true,
-    notFolderWhenOneFile: false,
+    noFolderSwitch: false,
+    noFolderWhenSingleImageWork: true,
+    noFolderWhenMultiImageWork: false,
+    noFolderWhenNovel: false,
     noSerialNo: true,
     noSerialNoForSingleImg: false,
     noSerialNoForMultiImg: false,

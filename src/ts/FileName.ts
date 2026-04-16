@@ -300,9 +300,27 @@ class FileName {
     const extResult = '.' + data.ext
 
     // 6 处理不创建文件夹的情况
-    if (settings.notFolderWhenOneFile && store.result.length === 1) {
+    if (settings.noFolderSwitch) {
+      let noFolder = false
+      if (data.type === 3) {
+        // 小说
+        noFolder = settings.noFolderWhenNovel
+      } else if (data.type === 2) {
+        // 动图
+        noFolder = settings.noFolderWhenSingleImageWork
+      } else {
+        // 插画或漫画，根据单图作品或多图作品来决定
+        if (data.pageCount > 1) {
+          noFolder = settings.noFolderWhenMultiImageWork
+        } else {
+          noFolder = settings.noFolderWhenSingleImageWork
+        }
+      }
+
       // 舍弃文件夹部分，只保留文件名
-      result = result.split('/').pop()!
+      if (noFolder) {
+        result = result.split('/').pop()!
+      }
     }
 
     // 7 处理文件名长度限制

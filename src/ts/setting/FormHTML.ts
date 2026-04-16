@@ -580,12 +580,24 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
     <p class="option" data-no="64">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
-        <span data-xztext="_只有一个抓取结果时不建立文件夹"></span>
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不创建文件夹的提示">
+        <span data-xztext="_不创建文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="noFolderSwitch">
+        <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
+        <input type="checkbox" name="noFolderWhenMultiImageWork" id="noFolderWhenMultiImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenMultiImageWork" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenNovel" data-xztext="_小说"></label>
+      </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
