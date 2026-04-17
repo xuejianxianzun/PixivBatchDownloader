@@ -17,8 +17,9 @@ class NovelThumbnail extends WorkThumbnail {
         'li[size="1"]>div',
         'nav>div>div',
         'div.gtm-novel-work-recommend-link',
-        'section ul>div',
         'section ul>li',
+        'section ul>div',
+        'section ul>div>div',
         'div._ranking-item',
         'div[size="496"]',
         'div[size="392"]',
@@ -128,6 +129,20 @@ class NovelThumbnail extends WorkThumbnail {
           if (location.pathname === '/novel') {
             continue
           }
+        }
+
+        if (
+          selector === 'section ul>div' &&
+          pageType.type === pageType.list.Following
+        ) {
+          continue
+        }
+
+        if (
+          selector === 'section ul>div>div' &&
+          pageType.type !== pageType.list.Following
+        ) {
+          continue
         }
 
         if (

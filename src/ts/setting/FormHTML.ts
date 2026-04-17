@@ -462,6 +462,7 @@ export const formHtml = `
         <option value="{p_num}">{p_num}</option>
         <option value="{sl}">{sl}</option>
         <option value="{multi_image_folder}">{multi_image_folder}</option>
+        <option value="{r18_g_folder}">{r18_g_folder}</option>
         <option value="{match_tag_folder}">{match_tag_folder}</option>
       </select>
       &nbsp;
@@ -586,6 +587,9 @@ export const formHtml = `
       <br>
       * <span class="blue name">{multi_image_folder}</span>
       <span data-xztext="_命名标记_multi_image_folder"></span>
+      <br>
+      * <span class="blue name">{r18_g_folder}</span>
+      <span data-xztext="_命名标记_r18_g_folder"></span>
       <br>
       * <span class="blue name">{match_tag_folder}</span>
       <span data-xztext="_命名标记_match_tag_folder"></span>
@@ -856,6 +860,18 @@ export const formHtml = `
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </p>
+    
+    <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
+    <p class="option" data-no="38">
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为r18作品添加一层文件夹"></a>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+        <span data-xztext="_文件夹规则"></span>
+        <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
+      </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
+    </p>
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
@@ -877,18 +893,6 @@ export const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
-      </span>
-    </p>
-    
-    <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
-    <p class="option" data-no="38">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_目录名"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton showMsgBtn" data-title="_把r18作品存入指定的文件夹里" data-msg="_把r18作品存入指定的文件夹里可以使用命名标记替代的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
