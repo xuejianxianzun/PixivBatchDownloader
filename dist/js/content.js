@@ -3896,50 +3896,63 @@ __webpack_require__.r(__webpack_exports__);
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
     addStr = '[downloader_add]';
-    /**传入一个抓取结果，生成其文件名 */
-    createFileName(data) {
-        // 确定要使用的命名规则
-        let userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.rule;
-        // 把特定标记替换成它所代表的设置的值
-        // 为多图作品建立单独的文件夹
-        const multi_image_folder = '{multi_image_folder}';
-        if (userSetName.includes(multi_image_folder)) {
+    /** 获取 为多图作品建立单独的文件夹 的返回值 */
+    getMultiImageFolder(rule, flag, data) {
+        if (rule.includes(flag)) {
             // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
-                userSetName = userSetName.replaceAll(multi_image_folder, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule);
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule;
             }
             else {
-                userSetName = userSetName.replaceAll(multi_image_folder, '');
+                return '';
             }
         }
-        // 使用第一个匹配的标签建立文件夹
-        const match_tag_folder = '{match_tag_folder}';
-        if (userSetName.includes(match_tag_folder)) {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList.length > 0) {
+        return '';
+    }
+    /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
+    getMatchTagFolder(rule, flag, data) {
+        if (rule.includes(flag)) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList.length > 0) {
                 // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
                 // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
                 // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
                 // 例如 用户输入顺序：巨乳 欧派
                 // 作品 tag 里的顺序：欧派 巨乳
-                let found = false;
                 const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
                 for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
                     // 查找匹配的时候转换成小写
                     if (workTags.includes(userTag.toLowerCase())) {
-                        // 设置为文件夹名字
-                        found = true;
-                        userSetName = userSetName.replaceAll(match_tag_folder, userTag);
-                        break;
+                        return userTag;
                     }
                 }
-                // 如果没有找到匹配项，就替换成空字符串
-                if (!found) {
-                    userSetName = userSetName.replaceAll(match_tag_folder, '');
-                }
+                return '';
             }
             else {
-                userSetName = userSetName.replaceAll(match_tag_folder, '');
+                return '';
             }
+        }
+        return '';
+    }
+    /** 特定标记与其对应的处理函数的映射 */
+    flagToSettingValue = [
+        {
+            flag: '{multi_image_folder}',
+            func: this.getMultiImageFolder.bind(this),
+        },
+        {
+            flag: '{match_tag_folder}',
+            func: this.getMatchTagFolder.bind(this),
+        },
+    ];
+    /**传入一个抓取结果，生成其文件名 */
+    createFileName(data) {
+        // 确定要使用的命名规则
+        let userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.rule;
+        // 把特定标记替换成它所代表的设置的值
+        for (const item of this.flagToSettingValue) {
+            const value = item.func(userSetName, item.flag, data);
+            userSetName = userSetName.replaceAll(item.flag, value);
         }
         // 处理一个定制功能：如果作品含有某些标签，则对这个作品使用另一种命名规则
         // 此规则只会修改文件名，不会修改文件夹
@@ -4249,31 +4262,29 @@ class FileName {
     }
     // 生成 {p_num} 标记的值
     createPNum(data) {
-        if (data.type === 0 || data.type === 1 || data.type === 2) {
-            let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
-            // 处理第一张图不带序号的情况
-            if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
-                if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
-                    return '';
-                }
-                if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForMultiImg) {
-                    return '';
-                }
-                if (data.type === 2 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setNoSerialNoForUgoira) {
-                    return '';
-                }
-            }
-            // 处理序号的起始值
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.serialNoStart === 1) {
-                index = index + 1;
-            }
-            // 处理在序号前面填充 0 的情况
-            return this.zeroPadding(index);
-        }
-        else {
+        if (data.type === 3) {
             // 小说没有编号，返回空字符串
             return '';
         }
+        let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
+        // 处理第一张图不带序号的情况
+        if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
+            if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
+                return '';
+            }
+            if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForMultiImg) {
+                return '';
+            }
+            if (data.type === 2 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setNoSerialNoForUgoira) {
+                return '';
+            }
+        }
+        // 处理序号的起始值
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.serialNoStart === 1) {
+            index = index + 1;
+        }
+        // 处理在序号前面填充 0 的情况
+        return this.zeroPadding(index);
     }
     /** 在序号前面填充 0 */
     zeroPadding(number) {
@@ -22817,26 +22828,25 @@ class DownloadNovelEmbeddedImage {
             if (blob === null) {
                 continue;
             }
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceExtension(novelName, image.url);
-            // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
+            // 之前是在文件名的末尾添加图片 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
             // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
             // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
-            const array = imageName.split('.');
-            const fileName = array[array.length - 2];
-            // 在 fileName 里查找 novelId，如果找到了，就在它后面添加图片 id
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceExtension(novelName, image.url);
+            const array = imageName.split('/');
+            const fileName = array.at(-1);
+            const imageId = novelId + '-' + image.flag_id_part;
+            // 如果 fileName 里有 novelId，就在它后面添加图片 id
             const index = fileName.indexOf(novelId);
             if (index !== -1) {
-                array[array.length - 2] =
-                    fileName.slice(0, index + novelId.length) +
-                        '-' +
-                        image.flag_id_part +
-                        fileName.slice(index + novelId.length);
+                array[array.length - 1] = fileName.replaceAll(novelId, imageId);
             }
             else {
-                // 没有找到 novelId，就跟以前一样，在文件名末尾添加图片 id
-                array[array.length - 2] = fileName + '-' + image.flag_id_part;
+                // 如果没有找到 novelId，就在文件名末尾添加图片 id
+                const array2 = fileName.split('.');
+                array2[0] = array2[0] + imageId;
+                array[array.length - 1] = array2.join('.');
             }
-            imageName = array.join('.');
+            imageName = array.join('/');
             await _SendDownload__WEBPACK_IMPORTED_MODULE_8__.SendDownload.noReply(blob, imageName);
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelId);
         }
@@ -22850,9 +22860,10 @@ class DownloadNovelEmbeddedImage {
         for (const image of imageList) {
             this.logProgress(novelId, novelTitle, current, total);
             current++;
-            const imageID = image.flag_id_part;
+            // 在 EPUB 规范里，item 的 id 属性必须以字母开头，所以在前面加上 image- 前缀
+            const imageID = 'image-' + image.flag_id_part;
             if (image.url === '') {
-                content = content.replaceAll(image.flag, `image ${imageID} not found`);
+                content = content.replaceAll(image.flag, `${imageID} not found`);
                 continue;
             }
             // 加载图片
@@ -23007,6 +23018,7 @@ class DownloadNovelEmbeddedImage {
             return data;
         }
         catch (error) {
+            // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
             retry++;
             // console.log(retry, url)
             if (retry > this.retryMax) {
@@ -24833,19 +24845,19 @@ class MergeNovel {
     /** 限制单个 EPUB 文件的大小 */
     // 每当添加完一篇小说的文件，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加
     // 这样最终会生成多个 EPUB 文件，文件名后面会添加 part1, part2 之类的后缀
-    // 目前体积限制为 200 MiB，这主要是担心手机上的阅读器打开大体积的 EPUB 文件时可能会出现性能问题
+    // 目前体积限制为 400 MiB，这主要是担心手机上的阅读器打开大体积的 EPUB 文件时可能会出现性能问题
     // 实际可用的体积上限取决于 jszip.min.js 的限制，通常文件体积不能超过 2 GiB
-    // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB，其中只有 1 个超过了 200 MiB
+    // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB，其中只有 1 个超过了 400 MiB
     // 所以绝大多数的系列小说都不需要分割。之所以添加分割功能，是因为遇到了一个体积非常大的系列小说：
     // https://www.pixiv.net/novel/series/7708974
     // 含有 1150 张插画，这些插画的总体积高达 3.96 GB。之前没有分割，会因为体积过大导致 jszip 报错，进而导致程序卡住
     // 虽然这么大的系列小说很罕见，但不得不处理。要成功下载它就必须分割成多个文件。
     // 分割之后它生成了 28 个 EPUB 文件，总体积 3.74 GB（因为 jszip 压缩了文件，所以体积比未压缩时小。解压后是完全相同的）
-    // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过 100 MiB 的 EPUB 文件：
-    // 1. 单篇小说的体积已经超出限制（例如 200 MiB）
-    // 2. 添加了多篇小说时，最后一篇导致总体积超出限制。例如 90 + 60，或者 30 + 30 + 50 的情况
+    // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过限制的 EPUB 文件：
+    // 1. 单篇小说的体积已经超出限制
+    // 2. 添加了多篇小说时，最后一篇导致总体积超出限制
     // 我在自己的手机上测试打开 180 MB 的单个 EPUB 文件，阅读正常，里面的插画也能正常显示。
-    epubSizeLimit = 200 * 1024 * 1024;
+    epubSizeLimit = 400 * 1024 * 1024;
     /** 保存每个部分的体积日志。只有当保存格式是 EPUB 时才会用到 */
     // 一开始会添加第一项，如果体积达到了限制才会添加下一项
     sizeLog = [];

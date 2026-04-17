@@ -69,25 +69,25 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      let imageName = Utils.replaceExtension(novelName, image.url!)
-      // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
+      // 之前是在文件名的末尾添加图片 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
       // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
       // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
-      const array = imageName.split('.')
-      const fileName = array[array.length - 2]
-      // 在 fileName 里查找 novelId，如果找到了，就在它后面添加图片 id
+      let imageName = Utils.replaceExtension(novelName, image.url!)
+      const array = imageName.split('/')
+      const fileName = array.at(-1)!
+      const imageId = novelId + '-' + image.flag_id_part
+
+      // 如果 fileName 里有 novelId，就在它后面添加图片 id
       const index = fileName.indexOf(novelId)
       if (index !== -1) {
-        array[array.length - 2] =
-          fileName.slice(0, index + novelId.length) +
-          '-' +
-          image.flag_id_part +
-          fileName.slice(index + novelId.length)
+        array[array.length - 1] = fileName.replaceAll(novelId, imageId)
       } else {
-        // 没有找到 novelId，就跟以前一样，在文件名末尾添加图片 id
-        array[array.length - 2] = fileName + '-' + image.flag_id_part
+        // 如果没有找到 novelId，就在文件名末尾添加图片 id
+        const array2 = fileName.split('.')
+        array2[0] = array2[0] + imageId
+        array[array.length - 1] = array2.join('.')
       }
-      imageName = array.join('.')
+      imageName = array.join('/')
 
       await SendDownload.noReply(blob, imageName)
       log.persistentRefresh('downloadNovelImage' + novelId)
@@ -115,9 +115,10 @@ class DownloadNovelEmbeddedImage {
       this.logProgress(novelId, novelTitle, current, total)
       current++
 
-      const imageID = image.flag_id_part
+      // 在 EPUB 规范里，item 的 id 属性必须以字母开头，所以在前面加上 image- 前缀
+      const imageID = 'image-' + image.flag_id_part
       if (image.url === '') {
-        content = content.replaceAll(image.flag, `image ${imageID} not found`)
+        content = content.replaceAll(image.flag, `${imageID} not found`)
         continue
       }
 
@@ -321,6 +322,7 @@ class DownloadNovelEmbeddedImage {
       const data = await res[type]()
       return data
     } catch (error) {
+      // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
       retry++
       // console.log(retry, url)
       if (retry > this.retryMax) {
