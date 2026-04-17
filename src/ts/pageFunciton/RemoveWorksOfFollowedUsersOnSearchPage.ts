@@ -67,6 +67,13 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   // 例如在搜索页面里，一个作品元素分为 3 个部分：1. 缩略图 2. 标题 3. 作者（用户名）
   // ArtworkThumbnail 获取的元素只是缩略图，不是完整的作品元素，所以不能用它来移除作品元素。而且缩略图里面有时可能没有用户信息，无法判断用户是否已关注。
   private check(el: HTMLElement) {
+    // 作品列表的祖先元素有 data-ga4-label="works_content" 属性，不能删除，否则会导致所有作品都被删除
+    // 另外，每个作品元素都有 data-ga4-label="thumbnail" 属性
+    // 上面两点在图像搜索页面和小说搜索页面都是一样的
+    if (el.dataset.ga4Label === 'works_content') {
+      return
+    }
+
     const userLink = el.querySelector('a[href*=users]') as HTMLAnchorElement
     if (!userLink) {
       return
@@ -76,7 +83,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
     const userID = userLink.href.match(/\d+/)
     if (userID && followingList.following.includes(userID[0])) {
       el.remove()
-      // console.log('remove', el)
+      // console.log(el)
       this.showTipOnce()
     }
   }
