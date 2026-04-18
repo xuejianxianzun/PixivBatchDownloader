@@ -148,7 +148,10 @@ class ImageViewer {
     return new Promise(async (resolve) => {
       // 获取作品数据
       if (cacheWorkData.has(this.cfg.workId)) {
-        this.workData = cacheWorkData.get(this.cfg.workId)
+        this.workData = await cacheWorkData.getWorkDataAsync(
+          this.cfg.workId,
+          'artwork'
+        )
       } else {
         this.cfg.showLoading && (loading.show = true)
 

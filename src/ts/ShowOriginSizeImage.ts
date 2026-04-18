@@ -258,7 +258,10 @@ class ShowOriginSizeImage {
   // 初次显示一个图片时，初始化 wrap 的样式
   private async initWrap(ev: MouseEvent) {
     try {
-      this.workData = await this.getWorkData(this.workId)
+      this.workData = await cacheWorkData.getWorkDataAsync(
+        this.workId,
+        'artwork'
+      )
     } catch (error) {
       toast.error(lang.transl('_获取作品数据失败'))
       return
@@ -454,17 +457,6 @@ class ShowOriginSizeImage {
       this.previewUgoira.setSize(this.style.width, this.style.height)
   }
 
-  private async getWorkData(id: string) {
-    const cache = cacheWorkData.get(id)
-    if (cache) {
-      return cache
-    }
-
-    const data = await API.getArtworkData(id)
-    cacheWorkData.set(data)
-    return data
-  }
-
   /** 使用快捷键 D 下载这个作品 */
   private async downloadWork(id: string) {
     const idData: IDData = {
@@ -476,7 +468,7 @@ class ShowOriginSizeImage {
 
   /** 使用快捷键 C 下载当前显示的这张图片 */
   private async downloadImage(id: string) {
-    const data = await this.getWorkData(id)
+    const data = await cacheWorkData.getWorkDataAsync(id, 'artwork')
     const idData: IDData = {
       type: 'illusts',
       id,

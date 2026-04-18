@@ -105,16 +105,12 @@ class DisplayThumbnailListOnMultiImageWorkPage {
   private async createThumbList(id: string): Promise<HTMLElement | undefined> {
     return new Promise(async (resolve) => {
       // 获取作品数据
-      let workData: ArtworkData | undefined
-      if (cacheWorkData.has(id)) {
-        workData = cacheWorkData.get(id)
-      } else {
-        const unlisted = pageType.type === pageType.list.Unlisted
-        const data = await API.getArtworkData(id, unlisted)
-        workData = data
-        cacheWorkData.set(data)
-      }
-
+      const unlisted = pageType.type === pageType.list.Unlisted
+      const workData = await cacheWorkData.getWorkDataAsync(
+        id,
+        'artwork',
+        unlisted
+      )
       const body = workData!.body
       // 这个作品里至少有 2 张图片才会创建缩略图
       if (body.pageCount >= 2) {

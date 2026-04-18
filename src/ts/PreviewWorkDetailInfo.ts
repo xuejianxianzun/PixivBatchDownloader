@@ -16,7 +16,7 @@ class PreviewWorkDetailInfo {
     this.bindEvents()
   }
 
-  // 因为预览作品模块里没有保存鼠标位置，所以本模块需要自己保存鼠标位置
+  // 保存鼠标位置
   private mouseX = 0
   private mouseY = 0
 
@@ -59,7 +59,7 @@ class PreviewWorkDetailInfo {
       this.showWorkID = workData.body.id
     }
 
-    // 这里先把 show 状态设置为 true。实际显示出来还需要经过后面的处理
+    // 这里先把 show 状态设置为 true，防止重复创建。实际显示出来还需要经过后面的处理
     this.show = true
 
     const wrap = document.createElement('div')

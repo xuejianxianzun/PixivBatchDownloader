@@ -498,11 +498,7 @@ abstract class InitPageBase {
         // 如果不使用缓存，则必定会导致一个小说发送两次请求
         // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
         // 但通常问题不大
-        let data = cacheWorkData.get(id, 'novel')
-        if (!data) {
-          data = await API.getNovelData(id, unlisted)
-          cacheWorkData.set(data)
-        }
+        const data = await cacheWorkData.getWorkDataAsync(id, 'novel', unlisted)
         // 自动合并系列小说
         const seriesId = data.body.seriesNavData?.seriesId
         const canMerge = seriesId && settings.autoMergeNovel

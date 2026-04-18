@@ -96,17 +96,36 @@ class PreviewWork {
   }
 
   private set show(val: boolean) {
+    // setter 属性不能使用异步，但现在有异步需求，所以调用这个方法来执行设置 show 的逻辑
+    this.setShow(val)
+  }
+
+  private async setShow(val: boolean) {
     if (val) {
-      this.workData = cacheWorkData.get(this.workId)
-      // 这两个判断条件其实是等价的
-      // 因为在 show 之前会先获取作品数据
-      // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
-      // 现在的作品已经不是前面请求的那个作品了
+      this.workData = await cacheWorkData.getWorkDataAsync(
+        this.workId,
+        'artwork'
+      )
+      // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
+      // 如果 id 不同，说明现在的作品已经不是前面请求的那个作品了
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
         // 准备显示预览
         if (this.dontShowAfterPageSwitch) {
+          return
+        }
+
+        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        const tags = Tools.extractTags(this.workData, 'origin')
+        const check = await filter.checkExcludeAndMuteTags(tags)
+        if (!check) {
+          this.show = false
+          const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
+          toast.warning(msg, {
+            position: 'mouse',
+            stay: 2500,
+          })
           return
         }
 
@@ -178,7 +197,7 @@ class PreviewWork {
         this.index = states.indexRecord[id] || 0
       }
 
-      // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
+      // 在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
       if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
         const _index = Number.parseInt(el.dataset!.index!)
         this.index = _index
@@ -573,17 +592,6 @@ class PreviewWork {
   private readyShow() {
     this.isReadyShow = true
     this.delayShowTimer = window.setTimeout(async () => {
-      if (!cacheWorkData.has(this.workId)) {
-        // 如果在缓存中没有找到这个作品的数据，则发起请求
-        try {
-          const data = await API.getArtworkData(this.workId)
-          cacheWorkData.set(data)
-        } catch (error: Error | any) {
-          this.show = false
-          return
-        }
-      }
-
       this.show = true
     }, settings.previewWorkWait)
   }
@@ -634,19 +642,6 @@ class PreviewWork {
   // 显示预览 wrap
   private async showWrap() {
     if (!this.workEL || !this.workData) {
-      return
-    }
-
-    // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
-    const tags = Tools.extractTags(this.workData, 'origin')
-    const check = await filter.checkExcludeAndMuteTags(tags)
-    if (!check) {
-      this.show = false
-      const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
-      toast.warning(msg, {
-        position: 'mouse',
-        stay: 2500,
-      })
       return
     }
 

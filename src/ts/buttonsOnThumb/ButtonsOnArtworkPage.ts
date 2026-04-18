@@ -161,8 +161,11 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
 
   /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
   // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
-  private addBtnOffset() {
-    const data = cacheWorkData.get(Tools.getIllustId())
+  private async addBtnOffset() {
+    const data = await cacheWorkData.getWorkDataAsync(
+      Tools.getIllustId(),
+      'artwork'
+    )
 
     // 单图作品不需要处理。PS：有些漫画也是单图的
     if (!data || data.body.pageCount === 1) {
