@@ -39629,6 +39629,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+
 
 
 
@@ -39795,12 +39797,17 @@ class QuickBookmark {
     }
     async getWorkData() {
         try {
-            // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
-            if (this.isNovel) {
-                return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId());
+            const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId();
+            const type = this.isNovel ? 'novel' : 'artwork';
+            const cached = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__.cacheWorkData.get(id, type);
+            if (!cached) {
+                // 如果缓存里没有这个作品的数据，则让缓存模块加载数据并返回，这样有可能减少一次网络请求
+                // 在页面初始化时，下载器可能有多个模块都需要获取作品数据。使用 getWorkDataAsync 方法可以避免重复请求
+                return await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__.cacheWorkData.getWorkDataAsync(id, type);
             }
             else {
-                return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId());
+                // 如果缓存里有这个作品的数据，则不使用缓存的数据，因为作品的收藏状态可能已经发生了变化
+                return await _API__WEBPACK_IMPORTED_MODULE_0__.API[type === 'novel' ? 'getNovelData' : 'getArtworkData'](id);
             }
         }
         catch (error) {

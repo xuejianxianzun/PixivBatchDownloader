@@ -6,8 +6,6 @@ import { EVT } from '../EVT'
 import { ImageViewer } from '../ImageViewer'
 import { Config } from '../Config'
 import { cacheWorkData } from '../store/CacheWorkData'
-import { API } from '../API'
-import { ArtworkData } from '../crawl/CrawlResult'
 import { states } from '../store/States'
 
 /**在多图作品页面里显示缩略图列表 */

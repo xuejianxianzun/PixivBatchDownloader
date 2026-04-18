@@ -72,6 +72,11 @@ class CacheWorkData {
     type: 'novel',
     unlisted?: boolean
   ): Promise<NovelData>
+  public getWorkDataAsync(
+    id: string,
+    type: 'artwork' | 'novel',
+    unlisted?: boolean
+  ): Promise<ArtworkData | NovelData>
   public async getWorkDataAsync(
     id: string,
     type: 'artwork' | 'novel',

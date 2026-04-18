@@ -327,6 +327,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 
 所以我把“预览作品的详细信息”功能独立出来了，不再依赖“预览作品”功能。
 
+#### ♻️QuickBookmark 模块在页面初始化时会减少一次请求
+
+进入作品页面或刷新作品页面时，之前下载器会请求 2 次作品数据，一次是 DisplayThumbnailListOnMultiImageWorkPage，一次是 QuickBookmark。现在只会请求 1 次了，因为 QuickBookmark 在初始时会从缓存获取。
+
+不过在之后切换到其他作品时，还是会发送 2 次，因为之后 QuickBookmark 的执行时机较晚，而且不使用已有的缓存，所以会重新发送一次请求。
+
 ## 18.6.0 2026-04-04
 
 ### ✨新增过滤器：原创作品
