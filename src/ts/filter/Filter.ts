@@ -289,6 +289,21 @@ class Filter {
     return true
   }
 
+  /** 检查作品是否被两个条件排除：不能含有标签；Mute 里屏蔽的标签 */
+  public async checkExcludeAndMuteTags(tags: string[]) {
+    const checkExcludeTagResult = this.checkExcludeTag(tags)
+    if (!checkExcludeTagResult) {
+      return false
+    }
+
+    const checkMuteTagResult = await this.checkMuteTag(tags)
+    if (!checkMuteTagResult) {
+      return false
+    }
+
+    return true
+  }
+
   /** 检查作品类型设置 */
   private checkDownType(workType: FilterOption['workType']) {
     switch (workType) {

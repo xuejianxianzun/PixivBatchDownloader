@@ -2,6 +2,7 @@ import { API } from '../API'
 import { lang } from '../Language'
 import { log } from '../Log'
 import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
@@ -34,55 +35,58 @@ class Mute {
   // 此模块不会在初始化时获取设置，这是为了避免增加一次无谓的网络请求
   // 当执行此模块的 check 方法时，如果没有获取过设置，则此模块会主动获取一次设置
   // 其他模块也可以在必要的时候（如开始抓取时）直接执行此方法，预先获取设置，为后面的流程做准备
-  public async getMuteSettings() {
+  public async getMuteSettings(showTips = true) {
+    if (!Utils.isPixiv()) {
+      this.got = true
+      return 200
+    }
+
+    if (Tools.checkUserLogin() === false) {
+      return 401
+    }
+
     this.userList = []
     this.tagList = []
 
-    return new Promise(async (resolve, reject) => {
-      if (Tools.checkUserLogin() === false) {
-        return resolve(401)
+    try {
+      const response = await API.getMuteSettings()
+      const items = response.body.mute_items
+      for (const item of items) {
+        // 如果这个屏蔽项未启用，则不保存
+        if (item.enabled === false) {
+          continue
+        }
+        if (item.type === 'user' && !this.userList.includes(item.value)) {
+          this.userList.push(item.value)
+        }
+        if (item.type === 'tag' && !this.tagList.includes(item.value)) {
+          this.tagList.push(item.value)
+        }
       }
 
-      try {
-        const response = await API.getMuteSettings()
-        const items = response.body.mute_items
-        for (const item of items) {
-          // 如果这个屏蔽项未启用，则不保存
-          if (item.enabled === false) {
-            continue
-          }
-          if (item.type === 'user' && !this.userList.includes(item.value)) {
-            this.userList.push(item.value)
-          }
-          if (item.type === 'tag' && !this.tagList.includes(item.value)) {
-            this.tagList.push(item.value)
-          }
+      if (showTips && (this.userList.length > 0 || this.tagList.length > 0)) {
+        let msg = lang.transl('_屏蔽设定') + ': <br>'
+        if (this.userList.length > 0) {
+          msg += `Users: ${this.userList.join(',')}<br>`
         }
-
-        if (this.userList.length > 0 || this.tagList.length > 0) {
-          let msg = lang.transl('_屏蔽设定') + ': <br>'
-          if (this.userList.length > 0) {
-            msg += `Users: ${this.userList.join(',')}<br>`
-          }
-          if (this.tagList.length > 0) {
-            msg += `Tags: ${this.tagList.join(',')}<br>`
-          }
-          log.warning(msg)
+        if (this.tagList.length > 0) {
+          msg += `Tags: ${this.tagList.join(',')}<br>`
         }
-
-        this.got = true
-        return resolve(items)
-      } catch (error: Error | any) {
-        // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
-        this.got = true
-        if (error.status === 401) {
-          console.error(
-            'get mute settings error ' + lang.transl('_状态码401的提示')
-          )
-        }
-        return resolve(error.status)
+        log.warning(msg)
       }
-    })
+
+      this.got = true
+      return 200
+    } catch (error: Error | any) {
+      // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
+      this.got = true
+      if (error.status === 401) {
+        console.error(
+          'get mute settings error ' + lang.transl('_状态码401的提示')
+        )
+      }
+      return error.status
+    }
   }
 }
 

@@ -8861,6 +8861,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `본 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 업데이트 로그(중국어)를 확인할 수 있습니다.`,
     `Вы можете просмотреть журнал обновлений (на китайском) на странице <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases</a> этого проекта.`,
   ],
+  _不预览这个作品因为它含有你排除的标签: [
+    `不预览这个作品，因为它含有你排除的标签`,
+    `不預覽這個作品，因為它含有你排除的標籤`,
+    `Do not preview this work because it contains a tag you excluded`,
+    `この作品はプレビューしません。あなたが除外したタグが含まれているためです`,
+    `이 작품은 미리보지 않습니다. 제외한 태그가 포함되어 있기 때문입니다`,
+    `Не просматривать это произведение, так как оно содержит исключённый вами тег`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

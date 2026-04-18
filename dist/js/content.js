@@ -7739,6 +7739,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
+
 
 
 
@@ -7838,7 +7840,6 @@ class PreviewWork {
                         false) {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
-                this.sendURLs();
                 this.isReadyShow = false;
                 this._show = true;
                 this.showWrap();
@@ -8273,7 +8274,19 @@ class PreviewWork {
         if (!this.workEL || !this.workData) {
             return;
         }
-        const url = this.replaceURL(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize]);
+        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_16__.Tools.extractTags(this.workData, 'origin');
+        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.checkExcludeAndMuteTags(tags);
+        if (!check) {
+            this.show = false;
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_不预览这个作品因为它含有你排除的标签');
+            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.warning(msg, {
+                position: 'mouse',
+                stay: 2500,
+            });
+            return;
+        }
+        const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize].replace('p0', `p${this.index}`);
         const size = await this.getImageSize(url);
         // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
         // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
@@ -8469,21 +8482,10 @@ class PreviewWork {
             styleArray.push('box-shadow:none;');
         }
         this.wrap.setAttribute('style', styleArray.join(''));
-        // 每次显示图片后，传递图片的 url
-        this.sendURLs();
         // 预览动图
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira && this.workData.body.illustType === 2) {
             this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_7__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
             // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
-        }
-    }
-    replaceURL(url) {
-        return url.replace('p0', `p${this.index}`);
-    }
-    sendURLs() {
-        const data = this.workData;
-        if (!data) {
-            return;
         }
     }
 }
@@ -8520,7 +8522,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 预览作品的详细信息
-// 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
+// 这个模块依赖 PreviewWork 提供作品数据，这是故意设计的。
+// 这是因为本模块和 PreviewWork 的执行时机相同，都是在鼠标进入缩略图后开始执行并且加载作品数据。如果解耦的话，可能会产生重复的并发请求。
 class PreviewWorkDetailInfo {
     constructor() {
         this.bindEvents();
@@ -14315,9 +14318,7 @@ class InitPageBase {
             return;
         }
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
-        }
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         this.getWantPage();
         _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
         this.showTip();
@@ -14364,9 +14365,7 @@ class InitPageBase {
                 return;
             }
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-                await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
-            }
+            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
             this.finishedRequest = 0;
             this.crawlFinishBecauseStopCrawl = false;
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
@@ -27511,6 +27510,18 @@ class Filter {
         }
         return true;
     }
+    /** 检查作品是否被两个条件排除：不能含有标签；Mute 里屏蔽的标签 */
+    async checkExcludeAndMuteTags(tags) {
+        const checkExcludeTagResult = this.checkExcludeTag(tags);
+        if (!checkExcludeTagResult) {
+            return false;
+        }
+        const checkMuteTagResult = await this.checkMuteTag(tags);
+        if (!checkMuteTagResult) {
+            return false;
+        }
+        return true;
+    }
     /** 检查作品类型设置 */
     checkDownType(workType) {
         switch (workType) {
@@ -28272,6 +28283,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -28302,50 +28315,52 @@ class Mute {
     // 此模块不会在初始化时获取设置，这是为了避免增加一次无谓的网络请求
     // 当执行此模块的 check 方法时，如果没有获取过设置，则此模块会主动获取一次设置
     // 其他模块也可以在必要的时候（如开始抓取时）直接执行此方法，预先获取设置，为后面的流程做准备
-    async getMuteSettings() {
+    async getMuteSettings(showTips = true) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isPixiv()) {
+            this.got = true;
+            return 200;
+        }
+        if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
+            return 401;
+        }
         this.userList = [];
         this.tagList = [];
-        return new Promise(async (resolve, reject) => {
-            if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
-                return resolve(401);
-            }
-            try {
-                const response = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getMuteSettings();
-                const items = response.body.mute_items;
-                for (const item of items) {
-                    // 如果这个屏蔽项未启用，则不保存
-                    if (item.enabled === false) {
-                        continue;
-                    }
-                    if (item.type === 'user' && !this.userList.includes(item.value)) {
-                        this.userList.push(item.value);
-                    }
-                    if (item.type === 'tag' && !this.tagList.includes(item.value)) {
-                        this.tagList.push(item.value);
-                    }
+        try {
+            const response = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getMuteSettings();
+            const items = response.body.mute_items;
+            for (const item of items) {
+                // 如果这个屏蔽项未启用，则不保存
+                if (item.enabled === false) {
+                    continue;
                 }
-                if (this.userList.length > 0 || this.tagList.length > 0) {
-                    let msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_屏蔽设定') + ': <br>';
-                    if (this.userList.length > 0) {
-                        msg += `Users: ${this.userList.join(',')}<br>`;
-                    }
-                    if (this.tagList.length > 0) {
-                        msg += `Tags: ${this.tagList.join(',')}<br>`;
-                    }
-                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg);
+                if (item.type === 'user' && !this.userList.includes(item.value)) {
+                    this.userList.push(item.value);
                 }
-                this.got = true;
-                return resolve(items);
-            }
-            catch (error) {
-                // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
-                this.got = true;
-                if (error.status === 401) {
-                    console.error('get mute settings error ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_状态码401的提示'));
+                if (item.type === 'tag' && !this.tagList.includes(item.value)) {
+                    this.tagList.push(item.value);
                 }
-                return resolve(error.status);
             }
-        });
+            if (showTips && (this.userList.length > 0 || this.tagList.length > 0)) {
+                let msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_屏蔽设定') + ': <br>';
+                if (this.userList.length > 0) {
+                    msg += `Users: ${this.userList.join(',')}<br>`;
+                }
+                if (this.tagList.length > 0) {
+                    msg += `Tags: ${this.tagList.join(',')}<br>`;
+                }
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg);
+            }
+            this.got = true;
+            return 200;
+        }
+        catch (error) {
+            // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
+            this.got = true;
+            if (error.status === 401) {
+                console.error('get mute settings error ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_状态码401的提示'));
+            }
+            return error.status;
+        }
     }
 }
 const mute = new Mute();
@@ -37758,6 +37773,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `본 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 업데이트 로그(중국어)를 확인할 수 있습니다.`,
         `Вы можете просмотреть журнал обновлений (на китайском) на странице <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases</a> этого проекта.`,
     ],
+    _不预览这个作品因为它含有你排除的标签: [
+        `不预览这个作品，因为它含有你排除的标签`,
+        `不預覽這個作品，因為它含有你排除的標籤`,
+        `Do not preview this work because it contains a tag you excluded`,
+        `この作品はプレビューしません。あなたが除外したタグが含まれているためです`,
+        `이 작품은 미리보지 않습니다. 제외한 태그가 포함되어 있기 때문입니다`,
+        `Не просматривать это произведение, так как оно содержит исключённый вами тег`,
+    ],
 };
 
 
@@ -39158,7 +39181,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
                         showLoading: true,
                     });
                 });
-                // 鼠标经过时把当前的 index 记录到 states 里，以便在用户预览这张图片或显示其大图时，能正确显示当前图片
+                // 鼠标经过时把当前的 index 记录到 states 里，以便当用户预览这张图片或显示其大图时，能正确显示为这张图片
                 img.addEventListener('mouseover', (ev) => {
                     _store_States__WEBPACK_IMPORTED_MODULE_9__.states.indexRecord[id] = index;
                 });

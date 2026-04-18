@@ -88,7 +88,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
           })
         })
 
-        // 鼠标经过时把当前的 index 记录到 states 里，以便在用户预览这张图片或显示其大图时，能正确显示当前图片
+        // 鼠标经过时把当前的 index 记录到 states 里，以便当用户预览这张图片或显示其大图时，能正确显示为这张图片
         img.addEventListener('mouseover', (ev) => {
           states.indexRecord[id] = index
         })

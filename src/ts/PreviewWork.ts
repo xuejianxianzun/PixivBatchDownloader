@@ -21,6 +21,7 @@ import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
+import { filter } from './filter/Filter'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -117,8 +118,6 @@ class PreviewWork {
         ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
-
-        this.sendURLs()
 
         this.isReadyShow = false
         this._show = true
@@ -638,7 +637,23 @@ class PreviewWork {
       return
     }
 
-    const url = this.replaceURL(this.workData!.body.urls[settings.prevWorkSize])
+    // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+    const tags = Tools.extractTags(this.workData, 'origin')
+    const check = await filter.checkExcludeAndMuteTags(tags)
+    if (!check) {
+      this.show = false
+      const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
+      toast.warning(msg, {
+        position: 'mouse',
+        stay: 2500,
+      })
+      return
+    }
+
+    const url = this.workData!.body.urls[settings.prevWorkSize].replace(
+      'p0',
+      `p${this.index}`
+    )
     const size = await this.getImageSize(url)
 
     // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
@@ -855,9 +870,6 @@ class PreviewWork {
 
     this.wrap.setAttribute('style', styleArray.join(''))
 
-    // 每次显示图片后，传递图片的 url
-    this.sendURLs()
-
     // 预览动图
     if (settings.previewUgoira && this.workData.body.illustType === 2) {
       this.previewUgoira = new PreviewUgoira(
@@ -868,17 +880,6 @@ class PreviewWork {
         cfg.height - tipHeight
       )
       // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
-    }
-  }
-
-  private replaceURL(url: string) {
-    return url.replace('p0', `p${this.index}`)
-  }
-
-  private sendURLs() {
-    const data = this.workData
-    if (!data) {
-      return
     }
   }
 }

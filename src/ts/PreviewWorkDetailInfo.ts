@@ -9,7 +9,8 @@ import { toast } from './Toast'
 import { copyWorkInfo } from './CopyWorkInfo'
 
 // 预览作品的详细信息
-// 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
+// 这个模块依赖 PreviewWork 提供作品数据，这是故意设计的。
+// 这是因为本模块和 PreviewWork 的执行时机相同，都是在鼠标进入缩略图后开始执行并且加载作品数据。如果解耦的话，可能会产生重复的并发请求。
 class PreviewWorkDetailInfo {
   constructor() {
     this.bindEvents()

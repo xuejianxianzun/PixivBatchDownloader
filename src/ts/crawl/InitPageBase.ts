@@ -230,9 +230,7 @@ abstract class InitPageBase {
 
     EVT.fire('crawlStart')
 
-    if (Utils.isPixiv()) {
-      await mute.getMuteSettings()
-    }
+    await mute.getMuteSettings()
 
     this.getWantPage()
 
@@ -295,9 +293,7 @@ abstract class InitPageBase {
 
       EVT.fire('crawlStart')
 
-      if (Utils.isPixiv()) {
-        await mute.getMuteSettings()
-      }
+      await mute.getMuteSettings()
 
       this.finishedRequest = 0
 
