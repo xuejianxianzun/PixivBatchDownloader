@@ -622,6 +622,15 @@ class Utils {
     // 手指移动时（如滚动）取消长按
     el.addEventListener('touchmove', cancel, { passive: true })
   }
+
+  /** 判断鼠标是否处于某个元素的范围内 */
+  static mouseInElementArea(el: Element | undefined, x: number, y: number) {
+    if (!el) {
+      return false
+    }
+    const rect = el.getBoundingClientRect()
+    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
+  }
 }
 
 export { Utils }

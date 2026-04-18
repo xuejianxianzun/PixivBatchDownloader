@@ -77,6 +77,10 @@ class CacheWorkData {
     type: 'artwork' | 'novel',
     unlisted = false
   ) {
+    if (!id) {
+      throw new Error('id is falsy')
+    }
+
     const cache = this.get(id, type)
     if (cache) {
       return cache

@@ -1,4 +1,3 @@
-import { API } from './API'
 import { ArtworkData } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { artworkThumbnail } from './ArtworkThumbnail'
@@ -14,7 +13,6 @@ import { DateFormat } from './utils/DateFormat'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 import { Config } from './Config'
-import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
 import { Tools } from './Tools'
 import { bookmark } from './Bookmark'
 import { pageType } from './PageType'
@@ -129,15 +127,6 @@ class PreviewWork {
           return
         }
 
-        // 显示作品的详细信息
-        if (
-          settings.PreviewWorkDetailInfo &&
-          displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) ===
-            false
-        ) {
-          EVT.fire('showPreviewWorkDetailPanel', this.workData)
-        }
-
         this.isReadyShow = false
         this._show = true
         this.showWrap()
@@ -168,8 +157,6 @@ class PreviewWork {
         this.previewUgoira.destroy()
         this.previewUgoira = null as unknown as PreviewUgoira
       }
-
-      EVT.fire('previewEnd')
     }
   }
 
@@ -222,7 +209,7 @@ class PreviewWork {
     artworkThumbnail.onLeave((el: HTMLElement) => {
       this.isReadyShow = false
       // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
-      if (previewWorkDetailInfo.show) {
+      if (states.previewWorkDetailInfoPanelIsShow) {
         return
       }
 
@@ -414,7 +401,7 @@ class PreviewWork {
           y: number
         }
 
-        if (this.mouseInElementArea(this.workEL, data.x, data.y) === false) {
+        if (Utils.mouseInElementArea(this.workEL, data.x, data.y) === false) {
           this.show = false
         }
       }
@@ -427,7 +414,7 @@ class PreviewWork {
     this.wrap.addEventListener('mousemove', (ev) => {
       // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
       if (
-        this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false
+        Utils.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false
       ) {
         this.show = false
       }
@@ -437,7 +424,7 @@ class PreviewWork {
       this.show = false
       // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
       // 当鼠标移出这个作品的缩略图之后会取消此限制
-      if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+      if (Utils.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
         this.dontShowAgain = true
       }
     })
@@ -459,15 +446,6 @@ class PreviewWork {
         mouseEvent && this.onWheelScroll(mouseEvent)
       }
     )
-  }
-
-  // 判断鼠标是否处于某个元素的范围内
-  private mouseInElementArea(el: Element | undefined, x: number, y: number) {
-    if (!el) {
-      return false
-    }
-    const rect = el.getBoundingClientRect()
-    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
   }
 
   private preload() {
