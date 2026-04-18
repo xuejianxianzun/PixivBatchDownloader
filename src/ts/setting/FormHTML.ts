@@ -417,57 +417,63 @@ export const formHtml = `
     </div>
   </div>
   <div class="tabsContent">
+    <ul class="namingRuleList"></ul>
 
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${Config.defaultNameRule}">
-      &nbsp;
-      <select name="fileNameSelect" class="beautify_scrollbar">
-        <option value="default">…</option>
-        <option value="{id}">{id}</option>
-        <option value="{user}">{user}</option>
-        <option value="{user_id}">{user_id}</option>
-        <option value="{title}">{title}</option>
-        <option value="{page_title}">{page_title}</option>
-        <option value="{tags}">{tags}</option>
-        <option value="{tags_translate}">{tags_translate}</option>
-        <option value="{tags_transl_only}">{tags_transl_only}</option>
-        <option value="{page_tag}">{page_tag}</option>
-        <option value="{type}">{type}</option>
-        <option value="{type_illust}">{type_illust}</option>
-        <option value="{type_manga}">{type_manga}</option>
-        <option value="{type_ugoira}">{type_ugoira}</option>
-        <option value="{type_novel}">{type_novel}</option>
-        <option value="{AI}">{AI}</option>
-        <option value="{age}">{age}</option>
-        <option value="{age_r}">{age_r}</option>
-        <option value="{like}">{like}</option>
-        <option value="{bmk}">{bmk}</option>
-        <option value="{bmk_1000}">{bmk_1000}</option>
-        <option value="{bmk_id}">{bmk_id}</option>
-        <option value="{view}">{view}</option>
-        <option value="{rank}">{rank}</option>
-        <option value="{date}">{date}</option>
-        <option value="{upload_date}">{upload_date}</option>
-        <option value="{task_date}">{task_date}</option>
-        <option value="{px}">{px}</option>
-        <option value="{char_count}">{char_count}</option>
-        <option value="{series_title}">{series_title}</option>
-        <option value="{series_order}">{series_order}</option>
-        <option value="{series_id}">{series_id}</option>
-        <option value="{id_num}">{id_num}</option>
-        <option value="{p_num}">{p_num}</option>
-        <option value="{sl}">{sl}</option>
-        <option value="{multi_image_folder}">{multi_image_folder}</option>
-        <option value="{r18_g_folder}">{r18_g_folder}</option>
-        <option value="{match_tag_folder}">{match_tag_folder}</option>
-      </select>
-      &nbsp;
-      <slot data-name="saveNamingRule"></slot>
-      <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
+      <span class="fileNameRuleLine1">
+        <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+
+        <span class="fileNameRuleBtnsArea">
+          <slot data-name="saveNamingRule"></slot>
+          <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
+          &nbsp;
+          <select name="fileNameSelect" class="beautify_scrollbar">
+            <option value="default">…</option>
+            <option value="{id}">{id}</option>
+            <option value="{user}">{user}</option>
+            <option value="{user_id}">{user_id}</option>
+            <option value="{title}">{title}</option>
+            <option value="{page_title}">{page_title}</option>
+            <option value="{tags}">{tags}</option>
+            <option value="{tags_translate}">{tags_translate}</option>
+            <option value="{tags_transl_only}">{tags_transl_only}</option>
+            <option value="{page_tag}">{page_tag}</option>
+            <option value="{type}">{type}</option>
+            <option value="{type_illust}">{type_illust}</option>
+            <option value="{type_manga}">{type_manga}</option>
+            <option value="{type_ugoira}">{type_ugoira}</option>
+            <option value="{type_novel}">{type_novel}</option>
+            <option value="{AI}">{AI}</option>
+            <option value="{age}">{age}</option>
+            <option value="{age_r}">{age_r}</option>
+            <option value="{like}">{like}</option>
+            <option value="{bmk}">{bmk}</option>
+            <option value="{bmk_1000}">{bmk_1000}</option>
+            <option value="{bmk_id}">{bmk_id}</option>
+            <option value="{view}">{view}</option>
+            <option value="{rank}">{rank}</option>
+            <option value="{date}">{date}</option>
+            <option value="{upload_date}">{upload_date}</option>
+            <option value="{task_date}">{task_date}</option>
+            <option value="{px}">{px}</option>
+            <option value="{char_count}">{char_count}</option>
+            <option value="{series_title}">{series_title}</option>
+            <option value="{series_order}">{series_order}</option>
+            <option value="{series_id}">{series_id}</option>
+            <option value="{id_num}">{id_num}</option>
+            <option value="{p_num}">{p_num}</option>
+            <option value="{sl}">{sl}</option>
+            <option value="{multi_image_folder}">{multi_image_folder}</option>
+            <option value="{r18_g_folder}">{r18_g_folder}</option>
+            <option value="{match_tag_folder}">{match_tag_folder}</option>
+          </select>
+        </span>
+      </span>
+
+      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${Config.defaultNameRule}">${Config.defaultNameRule}</textarea>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">

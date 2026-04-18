@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
+import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting } from './Settings'
 
@@ -21,6 +22,7 @@ class NameRuleManager {
     ]
     evts.forEach((evt) => {
       window.addEventListener(evt, () => {
+        this.textarea = document.querySelector('textarea[name="userSetName"]')
         this.setInputValue()
       })
     })
@@ -38,6 +40,8 @@ class NameRuleManager {
       }
     })
   }
+
+  private textarea: HTMLTextAreaElement | null = null
 
   private saveCurrentPageRule(rule: string) {
     settings.nameRuleForEachPageType[pageType.type] = rule
@@ -83,6 +87,7 @@ class NameRuleManager {
       // 替换特殊字符
       str = this.handleUserSetName(str) || this.generalRule
       setSetting('userSetName', str)
+      Tools.setRows(this.textarea)
 
       if (settings.setNameRuleForEachPageType) {
         this.saveCurrentPageRule(str)
@@ -145,6 +150,8 @@ class NameRuleManager {
     if (rule !== settings.userSetName) {
       setSetting('userSetName', rule)
     }
+
+    Tools.setRows(this.textarea)
   }
 
   // 处理用命名规则的非法字符和非法规则

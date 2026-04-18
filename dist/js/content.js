@@ -12756,6 +12756,30 @@ class Tools {
         }
         throw `Not found this option: ${no}`;
     }
+    /**根据文本长度，动态设置 textarea 的高度 */
+    static setRows(el) {
+        if (!el) {
+            return;
+        }
+        // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的使用体验
+        // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
+        // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
+        // 如果全部是 ASCII 字符，则 90 个字符为一行
+        let oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 20 : 50;
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isAscii(el.value)) {
+            oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 30 : 90;
+        }
+        let rows = Math.ceil(el.value.length / oneRowLength);
+        // 如果值是空字符串，rows 会是 0，此时设置为 1
+        if (rows === 0) {
+            rows = 1;
+        }
+        // 限制 rows 的最大值，以免占用太多空间
+        if (rows > 6) {
+            rows = 6;
+        }
+        el.setAttribute('rows', rows.toString());
+    }
 }
 
 // 测试 Tools 里的一些功能是否正常
@@ -25660,6 +25684,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
 
 
 
@@ -25670,7 +25695,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 为每个作品创建一个 txt 文件，保存这个作品的元数据
+
+// 为每个作品创建一个 txt 文件，保存这个作品的简介
 class SaveWorkDescription {
     constructor() {
         this.bindEvents();
@@ -25816,7 +25842,7 @@ class SaveWorkDescription {
             // 如果是同一个画师
             // 在文件名里添加画师名字
             txtName = `${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
-            const array = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.userSetName.split('/');
+            const array = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.split('/');
             array.pop(); // 去掉最后的文件名部分，只保留文件夹部分
             let folder = '';
             // 倒序遍历 array
@@ -41386,57 +41412,63 @@ const formHtml = `
     </div>
   </div>
   <div class="tabsContent">
+    <ul class="namingRuleList"></ul>
 
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}">
-      &nbsp;
-      <select name="fileNameSelect" class="beautify_scrollbar">
-        <option value="default">…</option>
-        <option value="{id}">{id}</option>
-        <option value="{user}">{user}</option>
-        <option value="{user_id}">{user_id}</option>
-        <option value="{title}">{title}</option>
-        <option value="{page_title}">{page_title}</option>
-        <option value="{tags}">{tags}</option>
-        <option value="{tags_translate}">{tags_translate}</option>
-        <option value="{tags_transl_only}">{tags_transl_only}</option>
-        <option value="{page_tag}">{page_tag}</option>
-        <option value="{type}">{type}</option>
-        <option value="{type_illust}">{type_illust}</option>
-        <option value="{type_manga}">{type_manga}</option>
-        <option value="{type_ugoira}">{type_ugoira}</option>
-        <option value="{type_novel}">{type_novel}</option>
-        <option value="{AI}">{AI}</option>
-        <option value="{age}">{age}</option>
-        <option value="{age_r}">{age_r}</option>
-        <option value="{like}">{like}</option>
-        <option value="{bmk}">{bmk}</option>
-        <option value="{bmk_1000}">{bmk_1000}</option>
-        <option value="{bmk_id}">{bmk_id}</option>
-        <option value="{view}">{view}</option>
-        <option value="{rank}">{rank}</option>
-        <option value="{date}">{date}</option>
-        <option value="{upload_date}">{upload_date}</option>
-        <option value="{task_date}">{task_date}</option>
-        <option value="{px}">{px}</option>
-        <option value="{char_count}">{char_count}</option>
-        <option value="{series_title}">{series_title}</option>
-        <option value="{series_order}">{series_order}</option>
-        <option value="{series_id}">{series_id}</option>
-        <option value="{id_num}">{id_num}</option>
-        <option value="{p_num}">{p_num}</option>
-        <option value="{sl}">{sl}</option>
-        <option value="{multi_image_folder}">{multi_image_folder}</option>
-        <option value="{r18_g_folder}">{r18_g_folder}</option>
-        <option value="{match_tag_folder}">{match_tag_folder}</option>
-      </select>
-      &nbsp;
-      <slot data-name="saveNamingRule"></slot>
-      <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
+      <span class="fileNameRuleLine1">
+        <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+
+        <span class="fileNameRuleBtnsArea">
+          <slot data-name="saveNamingRule"></slot>
+          <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
+          &nbsp;
+          <select name="fileNameSelect" class="beautify_scrollbar">
+            <option value="default">…</option>
+            <option value="{id}">{id}</option>
+            <option value="{user}">{user}</option>
+            <option value="{user_id}">{user_id}</option>
+            <option value="{title}">{title}</option>
+            <option value="{page_title}">{page_title}</option>
+            <option value="{tags}">{tags}</option>
+            <option value="{tags_translate}">{tags_translate}</option>
+            <option value="{tags_transl_only}">{tags_transl_only}</option>
+            <option value="{page_tag}">{page_tag}</option>
+            <option value="{type}">{type}</option>
+            <option value="{type_illust}">{type_illust}</option>
+            <option value="{type_manga}">{type_manga}</option>
+            <option value="{type_ugoira}">{type_ugoira}</option>
+            <option value="{type_novel}">{type_novel}</option>
+            <option value="{AI}">{AI}</option>
+            <option value="{age}">{age}</option>
+            <option value="{age_r}">{age_r}</option>
+            <option value="{like}">{like}</option>
+            <option value="{bmk}">{bmk}</option>
+            <option value="{bmk_1000}">{bmk_1000}</option>
+            <option value="{bmk_id}">{bmk_id}</option>
+            <option value="{view}">{view}</option>
+            <option value="{rank}">{rank}</option>
+            <option value="{date}">{date}</option>
+            <option value="{upload_date}">{upload_date}</option>
+            <option value="{task_date}">{task_date}</option>
+            <option value="{px}">{px}</option>
+            <option value="{char_count}">{char_count}</option>
+            <option value="{series_title}">{series_title}</option>
+            <option value="{series_order}">{series_order}</option>
+            <option value="{series_id}">{series_id}</option>
+            <option value="{id_num}">{id_num}</option>
+            <option value="{p_num}">{p_num}</option>
+            <option value="{sl}">{sl}</option>
+            <option value="{multi_image_folder}">{multi_image_folder}</option>
+            <option value="{r18_g_folder}">{r18_g_folder}</option>
+            <option value="{match_tag_folder}">{match_tag_folder}</option>
+          </select>
+        </span>
+      </span>
+
+      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}</textarea>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
@@ -42917,9 +42949,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _NameRuleManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -43163,28 +43193,6 @@ class FormSettings {
             this.saveCheckBox(name);
         }
     }
-    /**根据文本长度，动态设置 textarea 的高度 */
-    setRows(name) {
-        const el = this.form[name];
-        // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的交互体验
-        // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
-        // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
-        // 如果全部是 ASCII 字符，则 90 个字符为一行
-        let oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile ? 20 : 50;
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isAscii(el.value)) {
-            oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile ? 30 : 90;
-        }
-        let rows = Math.ceil(el.value.length / oneRowLength);
-        // 如果值是空字符串，rows 会是 0，此时设置为 1
-        if (rows === 0) {
-            rows = 1;
-        }
-        // 最大 rows 限制为 4
-        if (rows > 4) {
-            rows = 4;
-        }
-        el.setAttribute('rows', rows.toString());
-    }
     // 读取设置，恢复到表单里
     restoreFormSettings() {
         for (const name of this.inputFileds.text) {
@@ -43195,7 +43203,7 @@ class FormSettings {
         }
         for (const name of this.inputFileds.textarea) {
             this.restoreString(name);
-            this.setRows(name);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.form[name]);
         }
         for (const name of this.inputFileds.checkbox) {
             this.restoreBoolean(name);
@@ -43211,7 +43219,7 @@ class FormSettings {
         el.addEventListener('change', () => {
             (0,_Settings__WEBPACK_IMPORTED_MODULE_1__.setSetting)(name, el.value);
             if (this.inputFileds.textarea.includes(name)) {
-                this.setRows(name);
+                _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.form[name]);
             }
         });
     }
@@ -43359,8 +43367,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -43382,6 +43392,7 @@ class NameRuleManager {
         ];
         evts.forEach((evt) => {
             window.addEventListener(evt, () => {
+                this.textarea = document.querySelector('textarea[name="userSetName"]');
                 this.setInputValue();
             });
         });
@@ -43389,26 +43400,27 @@ class NameRuleManager {
             const data = ev.detail.data;
             // 当用户开启这个开关时，设置当前页面类型的命名规则
             if (data.name === 'setNameRuleForEachPageType' && data.value) {
-                if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !==
-                    _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.userSetName) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !==
+                    _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName) {
                     this.setInputValue();
                 }
             }
         });
     }
+    textarea = null;
     saveCurrentPageRule(rule) {
-        _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
-        (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType);
+        _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType);
     }
     // 所有页面通用的命名规则
     generalRule = '{page_title}/{id}';
     get rule() {
         // 在 Pixivision 页面里，总是使用预设的命名规则
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
+            return _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
         }
-        if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.setNameRuleForEachPageType) {
-            let rule = _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
+        if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.setNameRuleForEachPageType) {
+            let rule = _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             if (rule === undefined) {
                 rule = this.generalRule;
                 this.saveCurrentPageRule(rule);
@@ -43416,7 +43428,7 @@ class NameRuleManager {
             return rule;
         }
         else {
-            return _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.userSetName;
+            return _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName;
         }
     }
     set rule(str) {
@@ -43435,8 +43447,9 @@ class NameRuleManager {
         else {
             // 替换特殊字符
             str = this.handleUserSetName(str) || this.generalRule;
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('userSetName', str);
-            if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.setNameRuleForEachPageType) {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('userSetName', str);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.textarea);
+            if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.setNameRuleForEachPageType) {
                 this.saveCurrentPageRule(str);
             }
             this.setInputValue();
@@ -43465,7 +43478,7 @@ class NameRuleManager {
                     return;
                 }
                 lastValue = input.value;
-                if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
                     this.rule = input.value;
                 }
             });
@@ -43477,7 +43490,7 @@ class NameRuleManager {
         // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
             this.inputList.forEach((input) => {
-                input.value = _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
+                input.value = _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             });
             return;
         }
@@ -43486,9 +43499,10 @@ class NameRuleManager {
         this.inputList.forEach((input) => {
             input.value = rule;
         });
-        if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.userSetName) {
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('userSetName', rule);
+        if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName) {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('userSetName', rule);
         }
+        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.textarea);
     }
     // 处理用命名规则的非法字符和非法规则
     // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
@@ -43496,7 +43510,7 @@ class NameRuleManager {
     // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
     handleUserSetName(str) {
         // 替换命名规则里可能存在的非法字符
-        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(str);
+        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(str);
         // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
         str = str.replace(/／/g, '/');
         // 处理连续的 /
@@ -43875,7 +43889,7 @@ class SaveNamingRule {
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
-        this.listWrap = wrap.querySelector('ul.namingRuleList');
+        this.listWrap = document.querySelector('ul.namingRuleList');
         this.createList();
         this.bindEvents();
     }
@@ -43885,6 +43899,11 @@ class SaveNamingRule {
     listWrap;
     ruleInput;
     _show = false; // 是否显示列表
+    html = `
+  <div class="saveNamingRuleWrap">
+    <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+    <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
+  </div>`;
     set show(boolean) {
         this._show = boolean;
         boolean ? this.showListWrap() : this.hideListWrap();
@@ -43965,12 +43984,6 @@ class SaveNamingRule {
     hideListWrap() {
         this.listWrap.style.display = 'none';
     }
-    html = `
-  <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
-  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
-  <ul class="namingRuleList"></ul>
-  </div>`;
 }
 
 

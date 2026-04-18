@@ -861,7 +861,7 @@ body.mobile #quickCrawlBtn {
   margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
-  width: 80px;
+  width: auto;
   height: 22px;
   margin: 2px 0;
   vertical-align: middle;
@@ -924,6 +924,7 @@ body.mobile #quickCrawlBtn {
   padding-right: 5px;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContent {
+  position: relative;
   display: none;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContent:first-child {
@@ -1044,7 +1045,22 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .right1 {
   width: 100%;
 }
+.centerWrap .centerWrap_con .settingForm .fileNameRuleLine1 {
+  display: flex;
+  flex-basis: 100%;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 4px;
+}
+.centerWrap .centerWrap_con .settingForm .fileNameRuleBtnsArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 4px;
+}
 .centerWrap .centerWrap_con .settingForm .fileNameRule {
+  display: flex;
+  flex-grow: 1;
   min-width: 310px !important;
 }
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
@@ -1216,7 +1232,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .settingForm .namingRuleList {
   position: absolute;
-  right: -30px;
+  right: 0px;
   top: 25px;
   z-index: 1002;
   background: #fff;

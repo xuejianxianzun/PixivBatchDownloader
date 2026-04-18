@@ -483,7 +483,7 @@
       }
 
       select {
-        width: 80px;
+        width: auto;
         height: 22px;
         margin: 2px 0;
         vertical-align: middle;
@@ -566,6 +566,7 @@
       }
 
       .tabsContent {
+        position: relative;
         display: none;
 
         &:first-child {
@@ -712,7 +713,24 @@
         width: 100%;
       }
 
+      .fileNameRuleLine1 {
+        display: flex;
+        flex-basis: 100%;
+        justify-content: space-between;
+        align-items: center;
+        column-gap: 4px;
+      }
+
+      .fileNameRuleBtnsArea {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 4px;
+      }
+
       .fileNameRule {
+        display: flex;
+        flex-grow: 1;
         min-width: 310px !important;
       }
 
@@ -924,7 +942,7 @@
 
       .namingRuleList {
         position: absolute;
-        right: -30px;
+        right: 0px;
         top: 25px;
         z-index: 1002;
         background: #fff;

@@ -1222,6 +1222,32 @@ class Tools {
     }
     throw `Not found this option: ${no}`
   }
+
+  /**根据文本长度，动态设置 textarea 的高度 */
+  static setRows(el: HTMLTextAreaElement | null) {
+    if (!el) {
+      return
+    }
+    // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的使用体验
+    // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
+    // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
+    // 如果全部是 ASCII 字符，则 90 个字符为一行
+    let oneRowLength = Config.mobile ? 20 : 50
+    if (Utils.isAscii(el.value)) {
+      oneRowLength = Config.mobile ? 30 : 90
+    }
+
+    let rows = Math.ceil(el.value.length / oneRowLength)
+    // 如果值是空字符串，rows 会是 0，此时设置为 1
+    if (rows === 0) {
+      rows = 1
+    }
+    // 限制 rows 的最大值，以免占用太多空间
+    if (rows > 6) {
+      rows = 6
+    }
+    el.setAttribute('rows', rows.toString())
+  }
 }
 
 export { Tools }
