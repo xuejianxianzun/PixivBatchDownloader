@@ -3,7 +3,6 @@ import { ArtworkData } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { settings, setSetting } from './setting/Settings'
-import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
 import { Utils } from './utils/Utils'
@@ -30,8 +29,10 @@ class PreviewWork {
       return
     }
 
-    this.createElements()
-    this.bindEvents()
+    setTimeout(() => {
+      this.createElements()
+      this.bindEvents()
+    }, 0)
   }
 
   // 预览作品的容器的元素
@@ -51,8 +52,6 @@ class PreviewWork {
 
   // 显示作品中的第几张图片
   private index = 0
-  // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
-  private indexHistory: { [key: string]: number } = {}
 
   /**切换页面后，在一定时间内（500 ms）不允许触发图片预览功能 */
   // 这是为了缓解有时新页面加载后，会显示旧页面里的图片的预览的问题。
@@ -123,7 +122,6 @@ class PreviewWork {
 
         this.isReadyShow = false
         this._show = true
-        showOriginSizeImage.hide()
         this.showWrap()
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
@@ -178,7 +176,7 @@ class PreviewWork {
       if (this.workId !== id) {
         this.show = false
         // 设置 index
-        this.index = this.indexHistory[id] || 0
+        this.index = states.indexRecord[id] || 0
       }
 
       // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
@@ -505,7 +503,7 @@ class PreviewWork {
       }
     }
 
-    this.indexHistory[this.workId] = this.index
+    states.indexRecord[this.workId] = this.index
 
     this.showWrap()
   }
@@ -882,17 +880,6 @@ class PreviewWork {
     if (!data) {
       return
     }
-    // 传递图片的 url，但是不传递尺寸。
-    // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
-    // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-    showOriginSizeImage.setData(
-      {
-        original: this.replaceURL(data.body.urls.original),
-        regular: this.replaceURL(data.body.urls.regular),
-      },
-      data,
-      this.index
-    )
   }
 }
 

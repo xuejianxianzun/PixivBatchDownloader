@@ -8,6 +8,7 @@ import { Config } from '../Config'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { API } from '../API'
 import { ArtworkData } from '../crawl/CrawlResult'
+import { states } from '../store/States'
 
 /**在多图作品页面里显示缩略图列表 */
 class DisplayThumbnailListOnMultiImageWorkPage {
@@ -70,13 +71,14 @@ class DisplayThumbnailListOnMultiImageWorkPage {
       wrap.style.display = 'block'
       target.insertAdjacentElement('afterbegin', wrap)
 
-      // 为每个缩略图添加点击事件，点击时打开图片查看器
+      // 为每个缩略图添加事件
       const images = wrap.querySelectorAll('li img')
       images.forEach((img) => {
-        img.addEventListener('click', (ev) => {
-          const li = img.parentElement as HTMLElement
-          const index = Number.parseInt(li.dataset.index!)
+        const li = img.parentElement as HTMLElement
+        const index = Number.parseInt(li.dataset.index!)
 
+        // 点击时打开图片查看器
+        img.addEventListener('click', (ev) => {
           new ImageViewer({
             workId: id,
             initialViewIndex: index,
@@ -84,6 +86,11 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             autoStart: true,
             showLoading: true,
           })
+        })
+
+        // 鼠标经过时把当前的 index 记录到 states 里，以便在用户预览这张图片或显示其大图时，能正确显示当前图片
+        img.addEventListener('mouseover', (ev) => {
+          states.indexRecord[id] = index
         })
       })
     }

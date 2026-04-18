@@ -67,6 +67,9 @@ class States {
   // 在定时抓取模式下，不显示一些提示
   public timedCrawlMode = false
 
+  /** 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度 */
+  public indexRecord: Record<string, number> = {}
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true

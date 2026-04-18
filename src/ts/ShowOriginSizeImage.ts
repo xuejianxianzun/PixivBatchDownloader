@@ -4,15 +4,16 @@ import { Utils } from './utils/Utils'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { PreviewUgoira } from './PreviewUgoira'
 import { ArtworkData } from './crawl/CrawlResult'
-import { states } from './store/States'
-import { toast } from './Toast'
 import { lang } from './Language'
-import { Colors } from './Colors'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 import { Config } from './Config'
 import { IDData } from './store/StoreType'
 import { copyWorkInfo } from './CopyWorkInfo'
+import { cacheWorkData } from './store/CacheWorkData'
+import { API } from './API'
+import { toast } from './Toast'
+import { states } from './store/States'
 
 interface Style {
   imgW: number
@@ -23,30 +24,25 @@ interface Style {
   ml: number
 }
 
-interface Urls {
-  original: string
-  regular: string
-}
-
 class ShowOriginSizeImage {
   constructor() {
     if (Config.mobile) {
       return
     }
 
-    this.createElements()
-    this.bindEvents()
+    setTimeout(() => {
+      this.createElements()
+      this.bindEvents()
+    }, 0)
   }
 
-  private urls = {
-    original: '',
-    regular: '',
-  }
-
+  private workId = ''
   private workData?: ArtworkData
 
-  // 显示作品中的第几张图片
-  private index = 0
+  /** 显示这个作品里的第几张图片。如果该作品被“预览作品”功能查看过，可以获取用户最后查看的是第几张图片。否则使用第 1 张 */
+  private get index(): number {
+    return states.indexRecord[this.workId] || 0
+  }
 
   // 原比例查看图片的容器的元素
   private wrapId = 'originSizeWrap'
@@ -131,9 +127,9 @@ class ShowOriginSizeImage {
   }
 
   private bindEvents() {
-    artworkThumbnail.onEnter((el: HTMLElement) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       if (settings.showOriginImage) {
-        // 这里测试在 CentBrowser（内核版本 86）中存在问题，因为 CentBrowser 里鼠标右键松开时才会触发 mousedown 事件，导致根本没法做鼠标长按的效果
+        this.workId = id
         el.addEventListener('mousedown', this.readyShow)
         el.addEventListener('mouseup', this.cancelReadyShow)
       }
@@ -142,6 +138,7 @@ class ShowOriginSizeImage {
     artworkThumbnail.onLeave((el: HTMLElement) => {
       el.removeEventListener('mousedown', this.readyShow)
       el.removeEventListener('mouseup', this.cancelReadyShow)
+      // 当鼠标离开缩略图时，不重置 this.workId。因为在长按过程中，预览作品的图片可能显示在缩略图上，触发此事件。此时如果清除 this.workId，就无法显示原图了。
     })
 
     this.wrap.addEventListener('click', () => {
@@ -192,18 +189,17 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
+        if (!this.workId) {
+          return
+        }
+
         if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
           return
         }
 
-        const idData: IDData = {
-          type: 'illusts',
-          id: this.workData!.body.id,
-        }
-
         // 使用快捷键 D 下载这个作品
         if (ev.code === 'KeyD') {
-          EVT.fire('crawlIdList', [idData])
+          this.downloadWork(this.workId)
         }
 
         if (ev.code === 'KeyC') {
@@ -211,16 +207,9 @@ class ShowOriginSizeImage {
           // 使用快捷键 Alt + C 调用复制功能
           if (ev.altKey) {
             ev.preventDefault()
-            copyWorkInfo.receive(idData, this.index)
+            this.copy(this.workId)
           } else {
-            // 使用快捷键 C 下载当前显示的这张图片
-            if (this.workData!.body.pageCount > 1) {
-              store.setDownloadOnlyPart(Number.parseInt(idData.id), [
-                this.index,
-              ])
-            }
-
-            EVT.fire('crawlIdList', [idData])
+            this.downloadImage(this.workId)
           }
         }
 
@@ -268,10 +257,16 @@ class ShowOriginSizeImage {
 
   // 初次显示一个图片时，初始化 wrap 的样式
   private async initWrap(ev: MouseEvent) {
-    const url = this.urls[settings.showOriginImageSize]
-    if (!url) {
+    try {
+      this.workData = await this.getWorkData(this.workId)
+    } catch (error) {
+      toast.error(lang.transl('_获取作品数据失败'))
       return
     }
+    const url = this.workData?.body.urls[settings.showOriginImageSize].replace(
+      'p0',
+      `p${this.index}`
+    )
 
     this.zoomIndex = 6
     this.zoom = this.zoomList[this.zoomIndex]
@@ -459,16 +454,47 @@ class ShowOriginSizeImage {
       this.previewUgoira.setSize(this.style.width, this.style.height)
   }
 
-  public setData(urls: Urls, data: ArtworkData, index: number) {
-    this.urls = urls
-    this.workData = data
-    this.index = index
+  private async getWorkData(id: string) {
+    const cache = cacheWorkData.get(id)
+    if (cache) {
+      return cache
+    }
+
+    const data = await API.getArtworkData(id)
+    cacheWorkData.set(data)
+    return data
   }
 
-  public hide() {
-    this.show = false
+  /** 使用快捷键 D 下载这个作品 */
+  private async downloadWork(id: string) {
+    const idData: IDData = {
+      type: 'illusts',
+      id,
+    }
+    EVT.fire('crawlIdList', [idData])
+  }
+
+  /** 使用快捷键 C 下载当前显示的这张图片 */
+  private async downloadImage(id: string) {
+    const data = await this.getWorkData(id)
+    const idData: IDData = {
+      type: 'illusts',
+      id,
+    }
+    if (data.body.pageCount > 1) {
+      store.setDownloadOnlyPart(Number.parseInt(idData.id), [this.index])
+    }
+    EVT.fire('crawlIdList', [idData])
+  }
+
+  /** 使用快捷键 Alt + C 调用复制功能 */
+  private async copy(id: string) {
+    const idData: IDData = {
+      type: 'illusts',
+      id,
+    }
+    copyWorkInfo.receive(idData, this.index)
   }
 }
 
-const showOriginSizeImage = new ShowOriginSizeImage()
-export { showOriginSizeImage }
+new ShowOriginSizeImage()
