@@ -3,7 +3,7 @@
 在 Pixiv 的 console 里隐藏这些消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -content_script.js -_app- -_app. 
 
-## next
+## 18.7.0
 
 ### ✨新功能
 
@@ -366,6 +366,8 @@ this.getIdList()
 由于 `setTimeoutWorker.sleep` 在前台页面里可以完全替代 `Utils.sleep`，所以应该全都换成 `setTimeoutWorker.sleep`。
 
 但考虑到 `setTimeoutWorker.sleep` 只有 sleep 这一个公开方法，而 Utils 包含更多功能，而且已经被很多模块引用了。所以我直接让 `Utils.sleep` return `setTimeoutWorker.sleep`，再把原来的两种 sleep 都统一成 `Utils.sleep`，调用起来更简洁，也减少了分歧。
+
+### 🕑更新了作品发布时间数据
 
 ## 18.6.0 2026-04-04
 
