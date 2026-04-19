@@ -71,8 +71,8 @@ class API {
    *
    * 429、502 错误会自动重试。
    *
-   * 如果状态码异常并且重试失败，会通过 reject 抛出 Error */
-  static fetch<T>(
+   * 如果状态码异常并且重试失败，会通过 throw 抛出 Error */
+  static async fetch<T>(
     url: string,
     init?: RequestInit,
     format: 'json' | 'text' = 'json'
@@ -82,60 +82,54 @@ class API {
       method: 'get',
       credentials: 'same-origin',
     }
-    return new Promise((resolve, reject) => {
-      const attemptRequest = async (tryCount = 0) => {
-        try {
-          const response = await fetch(url, init)
-          // response.ok 的状态码范围是 200-299
-          if (response.ok && !mockHttpStatus) {
-            // 请求成功，直接返回数据
-            const data = await response[format]()
-            return resolve(data)
-          } else {
-            // 请求成功但状态码异常
-            // 或者启用了 mockHttpStatus 模拟错误
-            let status = response.status
-            if (mockHttpStatus) {
-              status = mockHttpStatus
-              console.log(`Mocked http status ${status}`)
-            }
+    const attemptRequest = async (tryCount = 0): Promise<T> => {
+      const response = await fetch(url, init)
+      // response.ok 的状态码范围是 200-299
+      if (response.ok && !mockHttpStatus) {
+        // 请求成功，直接返回数据
+        const data = await response[format]()
+        return data as T
+      } else {
+        // 请求成功但状态码异常
+        // 或者启用了 mockHttpStatus 模拟错误
+        let status = response.status
+        if (mockHttpStatus) {
+          status = mockHttpStatus
+          console.log(`Mocked http status ${status}`)
+        }
 
-            // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
-            EVT.fire('requestStatusError', {
-              status,
-              url,
-            })
+        // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
+        EVT.fire('requestStatusError', {
+          status,
+          url,
+        })
 
-            // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
-            // 在其他模块里调用 API 时，不需要自行处理 429 错误
-            // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
-            // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
-            if (status === 429) {
-              // 等待一段时间后，通过尾递归重试请求
-              // console.log(`429 tryCount ${tryCount}`)
-              await Utils.sleep(Config.retryTime)
-              return await attemptRequest(tryCount + 1)
-            } else if (status === 502 && tryCount < 3) {
-              // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
-              // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
-              console.log(`502 tryCount ${tryCount}`)
-              await Utils.sleep(10000)
-              return await attemptRequest(tryCount + 1)
-            } else {
-              // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
-              return reject({
-                status: status,
-                statusText: response.statusText,
-              })
-            }
+        // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
+        // 在其他模块里调用 API 时，不需要自行处理 429 错误
+        // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
+        // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
+        if (status === 429) {
+          // 等待一段时间后，通过尾递归重试请求
+          // console.log(`429 tryCount ${tryCount}`)
+          await Utils.sleep(Config.retryTime)
+          return await attemptRequest(tryCount + 1)
+        } else if (status === 502 && tryCount < 3) {
+          // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
+          // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
+          console.log(`502 tryCount ${tryCount}`)
+          await Utils.sleep(10000)
+          return await attemptRequest(tryCount + 1)
+        } else {
+          // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 throw 抛出错误
+          throw {
+            status: status,
+            statusText: response.statusText,
           }
-        } catch (error) {
-          return reject(error)
         }
       }
+    }
 
-      attemptRequest()
-    })
+    return attemptRequest()
   }
 
   /** 获取收藏数据
@@ -595,30 +589,28 @@ class API {
     show = true,
     recaptcha_enterprise_score_token = ''
   ): Promise<number> {
-    return new Promise(async (resolve) => {
-      const url = `https://www.pixiv.net/bookmark_add.php`
-      const init: RequestInit = {
-        method: 'POST',
-        credentials: 'same-origin', // 附带 cookie
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-          'x-csrf-token': token,
-        },
-        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
-      }
+    const url = `https://www.pixiv.net/bookmark_add.php`
+    const init: RequestInit = {
+      method: 'POST',
+      credentials: 'same-origin', // 附带 cookie
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'x-csrf-token': token,
+      },
+      body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+    }
 
-      try {
-        // 如果操作成功，则返回值是 []
-        // 如果用户不存在，返回值是该用户主页的网页源码
-        // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
-        // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
-        await this.fetch(url, init, 'text')
-        return resolve(200)
-      } catch (error: Error | any) {
-        return resolve(error.status || 0)
-      }
-    })
+    try {
+      // 如果操作成功，则返回值是 []
+      // 如果用户不存在，返回值是该用户主页的网页源码
+      // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+      // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
+      await this.fetch(url, init, 'text')
+      return 200
+    } catch (error: Error | any) {
+      return error.status || 0
+    }
   }
 
   /** 获取比赛里的应募作品列表，每次 1 页（最对 50 个作品） */

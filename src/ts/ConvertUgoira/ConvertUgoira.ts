@@ -8,6 +8,8 @@ import { msgBox } from '../MsgBox'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { log } from '../Log'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { states } from '../store/States'
 
 // 控制动图转换
 class ConvertUgoira {
@@ -15,8 +17,6 @@ class ConvertUgoira {
     this.setMaxCount()
     this.bindEvents()
   }
-
-  private downloading = true // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
 
   private _count: number = 0 // 统计有几个转换任务
 
@@ -26,13 +26,7 @@ class ConvertUgoira {
 
   private bindEvents() {
     window.addEventListener(EVT.list.downloadStart, () => {
-      this.downloading = true
       msgBox.resetOnce(this.msgFlag)
-    })
-    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
-      window.addEventListener(event, () => {
-        this.downloading = false
-      })
     })
 
     // 设置发生变化时
@@ -69,35 +63,36 @@ class ConvertUgoira {
     info: UgoiraInfo,
     type: 'webm' | 'gif' | 'png'
   ): Promise<Blob> {
-    return new Promise(async (resolve, reject) => {
-      const t = window.setInterval(async () => {
-        if (this._count < this.maxCount) {
-          window.clearInterval(t)
-          if (!this.downloading) {
-            return
-          }
-          this.count = this._count + 1
+    while (true) {
+      await setTimeoutWorker.sleep(200)
+      // 如果已经停止下载，就不添加这个任务，避免浪费资源
+      // 此时不用返回真正的 Blob 对象，因为停止下载时，Download 里也不会执行后续操作了
+      if (!states.downloading) {
+        return '' as any
+      }
 
-          // 提取每一张图片
-          const zipFileBuffer = await file.arrayBuffer()
-          const indexList = Tools.getJPGContentIndex(zipFileBuffer)
-          const ImageBitmapList = await Tools.extractImage(
-            zipFileBuffer,
-            indexList,
-            'ImageBitmap'
-          )
+      if (this._count < this.maxCount) {
+        this.count = this._count + 1
 
-          if (type === 'gif') {
-            resolve(toGIF.convert(ImageBitmapList, info, file.size))
-          } else if (type === 'png') {
-            resolve(toAPNG.convert(ImageBitmapList, info))
-          } else {
-            // 如果没有 type 则默认使用 webm
-            resolve(toWebM.convert(ImageBitmapList, info))
-          }
+        // 提取每一张图片
+        const zipFileBuffer = await file.arrayBuffer()
+        const indexList = Tools.getJPGContentIndex(zipFileBuffer)
+        const ImageBitmapList = await Tools.extractImage(
+          zipFileBuffer,
+          indexList,
+          'ImageBitmap'
+        )
+
+        if (type === 'gif') {
+          return toGIF.convert(ImageBitmapList, info, file.size)
+        } else if (type === 'png') {
+          return toAPNG.convert(ImageBitmapList, info)
+        } else {
+          // 默认使用 webm 格式
+          return toWebM.convert(ImageBitmapList, info)
         }
-      }, 200)
-    })
+      }
+    }
   }
 
   private complete() {

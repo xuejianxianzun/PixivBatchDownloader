@@ -1266,68 +1266,61 @@ class API {
      *
      * 429、502 错误会自动重试。
      *
-     * 如果状态码异常并且重试失败，会通过 reject 抛出 Error */
-    static fetch(url, init, format = 'json') {
+     * 如果状态码异常并且重试失败，会通过 throw 抛出 Error */
+    static async fetch(url, init, format = 'json') {
         // 默认发送 get 请求
         init = init || {
             method: 'get',
             credentials: 'same-origin',
         };
-        return new Promise((resolve, reject) => {
-            const attemptRequest = async (tryCount = 0) => {
-                try {
-                    const response = await fetch(url, init);
-                    // response.ok 的状态码范围是 200-299
-                    if (response.ok && !mockHttpStatus) {
-                        // 请求成功，直接返回数据
-                        const data = await response[format]();
-                        return resolve(data);
-                    }
-                    else {
-                        // 请求成功但状态码异常
-                        // 或者启用了 mockHttpStatus 模拟错误
-                        let status = response.status;
-                        if (mockHttpStatus) {
-                            status = mockHttpStatus;
-                            console.log(`Mocked http status ${status}`);
-                        }
-                        // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
-                        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestStatusError', {
-                            status,
-                            url,
-                        });
-                        // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
-                        // 在其他模块里调用 API 时，不需要自行处理 429 错误
-                        // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
-                        // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
-                        if (status === 429) {
-                            // 等待一段时间后，通过尾递归重试请求
-                            // console.log(`429 tryCount ${tryCount}`)
-                            await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime);
-                            return await attemptRequest(tryCount + 1);
-                        }
-                        else if (status === 502 && tryCount < 3) {
-                            // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
-                            // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
-                            console.log(`502 tryCount ${tryCount}`);
-                            await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(10000);
-                            return await attemptRequest(tryCount + 1);
-                        }
-                        else {
-                            // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
-                            return reject({
-                                status: status,
-                                statusText: response.statusText,
-                            });
-                        }
-                    }
+        const attemptRequest = async (tryCount = 0) => {
+            const response = await fetch(url, init);
+            // response.ok 的状态码范围是 200-299
+            if (response.ok && !mockHttpStatus) {
+                // 请求成功，直接返回数据
+                const data = await response[format]();
+                return data;
+            }
+            else {
+                // 请求成功但状态码异常
+                // 或者启用了 mockHttpStatus 模拟错误
+                let status = response.status;
+                if (mockHttpStatus) {
+                    status = mockHttpStatus;
+                    console.log(`Mocked http status ${status}`);
                 }
-                catch (error) {
-                    return reject(error);
+                // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
+                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestStatusError', {
+                    status,
+                    url,
+                });
+                // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
+                // 在其他模块里调用 API 时，不需要自行处理 429 错误
+                // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
+                // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
+                if (status === 429) {
+                    // 等待一段时间后，通过尾递归重试请求
+                    // console.log(`429 tryCount ${tryCount}`)
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime);
+                    return await attemptRequest(tryCount + 1);
                 }
-            };
-            attemptRequest();
-        });
+                else if (status === 502 && tryCount < 3) {
+                    // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
+                    // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
+                    console.log(`502 tryCount ${tryCount}`);
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(10000);
+                    return await attemptRequest(tryCount + 1);
+                }
+                else {
+                    // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 throw 抛出错误
+                    throw {
+                        status: status,
+                        statusText: response.statusText,
+                    };
+                }
+            }
+        };
+        return attemptRequest();
     }
     /** 获取收藏数据
      * 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的 */
@@ -1611,30 +1604,28 @@ class API {
      * show: true 为公开关注，false 为非公开关注
      * recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值 */
     static async addFollowingUser(userID, token, show = true, recaptcha_enterprise_score_token = '') {
-        return new Promise(async (resolve) => {
-            const url = `https://www.pixiv.net/bookmark_add.php`;
-            const init = {
-                method: 'POST',
-                credentials: 'same-origin', // 附带 cookie
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-                    'x-csrf-token': token,
-                },
-                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
-            };
-            try {
-                // 如果操作成功，则返回值是 []
-                // 如果用户不存在，返回值是该用户主页的网页源码
-                // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
-                // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
-                await this.fetch(url, init, 'text');
-                return resolve(200);
-            }
-            catch (error) {
-                return resolve(error.status || 0);
-            }
-        });
+        const url = `https://www.pixiv.net/bookmark_add.php`;
+        const init = {
+            method: 'POST',
+            credentials: 'same-origin', // 附带 cookie
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'x-csrf-token': token,
+            },
+            body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+        };
+        try {
+            // 如果操作成功，则返回值是 []
+            // 如果用户不存在，返回值是该用户主页的网页源码
+            // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+            // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
+            await this.fetch(url, init, 'text');
+            return 200;
+        }
+        catch (error) {
+            return error.status || 0;
+        }
     }
     /** 获取比赛里的应募作品列表，每次 1 页（最对 50 个作品） */
     static async getContestWorksData(type, name, p, order = 'date_d') {
@@ -2123,52 +2114,56 @@ class Bookmark {
     nextTaskID = 1;
     /**添加收藏
      *
-     * 可选参数 tags：可以直接传入这个作品的 tag 列表
+     * @param id 作品 id
+     *
+     * @param type 作品类型，illusts 或 novels
+     *
+     * @param tags 可以直接传入这个作品的 tag 列表
      *
      * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
      *
-     * 可选参数 needAddTag：控制是否添加 tag。缺省时使用 settings.widthTagBoolean
+     * @param needAddTag 控制是否添加 tag。缺省时使用 settings.widthTagBoolean
      *
-     * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
+     * @param restrict 指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
      *
-     * 可选参数 slowly：未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
+     * @param slowly 未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
      */
     async add(id, type, tags, needAddTag, restrict, slowly) {
-        return new Promise(async (resolve, reject) => {
-            const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.widthTagBoolean : !!needAddTag;
-            if (_needAddTag) {
-                // 需要添加 tags
-                if (tags === undefined) {
-                    // 如果未传递 tags，则请求作品数据来获取 tags
-                    try {
-                        const data = await this.getWorkData(type, id);
-                        tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
-                    }
-                    catch (error) {
-                        // 请求失败的话使用空 tags。这不是致命问题
-                        tags = [];
-                    }
+        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.widthTagBoolean : !!needAddTag;
+        if (_needAddTag) {
+            // 需要添加 tags
+            if (tags === undefined) {
+                // 如果未传递 tags，则请求作品数据来获取 tags
+                try {
+                    const data = await this.getWorkData(type, id);
+                    tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
+                }
+                catch (error) {
+                    // 请求失败的话使用空 tags。这不是致命问题
+                    tags = [];
                 }
             }
-            else {
-                // 不需要添加 tags
-                tags = [];
-            }
-            const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.restrictBoolean : !!restrict;
-            // 立即执行的情况
-            if (!slowly) {
-                const status = await this.sendRequest(id, type, tags, _restrict);
-                return resolve(status);
-            }
-            // 需要排队的情况
-            const NO = ++this.taskID;
-            await this.waitCallMe(NO);
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(async () => {
-                const status = await this.sendRequest(id, type, tags, _restrict);
-                this.nextTaskID++;
-                return resolve(status);
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
-        });
+        }
+        else {
+            // 不需要添加 tags
+            tags = [];
+        }
+        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.restrictBoolean : !!restrict;
+        // 立即执行的情况
+        if (!slowly) {
+            const status = await this.sendRequest(id, type, tags, _restrict);
+            return status;
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示添加收藏时会慢速执行'), 'tipSlowlyAddBookmark');
+        }
+        // 需要排队的情况
+        const NO = ++this.taskID;
+        await this.waitCallMe(NO);
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
+        const status = await this.sendRequest(id, type, tags, _restrict);
+        this.nextTaskID++;
+        return status;
     }
     async waitCallMe(NO) {
         while (this.nextTaskID !== NO) {
@@ -2178,32 +2173,30 @@ class Bookmark {
     }
     /**获取指定用户的指定分类下的所有收藏列表，不限制页数或个数，全部抓取 */
     async getAllBookmarkList(userID, type, tags, offsetStart = 0, hide) {
-        return new Promise(async (resolve) => {
-            const result = [];
-            let offset = offsetStart;
-            const onceOffset = 100;
-            while (true) {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(userID, type, '', offset, hide);
-                for (const workData of data.body.works) {
-                    result.push({
-                        id: workData.id,
-                        type: workData.illustType === undefined
-                            ? 'novels'
-                            : 'illusts',
-                        tags: workData.tags,
-                        restrict: workData.bookmarkData?.private || false,
-                    });
-                }
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark');
-                offset += onceOffset;
-                if (data.body.works.length === 0) {
-                    break;
-                }
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
+        const result = [];
+        let offset = offsetStart;
+        const onceOffset = 100;
+        while (true) {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(userID, type, '', offset, hide);
+            for (const workData of data.body.works) {
+                result.push({
+                    id: workData.id,
+                    type: workData.illustType === undefined
+                        ? 'novels'
+                        : 'illusts',
+                    tags: workData.tags,
+                    restrict: workData.bookmarkData?.private || false,
+                });
             }
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('resutlCountWhenCrawlingBookmark');
-            resolve(result);
-        });
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark');
+            offset += onceOffset;
+            if (data.body.works.length === 0) {
+                break;
+            }
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('resutlCountWhenCrawlingBookmark');
+        return result;
     }
     async addBookmarksInBatchs(list, oldList = []) {
         // 反转要添加收藏的作品列表。这是因为它来自于导出的收藏列表，导出时的顺序是按照添加收藏时的倒序排列
@@ -2254,10 +2247,8 @@ class Bookmark {
                     // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
                     case 400:
                         await _Token__WEBPACK_IMPORTED_MODULE_7__.token.reset();
-                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(3000);
-                        return new Promise((retryResolve, retryReject) => {
-                            this.sendRequest(id, type, tags, hide).then(retryResolve, retryReject);
-                        });
+                        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.sleep(3000);
+                        return this.sendRequest(id, type, tags, hide);
                     case 403:
                         // 显示 403 错误的提示
                         // 当一个账号被限制无法收藏时，依然可以正常删除收藏，所以“取消收藏本页面中的所有作品”的功能不受影响
@@ -2850,6 +2841,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
+
 
 
 
@@ -2865,19 +2860,12 @@ class ConvertUgoira {
         this.setMaxCount();
         this.bindEvents();
     }
-    downloading = true; // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
     _count = 0; // 统计有几个转换任务
     maxCount = 1; // 允许同时运行多少个转换任务
     msgFlag = 'tipConvertUgoira';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
-            this.downloading = true;
             _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.resetOnce(this.msgFlag);
-        });
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop].forEach((event) => {
-            window.addEventListener(event, () => {
-                this.downloading = false;
-            });
         });
         // 设置发生变化时
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
@@ -2904,31 +2892,31 @@ class ConvertUgoira {
         // this.checkHidden()
     }
     async start(file, info, type) {
-        return new Promise(async (resolve, reject) => {
-            const t = window.setInterval(async () => {
-                if (this._count < this.maxCount) {
-                    window.clearInterval(t);
-                    if (!this.downloading) {
-                        return;
-                    }
-                    this.count = this._count + 1;
-                    // 提取每一张图片
-                    const zipFileBuffer = await file.arrayBuffer();
-                    const indexList = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getJPGContentIndex(zipFileBuffer);
-                    const ImageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.extractImage(zipFileBuffer, indexList, 'ImageBitmap');
-                    if (type === 'gif') {
-                        resolve(_ToGIF__WEBPACK_IMPORTED_MODULE_3__.toGIF.convert(ImageBitmapList, info, file.size));
-                    }
-                    else if (type === 'png') {
-                        resolve(_ToAPNG__WEBPACK_IMPORTED_MODULE_4__.toAPNG.convert(ImageBitmapList, info));
-                    }
-                    else {
-                        // 如果没有 type 则默认使用 webm
-                        resolve(_ToWebM__WEBPACK_IMPORTED_MODULE_2__.toWebM.convert(ImageBitmapList, info));
-                    }
+        while (true) {
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.sleep(200);
+            // 如果已经停止下载，就不添加这个任务，避免浪费资源
+            // 此时不用返回真正的 Blob 对象，因为停止下载时，Download 里也不会执行后续操作了
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_10__.states.downloading) {
+                return '';
+            }
+            if (this._count < this.maxCount) {
+                this.count = this._count + 1;
+                // 提取每一张图片
+                const zipFileBuffer = await file.arrayBuffer();
+                const indexList = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getJPGContentIndex(zipFileBuffer);
+                const ImageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.extractImage(zipFileBuffer, indexList, 'ImageBitmap');
+                if (type === 'gif') {
+                    return _ToGIF__WEBPACK_IMPORTED_MODULE_3__.toGIF.convert(ImageBitmapList, info, file.size);
                 }
-            }, 200);
-        });
+                else if (type === 'png') {
+                    return _ToAPNG__WEBPACK_IMPORTED_MODULE_4__.toAPNG.convert(ImageBitmapList, info);
+                }
+                else {
+                    // 默认使用 webm 格式
+                    return _ToWebM__WEBPACK_IMPORTED_MODULE_2__.toWebM.convert(ImageBitmapList, info);
+                }
+            }
+        }
     }
     complete() {
         this.count = this._count - 1;
@@ -2979,34 +2967,32 @@ __webpack_require__.r(__webpack_exports__);
 
 class ToAPNG {
     async convert(ImageBitmapList, info) {
-        return new Promise(async (resolve, reject) => {
-            const width = ImageBitmapList[0].width;
-            const height = ImageBitmapList[0].height;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d', {
-                willReadFrequently: true,
-            });
-            canvas.width = width;
-            canvas.height = height;
-            // 添加帧数据
-            let arrayBuffList = [];
-            ImageBitmapList.forEach((imageBitmap) => {
-                ctx.drawImage(imageBitmap, 0, 0);
-                // 从画布获取图像绘制后的 Uint8ClampedArray buffer
-                const buff = ctx.getImageData(0, 0, width, height).data.buffer;
-                arrayBuffList.push(buff);
-            });
-            const delayList = info.frames.map((frame) => frame.delay);
-            // 编码
-            // https://github.com/photopea/UPNG.js/#encoder
-            const pngFile = UPNG.encode(arrayBuffList, width, height, 0, delayList);
-            arrayBuffList = null;
-            const blob = new Blob([pngFile], {
-                type: 'image/vnd.mozilla.apng',
-            });
-            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('convertSuccess');
-            resolve(blob);
+        const width = ImageBitmapList[0].width;
+        const height = ImageBitmapList[0].height;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', {
+            willReadFrequently: true,
         });
+        canvas.width = width;
+        canvas.height = height;
+        // 添加帧数据
+        let arrayBuffList = [];
+        ImageBitmapList.forEach((imageBitmap) => {
+            ctx.drawImage(imageBitmap, 0, 0);
+            // 从画布获取图像绘制后的 Uint8ClampedArray buffer
+            const buff = ctx.getImageData(0, 0, width, height).data.buffer;
+            arrayBuffList.push(buff);
+        });
+        const delayList = info.frames.map((frame) => frame.delay);
+        // 编码
+        // https://github.com/photopea/UPNG.js/#encoder
+        const pngFile = UPNG.encode(arrayBuffList, width, height, 0, delayList);
+        const blob = new Blob([pngFile], {
+            type: 'image/vnd.mozilla.apng',
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('convertSuccess');
+        arrayBuffList = null;
+        return blob;
     }
 }
 const toAPNG = new ToAPNG();
@@ -4971,6 +4957,10 @@ class HighlightFollowingUsers {
                     ? /\/users\/(\d+)/
                     : this.checkUserLinkReg);
                 if (test && test.length > 1) {
+                    // 如果匹配到了用户链接，则检查 href 的原始值。这是因为当原始 href 值为空字符串时(<a href=''></a>)，a.href 的值会被浏览器自动解析成当前页面的 URL，这可能导致误判。需要排除这种情况
+                    if (!a.getAttribute('href')) {
+                        continue;
+                    }
                     match = _FollowingList__WEBPACK_IMPORTED_MODULE_6__.followingList.following.includes(test[1]);
                     // 要高亮的元素
                     let target = a;
@@ -5201,50 +5191,48 @@ class ImageViewer {
     }
     // 图片查看器需要一个图片列表元素，创建缩略图列表
     async createImageList() {
-        return new Promise(async (resolve) => {
-            // 获取作品数据
-            if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.has(this.cfg.workId)) {
-                this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.getWorkDataAsync(this.cfg.workId, 'artwork');
-            }
-            else {
-                this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = true);
-                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
-                this.workData = data;
-                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.set(data);
-                this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = false);
-            }
-            const body = this.workData.body;
-            // 处理插画、漫画、动图作品，不处理其他类型的作品
-            if (body.illustType === 0 ||
-                body.illustType === 1 ||
-                body.illustType === 2) {
-                // 创建缩略图列表
-                this.pageCount = body.pageCount;
-                this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original;
-                // 缩略图列表的结构： div > ul > li > img + a
-                this.viewerWarpper = document.createElement('div');
-                this.viewerUl = document.createElement('ul');
-                this.viewerUl.classList.add('beautify_scrollbar');
-                this.viewerWarpper.appendChild(this.viewerUl);
-                this.viewerWarpper.style.display = 'none';
-                // 生成 UL 里面的缩略图列表
-                let html = [];
-                for (let index = 0; index < body.pageCount; index++) {
-                    const thumb = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index));
-                    const imgUrl = this.firstImageURL.replace('p0', 'p' + index);
-                    const imageName = imgUrl.split('/').pop();
-                    // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
-                    const str = `<li data-index="${index}">
+        // 获取作品数据
+        if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.has(this.cfg.workId)) {
+            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.getWorkDataAsync(this.cfg.workId, 'artwork');
+        }
+        else {
+            this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = true);
+            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
+            this.workData = data;
+            _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.set(data);
+            this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = false);
+        }
+        const body = this.workData.body;
+        // 处理插画、漫画、动图作品，不处理其他类型的作品
+        if (body.illustType === 0 ||
+            body.illustType === 1 ||
+            body.illustType === 2) {
+            // 创建缩略图列表
+            this.pageCount = body.pageCount;
+            this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original;
+            // 缩略图列表的结构： div > ul > li > img + a
+            this.viewerWarpper = document.createElement('div');
+            this.viewerUl = document.createElement('ul');
+            this.viewerUl.classList.add('beautify_scrollbar');
+            this.viewerWarpper.appendChild(this.viewerUl);
+            this.viewerWarpper.style.display = 'none';
+            // 生成 UL 里面的缩略图列表
+            let html = [];
+            for (let index = 0; index < body.pageCount; index++) {
+                const thumb = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index));
+                const imgUrl = this.firstImageURL.replace('p0', 'p' + index);
+                const imageName = imgUrl.split('/').pop();
+                // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
+                const str = `<li data-index="${index}">
               <img src="${thumb}" data-src="${imgUrl}" alt="${imageName}" />
               <a href="${window.location.href}"></a>
             </li>`;
-                    html.push(str);
-                }
-                this.viewerUl.innerHTML = html.join('');
+                html.push(str);
             }
-            return resolve(this.viewerWarpper);
-        });
+            this.viewerUl.innerHTML = html.join('');
+        }
+        return this.viewerWarpper;
     }
     // 配置图片查看器
     configureViewer() {
@@ -5689,7 +5677,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
+
 
 
 
@@ -5734,7 +5724,7 @@ class Input {
         wrap.id = this.id;
         // 这里设置的宽度是粗略值，后面会再修改
         wrap.style.width = option.width + 200 + 'px';
-        _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
+        _Theme__WEBPACK_IMPORTED_MODULE_3__.theme.register(wrap);
         if (option.instruction) {
             const p = document.createElement('p');
             p.classList.add('XZInputInstruction');
@@ -5810,18 +5800,16 @@ class Input {
     /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
      * 如果用户点击取消按钮，则抛出 reject
      */
-    submit() {
-        return new Promise((resolve, reject) => {
-            window.setTimeout(() => {
-                if (this.cancelled) {
-                    return reject('');
-                }
-                if (this.submitted) {
-                    return resolve(this.value);
-                }
-                return resolve(this.submit());
-            }, 100);
-        });
+    async submit() {
+        while (true) {
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_2__.setTimeoutWorker.sleep(100);
+            if (this.cancelled) {
+                return '';
+            }
+            if (this.submitted) {
+                return this.value;
+            }
+        }
     }
 }
 
@@ -7366,16 +7354,9 @@ class PageType {
                 url: 'https://www.pixiv.net/contest/gf2',
             },
         ];
-        const wait = () => {
-            return new Promise((resolve) => {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_1__.setTimeoutWorker.set(() => {
-                    resolve();
-                }, 500);
-            });
-        };
         for (const item of testPageList) {
             window.open(item.url);
-            await wait();
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_1__.setTimeoutWorker.sleep(500);
         }
     }
 }
@@ -7523,28 +7504,24 @@ class PreviewUgoira {
         // Utils.downloadFile(url, `${this.id}.zip`)
     }
     /**获取该作品的 meta 数据 */
-    getMeta(id) {
-        return new Promise(async (resolve, reject) => {
-            const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id);
-            if (meta.error) {
-                throw reject(meta.message);
-            }
-            resolve(meta.body);
-        });
+    async getMeta(id) {
+        const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id);
+        if (meta.error) {
+            throw new Error(meta.message);
+        }
+        return meta.body;
     }
     /** 发送 HEAD 请求，获取 zip 压缩包的体积 */
-    getFileLength() {
-        return new Promise(async (resolve, reject) => {
-            const response = await fetch(this.zipURL, {
-                method: 'head',
-                credentials: 'same-origin',
-            });
-            const length = response.headers.get('content-length');
-            if (!length) {
-                throw reject('getFileLength error: get length failed');
-            }
-            resolve(Number.parseInt(length));
+    async getFileLength() {
+        const response = await fetch(this.zipURL, {
+            method: 'head',
+            credentials: 'same-origin',
         });
+        const length = response.headers.get('content-length');
+        if (!length) {
+            throw new Error('getFileLength error: get length failed');
+        }
+        return Number.parseInt(length);
     }
     /** 根据 zip 文件的体积分割出数个区间，生成对应的标记文本 */
     setRangeList(total, rangeSize) {
@@ -7567,17 +7544,15 @@ class PreviewUgoira {
         }
         return result;
     }
-    loadRangeFileAsBuff(range) {
-        return new Promise(async (resolve, reject) => {
-            const res = await fetch(this.zipURL, {
-                method: 'get',
-                headers: {
-                    range: range,
-                },
-            });
-            const buff = await res.arrayBuffer();
-            resolve(buff);
+    async loadRangeFileAsBuff(range) {
+        const res = await fetch(this.zipURL, {
+            method: 'get',
+            headers: {
+                range: range,
+            },
         });
+        const buff = await res.arrayBuffer();
+        return buff;
     }
     /**把 ArrayBuffer 追加到已存在的 ArrayBuffer 容器里  */
     appendBuff(target, newBuff) {
@@ -8212,42 +8187,39 @@ class PreviewWork {
     }
     // 通过 img 元素加载图片，获取图片的原始尺寸
     async getImageSize(url) {
-        return new Promise((resolve) => {
-            // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
-            let testImg = new Image();
-            testImg.src = url;
-            const bindIndex = this.index;
-            const timer = window.setInterval(() => {
-                if (this.index !== bindIndex) {
-                    // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
-                    window.clearInterval(timer);
+        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+        let testImg = new Image();
+        testImg.src = url;
+        const bindIndex = this.index;
+        while (true) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(50);
+            if (this.index !== bindIndex) {
+                // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+                testImg.src = '';
+                testImg = null;
+                // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+                // 我不想处理错误，所以用 available 标记来偷懒
+                return {
+                    width: 0,
+                    height: 0,
+                    available: false,
+                };
+            }
+            else {
+                // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+                if (testImg.naturalWidth > 0) {
+                    const width = testImg.naturalWidth;
+                    const height = testImg.naturalHeight;
                     testImg.src = '';
                     testImg = null;
-                    // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
-                    // 我不想处理错误，所以用 available 标记来偷懒
-                    return resolve({
-                        width: 0,
-                        height: 0,
-                        available: false,
-                    });
+                    return {
+                        width,
+                        height,
+                        available: true,
+                    };
                 }
-                else {
-                    // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
-                    if (testImg.naturalWidth > 0) {
-                        const width = testImg.naturalWidth;
-                        const height = testImg.naturalHeight;
-                        window.clearInterval(timer);
-                        testImg.src = '';
-                        testImg = null;
-                        return resolve({
-                            width,
-                            height,
-                            available: true,
-                        });
-                    }
-                }
-            }, 50);
-        });
+            }
+        }
     }
     // 显示预览 wrap
     async showWrap() {
@@ -8256,8 +8228,6 @@ class PreviewWork {
         }
         const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${this.index}`);
         const size = await this.getImageSize(url);
-        // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
-        // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
         if (!size.available || !this.show) {
             return;
         }
@@ -9708,6 +9678,11 @@ class SetTimeoutWorker {
         });
         return data.id;
     }
+    sleep(time) {
+        return new Promise((resolve) => {
+            this.set(resolve, time);
+        });
+    }
     clear(id) {
         this.list.delete(id);
     }
@@ -10799,7 +10774,6 @@ class ShowOriginSizeImage {
     // 默认的缩放比例为 1
     zoom = this.zoomList[this.zoomIndex];
     testImg = new Image();
-    getImageSizeTimer = 0;
     // 定义当鼠标移动 1 像素时，wrap 移动多少像素
     onePxMove = 10;
     moveX = 0;
@@ -10933,18 +10907,15 @@ class ShowOriginSizeImage {
         window.clearTimeout(this.showTimer);
     };
     async getImage(url) {
-        window.clearInterval(this.getImageSizeTimer);
         this.testImg.src = '';
-        return new Promise((resolve) => {
-            this.testImg = new Image();
-            this.testImg.src = url;
-            this.getImageSizeTimer = window.setInterval(() => {
-                if (this.testImg.naturalWidth > 0) {
-                    window.clearInterval(this.getImageSizeTimer);
-                    return resolve(this.testImg);
-                }
-            }, 50);
-        });
+        this.testImg = new Image();
+        this.testImg.src = url;
+        while (true) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(50);
+            if (this.testImg.naturalWidth > 0) {
+                return this.testImg;
+            }
+        }
     }
     // 初次显示一个图片时，初始化 wrap 的样式
     async initWrap(ev) {
@@ -12532,38 +12503,36 @@ class Tools {
         }
     }
     static async extractImage(zipFile, indexList, target) {
-        return new Promise(async (resolve, reject) => {
-            const result = [];
-            let i = 0;
-            for (const index of indexList) {
-                // 起始位置
-                const start = index;
-                // 截止下一个文件名之前
-                // 删除不需要的数据：
-                // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
-                // 10 字节的是下一个 jpg 的文件名
-                let end = indexList[i + 1] - 30 - 10;
-                if (i === indexList.length - 1) {
-                    // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
-                    // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
-                    end = zipFile.byteLength;
-                }
-                const blob = new Blob([zipFile.slice(start, end)], {
-                    type: 'image/jpeg',
-                });
-                if (target === 'ImageBitmap') {
-                    const map = await createImageBitmap(blob);
-                    result.push(map);
-                }
-                else if (target === 'img') {
-                    const url = URL.createObjectURL(blob);
-                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(url);
-                    result.push(img);
-                }
-                ++i;
+        const result = [];
+        let i = 0;
+        for (const index of indexList) {
+            // 起始位置
+            const start = index;
+            // 截止下一个文件名之前
+            // 删除不需要的数据：
+            // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
+            // 10 字节的是下一个 jpg 的文件名
+            let end = indexList[i + 1] - 30 - 10;
+            if (i === indexList.length - 1) {
+                // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
+                // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
+                end = zipFile.byteLength;
             }
-            resolve(result);
-        });
+            const blob = new Blob([zipFile.slice(start, end)], {
+                type: 'image/jpeg',
+            });
+            if (target === 'ImageBitmap') {
+                const map = await createImageBitmap(blob);
+                result.push(map);
+            }
+            else if (target === 'img') {
+                const url = URL.createObjectURL(blob);
+                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(url);
+                result.push(img);
+            }
+            ++i;
+        }
+        return result;
     }
     /**根据 illustType，返回作品类型的描述字符串 */
     // 主要用于储存进 idList
@@ -12896,17 +12865,10 @@ class UnBookmarkWorks {
         });
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = false;
     }
-    waitSlowMode(slowMode) {
-        return new Promise((resolve) => {
-            if (!slowMode) {
-                return resolve();
-            }
-            else {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__.setTimeoutWorker.set(() => {
-                    return resolve();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
-            }
-        });
+    async waitSlowMode(slowMode) {
+        if (slowMode) {
+            return _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+        }
     }
 }
 const unBookmarkWorks = new UnBookmarkWorks();
@@ -15249,28 +15211,25 @@ class VipSearchOptimize {
      * 返回值 true 表示停止抓取
      */
     async checkWork(id, workType) {
-        return new Promise(async (resolve) => {
-            // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-            if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
-                return resolve(false);
-            }
-            let bmk = 99999999;
-            if (workType === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelData(id);
-                bmk = data.body.bookmarkCount;
-            }
-            else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getArtworkData(id);
-                bmk = data.body.bookmarkCount;
-            }
-            const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
-            console.log(bmk);
-            if (!check) {
-                console.log('抽查的作品收藏数量低于最低要求，停止抓取');
-                return resolve(true);
-            }
-            return resolve(false);
-        });
+        // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+        if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
+            return false;
+        }
+        let bmk = 99999999;
+        if (workType === 'novels') {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelData(id);
+            bmk = data.body.bookmarkCount;
+        }
+        else {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getArtworkData(id);
+            bmk = data.body.bookmarkCount;
+        }
+        const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+        if (!check) {
+            console.log('抽查的作品收藏数量低于最低要求，停止抓取');
+            return true;
+        }
+        return false;
     }
     /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品
      *
@@ -19963,7 +19922,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 
 
 
@@ -19971,30 +19930,28 @@ __webpack_require__.r(__webpack_exports__);
 /**获取系列小说的设定资料 */
 class GetNovelGlossarys {
     async getGlossarys(seriesId, interval = 0) {
-        return new Promise(async (resolve, reject) => {
-            // 先获取设定资料的分类、每条设定资料的简略数据
-            // 注意此时每条设定资料缺少 detail 数据（此时为 null）
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(interval);
-            const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
-            const result = glossaryData.body.categories;
-            if (result.length === 0) {
-                return resolve(result);
+        // 先获取设定资料的分类、每条设定资料的简略数据
+        // 注意此时每条设定资料缺少 detail 数据（此时为 null）
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(interval);
+        const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
+        const result = glossaryData.body.categories;
+        if (result.length === 0) {
+            return result;
+        }
+        // 请求每条设定资料的详细数据
+        // 测试用例：这个系列小说有 40 条设定资料
+        // https://www.pixiv.net/novel/series/1446094/glossary
+        let total = 0;
+        for (const categorie of result) {
+            for (const item of categorie.items) {
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(interval);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossaryItem(item.seriesId, item.id);
+                item.detail = data.body.item.detail;
+                total++;
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取设定资料') + ' ' + total, 'getNovelGlossary' + seriesId);
             }
-            // 请求每条设定资料的详细数据
-            // 测试用例：这个系列小说有 40 条设定资料
-            // https://www.pixiv.net/novel/series/1446094/glossary
-            let total = 0;
-            for (const categorie of result) {
-                for (const item of categorie.items) {
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(interval);
-                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossaryItem(item.seriesId, item.id);
-                    item.detail = data.body.item.detail;
-                    total++;
-                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取设定资料') + ' ' + total, 'getNovelGlossary' + seriesId);
-                }
-            }
-            return resolve(result);
-        });
+        }
+        return result;
     }
     /**把设定资料用特定格式存储起来 */
     storeGlossaryText(data) {
@@ -21238,9 +21195,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MergeNovel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MergeNovel */ "./src/ts/download/MergeNovel.ts");
 
 
@@ -21282,18 +21239,13 @@ class AutoMergeNovel {
     }
     /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它 */
     async next() {
-        return new Promise((resolve) => {
-            const check = () => {
-                if (this.pendingQueue.length > 0 &&
-                    this.pendingQueue[0] !== this.workingId) {
-                    return resolve(this.pendingQueue[0]);
-                }
-                else {
-                    window.setTimeout(check, 100);
-                }
-            };
-            check();
-        });
+        while (true) {
+            if (this.pendingQueue.length > 0 &&
+                this.pendingQueue[0] !== this.workingId) {
+                return this.pendingQueue[0];
+            }
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(100);
+        }
     }
     /** 如果某个系列 id 已经存在于等待队列里，则等待这个系列合并完成（等待它从等待队列里移除） */
     async waitMergeComplete(seriesId) {
@@ -21301,13 +21253,13 @@ class AutoMergeNovel {
             if (this.stop || !this.pendingQueue.includes(seriesId)) {
                 return;
             }
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(500);
         }
     }
     // 参数 forceStart: 如果为 true，则使 this.stop = false，以便可以执行合并操作
     async merge(seriesId, seriesTitle, forceStart = false) {
         if (!seriesId) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error('seriesId is undefined');
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error('seriesId is undefined');
             return;
         }
         if (forceStart) {
@@ -21391,11 +21343,11 @@ class AutoMergeNovel {
         if (this.enableTip) {
             this.enableTip = false;
             // 在窗口中间显示轻提示，这是因为“开始抓取”的提示也位于中间，保持一致
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说'), {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说'), {
                 position: 'center',
             });
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说时提示会添加间隔时间'));
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.skipNovelsInSeriesWhenAutoMerge) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.skipNovelsInSeriesWhenAutoMerge) {
                 _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_不再单独下载系列里的小说'));
             }
         }
@@ -21623,36 +21575,34 @@ class CheckWarningMessage {
         }
     }
     async check() {
-        return new Promise(async (resolve, reject) => {
-            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getLatestMessage(3);
-            if (data.error) {
-                console.error(data.message);
-                return resolve(false);
-            }
-            if (data.body.total === 0) {
-                return resolve(false);
-            }
-            // 获取到的数据是以会话为单位的，也就是最后三个发送消息的账号。包含了每个消息里的最后一条对话
-            // 如果与一个用户发送了多条消息，也只会有一条数据，而不会是多条数据
-            for (const msgData of data.body.message_threads) {
-                if (msgData.is_official === true &&
-                    msgData.thread_name === 'pixiv事務局') {
-                    // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
-                    // https://www.pixiv.net/users/11
-                    // 但是下面这个判断条件不清楚以后是否会发生变化
-                    if (msgData.latest_content.includes('policies.pixiv.net') &&
-                        msgData.latest_content.includes('14')) {
-                        // 如果找到了官方账号发送的警告消息，则判断时间
-                        const now = Date.now();
-                        const msgTime = Number.parseInt(msgData.modified_at + '000');
-                        if (now - msgTime < this.checkTimeRange) {
-                            return resolve(true);
-                        }
+        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getLatestMessage(3);
+        if (data.error) {
+            console.error(data.message);
+            return false;
+        }
+        if (data.body.total === 0) {
+            return false;
+        }
+        // 获取到的数据是以会话为单位的，也就是最后三个发送消息的账号。包含了每个消息里的最后一条对话
+        // 如果与一个用户发送了多条消息，也只会有一条数据，而不会是多条数据
+        for (const msgData of data.body.message_threads) {
+            if (msgData.is_official === true &&
+                msgData.thread_name === 'pixiv事務局') {
+                // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
+                // https://www.pixiv.net/users/11
+                // 但是下面这个判断条件不清楚以后是否会发生变化
+                if (msgData.latest_content.includes('policies.pixiv.net') &&
+                    msgData.latest_content.includes('14')) {
+                    // 如果找到了官方账号发送的警告消息，则判断时间
+                    const now = Date.now();
+                    const msgTime = Number.parseInt(msgData.modified_at + '000');
+                    if (now - msgTime < this.checkTimeRange) {
+                        return true;
                     }
                 }
             }
-            return resolve(false);
-        });
+        }
+        return false;
     }
 }
 new CheckWarningMessage();
@@ -22015,22 +21965,14 @@ class Download {
         xhr.send();
     }
     // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
-    waitPreviousFileDownload() {
-        return new Promise(async (resolve) => {
-            if (this.downloadStatesIndex === 0) {
-                return resolve(true);
+    async waitPreviousFileDownload() {
+        while (true) {
+            if (this.downloadStatesIndex === 0 ||
+                _DownloadStates__WEBPACK_IMPORTED_MODULE_17__.downloadStates.states[this.downloadStatesIndex - 1] === 1) {
+                return;
             }
-            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_17__.downloadStates.states[this.downloadStatesIndex - 1] === 1) {
-                return resolve(true);
-            }
-            else {
-                return resolve(new Promise((resolve) => {
-                    _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_16__.setTimeoutWorker.set(() => {
-                        resolve(this.waitPreviousFileDownload());
-                    }, 50);
-                }));
-            }
-        });
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_16__.setTimeoutWorker.sleep(50);
+        }
     }
     async sendDownload(blob, blobURL, fileName, id, taskBatch) {
         // 如果任务已停止，就不再下载这个文件
@@ -22692,8 +22634,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -22730,10 +22674,10 @@ class DownloadInterval {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
             // 在开始下载时，如果应用了间隔时间，则显示一条日志提醒
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval > 0) {
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadIntervalOnWorksNumber &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadInterval > 0) {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载间隔') +
-                    `: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval} ` +
+                    `: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadInterval} ` +
                     _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_秒');
                 _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg, 'downloadInterval');
             }
@@ -22743,37 +22687,29 @@ class DownloadInterval {
         this.allowDownloadTime = 0;
     }
     addTime() {
-        this.allowDownloadTime = Date.now() + _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval * 1000;
+        this.allowDownloadTime = Date.now() + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadInterval * 1000;
     }
-    wait() {
-        return new Promise(async (resolve) => {
+    async wait() {
+        while (true) {
             // 首先检查此设置不应该生效的情况
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval === 0 ||
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadInterval === 0 ||
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadIntervalOnWorksNumber) {
                 // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
                 // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation) {
-                    await new Promise((resolve) => setTimeout(resolve, 200));
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.rememberTheLastSaveLocation) {
+                    await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(200);
                 }
-                else {
-                    // 否则立即放行
-                    return resolve(true);
-                }
+                // 放行
+                return;
             }
             // 可以立即开始下载
             if (Date.now() >= this.allowDownloadTime) {
                 this.addTime();
-                return resolve(true);
+                return;
             }
-            // 需要等待
-            const timer = window.setInterval(() => {
-                if (Date.now() >= this.allowDownloadTime) {
-                    window.clearInterval(timer);
-                    this.addTime();
-                    return resolve(true);
-                }
-            }, 50);
-        });
+            // 继续等待
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_3__.setTimeoutWorker.sleep(50);
+        }
     }
 }
 const downloadInterval = new DownloadInterval();
@@ -22863,6 +22799,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+
 
 
 
@@ -22977,103 +22915,100 @@ class DownloadNovelEmbeddedImage {
     }
     // 获取正文里上传的图片 id 和引用的图片 id
     async getImageList(novelID, content, embeddedImages) {
-        return new Promise(async (resolve) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelEmbeddedImage) {
-                return resolve([]);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelEmbeddedImage) {
+            return [];
+        }
+        const idList = [];
+        // 获取上传的图片数据
+        // 此时可以直接获取到图片 URL
+        if (embeddedImages) {
+            for (const [id, url] of Object.entries(embeddedImages)) {
+                idList.push({
+                    id: id,
+                    p: '',
+                    type: 'upload',
+                    url,
+                    flag: `[uploadedimage:${id}]`,
+                    flag_id_part: id,
+                });
             }
-            const idList = [];
-            // 获取上传的图片数据
-            // 此时可以直接获取到图片 URL
-            if (embeddedImages) {
-                for (const [id, url] of Object.entries(embeddedImages)) {
-                    idList.push({
-                        id: id,
-                        p: '',
-                        type: 'upload',
-                        url,
-                        flag: `[uploadedimage:${id}]`,
-                        flag_id_part: id,
-                    });
+        }
+        // 获取引用的图片数据
+        const reg = /\[pixivimage:(.+?)\]/g;
+        let test;
+        while ((test = reg.exec(content))) {
+            if (test && test.length === 2) {
+                // 当引用的是第一张插画时，可能有序号，也可能没有序号
+                // 99381250
+                // 一个插画作品可能有多个被引用的图片，如
+                // 99760571-1
+                // 99760571-130
+                // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
+                // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
+                const some = idList.some((idData) => idData.flag_id_part === test[1]);
+                if (some) {
+                    continue;
                 }
+                const idInfo = test[1].split('-');
+                idList.push({
+                    id: idInfo[0],
+                    // 如果没有带序号，那么实际上就是第一张图片
+                    p: idInfo[1] || '1',
+                    type: 'pixiv',
+                    url: '',
+                    flag: `[pixivimage:${test[1]}]`,
+                    flag_id_part: test[1],
+                });
             }
-            // 获取引用的图片数据
-            const reg = /\[pixivimage:(.+?)\]/g;
-            let test;
-            while ((test = reg.exec(content))) {
-                if (test && test.length === 2) {
-                    // 当引用的是第一张插画时，可能有序号，也可能没有序号
-                    // 99381250
-                    // 一个插画作品可能有多个被引用的图片，如
-                    // 99760571-1
-                    // 99760571-130
-                    // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
-                    // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
-                    const some = idList.some((idData) => idData.flag_id_part === test[1]);
-                    if (some) {
-                        continue;
-                    }
-                    const idInfo = test[1].split('-');
-                    idList.push({
-                        id: idInfo[0],
-                        // 如果没有带序号，那么实际上就是第一张图片
-                        p: idInfo[1] || '1',
-                        type: 'pixiv',
-                        url: '',
-                        flag: `[pixivimage:${test[1]}]`,
-                        flag_id_part: test[1],
-                    });
-                }
+        }
+        // 引用的图片此时没有 URL，需要获取
+        let insertIllustIDs = [];
+        for (const idData of idList) {
+            if (idData.type === 'pixiv') {
+                insertIllustIDs.push(idData.flag_id_part);
             }
-            // 引用的图片此时没有 URL，需要获取
-            let insertIllustIDs = [];
-            for (const idData of idList) {
-                if (idData.type === 'pixiv') {
-                    insertIllustIDs.push(idData.flag_id_part);
-                }
-            }
-            if (insertIllustIDs.length === 0) {
-                return resolve(idList);
-            }
-            try {
-                const allInsert = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelInsertIllustsData(novelID, insertIllustIDs);
-                for (const id_part of insertIllustIDs) {
-                    const illustData = allInsert.body[id_part];
-                    for (const idData of idList) {
-                        if (idData.flag_id_part === id_part) {
-                            // // 从原图 URL 里根据序号生成对应 p 的 URL
-                            // const p0URL = illustData.illust.images.original
-                            // parseInt(idData.p)-1
-                            // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
-                            // 当引用的插画作品 404 或当前不能查看时，该数据为 null
-                            if (illustData.illust === null) {
-                                idData.url = '';
-                            }
-                            else {
-                                idData.url = illustData.illust.images.original;
-                            }
+        }
+        if (insertIllustIDs.length === 0) {
+            return idList;
+        }
+        try {
+            const allInsert = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelInsertIllustsData(novelID, insertIllustIDs);
+            for (const id_part of insertIllustIDs) {
+                const illustData = allInsert.body[id_part];
+                for (const idData of idList) {
+                    if (idData.flag_id_part === id_part) {
+                        // // 从原图 URL 里根据序号生成对应 p 的 URL
+                        // const p0URL = illustData.illust.images.original
+                        // parseInt(idData.p)-1
+                        // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+                        // 当引用的插画作品 404 或当前不能查看时，该数据为 null
+                        if (illustData.illust === null) {
+                            idData.url = '';
+                        }
+                        else {
+                            idData.url = illustData.illust.images.original;
                         }
                     }
                 }
-                return resolve(idList);
             }
-            catch (error) {
-                if (error.status) {
-                    // 请求成功，但状态码不正常
-                    // 最可能的是作品被删除（404 ）了
-                    // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
-                    return resolve(idList);
-                }
-                else {
-                    // 请求失败，没有获得服务器的返回数据，一般都是
-                    // TypeError: Failed to fetch
-                    console.error(error);
-                    // 再次发送这个请求
-                    window.setTimeout(() => {
-                        return this.getImageList(novelID, content, embeddedImages);
-                    }, 2000);
-                }
+            return idList;
+        }
+        catch (error) {
+            if (error.status) {
+                // 请求成功，但状态码不正常
+                // 最可能的是作品被删除（404 ）了
+                // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+                return idList;
             }
-        });
+            else {
+                // 请求失败，没有获得服务器的返回数据，一般都是
+                // TypeError: Failed to fetch
+                console.error(error);
+                // 再次发送这个请求
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.sleep(2000);
+                return this.getImageList(novelID, content, embeddedImages);
+            }
+        }
     }
     logProgress(id, title, current, total) {
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, title, 'novel'), `${current} / ${total}`), 'downloadNovelImage' + id);
@@ -24175,6 +24110,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+
 
 
 
@@ -24202,18 +24139,11 @@ class MakeNovelFile {
     // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
     // 因此下载图片期间同时只执行一个任务
     busy = false;
-    waitForIdle() {
-        return new Promise((resolve) => {
-            const check = () => {
-                if (!this.busy) {
-                    resolve();
-                }
-                else {
-                    window.setTimeout(check, 50);
-                }
-            };
-            check();
-        });
+    async waitForIdle() {
+        while (this.busy) {
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(50);
+        }
+        return;
     }
     async makeTXT(data, filename) {
         await this.waitForIdle();
@@ -24406,7 +24336,7 @@ class MergeNovel {
     /**每次请求之间等待一段时间 */
     async sleep(time) {
         if (this.slowMode) {
-            return new Promise((res) => _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_15__.setTimeoutWorker.set(res, time));
+            return _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_15__.setTimeoutWorker.sleep(time);
         }
     }
     /** 合并系列小说。返回值是合并完成后所包含的小说数量（不包含 404 的小说） */
@@ -25528,51 +25458,49 @@ class Resume {
     }
     // 存储抓取结果
     async saveTaskData() {
-        return new Promise(async (resolve, reject) => {
-            // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
-            // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
-            // 之后继续进行下一批任务（如果有）
-            let tryNum = Math.floor(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length * Math.pow(0.5, this.try));
-            // 如果这批尝试数据大于指定数量，则设置为指定数量
-            tryNum > this.onceMax && (tryNum = this.onceMax);
-            let data = {
-                id: this.numAppendNum(this.taskId, this.part.length),
-                data: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
-            };
-            try {
-                // 当成功存储了一批数据时
-                await this.IDB.add(this.dataName, data);
-                this.part.push(data.data.length); // 记录这一次保存的结果数量
-                this.try = 0; // 重置已尝试次数
-                // 任务数据全部添加完毕
-                if (this.getPartTotal() >= _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
-                    resolve(true);
+        // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
+        // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
+        // 之后继续进行下一批任务（如果有）
+        let tryNum = Math.floor(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length * Math.pow(0.5, this.try));
+        // 如果这批尝试数据大于指定数量，则设置为指定数量
+        tryNum > this.onceMax && (tryNum = this.onceMax);
+        let data = {
+            id: this.numAppendNum(this.taskId, this.part.length),
+            data: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
+        };
+        try {
+            // 当成功存储了一批数据时
+            await this.IDB.add(this.dataName, data);
+            this.part.push(data.data.length); // 记录这一次保存的结果数量
+            this.try = 0; // 重置已尝试次数
+            // 任务数据全部添加完毕
+            if (this.getPartTotal() >= _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
+                return;
+            }
+            else {
+                // 任务数据没有添加完毕，继续添加
+                return this.saveTaskData();
+            }
+        }
+        catch (error) {
+            // 当存储失败时
+            console.error(error);
+            if (error.target && error.target.error && error.target.error.message) {
+                const msg = error.target.error.message;
+                if (msg.includes('too large')) {
+                    // 体积超大
+                    // 尝试次数 + 1 ，进行下一次尝试
+                    this.try++;
+                    return this.saveTaskData();
                 }
                 else {
-                    // 任务数据没有添加完毕，继续添加
-                    resolve(this.saveTaskData());
+                    // 未知错误，不再进行尝试
+                    this.try = 0;
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error('IndexedDB: ' + msg);
+                    throw error;
                 }
             }
-            catch (error) {
-                // 当存储失败时
-                console.error(error);
-                if (error.target && error.target.error && error.target.error.message) {
-                    const msg = error.target.error.message;
-                    if (msg.includes('too large')) {
-                        // 体积超大
-                        // 尝试次数 + 1 ，进行下一次尝试
-                        this.try++;
-                        resolve(this.saveTaskData());
-                    }
-                    else {
-                        // 未知错误，不再进行尝试
-                        this.try = 0;
-                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error('IndexedDB: ' + msg);
-                        reject(error);
-                    }
-                }
-            }
-        });
+        }
     }
     // 定时 put 下载状态
     async regularPutStates() {
@@ -26773,26 +26701,24 @@ class BlackAndWhiteImage {
         return true;
     }
     async loadImg(url) {
-        return new Promise(async (resolve, reject) => {
-            // 如果传递的是 blobURL 就直接使用
-            if (url.startsWith('blob')) {
-                resolve(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.loadImg(url));
+        // 如果传递的是 blobURL 就直接使用
+        if (url.startsWith('blob')) {
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.loadImg(url);
+        }
+        else {
+            // 不是 blobURL 的话先获取图片
+            const res = await fetch(url).catch((error) => {
+                // fetch 加载图片可能会失败 TypeError: Failed to fetch
+                console.log(`Load image error! url: ${url}`);
+            });
+            // 如果 fetch 加载图片失败
+            if (!res || !res.ok) {
+                throw new Error(`Failed to load image! url: ${url}`);
             }
-            else {
-                // 不是 blobURL 的话先获取图片
-                const res = await fetch(url).catch((error) => {
-                    // fetch 加载图片可能会失败 TypeError: Failed to fetch
-                    console.log(`Load image error! url: ${url}`);
-                });
-                // 如果 fetch 加载图片失败，res 会是 undefined
-                if (!res || !res.ok) {
-                    return reject();
-                }
-                const blob = await res.blob();
-                const blobURL = URL.createObjectURL(blob);
-                resolve(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.loadImg(blobURL));
-            }
-        });
+            const blob = await res.blob();
+            const blobURL = URL.createObjectURL(blob);
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.loadImg(blobURL);
+        }
     }
     getImageData(img) {
         const width = img.width;
@@ -28772,6 +28698,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/WorkPublishTimeIllusts */ "./src/ts/store/WorkPublishTimeIllusts.ts");
 /* harmony import */ var _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/WorkPublishTimeNovels */ "./src/ts/store/WorkPublishTimeNovels.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+
 
 
 
@@ -28889,28 +28817,26 @@ class WorkPublishTime {
     // 获取指定作品的发布时间
     // 如果抓取出错（如 404 错误），则顺延到下一个作品 id 重试抓取
     async crawlWork(id, type = 'illusts') {
-        return new Promise(async (resolve) => {
-            // 为了避免出现 429 错误，每次抓取之间设置了间隔时间
-            window.setTimeout(async () => {
-                try {
-                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[type === 'illusts' ? 'getArtworkData' : 'getNovelData'](id.toString());
-                    if (data.error === false) {
-                        const dateStr = data.body.createDate;
-                        if (!dateStr) {
-                            return resolve(this.crawlWork(++id, type));
-                        }
-                        const time = new Date(dateStr).getTime();
-                        return resolve([id, time]);
-                    }
-                    else {
-                        return resolve(this.crawlWork(++id, type));
-                    }
+        // 为了避免出现 429 错误，每次抓取之间设置了间隔时间
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__.setTimeoutWorker.sleep(1600);
+        try {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[type === 'illusts' ? 'getArtworkData' : 'getNovelData'](id.toString());
+            if (data.error === false) {
+                const dateStr = data.body.createDate;
+                if (!dateStr) {
+                    return this.crawlWork(++id, type);
                 }
-                catch (error) {
-                    return resolve(this.crawlWork(++id, type));
-                }
-            }, 1600);
-        });
+                // 正常获取到数据，返回作品 id 和发布时间的时间戳
+                const time = new Date(dateStr).getTime();
+                return [id, time];
+            }
+            else {
+                return this.crawlWork(++id, type);
+            }
+        }
+        catch (error) {
+            return this.crawlWork(++id, type);
+        }
     }
 }
 const workPublishTime = new WorkPublishTime();
@@ -37785,6 +37711,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `이 작품은 미리보지 않습니다. 제외한 태그가 포함되어 있기 때문입니다`,
         `Не просматривать это произведение, так как оно содержит исключённый вами тег`,
     ],
+    _提示添加收藏时会慢速执行: [
+        `由于作品数量较多，下载器在添加收藏时会慢速执行。`,
+        `由於作品數量較多，下載器在添加收藏時會慢速執行。`,
+        `Due to the large number of works, the downloader will execute slowly when adding bookmarks.`,
+        `作品数が多いため、ダウンローダーはブックマークを追加する際に低速で実行します。`,
+        `작품 수가 많기 때문에 다운로더는 즐겨찾기 추가 시 느리게 실행됩니다.`,
+        `Из-за большого количества работ загрузчик будет выполнять добавление в закладки медленно.`,
+    ],
 };
 
 
@@ -38248,29 +38182,28 @@ class BatchFollowUser {
         this.requestTimes = 0;
     }
     async importUserList() {
-        return new Promise(async (resolve) => {
-            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
-            }));
-            if (!loadedJSON) {
-                return resolve([]);
-            }
-            // 要求是数组
-            if (!Array.isArray(loadedJSON) || loadedJSON.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
-                return resolve([]);
-            }
-            let userIDs = [];
-            // 如果类型是 string[]，说明是以前导出的数据格式，可以直接使用
-            if (typeof loadedJSON[0] === 'string') {
-                userIDs = loadedJSON;
-            }
-            else {
-                // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
-                userIDs = loadedJSON.map((user) => user.userId);
-            }
-            return resolve(userIDs);
-        });
+        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
+            return [];
+        }));
+        if (!loadedJSON) {
+            return [];
+        }
+        // 要求是数组
+        if (!Array.isArray(loadedJSON) || loadedJSON.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
+            return [];
+        }
+        let userIDs = [];
+        // 如果类型是 string[]，说明是以前导出的数据格式，可以直接使用
+        if (typeof loadedJSON[0] === 'string') {
+            userIDs = loadedJSON;
+        }
+        else {
+            // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
+            userIDs = loadedJSON.map((user) => user.userId);
+        }
+        return userIDs;
     }
     stopAddFollow = false;
     sendReqNumber = 0;
@@ -38281,48 +38214,45 @@ class BatchFollowUser {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 'batchFollowUserProgress');
     }
     async batchFollow() {
-        return new Promise(async (resolve, reject) => {
-            const taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang
-                .transl('_批量关注用户')
-                .replace('（JSON）', '')
-                .replace('(JSON)', '');
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示下载器会跳过已关注的用户'));
-            let followed = 0;
-            let number = 0;
-            const total = this.importFollowedUserIDs.length;
-            for (const userID of this.importFollowedUserIDs) {
-                this.logProgress(number, total, this.sendReqNumber);
-                if (this.stopAddFollow) {
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
-                    return resolve();
-                }
-                if (this.sendReqNumber >= this.dailyLimit) {
-                    this.stopAddFollow = true;
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
-                    return resolve();
-                }
-                number++;
-                if (this.userList.includes(userID) === false) {
-                    this.sendReqNumber++;
-                    await this.addFollow(userID);
-                }
-                else {
-                    followed++;
-                }
-            }
+        const taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang
+            .transl('_批量关注用户')
+            .replace('（JSON）', '')
+            .replace('(JSON)', '');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示下载器会跳过已关注的用户'));
+        let followed = 0;
+        let number = 0;
+        const total = this.importFollowedUserIDs.length;
+        for (const userID of this.importFollowedUserIDs) {
             this.logProgress(number, total, this.sendReqNumber);
-            const msg = '✅' + taskName;
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(msg);
-            return resolve();
-        });
+            if (this.stopAddFollow) {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                return;
+            }
+            if (this.sendReqNumber >= this.dailyLimit) {
+                this.stopAddFollow = true;
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                return;
+            }
+            number++;
+            if (this.userList.includes(userID) === false) {
+                this.sendReqNumber++;
+                await this.addFollow(userID);
+            }
+            else {
+                followed++;
+            }
+        }
+        this.logProgress(number, total, this.sendReqNumber);
+        const msg = '✅' + taskName;
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(msg);
     }
     clearIframe(iframe) {
         iframe.src = 'about:blank';
@@ -38338,101 +38268,90 @@ class BatchFollowUser {
         }
     }
     async addFollow(userID) {
-        return new Promise(async (resolve) => {
-            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
-            if (this.need_recaptcha_enterprise_score_token) {
-                const iframe = await this.loadIframe(userID);
-                this.clearIframe(iframe);
-                return resolve(200);
-            }
-            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-            const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
-            if (status !== 200) {
-                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
-                if (status === 404) {
-                    // 404 可能的原因：
-                    // 1. token 无效
-                    // 2. 该用户不存在
-                    if (this.tokenHasUpdated === true) {
-                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
-                    }
-                    else {
-                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-                        this.tokenHasUpdated = true;
-                        await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
-                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
-                        await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
-                    }
-                }
-                else if (status === 400) {
-                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
-                    // 此时发出一次错误提醒，并重试添加关注
-                    this.need_recaptcha_enterprise_score_token = true;
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_模拟用户点击'));
-                    const iframe = await this.loadIframe(userID);
-                    this.clearIframe(iframe);
-                    return resolve(200);
-                }
-                else if (status === 403) {
-                    // 403 是访问权限已经被限制
+        // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
+        if (this.need_recaptcha_enterprise_score_token) {
+            const iframe = await this.loadIframe(userID);
+            this.clearIframe(iframe);
+            return 200;
+        }
+        // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
+        const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+        if (status !== 200) {
+            const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
+            if (status === 404) {
+                // 404 可能的原因：
+                // 1. token 无效
+                // 2. 该用户不存在
+                if (this.tokenHasUpdated === true) {
                     _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
-                    this.stopAddFollow = true;
-                    return resolve(status);
                 }
                 else {
-                    // 其他错误
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                    // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                    this.tokenHasUpdated = true;
+                    await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
+                    await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
                 }
             }
-            // 慢速执行
-            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
-            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
-            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                return resolve(status);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
-        });
-    }
-    clickFollowBtn(userID, iframe) {
-        return new Promise(async (resolve) => {
-            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                return resolve(iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
-            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
-            if (button) {
-                button.click();
-                console.log(userID + ' click');
+            else if (status === 400) {
+                // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
+                // 此时发出一次错误提醒，并重试添加关注
+                this.need_recaptcha_enterprise_score_token = true;
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_模拟用户点击'));
+                const iframe = await this.loadIframe(userID);
+                this.clearIframe(iframe);
+                return 200;
+            }
+            else if (status === 403) {
+                // 403 是访问权限已经被限制
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                this.stopAddFollow = true;
+                return status;
             }
             else {
-                const msg = '⏩' +
-                    _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                return resolve(iframe);
+                // 其他错误
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
             }
-        });
+        }
+        // 慢速执行
+        // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
+        // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
+        // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        return status;
     }
     // 加载指定用户的的主页，然后查找关注按钮并点击
     async loadIframe(userID) {
-        return new Promise(async (resolve, reject) => {
-            const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
-            const res = await fetch(url);
-            // const text = await res.text()
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            document.body.append(iframe);
-            // iframe.srcdoc = text
-            iframe.src = url;
-            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
-            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(async () => {
-                const _iframe = await this.clickFollowBtn(userID, iframe);
-                return resolve(_iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
-        });
+        const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
+        const res = await fetch(url);
+        // const text = await res.text()
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.append(iframe);
+        // iframe.srcdoc = text
+        iframe.src = url;
+        // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
+        // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(4000, 6000));
+        await this.clickFollowBtn(userID, iframe);
+        return iframe;
+    }
+    async clickFollowBtn(userID, iframe) {
+        const button = iframe.contentDocument?.querySelector('button[data-click-label]');
+        if (button) {
+            button.click();
+            console.log(userID + ' click');
+        }
+        else {
+            const msg = '⏩' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+        }
+        // 等待一段时间，以确保关注请求已经完成。之后 iframe 会被清除
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(1000, 2000));
     }
 }
 const batchFollowUser = new BatchFollowUser();
@@ -38458,11 +38377,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -38538,67 +38455,56 @@ class BookmarkAllWorks {
     }
     // 获取每个作品的 tag 数据
     async getTagData() {
-        return new Promise(async (resolve, reject) => {
-            for (const id of this.idList) {
-                this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
-                try {
-                    // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
-                    await new Promise(async (res) => {
-                        _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_8__.setTimeoutWorker.set(async () => {
-                            let data;
-                            if (id.type === 'novels') {
-                                data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id.id);
-                            }
-                            else {
-                                data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id.id);
-                            }
-                            this.bookmarKData.push({
-                                type: id.type,
-                                id: data.body.id,
-                                tags: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data),
-                                restrict: false,
-                            });
-                            res(id);
-                        }, this.idList.length >= 120 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy : 0);
-                    });
+        for (const id of this.idList) {
+            this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
+            const noTagData = {
+                type: id.type,
+                id: id.id,
+                tags: [],
+                restrict: false,
+            };
+            try {
+                // 如果下载器的收藏按钮设置为“不添加标签”，就不需要请求作品的数据
+                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.widthTagBoolean) {
+                    this.bookmarKData.push(noTagData);
+                    continue;
                 }
-                catch (error) {
-                    const e = error;
-                    let msg = '';
-                    if (e.status) {
-                        msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_发生错误原因')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_错误代码')}: ${e.status}. ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请稍后重试')}`;
-                    }
-                    else {
-                        msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_发生错误原因')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_未知错误')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请稍后重试')}`;
-                    }
-                    // 显示提示，并中止执行
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg);
-                    this.textSpan.textContent = `× Error`;
-                    this.tipWrap.removeAttribute('disabled');
-                    _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('bookmarkModeEnd');
-                    return reject();
+                // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
+                const delay = this.idList.length >= 120 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy : 0;
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_7__.setTimeoutWorker.sleep(delay);
+                let data;
+                if (id.type === 'novels') {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id.id);
                 }
+                else {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id.id);
+                }
+                this.bookmarKData.push({
+                    type: id.type,
+                    id: data.body.id,
+                    tags: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data),
+                    restrict: false,
+                });
             }
-            resolve();
-        });
+            catch (error) {
+                // 出现错误时，添加没有 tags 的数据。因为对于添加收藏的任务来说，附带 tags 不是必须的
+                this.bookmarKData.push(noTagData);
+            }
+        }
     }
     // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
     async addBookmarkAll() {
-        return new Promise(async (resolve) => {
-            let index = 0;
-            for (const data of this.bookmarKData) {
-                this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
-                if (status === 403) {
-                    const msg = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBookmark403Error();
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg);
-                    break;
-                }
-                index++;
+        let index = 0;
+        for (const data of this.bookmarKData) {
+            this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
+            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+            if (status === 403) {
+                const msg = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBookmark403Error();
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                break;
             }
-            resolve();
-        });
+            index++;
+        }
     }
     complete() {
         this.textSpan.textContent = `✓ Complete`;
@@ -39196,35 +39102,33 @@ class DisplayThumbnailListOnMultiImageWorkPage {
         window.clearTimeout(this.waitTimer);
     }
     async createThumbList(id) {
-        return new Promise(async (resolve) => {
-            // 获取作品数据
-            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted;
-            const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.getWorkDataAsync(id, 'artwork', unlisted);
-            const body = workData.body;
-            // 这个作品里至少有 2 张图片才会创建缩略图
-            if (body.pageCount >= 2) {
-                // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
-                const warpper = document.createElement('div');
-                warpper.id = this.wrapperID;
-                const ul = document.createElement('ul');
-                ul.classList.add('beautify_scrollbar');
-                warpper.appendChild(ul);
-                _Theme__WEBPACK_IMPORTED_MODULE_0__.theme.register(warpper);
-                // 生成 li 元素列表
-                let liHtml = [];
-                for (let index = 0; index < body.pageCount; index++) {
-                    const thumbUrl = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index));
-                    const str = `<li data-index="${index}" class="${_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI}">
+        // 获取作品数据
+        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted;
+        const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.getWorkDataAsync(id, 'artwork', unlisted);
+        const body = workData.body;
+        // 这个作品里至少有 2 张图片才会创建缩略图
+        if (body.pageCount >= 2) {
+            // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
+            const warpper = document.createElement('div');
+            warpper.id = this.wrapperID;
+            const ul = document.createElement('ul');
+            ul.classList.add('beautify_scrollbar');
+            warpper.appendChild(ul);
+            _Theme__WEBPACK_IMPORTED_MODULE_0__.theme.register(warpper);
+            // 生成 li 元素列表
+            let liHtml = [];
+            for (let index = 0; index < body.pageCount; index++) {
+                const thumbUrl = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index));
+                const str = `<li data-index="${index}" class="${_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI}">
             <img src="${thumbUrl}" />
             <a href="${window.location.href}"></a>
           </li>`;
-                    // a 标签是查找作品缩略图时用到的。如果没有 a 标签，就无法被识别为作品缩略图
-                    liHtml.push(str);
-                }
-                ul.innerHTML = liHtml.join('');
-                return resolve(warpper);
+                // a 标签是查找作品缩略图时用到的。如果没有 a 标签，就无法被识别为作品缩略图
+                liHtml.push(str);
             }
-        });
+            ul.innerHTML = liHtml.join('');
+            return warpper;
+        }
     }
     /**检查目标元素是否是 ImageViewer 生成的 li 元素，以便进行特殊处理 */
     checkLI(el) {
@@ -40051,6 +39955,7 @@ class SaveAvatarIcon {
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.saveAvatarIcon, () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('closeCenterPanel');
             this.saveAvatarIcon();
         });
     }
@@ -40074,7 +39979,6 @@ class SaveAvatarIcon {
         const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户头像为图标');
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(msg);
-        _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('closeCenterPanel');
     }
 }
 new SaveAvatarIcon();
@@ -40690,16 +40594,14 @@ class DoNotDownloadLastFewImages {
         };
     }
     async getUserName(uid) {
-        return new Promise(async (resolve) => {
-            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserProfile(uid.toString()).catch((err) => {
-                console.log(err);
-                _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(`ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`);
-            });
-            if (profile && profile.body.name) {
-                return resolve(profile.body.name);
-            }
-            return resolve('');
+        const profile = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserProfile(uid.toString()).catch((err) => {
+            console.log(err);
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(`ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`);
         });
+        if (profile && profile.body.name) {
+            return profile.body.name;
+        }
+        return '';
     }
     // 添加规则
     async addRule(uid, value) {
@@ -45561,9 +45463,9 @@ class Wiki {
         // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
         const allLinks = document.querySelectorAll('.centerWrap_con a.settingNameStyle');
         allLinks.forEach(async (el) => {
-            // 查找其父元素，如 <p class='option' data-no='0'>
-            const p = el.parentElement;
-            if (p.dataset.no) {
+            // 查找其所属的 p 元素，如 <p class='option' data-no='0'>
+            const p = el.closest('p.option');
+            if (p && p.dataset.no) {
                 const id = Number(p.dataset.no);
                 const link = await this.link(id);
                 el.setAttribute('href', link);
@@ -64356,54 +64258,52 @@ class Utils {
     }
     /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 500 MB */
     static async json2BlobSafe(data) {
-        return new Promise((resolve) => {
-            // 限制单个文件的体积上限为 500 MB
-            const fileByteLengthLimit = 524288000;
-            const result = [];
-            // 在这个数组里储存数组字面量
-            let JSONStringArray = [];
-            const length = data.length;
-            let index = 0;
-            let total = 0;
-            let bytelength = 0;
-            let startNewFile = true;
-            const textEncode = new TextEncoder();
-            while (index < length) {
-                // 添加数组的开始符号
-                if (startNewFile) {
-                    startNewFile = false;
-                    JSONStringArray.push('[');
-                    bytelength = bytelength + 1;
-                }
-                // 循环添加每一项数据
-                const string = JSON.stringify(data[index]);
-                JSONStringArray.push(string);
-                JSONStringArray.push(',');
-                bytelength = bytelength + textEncode.encode(string).length + 1;
-                index++;
-                total++;
-                // 分割文件
-                if (index === length || bytelength >= fileByteLengthLimit) {
-                    // 删除最后一个分隔符，否则会导致格式错误
-                    JSONStringArray.pop();
-                    // 添加数组的结束符号
-                    JSONStringArray.push(']');
-                    // 生成文件数据
-                    const blob = new Blob(JSONStringArray, { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    result.push({
-                        url,
-                        total,
-                    });
-                    // 重置变量
-                    startNewFile = true;
-                    bytelength = 0;
-                    total = 0;
-                    JSONStringArray = [];
-                }
+        // 限制单个文件的体积上限为 500 MB
+        const fileByteLengthLimit = 524288000;
+        const result = [];
+        // 在这个数组里储存数组字面量
+        let JSONStringArray = [];
+        const length = data.length;
+        let index = 0;
+        let total = 0;
+        let bytelength = 0;
+        let startNewFile = true;
+        const textEncode = new TextEncoder();
+        while (index < length) {
+            // 添加数组的开始符号
+            if (startNewFile) {
+                startNewFile = false;
+                JSONStringArray.push('[');
+                bytelength = bytelength + 1;
             }
-            return resolve(result);
-        });
+            // 循环添加每一项数据
+            const string = JSON.stringify(data[index]);
+            JSONStringArray.push(string);
+            JSONStringArray.push(',');
+            bytelength = bytelength + textEncode.encode(string).length + 1;
+            index++;
+            total++;
+            // 分割文件
+            if (index === length || bytelength >= fileByteLengthLimit) {
+                // 删除最后一个分隔符，否则会导致格式错误
+                JSONStringArray.pop();
+                // 添加数组的结束符号
+                JSONStringArray.push(']');
+                // 生成文件数据
+                const blob = new Blob(JSONStringArray, { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                result.push({
+                    url,
+                    total,
+                });
+                // 重置变量
+                startNewFile = true;
+                bytelength = 0;
+                total = 0;
+                JSONStringArray = [];
+            }
+        }
+        return result;
     }
     /**防抖 */
     static debounce(func, wait) {
@@ -64639,8 +64539,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   img2ico: () => (/* binding */ img2ico)
 /* harmony export */ });
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Utils */ "./src/ts/utils/Utils.ts");
 // 把图片转换成 icon 文件
 // icon 文件结构 https://www.cnblogs.com/cswuyg/p/3603707.html
+
 // 输入选项
 // source 图片的 url，或者一个图片文件（如果使用了图片 url，请注意跨域策略的影响）
 // size 尺寸，可以同时使用多个尺寸。你也可以使用自定义尺寸。
@@ -64652,68 +64554,49 @@ __webpack_require__.r(__webpack_exports__);
 // 生成的 icon 可以包含多种尺寸的图标。图标都是 32 位 png 图像。
 class ImageToIcon {
     async convert(opt) {
-        return new Promise(async (resolve, reject) => {
-            // 加载图片
-            const img = await this.loadImage(opt.source);
-            // 生成各尺寸的 png 图像的数据
-            const pngDataArray = await this.createPngBuffer(img, opt.size, opt.shape, opt.bleed);
-            // 创建 ico 文件
-            const blob = this.createIcon(pngDataArray);
-            resolve(blob);
-        });
+        // 加载图片
+        const imgURL = await this.convertImageURL(opt.source);
+        const img = await _Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.loadImg(imgURL);
+        // 生成各尺寸的 png 图像的数据
+        const pngDataArray = await this.createPngBuffer(img, opt.size, opt.shape, opt.bleed);
+        return this.createIcon(pngDataArray);
     }
     async convertImageURL(source) {
-        return new Promise(async (resolve, reject) => {
-            if (typeof source === 'string') {
-                // 请求图片，并为其生成 blob URL，解决图片跨域导致 canvas 污染的问题
-                const res = await fetch(source, {
-                    method: 'get',
-                    credentials: 'same-origin',
-                });
-                const blob = await res.blob();
-                resolve(URL.createObjectURL(blob));
-            }
-            else if (source instanceof File) {
-                resolve(URL.createObjectURL(source));
-            }
-            else {
-                reject('Unrecognized opt.source');
-            }
-        });
-    }
-    async loadImage(source) {
-        return new Promise(async (resolve, reject) => {
-            let imgURL = await this.convertImageURL(source);
-            const i = document.createElement('img');
-            i.src = imgURL;
-            i.onload = function () {
-                resolve(i);
-            };
-        });
+        if (typeof source === 'string') {
+            // 请求图片，并为其生成 blob URL，解决图片跨域导致 canvas 污染的问题
+            const res = await fetch(source, {
+                method: 'get',
+                credentials: 'same-origin',
+            });
+            const blob = await res.blob();
+            return URL.createObjectURL(blob);
+        }
+        else if (source instanceof File) {
+            return URL.createObjectURL(source);
+        }
+        else {
+            throw new Error('Unrecognized opt.source');
+        }
     }
     async createPngBuffer(img, size = [16, 48, 96, 256], shape = 'square', bleed = true) {
-        return new Promise(async (resolve, reject) => {
-            const buffer = [];
-            let length = size.length;
-            while (length > 0) {
-                const sizeNumber = size[size.length - length];
-                const canvas = this.createCanvas(sizeNumber, img);
-                // 绘制图像
-                this.drawImage(canvas, img, shape, bleed);
-                // 把图像转换为 png 图像
-                const pngBlob = await this.getPngBlob(canvas);
-                // 获取 png 图像的 buffer
-                const buf = await pngBlob.arrayBuffer();
-                buffer.push({
-                    size: sizeNumber,
-                    buffer: buf,
-                });
-                length--;
-                if (length === 0) {
-                    resolve(buffer);
-                }
-            }
-        });
+        const buffer = [];
+        let length = size.length;
+        while (length > 0) {
+            const sizeNumber = size[size.length - length];
+            const canvas = this.createCanvas(sizeNumber, img);
+            // 绘制图像
+            this.drawImage(canvas, img, shape, bleed);
+            // 把图像转换为 png 图像
+            const pngBlob = await this.getPngBlob(canvas);
+            // 获取 png 图像的 buffer
+            const buf = await pngBlob.arrayBuffer();
+            buffer.push({
+                size: sizeNumber,
+                buffer: buf,
+            });
+            length--;
+        }
+        return buffer;
     }
     createCanvas(size, img) {
         const c = document.createElement('canvas');

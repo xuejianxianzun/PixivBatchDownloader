@@ -15,6 +15,7 @@ class SaveAvatarIcon {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveAvatarIcon, () => {
+      EVT.fire('closeCenterPanel')
       this.saveAvatarIcon()
     })
   }
@@ -42,7 +43,6 @@ class SaveAvatarIcon {
     const msg = lang.transl('_保存用户头像为图标')
     log.success('✅' + msg)
     toast.success(msg)
-    EVT.fire('closeCenterPanel')
   }
 }
 

@@ -145,62 +145,60 @@ class ImageViewer {
 
   // 图片查看器需要一个图片列表元素，创建缩略图列表
   private async createImageList(): Promise<HTMLElement | undefined> {
-    return new Promise(async (resolve) => {
-      // 获取作品数据
-      if (cacheWorkData.has(this.cfg.workId)) {
-        this.workData = await cacheWorkData.getWorkDataAsync(
-          this.cfg.workId,
-          'artwork'
+    // 获取作品数据
+    if (cacheWorkData.has(this.cfg.workId)) {
+      this.workData = await cacheWorkData.getWorkDataAsync(
+        this.cfg.workId,
+        'artwork'
+      )
+    } else {
+      this.cfg.showLoading && (loading.show = true)
+
+      const unlisted = pageType.type === pageType.list.Unlisted
+      const data = await API.getArtworkData(this.cfg.workId, unlisted)
+      this.workData = data
+      cacheWorkData.set(data)
+
+      this.cfg.showLoading && (loading.show = false)
+    }
+
+    const body = this.workData!.body
+    // 处理插画、漫画、动图作品，不处理其他类型的作品
+    if (
+      body.illustType === 0 ||
+      body.illustType === 1 ||
+      body.illustType === 2
+    ) {
+      // 创建缩略图列表
+      this.pageCount = body.pageCount
+      this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original
+
+      // 缩略图列表的结构： div > ul > li > img + a
+      this.viewerWarpper = document.createElement('div')
+      this.viewerUl = document.createElement('ul')
+      this.viewerUl.classList.add('beautify_scrollbar')
+      this.viewerWarpper.appendChild(this.viewerUl)
+      this.viewerWarpper.style.display = 'none'
+
+      // 生成 UL 里面的缩略图列表
+      let html: string[] = []
+      for (let index = 0; index < body.pageCount; index++) {
+        const thumb = Tools.convertThumbURLTo540px(
+          body.urls.thumb.replace('p0', 'p' + index)
         )
-      } else {
-        this.cfg.showLoading && (loading.show = true)
-
-        const unlisted = pageType.type === pageType.list.Unlisted
-        const data = await API.getArtworkData(this.cfg.workId, unlisted)
-        this.workData = data
-        cacheWorkData.set(data)
-
-        this.cfg.showLoading && (loading.show = false)
-      }
-
-      const body = this.workData!.body
-      // 处理插画、漫画、动图作品，不处理其他类型的作品
-      if (
-        body.illustType === 0 ||
-        body.illustType === 1 ||
-        body.illustType === 2
-      ) {
-        // 创建缩略图列表
-        this.pageCount = body.pageCount
-        this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original
-
-        // 缩略图列表的结构： div > ul > li > img + a
-        this.viewerWarpper = document.createElement('div')
-        this.viewerUl = document.createElement('ul')
-        this.viewerUl.classList.add('beautify_scrollbar')
-        this.viewerWarpper.appendChild(this.viewerUl)
-        this.viewerWarpper.style.display = 'none'
-
-        // 生成 UL 里面的缩略图列表
-        let html: string[] = []
-        for (let index = 0; index < body.pageCount; index++) {
-          const thumb = Tools.convertThumbURLTo540px(
-            body.urls.thumb.replace('p0', 'p' + index)
-          )
-          const imgUrl = this.firstImageURL.replace('p0', 'p' + index)
-          const imageName = imgUrl.split('/').pop()
-          // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
-          const str = `<li data-index="${index}">
+        const imgUrl = this.firstImageURL.replace('p0', 'p' + index)
+        const imageName = imgUrl.split('/').pop()
+        // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
+        const str = `<li data-index="${index}">
               <img src="${thumb}" data-src="${imgUrl}" alt="${imageName}" />
               <a href="${window.location.href}"></a>
             </li>`
-          html.push(str)
-        }
-        this.viewerUl.innerHTML = html.join('')
+        html.push(str)
       }
+      this.viewerUl.innerHTML = html.join('')
+    }
 
-      return resolve(this.viewerWarpper)
-    })
+    return this.viewerWarpper
   }
 
   // 配置图片查看器

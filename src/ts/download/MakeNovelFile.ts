@@ -9,6 +9,7 @@ import { DateFormat } from '../utils/DateFormat'
 import { Config } from '../Config'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 declare const jEpub: any
 
@@ -41,17 +42,11 @@ class MakeNovelFile {
   // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
   // 因此下载图片期间同时只执行一个任务
   private busy = false
-  private waitForIdle(): Promise<void> {
-    return new Promise((resolve) => {
-      const check = () => {
-        if (!this.busy) {
-          resolve()
-        } else {
-          window.setTimeout(check, 50)
-        }
-      }
-      check()
-    })
+  private async waitForIdle() {
+    while (this.busy) {
+      await setTimeoutWorker.sleep(50)
+    }
+    return
   }
 
   public async makeTXT(data: NovelMeta, filename: string) {

@@ -1,5 +1,6 @@
 import { Config } from './Config'
 import { lang } from './Language'
+import { setTimeoutWorker } from './SetTimeoutWorker'
 import { theme } from './Theme'
 
 interface Option {
@@ -157,18 +158,16 @@ class Input {
   /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
    * 如果用户点击取消按钮，则抛出 reject
    */
-  public submit(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      window.setTimeout(() => {
-        if (this.cancelled) {
-          return reject('')
-        }
-        if (this.submitted) {
-          return resolve(this.value)
-        }
-        return resolve(this.submit())
-      }, 100)
-    })
+  public async submit(): Promise<string> {
+    while (true) {
+      await setTimeoutWorker.sleep(100)
+      if (this.cancelled) {
+        return ''
+      }
+      if (this.submitted) {
+        return this.value
+      }
+    }
   }
 }
 

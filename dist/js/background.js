@@ -1484,15 +1484,12 @@ class ManageFollowing {
             this.restored = true;
         }
     }
-    sleep(time) {
-        return new Promise((res) => setTimeout(res, time));
-    }
     /** 等待数据恢复完毕，然后再操作数据 */
     // SW 会在空闲 30 秒左右时被浏览器回收，当 SW 再次接到前台的消息时会被再次激活。
     // 此时需要等待数据恢复完毕再操作数据，否则会造成 BUG
     async waitRestored() {
         while (!this.restored) {
-            await this.sleep(100);
+            await _backgroundAPI__WEBPACK_IMPORTED_MODULE_1__.backgroundAPI.sleep(100);
         }
     }
     // 收到消息时的类型守卫
@@ -1693,6 +1690,9 @@ class backgroundAPI {
                 statusText: response.statusText,
             };
         }
+    }
+    static async sleep(time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
     }
 }
 

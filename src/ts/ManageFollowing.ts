@@ -196,16 +196,12 @@ class ManageFollowing {
     }
   }
 
-  private sleep(time: number) {
-    return new Promise((res) => setTimeout(res, time))
-  }
-
   /** 等待数据恢复完毕，然后再操作数据 */
   // SW 会在空闲 30 秒左右时被浏览器回收，当 SW 再次接到前台的消息时会被再次激活。
   // 此时需要等待数据恢复完毕再操作数据，否则会造成 BUG
   private async waitRestored(): Promise<void> {
     while (!this.restored) {
-      await this.sleep(100)
+      await backgroundAPI.sleep(100)
     }
   }
 

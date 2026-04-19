@@ -101,42 +101,40 @@ class DisplayThumbnailListOnMultiImageWorkPage {
   }
 
   private async createThumbList(id: string): Promise<HTMLElement | undefined> {
-    return new Promise(async (resolve) => {
-      // 获取作品数据
-      const unlisted = pageType.type === pageType.list.Unlisted
-      const workData = await cacheWorkData.getWorkDataAsync(
-        id,
-        'artwork',
-        unlisted
-      )
-      const body = workData!.body
-      // 这个作品里至少有 2 张图片才会创建缩略图
-      if (body.pageCount >= 2) {
-        // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
-        const warpper = document.createElement('div')
-        warpper.id = this.wrapperID
-        const ul = document.createElement('ul')
-        ul.classList.add('beautify_scrollbar')
-        warpper.appendChild(ul)
-        theme.register(warpper)
+    // 获取作品数据
+    const unlisted = pageType.type === pageType.list.Unlisted
+    const workData = await cacheWorkData.getWorkDataAsync(
+      id,
+      'artwork',
+      unlisted
+    )
+    const body = workData!.body
+    // 这个作品里至少有 2 张图片才会创建缩略图
+    if (body.pageCount >= 2) {
+      // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
+      const warpper = document.createElement('div')
+      warpper.id = this.wrapperID
+      const ul = document.createElement('ul')
+      ul.classList.add('beautify_scrollbar')
+      warpper.appendChild(ul)
+      theme.register(warpper)
 
-        // 生成 li 元素列表
-        let liHtml: string[] = []
-        for (let index = 0; index < body.pageCount; index++) {
-          const thumbUrl = Tools.convertThumbURLTo540px(
-            body.urls.thumb.replace('p0', 'p' + index)
-          )
-          const str = `<li data-index="${index}" class="${Config.ImageViewerLI}">
+      // 生成 li 元素列表
+      let liHtml: string[] = []
+      for (let index = 0; index < body.pageCount; index++) {
+        const thumbUrl = Tools.convertThumbURLTo540px(
+          body.urls.thumb.replace('p0', 'p' + index)
+        )
+        const str = `<li data-index="${index}" class="${Config.ImageViewerLI}">
             <img src="${thumbUrl}" />
             <a href="${window.location.href}"></a>
           </li>`
-          // a 标签是查找作品缩略图时用到的。如果没有 a 标签，就无法被识别为作品缩略图
-          liHtml.push(str)
-        }
-        ul.innerHTML = liHtml.join('')
-        return resolve(warpper)
+        // a 标签是查找作品缩略图时用到的。如果没有 a 标签，就无法被识别为作品缩略图
+        liHtml.push(str)
       }
-    })
+      ul.innerHTML = liHtml.join('')
+      return warpper
+    }
   }
 
   /**检查目标元素是否是 ImageViewer 生成的 li 元素，以便进行特殊处理 */

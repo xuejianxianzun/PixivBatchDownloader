@@ -68,7 +68,6 @@ class ShowOriginSizeImage {
   // 默认的缩放比例为 1
   private zoom = this.zoomList[this.zoomIndex]
   private testImg = new Image()
-  private getImageSizeTimer = 0
 
   // 定义当鼠标移动 1 像素时，wrap 移动多少像素
   private onePxMove = 10
@@ -240,19 +239,16 @@ class ShowOriginSizeImage {
   }
 
   private async getImage(url: string): Promise<HTMLImageElement> {
-    window.clearInterval(this.getImageSizeTimer)
     this.testImg.src = ''
+    this.testImg = new Image()
+    this.testImg.src = url
 
-    return new Promise((resolve) => {
-      this.testImg = new Image()
-      this.testImg.src = url
-      this.getImageSizeTimer = window.setInterval(() => {
-        if (this.testImg.naturalWidth > 0) {
-          window.clearInterval(this.getImageSizeTimer)
-          return resolve(this.testImg)
-        }
-      }, 50)
-    })
+    while (true) {
+      await Utils.sleep(50)
+      if (this.testImg.naturalWidth > 0) {
+        return this.testImg
+      }
+    }
   }
 
   // 初次显示一个图片时，初始化 wrap 的样式

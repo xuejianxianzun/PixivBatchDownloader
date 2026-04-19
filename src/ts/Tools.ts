@@ -930,38 +930,36 @@ class Tools {
     indexList: number[],
     target: 'img' | 'ImageBitmap'
   ) {
-    return new Promise(async (resolve, reject) => {
-      const result: HTMLImageElement[] | ImageBitmap[] = []
-      let i = 0
-      for (const index of indexList) {
-        // 起始位置
-        const start = index
-        // 截止下一个文件名之前
-        // 删除不需要的数据：
-        // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
-        // 10 字节的是下一个 jpg 的文件名
-        let end = indexList[i + 1] - 30 - 10
-        if (i === indexList.length - 1) {
-          // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
-          // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
-          end = zipFile.byteLength
-        }
-
-        const blob = new Blob([zipFile.slice(start, end)], {
-          type: 'image/jpeg',
-        })
-        if (target === 'ImageBitmap') {
-          const map = await createImageBitmap(blob)
-          ;(result as ImageBitmap[]).push(map)
-        } else if (target === 'img') {
-          const url = URL.createObjectURL(blob)
-          const img = await Utils.loadImg(url)
-          ;(result as HTMLImageElement[]).push(img)
-        }
-        ++i
+    const result: HTMLImageElement[] | ImageBitmap[] = []
+    let i = 0
+    for (const index of indexList) {
+      // 起始位置
+      const start = index
+      // 截止下一个文件名之前
+      // 删除不需要的数据：
+      // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
+      // 10 字节的是下一个 jpg 的文件名
+      let end = indexList[i + 1] - 30 - 10
+      if (i === indexList.length - 1) {
+        // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
+        // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
+        end = zipFile.byteLength
       }
-      resolve(result)
-    })
+
+      const blob = new Blob([zipFile.slice(start, end)], {
+        type: 'image/jpeg',
+      })
+      if (target === 'ImageBitmap') {
+        const map = await createImageBitmap(blob)
+        ;(result as ImageBitmap[]).push(map)
+      } else if (target === 'img') {
+        const url = URL.createObjectURL(blob)
+        const img = await Utils.loadImg(url)
+        ;(result as HTMLImageElement[]).push(img)
+      }
+      ++i
+    }
+    return result
   }
 
   /**根据 illustType，返回作品类型的描述字符串 */

@@ -255,54 +255,52 @@ class Resume {
   }
 
   // 存储抓取结果
-  private async saveTaskData() {
-    return new Promise(async (resolve, reject) => {
-      // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
-      // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
-      // 之后继续进行下一批任务（如果有）
-      let tryNum = Math.floor(store.result.length * Math.pow(0.5, this.try))
-      // 如果这批尝试数据大于指定数量，则设置为指定数量
-      tryNum > this.onceMax && (tryNum = this.onceMax)
-      let data = {
-        id: this.numAppendNum(this.taskId, this.part.length),
-        data: store.result.slice(
-          this.getPartTotal(),
-          this.getPartTotal() + tryNum
-        ),
+  private async saveTaskData(): Promise<void> {
+    // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
+    // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
+    // 之后继续进行下一批任务（如果有）
+    let tryNum = Math.floor(store.result.length * Math.pow(0.5, this.try))
+    // 如果这批尝试数据大于指定数量，则设置为指定数量
+    tryNum > this.onceMax && (tryNum = this.onceMax)
+    let data = {
+      id: this.numAppendNum(this.taskId, this.part.length),
+      data: store.result.slice(
+        this.getPartTotal(),
+        this.getPartTotal() + tryNum
+      ),
+    }
+
+    try {
+      // 当成功存储了一批数据时
+      await this.IDB.add(this.dataName, data)
+      this.part.push(data.data.length) // 记录这一次保存的结果数量
+      this.try = 0 // 重置已尝试次数
+
+      // 任务数据全部添加完毕
+      if (this.getPartTotal() >= store.result.length) {
+        return
+      } else {
+        // 任务数据没有添加完毕，继续添加
+        return this.saveTaskData()
       }
-
-      try {
-        // 当成功存储了一批数据时
-        await this.IDB.add(this.dataName, data)
-        this.part.push(data.data.length) // 记录这一次保存的结果数量
-        this.try = 0 // 重置已尝试次数
-
-        // 任务数据全部添加完毕
-        if (this.getPartTotal() >= store.result.length) {
-          resolve(true)
+    } catch (error: Error | any) {
+      // 当存储失败时
+      console.error(error)
+      if (error.target && error.target.error && error.target.error.message) {
+        const msg = error.target.error.message as string
+        if (msg.includes('too large')) {
+          // 体积超大
+          // 尝试次数 + 1 ，进行下一次尝试
+          this.try++
+          return this.saveTaskData()
         } else {
-          // 任务数据没有添加完毕，继续添加
-          resolve(this.saveTaskData())
-        }
-      } catch (error: Error | any) {
-        // 当存储失败时
-        console.error(error)
-        if (error.target && error.target.error && error.target.error.message) {
-          const msg = error.target.error.message as string
-          if (msg.includes('too large')) {
-            // 体积超大
-            // 尝试次数 + 1 ，进行下一次尝试
-            this.try++
-            resolve(this.saveTaskData())
-          } else {
-            // 未知错误，不再进行尝试
-            this.try = 0
-            log.error('IndexedDB: ' + msg)
-            reject(error)
-          }
+          // 未知错误，不再进行尝试
+          this.try = 0
+          log.error('IndexedDB: ' + msg)
+          throw error
         }
       }
-    })
+    }
   }
 
   // 定时 put 下载状态

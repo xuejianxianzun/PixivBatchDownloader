@@ -1,12 +1,12 @@
 // 把图片转换成 icon 文件
 // icon 文件结构 https://www.cnblogs.com/cswuyg/p/3603707.html
 
+import { Utils } from './Utils'
+
 type SizeNumber = 16 | 32 | 48 | 96 | 128 | 256 | 512
 
-type ImageURL = string
-
 interface Opt {
-  source: ImageURL | File
+  source: string | File
   size: SizeNumber[]
   shape: 'square' | 'circle' | 'fillet'
   bleed: boolean
@@ -30,51 +30,35 @@ interface PngData {
 
 class ImageToIcon {
   public async convert(opt: Opt) {
-    return new Promise<Blob>(async (resolve, reject) => {
-      // 加载图片
-      const img = await this.loadImage(opt.source)
-      // 生成各尺寸的 png 图像的数据
-      const pngDataArray = await this.createPngBuffer(
-        img,
-        opt.size,
-        opt.shape,
-        opt.bleed
-      )
-      // 创建 ico 文件
-      const blob = this.createIcon(pngDataArray)
+    // 加载图片
+    const imgURL = await this.convertImageURL(opt.source)
+    const img = await Utils.loadImg(imgURL)
 
-      resolve(blob)
-    })
+    // 生成各尺寸的 png 图像的数据
+    const pngDataArray = await this.createPngBuffer(
+      img,
+      opt.size,
+      opt.shape,
+      opt.bleed
+    )
+
+    return this.createIcon(pngDataArray)
   }
 
   private async convertImageURL(source: Opt['source']) {
-    return new Promise<string>(async (resolve, reject) => {
-      if (typeof source === 'string') {
-        // 请求图片，并为其生成 blob URL，解决图片跨域导致 canvas 污染的问题
-        const res = await fetch(source, {
-          method: 'get',
-          credentials: 'same-origin',
-        })
-        const blob = await res.blob()
-        resolve(URL.createObjectURL(blob))
-      } else if (source instanceof File) {
-        resolve(URL.createObjectURL(source))
-      } else {
-        reject('Unrecognized opt.source')
-      }
-    })
-  }
-
-  private async loadImage(source: Opt['source']) {
-    return new Promise<HTMLImageElement>(async (resolve, reject) => {
-      let imgURL = await this.convertImageURL(source)
-
-      const i = document.createElement('img')
-      i.src = imgURL
-      i.onload = function () {
-        resolve(i)
-      }
-    })
+    if (typeof source === 'string') {
+      // 请求图片，并为其生成 blob URL，解决图片跨域导致 canvas 污染的问题
+      const res = await fetch(source, {
+        method: 'get',
+        credentials: 'same-origin',
+      })
+      const blob = await res.blob()
+      return URL.createObjectURL(blob)
+    } else if (source instanceof File) {
+      return URL.createObjectURL(source)
+    } else {
+      throw new Error('Unrecognized opt.source')
+    }
   }
 
   private async createPngBuffer(
@@ -83,31 +67,27 @@ class ImageToIcon {
     shape: Opt['shape'] = 'square',
     bleed = true
   ) {
-    return new Promise<PngData[]>(async (resolve, reject) => {
-      const buffer: PngData[] = []
-      let length = size.length
+    const buffer: PngData[] = []
+    let length = size.length
 
-      while (length > 0) {
-        const sizeNumber = size[size.length - length]
-        const canvas = this.createCanvas(sizeNumber, img)
-        // 绘制图像
-        this.drawImage(canvas, img, shape, bleed)
-        // 把图像转换为 png 图像
-        const pngBlob = await this.getPngBlob(canvas)
-        // 获取 png 图像的 buffer
-        const buf = await pngBlob.arrayBuffer()
-        buffer.push({
-          size: sizeNumber,
-          buffer: buf,
-        })
+    while (length > 0) {
+      const sizeNumber = size[size.length - length]
+      const canvas = this.createCanvas(sizeNumber, img)
+      // 绘制图像
+      this.drawImage(canvas, img, shape, bleed)
+      // 把图像转换为 png 图像
+      const pngBlob = await this.getPngBlob(canvas)
+      // 获取 png 图像的 buffer
+      const buf = await pngBlob.arrayBuffer()
+      buffer.push({
+        size: sizeNumber,
+        buffer: buf,
+      })
 
-        length--
+      length--
+    }
 
-        if (length === 0) {
-          resolve(buffer)
-        }
-      }
-    })
+    return buffer
   }
 
   private createCanvas(size: number, img: HTMLImageElement) {
@@ -207,7 +187,6 @@ class ImageToIcon {
 
   private createIcon(pngData: PngData[]) {
     const fileData: ArrayBuffer[] = []
-
     const fileHeadSize = 6
 
     // icon 文件头

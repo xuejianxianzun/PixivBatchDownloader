@@ -213,10 +213,10 @@ class Wiki {
       '.centerWrap_con a.settingNameStyle'
     )
     allLinks.forEach(async (el) => {
-      // 查找其父元素，如 <p class='option' data-no='0'>
-      const p = el.parentElement
-      if (p!.dataset.no) {
-        const id = Number(p!.dataset.no)
+      // 查找其所属的 p 元素，如 <p class='option' data-no='0'>
+      const p = el.closest('p.option') as HTMLParagraphElement
+      if (p && p.dataset.no) {
+        const id = Number(p.dataset.no)
         const link = await this.link(id)
         el.setAttribute('href', link)
       }

@@ -8869,6 +8869,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `이 작품은 미리보지 않습니다. 제외한 태그가 포함되어 있기 때문입니다`,
     `Не просматривать это произведение, так как оно содержит исключённый вами тег`,
   ],
+  _提示添加收藏时会慢速执行: [
+    `由于作品数量较多，下载器在添加收藏时会慢速执行。`,
+    `由於作品數量較多，下載器在添加收藏時會慢速執行。`,
+    `Due to the large number of works, the downloader will execute slowly when adding bookmarks.`,
+    `作品数が多いため、ダウンローダーはブックマークを追加する際に低速で実行します。`,
+    `작품 수가 많기 때문에 다운로더는 즐겨찾기 추가 시 느리게 실행됩니다.`,
+    `Из-за большого количества работ загрузчик будет выполнять добавление в закладки медленно.`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

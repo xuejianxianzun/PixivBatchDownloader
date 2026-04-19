@@ -48,16 +48,10 @@ class UnBookmarkWorks {
     states.busy = false
   }
 
-  private waitSlowMode(slowMode: boolean): Promise<void> {
-    return new Promise((resolve) => {
-      if (!slowMode) {
-        return resolve()
-      } else {
-        setTimeoutWorker.set(() => {
-          return resolve()
-        }, settings.slowCrawlDealy)
-      }
-    })
+  private async waitSlowMode(slowMode: boolean) {
+    if (slowMode) {
+      return setTimeoutWorker.sleep(settings.slowCrawlDealy)
+    }
   }
 }
 

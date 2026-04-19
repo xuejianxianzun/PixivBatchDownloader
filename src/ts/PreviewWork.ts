@@ -580,41 +580,38 @@ class PreviewWork {
     height: number
     available: boolean
   }> {
-    return new Promise((resolve) => {
-      // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
-      let testImg = new Image()
-      testImg.src = url
-      const bindIndex = this.index
-      const timer = window.setInterval(() => {
-        if (this.index !== bindIndex) {
-          // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
-          window.clearInterval(timer)
+    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+    let testImg = new Image()
+    testImg.src = url
+    const bindIndex = this.index
+    while (true) {
+      await Utils.sleep(50)
+      if (this.index !== bindIndex) {
+        // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+        testImg.src = ''
+        testImg = null as any
+        // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+        // 我不想处理错误，所以用 available 标记来偷懒
+        return {
+          width: 0,
+          height: 0,
+          available: false,
+        }
+      } else {
+        // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+        if (testImg.naturalWidth > 0) {
+          const width = testImg.naturalWidth
+          const height = testImg.naturalHeight
           testImg.src = ''
           testImg = null as any
-          // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
-          // 我不想处理错误，所以用 available 标记来偷懒
-          return resolve({
-            width: 0,
-            height: 0,
-            available: false,
-          })
-        } else {
-          // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
-          if (testImg.naturalWidth > 0) {
-            const width = testImg.naturalWidth
-            const height = testImg.naturalHeight
-            window.clearInterval(timer)
-            testImg.src = ''
-            testImg = null as any
-            return resolve({
-              width,
-              height,
-              available: true,
-            })
+          return {
+            width,
+            height,
+            available: true,
           }
         }
-      }, 50)
-    })
+      }
+    }
   }
 
   // 显示预览 wrap
@@ -629,8 +626,6 @@ class PreviewWork {
     )
     const size = await this.getImageSize(url)
 
-    // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
-    // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
     if (!size.available || !this.show) {
       return
     }

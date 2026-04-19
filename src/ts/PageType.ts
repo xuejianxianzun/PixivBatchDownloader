@@ -342,17 +342,9 @@ class PageType {
       },
     ]
 
-    const wait = (): Promise<void> => {
-      return new Promise((resolve) => {
-        setTimeoutWorker.set(() => {
-          resolve()
-        }, 500)
-      })
-    }
-
     for (const item of testPageList) {
       window.open(item.url)
-      await wait()
+      await setTimeoutWorker.sleep(500)
     }
   }
 }

@@ -58,6 +58,12 @@ class SetTimeoutWorker {
     return data.id
   }
 
+  public sleep(time: number) {
+    return new Promise((resolve) => {
+      this.set(resolve, time)
+    })
+  }
+
   public clear(id: number) {
     this.list.delete(id)
   }

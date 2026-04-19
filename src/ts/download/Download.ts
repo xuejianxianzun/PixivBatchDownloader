@@ -410,24 +410,17 @@ class Download {
   }
 
   // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
-  private waitPreviousFileDownload() {
-    return new Promise(async (resolve) => {
-      if (this.downloadStatesIndex === 0) {
-        return resolve(true)
+  private async waitPreviousFileDownload() {
+    while (true) {
+      if (
+        this.downloadStatesIndex === 0 ||
+        downloadStates.states[this.downloadStatesIndex - 1] === 1
+      ) {
+        return
       }
 
-      if (downloadStates.states[this.downloadStatesIndex - 1] === 1) {
-        return resolve(true)
-      } else {
-        return resolve(
-          new Promise((resolve) => {
-            setTimeoutWorker.set(() => {
-              resolve(this.waitPreviousFileDownload())
-            }, 50)
-          })
-        )
-      }
-    })
+      await setTimeoutWorker.sleep(50)
+    }
   }
 
   private async sendDownload(

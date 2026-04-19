@@ -85,7 +85,7 @@ class MergeNovel {
   /**每次请求之间等待一段时间 */
   private async sleep(time: number) {
     if (this.slowMode) {
-      return new Promise((res) => setTimeoutWorker.set(res, time))
+      return setTimeoutWorker.sleep(time)
     }
   }
 

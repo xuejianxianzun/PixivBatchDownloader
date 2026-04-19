@@ -262,19 +262,17 @@ class DoNotDownloadLastFewImages {
     }
   }
 
-  private async getUserName(uid: number): Promise<string> {
-    return new Promise(async (resolve) => {
-      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
-        console.log(err)
-        log.error(
-          `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
-        )
-      })
-      if (profile && profile.body.name) {
-        return resolve(profile.body.name)
-      }
-      return resolve('')
+  private async getUserName(uid: number) {
+    const profile = await API.getUserProfile(uid.toString()).catch((err) => {
+      console.log(err)
+      log.error(
+        `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
+      )
     })
+    if (profile && profile.body.name) {
+      return profile.body.name
+    }
+    return ''
   }
 
   // 添加规则

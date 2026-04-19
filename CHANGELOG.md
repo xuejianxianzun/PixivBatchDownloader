@@ -333,6 +333,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 
 不过在之后切换到其他作品时，还是会发送 2 次，因为之后 QuickBookmark 的执行时机较晚，而且不使用已有的缓存，所以会重新发送一次请求。
 
+#### ♻️移除了一些不必要的 Promise 包装
+
+以前的代码里有一些不必要的 `return new Promise()` 包装，现在改成了 async/await 风格。
+
+PS：有少数本来就适合使用 Promise 对象的场景没有做修改，例如必须使用回调函数或者等待某个事件触发来 resolve 的场景。
+
 ## 18.6.0 2026-04-04
 
 ### ✨新增过滤器：原创作品

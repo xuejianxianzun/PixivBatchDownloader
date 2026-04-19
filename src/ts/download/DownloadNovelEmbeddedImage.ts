@@ -7,6 +7,7 @@ import { Utils } from '../utils/Utils'
 import { downloadInterval } from './DownloadInterval'
 import { Tools } from '../Tools'
 import { SendDownload } from './SendDownload'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -171,112 +172,109 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages
   ): Promise<NovelImageData[]> {
-    return new Promise(async (resolve) => {
-      if (!settings.downloadNovelEmbeddedImage) {
-        return resolve([])
-      }
-      const idList: NovelImageData[] = []
+    if (!settings.downloadNovelEmbeddedImage) {
+      return []
+    }
+    const idList: NovelImageData[] = []
 
-      // 获取上传的图片数据
-      // 此时可以直接获取到图片 URL
-      if (embeddedImages) {
-        for (const [id, url] of Object.entries(embeddedImages)) {
-          idList.push({
-            id: id,
-            p: '',
-            type: 'upload',
-            url,
-            flag: `[uploadedimage:${id}]`,
-            flag_id_part: id,
-          })
+    // 获取上传的图片数据
+    // 此时可以直接获取到图片 URL
+    if (embeddedImages) {
+      for (const [id, url] of Object.entries(embeddedImages)) {
+        idList.push({
+          id: id,
+          p: '',
+          type: 'upload',
+          url,
+          flag: `[uploadedimage:${id}]`,
+          flag_id_part: id,
+        })
+      }
+    }
+
+    // 获取引用的图片数据
+    const reg = /\[pixivimage:(.+?)\]/g
+    let test: RegExpExecArray | null
+    while ((test = reg.exec(content))) {
+      if (test && test.length === 2) {
+        // 当引用的是第一张插画时，可能有序号，也可能没有序号
+        // 99381250
+        // 一个插画作品可能有多个被引用的图片，如
+        // 99760571-1
+        // 99760571-130
+
+        // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
+        // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
+        const some = idList.some((idData) => idData.flag_id_part === test![1])
+        if (some) {
+          continue
         }
+
+        const idInfo = test[1].split('-')
+        idList.push({
+          id: idInfo[0],
+          // 如果没有带序号，那么实际上就是第一张图片
+          p: idInfo[1] || '1',
+          type: 'pixiv',
+          url: '',
+          flag: `[pixivimage:${test[1]}]`,
+          flag_id_part: test[1],
+        })
       }
+    }
 
-      // 获取引用的图片数据
-      const reg = /\[pixivimage:(.+?)\]/g
-      let test: RegExpExecArray | null
-      while ((test = reg.exec(content))) {
-        if (test && test.length === 2) {
-          // 当引用的是第一张插画时，可能有序号，也可能没有序号
-          // 99381250
-          // 一个插画作品可能有多个被引用的图片，如
-          // 99760571-1
-          // 99760571-130
-
-          // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
-          // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
-          const some = idList.some((idData) => idData.flag_id_part === test![1])
-          if (some) {
-            continue
-          }
-
-          const idInfo = test[1].split('-')
-          idList.push({
-            id: idInfo[0],
-            // 如果没有带序号，那么实际上就是第一张图片
-            p: idInfo[1] || '1',
-            type: 'pixiv',
-            url: '',
-            flag: `[pixivimage:${test[1]}]`,
-            flag_id_part: test[1],
-          })
-        }
+    // 引用的图片此时没有 URL，需要获取
+    let insertIllustIDs: string[] = []
+    for (const idData of idList) {
+      if (idData.type === 'pixiv') {
+        insertIllustIDs.push(idData.flag_id_part)
       }
+    }
+    if (insertIllustIDs.length === 0) {
+      return idList
+    }
 
-      // 引用的图片此时没有 URL，需要获取
-      let insertIllustIDs: string[] = []
-      for (const idData of idList) {
-        if (idData.type === 'pixiv') {
-          insertIllustIDs.push(idData.flag_id_part)
-        }
-      }
-      if (insertIllustIDs.length === 0) {
-        return resolve(idList)
-      }
+    try {
+      const allInsert = await API.getNovelInsertIllustsData(
+        novelID,
+        insertIllustIDs
+      )
 
-      try {
-        const allInsert = await API.getNovelInsertIllustsData(
-          novelID,
-          insertIllustIDs
-        )
-
-        for (const id_part of insertIllustIDs) {
-          const illustData = allInsert.body[id_part]
-          for (const idData of idList) {
-            if (idData.flag_id_part === id_part) {
-              // // 从原图 URL 里根据序号生成对应 p 的 URL
-              // const p0URL = illustData.illust.images.original
-              // parseInt(idData.p)-1
-              // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
-              // 当引用的插画作品 404 或当前不能查看时，该数据为 null
-              if (illustData.illust === null) {
-                idData.url = ''
-              } else {
-                idData.url = illustData.illust.images.original
-              }
+      for (const id_part of insertIllustIDs) {
+        const illustData = allInsert.body[id_part]
+        for (const idData of idList) {
+          if (idData.flag_id_part === id_part) {
+            // // 从原图 URL 里根据序号生成对应 p 的 URL
+            // const p0URL = illustData.illust.images.original
+            // parseInt(idData.p)-1
+            // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+            // 当引用的插画作品 404 或当前不能查看时，该数据为 null
+            if (illustData.illust === null) {
+              idData.url = ''
+            } else {
+              idData.url = illustData.illust.images.original
             }
           }
         }
-
-        return resolve(idList)
-      } catch (error: Error | any) {
-        if (error.status) {
-          // 请求成功，但状态码不正常
-          // 最可能的是作品被删除（404 ）了
-          // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
-          return resolve(idList)
-        } else {
-          // 请求失败，没有获得服务器的返回数据，一般都是
-          // TypeError: Failed to fetch
-          console.error(error)
-
-          // 再次发送这个请求
-          window.setTimeout(() => {
-            return this.getImageList(novelID, content, embeddedImages)
-          }, 2000)
-        }
       }
-    })
+
+      return idList
+    } catch (error: Error | any) {
+      if (error.status) {
+        // 请求成功，但状态码不正常
+        // 最可能的是作品被删除（404 ）了
+        // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+        return idList
+      } else {
+        // 请求失败，没有获得服务器的返回数据，一般都是
+        // TypeError: Failed to fetch
+        console.error(error)
+
+        // 再次发送这个请求
+        await setTimeoutWorker.sleep(2000)
+        return this.getImageList(novelID, content, embeddedImages)
+      }
+    }
   }
 
   private logProgress(
