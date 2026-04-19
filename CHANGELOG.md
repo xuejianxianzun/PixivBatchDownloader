@@ -339,6 +339,26 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 
 PS：有少数本来就适合使用 Promise 对象的场景没有做修改，例如必须使用回调函数或者等待某个事件触发来 resolve 的场景。
 
+#### ♻️把所有 setTimeoutWorker.set 替换为 setTimeoutWorker.sleep
+
+以前设计 setTimeoutWorker 的时候只写了 set 功能，需要传入回调函数，在指定时间后触发。现在发现这样做挺傻逼的，因为既然需要调用方传入回调函数，那完全可以让调用方自行执行回调函数，而 setTimeoutWorker 只要负责等待就好了。
+
+所以我添加了 sleep 方法，并把所有 setTimeoutWorker.set 都替换成了 setTimeoutWorker.sleep，简洁了许多。
+
+新旧对比：
+
+
+```ts
+// 旧代码：
+setTimeoutWorker.set(() => {
+  this.getIdList()
+}, settings.slowCrawlDealy)
+
+// 新代码：
+await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+this.getIdList()
+```
+
 ## 18.6.0 2026-04-04
 
 ### ✨新增过滤器：原创作品

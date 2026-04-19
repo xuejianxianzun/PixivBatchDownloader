@@ -3,12 +3,12 @@ import { msgBox } from './MsgBox'
 import { lang } from './Language'
 import { followingList } from './FollowingList'
 import { log } from './Log'
-import { Utils } from './utils/Utils'
 import { API } from './API'
 import { toast } from './Toast'
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
+import { setTimeoutWorker } from './SetTimeoutWorker'
 
 class FindDeactivatedUsers {
   constructor() {
@@ -21,7 +21,7 @@ class FindDeactivatedUsers {
 
   private async waitChange(): Promise<void> {
     while (!this.dataChange) {
-      await Utils.sleep(100)
+      await setTimeoutWorker.sleep(100)
     }
   }
 
@@ -84,7 +84,7 @@ class FindDeactivatedUsers {
           log.log(lang.transl('_该用户已注销'))
         }
 
-        await Utils.sleep(settings.slowCrawlDealy)
+        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
       }
     }
 

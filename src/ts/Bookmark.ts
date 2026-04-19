@@ -115,7 +115,7 @@ class Bookmark {
 
   private async waitCallMe(NO: number) {
     while (this.nextTaskID !== NO) {
-      await new Promise<void>((resolve) => setTimeoutWorker.set(resolve, 300))
+      await setTimeoutWorker.sleep(300)
     }
     return NO
   }

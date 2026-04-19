@@ -596,12 +596,9 @@ abstract class InitPageBase {
 
       // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getWorksData()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getWorksData()
+        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
       }
+      this.getWorksData()
     } else {
       // 没有剩余作品，统计此后有多少个完成的请求
       this.finishedRequest++

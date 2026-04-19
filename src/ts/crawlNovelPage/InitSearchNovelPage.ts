@@ -454,12 +454,9 @@ class InitSearchNovelPage extends InitPageBase {
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getIdList()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getIdList()
+        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
       }
+      this.getIdList()
     } else {
       // 抓取任务已经全部发送
       if (this.listPageFinished === this.needCrawlPageCount) {

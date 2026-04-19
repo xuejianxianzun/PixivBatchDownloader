@@ -8,6 +8,7 @@ import { toast } from './Toast'
 import { Utils } from './utils/Utils'
 import { BackgroundMsg, UserInfo, AllUserFollowingData } from './FollowingData'
 import { log } from './Log'
+import { setTimeoutWorker } from './SetTimeoutWorker'
 
 // 更新关注列表
 class FollowingList {
@@ -178,7 +179,7 @@ class FollowingList {
         break
       }
 
-      await Utils.sleep(settings.slowCrawlDealy)
+      await setTimeoutWorker.sleep(settings.slowCrawlDealy)
     }
 
     return {

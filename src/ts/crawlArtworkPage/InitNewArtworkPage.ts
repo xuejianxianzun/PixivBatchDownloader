@@ -42,7 +42,7 @@ class InitNewArtworkPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
@@ -155,12 +155,9 @@ class InitNewArtworkPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      setTimeoutWorker.set(() => {
-        this.getIdList()
-      }, settings.slowCrawlDealy)
-    } else {
-      this.getIdList()
+      await setTimeoutWorker.sleep(settings.slowCrawlDealy)
     }
+    this.getIdList()
   }
 
   protected resetGetIdListStatus() {

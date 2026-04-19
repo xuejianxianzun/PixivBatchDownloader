@@ -7,6 +7,7 @@ import { Config } from './Config'
 import { exportLog } from './ExportLog'
 import { logButton } from './LogButton'
 import { ppdTask } from './PPDTask'
+import { setTimeoutWorker } from './SetTimeoutWorker'
 
 class Log {
   constructor() {
@@ -292,7 +293,7 @@ class Log {
     window.setTimeout(async () => {
       let num = 0
       while (num < total) {
-        await Utils.sleep(100)
+        await setTimeoutWorker.sleep(100)
         this.log('saber')
         num++
       }

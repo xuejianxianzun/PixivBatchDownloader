@@ -2167,7 +2167,7 @@ class Bookmark {
     }
     async waitCallMe(NO) {
         while (this.nextTaskID !== NO) {
-            await new Promise((resolve) => _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(resolve, 300));
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.sleep(300);
         }
         return NO;
     }
@@ -14589,13 +14589,9 @@ class InitPageBase {
             }
             // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
-                    this.getWorksData();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
-            else {
-                this.getWorksData();
-            }
+            this.getWorksData();
         }
         else {
             // 没有剩余作品，统计此后有多少个完成的请求
@@ -16112,13 +16108,9 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         // 继续抓取
         this.option.lastId = data.body.lastId;
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.slowCrawlDealy);
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.slowCrawlDealy);
         }
-        else {
-            this.getIdList();
-        }
+        this.getIdList();
     }
     resetGetIdListStatus() {
         this.fetchCount = 0;
@@ -16967,13 +16959,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_22__.setTimeoutWorker.set(() => {
-                    this.getIdList();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_22__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
             }
-            else {
-                this.getIdList();
-            }
+            this.getIdList();
         }
         else {
             // 抓取任务已经全部发送
@@ -17846,13 +17834,9 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         else {
             // 继续抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                    this.getIdList();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.slowCrawlDealy);
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.slowCrawlDealy);
             }
-            else {
-                this.getIdList();
-            }
+            this.getIdList();
         }
     }
     resetGetIdListStatus() {
@@ -18283,13 +18267,9 @@ One possible reason: You have been banned from Pixiv.`);
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前有x个作品', length.toString()), 'initBookmarkPageCrawlCount');
             // 继续抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_12__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_13__.setTimeoutWorker.set(() => {
-                    this.getIdList();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_21__.settings.slowCrawlDealy);
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_13__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_21__.settings.slowCrawlDealy);
             }
-            else {
-                this.getIdList();
-            }
+            this.getIdList();
         }
     }
     // 获取作品 id 列表完毕之后
@@ -19139,13 +19119,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             return this.getIdListFinished();
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
-                this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
         }
-        else {
-            this.getIdList();
-        }
+        this.getIdList();
     }
     resetGetIdListStatus() {
         this.userList = [];
@@ -20120,13 +20096,9 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         // 继续抓取
         this.option.lastId = data.body.lastId;
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
-                this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
+            await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
         }
-        else {
-            this.getIdList();
-        }
+        this.getIdList();
     }
     resetGetIdListStatus() {
         this.fetchCount = 0;
@@ -21143,13 +21115,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_16__.setTimeoutWorker.set(() => {
-                    this.getIdList();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_18__.settings.slowCrawlDealy);
+                await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_16__.setTimeoutWorker.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_18__.settings.slowCrawlDealy);
             }
-            else {
-                this.getIdList();
-            }
+            this.getIdList();
         }
         else {
             // 抓取任务已经全部发送
@@ -21392,7 +21360,7 @@ class BookmarkAfterDL {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.tipEl);
         }
         this.bindEvents();
-        this.check();
+        this.addBookmark();
     }
     successCount = 0;
     // 储存需要收藏的作品的 ID。其数量就是收藏任务的总数
@@ -21475,19 +21443,15 @@ class BookmarkAfterDL {
         this.showProgress();
     }
     busy = false;
-    check() {
-        _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__.setTimeoutWorker.set(() => {
-            this.addBookmark();
-        }, 200);
-    }
     // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
     async addBookmark() {
+        await _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__.setTimeoutWorker.sleep(200);
         if (this.busy || this.queue.length === 0) {
-            return this.check();
+            return this.addBookmark();
         }
         const id = this.queue.shift();
         if (!id) {
-            return this.check();
+            return this.addBookmark();
         }
         this.busy = true;
         // 从 store 里查找这个作品的数据
@@ -21495,7 +21459,7 @@ class BookmarkAfterDL {
         const data = dataSource.find((val) => val.idNum === id);
         if (data === undefined) {
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Not find ${id} in result`);
-            return this.check();
+            return this.addBookmark();
         }
         // 添加收藏
         // 当抓取结果很少时，不使用慢速收藏
@@ -21516,7 +21480,7 @@ class BookmarkAfterDL {
             this.showProgress();
         }
         this.busy = false;
-        return this.check();
+        return this.addBookmark();
     }
 }
 

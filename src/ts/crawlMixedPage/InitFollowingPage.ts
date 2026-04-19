@@ -284,12 +284,9 @@ class InitFollowingPage extends InitPageBase {
     }
 
     if (states.slowCrawlMode) {
-      setTimeoutWorker.set(() => {
-        this.getIdList()
-      }, settings.slowCrawlDealy)
-    } else {
-      this.getIdList()
+      await setTimeoutWorker.sleep(settings.slowCrawlDealy)
     }
+    this.getIdList()
   }
 
   protected resetGetIdListStatus() {

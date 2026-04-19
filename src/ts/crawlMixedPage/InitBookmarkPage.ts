@@ -548,12 +548,9 @@ One possible reason: You have been banned from Pixiv.`)
 
       // 继续抓取
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getIdList()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getIdList()
+        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
       }
+      this.getIdList()
     }
   }
 

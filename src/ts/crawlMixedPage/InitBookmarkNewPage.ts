@@ -198,12 +198,9 @@ class InitBookmarkNewPage extends InitPageBase {
     } else {
       // 继续抓取
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getIdList()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getIdList()
+        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
       }
+      this.getIdList()
     }
   }
 
