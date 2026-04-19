@@ -1,5 +1,6 @@
-import { UserProfile } from './crawl/CrawlResult'
+import { UserProfile } from '../crawl/CrawlResult'
 
+// 这是一个 SW 脚本
 class backgroundAPI {
   /** 获取用户信息。full=0 获取简略信息，full=1 获取完整信息 */
   // 如果这个用户不存在了，获取他的数据时会返回 403 状态码，例如：

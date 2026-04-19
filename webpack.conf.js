@@ -6,7 +6,7 @@ module.exports = {
   entry: {
     content: './src/ts/content.ts',
     injectScript: './src/ts/injectScript.ts',
-    background: './src/ts/background.ts',
+    background: './src/ts/serviceWorker/background.ts',
   },
   output: {
     filename: '[name].js',

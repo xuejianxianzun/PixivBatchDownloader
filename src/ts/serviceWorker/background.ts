@@ -1,6 +1,6 @@
 import './ManageFollowing'
 import './CheckDownloadCount'
-import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
+import { DonwloadListData, SendToBackEndData } from '../download/DownloadType'
 import browser from 'webextension-polyfill'
 
 // 当点击扩展图标时，显示/隐藏下载面板

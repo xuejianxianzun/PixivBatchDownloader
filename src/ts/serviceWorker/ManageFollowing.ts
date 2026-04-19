@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { BackgroundMsg, AllUserFollowingData, SetData } from './FollowingData'
+import { BackgroundMsg, AllUserFollowingData, SetData } from '../FollowingData'
 import { backgroundAPI } from './backgroundAPI'
 
 interface UserOperate {
@@ -8,7 +8,7 @@ interface UserOperate {
   userID: string
 }
 
-// 这是一个后台脚本，用于保存、维护、派发用户的关注列表
+// 这是一个 SW 脚本，用于保存、维护、派发用户的关注列表
 class ManageFollowing {
   constructor() {
     this.restore()

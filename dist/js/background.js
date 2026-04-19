@@ -1232,10 +1232,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
-/***/ "./src/ts/CheckDownloadCount.ts":
-/*!**************************************!*\
-  !*** ./src/ts/CheckDownloadCount.ts ***!
-  \**************************************/
+/***/ "./src/ts/serviceWorker/CheckDownloadCount.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/serviceWorker/CheckDownloadCount.ts ***!
+  \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1313,20 +1313,20 @@ async function sendWarningToAllTabs() {
 
 /***/ }),
 
-/***/ "./src/ts/ManageFollowing.ts":
-/*!***********************************!*\
-  !*** ./src/ts/ManageFollowing.ts ***!
-  \***********************************/
+/***/ "./src/ts/serviceWorker/ManageFollowing.ts":
+/*!*************************************************!*\
+  !*** ./src/ts/serviceWorker/ManageFollowing.ts ***!
+  \*************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _backgroundAPI__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./backgroundAPI */ "./src/ts/backgroundAPI.ts");
+/* harmony import */ var _backgroundAPI__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./backgroundAPI */ "./src/ts/serviceWorker/backgroundAPI.ts");
 
 
-// 这是一个后台脚本，用于保存、维护、派发用户的关注列表
+// 这是一个 SW 脚本，用于保存、维护、派发用户的关注列表
 class ManageFollowing {
     constructor() {
         this.restore();
@@ -1656,10 +1656,10 @@ new ManageFollowing();
 
 /***/ }),
 
-/***/ "./src/ts/backgroundAPI.ts":
-/*!*********************************!*\
-  !*** ./src/ts/backgroundAPI.ts ***!
-  \*********************************/
+/***/ "./src/ts/serviceWorker/backgroundAPI.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/serviceWorker/backgroundAPI.ts ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1667,6 +1667,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   backgroundAPI: () => (/* binding */ backgroundAPI)
 /* harmony export */ });
+// 这是一个 SW 脚本
 class backgroundAPI {
     /** 获取用户信息。full=0 获取简略信息，full=1 获取完整信息 */
     // 如果这个用户不存在了，获取他的数据时会返回 403 状态码，例如：
@@ -1772,12 +1773,12 @@ var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
-/*!******************************!*\
-  !*** ./src/ts/background.ts ***!
-  \******************************/
+/*!********************************************!*\
+  !*** ./src/ts/serviceWorker/background.ts ***!
+  \********************************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ManageFollowing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ManageFollowing */ "./src/ts/ManageFollowing.ts");
-/* harmony import */ var _CheckDownloadCount__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CheckDownloadCount */ "./src/ts/CheckDownloadCount.ts");
+/* harmony import */ var _ManageFollowing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ManageFollowing */ "./src/ts/serviceWorker/ManageFollowing.ts");
+/* harmony import */ var _CheckDownloadCount__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CheckDownloadCount */ "./src/ts/serviceWorker/CheckDownloadCount.ts");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 
