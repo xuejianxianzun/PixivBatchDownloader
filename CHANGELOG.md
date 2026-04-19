@@ -41,6 +41,10 @@ PS：该功能只影响“预览作品”。如果你依然想查看它，可以
 
 #### ✨新增设置：在已下载的作品上显示边框
 
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/529
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/542
+
 该设置位于“更多”-“下载”分类里。
 
 如果你启用了该设置，下载器会在已下载的作品上显示边框，这样你就可以方便的知道哪些作品下载过了。另外，在作品列表页面里（例如你的收藏页面），你也可以更容易的知道上次下载到了哪里，这有助于增量更新。
@@ -58,6 +62,8 @@ PS：该功能只影响“预览作品”。如果你依然想查看它，可以
 之前设置的 ID 不会区分作品类型，现在可以区分了。
 
 #### ✨新增设置：多图作品只抓取后几张图片
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/557
 
 常见的使用场景：一些用户在发布恋活（Koikatsu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。
 
@@ -110,6 +116,8 @@ PS：该功能只影响“预览作品”。如果你依然想查看它，可以
 它被“不创建文件夹”取代了。
 
 #### ✨新增设置：序号的起始值
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/531
 
 你可以设置图片的序号从 0 开始还是从 1 开始。默认值是 0。
 
@@ -219,6 +227,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/604
 以前可能没有这个问题，应该是 Pixiv 的某次改版导致的，现在经常出现。
 
 原因是下载器查找用户 id 时，有时会匹配到列表容器元素，并把它移除，这导致所有作品都被移除了。现在修复。
+
+#### 🐞修复了在图片查看器里按 ESC 时，会同时取消手动选择作品的问题
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/523
 
 ### 🔀调整了部分设置的位置顺序
 

@@ -452,7 +452,6 @@ abstract class InitPageBase {
     log.log(lang.transl('_抓取线程为x', this.ajaxThread.toString()))
 
     // 开始并发抓取
-    console.time('crawlTime')
     for (let i = 0; i < this.ajaxThread; i++) {
       window.setTimeout(() => {
         store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
@@ -611,8 +610,6 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
-    console.timeEnd('crawlTime')
-
     log.persistentRefresh('getWorksProgress')
     // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
     // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里

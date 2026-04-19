@@ -5158,12 +5158,7 @@ class ImageViewer {
             }
             else {
                 // 需要 Alt 的快捷键
-                if (ev.code === 'KeyB') {
-                    // 按 Alt + B 收藏当前作品
-                    ev.stopPropagation();
-                    this.addBookmark();
-                }
-                else if (ev.code === 'KeyC') {
+                if (ev.code === 'KeyC') {
                     // 按 Alt + C 复制当前作品的信息
                     // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
                     ev.stopPropagation();
@@ -5171,21 +5166,51 @@ class ImageViewer {
                 }
             }
         });
-        // 监听左右方向键，防止在看图时，左右方向键导致 Pixiv 切换作品
         window.addEventListener('keydown', (ev) => {
-            if (this.show) {
-                if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
-                    // 阻止事件冒泡
-                    ev.stopPropagation();
-                    ev.preventDefault();
-                    // 控制切换到上一张或者下一张
-                    // true 表示启用循环切换
-                    ev.code === 'ArrowLeft'
-                        ? this.myViewer.prev(true)
-                        : this.myViewer.next(true);
-                }
+            if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+                return;
             }
-        }, true);
+            // 监听左右方向键，防止在看图时左右方向键导致 Pixiv 切换作品
+            if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
+                // 阻止事件冒泡
+                ev.stopPropagation();
+                ev.preventDefault();
+                // 控制切换到上一张或者下一张
+                // true 表示启用循环切换
+                ev.code === 'ArrowLeft'
+                    ? this.myViewer.prev(true)
+                    : this.myViewer.next(true);
+                return;
+            }
+            // 按 Esc 退出图片查看器
+            if (ev.code === 'Escape') {
+                ev.stopPropagation();
+                ev.preventDefault();
+                // 打开图片查看器之后，myViewer 对象的实际值并不完全符合类型定义里
+                // 所以需要使用类型上没有的元素来关闭图片查看器
+                const closeButton = this.myViewer.button;
+                if (closeButton) {
+                    closeButton.click();
+                    return;
+                }
+                // 如果没有找到关闭按钮，就给 viewer 元素添加 .viewer-hide 使其 display: none 来隐藏图片查看器
+                const wrap = this.myViewer.viewer;
+                if (wrap) {
+                    wrap.classList.add('viewer-hide');
+                }
+                return;
+            }
+            // 按 B 收藏当前作品
+            // 实际上 Alt + B 也会生效
+            if (ev.code === 'KeyB') {
+                ev.stopPropagation();
+                this.addBookmark();
+                return;
+            }
+        }, {
+            capture: true,
+            passive: false,
+        });
     }
     // 图片查看器需要一个图片列表元素，创建缩略图列表
     async createImageList() {
@@ -5493,7 +5518,7 @@ class ImageViewer {
     addBookmarkBtn() {
         const li = document.createElement('li');
         li.setAttribute('role', 'button');
-        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏') + ' (Alt + B)');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏') + ' (B)');
         li.classList.add(this.addBtnClass);
         // 这个五角星显示的比较小，需要单独加大字号
         li.style.fontSize = '20px';
@@ -14380,7 +14405,6 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取线程为x', this.ajaxThread.toString()));
         // 开始并发抓取
-        console.time('crawlTime');
         for (let i = 0; i < this.ajaxThread; i++) {
             window.setTimeout(() => {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
@@ -14528,7 +14552,6 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
-        console.timeEnd('crawlTime');
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('getWorksProgress');
         // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
         // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
