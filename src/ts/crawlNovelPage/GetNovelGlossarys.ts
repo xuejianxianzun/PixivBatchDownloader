@@ -2,7 +2,7 @@ import { API } from '../API'
 import { GlossaryItem, NovelSeriesGlossaryItem } from '../crawl/CrawlResult'
 import { lang } from '../Language'
 import { log } from '../Log'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { Utils } from '../utils/Utils'
 
 interface GlossaryResult {
   id: string
@@ -19,7 +19,7 @@ class GetNovelGlossarys {
   ): Promise<GlossaryResult[]> {
     // 先获取设定资料的分类、每条设定资料的简略数据
     // 注意此时每条设定资料缺少 detail 数据（此时为 null）
-    await setTimeoutWorker.sleep(interval)
+    await Utils.sleep(interval)
     const glossaryData = await API.getNovelSeriesGlossary(seriesId)
     const result = glossaryData.body.categories as unknown as GlossaryResult[]
 
@@ -33,7 +33,7 @@ class GetNovelGlossarys {
     let total = 0
     for (const categorie of result) {
       for (const item of categorie.items) {
-        await setTimeoutWorker.sleep(interval)
+        await Utils.sleep(interval)
         const data = await API.getNovelSeriesGlossaryItem(
           item.seriesId,
           item.id

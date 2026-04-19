@@ -3,7 +3,6 @@ import { downloadRecord, DownloadRecordType } from './download/DownloadRecord'
 import { DonwloadSuccessData } from './download/DownloadType'
 import { EVT } from './EVT'
 import { novelThumbnail } from './NovelThumbnail'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { SettingChangeData, settings } from './setting/Settings'
 import { Utils } from './utils/Utils'
 
@@ -33,7 +32,7 @@ class ShowBorderOnDownloadedWorks {
 
   private async waitReady() {
     while (!this.ready) {
-      await setTimeoutWorker.sleep(30)
+      await Utils.sleep(30)
     }
   }
 

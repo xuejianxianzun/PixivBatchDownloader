@@ -27,7 +27,6 @@ import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
 import '../pageFunciton/CopyButtonOnWorkPage'
 import '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
@@ -453,6 +452,7 @@ abstract class InitPageBase {
     log.log(lang.transl('_抓取线程为x', this.ajaxThread.toString()))
 
     // 开始并发抓取
+    console.time('crawlTime')
     for (let i = 0; i < this.ajaxThread; i++) {
       window.setTimeout(() => {
         store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
@@ -596,7 +596,7 @@ abstract class InitPageBase {
 
       // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
       if (states.slowCrawlMode) {
-        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDealy)
       }
       this.getWorksData()
     } else {
@@ -611,6 +611,8 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
+    console.timeEnd('crawlTime')
+
     log.persistentRefresh('getWorksProgress')
     // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
     // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里

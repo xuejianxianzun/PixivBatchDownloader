@@ -19,7 +19,6 @@ import { Config } from '../Config'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { Tools } from '../Tools'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { downloadStates } from './DownloadStates'
 import { downloadInterval } from './DownloadInterval'
 
@@ -419,7 +418,7 @@ class Download {
         return
       }
 
-      await setTimeoutWorker.sleep(50)
+      await Utils.sleep(50)
     }
   }
 

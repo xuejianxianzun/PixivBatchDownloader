@@ -1,7 +1,7 @@
 import { Config } from './Config'
 import { lang } from './Language'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { theme } from './Theme'
+import { Utils } from './utils/Utils'
 
 interface Option {
   /**可选，输入框的最大宽度。注意：如果页面(或父元素）的宽度不够，输入框的宽度会自动缩小。 */
@@ -160,7 +160,7 @@ class Input {
    */
   public async submit(): Promise<string> {
     while (true) {
-      await setTimeoutWorker.sleep(100)
+      await Utils.sleep(100)
       if (this.cancelled) {
         return ''
       }

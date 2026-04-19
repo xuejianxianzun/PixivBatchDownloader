@@ -4,8 +4,8 @@ import { lang } from '../Language'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { log } from '../Log'
+import { Utils } from '../utils/Utils'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -127,7 +127,7 @@ class BookmarkAfterDL {
 
   // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
   private async addBookmark(): Promise<void> {
-    await setTimeoutWorker.sleep(200)
+    await Utils.sleep(200)
     if (this.busy || this.queue.length === 0) {
       return this.addBookmark()
     }

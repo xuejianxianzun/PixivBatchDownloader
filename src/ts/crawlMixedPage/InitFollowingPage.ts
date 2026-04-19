@@ -8,7 +8,6 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
@@ -284,7 +283,7 @@ class InitFollowingPage extends InitPageBase {
     }
 
     if (states.slowCrawlMode) {
-      await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDealy)
     }
     this.getIdList()
   }

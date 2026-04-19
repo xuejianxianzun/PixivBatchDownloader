@@ -1,3 +1,5 @@
+import { setTimeoutWorker } from './SetTimeoutWorker'
+
 class Utils {
   // 不安全的字符，这里多数是控制字符，需要替换掉
   static unsafeStr = new RegExp(
@@ -481,7 +483,7 @@ class Utils {
   }
 
   static sleep(time: number) {
-    return new Promise((res) => window.setTimeout(res, time))
+    return setTimeoutWorker.sleep(time)
   }
 
   /**检测元素在视口中是否可见

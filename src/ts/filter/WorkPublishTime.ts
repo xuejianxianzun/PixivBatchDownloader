@@ -4,7 +4,6 @@ import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
 import { log } from '../Log'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
 // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
@@ -144,7 +143,7 @@ class WorkPublishTime {
     type: 'illusts' | 'novels' = 'illusts'
   ): Promise<number[]> {
     // 为了避免出现 429 错误，每次抓取之间设置了间隔时间
-    await setTimeoutWorker.sleep(1600)
+    await Utils.sleep(1600)
     try {
       const data = await API[
         type === 'illusts' ? 'getArtworkData' : 'getNovelData'

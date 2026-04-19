@@ -16,7 +16,6 @@ import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { Config } from '../Config'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
@@ -454,7 +453,7 @@ class InitSearchNovelPage extends InitPageBase {
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
       if (states.slowCrawlMode) {
-        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDealy)
       }
       this.getIdList()
     } else {

@@ -14,7 +14,6 @@ import { getNovelGlossarys } from '../crawlNovelPage/GetNovelGlossarys'
 import { DateFormat } from '../utils/DateFormat'
 import { pageType } from '../PageType'
 import { cacheWorkData } from '../store/CacheWorkData'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { mergeNovelFileName } from './MergeNovelFileName'
 import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
@@ -85,7 +84,7 @@ class MergeNovel {
   /**每次请求之间等待一段时间 */
   private async sleep(time: number) {
     if (this.slowMode) {
-      return setTimeoutWorker.sleep(time)
+      return Utils.sleep(time)
     }
   }
 

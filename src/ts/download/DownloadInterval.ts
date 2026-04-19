@@ -1,9 +1,9 @@
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 import { store } from '../store/Store'
+import { Utils } from '../utils/Utils'
 
 class DownloadInterval {
   constructor() {
@@ -71,7 +71,7 @@ class DownloadInterval {
         // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
         // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
         if (settings.rememberTheLastSaveLocation) {
-          await setTimeoutWorker.sleep(200)
+          await Utils.sleep(200)
         }
         // 放行
         return
@@ -84,7 +84,7 @@ class DownloadInterval {
       }
 
       // 继续等待
-      await setTimeoutWorker.sleep(50)
+      await Utils.sleep(50)
     }
   }
 }

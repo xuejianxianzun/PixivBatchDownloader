@@ -41,7 +41,7 @@ import { IDData } from './store/StoreType'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
-import { setTimeoutWorker } from './SetTimeoutWorker'
+import { Utils } from './utils/Utils'
 
 /** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
@@ -111,13 +111,13 @@ class API {
         if (status === 429) {
           // 等待一段时间后，通过尾递归重试请求
           // console.log(`429 tryCount ${tryCount}`)
-          await setTimeoutWorker.sleep(Config.retryTime)
+          await Utils.sleep(Config.retryTime)
           return await attemptRequest(tryCount + 1)
         } else if (status === 502 && tryCount < 3) {
           // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
           // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
           console.log(`502 tryCount ${tryCount}`)
-          await setTimeoutWorker.sleep(10000)
+          await Utils.sleep(10000)
           return await attemptRequest(tryCount + 1)
         } else {
           // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 throw 抛出错误

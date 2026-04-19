@@ -40,7 +40,7 @@ class SetTimeoutWorker {
   private list = new Map<number, ListData>()
   private taskId = 0
 
-  public set(callback: Function, time: number) {
+  private set(callback: Function, time: number) {
     const data = {
       id: this.taskId,
       time,

@@ -1,9 +1,9 @@
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
+import { Utils } from '../utils/Utils'
 import { MergeNovel } from './MergeNovel'
 
 // 抓取小说时，如果某个小说属于系列小说，则合并这个系列小说
@@ -52,7 +52,7 @@ class AutoMergeNovel {
       ) {
         return this.pendingQueue[0]
       }
-      await setTimeoutWorker.sleep(100)
+      await Utils.sleep(100)
     }
   }
 
@@ -62,7 +62,7 @@ class AutoMergeNovel {
       if (this.stop || !this.pendingQueue.includes(seriesId)) {
         return
       }
-      await setTimeoutWorker.sleep(500)
+      await Utils.sleep(500)
     }
   }
 

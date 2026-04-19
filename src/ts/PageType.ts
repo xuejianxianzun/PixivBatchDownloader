@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { ppdTask } from './PPDTask'
+import { Utils } from './utils/Utils'
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
@@ -344,7 +344,7 @@ class PageType {
 
     for (const item of testPageList) {
       window.open(item.url)
-      await setTimeoutWorker.sleep(500)
+      await Utils.sleep(500)
     }
   }
 }

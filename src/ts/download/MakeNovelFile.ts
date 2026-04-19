@@ -9,7 +9,6 @@ import { DateFormat } from '../utils/DateFormat'
 import { Config } from '../Config'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 declare const jEpub: any
 
@@ -44,7 +43,7 @@ class MakeNovelFile {
   private busy = false
   private async waitForIdle() {
     while (this.busy) {
-      await setTimeoutWorker.sleep(50)
+      await Utils.sleep(50)
     }
     return
   }

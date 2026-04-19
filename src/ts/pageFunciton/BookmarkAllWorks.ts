@@ -5,11 +5,9 @@ import { EVT } from '../EVT'
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
 import { Tools } from '../Tools'
-import { log } from '../Log'
 import { msgBox } from '../MsgBox'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
-import { Config } from '../Config'
 import { settings } from '../setting/Settings'
+import { Utils } from '../utils/Utils'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -126,7 +124,7 @@ class BookmarkAllWorks {
 
         // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
         const delay = this.idList.length >= 120 ? settings.slowCrawlDealy : 0
-        await setTimeoutWorker.sleep(delay)
+        await Utils.sleep(delay)
         let data
         if (id.type === 'novels') {
           data = await API.getNovelData(id.id)

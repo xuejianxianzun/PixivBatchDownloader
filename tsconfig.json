@@ -8,8 +8,6 @@
     "types": ["webextension-polyfill"],
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./src/ts/*"
-  ],
+  "include": ["./src/ts/*"],
   "exclude": ["node_modules"]
 }

@@ -3,7 +3,6 @@ import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { lang } from './Language'
 import { log } from './Log'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { token } from './Token'
@@ -107,7 +106,7 @@ class Bookmark {
     // 需要排队的情况
     const NO = ++this.taskID
     await this.waitCallMe(NO)
-    await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+    await Utils.sleep(settings.slowCrawlDealy)
     const status = await this.sendRequest(id, type, tags!, _restrict)
     this.nextTaskID++
     return status
@@ -115,7 +114,7 @@ class Bookmark {
 
   private async waitCallMe(NO: number) {
     while (this.nextTaskID !== NO) {
-      await setTimeoutWorker.sleep(300)
+      await Utils.sleep(300)
     }
     return NO
   }
@@ -153,7 +152,7 @@ class Bookmark {
         break
       }
 
-      await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDealy)
     }
 
     log.persistentRefresh('resutlCountWhenCrawlingBookmark')
@@ -231,7 +230,7 @@ class Bookmark {
           // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
           case 400:
             await token.reset()
-            await setTimeoutWorker.sleep(3000)
+            await Utils.sleep(3000)
             return this.sendRequest(id, type, tags, hide)
           case 403:
             // 显示 403 错误的提示

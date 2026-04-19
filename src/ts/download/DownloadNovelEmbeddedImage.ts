@@ -7,7 +7,6 @@ import { Utils } from '../utils/Utils'
 import { downloadInterval } from './DownloadInterval'
 import { Tools } from '../Tools'
 import { SendDownload } from './SendDownload'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -271,7 +270,7 @@ class DownloadNovelEmbeddedImage {
         console.error(error)
 
         // 再次发送这个请求
-        await setTimeoutWorker.sleep(2000)
+        await Utils.sleep(2000)
         return this.getImageList(novelID, content, embeddedImages)
       }
     }

@@ -8,7 +8,6 @@ import { msgBox } from '../MsgBox'
 import { Tools } from '../Tools'
 import { store } from '../store/Store'
 import { token } from '../Token'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { FollowingUserData } from '../crawl/CrawlResult'
 
 class BatchFollowUser {
@@ -327,7 +326,7 @@ class BatchFollowUser {
     // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
     // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
     // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-    await setTimeoutWorker.sleep(Tools.rangeRandom(2500, 3600))
+    await Utils.sleep(Tools.rangeRandom(2500, 3600))
     return status
   }
 
@@ -346,7 +345,7 @@ class BatchFollowUser {
 
     // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
     // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-    await setTimeoutWorker.sleep(Tools.rangeRandom(4000, 6000))
+    await Utils.sleep(Tools.rangeRandom(4000, 6000))
     await this.clickFollowBtn(userID, iframe)
     return iframe
   }
@@ -366,7 +365,7 @@ class BatchFollowUser {
     }
 
     // 等待一段时间，以确保关注请求已经完成。之后 iframe 会被清除
-    await setTimeoutWorker.sleep(Tools.rangeRandom(1000, 2000))
+    await Utils.sleep(Tools.rangeRandom(1000, 2000))
   }
 }
 

@@ -8,8 +8,8 @@ import { msgBox } from '../MsgBox'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { log } from '../Log'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { states } from '../store/States'
+import { Utils } from '../utils/Utils'
 
 // 控制动图转换
 class ConvertUgoira {
@@ -64,7 +64,7 @@ class ConvertUgoira {
     type: 'webm' | 'gif' | 'png'
   ): Promise<Blob> {
     while (true) {
-      await setTimeoutWorker.sleep(200)
+      await Utils.sleep(200)
       // 如果已经停止下载，就不添加这个任务，避免浪费资源
       // 此时不用返回真正的 Blob 对象，因为停止下载时，Download 里也不会执行后续操作了
       if (!states.downloading) {

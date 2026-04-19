@@ -343,7 +343,7 @@ PS：有少数本来就适合使用 Promise 对象的场景没有做修改，例
 
 以前设计 setTimeoutWorker 的时候只写了 set 功能，需要传入回调函数，在指定时间后触发。现在发现这样做挺傻逼的，因为既然需要调用方传入回调函数，那完全可以让调用方自行执行回调函数，而 setTimeoutWorker 只要负责等待就好了。
 
-所以我添加了 sleep 方法，并把所有 setTimeoutWorker.set 都替换成了 setTimeoutWorker.sleep，简洁了许多。
+所以我添加了 sleep 方法，并把所有 `setTimeoutWorker.set` 都替换成了` setTimeoutWorker.sleep`，简洁了许多。
 
 新旧对比：
 
@@ -358,6 +358,14 @@ setTimeoutWorker.set(() => {
 await setTimeoutWorker.sleep(settings.slowCrawlDealy)
 this.getIdList()
 ```
+
+#### ♻️把 Utils.sleep 替换为对 setTimeoutWorker.sleep 的封装
+
+之前有些代码里用的是 `Utils.sleep`，有些是 `setTimeoutWorker.sleep`，不统一。
+
+由于 `setTimeoutWorker.sleep` 在前台页面里可以完全替代 `Utils.sleep`，所以应该全都换成 `setTimeoutWorker.sleep`。
+
+但考虑到 `setTimeoutWorker.sleep` 只有 sleep 这一个公开方法，而 Utils 包含更多功能，而且已经被很多模块引用了。所以我直接让 `Utils.sleep` return `setTimeoutWorker.sleep`，再把原来的两种 sleep 都统一成 `Utils.sleep`，调用起来更简洁，也减少了分歧。
 
 ## 18.6.0 2026-04-04
 

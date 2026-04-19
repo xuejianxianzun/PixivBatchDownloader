@@ -8,7 +8,7 @@ import { toast } from './Toast'
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
-import { setTimeoutWorker } from './SetTimeoutWorker'
+import { Utils } from './utils/Utils'
 
 class FindDeactivatedUsers {
   constructor() {
@@ -21,7 +21,7 @@ class FindDeactivatedUsers {
 
   private async waitChange(): Promise<void> {
     while (!this.dataChange) {
-      await setTimeoutWorker.sleep(100)
+      await Utils.sleep(100)
     }
   }
 
@@ -84,7 +84,7 @@ class FindDeactivatedUsers {
           log.log(lang.transl('_该用户已注销'))
         }
 
-        await setTimeoutWorker.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDealy)
       }
     }
 
