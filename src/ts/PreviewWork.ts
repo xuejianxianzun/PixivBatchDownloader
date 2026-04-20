@@ -377,11 +377,10 @@ class PreviewWork {
       })
     })
 
-    window.addEventListener(EVT.list.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, async () => {
       this.dontShowAfterPageSwitch = true
-      window.setTimeout(() => {
-        this.dontShowAfterPageSwitch = false
-      }, 500)
+      await Utils.sleep(500)
+      this.dontShowAfterPageSwitch = false
     })
 
     logErrorStatus.listen((status: number, url: string) => {

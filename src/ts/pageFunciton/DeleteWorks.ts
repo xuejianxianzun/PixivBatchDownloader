@@ -167,7 +167,7 @@ class DeleteWorks {
   }
 
   // 切换删除模式
-  private toggleDeleteMode() {
+  private async toggleDeleteMode() {
     if (store.resultMeta.length === 0) {
       toast.error(lang.transl('_没有可用的抓取结果'))
       return
@@ -181,9 +181,8 @@ class DeleteWorks {
     const span = this.delBtn.querySelector('span')
     if (this.delMode) {
       lang.updateText(span!, '_退出手动删除')
-      window.setTimeout(() => {
-        EVT.fire('closeCenterPanel')
-      }, 100)
+      await Utils.sleep(100)
+      EVT.fire('closeCenterPanel')
     } else {
       lang.updateText(span!, '_手动删除作品')
     }

@@ -2,18 +2,18 @@ import { EVT } from './EVT'
 import { lang } from './Language'
 import { msgBox } from './MsgBox'
 import { setSetting, settings } from './setting/Settings'
+import { Utils } from './utils/Utils'
 
 class RequestSponsorship {
   constructor() {
-    window.addEventListener(EVT.list.settingInitialized, () => {
+    window.addEventListener(EVT.list.settingInitialized, async () => {
       // 赋予初始值
       if (settings.requestSponsorshipTime === 0) {
         setSetting('requestSponsorshipTime', Date.now() + this.interval)
       }
 
-      window.setTimeout(() => {
-        this.check()
-      }, 10000)
+      await Utils.sleep(10000)
+      this.check()
     })
   }
 

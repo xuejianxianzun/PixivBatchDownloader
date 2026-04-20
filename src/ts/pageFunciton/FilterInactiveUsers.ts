@@ -187,9 +187,8 @@ class FilterInactiveUsers {
 
     this.requestTimes++
     // 获取下一批用户列表
-    window.setTimeout(() => {
-      this.getUserList()
-    }, settings.slowCrawlDealy)
+    await Utils.sleep(settings.slowCrawlDealy)
+    this.getUserList()
   }
 
   private async getUserListComplete() {

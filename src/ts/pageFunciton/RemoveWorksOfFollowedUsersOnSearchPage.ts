@@ -5,6 +5,7 @@ import { log } from '../Log'
 import { EVT } from '../EVT'
 import { followingList } from '../FollowingList'
 import { toast } from '../Toast'
+import { Utils } from '../utils/Utils'
 
 // 在搜索页面里移除已关注用户的作品
 class RemoveWorksOfFollowedUsersOnSearchPage {
@@ -29,14 +30,13 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
       this.findWorks(document.body)
     })
 
-    window.addEventListener(EVT.list.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, async () => {
       this.showTip = true
       // 在来回切换页面时（例如之前进入了第 2 页，之后又从其他页面回到第 2 页），有时候 pixiv 的代码会报错：
       // Cannot remove a child from a different parent，并导致下载器没能成功移除该页面上应该移除的作品元素
       // 等待一段时间之后再重试，就可以正常移除元素了
-      window.setTimeout(() => {
-        this.findWorks(document.body)
-      }, 1000)
+      await Utils.sleep(1000)
+      this.findWorks(document.body)
     })
   }
 

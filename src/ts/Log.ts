@@ -19,7 +19,8 @@ class Log {
       getIsVisible: () => this.isVisible,
     })
 
-    ppdTask.register(21, 'Test output logs', () => {
+    ppdTask.register(21, 'Test output logs', async () => {
+      await Utils.sleep(1000)
       this.test(300)
     })
 
@@ -288,15 +289,13 @@ class Log {
   /** 调试用：连续输出大量日志
    * @param total 指定输出多少条日志。默认值为 1000
    */
-  private test(total = 1000) {
-    window.setTimeout(async () => {
-      let num = 0
-      while (num < total) {
-        await Utils.sleep(100)
-        this.log('saber')
-        num++
-      }
-    }, 1000)
+  private async test(total = 1000) {
+    let num = 0
+    while (num < total) {
+      await Utils.sleep(100)
+      this.log('saber')
+      num++
+    }
   }
 }
 

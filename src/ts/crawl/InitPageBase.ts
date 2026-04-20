@@ -539,9 +539,8 @@ abstract class InitPageBase {
         console.error(error)
 
         // 再次发送这个请求
-        window.setTimeout(() => {
-          this.getWorksData(idData)
-        }, 2000)
+        await Utils.sleep(2000)
+        this.getWorksData(idData)
       }
     }
   }

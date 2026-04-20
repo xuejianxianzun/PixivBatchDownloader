@@ -6201,7 +6201,8 @@ class Log {
             getCount: () => this.count,
             getIsVisible: () => this.isVisible,
         });
-        _PPDTask__WEBPACK_IMPORTED_MODULE_8__.ppdTask.register(21, 'Test output logs', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_8__.ppdTask.register(21, 'Test output logs', async () => {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(1000);
             this.test(300);
         });
         // 日志区域限制了最大高度，可能会出现滚动条
@@ -6424,15 +6425,13 @@ class Log {
     /** 调试用：连续输出大量日志
      * @param total 指定输出多少条日志。默认值为 1000
      */
-    test(total = 1000) {
-        window.setTimeout(async () => {
-            let num = 0;
-            while (num < total) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(100);
-                this.log('saber');
-                num++;
-            }
-        }, 1000);
+    async test(total = 1000) {
+        let num = 0;
+        while (num < total) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(100);
+            this.log('saber');
+            num++;
+        }
     }
 }
 const log = new Log();
@@ -8050,11 +8049,10 @@ class PreviewWork {
                 this.show = false;
             });
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, async () => {
             this.dontShowAfterPageSwitch = true;
-            window.setTimeout(() => {
-                this.dontShowAfterPageSwitch = false;
-            }, 500);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
+            this.dontShowAfterPageSwitch = false;
         });
         _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_19__.logErrorStatus.listen((status, url) => {
             if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
@@ -9170,20 +9168,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
 
 class RequestSponsorship {
     constructor() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, async () => {
             // 赋予初始值
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime === 0) {
                 (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('requestSponsorshipTime', Date.now() + this.interval);
             }
-            window.setTimeout(() => {
-                this.check();
-            }, 10000);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(10000);
+            this.check();
         });
     }
     // 30 * 24 * 60 * 60 * 1000
@@ -10455,7 +10454,7 @@ class ShowLargerThumbnails {
             }
             // 收藏作品后出现的“相关作品”区域
             // 寻找作品列表 ul 元素的上、下 div 元素，左侧是占位符，右侧是遮罩
-            const els = document.querySelectorAll('ul + div');
+            const els = document.querySelectorAll('#__next ul + div');
             els.forEach((div) => {
                 div.parentElement.classList.add('ul-father');
             });
@@ -14496,9 +14495,8 @@ class InitPageBase {
                 // 注意：这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
-                window.setTimeout(() => {
-                    this.getWorksData(idData);
-                }, 2000);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sleep(2000);
+                this.getWorksData(idData);
             }
         }
     }
@@ -15257,6 +15255,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Wiki */ "./src/ts/setting/Wiki.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -15280,7 +15280,7 @@ class CrawlRecommendWorks {
     found = false;
     timer;
     IDList = [];
-    foundTarget() {
+    async foundTarget() {
         if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
             return;
         }
@@ -15290,23 +15290,21 @@ class CrawlRecommendWorks {
             window.clearTimeout(this.timer);
             // 等待一段时间再获取作品超链接，因为立刻获取的话可能还未生成
             // 其实在 PC 端页面是可以立即获取到的，但是在移动端页面需要等待较长时间，500ms 不够用
-            window.setTimeout(() => {
-                this.readyCrawl();
-            }, _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 1000 : 100);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 1000 : 100);
+            this.readyCrawl();
         }
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, async () => {
             // 页面切换后，页面元素可能还没来得及变化，所以需要等待一段时间后再开始查找
             // 如果立即查找，那么经常会查找到已经存在的推荐列表，于是就会立即停止查找
-            window.setTimeout(() => {
-                this.found = false;
-                this.IDList = [];
-                window.clearTimeout(this.timer);
-                this.timer = window.setInterval(() => {
-                    this.foundTarget();
-                }, 300);
-            }, 600);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(600);
+            this.found = false;
+            this.IDList = [];
+            window.clearTimeout(this.timer);
+            this.timer = window.setInterval(() => {
+                this.foundTarget();
+            }, 300);
         });
     }
     readyCrawl() {
@@ -15378,7 +15376,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 初始化地区排行榜页面
+
 
 
 
@@ -15402,19 +15402,19 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     // https://i.pximg.net/c/150x150/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
     // 替换成：
     // https://i.pximg.net/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
-    replaceSmallThumb() {
-        window.setTimeout(() => {
-            const allImage = document.querySelectorAll('.ranking-item img');
-            if (allImage.length === 0) {
-                return this.replaceSmallThumb();
-            }
-            allImage.forEach((img) => {
-                // 当前视图里的 img 会加载，直接替换
-                img.src = img.src.replace('/c/150x150', '');
-                // 当前视图外的 img 是懒加载，需要替换 data-src 属性里的值
-                img.dataset.src = img.dataset.src.replace('/c/150x150', '');
-            });
-        }, 1000);
+    async replaceSmallThumb() {
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(1000);
+        const allImage = document.querySelectorAll('.ranking-item img');
+        if (allImage.length === 0) {
+            this.replaceSmallThumb();
+            return;
+        }
+        allImage.forEach((img) => {
+            // 当前视图里的 img 会加载，直接替换
+            img.src = img.src.replace('/c/150x150', '');
+            // 当前视图外的 img 是懒加载，需要替换 data-src 属性里的值
+            img.dataset.src = img.dataset.src.replace('/c/150x150', '');
+        });
     }
     async getIdList() {
         const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper');
@@ -16812,11 +16812,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         return result;
     }
-    delayReTry(p) {
+    async delayReTry(p) {
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器会在几分钟后重试'));
-        window.setTimeout(() => {
-            this.getIdList(p);
-        }, _Config__WEBPACK_IMPORTED_MODULE_20__.Config.retryTime);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_14__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_20__.Config.retryTime);
+        this.getIdList(p);
     }
     tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_14__.Utils.debounce(() => {
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
@@ -19163,17 +19162,16 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     initAny() {
         this.removeAD();
     }
-    removeAD() {
+    async removeAD() {
         // 查找首页的“推荐作品”里的广告元素，将其移除
-        window.setTimeout(() => {
-            const findAD = document.body.querySelector('.homeRecommendedWorks div[id^="adsdk"]');
-            if (findAD) {
-                findAD.closest('li')?.remove();
-            }
-            else {
-                return this.removeAD();
-            }
-        }, 1000);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(1000);
+        const findAD = document.body.querySelector('.homeRecommendedWorks div[id^="adsdk"]');
+        if (findAD) {
+            findAD.closest('li')?.remove();
+        }
+        else {
+            this.removeAD();
+        }
     }
     // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
     createidRangeTip() {
@@ -20940,11 +20938,10 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 return mode;
         }
     }
-    delayReTry(p) {
+    async delayReTry(p) {
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器会在几分钟后重试'));
-        window.setTimeout(() => {
-            this.getIdList(p);
-        }, _Config__WEBPACK_IMPORTED_MODULE_15__.Config.retryTime);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_15__.Config.retryTime);
+        this.getIdList(p);
     }
     tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.debounce(() => {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_17__.settings.slowCrawl) {
@@ -25612,10 +25609,9 @@ class SaveWorkDescription {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.savedIds = [];
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
-            window.setTimeout(() => {
-                this.summary();
-            }, 50);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, async () => {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(50);
+            this.summary();
         });
     }
     /**保存单个作品的简介 */
@@ -38844,7 +38840,7 @@ class DeleteWorks {
         });
     }
     // 切换删除模式
-    toggleDeleteMode() {
+    async toggleDeleteMode() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta.length === 0) {
             _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有可用的抓取结果'));
             return;
@@ -38855,9 +38851,8 @@ class DeleteWorks {
         const span = this.delBtn.querySelector('span');
         if (this.delMode) {
             _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(span, '_退出手动删除');
-            window.setTimeout(() => {
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-            }, 100);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
         }
         else {
             _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(span, '_手动删除作品');
@@ -39258,9 +39253,8 @@ class ExportFollowingList {
                     profileImageUrl: userData.profileImageUrl,
                 });
             }
-            else {
-                this.JSONData.push(userData);
-            }
+            // 始终添加 JSON 数据
+            this.JSONData.push(userData);
             if (this.JSONData.length >= this.totalNeed) {
                 // 抓取到了指定数量的用户
                 return this.getUserListComplete();
@@ -39269,9 +39263,8 @@ class ExportFollowingList {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.JSONData.length.toString()), 'exportFollowingListProgress');
         this.requestTimes++;
         // 获取下一批用户列表
-        window.setTimeout(() => {
-            this.getUserList();
-        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+        this.getUserList();
     }
     async getUserListComplete() {
         this.busy = false;
@@ -39492,6 +39485,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -39693,16 +39688,15 @@ class QuickBookmark {
         this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect();
         // 然后再由下载器发送收藏请求
         // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
-        window.setTimeout(async () => {
-            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
-            if (status === 403) {
-                return;
-            }
-            if (status !== 429) {
-                this.isBookmarked = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'), { position: 'mouse' });
-            }
-        }, 100);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_13__.Utils.sleep(100);
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
+        if (status === 403) {
+            return;
+        }
+        if (status !== 429) {
+            this.isBookmarked = true;
+            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'), { position: 'mouse' });
+        }
     }
     async delBookmark() {
         const data = await this.getWorkData();
@@ -39759,6 +39753,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _FollowingList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../FollowingList */ "./src/ts/FollowingList.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -39784,14 +39780,13 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.followingUsersChange, () => {
             this.findWorks(document.body);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, async () => {
             this.showTip = true;
             // 在来回切换页面时（例如之前进入了第 2 页，之后又从其他页面回到第 2 页），有时候 pixiv 的代码会报错：
             // Cannot remove a child from a different parent，并导致下载器没能成功移除该页面上应该移除的作品元素
             // 等待一段时间之后再重试，就可以正常移除元素了
-            window.setTimeout(() => {
-                this.findWorks(document.body);
-            }, 1000);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(1000);
+            this.findWorks(document.body);
         });
     }
     showTip = true;

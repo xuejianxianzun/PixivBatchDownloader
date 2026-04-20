@@ -33,10 +33,9 @@ class SaveWorkDescription {
       this.savedIds = []
     })
 
-    window.addEventListener(EVT.list.crawlComplete, () => {
-      window.setTimeout(() => {
-        this.summary()
-      }, 50)
+    window.addEventListener(EVT.list.crawlComplete, async () => {
+      await Utils.sleep(50)
+      this.summary()
     })
   }
 

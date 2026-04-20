@@ -318,11 +318,10 @@ class InitSearchNovelPage extends InitPageBase {
     }
   }
 
-  private delayReTry(p: number) {
+  private async delayReTry(p: number) {
     log.error(lang.transl('_下载器会在几分钟后重试'))
-    window.setTimeout(() => {
-      this.getIdList(p)
-    }, Config.retryTime)
+    await Utils.sleep(Config.retryTime)
+    this.getIdList(p)
   }
 
   private tipEmptyResult = Utils.debounce(() => {

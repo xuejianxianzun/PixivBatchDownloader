@@ -12,6 +12,7 @@ import { Config } from '../Config'
 import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
 import { cacheWorkData } from '../store/CacheWorkData'
+import { Utils } from '../utils/Utils'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -239,22 +240,21 @@ class QuickBookmark {
 
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
-    window.setTimeout(async () => {
-      const status = await bookmark.add(
-        id,
-        type,
-        Tools.extractTags(this.workData!)
-      )
+    await Utils.sleep(100)
+    const status = await bookmark.add(
+      id,
+      type,
+      Tools.extractTags(this.workData!)
+    )
 
-      if (status === 403) {
-        return
-      }
+    if (status === 403) {
+      return
+    }
 
-      if (status !== 429) {
-        this.isBookmarked = true
-        toast.success(lang.transl('_已收藏'), { position: 'mouse' })
-      }
-    }, 100)
+    if (status !== 429) {
+      this.isBookmarked = true
+      toast.success(lang.transl('_已收藏'), { position: 'mouse' })
+    }
   }
 
   private async delBookmark() {
