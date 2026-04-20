@@ -1,7 +1,7 @@
 # CHANGLOG
 
-在 Pixiv 的 console 里隐藏这些消息：
--doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -content_script.js -_app- -_app. 
+在 Pixiv 的 console 里隐藏这些脚本的消息：
+-doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
 ## 18.7.0
 

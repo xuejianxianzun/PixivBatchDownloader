@@ -21558,8 +21558,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 处理下载队列里的任务
-// 不显示在进度条上的下载任务，不在这里处理
+// 下载抓取结果里的一个文件
 class Download {
     constructor(progressBarIndex, data, downloadStatesIndex) {
         this.progressBarIndex = progressBarIndex;
@@ -21577,7 +21576,7 @@ class Download {
     get cancel() {
         return this.skip || this.error || !_store_States__WEBPACK_IMPORTED_MODULE_14__.states.downloading;
     }
-    // 跳过下载这个文件。可以传入用于提示的文本
+    /** 跳过下载这个文件。可以传入用于提示的文本 */
     skipDownload(data, msg) {
         this.skip = true;
         if (msg) {
@@ -21587,7 +21586,7 @@ class Download {
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('skipDownload', data);
         }
     }
-    // 在开始下载前进行检查
+    /** 在下载前检查一些过滤条件，以确认是否应该下载这个文件 */
     async beforeDownload(arg) {
         // 检查是否是重复文件
         const duplicate = await _DownloadRecord__WEBPACK_IMPORTED_MODULE_8__.downloadRecord.checkDeduplication(arg.result);
@@ -21607,103 +21606,26 @@ class Download {
             });
         }
         // 检查宽高条件和宽高比
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ratioSwitch) &&
-            arg.result.type !== 3) {
-            // 默认使用当前作品中第一张图片的宽高
-            let wh = {
-                width: arg.result.fullWidth,
-                height: arg.result.fullHeight,
-            };
-            // 如果不是第一张图片，则加载图片以获取宽高
-            if (arg.result.index > 0) {
-                // 始终获取原图的尺寸
-                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(arg.result.original);
-            }
-            // 如果获取宽高失败，图片会被视为通过宽高检查
-            if (wh.width === 0 || wh.height === 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取图片的宽高时出现错误') +
-                    _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id));
-                // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
-                // 如果是 404 错误，在 download 方法中可以处理这个问题
-                // 如果是请求超时，则有可能错误的通过了这个图片
-            }
-            const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check(wh);
-            if (!result) {
-                return this.skipDownload({
-                    id: arg.id,
-                    reason: 'widthHeight',
-                }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为宽高', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
-            }
+        const checkResult = await this.checkWidthHeight(arg.result);
+        if (!checkResult) {
+            return this.skipDownload({
+                id: arg.id,
+                reason: 'widthHeight',
+            }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为宽高', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
         }
+        // 检查通过，下载这个文件
         this.download(arg);
     }
-    // 设置进度条信息
-    setProgressBar(name, loaded, total) {
-        // 在下载初始化和下载完成时，立即更新进度条
-        // 在下载途中，使用节流来更新进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](this.progressBarIndex, {
-            name,
-            loaded,
-            total,
-        });
-    }
-    // 当重试达到最大次数时
-    afterReTryMax(status, fileId) {
-        const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(fileId), status.toString());
-        // 发生 404 500 错误时跳过这个作品。因为没有触发 downloadError 事件，所以不会重试下载它
-        if (status === 404 || status === 500) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器不会再重试下载它'));
-            return this.skipDownload({
-                id: fileId,
-                reason: status.toString(),
-            });
-        }
-        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
-        // 超时也会返回状态码 0
-        if (status === 0) {
-            // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
-            const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
-            const result = this.retryInterval.filter((val) => val <= timeLimit);
-            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
-            if (result.length > 9) {
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
-                const tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码为0的错误提示');
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_13__.msgBox.error(tip);
-                return _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestPauseDownload');
-            }
-        }
-        // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它'));
-        this.error = true;
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
-    }
-    // 下载文件
     async download(arg) {
         // 获取文件名
         let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
         // 重设当前下载栏的信息
         this.setProgressBar(_fileName, 0, 0);
-        // 下载文件
+        await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
         let url;
         if (arg.result.type === 3) {
-            // 小说
-            if (arg.result.novelMeta) {
-                // 生成小说文件
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.novelSaveAs === 'epub') {
-                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile.makeEPUB(arg.result.novelMeta, _fileName);
-                    url = URL.createObjectURL(blob);
-                }
-                else {
-                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile.makeTXT(arg.result.novelMeta, _fileName);
-                    url = URL.createObjectURL(blob);
-                }
-            }
-            else {
-                throw new Error('Not found novelMeta');
-            }
+            // 小说动态生成文件，并获取 BlobURL
+            url = await this.getNovelFileURL(arg.result.novelMeta, _fileName);
         }
         else {
             // 图像作品
@@ -21715,25 +21637,19 @@ class Download {
                 _fileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(_fileName, url);
                 this.setProgressBar(_fileName, 0, 0);
             }
-            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
         }
+        // 下载文件
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
         // 显示下载进度
         xhr.addEventListener('progress', async (event) => {
-            // 检查体积设置
-            if (!this.sizeChecked) {
-                this.sizeChecked = true;
-                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({ size: event.total });
-                if (!result) {
-                    // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
-                    this.setProgressBar(_fileName, 1, 1);
-                    this.skipDownload({
-                        id: arg.id,
-                        reason: 'size',
-                    }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为体积', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
-                }
+            // 检查体积设置，如果检查不通过，会把 this.skip 设置成 true，从而中断下载
+            const check = await this.checkSize(arg.result, event.total);
+            if (!check) {
+                // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
+                // 如果不把进度条拉满，用户看到这个文件的进度条只有一点点，就会以为下载卡住或出错了
+                this.setProgressBar(_fileName, 1, 1);
             }
             if (this.cancel) {
                 xhr.abort();
@@ -21778,33 +21694,9 @@ class Download {
             else {
                 // 状态码正常
                 _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, false);
-                // 需要转换动图的情况
-                const convertExt = ['webm', 'gif', 'apng'];
-                const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAs;
-                if (convertExt.includes(ext) &&
-                    arg.result.ugoiraInfo &&
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'thumb') {
-                    // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
-                    try {
-                        if (ext === 'webm') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira.webm(file, arg.result.ugoiraInfo, arg.result.idNum);
-                        }
-                        if (ext === 'gif') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira.gif(file, arg.result.ugoiraInfo, arg.result.idNum);
-                        }
-                        if (ext === 'apng') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira.apng(file, arg.result.ugoiraInfo, arg.result.idNum);
-                        }
-                    }
-                    catch (error) {
-                        const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.result.idNum));
-                        // 因为会重试所以不在日志上显示
-                        // log.error(msg, 1)
-                        console.error(msg);
-                        this.error = true;
-                        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', arg.id);
-                    }
-                }
+                // 转换动图
+                const convertResult = await this.convertUgoira(arg.result, file);
+                file = convertResult || file;
             }
             if (this.cancel) {
                 return;
@@ -21814,57 +21706,185 @@ class Download {
             // 对插画、漫画进行颜色检查
             // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
             // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
-            if (arg.result.type === 0 || arg.result.type === 1) {
-                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
-                    mini: blobURL,
-                });
-                if (!result) {
-                    return this.skipDownload({
-                        id: arg.id,
-                        reason: 'color',
-                    }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
-                }
-            }
+            await this.checkColor(arg.result, blobURL);
             // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
-            // 这是因为每张图片的宽高可能都不一样，示例：
-            // https://www.pixiv.net/artworks/142726174
-            // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
-            // 所以在下载图片时需要重新检查其宽高，如有必要就重新生成文件名。本质上，这是为了重新生成 {px} 标记的结果
-            if (arg.result.index > 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'original') {
-                const size = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(blobURL);
-                if (size.width &&
-                    size.height &&
-                    arg.result.fullWidth !== size.width &&
-                    arg.result.fullHeight !== size.height) {
-                    // 修改宽高数据，并重新生成文件名
-                    // 使用一个临时对象，不修改原本的抓取结果
-                    // 如果修改原本的抓取结果会带来副作用：下载前生成的文件名与下载后生成的文件名不同（因为 {px} 标记的结果变了），这会让这个文件始终被判断为不是重复文件，每次都会重新下载
-                    // 使用对象展开进行浅拷贝。由于这里只需要修改两个基础值，所以浅拷贝就够了，不会影响原本的抓取结果
-                    const tempResult = { ...arg.result };
-                    tempResult.fullWidth = size.width;
-                    tempResult.fullHeight = size.height;
-                    const newFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(tempResult);
-                    if (newFileName !== _fileName) {
-                        _fileName = newFileName;
-                        this.setProgressBar(newFileName, file.size, file.size);
-                    }
-                }
+            const newFileName = await this.checkNamingRulePX(arg.result, blobURL);
+            if (newFileName && newFileName !== _fileName) {
+                _fileName = newFileName;
+                this.setProgressBar(newFileName, file.size, file.size);
             }
+            // 等待上一个文件下载完成
+            await this.waitPreviousFileDownload();
             // 发送下载任务
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setFileDownloadOrder) {
-                await this.waitPreviousFileDownload();
-            }
             this.sendDownload(file, blobURL, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
         });
         this.lastRequestTime = Date.now();
-        // 没有设置 timeout，默认值是 0，不会超时
+        // 没有设置 timeout，默认值是 0，不会超时。除非浏览器把这个请求作为超时处理
         xhr.send();
     }
-    // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
+    /** 设置下载的这个文件的进度条信息 */
+    setProgressBar(name, loaded, total) {
+        // 在下载初始化和下载完成时，立即更新进度条
+        // 在下载途中，使用节流来更新进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](this.progressBarIndex, {
+            name,
+            loaded,
+            total,
+        });
+    }
+    /** 当重试达到最大次数时 */
+    afterReTryMax(status, fileId) {
+        const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(fileId), status.toString());
+        // 发生 404 500 错误时跳过这个作品。因为没有触发 downloadError 事件，所以不会重试下载它
+        if (status === 404 || status === 500) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器不会再重试下载它'));
+            return this.skipDownload({
+                id: fileId,
+                reason: status.toString(),
+            });
+        }
+        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
+        // 超时也会返回状态码 0
+        if (status === 0) {
+            // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
+            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
+            const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
+            const result = this.retryInterval.filter((val) => val <= timeLimit);
+            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
+            if (result.length > 9) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
+                const tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码为0的错误提示');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_13__.msgBox.error(tip);
+                return _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestPauseDownload');
+            }
+        }
+        // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它'));
+        this.error = true;
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
+    }
+    /** 生成小说文件并返回其 BlobURL */
+    async getNovelFileURL(novelMeta, filename) {
+        if (!novelMeta) {
+            throw new Error('Not found novelMeta');
+        }
+        const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'](novelMeta, filename);
+        return URL.createObjectURL(blob);
+    }
+    /** 转换动图，返回 Blob 文件。如果不需要转换，或者转换失败，会返回 null */
+    async convertUgoira(result, zipFile) {
+        const convertExt = ['webm', 'gif', 'apng'];
+        const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAs;
+        // ext 有可能是 'zip'，这会导致 includes 时产生类型错误，所以这里断言来避免报错
+        // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
+        if (!convertExt.includes(ext) ||
+            !result.ugoiraInfo ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'thumb') {
+            return null;
+        }
+        try {
+            const blob = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira[ext](zipFile, result.ugoiraInfo, result.idNum);
+            return blob || null;
+        }
+        catch (error) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
+                '<br>' +
+                _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            this.error = true;
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', result.id);
+            return null;
+        }
+    }
+    /** 检查宽高条件和宽高比 */
+    async checkWidthHeight(result) {
+        if (result.type === 3 || (!_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setWHSwitch && !_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ratioSwitch)) {
+            return true;
+        }
+        // 默认使用当前作品中第一张图片的宽高
+        let wh = {
+            width: result.fullWidth,
+            height: result.fullHeight,
+        };
+        // 如果不是第一张图片，则加载图片以获取宽高
+        if (result.index > 0) {
+            // 始终获取原图的尺寸
+            wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(result.original);
+        }
+        // 如果获取宽高失败，则不进行检查
+        if (wh.width === 0 || wh.height === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取图片的宽高时出现错误') +
+                _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id));
+            return true;
+            // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
+            // 如果是 404 错误，在 download 方法中可以处理这个问题
+            // 如果是请求超时，则有可能错误的通过了这个图片
+        }
+        return _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check(wh);
+    }
+    /** 检查体积设置 */
+    async checkSize(result, size) {
+        if (!this.sizeChecked) {
+            this.sizeChecked = true;
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({ size });
+            if (!check) {
+                this.skipDownload({
+                    id: result.id,
+                    reason: 'size',
+                }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为体积', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
+            }
+            return check;
+        }
+        return true;
+    }
+    /* 对插画、漫画进行颜色检查 */
+    async checkColor(result, blobURL) {
+        if (result.type === 0 || result.type === 1) {
+            const checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
+                mini: blobURL,
+            });
+            if (!checkResult) {
+                return this.skipDownload({
+                    id: result.id,
+                    reason: 'color',
+                }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
+            }
+        }
+    }
+    /** 如果这张图片的宽高与作品里第一张图片的宽高不同，则为其重新生成文件名。此时 {px} 标记的结果与第一张图片不同。 */
+    // 这是因为每张图片的宽高可能都不一样，示例：
+    // https://www.pixiv.net/artworks/142726174
+    // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
+    // 所以在下载图片时需要重新检查其宽高，如有必要就重新生成文件名。本质上，这是为了重新生成 {px} 标记的结果
+    async checkNamingRulePX(result, blobURL) {
+        if (result.index === 0 || _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'original') {
+            return undefined;
+        }
+        const size = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(blobURL);
+        if (size.width &&
+            size.height &&
+            result.fullWidth !== size.width &&
+            result.fullHeight !== size.height) {
+            // 修改宽高数据，并重新生成文件名
+            // 使用一个临时对象，不修改原本的抓取结果
+            // 如果修改原本的抓取结果会带来副作用：下载前生成的文件名与下载后生成的文件名不同（因为 {px} 标记的结果变了），这会让这个文件始终被判断为不是重复文件，每次都会重新下载
+            // 使用对象展开进行浅拷贝。由于这里只需要修改两个基础值，所以浅拷贝就够了，不会影响原本的抓取结果
+            const tempResult = { ...result };
+            tempResult.fullWidth = size.width;
+            tempResult.fullHeight = size.height;
+            const newFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(tempResult);
+            return newFileName;
+        }
+        return undefined;
+    }
+    /** 等待上一个文件下载完成 */
+    // 如果用户启用了“文件下载顺序”，就需要等待上一个文件下载完成后（浏览器返回文件下载成功的消息），再开始下载这个文件
     async waitPreviousFileDownload() {
-        while (true) {
+        while (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setFileDownloadOrder) {
             if (this.downloadStatesIndex === 0 ||
                 _DownloadStates__WEBPACK_IMPORTED_MODULE_16__.downloadStates.states[this.downloadStatesIndex - 1] === 1) {
                 return;
@@ -22447,14 +22467,13 @@ class DownloadControl {
         }
     }
     // 在有下载出错的情况下，是否已经完成了下载
-    checkCompleteWithError() {
+    async checkCompleteWithError() {
         if (this.errorIdList.length > 0 &&
             this.downloaded + this.errorIdList.length === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
-            // 进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
+            // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
             this.pauseDownload();
-            setTimeout(() => {
-                this.startDownload();
-            }, 2000);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sleep(2000);
+            this.startDownload();
         }
     }
     reset() {
