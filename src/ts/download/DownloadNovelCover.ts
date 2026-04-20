@@ -44,11 +44,16 @@ class DownloadNovelCover {
       }
       const data = await res[type]()
       return data
-    } catch (error) {
+    } catch (error: Error | any) {
       retry++
-      console.log(retry, url)
+      // console.log(retry, url)
       if (retry > this.retryMax) {
-        log.error(`${lang.transl('_下载小说封面失败')}: ${url}`)
+        let msg = `${lang.transl('_下载小说封面失败')}: ${url}`
+        const status = error.status
+        if (status !== undefined) {
+          msg += `<br> ${lang.transl('_状态码')}: ${status}`
+        }
+        log.error(msg)
         return null
       }
       return this.getCover(url, type as any, retry)

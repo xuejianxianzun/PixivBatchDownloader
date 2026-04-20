@@ -98,98 +98,113 @@ class Download {
     this.download(arg)
   }
 
-  private async download(arg: downloadArgument) {
+  private async download(arg: downloadArgument): Promise<void> {
     // 获取文件名
     let _fileName = fileName.createFileName(arg.result)
 
-    // 重设当前下载栏的信息
+    // 重置当前下载记录条
     this.setProgressBar(_fileName, 0, 0)
 
     await downloadInterval.wait()
+    this.lastRequestTime = Date.now()
 
-    let url: string
     if (arg.result.type === 3) {
-      // 小说动态生成文件，并获取 BlobURL
-      url = await this.getNovelFileURL(arg.result.novelMeta, _fileName)
-    } else {
-      // 图像作品
-      // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-      url = arg.result[settings.imageSize] || arg.result.original
+      // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
+      const blob = await this.getNovelFileURL(arg.result.novelMeta, _fileName)
+      const blobURL = URL.createObjectURL(blob)
 
-      // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
-      // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
-      if (settings.imageSize !== 'original') {
-        _fileName = Utils.replaceExtension(_fileName, url)
-        this.setProgressBar(_fileName, 0, 0)
-      }
+      // 等待上一个文件下载完成
+      await this.waitPreviousFileDownload()
+
+      // 发送下载任务
+      const size = blob.size
+      this.setProgressBar(_fileName, size, size)
+      this.sendDownload(blob, blobURL, _fileName, arg.id, arg.taskBatch)
+      return
     }
 
-    // 下载文件
-    let xhr = new XMLHttpRequest()
-    xhr.open('GET', url, true)
-    xhr.responseType = 'blob'
+    // 下载图像作品
+    // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
+    const url = arg.result[settings.imageSize] || arg.result.original
 
-    // 显示下载进度
-    xhr.addEventListener('progress', async (event) => {
+    // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
+    // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
+    if (settings.imageSize !== 'original') {
+      _fileName = Utils.replaceExtension(_fileName, url)
+      this.setProgressBar(_fileName, 0, 0)
+    }
+
+    // 使用 Fetch API 下载文件
+    // 相比 XHR，Fetch API 不受系统盘可用空间的限制，可以更可靠地下载大文件
+    const controller = new AbortController()
+    // 保存 catch 里的响应状态码
+    let status = 0
+
+    try {
+      const response = await fetch(url, { signal: controller.signal })
+      const contentType = response.headers
+        .get('Content-Type')
+        ?.split(';')[0]
+        .trim()
+      status = response.status
+
+      // 状态码错误，抛出异常进入重试流程
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`)
+      }
+
+      // 获取文件总体积
+      // 但是 Pixiv 的服务器有问题，偶尔一些文件没有 Content-Length 响应头（之后重试可能又有了），直接设置为 0
+      const contentLength = response.headers.get('Content-Length') || '0'
+      const total = parseInt(contentLength, 10)
+
       // 检查体积设置，如果检查不通过，会把 this.skip 设置成 true，从而中断下载
-      const check = await this.checkSize(arg.result, event.total)
-      if (!check) {
-        // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
+      const sizeCheck = await this.checkSize(arg.result, total)
+      if (!sizeCheck) {
+        // 当因为体积问题跳过下载时，直接把进度条拉满
         // 如果不把进度条拉满，用户看到这个文件的进度条只有一点点，就会以为下载卡住或出错了
         this.setProgressBar(_fileName, 1, 1)
       }
 
       if (this.cancel) {
-        xhr.abort()
-        xhr = null as any
+        controller.abort()
         return
       }
 
-      this.setProgressBar(_fileName, event.loaded, event.total)
-    })
+      // 使用 ReadableStream 读取响应体，跟踪下载进度
+      const reader = response.body!.getReader()
+      const chunks: Uint8Array[] = []
+      let loaded = 0
 
-    // 文件加载完毕，或者加载出错
-    xhr.addEventListener('loadend', async () => {
-      if (this.cancel) {
-        xhr = null as any
-        return
+      while (true) {
+        if (this.cancel) {
+          reader.cancel()
+          return
+        }
+
+        const { done, value } = await reader.read()
+        if (done) break
+
+        chunks.push(value)
+        loaded += value.length
+        this.setProgressBar(_fileName, loaded, total)
       }
 
-      // 要下载的文件
-      let file: Blob = xhr.response
+      // 组装 Blob
+      let file: Blob = new Blob(chunks as BlobPart[], {
+        type: contentType || 'application/octet-stream',
+      })
 
       // 下载时有些图片可能没有 content-length，无法计算下载进度
-      // 所以在 loadend 之后，把下载进度拉满
-      if (file?.size) {
+      // 所以在下载完毕后，把下载进度拉满
+      if (file.size) {
         this.setProgressBar(_fileName, file.size, file.size)
-      } else {
-        // 有时候 file 是 null，所以不能获取 size 属性。尚不清楚原因是什么
-        console.log(file)
       }
+      progressBar.errorColor(this.progressBarIndex, false)
 
-      // 状态码错误，进入重试流程
-      if (xhr.status !== 200) {
-        // 正常下载完毕的状态码是 200
-        // 储存重试的时间戳等信息
-        this.retryInterval.push(Date.now() - this.lastRequestTime)
-
-        progressBar.errorColor(this.progressBarIndex, true)
-        this.retry++
-
-        if (this.retry >= Config.retryMax) {
-          // 重试达到最大次数
-          this.afterReTryMax(xhr.status, arg.id)
-        } else {
-          // 开始重试
-          return this.download(arg)
-        }
-      } else {
-        // 状态码正常
-        progressBar.errorColor(this.progressBarIndex, false)
-        // 转换动图
-        const convertResult = await this.convertUgoira(arg.result, file)
-        file = convertResult || file
-      }
+      // 转换动图
+      const convertResult = await this.convertUgoira(arg.result, file)
+      file = convertResult || file
 
       if (this.cancel) {
         return
@@ -215,13 +230,32 @@ class Download {
 
       // 发送下载任务
       this.sendDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
-      xhr = null as any
       file = null as any
-    })
+    } catch (error) {
+      if (this.cancel) {
+        return
+      }
 
-    this.lastRequestTime = Date.now()
-    // 没有设置 timeout，默认值是 0，不会超时。除非浏览器把这个请求作为超时处理
-    xhr.send()
+      // AbortError 表示请求被主动中断，不需要重试
+      if ((error as Error).name === 'AbortError') {
+        return
+      }
+
+      // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
+      // 储存重试的时间戳等信息
+      this.retryInterval.push(Date.now() - this.lastRequestTime)
+
+      progressBar.errorColor(this.progressBarIndex, true)
+      this.retry++
+
+      if (this.retry >= Config.retryMax) {
+        // 重试达到最大次数
+        this.afterReTryMax(status, arg.id)
+      } else {
+        // 开始重试
+        return this.download(arg)
+      }
+    }
   }
 
   /** 设置下载的这个文件的进度条信息 */
@@ -278,7 +312,7 @@ class Download {
     EVT.fire('downloadError', fileId)
   }
 
-  /** 生成小说文件并返回其 BlobURL */
+  /** 生成小说文件 */
   private async getNovelFileURL(novelMeta: NovelMeta | null, filename: string) {
     if (!novelMeta) {
       throw new Error('Not found novelMeta')
@@ -287,7 +321,7 @@ class Download {
     const blob = await makeNovelFile[
       settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'
     ](novelMeta, filename)
-    return URL.createObjectURL(blob)
+    return blob
   }
 
   /** 转换动图，返回 Blob 文件。如果不需要转换，或者转换失败，会返回 null */
@@ -360,6 +394,10 @@ class Download {
   private async checkSize(result: Result, size: number) {
     if (!this.sizeChecked) {
       this.sizeChecked = true
+      if (size === 0) {
+        return true
+      }
+
       const check = await filter.check({ size })
       if (!check) {
         this.skipDownload(
@@ -472,10 +510,8 @@ class Download {
     // 使用 a.download 来下载文件时，不调用 downloads API
     if (settings.rememberTheLastSaveLocation) {
       // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
-      // 路径符号 / 会被浏览器处理成 _，例如：
-      // pixiv/mojo-94576902/136825223_p0-藤田ことね🎃.png 会变成：
-      // pixiv_mojo-94576902_136825223_p0-藤田ことね🎃.png
-      // 所以我只保留了文件名部分
+      // 此时如果带有路径符号 /，会被浏览器自动替换成下划线 _
+      // 所以我直接去掉了路径部分，只保留了文件名
       const lastName = fileName.split('/').pop()
       Utils.downloadFile(blobURL, lastName!)
       // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
@@ -499,7 +535,6 @@ class Download {
         return
       }
 
-      console.error(error)
       msg = msg.replace('{}', lang.transl('_未知错误'))
       log.error(msg)
       msgBox.error(msg)

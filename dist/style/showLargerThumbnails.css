@@ -505,7 +505,7 @@ body[data-page-type='7'] .layout-a,
 body[data-page-type='7'] .layout-b {
   width: 92vw !important;
 }
-body[data-page-type='7'] li[id],
+body[data-page-type='7'] ol li[id],
 body[data-page-type='7'] .ranking-items.adjust .ranking-item {
   width: auto !important;
   max-width: unset !important;
@@ -516,7 +516,7 @@ body[data-page-type='7'] .ranking-items.adjust .ranking-item {
 body[data-page-type='7'] .ranking-items.adjust .ranking-item .ranking-image-item {
   width: auto !important;
 }
-body[data-page-type='7'] li[id] a img,
+body[data-page-type='7'] ol li[id] a img,
 body[data-page-type='7'] .ranking-items.adjust .work img {
   width: auto !important;
   height: auto !important;

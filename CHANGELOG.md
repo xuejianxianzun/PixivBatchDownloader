@@ -379,6 +379,14 @@ this.getIdList()
 
 但考虑到 `setTimeoutWorker.sleep` 只有 sleep 这一个公开方法，而 Utils 包含更多功能，而且已经被很多模块引用了。所以我直接让 `Utils.sleep` return `setTimeoutWorker.sleep`，再把原来的两种 sleep 都统一成 `Utils.sleep`，调用起来更简洁，也减少了分歧。
 
+#### ♻️下载文件时使用 Fetch 代替 XHR
+
+之前 Downloads.ts 里下载文件时（就是会显示在下载进度条上的文件），使用的是 XHR，但是它有个问题：C 盘剩余空间小于 4 GB 的话，可能无法下载体积较大的文件，即使是不到 10 MB 的文件，也可能会被浏览器强行中断下载，导致这个文件下载失败，并可能导致下载卡住。
+
+现在改为使用 Fetch，它目前没有这个问题。
+
+使用 Fetch 在下载时会略微增加内存占用，但不严重，即使是并发下载体积大的动图也没有问题。
+
 ### 🕑更新了作品发布时间数据
 
 ## 18.6.0 2026-04-04
@@ -3678,9 +3686,10 @@ https://www.pixiv.net/novel/series/12324638
 《御牝馆藏谭：身为冷傲黑长直生徒会长的我在被调教成牝犬后，帮助主人将其他美少女也制作成收藏品》
 https://www.pixiv.net/novel/series/10923616
 
-这个系列目前有 46 篇小说，含有 1150 张图片，图片的总体积是 3.96 GB：
+这个系列目前有 51 篇小说，含有 1299 张图片，其中插画有 1252 张，总体积是 4.46 GB：
 https://www.pixiv.net/novel/series/7708974
-因为文件体积太大，所以无法一次性合并（生成 EPUB 文件），会导致报错。jszip.min.js 会产生 `Array buffer allocation failed` 错误。
+因为文件体积太大，所以需要分割成多个文件。
+如果不分割的话，虽然能全部加载到内存里，但是 jszip.min.js 打包时会因为浏览器的内存限制报错 `Array buffer allocation failed`，无法生成 EPUB 文件。
 
 这个系列的 7 篇小说里有 3 个是好P友限定作品，获取数据会 404:
 https://www.pixiv.net/novel/series/11277272

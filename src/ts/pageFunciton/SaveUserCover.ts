@@ -14,6 +14,7 @@ class SaveUserCover {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveUserCover, () => {
+      EVT.fire('closeCenterPanel')
       this.saveUserCover()
     })
   }
@@ -48,7 +49,6 @@ class SaveUserCover {
     const msg = lang.transl('_保存用户封面')
     log.success('✅' + msg)
     toast.success(msg)
-    EVT.fire('closeCenterPanel')
   }
 }
 

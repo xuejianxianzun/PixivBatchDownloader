@@ -318,12 +318,17 @@ class DownloadNovelEmbeddedImage {
       }
       const data = await res[type]()
       return data
-    } catch (error) {
+    } catch (error: Error | any) {
       // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
       retry++
       // console.log(retry, url)
       if (retry > this.retryMax) {
-        log.error(`${lang.transl('_下载小说里的图片失败')}: ${url}`)
+        let msg = `${lang.transl('_下载小说里的图片失败')}: ${url}`
+        const status = error.status
+        if (status !== undefined) {
+          msg += `<br> ${lang.transl('_状态码')}: ${status}`
+        }
+        log.error(msg)
         return null
       }
       // 重试下载
