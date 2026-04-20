@@ -132,6 +132,8 @@ export interface SettingsForm extends HTMLFormElement {
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
   previewUgoira: HTMLInputElement
+  previewSingleImageWork: HTMLInputElement
+  previewMultiImageWork: HTMLInputElement
   userRatioLimit: HTMLInputElement
   timedCrawlInterval: HTMLInputElement
   slowCrawl: HTMLInputElement
@@ -190,4 +192,5 @@ export interface SettingsForm extends HTMLFormElement {
   onlyCrawlLastFewImagesCount: HTMLInputElement
   doNotCrawlFirstImagesSwitch: HTMLInputElement
   doNotCrawlFirstImagesCount: HTMLInputElement
+  singleEPUBFileSizeLimit: HTMLInputElement
 }

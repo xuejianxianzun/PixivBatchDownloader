@@ -3060,12 +3060,12 @@ class ToGIF {
             gif.render();
         });
     }
-    MBSize = 1024 * 1024;
+    MiB = 1024 * 1024;
     /**根据 zip 文件的体积，决定转换动图使的质量 */
     // 使用更小的 quality 可以获得更好的画面质量（颜色质量）
     // 以前下载器使用的都是默认值 10，现在改为体积越小则使用越高的质量，以减少某些动图转换成 GIF 之后色差严重的问题
     setQuality(fileSize) {
-        const MB = Math.floor(fileSize / this.MBSize);
+        const MB = Math.floor(fileSize / this.MiB);
         switch (MB) {
             case 0:
                 return 1;
@@ -7402,18 +7402,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 
 
 
 // 预览动图
 class PreviewUgoira {
     constructor(id, canvasWrap, prevSize, wrapWidth, wrapHeight) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewUgoira) {
-            return;
-        }
         this.id = id;
         this.canvasWrap = canvasWrap;
         this.prevSize = prevSize;
@@ -7488,7 +7483,7 @@ class PreviewUgoira {
             this.loadend = this.zipContent.byteLength === this.zipLength;
             // 提取出每个 jpg 图片的数据
             // 由于我之前使用的 zip 库无法解析不完整的 zip 文件，所以我需要自己提取 jpg 图片的数据
-            this.jpgContentIndexList = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getJPGContentIndex(this.zipContent, this.jpgContentIndexList);
+            this.jpgContentIndexList = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getJPGContentIndex(this.zipContent, this.jpgContentIndexList);
             this.extractJPGData(this.zipContent, this.jpgContentIndexList);
             // 设置画布的宽高
             if (this.jpgFileList.length > 0 && this.width === 0) {
@@ -7828,14 +7823,20 @@ class PreviewWork {
                 }
                 // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
                 const tags = _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData, 'origin');
-                const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__.filter.checkExcludeAndMuteTags(tags);
-                if (!check) {
+                const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__.filter.checkExcludeAndMuteTags(tags);
+                if (!checkTag) {
                     this.show = false;
                     const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_不预览这个作品因为它含有你排除的标签');
                     _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(msg, {
                         position: 'mouse',
                         stay: 2500,
                     });
+                    return;
+                }
+                // 检查这个作品是否符合预览的作品类型
+                const checkType = this.checkPreviewType(this.workData);
+                if (!checkType) {
+                    this.show = false;
                     return;
                 }
                 this.isReadyShow = false;
@@ -7893,13 +7894,7 @@ class PreviewWork {
             }
             this.workId = id;
             this.workEL = el;
-            // 判断是插画还是动图，然后根据设置决定是否加载作品数据
-            // 动图有一个特定元素：circle，就是播放按钮的圆形背景
-            // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
-            // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
-            const ugoira = el.querySelector('circle');
-            const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork;
-            show && this.readyShow();
+            this.readyShow();
             el.addEventListener('wheel', this.onWheelScroll, {
                 passive: false,
             });
@@ -8102,34 +8097,9 @@ class PreviewWork {
             mouseEvent && this.onWheelScroll(mouseEvent);
         });
     }
-    preload() {
-        // 如果下载器正在下载文件，则不预加载
-        if (this.show && !_store_States__WEBPACK_IMPORTED_MODULE_4__.states.downloading) {
-            const count = this.workData.body.pageCount;
-            if (count > this.index + 1) {
-                let url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize];
-                url = url.replace('p0', `p${this.index + 1}`);
-                let img = new Image();
-                // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
-                const nowIndex = this.index;
-                const timer = window.setInterval(() => {
-                    if (this.index !== nowIndex || !this.show) {
-                        window.clearInterval(timer);
-                        img && (img.src = '');
-                        img = null;
-                    }
-                }, 50);
-                img.onload = () => {
-                    window.clearInterval(timer);
-                    img && (img = null);
-                };
-                img.src = url;
-            }
-        }
-    }
-    wheelEvent;
     // 当鼠标滚轮滚动时，切换显示的图片
     // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 wheel 事件
+    wheelEvent;
     swicthImageByMouse = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.throttle(() => {
         const up = this.wheelEvent.deltaY < 0;
         this.swicthImage(up ? 'prev' : 'next');
@@ -8164,85 +8134,11 @@ class PreviewWork {
             this.swicthImageByMouse();
         }
     };
-    async addBookmark() {
-        if (this.workData?.body.illustId === undefined) {
-            return;
-        }
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_收藏'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
-        });
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_15__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData));
-        if (status === 200) {
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已收藏'));
-            // 将作品缩略图上的收藏按钮变成红色
-            const allSVG = this.workEL.querySelectorAll('svg');
-            if (allSVG.length > 0) {
-                // 如果有多个 svg，一般最后一个是收藏按钮
-                let useSVG = allSVG[allSVG.length - 1];
-                // 但有些特殊情况是第一个
-                if (_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.list.Request) {
-                    useSVG = allSVG[0];
-                }
-                // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-                // 区别是收藏按钮在 button 元素里
-                const btnSVG = this.workEL.querySelector('button svg');
-                if (btnSVG) {
-                    useSVG = btnSVG;
-                }
-                useSVG.style.color = 'rgb(255, 64, 96)';
-                const allPath = useSVG.querySelectorAll('path');
-                for (const path of allPath) {
-                    path.style.fill = 'currentcolor';
-                }
-            }
-        }
-        // 排行榜页面的收藏按钮
-        const btn = this.workEL.querySelector('._one-click-bookmark');
-        if (btn) {
-            btn.classList.add('on');
-        }
-    }
     readyShow() {
         this.isReadyShow = true;
         this.delayShowTimer = window.setTimeout(async () => {
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewWorkWait);
-    }
-    // 通过 img 元素加载图片，获取图片的原始尺寸
-    async getImageSize(url) {
-        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
-        let testImg = new Image();
-        testImg.src = url;
-        const bindIndex = this.index;
-        while (true) {
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(50);
-            if (this.index !== bindIndex) {
-                // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
-                testImg.src = '';
-                testImg = null;
-                // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
-                // 我不想处理错误，所以用 available 标记来偷懒
-                return {
-                    width: 0,
-                    height: 0,
-                    available: false,
-                };
-            }
-            else {
-                // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
-                if (testImg.naturalWidth > 0) {
-                    const width = testImg.naturalWidth;
-                    const height = testImg.naturalHeight;
-                    testImg.src = '';
-                    testImg = null;
-                    return {
-                        width,
-                        height,
-                        available: true,
-                    };
-                }
-            }
-        }
     }
     // 显示预览 wrap
     async showWrap() {
@@ -8444,10 +8340,119 @@ class PreviewWork {
         }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 预览动图
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewUgoira && this.workData.body.illustType === 2) {
+        if (this.workData.body.illustType === 2) {
             this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
             // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
         }
+    }
+    // 通过 img 元素加载图片，获取图片的原始尺寸
+    async getImageSize(url) {
+        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+        let testImg = new Image();
+        testImg.src = url;
+        const bindIndex = this.index;
+        while (true) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(50);
+            if (this.index !== bindIndex) {
+                // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+                testImg.src = '';
+                testImg = null;
+                // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+                // 我不想处理错误，所以用 available 标记来偷懒
+                return {
+                    width: 0,
+                    height: 0,
+                    available: false,
+                };
+            }
+            else {
+                // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+                if (testImg.naturalWidth > 0) {
+                    const width = testImg.naturalWidth;
+                    const height = testImg.naturalHeight;
+                    testImg.src = '';
+                    testImg = null;
+                    return {
+                        width,
+                        height,
+                        available: true,
+                    };
+                }
+            }
+        }
+    }
+    preload() {
+        // 如果下载器正在下载文件，则不预加载
+        if (this.show && !_store_States__WEBPACK_IMPORTED_MODULE_4__.states.downloading) {
+            const count = this.workData.body.pageCount;
+            if (count > this.index + 1) {
+                let url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize];
+                url = url.replace('p0', `p${this.index + 1}`);
+                let img = new Image();
+                // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
+                const nowIndex = this.index;
+                const timer = window.setInterval(() => {
+                    if (this.index !== nowIndex || !this.show) {
+                        window.clearInterval(timer);
+                        img && (img.src = '');
+                        img = null;
+                    }
+                }, 50);
+                img.onload = () => {
+                    window.clearInterval(timer);
+                    img && (img = null);
+                };
+                img.src = url;
+            }
+        }
+    }
+    async addBookmark() {
+        if (this.workData?.body.illustId === undefined) {
+            return;
+        }
+        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_收藏'), {
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
+        });
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_15__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData));
+        if (status === 200) {
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已收藏'));
+            // 将作品缩略图上的收藏按钮变成红色
+            const allSVG = this.workEL.querySelectorAll('svg');
+            if (allSVG.length > 0) {
+                // 如果有多个 svg，一般最后一个是收藏按钮
+                let useSVG = allSVG[allSVG.length - 1];
+                // 但有些特殊情况是第一个
+                if (_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.list.Request) {
+                    useSVG = allSVG[0];
+                }
+                // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
+                // 区别是收藏按钮在 button 元素里
+                const btnSVG = this.workEL.querySelector('button svg');
+                if (btnSVG) {
+                    useSVG = btnSVG;
+                }
+                useSVG.style.color = 'rgb(255, 64, 96)';
+                const allPath = useSVG.querySelectorAll('path');
+                for (const path of allPath) {
+                    path.style.fill = 'currentcolor';
+                }
+            }
+        }
+        // 排行榜页面的收藏按钮
+        const btn = this.workEL.querySelector('._one-click-bookmark');
+        if (btn) {
+            btn.classList.add('on');
+        }
+    }
+    /** 检查是否应该预览这个作品 */
+    checkPreviewType(data) {
+        if (data.body.illustType === 2) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewUgoira;
+        }
+        if (data.body.pageCount > 1) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewMultiImageWork;
+        }
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewSingleImageWork;
     }
 }
 new PreviewWork();
@@ -10742,7 +10747,7 @@ class ShowOriginSizeImage {
                 _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__.showOneTimeMsg.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
+            if (this.workData?.body.illustType === 2) {
                 this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
             }
         }
@@ -12706,7 +12711,9 @@ class Tools {
                 return option;
             }
         }
-        throw `Not found this option: ${no}`;
+        // 有可能找不到指定的选项，原因：
+        // 用户可能在置顶选项 settings.pinnedOptions 里保存着一些选项 id，但我可能会在之后的更新里移除对应的设置，这样就找不到该选项对应的元素了
+        return null;
     }
     /**根据文本长度，动态设置 textarea 的高度 */
     static setRows(el) {
@@ -21700,7 +21707,6 @@ class Download {
             if (file.size) {
                 this.setProgressBar(_fileName, file.size, file.size);
             }
-            // 状态码正常
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, false);
             // 转换动图
             const convertResult = await this.convertUgoira(arg.result, file);
@@ -24790,23 +24796,7 @@ class MergeNovel {
         // 按照小说的序号进行升序排列
         this.allNovelData.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sortByProperty('no', 'asc'));
     }
-    /** 限制单个 EPUB 文件的大小 */
-    // 每当添加完一篇小说的文件，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加
-    // 这样最终会生成多个 EPUB 文件，文件名后面会添加 part1, part2 之类的后缀
-    // 目前体积限制为 200 MiB，这主要是担心一些阅读器打开大体积的 EPUB 文件时可能会出现性能问题
-    // 例如 Windows 上的 Aquile Reader 打开 400 MiB 的 EPUB 文件时占用了 8 GB 内存，闲置一段时间后内存依然超过 5 GB。
-    // 实际可用的体积上限取决于 jszip.min.js 的限制，通常文件体积不能超过 2 GiB
-    // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB
-    // 所以绝大多数的系列小说都不需要分割。之所以添加分割功能，是因为遇到了一个体积非常大的系列小说：
-    // https://www.pixiv.net/novel/series/7708974
-    // 含有 1150 张插画，这些插画的总体积高达 3.96 GB。之前没有分割，会因为体积过大导致 jszip 报错，进而导致程序卡住
-    // 虽然这么大的系列小说很罕见，但不得不处理。要成功下载它就必须分割成多个文件。
-    // 分割之后它生成了 28 个 EPUB 文件，总体积 3.74 GB（因为 jszip 压缩了文件，所以体积比未压缩时小。解压后是完全相同的）
-    // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过限制的 EPUB 文件：
-    // 1. 单篇小说的体积已经超出限制
-    // 2. 添加了多篇小说时，最后一篇导致总体积超出限制
-    // 我在自己的手机上测试打开 180 MB 的单个 EPUB 文件，阅读正常，里面的插画也能正常显示。
-    epubSizeLimit = 1000 * 1024 * 1024;
+    MiB = 1024 * 1024;
     /** 保存每个部分的体积日志。只有当保存格式是 EPUB 时才会用到 */
     // 一开始会添加第一项，如果体积达到了限制才会添加下一项
     sizeLog = [];
@@ -24827,10 +24817,19 @@ class MergeNovel {
             current.size += size;
         }
     }
+    /** 限制单个 EPUB 文件的大小 */
+    // 每当添加完一篇小说，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加，这样可能会生成多个 EPUB 文件
+    // 实际可用的体积上限取决于 jszip 的限制，通常文件体积不能超过 2 GiB
+    // 默认的体积限制是 200 MiB，这主要是担心一些阅读器打开大体积的 EPUB 文件时可能会出现性能问题
+    // 例如 Windows 上的 Aquile Reader 打开 400 MiB 的 EPUB 文件时占用了 8 GB 内存，闲置一段时间后内存依然超过 5 GB。不过其他阅读器就没这么离谱了，就连手机上的静读天下也能顺利阅读这个小说。
+    // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB， 所以绝大多数的系列小说都不需要分割
+    // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过限制的 EPUB 文件：
+    // 1. 单篇小说的体积已经超出限制
+    // 2. 添加了多篇小说时，最后一篇导致总体积超出限制
     checkSizeLimit() {
         const current = this.sizeLog.find((item) => item.inUse);
         if (current) {
-            return current.size >= this.epubSizeLimit;
+            return current.size >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.singleEPUBFileSizeLimit * this.MiB;
         }
         return false;
     }
@@ -25112,8 +25111,8 @@ class ProgressBar {
     listWrap;
     totalNumberEl;
     allProgressBar = [];
-    KB = 1024;
-    MB = 1024 * 1024;
+    KiB = 1024;
+    MiB = 1024 * 1024;
     createElements() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('progressBar', this.wrapHTML);
         this.downloadedEl = this.wrap.querySelector('.downloaded');
@@ -25166,15 +25165,15 @@ class ProgressBar {
         bar.name.textContent = data.name;
         bar.name.setAttribute('title', data.name);
         let text = '';
-        if (data.total >= this.MB) {
+        if (data.total >= this.MiB) {
             // 如果判断条件加上： || data.total === 0
             // 则文件未下载时显示的默认单位会是 MiB
             // 使用 MiB 作为单位
-            text = `${(data.loaded / this.MB).toFixed(1)}/${(data.total / this.MB).toFixed(1)} MiB`;
+            text = `${(data.loaded / this.MiB).toFixed(1)}/${(data.total / this.MiB).toFixed(1)} MiB`;
         }
         else {
             // 使用 KiB 作为单位
-            text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(data.total / this.KB)} KiB`;
+            text = `${Math.floor(data.loaded / this.KiB)}/${Math.floor(data.total / this.KiB)} KiB`;
         }
         bar.loaded.textContent = text;
         const progress = data.loaded / data.total || 0; // 若结果为 NaN 则设为 0
@@ -30558,42 +30557,42 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
     Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>
-    <br></br>`,
+    <br>`,
         `<strong>警告</strong>：頻繁且大量的抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
     <br>
     多數用戶不會遇到這種情況，而且下載器默認會減慢抓取的速度。但如果你的帳戶被封禁，下載器不會承擔任何責任。
     <br>
     如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br>
     Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>
-    <br></br>`,
+    <br>`,
         `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may lead to your Pixiv account being banned.
     <br>
     Most users will not encounter this issue, and the downloader will slow down the crawling speed by default. However, if your account is banned, the downloader will not take any responsibility.
     <br>
     If you plan to perform large-scale downloads, consider registering a secondary Pixiv account.<br>
     The Wiki provides related information: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Using a Secondary Account for Downloading</a>
-    <br></br>`,
+    <br>`,
         `<strong>警告</strong>：頻繁かつ大規模なクロール（およびダウンロード）は、Pixivアカウントの禁止につながる可能性があります。
     <br>
     ほとんどのユーザーはこの問題に遭遇しませんが、ダウンローダーはデフォルトでクロールの速度を遅くします。ただし、アカウントが禁止された場合、ダウンローダーは一切の責任を負いません。
     <br>
     大規模なダウンロードを計画している場合は、Pixivのサブアカウントを登録することを検討してください。<br>
     Wikiに関連情報があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">サブアカウントを使用したダウンロード</a>
-    <br></br>`,
+    <br>`,
         `<strong>경고</strong>: 빈번하고 대규모의 크롤링(및 다운로드)은 Pixiv 계정이 차단될 수 있습니다.
     <br>
     대부분의 사용자는 이 문제를 겪지 않으며, 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 하지만 계정이 차단되더라도 다운로더는 어떠한 책임도 지지 않습니다.
     <br>
     대규모 다운로드를 계획하고 있다면 Pixiv 보조 계정을 등록하는 것을 고려하세요.<br>
     위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
-    <br></br>`,
+    <br>`,
         `<strong>Предупреждение</strong>: Частый и масштабный краулинг (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
     <br>
     Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость краулинга. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
     <br>
     Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
     В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
-    <br></br>`,
+    <br>`,
     ],
     _常见问题说明: [
         `下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
@@ -37664,6 +37663,22 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `작품 수가 많기 때문에 다운로더는 즐겨찾기 추가 시 느리게 실행됩니다.`,
         `Из-за большого количества работ загрузчик будет выполнять добавление в закладки медленно.`,
     ],
+    _合并系列小说时的分割阈值: [
+        `合并系列小说时的<span class="key">分割</span>阈值`,
+        `合併系列小說時的<span class="key">分割</span>閾值`,
+        `Split <span class="key">threshold</span> when merging series novels`,
+        `シリーズ小説をマージする際の<span class="key">分割</span>閾値`,
+        `시리즈 소설 병합 시 <span class="key">분할</span> 임계값`,
+        `Порог <span class="key">разделения</span> при объединении серийных новелл`,
+    ],
+    _合并系列小说时的分割阈值的帮助: [
+        `有些系列小说里的图片非常多，甚至可能会超过 4 GB。如果单个 EPUB 文件的体积太大，可能会导致下载失败，而且一些阅读器也可能无法打开它。所以下载器在合并系列小说时会使用这个设置来分割文件。<br>如果分割阈值设置为 200 MB，那么下载器在合并总体积为 1 GB 的系列小说时，会把它分割成 5 - 6 个文件。<br><br>提示：<br>- 这个设置只在合并系列小说时生效。<br>- 最小值是 100 MiB，最大值是 1000 MiB（不建议）。<br>- 下载器在分割 EPUB 文件时不会截断章节内容。`,
+        `有些系列小說裡的圖片非常多，甚至可能會超過 4 GB。如果單個 EPUB 檔案的體積太大，可能會導致下載失敗，而且一些閱讀器也可能無法打開它。所以下載器在合併系列小說時會使用這個設定來分割檔案。<br>如果分割閾值設定為 200 MB，那麼下載器在合併總體積為 1 GB 的系列小說時，會把它分割成 5 - 6 個檔案。<br><br>提示：<br>- 這個設定只在合併系列小說時生效。<br>- 最小值是 100 MiB，最大值是 1000 MiB（不建議）。<br>- 下載器在分割 EPUB 檔案時不會截斷章節內容。`,
+        `Some series novels contain a large number of images, which may even exceed 4 GB. If a single EPUB file is too large, it may cause download failure, and some readers may also fail to open it. Therefore, the downloader uses this setting to split files when merging series novels.<br>If the split threshold is set to 200 MB, the downloader will split a series novel with a total size of 1 GB into 5 - 6 files.<br><br>Tips:<br>- This setting only takes effect when merging series novels.<br>- The minimum value is 100 MiB, and the maximum value is 1000 MiB (not recommended).<br>- The downloader will not truncate chapter content when splitting EPUB files.`,
+        `一部のシリーズ小説には画像が非常に多く、4GBを超える場合もあります。単一のEPUBファイルのサイズが大きすぎると、ダウンロードに失敗したり、一部のリーダーで開けなかったりする可能性があります。そのため、ダウンローダーはシリーズ小説をマージする際にこの設定を使用してファイルを分割します。<br>分割閾値を200MBに設定した場合、総サイズ1GBのシリーズ小説は5〜6個のファイルに分割されます。<br><br>ヒント：<br>- この設定はシリーズ小説をマージする場合にのみ有効です。<br>- 最小値は100MiB、最大値は1000MiB（非推奨）です。<br>- ダウンローダーはEPUBファイルを分割する際に章の内容を切り捨てません。`,
+        `일부 시리즈 소설에는 이미지가 매우 많아 4GB를 초과할 수도 있습니다. 단일 EPUB 파일의 크기가 너무 크면 다운로드에 실패할 수 있고 일부 리더에서 열리지 않을 수도 있습니다. 따라서 다운로더는 시리즈 소설을 병합할 때 이 설정을 사용하여 파일을 분할합니다.<br>분할 임계값을 200MB로 설정하면 총 1GB인 시리즈 소설을 5~6개 파일로 분할합니다.<br><br>팁:<br>- 이 설정은 시리즈 소설을 병합할 때만 적용됩니다.<br>- 최소값은 100MiB, 최대값은 1000MiB(권장하지 않음)입니다.<br>- 다운로더는 EPUB 파일을 분할할 때 챕터 내용을 잘라내지 않습니다.`,
+        `В некоторых сериях новелл очень много изображений, что может превышать 4 ГБ. Если размер одного EPUB-файла слишком большой, это может привести к сбою загрузки, а некоторые читалки могут не открыть его. Поэтому загрузчик использует эту настройку для разделения файлов при объединении серий новелл.<br>Если порог разделения установлен на 200 МБ, загрузчик разделит серию новелл общим объёмом 1 ГБ на 5–6 файлов.<br><br>Подсказки:<br>- Эта настройка действует только при объединении серий новелл.<br>- Минимальное значение — 100 MiB, максимальное — 1000 MiB (не рекомендуется).<br>- Загрузчик не обрезает содержимое глав при разделении EPUB-файлов.`,
+    ],
 };
 
 
@@ -40893,7 +40908,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 设置项编号从 0 开始，现在最大是 104
+// 设置项编号从 0 开始，现在最大是 105
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -41509,7 +41524,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="noFolderSwitch">
+      <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
         <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
@@ -42039,12 +42054,12 @@ const formHtml = `
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="novelSaveAs1"> TXT </label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="novelSaveAs1"> TXT </label>
     </p>
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
@@ -42138,6 +42153,16 @@ const formHtml = `
       <br>
       <span class="blue name">{page_title}</span>
       <span data-xztext="_系列小说的命名标记_page_title"></span>
+    </p>
+
+    <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
+    <p class="option" data-no="105">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_合并系列小说时的分割阈值"></span>
+      </a>
+
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
@@ -42337,11 +42362,27 @@ const formHtml = `
       </a>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+
       <span class="subOptionWrap" data-show="PreviewWork">
+      
+        <input type="checkbox" name="previewSingleImageWork" id="previewSingleImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewSingleImageWork" data-xztext="_单图作品"></label>
+        <input type="checkbox" name="previewMultiImageWork" id="previewMultiImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewMultiImageWork" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="previewUgoira" id="previewUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewUgoira" data-xztext="_动图"></label>
+
+        <span class="verticalSplit"></span>
+
         <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
         <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
+
         <span class="verticalSplit"></span>
+        
         <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
         <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
@@ -42368,13 +42409,6 @@ const formHtml = `
 
     <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
-    </p>
-
-    <span class="optionAnchor" data-for-no="71" aria-hidden="true"></span>
-    <p class="option" data-no="71">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
-      <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
@@ -42938,6 +42972,8 @@ class FormSettings {
             'doNotCrawlLastImagesSwitch',
             'downloadNovelCoverImage',
             'downloadNovelEmbeddedImage',
+            'previewSingleImageWork',
+            'previewMultiImageWork',
             'previewUgoira',
             'slowCrawl',
             'downloadOnClickBookmark',
@@ -43021,6 +43057,7 @@ class FormSettings {
             'doNotCrawlLastImagesCount',
             'onlyCrawlLastFewImagesCount',
             'doNotCrawlFirstImagesCount',
+            'singleEPUBFileSizeLimit',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -43471,14 +43508,14 @@ class Options {
     customOptions = [15, 79, 80, 92];
     /** 一些设置在移动端不会生效，所以隐藏它们 */
     // 主要是和作品缩略图相关的一些设置、增强功能
-    hideOnMobile = [18, 68, 55, 71, 62, 40];
+    hideOnMobile = [18, 68, 55, 62, 40];
     /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
     hideOnPixivision = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
         24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
         48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
-        69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
-        88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
+        69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
+        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105,
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
@@ -43568,7 +43605,10 @@ class Options {
             if (number === 0 || number === 1) {
                 continue;
             }
-            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOption(this.allOption, number).style.display = display;
+            const option = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOption(this.allOption, number);
+            if (option) {
+                option.style.display = display;
+            }
         }
     }
 }
@@ -43716,6 +43756,9 @@ class PinOptions {
         // 如果正序遍历的话，前面的选项（先置顶的选项）会被后置顶的选项挤下去，导致显示的顺序与添加的顺序相反
         for (const no of _Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.slice().reverse()) {
             const option = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, no);
+            if (!option) {
+                continue;
+            }
             option.classList.add(this.pinnedClassName);
             // 总是显示置顶的选项，即使用户没有启用“不显示高级设置”，也依然会显示
             // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，不在这里处理
@@ -43729,6 +43772,9 @@ class PinOptions {
         // 处理被取消置顶的选项
         for (const no of removed) {
             const option = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getOption(this.allOption, no);
+            if (!option) {
+                continue;
+            }
             if (!_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.pinnedOptions.includes(no)) {
                 // 移除类名
                 option.classList.remove(this.pinnedClassName);
@@ -44371,6 +44417,8 @@ class Settings {
         doNotCrawlLastImagesCount: 1,
         downloadNovelCoverImage: true,
         downloadNovelEmbeddedImage: true,
+        previewSingleImageWork: true,
+        previewMultiImageWork: true,
         previewUgoira: true,
         tipPreviewWork: true,
         tipHotkeysViewLargeImage: true,
@@ -44454,6 +44502,7 @@ class Settings {
         doNotCrawlFirstImagesCount: 1,
         pinnedOptions: [],
         debugForWiki: false,
+        singleEPUBFileSizeLimit: 200,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -44464,7 +44513,7 @@ class Settings {
         'downloadInterval',
     ];
     // 值为整数的设置不必单独列出
-    // 值为 number[] 的设置（目前没有）
+    // 值为 number[] 的设置
     numberArrayKeys = ['pinnedOptions'];
     // 值为字符串数组的设置
     stringArrayKeys = [
@@ -44745,6 +44794,12 @@ class Settings {
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
         }
+        if (key === 'singleEPUBFileSizeLimit') {
+            const v = value;
+            if (isNaN(v) || v < 100 || v > 1000) {
+                value = this.defaultSettings[key];
+            }
+        }
         if (key === 'folderForMultiImageWorksRule') {
             value = value.replace('{id}', '{id_num}');
         }
@@ -44902,6 +44957,12 @@ class ShowNewIcon {
             // 2026-04-16
             time: 1776337453630,
         },
+        {
+            // 单个 EPUB 文件的体积限制
+            id: 105,
+            // 2026-04-20
+            time: 1776693866003,
+        },
     ];
     /**显示 new 角标 */
     showNewIcon() {
@@ -44909,7 +44970,9 @@ class ShowNewIcon {
         this.newOptions.forEach((option) => {
             if (now - option.time <= this.newRange) {
                 const el = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getOption(this.allOption, option.id);
-                el.classList.add('new');
+                if (el) {
+                    el.classList.add('new');
+                }
             }
         });
     }
@@ -45332,10 +45395,10 @@ class Wiki {
         'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
-            28, 100, 101,
+            28, 100, 101, 105,
         ],
         'More-Enhance': [
-            60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14, 102,
+            60, 84, 87, 68, 63, 55, 62, 40, 56, 86, 48, 88, 18, 34, 14, 102,
         ],
         'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37, 93],
         'More-Hidden': [79, 80, 14, 15],

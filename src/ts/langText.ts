@@ -1756,7 +1756,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
     Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>
-    <br></br>`,
+    <br>`,
 
     `<strong>警告</strong>：頻繁且大量的抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
     <br>
@@ -1764,7 +1764,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br>
     Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>
-    <br></br>`,
+    <br>`,
 
     `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may lead to your Pixiv account being banned.
     <br>
@@ -1772,7 +1772,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     If you plan to perform large-scale downloads, consider registering a secondary Pixiv account.<br>
     The Wiki provides related information: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Using a Secondary Account for Downloading</a>
-    <br></br>`,
+    <br>`,
 
     `<strong>警告</strong>：頻繁かつ大規模なクロール（およびダウンロード）は、Pixivアカウントの禁止につながる可能性があります。
     <br>
@@ -1780,7 +1780,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     大規模なダウンロードを計画している場合は、Pixivのサブアカウントを登録することを検討してください。<br>
     Wikiに関連情報があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">サブアカウントを使用したダウンロード</a>
-    <br></br>`,
+    <br>`,
 
     `<strong>경고</strong>: 빈번하고 대규모의 크롤링(및 다운로드)은 Pixiv 계정이 차단될 수 있습니다.
     <br>
@@ -1788,7 +1788,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     대규모 다운로드를 계획하고 있다면 Pixiv 보조 계정을 등록하는 것을 고려하세요.<br>
     위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
-    <br></br>`,
+    <br>`,
 
     `<strong>Предупреждение</strong>: Частый и масштабный краулинг (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
     <br>
@@ -1796,7 +1796,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <br>
     Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
     В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
-    <br></br>`,
+    <br>`,
   ],
   _常见问题说明: [
     `下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
@@ -8876,6 +8876,22 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `作品数が多いため、ダウンローダーはブックマークを追加する際に低速で実行します。`,
     `작품 수가 많기 때문에 다운로더는 즐겨찾기 추가 시 느리게 실행됩니다.`,
     `Из-за большого количества работ загрузчик будет выполнять добавление в закладки медленно.`,
+  ],
+  _合并系列小说时的分割阈值: [
+    `合并系列小说时的<span class="key">分割</span>阈值`,
+    `合併系列小說時的<span class="key">分割</span>閾值`,
+    `Split <span class="key">threshold</span> when merging series novels`,
+    `シリーズ小説をマージする際の<span class="key">分割</span>閾値`,
+    `시리즈 소설 병합 시 <span class="key">분할</span> 임계값`,
+    `Порог <span class="key">разделения</span> при объединении серийных новелл`,
+  ],
+  _合并系列小说时的分割阈值的帮助: [
+    `有些系列小说里的图片非常多，甚至可能会超过 4 GB。如果单个 EPUB 文件的体积太大，可能会导致下载失败，而且一些阅读器也可能无法打开它。所以下载器在合并系列小说时会使用这个设置来分割文件。<br>如果分割阈值设置为 200 MB，那么下载器在合并总体积为 1 GB 的系列小说时，会把它分割成 5 - 6 个文件。<br><br>提示：<br>- 这个设置只在合并系列小说时生效。<br>- 最小值是 100 MiB，最大值是 1000 MiB（不建议）。<br>- 下载器在分割 EPUB 文件时不会截断章节内容。`,
+    `有些系列小說裡的圖片非常多，甚至可能會超過 4 GB。如果單個 EPUB 檔案的體積太大，可能會導致下載失敗，而且一些閱讀器也可能無法打開它。所以下載器在合併系列小說時會使用這個設定來分割檔案。<br>如果分割閾值設定為 200 MB，那麼下載器在合併總體積為 1 GB 的系列小說時，會把它分割成 5 - 6 個檔案。<br><br>提示：<br>- 這個設定只在合併系列小說時生效。<br>- 最小值是 100 MiB，最大值是 1000 MiB（不建議）。<br>- 下載器在分割 EPUB 檔案時不會截斷章節內容。`,
+    `Some series novels contain a large number of images, which may even exceed 4 GB. If a single EPUB file is too large, it may cause download failure, and some readers may also fail to open it. Therefore, the downloader uses this setting to split files when merging series novels.<br>If the split threshold is set to 200 MB, the downloader will split a series novel with a total size of 1 GB into 5 - 6 files.<br><br>Tips:<br>- This setting only takes effect when merging series novels.<br>- The minimum value is 100 MiB, and the maximum value is 1000 MiB (not recommended).<br>- The downloader will not truncate chapter content when splitting EPUB files.`,
+    `一部のシリーズ小説には画像が非常に多く、4GBを超える場合もあります。単一のEPUBファイルのサイズが大きすぎると、ダウンロードに失敗したり、一部のリーダーで開けなかったりする可能性があります。そのため、ダウンローダーはシリーズ小説をマージする際にこの設定を使用してファイルを分割します。<br>分割閾値を200MBに設定した場合、総サイズ1GBのシリーズ小説は5〜6個のファイルに分割されます。<br><br>ヒント：<br>- この設定はシリーズ小説をマージする場合にのみ有効です。<br>- 最小値は100MiB、最大値は1000MiB（非推奨）です。<br>- ダウンローダーはEPUBファイルを分割する際に章の内容を切り捨てません。`,
+    `일부 시리즈 소설에는 이미지가 매우 많아 4GB를 초과할 수도 있습니다. 단일 EPUB 파일의 크기가 너무 크면 다운로드에 실패할 수 있고 일부 리더에서 열리지 않을 수도 있습니다. 따라서 다운로더는 시리즈 소설을 병합할 때 이 설정을 사용하여 파일을 분할합니다.<br>분할 임계값을 200MB로 설정하면 총 1GB인 시리즈 소설을 5~6개 파일로 분할합니다.<br><br>팁:<br>- 이 설정은 시리즈 소설을 병합할 때만 적용됩니다.<br>- 최소값은 100MiB, 최대값은 1000MiB(권장하지 않음)입니다.<br>- 다운로더는 EPUB 파일을 분할할 때 챕터 내용을 잘라내지 않습니다.`,
+    `В некоторых сериях новелл очень много изображений, что может превышать 4 ГБ. Если размер одного EPUB-файла слишком большой, это может привести к сбою загрузки, а некоторые читалки могут не открыть его. Поэтому загрузчик использует эту настройку для разделения файлов при объединении серий новелл.<br>Если порог разделения установлен на 200 МБ, загрузчик разделит серию новелл общим объёмом 1 ГБ на 5–6 файлов.<br><br>Подсказки:<br>- Эта настройка действует только при объединении серий новелл.<br>- Минимальное значение — 100 MiB, максимальное — 1000 MiB (не рекомендуется).<br>- Загрузчик не обрезает содержимое глав при разделении EPUB-файлов.`,
   ],
 }
 

@@ -11,7 +11,6 @@ import { Config } from './Config'
 import { IDData } from './store/StoreType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { cacheWorkData } from './store/CacheWorkData'
-import { API } from './API'
 import { toast } from './Toast'
 import { states } from './store/States'
 
@@ -95,7 +94,7 @@ class ShowOriginSizeImage {
       }
 
       // 预览动图
-      if (settings.previewUgoira && this.workData?.body.illustType === 2) {
+      if (this.workData?.body.illustType === 2) {
         this.previewUgoira = new PreviewUgoira(
           this.workData.body.id,
           this.wrap,

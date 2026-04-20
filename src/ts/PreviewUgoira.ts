@@ -1,7 +1,6 @@
 import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from './API'
 import { log } from './Log'
-import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
 // 预览动图
@@ -13,9 +12,6 @@ class PreviewUgoira {
     wrapWidth?: number,
     wrapHeight?: number
   ) {
-    if (!settings.previewUgoira) {
-      return
-    }
     this.id = id
     this.canvasWrap = canvasWrap
     this.prevSize = prevSize

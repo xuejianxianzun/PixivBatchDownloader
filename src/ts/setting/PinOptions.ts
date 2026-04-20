@@ -134,6 +134,9 @@ class PinOptions {
     // 如果正序遍历的话，前面的选项（先置顶的选项）会被后置顶的选项挤下去，导致显示的顺序与添加的顺序相反
     for (const no of settings.pinnedOptions.slice().reverse()) {
       const option = Tools.getOption(this.allOption, no)
+      if (!option) {
+        continue
+      }
       option.classList.add(this.pinnedClassName)
       // 总是显示置顶的选项，即使用户没有启用“不显示高级设置”，也依然会显示
       // 但是不处理“抓取多少作品”和“抓取多少页面”，因为它们是根据页面类型来显示或隐藏的，不在这里处理
@@ -150,6 +153,9 @@ class PinOptions {
     // 处理被取消置顶的选项
     for (const no of removed) {
       const option = Tools.getOption(this.allOption, no)
+      if (!option) {
+        continue
+      }
       if (!settings.pinnedOptions.includes(no)) {
         // 移除类名
         option.classList.remove(this.pinnedClassName)

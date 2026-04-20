@@ -114,6 +114,12 @@ class ShowNewIcon {
       // 2026-04-16
       time: 1776337453630,
     },
+    {
+      // 单个 EPUB 文件的体积限制
+      id: 105,
+      // 2026-04-20
+      time: 1776693866003,
+    },
   ]
 
   /**显示 new 角标 */
@@ -122,7 +128,9 @@ class ShowNewIcon {
     this.newOptions.forEach((option) => {
       if (now - option.time <= this.newRange) {
         const el = Tools.getOption(this.allOption, option.id)
-        el.classList.add('new')
+        if (el) {
+          el.classList.add('new')
+        }
       }
     })
   }

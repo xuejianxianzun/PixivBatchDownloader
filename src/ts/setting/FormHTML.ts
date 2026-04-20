@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 设置项编号从 0 开始，现在最大是 104
+// 设置项编号从 0 开始，现在最大是 105
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -616,7 +616,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="noFolderSwitch">
+      <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
         <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
@@ -1146,12 +1146,12 @@ export const formHtml = `
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="novelSaveAs1"> TXT </label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="novelSaveAs1"> TXT </label>
     </p>
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
@@ -1245,6 +1245,16 @@ export const formHtml = `
       <br>
       <span class="blue name">{page_title}</span>
       <span data-xztext="_系列小说的命名标记_page_title"></span>
+    </p>
+
+    <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
+    <p class="option" data-no="105">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_合并系列小说时的分割阈值"></span>
+      </a>
+
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
@@ -1444,11 +1454,27 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+
       <span class="subOptionWrap" data-show="PreviewWork">
+      
+        <input type="checkbox" name="previewSingleImageWork" id="previewSingleImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewSingleImageWork" data-xztext="_单图作品"></label>
+        <input type="checkbox" name="previewMultiImageWork" id="previewMultiImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewMultiImageWork" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="previewUgoira" id="previewUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewUgoira" data-xztext="_动图"></label>
+
+        <span class="verticalSplit"></span>
+
         <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
         <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
+
         <span class="verticalSplit"></span>
+        
         <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
         <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
@@ -1475,13 +1501,6 @@ export const formHtml = `
 
     <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
-    </p>
-
-    <span class="optionAnchor" data-for-no="71" aria-hidden="true"></span>
-    <p class="option" data-no="71">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
-      <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>

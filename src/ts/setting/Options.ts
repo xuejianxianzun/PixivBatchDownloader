@@ -25,15 +25,15 @@ class Options {
 
   /** 一些设置在移动端不会生效，所以隐藏它们 */
   // 主要是和作品缩略图相关的一些设置、增强功能
-  private hideOnMobile = [18, 68, 55, 71, 62, 40]
+  private hideOnMobile = [18, 68, 55, 62, 40]
 
   /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
   private hideOnPixivision = [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
     24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
     48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
-    69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
-    88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
+    69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
+    89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105,
   ]
 
   private bindEvents() {
@@ -139,7 +139,10 @@ class Options {
       if (number === 0 || number === 1) {
         continue
       }
-      Tools.getOption(this.allOption, number).style.display = display
+      const option = Tools.getOption(this.allOption, number)
+      if (option) {
+        option.style.display = display
+      }
     }
   }
 }

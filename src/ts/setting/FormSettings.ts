@@ -108,6 +108,8 @@ class FormSettings {
       'doNotCrawlLastImagesSwitch',
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
+      'previewSingleImageWork',
+      'previewMultiImageWork',
       'previewUgoira',
       'slowCrawl',
       'downloadOnClickBookmark',
@@ -191,6 +193,7 @@ class FormSettings {
       'doNotCrawlLastImagesCount',
       'onlyCrawlLastFewImagesCount',
       'doNotCrawlFirstImagesCount',
+      'singleEPUBFileSizeLimit',
     ],
     radio: [
       'ugoiraSaveAs',

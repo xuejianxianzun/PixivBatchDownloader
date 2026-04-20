@@ -116,14 +116,21 @@ class PreviewWork {
 
         // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
         const tags = Tools.extractTags(this.workData, 'origin')
-        const check = await filter.checkExcludeAndMuteTags(tags)
-        if (!check) {
+        const checkTag = await filter.checkExcludeAndMuteTags(tags)
+        if (!checkTag) {
           this.show = false
           const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
           toast.warning(msg, {
             position: 'mouse',
             stay: 2500,
           })
+          return
+        }
+
+        // 检查这个作品是否符合预览的作品类型
+        const checkType = this.checkPreviewType(this.workData)
+        if (!checkType) {
+          this.show = false
           return
         }
 
@@ -192,14 +199,7 @@ class PreviewWork {
 
       this.workId = id
       this.workEL = el
-
-      // 判断是插画还是动图，然后根据设置决定是否加载作品数据
-      // 动图有一个特定元素：circle，就是播放按钮的圆形背景
-      // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
-      // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
-      const ugoira = el.querySelector('circle')
-      const show = ugoira ? settings.previewUgoira : settings.PreviewWork
-      show && this.readyShow()
+      this.readyShow()
 
       el.addEventListener('wheel', this.onWheelScroll, {
         passive: false,
@@ -448,36 +448,9 @@ class PreviewWork {
     )
   }
 
-  private preload() {
-    // 如果下载器正在下载文件，则不预加载
-    if (this.show && !states.downloading) {
-      const count = this.workData!.body.pageCount
-      if (count > this.index + 1) {
-        let url = this.workData!.body.urls[settings.prevWorkSize]
-        url = url.replace('p0', `p${this.index + 1}`)
-        let img = new Image()
-        // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
-        const nowIndex = this.index
-        const timer = window.setInterval(() => {
-          if (this.index !== nowIndex || !this.show) {
-            window.clearInterval(timer)
-            img && (img.src = '')
-            img = null as any
-          }
-        }, 50)
-        img.onload = () => {
-          window.clearInterval(timer)
-          img && (img = null as any)
-        }
-        img.src = url
-      }
-    }
-  }
-
-  private wheelEvent?: WheelEvent
-
   // 当鼠标滚轮滚动时，切换显示的图片
   // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 wheel 事件
+  private wheelEvent?: WheelEvent
   private swicthImageByMouse = Utils.throttle(() => {
     const up = this.wheelEvent!.deltaY < 0
     this.swicthImage(up ? 'prev' : 'next')
@@ -516,102 +489,11 @@ class PreviewWork {
     }
   }
 
-  private async addBookmark() {
-    if (this.workData?.body.illustId === undefined) {
-      return
-    }
-
-    toast.show(lang.transl('_收藏'), {
-      bgColor: Colors.bgBlue,
-    })
-
-    const status = await bookmark.add(
-      this.workData.body.illustId,
-      'illusts',
-      Tools.extractTags(this.workData!)
-    )
-
-    if (status === 200) {
-      toast.success(lang.transl('_已收藏'))
-
-      // 将作品缩略图上的收藏按钮变成红色
-      const allSVG = this.workEL!.querySelectorAll('svg')
-      if (allSVG.length > 0) {
-        // 如果有多个 svg，一般最后一个是收藏按钮
-        let useSVG = allSVG[allSVG.length - 1]
-
-        // 但有些特殊情况是第一个
-        if (pageType.type === pageType.list.Request) {
-          useSVG = allSVG[0]
-        }
-
-        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-        // 区别是收藏按钮在 button 元素里
-        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
-        if (btnSVG) {
-          useSVG = btnSVG
-        }
-
-        useSVG.style.color = 'rgb(255, 64, 96)'
-        const allPath = useSVG.querySelectorAll('path')
-        for (const path of allPath) {
-          path.style.fill = 'currentcolor'
-        }
-      }
-    }
-
-    // 排行榜页面的收藏按钮
-    const btn = this.workEL!.querySelector('._one-click-bookmark')
-    if (btn) {
-      btn.classList.add('on')
-    }
-  }
-
   private readyShow() {
     this.isReadyShow = true
     this.delayShowTimer = window.setTimeout(async () => {
       this.show = true
     }, settings.previewWorkWait)
-  }
-
-  // 通过 img 元素加载图片，获取图片的原始尺寸
-  private async getImageSize(url: string): Promise<{
-    width: number
-    height: number
-    available: boolean
-  }> {
-    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
-    let testImg = new Image()
-    testImg.src = url
-    const bindIndex = this.index
-    while (true) {
-      await Utils.sleep(50)
-      if (this.index !== bindIndex) {
-        // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
-        testImg.src = ''
-        testImg = null as any
-        // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
-        // 我不想处理错误，所以用 available 标记来偷懒
-        return {
-          width: 0,
-          height: 0,
-          available: false,
-        }
-      } else {
-        // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
-        if (testImg.naturalWidth > 0) {
-          const width = testImg.naturalWidth
-          const height = testImg.naturalHeight
-          testImg.src = ''
-          testImg = null as any
-          return {
-            width,
-            height,
-            available: true,
-          }
-        }
-      }
-    }
   }
 
   // 显示预览 wrap
@@ -839,7 +721,7 @@ class PreviewWork {
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 预览动图
-    if (settings.previewUgoira && this.workData.body.illustType === 2) {
+    if (this.workData.body.illustType === 2) {
       this.previewUgoira = new PreviewUgoira(
         this.workData.body.id,
         this.wrap,
@@ -849,6 +731,136 @@ class PreviewWork {
       )
       // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
     }
+  }
+
+  // 通过 img 元素加载图片，获取图片的原始尺寸
+  private async getImageSize(url: string): Promise<{
+    width: number
+    height: number
+    available: boolean
+  }> {
+    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+    let testImg = new Image()
+    testImg.src = url
+    const bindIndex = this.index
+    while (true) {
+      await Utils.sleep(50)
+      if (this.index !== bindIndex) {
+        // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+        testImg.src = ''
+        testImg = null as any
+        // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+        // 我不想处理错误，所以用 available 标记来偷懒
+        return {
+          width: 0,
+          height: 0,
+          available: false,
+        }
+      } else {
+        // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+        if (testImg.naturalWidth > 0) {
+          const width = testImg.naturalWidth
+          const height = testImg.naturalHeight
+          testImg.src = ''
+          testImg = null as any
+          return {
+            width,
+            height,
+            available: true,
+          }
+        }
+      }
+    }
+  }
+
+  private preload() {
+    // 如果下载器正在下载文件，则不预加载
+    if (this.show && !states.downloading) {
+      const count = this.workData!.body.pageCount
+      if (count > this.index + 1) {
+        let url = this.workData!.body.urls[settings.prevWorkSize]
+        url = url.replace('p0', `p${this.index + 1}`)
+        let img = new Image()
+        // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
+        const nowIndex = this.index
+        const timer = window.setInterval(() => {
+          if (this.index !== nowIndex || !this.show) {
+            window.clearInterval(timer)
+            img && (img.src = '')
+            img = null as any
+          }
+        }, 50)
+        img.onload = () => {
+          window.clearInterval(timer)
+          img && (img = null as any)
+        }
+        img.src = url
+      }
+    }
+  }
+
+  private async addBookmark() {
+    if (this.workData?.body.illustId === undefined) {
+      return
+    }
+
+    toast.show(lang.transl('_收藏'), {
+      bgColor: Colors.bgBlue,
+    })
+
+    const status = await bookmark.add(
+      this.workData.body.illustId,
+      'illusts',
+      Tools.extractTags(this.workData!)
+    )
+
+    if (status === 200) {
+      toast.success(lang.transl('_已收藏'))
+
+      // 将作品缩略图上的收藏按钮变成红色
+      const allSVG = this.workEL!.querySelectorAll('svg')
+      if (allSVG.length > 0) {
+        // 如果有多个 svg，一般最后一个是收藏按钮
+        let useSVG = allSVG[allSVG.length - 1]
+
+        // 但有些特殊情况是第一个
+        if (pageType.type === pageType.list.Request) {
+          useSVG = allSVG[0]
+        }
+
+        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
+        // 区别是收藏按钮在 button 元素里
+        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
+        if (btnSVG) {
+          useSVG = btnSVG
+        }
+
+        useSVG.style.color = 'rgb(255, 64, 96)'
+        const allPath = useSVG.querySelectorAll('path')
+        for (const path of allPath) {
+          path.style.fill = 'currentcolor'
+        }
+      }
+    }
+
+    // 排行榜页面的收藏按钮
+    const btn = this.workEL!.querySelector('._one-click-bookmark')
+    if (btn) {
+      btn.classList.add('on')
+    }
+  }
+
+  /** 检查是否应该预览这个作品 */
+  private checkPreviewType(data: ArtworkData) {
+    if (data.body.illustType === 2) {
+      return settings.previewUgoira
+    }
+
+    if (data.body.pageCount > 1) {
+      return settings.previewMultiImageWork
+    }
+
+    return settings.previewSingleImageWork
   }
 }
 

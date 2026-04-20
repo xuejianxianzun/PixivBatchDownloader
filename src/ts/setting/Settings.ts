@@ -258,6 +258,8 @@ interface XzSetting {
   doNotCrawlLastImagesCount: number
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
+  previewSingleImageWork: boolean
+  previewMultiImageWork: boolean
   previewUgoira: boolean
   tipPreviewWork: boolean
   tipHotkeysViewLargeImage: boolean
@@ -353,6 +355,7 @@ interface XzSetting {
   doNotCrawlFirstImagesCount: number
   pinnedOptions: number[]
   debugForWiki: boolean
+  singleEPUBFileSizeLimit: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -770,6 +773,8 @@ class Settings {
     doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
+    previewSingleImageWork: true,
+    previewMultiImageWork: true,
     previewUgoira: true,
     tipPreviewWork: true,
     tipHotkeysViewLargeImage: true,
@@ -855,6 +860,7 @@ class Settings {
     doNotCrawlFirstImagesCount: 1,
     pinnedOptions: [],
     debugForWiki: false,
+    singleEPUBFileSizeLimit: 200,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -869,7 +875,7 @@ class Settings {
 
   // 值为整数的设置不必单独列出
 
-  // 值为 number[] 的设置（目前没有）
+  // 值为 number[] 的设置
   private numberArrayKeys = ['pinnedOptions']
 
   // 值为字符串数组的设置
@@ -1190,6 +1196,13 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
+    }
+
+    if (key === 'singleEPUBFileSizeLimit') {
+      const v = value as number
+      if (isNaN(v) || v < 100 || v > 1000) {
+        value = this.defaultSettings[key]
+      }
     }
 
     if (key === 'folderForMultiImageWorksRule') {
