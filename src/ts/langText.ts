@@ -8462,85 +8462,481 @@ ${Config.originalTags.join(',')}`,
     `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
     `Поскольку содержимое этого краулинга включает серии романов, количество потоков краулинга было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
   ],
-  _更新说明1860: [
-    `<strong>✨新增过滤器：原创作品</strong><br>
-下载器在抓取时可以过滤原创作品和非原创作品了。<br><br>
-<strong>✨新增过滤器：标题必须含有</strong><br><br>
-<strong>✨新增过滤器：标题不能含有</strong><br><br>
-<strong>✨动图的文件名里可以不带序号了</strong><br>
-如果你希望动图的文件名里不带序号“p0”，可以在“更多”-“命名”-“第一张图不带序号”设置里启用“动图”选项。<br><br>
-<strong>✨在图片查看器里添加了复制作品链接的按钮</strong><br><br>
-<strong>✨在图片查看器里可以使用鼠标滚轮切换图片了</strong><br>
-当鼠标指针在图片区域之外，滚动滚轮可以切换图片。<br><br>
-<strong>🔧导出关注的用户列表（JSON）时，会保存更多数据</strong><br><br>
-<strong>🐞修复了一些功能失效的问题</strong><br><br>
-<strong>😊添加了一些提示</strong><br><br>
-<strong>😊优化合并系列小说时的用户体验</strong>`,
-    `<strong>✨新增過濾器：原創作品</strong><br>
-下載器在抓取時可以過濾原創作品和非原創作品了。<br><br>
-<strong>✨新增過濾器：標題必須含有</strong><br><br>
-<strong>✨新增過濾器：標題不能含有</strong><br><br>
-<strong>✨動圖的檔名裡可以不帶序號了</strong><br>
-如果你希望動圖的檔名裡不帶序號「p0」，可以在「更多」-「命名」-「第一張圖不帶序號」設定裡啟用「動圖」選項。<br><br>
-<strong>✨在圖片查看器裡添加了複製作品連結的按鈕</strong><br><br>
-<strong>✨在圖片查看器裡可以使用滑鼠滾輪切換圖片了</strong><br>
-當滑鼠指標在圖片區域之外，滾動滾輪可以切換圖片。<br><br>
-<strong>🔧匯出關注的使用者列表（JSON）時，會保存更多資料</strong><br><br>
-<strong>🐞修復了一些功能失效的問題</strong><br><br>
-<strong>😊添加了一些提示</strong><br><br>
-<strong>😊優化合併系列小說時的使用者體驗</strong>`,
-    `<strong>✨New Filter: Original Works</strong><br>
-The downloader can now filter original works and non-original works during crawling.<br><br>
-<strong>✨New Filter: Title Must Contain</strong><br><br>
-<strong>✨New Filter: Title Must Not Contain</strong><br><br>
-<strong>✨Ugoira filenames can now omit the sequence number</strong><br>
-If you want Ugoira filenames to omit the sequence number “p0”, enable the “Ugoira” option in “More” - “Naming” - “First image without sequence number”.<br><br>
-<strong>✨Added a button to copy the work link in the image viewer</strong><br><br>
-<strong>✨Mouse wheel can now switch images in the image viewer</strong><br>
-When the mouse pointer is outside the image area, scrolling the wheel switches images.<br><br>
-<strong>🔧Exporting followed user list (JSON) now saves more data</strong><br><br>
-<strong>🐞Fixed several issues where features stopped working</strong><br><br>
-<strong>😊Added some tips</strong><br><br>
-<strong>😊Optimized user experience when merging novel series</strong>`,
-    `<strong>✨新フィルター：オリジナル作品</strong><br>
-ダウンロードツールはクロール時にオリジナル作品と非オリジナル作品をフィルタリングできるようになりました。<br><br>
-<strong>✨新フィルター：タイトルに必ず含む</strong><br><br>
-<strong>✨新フィルター：タイトルに含まない</strong><br><br>
-<strong>✨Ugoiraのファイル名から連番を省略可能に</strong><br>
-Ugoiraのファイル名から連番「p0」を省略したい場合は、「その他」-「命名」-「最初の画像に連番を付けない」設定で「Ugoira」オプションを有効にしてください。<br><br>
-<strong>✨画像ビューアーに作品リンクをコピーするボタンを追加</strong><br><br>
-<strong>✨画像ビューアーでマウスホイールによる画像切り替えが可能に</strong><br>
-マウスポインタが画像領域外にある場合、ホイールをスクロールすると画像が切り替わります。<br><br>
-<strong>🔧フォロー中のユーザーリスト（JSON）をエクスポートする際に、より多くのデータを保存</strong><br><br>
-<strong>🐞機能が動作しなくなっていた問題をいくつか修正</strong><br><br>
-<strong>😊いくつかのヒントを追加</strong><br><br>
-<strong>😊シリーズ小説のマージ時のユーザー体験を最適化</strong>`,
-    `<strong>✨새 필터: 오리지널 작품</strong><br>
-다운로더가 크롤링 시 오리지널 작품과 비오리지널 작품을 필터링할 수 있게 되었습니다.<br><br>
-<strong>✨새 필터: 제목 반드시 포함</strong><br><br>
-<strong>✨새 필터: 제목 포함하지 않음</strong><br><br>
-<strong>✨Ugoira 파일명에서 순번 생략 가능</strong><br>
-Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명명”-“첫 번째 이미지에 순번 없음” 설정에서 “Ugoira” 옵션을 활성화하세요.<br><br>
-<strong>✨이미지 뷰어에 작품 링크 복사 버튼 추가</strong><br><br>
-<strong>✨이미지 뷰어에서 마우스 휠로 이미지 전환 가능</strong><br>
-마우스 포인터가 이미지 영역 밖에 있을 때 휠을 스크롤하면 이미지가 전환됩니다.<br><br>
-<strong>🔧팔로우 사용자 목록(JSON) 내보내기 시 더 많은 데이터 저장</strong><br><br>
-<strong>🐞기능이 작동하지 않는 여러 문제 수정</strong><br><br>
-<strong>😊몇 가지 팁 추가</strong><br><br>
-<strong>😊시리즈 소설 병합 시 사용자 경험 최적화</strong>`,
-    `<strong>✨Новый фильтр: Оригинальные работы</strong><br>
-Загрузчик теперь может фильтровать оригинальные и неоригинальные работы во время краулинга.<br><br>
-<strong>✨Новый фильтр: Заголовок должен содержать</strong><br><br>
-<strong>✨Новый фильтр: Заголовок не должен содержать</strong><br><br>
-<strong>✨В именах файлов Ugoira теперь можно убирать порядковый номер</strong><br>
-Если вы хотите, чтобы в именах файлов Ugoira не было порядкового номера «p0», включите опцию «Ugoira» в «Больше» - «Именование» - «Первое изображение без порядкового номера».<br><br>
-<strong>✨В просмотрщике изображений добавлена кнопка копирования ссылки на работу</strong><br><br>
-<strong>✨В просмотрщике изображений теперь можно переключать изображения колёсиком мыши</strong><br>
-Когда указатель мыши находится вне области изображения, прокрутка колёсика переключает изображения.<br><br>
-<strong>🔧При экспорте списка подписанных пользователей (JSON) теперь сохраняется больше данных</strong><br><br>
-<strong>🐞Исправлены некоторые проблемы с неработающими функциями</strong><br><br>
-<strong>😊Добавлены подсказки</strong><br><br>
-<strong>😊Оптимизирован пользовательский опыт при объединении серий романов</strong>`,
+  _更新说明1870: [
+    `本次更新添加和调整了很多设置。<br>
+<h3><span class="blue">✨新功能：置顶任意选项</span></h3>
+你可以把自己常用的选项置顶显示，它们会始终显示在顶部（即使你没有启用“显示高级设置”也会始终显示）。这样不仅能快速找到需要的设置，而且平时也可以隐藏高级设置，让界面更加清爽。<br>
+有 2 种方法可以把选项置顶：<br>
+1. 把鼠标指针放到选项上，然后点击左侧的置顶图标。<br>
+2. 长按选项名称 0.5 秒。<br>
+<h3><span class="blue">增加和调整了一些抓取设置</span></h3>
+<h4>✨新增设置：不抓取下载过的作品</h4>
+如果你启用了这个设置，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。<br>
+这有助于增量更新，并减少不必要的抓取。<br>
+<h4>🔧在“ID 范围”设置里，你可以为图像作品和小说分别设置 ID 了</h4>
+<h4>✨新增设置：多图作品只抓取后几张图片</h4>
+<h4>✨新增设置：多图作品不抓取前几张图片</h4>
+<h4>✨新增设置：多图作品不抓取后几张图片</h4>
+<h4>🗑移除设置：不抓取多图作品的最后一张图片</h4>
+它被“多图作品不抓取后几张图片”取代了。<br>
+<h4>🗑移除设置：只有一个抓取结果时不建立文件夹</h4>
+它被“不创建文件夹”取代了。<br>
+<h3><span class="blue">增加和调整了一些命名设置</span></h3>
+<h4>✨新增设置：不创建文件夹</h4>
+该设置位于“下载”选项卡，当你下载单图作品或多图作品时可以不建立文件夹，直接保存到下载目录里。<br>
+<h4>✨新增设置：序号的起始值</h4>
+这个设置在“更多”-“命名”分类里。你可以设置图片的序号从 0 开始还是从 1 开始。默认值是 0。<br>
+<h4>✨新增设置：移除文件名里的 Emoji</h4>
+这个设置在“更多”-“命名”分类里。<br>
+<h4>⚠️“更多”-“命名”里的一些命名设置的使用方式发生了变化</h4>
+“更多”-“命名”里的一些设置会在保存文件时添加一层文件夹。之前下载器总是把新增的文件夹添加到文件名前面（这意味着它总是最后一层文件夹），现在你可以把它放到任意层级了。<br>
+这是一项优化，但为了让它们可以放到任意层级，所以它们的使用方式发生了变化：除了启用设置，还需要在命名规则里插入对应的标记。如果你启用了这些设置里的任意一个，就必须使用新的方式：<br>
+- 为多图作品添加一层文件夹<br>
+- 使用第一个匹配的标签建立文件夹<br>
+- 为 R-18(G) 作品添加一层文件夹<br>
+你可以点击这些设置右侧的“帮助”按钮查看详细说明。<br>
+<h4>✨新增设置：为多图作品添加一层文件夹</h4>
+在命名规则里使用 <span class="blue">{multi_image_folder}</span> 才能使其发挥作用。<br>
+<h4>🔧调整设置：为 R-18(G) 作品添加一层文件夹</h4>
+在命名规则里添加 <span class="blue">{r18_g_folder}</span> 才能使其发挥作用。<br>
+<h4>🔧调整设置：使用第一个匹配的标签建立文件夹</h4>
+在命名规则里添加 <span class="blue">{match_tag_folder}</span> 才能使其发挥作用。<br>
+<h4>✨新增命名标记 {char_count}</h4>
+<span class="blue">{char_count}</span>：小说的字数或单词数（取决于小说的语言）。当作品不是小说时会被忽略。<br>
+<h4>😊下载时，{px} 标记会使用图片的实际宽高</h4>
+在多图作品里，每张图片的宽高可能都不一样。之前 <span class="blue">{px}</span> 标记总是会使用第一张图片的宽高，现在会使用图片的实际宽高。<br>
+<h4>😊增加了命名规则输入框的宽度</h4>
+有些用户的命名规则比较长，原本的输入框无法完全显示，所以我把输入框改成了独占一行，可以显示更多内容了。<br>
+<h4>🗑移除设置：为每个作品建立单独的文件</h4>
+它被“为多图作品添加一层文件夹”取代了。<br>
+<h4>🗑移除设置：根据作品类型自动建立文件夹</h4>
+它被新的命名标记取代了：<span class="blue">{type_illust}</span>、<span class="blue">{type_manga}</span>、<span class="blue">{type_ugoira}</span>、<span class="blue">{type_novel}</span>。<br>
+<h3><span class="blue">调整和增加了一些下载功能</span></h3>
+<h4>✨新增设置：在已下载的作品上显示边框</h4>
+该设置位于“更多”-“下载”分类里。<br>
+如果你启用了该设置，下载器会在已下载的作品上显示边框，这样你就可以方便的知道哪些作品下载过了。另外，在作品列表页面里（例如你的收藏页面），你也可以更容易的知道上次下载到了哪里，这有助于增量更新。<br>
+<h4>✨新增设置：合并系列小说时的分割阈值</h4>
+合并系列小说时，如果 EPUB 文件的体积太大，下载器可能会把它分割成多个文件。你可以设置分割的单位体积。<br>
+<h4>✨合并系列小说时，可以跳过之前已下载的部分</h4>
+从这个版本开始，当你合并系列小说时，下载器会为里面的每篇小说都生成下载记录（就像你单独下载过它们一样），所以当你再次合并同一个系列时，如果启用了“不抓取下载过的作品”，下载器就可以跳过以前合并过的小说，只合并新增的小说。<br>
+<h3><span class="blue">调整和增加了一些增强功能</span></h3>
+<h4>✨“预览作品”里添加了作品类型设置</h4>
+你可以设置预览哪些类型的作品：单图作品、多图作品、动图。<br>
+<h4>🗑移除设置：预览动图</h4>
+现在不需要这个单独的设置了，它被“预览作品”里的“动图”选项替代了。<br>
+<h4>✨预览作品时，如果这个作品含有被屏蔽的标签，下载器就不会显示预览</h4>
+下载器在预览作品之前会检查它是否含有被屏蔽的标签。检查的设置是“不能含有的标签”和你在账号设置里 Mute 的标签。如果作品被排除，下载器就不会预览它，并且会显示对应的提示。<br>
+<h4>🔧一些功能不再依赖“预览作品”</h4>
+之前如果未启用“预览作品”功能，有两个功能也无法使用：“在缩略图上长按鼠标右键时显示大图”和“预览作品的详细信息”。现在这些功能都独立了，不再依赖“预览作品”。<br>
+<h3><span class="blue">修复 bug</span></h3>
+<h4>🐞修复了启用“把文件保存到用户上次选择的位置”时，一些文件可能丢失的问题</h4>
+<h4>🐞修复了小说的保存格式为 TXT 时，小说里的图片可能会创建多个文件夹的问题</h4>
+<h4>🐞修复了“在搜索页面里移除已关注用户的作品”可能导致作品被清空的问题</h4>
+<h4>🐞修复了在图片查看器里按 ESC 时，会同时取消手动选择作品的问题</h4>
+<h3><span class="blue">调整了部分设置的位置顺序</span></h3>
+<h4>🔀“多图作品只抓取前几张图片”移动到了“更多”-“抓取”里</h4>
+<h4>🔀“多图作品的图片数量上限”移动到了“更多”-“抓取”里</h4>
+<h4>🔀“把文件保存到用户上次选择的位置”移动到了“更多”-“下载”里</h4>
+<h3><span class="blue">优化用户体验，并添加了一些帮助信息</span></h3>
+<h4>😊在一些日志前面添加了 Emoji 符号</h4>
+<h4>😊作品被排除时，会显示更详细的原因</h4>
+<h4>😊当浏览器把 .jpg 保存为 .jfif 时，显示解决办法</h4>
+<h4>😊鼠标经过设置项时，会显示浅色的背景颜色</h4>`,
+    `本次更新添加和調整了很多設定。<br>
+<h3><span class="blue">✨新功能：置頂任意選項</span></h3>
+你可以把自己常用的選項置頂顯示，它們會始終顯示在頂部（即使你沒有啟用「顯示高級設定」也會始終顯示）。這樣不僅能快速找到需要的設定，而且平時也可以隱藏高級設定，讓介面更加清爽。<br>
+有 2 種方法可以把選項置頂：<br>
+1. 把滑鼠指標放到選項上，然後點擊左側的置頂圖示。<br>
+2. 長按選項名稱 0.5 秒。<br>
+<h3><span class="blue">增加和調整了一些抓取設定</span></h3>
+<h4>✨新增設定：不抓取下載過的作品</h4>
+如果你啟用了這個設定，那麼下載器在抓取每個作品前會先檢查它是否有下載記錄，如果有就不抓取它。<br>
+這有助於增量更新，並減少不必要的抓取。<br>
+<h4>🔧在「ID 範圍」設定裡，你可以為圖像作品和小說分別設定 ID 了</h4>
+<h4>✨新增設定：多圖作品只抓取後幾張圖片</h4>
+<h4>✨新增設定：多圖作品不抓取前幾張圖片</h4>
+<h4>✨新增設定：多圖作品不抓取後幾張圖片</h4>
+<h4>🗑移除設定：不抓取多圖作品的最後一張圖片</h4>
+它被「多圖作品不抓取後幾張圖片」取代了。<br>
+<h4>🗑移除設定：只有一個抓取結果時不建立資料夾</h4>
+它被「不建立資料夾」取代了。<br>
+<h3><span class="blue">增加和調整了一些命名設定</span></h3>
+<h4>✨新增設定：不建立資料夾</h4>
+該設定位於「下載」選項卡，當你下載單圖作品或多圖作品時可以不建立資料夾，直接保存到下載目錄裡。<br>
+<h4>✨新增設定：序號的起始值</h4>
+這個設定在「更多」-「命名」分類裡。你可以設定圖片的序號從 0 開始還是從 1 開始。預設值是 0。<br>
+<h4>✨新增設定：移除檔名裡的 Emoji</h4>
+這個設定在「更多」-「命名」分類裡。<br>
+<h4>⚠️「更多」-「命名」裡的一些命名設定的使用方式發生了變化</h4>
+「更多」-「命名」裡的一些設定會在保存檔案時添加一層資料夾。之前下載器總是把新增的資料夾添加到檔名前方（這意味著它總是最後一層資料夾），現在你可以把它放到任意層級了。<br>
+這是一項優化，但為了讓它們可以放到任意層級，所以它們的使用方式發生了變化：除了啟用設定，還需要在命名規則裡插入對應的標記。如果你啟用了這些設定裡的任意一個，就必須使用新的方式：<br>
+- 為多圖作品添加一層資料夾<br>
+- 使用第一個匹配的標籤建立資料夾<br>
+- 為 R-18(G) 作品添加一層資料夾<br>
+你可以點擊這些設定右側的「幫助」按鈕查看詳細說明。<br>
+<h4>✨新增設定：為多圖作品添加一層資料夾</h4>
+在命名規則裡使用 <span class="blue">{multi_image_folder}</span> 才能使其發揮作用。<br>
+<h4>🔧調整設定：為 R-18(G) 作品添加一層資料夾</h4>
+在命名規則裡添加 <span class="blue">{r18_g_folder}</span> 才能使其發揮作用。<br>
+<h4>🔧調整設定：使用第一個匹配的標籤建立資料夾</h4>
+在命名規則裡添加 <span class="blue">{match_tag_folder}</span> 才能使其發揮作用。<br>
+<h4>✨新增命名標記 {char_count}</h4>
+<span class="blue">{char_count}</span>：小說的字數或單詞數（取決於小說的語言）。當作品不是小說時會被忽略。<br>
+<h4>😊下載時，{px} 標記會使用圖片的實際寬高</h4>
+在多圖作品裡，每張圖片的寬高可能都不一樣。之前 <span class="blue">{px}</span> 標記總是會使用第一張圖片的寬高，現在會使用圖片的實際寬高。<br>
+<h4>😊增加了命名規則輸入框的寬度</h4>
+有些用戶的命名規則比較長，原本的輸入框無法完全顯示，所以我把輸入框改成了獨佔一行，可以顯示更多內容了。<br>
+<h4>🗑移除設定：為每個作品建立單獨的檔案</h4>
+它被「為多圖作品添加一層資料夾」取代了。<br>
+<h4>🗑移除設定：根據作品類型自動建立資料夾</h4>
+它被新的命名標記取代了：<span class="blue">{type_illust}</span>、<span class="blue">{type_manga}</span>、<span class="blue">{type_ugoira}</span>、<span class="blue">{type_novel}</span>。<br>
+<h3><span class="blue">調整和增加了一些下載功能</span></h3>
+<h4>✨新增設定：在已下載的作品上顯示邊框</h4>
+該設定位於「更多」-「下載」分類裡。<br>
+如果你啟用了該設定，下載器會在已下載的作品上顯示邊框，這樣你就可以方便的知道哪些作品下載過了。另外，在作品列表頁面裡（例如你的收藏頁面），你也可以更容易的知道上次下載到了哪裡，這有助於增量更新。<br>
+<h4>✨新增設定：合併系列小說時的分割閾值</h4>
+合併系列小說時，如果 EPUB 檔案的體積太大，下載器可能會把它分割成多個檔案。你可以設定分割的單位體積。<br>
+<h4>✨合併系列小說時，可以跳過之前已下載的部分</h4>
+從這個版本開始，當你合併系列小說時，下載器會為裡面的每篇小說都生成下載記錄（就像你單獨下載過它們一樣），所以當你再次合併同一個系列時，如果啟用了「不抓取下載過的作品」，下載器就可以跳過以前合併過的小說，只合併新增的小說。<br>
+<h3><span class="blue">調整和增加了一些增強功能</span></h3>
+<h4>✨「預覽作品」裡添加了作品類型設定</h4>
+你可以設定預覽哪些類型的作品：單圖作品、多圖作品、動圖。<br>
+<h4>🗑移除設定：預覽動圖</h4>
+現在不需要這個單獨的設定了，它被「預覽作品」裡的「動圖」選項替代了。<br>
+<h4>✨預覽作品時，如果這個作品含有被屏蔽的標籤，下載器就不會顯示預覽</h4>
+下載器在預覽作品之前會檢查它是否含有被屏蔽的標籤。檢查的設定是「不能含有的標籤」和你在帳號設定裡 Mute 的標籤。如果作品被排除，下載器就不會預覽它，並且會顯示對應的提示。<br>
+<h4>🔧一些功能不再依賴「預覽作品」</h4>
+之前如果未啟用「預覽作品」功能，有兩個功能也無法使用：「在縮略圖上長按滑鼠右鍵時顯示大圖」和「預覽作品的詳細資訊」。現在這些功能都獨立了，不再依賴「預覽作品」。<br>
+<h3><span class="blue">修復 bug</span></h3>
+<h4>🐞修復了啟用「把檔案保存到用戶上次選擇的位置」時，一些檔案可能遺失的問題</h4>
+<h4>🐞修復了小說的保存格式為 TXT 時，小說裡的圖片可能會建立多個資料夾的問題</h4>
+<h4>🐞修復了「在搜尋頁面裡移除已關注用戶的作品」可能導致作品被清空的問題</h4>
+<h4>🐞修復了在圖片檢視器裡按 ESC 時，會同時取消手動選擇作品的問題</h4>
+<h3><span class="blue">調整了部分設定的位置順序</span></h3>
+<h4>🔀「多圖作品只抓取前幾張圖片」移動到了「更多」-「抓取」裡</h4>
+<h4>🔀「多圖作品的圖片數量上限」移動到了「更多」-「抓取」裡</h4>
+<h4>🔀「把檔案保存到用戶上次選擇的位置」移動到了「更多」-「下載」裡</h4>
+<h3><span class="blue">優化使用者體驗，並添加了一些幫助資訊</span></h3>
+<h4>😊在一些日誌前面添加了 Emoji 符號</h4>
+<h4>😊作品被排除時，會顯示更詳細的原因</h4>
+<h4>😊當瀏覽器把 .jpg 保存為 .jfif 時，顯示解決辦法</h4>
+<h4>😊滑鼠經過設定項時，會顯示淺色的背景顏色</h4>`,
+    `This update adds and adjusts many settings.<br>
+<h3><span class="blue">✨New feature: Pin any option</span></h3>
+You can pin your frequently used options to the top. They will always appear at the top (even if you have not enabled "Show advanced settings"). This not only lets you quickly find the settings you need, but also allows you to hide advanced settings during normal use, making the interface cleaner.<br>
+There are 2 ways to pin an option:<br>
+1. Hover the mouse pointer over the option, then click the pin icon on the left.<br>
+2. Long-press the option name for 0.5 seconds.<br>
+<h3><span class="blue">Added and adjusted some crawl settings</span></h3>
+<h4>✨New setting: Do not crawl downloaded works</h4>
+If you enable this setting, the downloader will first check whether each work has a download record before crawling it. If it does, it will not crawl it.<br>
+This helps with incremental updates and reduces unnecessary crawling.<br>
+<h4>🔧In the "ID range" setting, you can now set IDs separately for image works and novels</h4>
+<h4>✨New setting: Only crawl the last few images of multi-image works</h4>
+<h4>✨New setting: Do not crawl the first few images of multi-image works</h4>
+<h4>✨New setting: Do not crawl the last few images of multi-image works</h4>
+<h4>🗑Removed setting: Do not crawl the last image of multi-image works</h4>
+It has been replaced by "Do not crawl the last few images of multi-image works".<br>
+<h4>🗑Removed setting: Do not create folder when there is only one crawl result</h4>
+It has been replaced by "Do not create folder".<br>
+<h3><span class="blue">Added and adjusted some naming settings</span></h3>
+<h4>✨New setting: Do not create folder</h4>
+This setting is located in the "Download" tab. When downloading single-image or multi-image works, you can choose not to create a folder and save directly to the download directory.<br>
+<h4>✨New setting: Starting value of index</h4>
+This setting is in the "More" - "Naming" category. You can set whether image indexes start from 0 or from 1. The default value is 0.<br>
+<h4>✨New setting: Remove Emoji from filenames</h4>
+This setting is in the "More" - "Naming" category.<br>
+<h4>⚠️Usage of some naming settings in "More" - "Naming" has changed</h4>
+Some settings in "More" - "Naming" add a folder layer when saving files. Previously, the downloader always added the new folder at the beginning of the filename (meaning it was always the last layer). Now you can place it at any level.<br>
+This is an improvement, but to allow placement at any level, the usage has changed: in addition to enabling the setting, you must also insert the corresponding tag in the naming rule. If you enable any of these settings, you must use the new method:<br>
+- Add a folder layer for multi-image works<br>
+- Create folder using the first matched tag<br>
+- Add a folder layer for R-18(G) works<br>
+You can click the "Help" button on the right side of these settings to view detailed instructions.<br>
+<h4>✨New setting: Add a folder layer for multi-image works</h4>
+Use <span class="blue">{multi_image_folder}</span> in the naming rule to make it work.<br>
+<h4>🔧Adjusted setting: Add a folder layer for R-18(G) works</h4>
+Add <span class="blue">{r18_g_folder}</span> in the naming rule to make it work.<br>
+<h4>🔧Adjusted setting: Create folder using the first matched tag</h4>
+Add <span class="blue">{match_tag_folder}</span> in the naming rule to make it work.<br>
+<h4>✨New naming tag {char_count}</h4>
+<span class="blue">{char_count}</span>: The number of characters or words in the novel (depending on the novel's language). Ignored when the work is not a novel.<br>
+<h4>😊When downloading, the {px} tag now uses the actual width and height of each image</h4>
+In multi-image works, the width and height of each image may differ. Previously, the <span class="blue">{px}</span> tag always used the dimensions of the first image. Now it uses the actual dimensions of each image.<br>
+<h4>😊Increased the width of the naming rule input box</h4>
+Some users have very long naming rules. The original input box could not display them completely, so I changed it to occupy a full line, allowing more content to be shown.<br>
+<h4>🗑Removed setting: Create a separate file for each work</h4>
+It has been replaced by "Add a folder layer for multi-image works".<br>
+<h4>🗑Removed setting: Automatically create folder based on work type</h4>
+It has been replaced by the new naming tags: <span class="blue">{type_illust}</span>, <span class="blue">{type_manga}</span>, <span class="blue">{type_ugoira}</span>, <span class="blue">{type_novel}</span>.<br>
+<h3><span class="blue">Adjusted and added some download features</span></h3>
+<h4>✨New setting: Show border on downloaded works</h4>
+This setting is located in the "More" - "Download" category.<br>
+If you enable it, the downloader will display a border on downloaded works, making it easy to see which works have been downloaded. Also, on work list pages (such as your bookmark page), you can more easily see where the last download stopped, which helps with incremental updates.<br>
+<h4>✨New setting: Split threshold when merging series novels</h4>
+When merging series novels, if the EPUB file is too large, the downloader may split it into multiple files. You can set the unit size for splitting.<br>
+<h4>✨When merging series novels, previously downloaded parts can now be skipped</h4>
+Starting from this version, when you merge a series novel, the downloader will generate download records for every individual novel inside (as if you had downloaded them separately). So when you merge the same series again, if "Do not crawl downloaded works" is enabled, the downloader can skip previously merged novels and only merge newly added ones.<br>
+<h3><span class="blue">Adjusted and added some enhancement features</span></h3>
+<h4>✨Added work type setting in "Preview work"</h4>
+You can now set which types of works to preview: single-image works, multi-image works, Ugoira.<br>
+<h4>🗑Removed setting: Preview Ugoira</h4>
+This separate setting is no longer needed. It has been replaced by the "Ugoira" option in "Preview work".<br>
+<h4>✨When previewing a work, if it contains a blocked tag, the downloader will not display the preview</h4>
+Before previewing a work, the downloader will check whether it contains any blocked tags. The checked settings are "Tags that must not be present" and the tags you have muted in your Pixiv account settings. If the work is excluded, the downloader will not preview it and will show the corresponding message.<br>
+<h4>🔧Some features no longer depend on "Preview work"</h4>
+Previously, if "Preview work" was not enabled, two features also could not be used: "Show large image when long-pressing the right mouse button on a thumbnail" and "Preview work details". Now these features are independent and no longer depend on "Preview work".<br>
+<h3><span class="blue">Bug fixes</span></h3>
+<h4>🐞Fixed the issue where some files might be lost when "Save files to the user's last selected location" is enabled</h4>
+<h4>🐞Fixed the issue where images in a novel might create multiple folders when the novel save format is TXT</h4>
+<h4>🐞Fixed the issue where "Remove works by followed users on the search page" could cause the work list to be cleared</h4>
+<h4>🐞Fixed the issue where pressing ESC in the image viewer would also cancel manual work selection</h4>
+<h3><span class="blue">Adjusted the position order of some settings</span></h3>
+<h4>🔀"Only crawl the first few images of multi-image works" moved to "More" - "Crawl"</h4>
+<h4>🔀"Maximum number of images for multi-image works" moved to "More" - "Crawl"</h4>
+<h4>🔀"Save files to the user's last selected location" moved to "More" - "Download"</h4>
+<h3><span class="blue">Improved user experience and added help information</span></h3>
+<h4>😊Added Emoji symbols in front of some log messages</h4>
+<h4>😊When a work is excluded, a more detailed reason is now displayed</h4>
+<h4>😊When the browser saves .jpg as .jfif, a solution is displayed</h4>
+<h4>😊When hovering over a setting item, a light background color is displayed</h4>`,
+    `今回の更新では多くの設定を追加・調整しました。<br>
+<h3><span class="blue">✨新機能：任意のオプションをトップに固定</span></h3>
+よく使うオプションをトップに固定表示できます。これらは常にトップに表示されます（「高度な設定を表示」を有効にしていなくても常に表示されます）。これにより必要な設定を素早く見つけられるだけでなく、普段は高度な設定を非表示にして画面をよりすっきりさせることができます。<br>
+オプションをトップに固定するには2つの方法があります：<br>
+1. マウスカーソルをオプションに合わせて、左側のピンアイコンをクリックします。<br>
+2. オプション名を0.5秒長押しします。<br>
+<h3><span class="blue">抓取設定の追加と調整</span></h3>
+<h4>✨新設定：ダウンロード済みの作品をクロールしない</h4>
+この設定を有効にすると、ダウンローダーは各作品をクロールする前にダウンロード記録があるかを確認し、記録があればクロールしません。<br>
+これにより増分更新が可能になり、不必要なクローリングを減らせます。<br>
+<h4>🔧「ID範囲」設定で、画像作品と小説をそれぞれID指定できるようになりました</h4>
+<h4>✨新設定：複数画像作品で後ろの数枚の画像のみをクロール</h4>
+<h4>✨新設定：複数画像作品で最初の数枚の画像をクロールしない</h4>
+<h4>✨新設定：複数画像作品で後ろの数枚の画像をクロールしない</h4>
+<h4>🗑削除設定：複数画像作品の最後の1枚をクロールしない</h4>
+「複数画像作品で後ろの数枚の画像をクロールしない」に置き換えられました。<br>
+<h4>🗑削除設定：クロール結果が1つの場合にフォルダを作成しない</h4>
+「フォルダを作成しない」に置き換えられました。<br>
+<h3><span class="blue">命名設定の追加と調整</span></h3>
+<h4>✨新設定：フォルダを作成しない</h4>
+この設定は「ダウンロード」タブにあります。単画像作品や複数画像作品をダウンロードする際にフォルダを作成せず、ダウンロードディレクトリに直接保存できます。<br>
+<h4>✨新設定：連番の開始値</h4>
+この設定は「その他」-「命名」カテゴリにあります。画像の連番を0から開始するか1から開始するかを設定できます。デフォルトは0です。<br>
+<h4>✨新設定：ファイル名からEmojiを削除</h4>
+この設定は「その他」-「命名」カテゴリにあります。<br>
+<h4>⚠️「その他」-「命名」内の一部の命名設定の使用方法が変更されました</h4>
+「その他」-「命名」内の一部の設定は、ファイルを保存する際に1層のフォルダを追加します。以前はダウンローダーが常に新しいフォルダをファイル名の先頭に追加していましたが（つまり常に最後の階層）、今は任意の階層に配置できるようになりました。<br>
+これは最適化ですが、任意の階層に配置できるようにするため、使用方法が変わりました：設定を有効にするだけでなく、命名規則に該当するタグを挿入する必要があります。これらの設定のいずれかを有効にした場合は、新しい方法を使用してください：<br>
+- 複数画像作品に1層のフォルダを追加<br>
+- 最初の一致したタグを使用してフォルダを作成<br>
+- R-18(G)作品に1層のフォルダを追加<br>
+これらの設定の右側にある「ヘルプ」ボタンをクリックすると詳細説明を確認できます。<br>
+<h4>✨新設定：複数画像作品に1層のフォルダを追加</h4>
+命名規則内で <span class="blue">{multi_image_folder}</span> を使用すると機能します。<br>
+<h4>🔧調整設定：R-18(G)作品に1層のフォルダを追加</h4>
+命名規則内で <span class="blue">{r18_g_folder}</span> を追加すると機能します。<br>
+<h4>🔧調整設定：最初の一致したタグを使用してフォルダを作成</h4>
+命名規則内で <span class="blue">{match_tag_folder}</span> を追加すると機能します。<br>
+<h4>✨新命名タグ {char_count}</h4>
+<span class="blue">{char_count}</span>：小説の文字数または単語数（小説の言語による）。作品が小説でない場合は無視されます。<br>
+<h4>😊ダウンロード時、{px}タグが各画像の実際の幅と高さを使用するようになりました</h4>
+複数画像作品では各画像の幅と高さが異なる可能性があります。以前は <span class="blue">{px}</span> タグが常に最初の画像の寸法を使用していましたが、今は各画像の実際の寸法を使用します。<br>
+<h4>😊命名規則入力欄の幅を拡大</h4>
+一部のユーザーの命名規則が非常に長いため、従来の入力欄では完全に表示できませんでした。そこで入力欄を1行全体に変更し、より多くの内容を表示できるようにしました。<br>
+<h4>🗑削除設定：各作品ごとに個別のファイルを作成</h4>
+「複数画像作品に1層のフォルダを追加」に置き換えられました。<br>
+<h4>🗑削除設定：作品タイプに応じて自動でフォルダを作成</h4>
+新しい命名タグに置き換えられました：<span class="blue">{type_illust}</span>、<span class="blue">{type_manga}</span>、<span class="blue">{type_ugoira}</span>、<span class="blue">{type_novel}</span>。<br>
+<h3><span class="blue">ダウンロード機能の調整と追加</span></h3>
+<h4>✨新設定：ダウンロード済みの作品に枠を表示</h4>
+この設定は「その他」-「ダウンロード」カテゴリにあります。<br>
+有効にすると、ダウンローダーはダウンロード済みの作品に枠を表示します。これによりどの作品をダウンロードしたかが一目でわかり、作品一覧ページ（例：ブックマークページ）でも前回のダウンロード位置がわかりやすくなり、増分更新に役立ちます。<br>
+<h4>✨新設定：シリーズ小説をマージする際の分割閾値</h4>
+シリーズ小説をマージする際、EPUBファイルのサイズが大きすぎる場合、ダウンローダーが複数のファイルに分割します。分割する単位サイズを設定できます。<br>
+<h4>✨シリーズ小説をマージする際、以前にダウンロード済みの部分をスキップ可能に</h4>
+このバージョンから、シリーズ小説をマージする際にダウンローダーは内部の各小説に対してダウンロード記録を生成します（個別にダウンロードしたかのように）。したがって、同じシリーズを再度マージする際に「ダウンロード済みの作品をクロールしない」が有効であれば、以前マージした小説をスキップして新しく追加された小説のみをマージできます。<br>
+<h3><span class="blue">拡張機能の調整と追加</span></h3>
+<h4>✨「作品をプレビュー」内に作品タイプ設定を追加</h4>
+プレビューする作品の種類を設定できます：単画像作品、複数画像作品、動画像。<br>
+<h4>🗑削除設定：動画像をプレビュー</h4>
+この単独設定は不要になりました。「作品をプレビュー」内の「動画像」オプションに置き換えられました。<br>
+<h4>✨作品をプレビューする際、ブロックされたタグが含まれている場合はプレビューを表示しない</h4>
+作品をプレビューする前に、ダウンローダーはブロックされたタグが含まれているかを確認します。確認対象は「含めてはいけないタグ」とPixivアカウント設定でMuteしたタグです。作品が除外された場合、ダウンローダーはプレビューを表示せず、対応するメッセージを表示します。<br>
+<h4>🔧一部の機能が「作品をプレビュー」に依存しなくなりました</h4>
+以前は「作品をプレビュー」が有効でないと、「サムネイル上でマウス右ボタンを長押しして大画像を表示」と「作品の詳細をプレビュー」の2つの機能も使用できませんでした。現在これらの機能は独立し、「作品をプレビュー」に依存しなくなりました。<br>
+<h3><span class="blue">バグ修正</span></h3>
+<h4>🐞「ファイルをユーザーの前回選択した場所に保存」を有効にした際に一部のファイルが失われる問題を修正</h4>
+<h4>🐞小説の保存形式がTXTの場合、小説内の画像が複数のフォルダを作成する可能性があった問題を修正</h4>
+<h4>🐞「検索ページでフォロー中のユーザーの作品を削除」が作品リストをクリアする可能性があった問題を修正</h4>
+<h4>🐞画像ビューアーでESCを押すと手動選択した作品も同時に解除される問題を修正</h4>
+<h3><span class="blue">一部の設定の位置順序を調整</span></h3>
+<h4>🔀「複数画像作品で最初の数枚の画像のみをクロール」を「その他」-「クロール」に移動</h4>
+<h4>🔀「複数画像作品の画像枚数上限」を「その他」-「クロール」に移動</h4>
+<h4>🔀「ファイルをユーザーの前回選択した場所に保存」を「その他」-「ダウンロード」に移動</h4>
+<h3><span class="blue">ユーザー体験の向上とヘルプ情報の追加</span></h3>
+<h4>😊一部のログの先頭にEmoji記号を追加</h4>
+<h4>😊作品が除外された際に、より詳細な理由を表示</h4>
+<h4>😊ブラウザが.jpgを.jfifとして保存する場合の解決方法を表示</h4>
+<h4>😊設定項目にマウスを合わせると薄い背景色を表示</h4>`,
+    `이번 업데이트에서는 많은 설정을 추가하고 조정했습니다.<br>
+<h3><span class="blue">✨새 기능: 임의 옵션 상단 고정</span></h3>
+자주 사용하는 옵션을 상단에 고정 표시할 수 있습니다. 이 옵션들은 항상 최상단에 표시되며(「고급 설정 표시」를 활성화하지 않아도 항상 표시됩니다). 이렇게 하면 필요한 설정을 빠르게 찾을 수 있을 뿐만 아니라 평소에는 고급 설정을 숨겨 화면을 더 깔끔하게 만들 수 있습니다.<br>
+옵션을 상단에 고정하는 방법은 2가지입니다:<br>
+1. 마우스 포인터를 옵션 위에 올린 후 왼쪽의 고정 아이콘을 클릭하세요.<br>
+2. 옵션 이름을 0.5초 동안 길게 누르세요.<br>
+<h3><span class="blue">크롤링 설정 추가 및 조정</span></h3>
+<h4>✨새 설정: 다운로드된 작품을 크롤링하지 않음</h4>
+이 설정을 활성화하면 다운로더는 각 작품을 크롤링하기 전에 다운로드 기록이 있는지 먼저 확인하고, 기록이 있으면 크롤링하지 않습니다.<br>
+이것은 증분 업데이트에 도움이 되며 불필요한 크롤링을 줄여줍니다.<br>
+<h4>🔧「ID 범위」설정에서 이미지 작품과 소설을 각각 ID 지정할 수 있게 되었습니다</h4>
+<h4>✨새 설정: 다중 이미지 작품에서 뒤의 몇 장 이미지만 크롤링</h4>
+<h4>✨새 설정: 다중 이미지 작품에서 앞의 몇 장 이미지를 크롤링하지 않음</h4>
+<h4>✨새 설정: 다중 이미지 작품에서 뒤의 몇 장 이미지를 크롤링하지 않음</h4>
+<h4>🗑삭제 설정: 다중 이미지 작품의 마지막 한 장 이미지를 크롤링하지 않음</h4>
+「다중 이미지 작품에서 뒤의 몇 장 이미지를 크롤링하지 않음」으로 대체되었습니다.<br>
+<h4>🗑삭제 설정: 크롤링 결과가 1개일 때 폴더를 생성하지 않음</h4>
+「폴더를 생성하지 않음」으로 대체되었습니다.<br>
+<h3><span class="blue">명명 설정 추가 및 조정</span></h3>
+<h4>✨새 설정: 폴더를 생성하지 않음</h4>
+이 설정은 「다운로드」탭에 있으며, 단일 이미지 작품이나 다중 이미지 작품을 다운로드할 때 폴더를 생성하지 않고 다운로드 디렉토리에 직접 저장할 수 있습니다.<br>
+<h4>✨새 설정: 인덱스 시작값</h4>
+이 설정은 「더보기」-「명명」카테고리에 있습니다. 이미지 인덱스를 0부터 시작할지 1부터 시작할지 설정할 수 있으며, 기본값은 0입니다.<br>
+<h4>✨새 설정: 파일명에서 Emoji 제거</h4>
+이 설정은 「더보기」-「명명」카테고리에 있습니다.<br>
+<h4>⚠️「더보기」-「명명」 내 일부 명명 설정의 사용 방식이 변경되었습니다</h4>
+「더보기」-「명명」 내 일부 설정은 파일을 저장할 때 한 층의 폴더를 추가합니다. 이전에는 다운로더가 항상 새 폴더를 파일명 앞에 추가했지만(즉 항상 마지막 층), 이제는 임의의 층에 배치할 수 있습니다.<br>
+이는 최적화이지만, 임의의 층에 배치할 수 있도록 사용 방식이 변경되었습니다: 설정을 활성화하는 것 외에 명명 규칙에 해당 태그를 삽입해야 합니다. 이러한 설정 중 하나라도 활성화했다면 새로운 방식을 사용해야 합니다:<br>
+- 다중 이미지 작품에 한 층의 폴더 추가<br>
+- 첫 번째 일치하는 태그로 폴더 생성<br>
+- R-18(G) 작품에 한 층의 폴더 추가<br>
+이 설정들의 오른쪽에 있는 「도움말」 버튼을 클릭하면 자세한 설명을 확인할 수 있습니다.<br>
+<h4>✨새 설정: 다중 이미지 작품에 한 층의 폴더 추가</h4>
+명명 규칙에서 <span class="blue">{multi_image_folder}</span>을 사용해야 작동합니다.<br>
+<h4>🔧조정 설정: R-18(G) 작품에 한 층의 폴더 추가</h4>
+명명 규칙에 <span class="blue">{r18_g_folder}</span>을 추가해야 작동합니다.<br>
+<h4>🔧조정 설정: 첫 번째 일치하는 태그로 폴더 생성</h4>
+명명 규칙에 <span class="blue">{match_tag_folder}</span>을 추가해야 작동합니다.<br>
+<h4>✨새 명명 태그 {char_count}</h4>
+<span class="blue">{char_count}</span>: 소설의 글자 수 또는 단어 수(소설의 언어에 따라 다름). 작품이 소설이 아닌 경우 무시됩니다.<br>
+<h4>😊다운로드 시 {px} 태그가 각 이미지의 실제 너비와 높이를 사용합니다</h4>
+다중 이미지 작품에서는 각 이미지의 너비와 높이가 다를 수 있습니다. 이전에는 <span class="blue">{px}</span> 태그가 항상 첫 번째 이미지의 크기를 사용했지만, 이제는 각 이미지의 실제 크기를 사용합니다.<br>
+<h4>😊명명 규칙 입력 상자 너비 확대</h4>
+일부 사용자의 명명 규칙이 매우 길어 기존 입력 상자에 완전히 표시되지 않았습니다. 그래서 입력 상자를 한 줄 전체로 변경하여 더 많은 내용을 표시할 수 있게 했습니다.<br>
+<h4>🗑삭제 설정: 각 작품마다 별도의 파일 생성</h4>
+「다중 이미지 작품에 한 층의 폴더 추가」로 대체되었습니다.<br>
+<h4>🗑삭제 설정: 작품 유형에 따라 자동으로 폴더 생성</h4>
+새로운 명명 태그로 대체되었습니다: <span class="blue">{type_illust}</span>, <span class="blue">{type_manga}</span>, <span class="blue">{type_ugoira}</span>, <span class="blue">{type_novel}</span>.<br>
+<h3><span class="blue">다운로드 기능 조정 및 추가</span></h3>
+<h4>✨새 설정: 다운로드된 작품에 테두리 표시</h4>
+이 설정은 「더보기」-「다운로드」카테고리에 있습니다.<br>
+활성화하면 다운로더는 다운로드된 작품에 테두리를 표시하여 어떤 작품을 다운로드했는지 쉽게 알 수 있습니다. 또한 작품 목록 페이지(예: 즐겨찾기 페이지)에서 이전 다운로드 위치를 더 쉽게 확인할 수 있어 증분 업데이트에 도움이 됩니다.<br>
+<h4>✨새 설정: 시리즈 소설 병합 시 분할 임계값</h4>
+시리즈 소설을 병합할 때 EPUB 파일의 크기가 너무 크면 다운로더가 여러 파일로 분할할 수 있습니다. 분할 단위 크기를 설정할 수 있습니다.<br>
+<h4>✨시리즈 소설 병합 시 이전에 다운로드된 부분을 건너뛸 수 있게 됨</h4>
+이번 버전부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 「다운로드된 작품을 크롤링하지 않음」이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.<br>
+<h3><span class="blue">확장 기능 조정 및 추가</span></h3>
+<h4>✨「작품 미리보기」에 작품 유형 설정 추가</h4>
+미리보기할 작품 유형을 설정할 수 있습니다: 단일 이미지 작품, 다중 이미지 작품, 동화.<br>
+<h4>🗑삭제 설정: 동화 미리보기</h4>
+이제 이 별도의 설정이 필요 없으며, 「작품 미리보기」의 「동화」 옵션으로 대체되었습니다.<br>
+<h4>✨작품 미리보기 시, 차단된 태그가 포함된 경우 미리보기를 표시하지 않음</h4>
+작품을 미리보기하기 전에 다운로더는 차단된 태그가 포함되어 있는지 확인합니다. 확인하는 설정은 「포함하지 말아야 할 태그」와 계정 설정에서 Mute한 태그입니다. 작품이 제외되면 다운로더는 미리보기를 표시하지 않고 해당 메시지를 표시합니다.<br>
+<h4>🔧일부 기능이 「작품 미리보기」에 더 이상 의존하지 않음</h4>
+이전에는 「작품 미리보기」를 활성화하지 않으면 「썸네일에서 마우스 오른쪽 버튼을 길게 눌러 큰 이미지 표시」와 「작품 상세 미리보기」 두 기능도 사용할 수 없었습니다. 이제 이 기능들은 독립되어 「작품 미리보기」에 의존하지 않습니다.<br>
+<h3><span class="blue">버그 수정</span></h3>
+<h4>🐞「파일을 사용자의 이전 선택 위치에 저장」을 활성화했을 때 일부 파일이 손실될 수 있던 문제 수정</h4>
+<h4>🐞소설 저장 형식이 TXT일 때 소설 내 이미지가 여러 폴더를 생성할 수 있던 문제 수정</h4>
+<h4>🐞「검색 페이지에서 팔로우한 사용자의 작품 제거」로 인해 작품 목록이 지워질 수 있던 문제 수정</h4>
+<h4>🐞이미지 뷰어에서 ESC를 누르면 수동으로 선택한 작품도 함께 취소되던 문제 수정</h4>
+<h3><span class="blue">일부 설정의 위치 순서 조정</span></h3>
+<h4>🔀「다중 이미지 작품에서 앞의 몇 장 이미지만 크롤링」을 「더보기」-「크롤링」으로 이동</h4>
+<h4>🔀「다중 이미지 작품의 이미지 수 제한」을 「더보기」-「크롤링」으로 이동</h4>
+<h4>🔀「파일을 사용자의 이전 선택 위치에 저장」을 「더보기」-「다운로드」으로 이동</h4>
+<h3><span class="blue">사용자 경험 향상 및 도움말 정보 추가</span></h3>
+<h4>😊일부 로그 앞에 Emoji 기호 추가</h4>
+<h4>😊작품이 제외될 때 더 자세한 이유 표시</h4>
+<h4>😊브라우저가 .jpg를 .jfif로 저장할 때 해결 방법 표시</h4>
+<h4>😊설정 항목에 마우스를 올리면 연한 배경색 표시</h4>`,
+    `В этом обновлении добавлено и изменено множество настроек.<br>
+<h3><span class="blue">✨Новая функция: Закрепление любых параметров</span></h3>
+Вы можете закреплять часто используемые параметры сверху. Они всегда будут отображаться вверху (даже если вы не включили «Показывать расширенные настройки»). Это не только позволяет быстро находить нужные настройки, но и даёт возможность скрывать расширенные настройки в обычном использовании, делая интерфейс чище.<br>
+Есть 2 способа закрепить параметр:<br>
+1. Наведите указатель мыши на параметр, затем нажмите на иконку закрепления слева.<br>
+2. Долгое нажатие на название параметра в течение 0,5 секунды.<br>
+<h3><span class="blue">Добавлены и изменены некоторые настройки краулинга</span></h3>
+<h4>✨Новая настройка: Не краулить загруженные работы</h4>
+Если вы включите эту настройку, загрузчик перед краулингом каждого произведения сначала проверит, есть ли у него запись о загрузке. Если есть — не будет краулить.<br>
+Это помогает с инкрементными обновлениями и уменьшает ненужный краулинг.<br>
+<h4>🔧В настройке «Диапазон ID» теперь можно отдельно задавать ID для изображений и новелл</h4>
+<h4>✨Новая настройка: Краулить только последние несколько изображений в многоизображных работах</h4>
+<h4>✨Новая настройка: Не краулить первые несколько изображений в многоизображных работах</h4>
+<h4>✨Новая настройка: Не краулить последние несколько изображений в многоизображных работах</h4>
+<h4>🗑Удалена настройка: Не краулить последнюю картинку в многоизображных работах</h4>
+Заменена настройкой «Не краулить последние несколько изображений в многоизображных работах».<br>
+<h4>🗑Удалена настройка: Не создавать папку, если результат краулинга один</h4>
+Заменена настройкой «Не создавать папку».<br>
+<h3><span class="blue">Добавлены и изменены некоторые настройки именования</span></h3>
+<h4>✨Новая настройка: Не создавать папку</h4>
+Эта настройка находится во вкладке «Загрузка». При скачивании одноизображных или многоизображных работ можно не создавать папку, а сохранять файлы напрямую в папку загрузок.<br>
+<h4>✨Новая настройка: Начальное значение индекса</h4>
+Эта настройка находится в категории «Ещё» - «Именование». Вы можете выбрать, начинать нумерацию изображений с 0 или с 1. Значение по умолчанию — 0.<br>
+<h4>✨Новая настройка: Удалять Emoji из имён файлов</h4>
+Эта настройка находится в категории «Ещё» - «Именование».<br>
+<h4>⚠️Изменён способ использования некоторых настроек именования в «Ещё» - «Именование»</h4>
+Некоторые настройки в «Ещё» - «Именование» добавляют слой папки при сохранении файлов. Раньше загрузчик всегда добавлял новую папку в начало имени файла (то есть это всегда был последний слой). Теперь вы можете размещать её на любом уровне.<br>
+Это улучшение, но для возможности размещения на любом уровне способ использования изменился: кроме включения настройки, нужно также вставить соответствующий тег в правило именования. Если вы включили любую из этих настроек, обязательно используйте новый способ:<br>
+- Добавить слой папки для многоизображных работ<br>
+- Создавать папку с использованием первого совпавшего тега<br>
+- Добавить слой папки для работ R-18(G)<br>
+Вы можете нажать кнопку «Справка» справа от этих настроек, чтобы просмотреть подробные инструкции.<br>
+<h4>✨Новая настройка: Добавить слой папки для многоизображных работ</h4>
+Для работы нужно использовать <span class="blue">{multi_image_folder}</span> в правиле именования.<br>
+<h4>🔧Изменена настройка: Добавить слой папки для работ R-18(G)</h4>
+Для работы нужно добавить <span class="blue">{r18_g_folder}</span> в правило именования.<br>
+<h4>🔧Изменена настройка: Создавать папку с использованием первого совпавшего тега</h4>
+Для работы нужно добавить <span class="blue">{match_tag_folder}</span> в правило именования.<br>
+<h4>✨Новый тег именования {char_count}</h4>
+<span class="blue">{char_count}</span>: количество символов или слов в новелле (зависит от языка новеллы). Игнорируется, если работа не является новеллой.<br>
+<h4>😊При скачивании тег {px} теперь использует реальные ширину и высоту каждой картинки</h4>
+В многоизображных работах ширина и высота каждой картинки могут отличаться. Раньше тег <span class="blue">{px}</span> всегда использовал размеры первой картинки. Теперь он использует реальные размеры каждой картинки.<br>
+<h4>😊Увеличена ширина поля ввода правила именования</h4>
+У некоторых пользователей правила именования очень длинные. Прежнее поле ввода не могло отображать их полностью, поэтому я сделал его занимающим всю строку, чтобы показывалось больше содержимого.<br>
+<h4>🗑Удалена настройка: Создавать отдельный файл для каждой работы</h4>
+Заменена настройкой «Добавить слой папки для многоизображных работ».<br>
+<h4>🗑Удалена настройка: Автоматически создавать папку в зависимости от типа работы</h4>
+Заменена новыми тегами именования: <span class="blue">{type_illust}</span>, <span class="blue">{type_manga}</span>, <span class="blue">{type_ugoira}</span>, <span class="blue">{type_novel}</span>.<br>
+<h3><span class="blue">Изменены и добавлены некоторые функции загрузки</span></h3>
+<h4>✨Новая настройка: Показывать рамку на загруженных работах</h4>
+Эта настройка находится в категории «Ещё» - «Загрузка».<br>
+Если включить её, загрузчик будет показывать рамку на загруженных работах. Так вы легко увидите, какие работы уже скачаны. Кроме того, на страницах со списками работ (например, в закладках) вы сможете легче понять, до какого места дошли в прошлый раз — это помогает с инкрементными обновлениями.<br>
+<h4>✨Новая настройка: Порог разделения при объединении серийных новелл</h4>
+При объединении серийных новелл, если файл EPUB слишком большой, загрузчик может разделить его на несколько файлов. Вы можете задать единицу размера для разделения.<br>
+<h4>✨При объединении серийных новелл теперь можно пропускать ранее загруженные части</h4>
+Начиная с этой версии при объединении серии новелл загрузчик будет создавать запись о загрузке для каждой отдельной новеллы внутри (как если бы вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включена настройка «Не краулить загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые.<br>
+<h3><span class="blue">Изменены и добавлены некоторые расширенные функции</span></h3>
+<h4>✨В «Предпросмотр работы» добавлена настройка типа работ</h4>
+Теперь можно выбрать, какие типы работ предпросматривать: одноизображные работы, многоизображные работы, Ugoira.<br>
+<h4>🗑Удалена настройка: Предпросмотр Ugoira</h4>
+Отдельная настройка больше не нужна. Она заменена опцией «Ugoira» в «Предпросмотр работы».<br>
+<h4>✨При предпросмотре работы, если она содержит заблокированный тег, предпросмотр не отображается</h4>
+Перед предпросмотром работы загрузчик проверяет, содержит ли она заблокированные теги. Проверяются настройки «Теги, которых не должно быть» и теги, которые вы отключили (Mute) в настройках аккаунта Pixiv. Если работа исключена, загрузчик не будет показывать предпросмотр и отобразит соответствующее сообщение.<br>
+<h4>🔧Некоторые функции больше не зависят от «Предпросмотр работы»</h4>
+Раньше, если «Предпросмотр работы» был выключен, также не работали две функции: «При долгом нажатии правой кнопки мыши на миниатюре показывать большую картинку» и «Подробная информация о предпросмотре работы». Теперь эти функции независимы и больше не зависят от «Предпросмотр работы».<br>
+<h3><span class="blue">Исправления ошибок</span></h3>
+<h4>🐞Исправлена проблема, из-за которой при включённой настройке «Сохранять файлы в последнее выбранное пользователем место» некоторые файлы могли теряться</h4>
+<h4>🐞Исправлена проблема, когда при сохранении новеллы в формате TXT изображения из новеллы могли создавать несколько папок</h4>
+<h4>🐞Исправлена проблема, когда «Удалять работы отследживаемых пользователей на странице поиска» могло приводить к очистке списка работ</h4>
+<h4>🐞Исправлена проблема, когда нажатие ESC в просмотрщике изображений одновременно отменяло ручной выбор работ</h4>
+<h3><span class="blue">Изменён порядок расположения некоторых настроек</span></h3>
+<h4>🔀«Краулить только первые несколько изображений в многоизображных работах» перемещено в «Ещё» - «Краулинг»</h4>
+<h4>🔀«Максимальное количество изображений для многоизображных работ» перемещено в «Ещё» - «Краулинг»</h4>
+<h4>🔀«Сохранять файлы в последнее выбранное пользователем место» перемещено в «Ещё» - «Загрузка»</h4>
+<h3><span class="blue">Улучшение пользовательского опыта и добавление справочной информации</span></h3>
+<h4>😊В начало некоторых записей в журнале добавлены Emoji</h4>
+<h4>😊При исключении работы теперь показывается более подробная причина</h4>
+<h4>😊При сохранении браузером .jpg как .jfif показывается способ решения</h4>
+<h4>😊При наведении курсора на пункт настройки отображается светлый фон</h4>`,
   ],
   _对于某种错误下载器会重试一定次数: [
     `对于 {} 错误，下载器会重试一定次数`,

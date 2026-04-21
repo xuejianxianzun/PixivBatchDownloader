@@ -20,14 +20,14 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '18.6.0'
+  private flag = '18.7.0'
   private msg = `
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <span>${lang.transl('_提示可以在release页面查看更新日志')}</span>
       <br>
       <br>
-      <span>${lang.transl('_更新说明1860')}</span>
+      <div>${lang.transl('_更新说明1870')}</div>
       <br>
       <br>
       ${lang.transl('_赞助方式提示')}`
