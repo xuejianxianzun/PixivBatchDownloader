@@ -200,14 +200,14 @@ class SetUserName {
       `input[data-nameInput='${uid}']`
     )! as HTMLInputElement
 
-      // 当输入框发生变化时，进行更新
-      ;[uidInput, nameInput].forEach((el) => {
-        el?.addEventListener('change', () => {
-          if (el.value) {
-            this.updateRule(uid, uidInput.value, nameInput.value, false)
-          }
-        })
+    // 当输入框发生变化时，进行更新
+    ;[uidInput, nameInput].forEach((el) => {
+      el?.addEventListener('change', () => {
+        if (el.value) {
+          this.updateRule(uid, uidInput.value, nameInput.value, false)
+        }
       })
+    })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {

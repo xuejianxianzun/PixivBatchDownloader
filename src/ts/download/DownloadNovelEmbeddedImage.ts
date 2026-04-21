@@ -69,25 +69,25 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      let imageName = Utils.replaceExtension(novelName, image.url!)
-      // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
+      // 之前是在文件名的末尾添加图片 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
       // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
       // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
-      const array = imageName.split('.')
-      const fileName = array[array.length - 2]
-      // 在 fileName 里查找 novelId，如果找到了，就在它后面添加图片 id
+      let imageName = Utils.replaceExtension(novelName, image.url!)
+      const array = imageName.split('/')
+      const fileName = array.at(-1)!
+      const imageId = novelId + '-' + image.flag_id_part
+
+      // 如果 fileName 里有 novelId，就在它后面添加图片 id
       const index = fileName.indexOf(novelId)
       if (index !== -1) {
-        array[array.length - 2] =
-          fileName.slice(0, index + novelId.length) +
-          '-' +
-          image.flag_id_part +
-          fileName.slice(index + novelId.length)
+        array[array.length - 1] = fileName.replaceAll(novelId, imageId)
       } else {
-        // 没有找到 novelId，就跟以前一样，在文件名末尾添加图片 id
-        array[array.length - 2] = fileName + '-' + image.flag_id_part
+        // 如果没有找到 novelId，就在文件名末尾添加图片 id
+        const array2 = fileName.split('.')
+        array2[0] = array2[0] + imageId
+        array[array.length - 1] = array2.join('.')
       }
-      imageName = array.join('.')
+      imageName = array.join('/')
 
       await SendDownload.noReply(blob, imageName)
       log.persistentRefresh('downloadNovelImage' + novelId)
@@ -115,9 +115,10 @@ class DownloadNovelEmbeddedImage {
       this.logProgress(novelId, novelTitle, current, total)
       current++
 
-      const imageID = image.flag_id_part
+      // 在 EPUB 规范里，item 的 id 属性必须以字母开头，所以在前面加上 image- 前缀
+      const imageID = 'image-' + image.flag_id_part
       if (image.url === '') {
-        content = content.replaceAll(image.flag, `image ${imageID} not found`)
+        content = content.replaceAll(image.flag, `${imageID} not found`)
         continue
       }
 
@@ -170,112 +171,109 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages
   ): Promise<NovelImageData[]> {
-    return new Promise(async (resolve) => {
-      if (!settings.downloadNovelEmbeddedImage) {
-        return resolve([])
-      }
-      const idList: NovelImageData[] = []
+    if (!settings.downloadNovelEmbeddedImage) {
+      return []
+    }
+    const idList: NovelImageData[] = []
 
-      // 获取上传的图片数据
-      // 此时可以直接获取到图片 URL
-      if (embeddedImages) {
-        for (const [id, url] of Object.entries(embeddedImages)) {
-          idList.push({
-            id: id,
-            p: '',
-            type: 'upload',
-            url,
-            flag: `[uploadedimage:${id}]`,
-            flag_id_part: id,
-          })
+    // 获取上传的图片数据
+    // 此时可以直接获取到图片 URL
+    if (embeddedImages) {
+      for (const [id, url] of Object.entries(embeddedImages)) {
+        idList.push({
+          id: id,
+          p: '',
+          type: 'upload',
+          url,
+          flag: `[uploadedimage:${id}]`,
+          flag_id_part: id,
+        })
+      }
+    }
+
+    // 获取引用的图片数据
+    const reg = /\[pixivimage:(.+?)\]/g
+    let test: RegExpExecArray | null
+    while ((test = reg.exec(content))) {
+      if (test && test.length === 2) {
+        // 当引用的是第一张插画时，可能有序号，也可能没有序号
+        // 99381250
+        // 一个插画作品可能有多个被引用的图片，如
+        // 99760571-1
+        // 99760571-130
+
+        // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
+        // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
+        const some = idList.some((idData) => idData.flag_id_part === test![1])
+        if (some) {
+          continue
         }
+
+        const idInfo = test[1].split('-')
+        idList.push({
+          id: idInfo[0],
+          // 如果没有带序号，那么实际上就是第一张图片
+          p: idInfo[1] || '1',
+          type: 'pixiv',
+          url: '',
+          flag: `[pixivimage:${test[1]}]`,
+          flag_id_part: test[1],
+        })
       }
+    }
 
-      // 获取引用的图片数据
-      const reg = /\[pixivimage:(.+?)\]/g
-      let test: RegExpExecArray | null
-      while ((test = reg.exec(content))) {
-        if (test && test.length === 2) {
-          // 当引用的是第一张插画时，可能有序号，也可能没有序号
-          // 99381250
-          // 一个插画作品可能有多个被引用的图片，如
-          // 99760571-1
-          // 99760571-130
-
-          // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
-          // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
-          const some = idList.some((idData) => idData.flag_id_part === test![1])
-          if (some) {
-            continue
-          }
-
-          const idInfo = test[1].split('-')
-          idList.push({
-            id: idInfo[0],
-            // 如果没有带序号，那么实际上就是第一张图片
-            p: idInfo[1] || '1',
-            type: 'pixiv',
-            url: '',
-            flag: `[pixivimage:${test[1]}]`,
-            flag_id_part: test[1],
-          })
-        }
+    // 引用的图片此时没有 URL，需要获取
+    let insertIllustIDs: string[] = []
+    for (const idData of idList) {
+      if (idData.type === 'pixiv') {
+        insertIllustIDs.push(idData.flag_id_part)
       }
+    }
+    if (insertIllustIDs.length === 0) {
+      return idList
+    }
 
-      // 引用的图片此时没有 URL，需要获取
-      let insertIllustIDs: string[] = []
-      for (const idData of idList) {
-        if (idData.type === 'pixiv') {
-          insertIllustIDs.push(idData.flag_id_part)
-        }
-      }
-      if (insertIllustIDs.length === 0) {
-        return resolve(idList)
-      }
+    try {
+      const allInsert = await API.getNovelInsertIllustsData(
+        novelID,
+        insertIllustIDs
+      )
 
-      try {
-        const allInsert = await API.getNovelInsertIllustsData(
-          novelID,
-          insertIllustIDs
-        )
-
-        for (const id_part of insertIllustIDs) {
-          const illustData = allInsert.body[id_part]
-          for (const idData of idList) {
-            if (idData.flag_id_part === id_part) {
-              // // 从原图 URL 里根据序号生成对应 p 的 URL
-              // const p0URL = illustData.illust.images.original
-              // parseInt(idData.p)-1
-              // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
-              // 当引用的插画作品 404 或当前不能查看时，该数据为 null
-              if (illustData.illust === null) {
-                idData.url = ''
-              } else {
-                idData.url = illustData.illust.images.original
-              }
+      for (const id_part of insertIllustIDs) {
+        const illustData = allInsert.body[id_part]
+        for (const idData of idList) {
+          if (idData.flag_id_part === id_part) {
+            // // 从原图 URL 里根据序号生成对应 p 的 URL
+            // const p0URL = illustData.illust.images.original
+            // parseInt(idData.p)-1
+            // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+            // 当引用的插画作品 404 或当前不能查看时，该数据为 null
+            if (illustData.illust === null) {
+              idData.url = ''
+            } else {
+              idData.url = illustData.illust.images.original
             }
           }
         }
-
-        return resolve(idList)
-      } catch (error: Error | any) {
-        if (error.status) {
-          // 请求成功，但状态码不正常
-          // 最可能的是作品被删除（404 ）了
-          // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
-          return resolve(idList)
-        } else {
-          // 请求失败，没有获得服务器的返回数据，一般都是
-          // TypeError: Failed to fetch
-          console.error(error)
-
-          // 再次发送这个请求
-          window.setTimeout(() => {
-            return this.getImageList(novelID, content, embeddedImages)
-          }, 2000)
-        }
       }
-    })
+
+      return idList
+    } catch (error: Error | any) {
+      if (error.status) {
+        // 请求成功，但状态码不正常
+        // 最可能的是作品被删除（404 ）了
+        // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+        return idList
+      } else {
+        // 请求失败，没有获得服务器的返回数据，一般都是
+        // TypeError: Failed to fetch
+        console.error(error)
+
+        // 再次发送这个请求
+        await Utils.sleep(2000)
+        return this.getImageList(novelID, content, embeddedImages)
+      }
+    }
   }
 
   private logProgress(
@@ -320,11 +318,17 @@ class DownloadNovelEmbeddedImage {
       }
       const data = await res[type]()
       return data
-    } catch (error) {
+    } catch (error: Error | any) {
+      // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
       retry++
       // console.log(retry, url)
       if (retry > this.retryMax) {
-        log.error(`${lang.transl('_下载小说里的图片失败')}: ${url}`)
+        let msg = `${lang.transl('_下载小说里的图片失败')}: ${url}`
+        const status = error.status
+        if (status !== undefined) {
+          msg += `<br> ${lang.transl('_状态码')}: ${status}`
+        }
+        log.error(msg)
         return null
       }
       // 重试下载

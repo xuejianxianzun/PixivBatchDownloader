@@ -1,9 +1,7 @@
-import { API } from './API'
 import { ArtworkData } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { settings, setSetting } from './setting/Settings'
-import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
 import { Utils } from './utils/Utils'
@@ -15,13 +13,13 @@ import { DateFormat } from './utils/DateFormat'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 import { Config } from './Config'
-import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
 import { Tools } from './Tools'
 import { bookmark } from './Bookmark'
 import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
+import { filter } from './filter/Filter'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -30,8 +28,10 @@ class PreviewWork {
       return
     }
 
-    this.createElements()
-    this.bindEvents()
+    setTimeout(() => {
+      this.createElements()
+      this.bindEvents()
+    }, 0)
   }
 
   // 预览作品的容器的元素
@@ -51,8 +51,6 @@ class PreviewWork {
 
   // 显示作品中的第几张图片
   private index = 0
-  // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
-  private indexHistory: { [key: string]: number } = {}
 
   /**切换页面后，在一定时间内（500 ms）不允许触发图片预览功能 */
   // 这是为了缓解有时新页面加载后，会显示旧页面里的图片的预览的问题。
@@ -96,12 +94,18 @@ class PreviewWork {
   }
 
   private set show(val: boolean) {
+    // setter 属性不能使用异步，但现在有异步需求，所以调用这个方法来执行设置 show 的逻辑
+    this.setShow(val)
+  }
+
+  private async setShow(val: boolean) {
     if (val) {
-      this.workData = cacheWorkData.get(this.workId)
-      // 这两个判断条件其实是等价的
-      // 因为在 show 之前会先获取作品数据
-      // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
-      // 现在的作品已经不是前面请求的那个作品了
+      this.workData = await cacheWorkData.getWorkDataAsync(
+        this.workId,
+        'artwork'
+      )
+      // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
+      // 如果 id 不同，说明现在的作品已经不是前面请求的那个作品了
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
@@ -110,20 +114,28 @@ class PreviewWork {
           return
         }
 
-        // 显示作品的详细信息
-        if (
-          settings.PreviewWorkDetailInfo &&
-          displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) ===
-            false
-        ) {
-          EVT.fire('showPreviewWorkDetailPanel', this.workData)
+        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        const tags = Tools.extractTags(this.workData, 'origin')
+        const checkTag = await filter.checkExcludeAndMuteTags(tags)
+        if (!checkTag) {
+          this.show = false
+          const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
+          toast.warning(msg, {
+            position: 'mouse',
+            stay: 2500,
+          })
+          return
         }
 
-        this.sendURLs()
+        // 检查这个作品是否符合预览的作品类型
+        const checkType = this.checkPreviewType(this.workData)
+        if (!checkType) {
+          this.show = false
+          return
+        }
 
         this.isReadyShow = false
         this._show = true
-        showOriginSizeImage.hide()
         this.showWrap()
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
@@ -152,8 +164,6 @@ class PreviewWork {
         this.previewUgoira.destroy()
         this.previewUgoira = null as unknown as PreviewUgoira
       }
-
-      EVT.fire('previewEnd')
     }
   }
 
@@ -178,10 +188,10 @@ class PreviewWork {
       if (this.workId !== id) {
         this.show = false
         // 设置 index
-        this.index = this.indexHistory[id] || 0
+        this.index = states.indexRecord[id] || 0
       }
 
-      // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
+      // 在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
       if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
         const _index = Number.parseInt(el.dataset!.index!)
         this.index = _index
@@ -189,14 +199,7 @@ class PreviewWork {
 
       this.workId = id
       this.workEL = el
-
-      // 判断是插画还是动图，然后根据设置决定是否加载作品数据
-      // 动图有一个特定元素：circle，就是播放按钮的圆形背景
-      // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
-      // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
-      const ugoira = el.querySelector('circle')
-      const show = ugoira ? settings.previewUgoira : settings.PreviewWork
-      show && this.readyShow()
+      this.readyShow()
 
       el.addEventListener('wheel', this.onWheelScroll, {
         passive: false,
@@ -206,7 +209,7 @@ class PreviewWork {
     artworkThumbnail.onLeave((el: HTMLElement) => {
       this.isReadyShow = false
       // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
-      if (previewWorkDetailInfo.show) {
+      if (states.previewWorkDetailInfoPanelIsShow) {
         return
       }
 
@@ -374,11 +377,10 @@ class PreviewWork {
       })
     })
 
-    window.addEventListener(EVT.list.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, async () => {
       this.dontShowAfterPageSwitch = true
-      window.setTimeout(() => {
-        this.dontShowAfterPageSwitch = false
-      }, 500)
+      await Utils.sleep(500)
+      this.dontShowAfterPageSwitch = false
     })
 
     logErrorStatus.listen((status: number, url: string) => {
@@ -398,7 +400,7 @@ class PreviewWork {
           y: number
         }
 
-        if (this.mouseInElementArea(this.workEL, data.x, data.y) === false) {
+        if (Utils.mouseInElementArea(this.workEL, data.x, data.y) === false) {
           this.show = false
         }
       }
@@ -411,7 +413,7 @@ class PreviewWork {
     this.wrap.addEventListener('mousemove', (ev) => {
       // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
       if (
-        this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false
+        Utils.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false
       ) {
         this.show = false
       }
@@ -421,7 +423,7 @@ class PreviewWork {
       this.show = false
       // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
       // 当鼠标移出这个作品的缩略图之后会取消此限制
-      if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+      if (Utils.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
         this.dontShowAgain = true
       }
     })
@@ -445,45 +447,9 @@ class PreviewWork {
     )
   }
 
-  // 判断鼠标是否处于某个元素的范围内
-  private mouseInElementArea(el: Element | undefined, x: number, y: number) {
-    if (!el) {
-      return false
-    }
-    const rect = el.getBoundingClientRect()
-    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
-  }
-
-  private preload() {
-    // 如果下载器正在下载文件，则不预加载
-    if (this.show && !states.downloading) {
-      const count = this.workData!.body.pageCount
-      if (count > this.index + 1) {
-        let url = this.workData!.body.urls[settings.prevWorkSize]
-        url = url.replace('p0', `p${this.index + 1}`)
-        let img = new Image()
-        // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
-        const nowIndex = this.index
-        const timer = window.setInterval(() => {
-          if (this.index !== nowIndex || !this.show) {
-            window.clearInterval(timer)
-            img && (img.src = '')
-            img = null as any
-          }
-        }, 50)
-        img.onload = () => {
-          window.clearInterval(timer)
-          img && (img = null as any)
-        }
-        img.src = url
-      }
-    }
-  }
-
-  private wheelEvent?: WheelEvent
-
   // 当鼠标滚轮滚动时，切换显示的图片
   // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 wheel 事件
+  private wheelEvent?: WheelEvent
   private swicthImageByMouse = Utils.throttle(() => {
     const up = this.wheelEvent!.deltaY < 0
     this.swicthImage(up ? 'prev' : 'next')
@@ -505,7 +471,7 @@ class PreviewWork {
       }
     }
 
-    this.indexHistory[this.workId] = this.index
+    states.indexRecord[this.workId] = this.index
 
     this.showWrap()
   }
@@ -522,116 +488,11 @@ class PreviewWork {
     }
   }
 
-  private async addBookmark() {
-    if (this.workData?.body.illustId === undefined) {
-      return
-    }
-
-    toast.show(lang.transl('_收藏'), {
-      bgColor: Colors.bgBlue,
-    })
-
-    const status = await bookmark.add(
-      this.workData.body.illustId,
-      'illusts',
-      Tools.extractTags(this.workData!)
-    )
-
-    if (status === 200) {
-      toast.success(lang.transl('_已收藏'))
-
-      // 将作品缩略图上的收藏按钮变成红色
-      const allSVG = this.workEL!.querySelectorAll('svg')
-      if (allSVG.length > 0) {
-        // 如果有多个 svg，一般最后一个是收藏按钮
-        let useSVG = allSVG[allSVG.length - 1]
-
-        // 但有些特殊情况是第一个
-        if (pageType.type === pageType.list.Request) {
-          useSVG = allSVG[0]
-        }
-
-        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-        // 区别是收藏按钮在 button 元素里
-        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
-        if (btnSVG) {
-          useSVG = btnSVG
-        }
-
-        useSVG.style.color = 'rgb(255, 64, 96)'
-        const allPath = useSVG.querySelectorAll('path')
-        for (const path of allPath) {
-          path.style.fill = 'currentcolor'
-        }
-      }
-    }
-
-    // 排行榜页面的收藏按钮
-    const btn = this.workEL!.querySelector('._one-click-bookmark')
-    if (btn) {
-      btn.classList.add('on')
-    }
-  }
-
   private readyShow() {
     this.isReadyShow = true
     this.delayShowTimer = window.setTimeout(async () => {
-      if (!cacheWorkData.has(this.workId)) {
-        // 如果在缓存中没有找到这个作品的数据，则发起请求
-        try {
-          const data = await API.getArtworkData(this.workId)
-          cacheWorkData.set(data)
-        } catch (error: Error | any) {
-          this.show = false
-          return
-        }
-      }
-
       this.show = true
     }, settings.previewWorkWait)
-  }
-
-  // 通过 img 元素加载图片，获取图片的原始尺寸
-  private async getImageSize(url: string): Promise<{
-    width: number
-    height: number
-    available: boolean
-  }> {
-    return new Promise((resolve) => {
-      // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
-      let testImg = new Image()
-      testImg.src = url
-      const bindIndex = this.index
-      const timer = window.setInterval(() => {
-        if (this.index !== bindIndex) {
-          // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
-          window.clearInterval(timer)
-          testImg.src = ''
-          testImg = null as any
-          // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
-          // 我不想处理错误，所以用 available 标记来偷懒
-          return resolve({
-            width: 0,
-            height: 0,
-            available: false,
-          })
-        } else {
-          // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
-          if (testImg.naturalWidth > 0) {
-            const width = testImg.naturalWidth
-            const height = testImg.naturalHeight
-            window.clearInterval(timer)
-            testImg.src = ''
-            testImg = null as any
-            return resolve({
-              width,
-              height,
-              available: true,
-            })
-          }
-        }
-      }, 50)
-    })
   }
 
   // 显示预览 wrap
@@ -640,11 +501,12 @@ class PreviewWork {
       return
     }
 
-    const url = this.replaceURL(this.workData!.body.urls[settings.prevWorkSize])
+    const url = this.workData!.body.urls[settings.prevWorkSize].replace(
+      'p0',
+      `p${this.index}`
+    )
     const size = await this.getImageSize(url)
 
-    // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
-    // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
     if (!size.available || !this.show) {
       return
     }
@@ -857,11 +719,8 @@ class PreviewWork {
 
     this.wrap.setAttribute('style', styleArray.join(''))
 
-    // 每次显示图片后，传递图片的 url
-    this.sendURLs()
-
     // 预览动图
-    if (settings.previewUgoira && this.workData.body.illustType === 2) {
+    if (this.workData.body.illustType === 2) {
       this.previewUgoira = new PreviewUgoira(
         this.workData.body.id,
         this.wrap,
@@ -873,26 +732,134 @@ class PreviewWork {
     }
   }
 
-  private replaceURL(url: string) {
-    return url.replace('p0', `p${this.index}`)
+  // 通过 img 元素加载图片，获取图片的原始尺寸
+  private async getImageSize(url: string): Promise<{
+    width: number
+    height: number
+    available: boolean
+  }> {
+    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+    let testImg = new Image()
+    testImg.src = url
+    const bindIndex = this.index
+    while (true) {
+      await Utils.sleep(50)
+      if (this.index !== bindIndex) {
+        // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+        testImg.src = ''
+        testImg = null as any
+        // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+        // 我不想处理错误，所以用 available 标记来偷懒
+        return {
+          width: 0,
+          height: 0,
+          available: false,
+        }
+      } else {
+        // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+        if (testImg.naturalWidth > 0) {
+          const width = testImg.naturalWidth
+          const height = testImg.naturalHeight
+          testImg.src = ''
+          testImg = null as any
+          return {
+            width,
+            height,
+            available: true,
+          }
+        }
+      }
+    }
   }
 
-  private sendURLs() {
-    const data = this.workData
-    if (!data) {
+  private preload() {
+    // 如果下载器正在下载文件，则不预加载
+    if (this.show && !states.downloading) {
+      const count = this.workData!.body.pageCount
+      if (count > this.index + 1) {
+        let url = this.workData!.body.urls[settings.prevWorkSize]
+        url = url.replace('p0', `p${this.index + 1}`)
+        let img = new Image()
+        // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
+        const nowIndex = this.index
+        const timer = window.setInterval(() => {
+          if (this.index !== nowIndex || !this.show) {
+            window.clearInterval(timer)
+            img && (img.src = '')
+            img = null as any
+          }
+        }, 50)
+        img.onload = () => {
+          window.clearInterval(timer)
+          img && (img = null as any)
+        }
+        img.src = url
+      }
+    }
+  }
+
+  private async addBookmark() {
+    if (this.workData?.body.illustId === undefined) {
       return
     }
-    // 传递图片的 url，但是不传递尺寸。
-    // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
-    // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-    showOriginSizeImage.setData(
-      {
-        original: this.replaceURL(data.body.urls.original),
-        regular: this.replaceURL(data.body.urls.regular),
-      },
-      data,
-      this.index
+
+    toast.show(lang.transl('_收藏'), {
+      bgColor: Colors.bgBlue,
+    })
+
+    const status = await bookmark.add(
+      this.workData.body.illustId,
+      'illusts',
+      Tools.extractTags(this.workData!)
     )
+
+    if (status === 200) {
+      toast.success(lang.transl('_已收藏'))
+
+      // 将作品缩略图上的收藏按钮变成红色
+      const allSVG = this.workEL!.querySelectorAll('svg')
+      if (allSVG.length > 0) {
+        // 如果有多个 svg，一般最后一个是收藏按钮
+        let useSVG = allSVG[allSVG.length - 1]
+
+        // 但有些特殊情况是第一个
+        if (pageType.type === pageType.list.Request) {
+          useSVG = allSVG[0]
+        }
+
+        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
+        // 区别是收藏按钮在 button 元素里
+        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
+        if (btnSVG) {
+          useSVG = btnSVG
+        }
+
+        useSVG.style.color = 'rgb(255, 64, 96)'
+        const allPath = useSVG.querySelectorAll('path')
+        for (const path of allPath) {
+          path.style.fill = 'currentcolor'
+        }
+      }
+    }
+
+    // 排行榜页面的收藏按钮
+    const btn = this.workEL!.querySelector('._one-click-bookmark')
+    if (btn) {
+      btn.classList.add('on')
+    }
+  }
+
+  /** 检查是否应该预览这个作品 */
+  private checkPreviewType(data: ArtworkData) {
+    if (data.body.illustType === 2) {
+      return settings.previewUgoira
+    }
+
+    if (data.body.pageCount > 1) {
+      return settings.previewMultiImageWork
+    }
+
+    return settings.previewSingleImageWork
   }
 }
 

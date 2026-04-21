@@ -373,7 +373,7 @@ class ShowLargerThumbnails {
 
       // 收藏作品后出现的“相关作品”区域
       // 寻找作品列表 ul 元素的上、下 div 元素，左侧是占位符，右侧是遮罩
-      const els = document.querySelectorAll('ul + div')
+      const els = document.querySelectorAll('#__next ul + div')
       els.forEach((div) => {
         div.parentElement!.classList.add('ul-father')
       })

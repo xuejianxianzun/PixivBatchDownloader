@@ -931,38 +931,36 @@ class Tools {
     indexList: number[],
     target: 'img' | 'ImageBitmap'
   ) {
-    return new Promise(async (resolve, reject) => {
-      const result: HTMLImageElement[] | ImageBitmap[] = []
-      let i = 0
-      for (const index of indexList) {
-        // 起始位置
-        const start = index
-        // 截止下一个文件名之前
-        // 删除不需要的数据：
-        // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
-        // 10 字节的是下一个 jpg 的文件名
-        let end = indexList[i + 1] - 30 - 10
-        if (i === indexList.length - 1) {
-          // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
-          // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
-          end = zipFile.byteLength
-        }
-
-        const blob = new Blob([zipFile.slice(start, end)], {
-          type: 'image/jpeg',
-        })
-        if (target === 'ImageBitmap') {
-          const map = await createImageBitmap(blob)
-          ;(result as ImageBitmap[]).push(map)
-        } else if (target === 'img') {
-          const url = URL.createObjectURL(blob)
-          const img = await Utils.loadImg(url)
-          ;(result as HTMLImageElement[]).push(img)
-        }
-        ++i
+    const result: HTMLImageElement[] | ImageBitmap[] = []
+    let i = 0
+    for (const index of indexList) {
+      // 起始位置
+      const start = index
+      // 截止下一个文件名之前
+      // 删除不需要的数据：
+      // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
+      // 10 字节的是下一个 jpg 的文件名
+      let end = indexList[i + 1] - 30 - 10
+      if (i === indexList.length - 1) {
+        // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
+        // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
+        end = zipFile.byteLength
       }
-      resolve(result)
-    })
+
+      const blob = new Blob([zipFile.slice(start, end)], {
+        type: 'image/jpeg',
+      })
+      if (target === 'ImageBitmap') {
+        const map = await createImageBitmap(blob)
+        ;(result as ImageBitmap[]).push(map)
+      } else if (target === 'img') {
+        const url = URL.createObjectURL(blob)
+        const img = await Utils.loadImg(url)
+        ;(result as HTMLImageElement[]).push(img)
+      }
+      ++i
+    }
+    return result
   }
 
   /**根据 illustType，返回作品类型的描述字符串 */
@@ -1236,7 +1234,36 @@ class Tools {
         return option
       }
     }
-    throw `Not found this option: ${no}`
+
+    // 有可能找不到指定的选项，原因：
+    // 用户可能在置顶选项 settings.pinnedOptions 里保存着一些选项 id，但我可能会在之后的更新里移除对应的设置，这样就找不到该选项对应的元素了
+    return null
+  }
+
+  /**根据文本长度，动态设置 textarea 的高度 */
+  static setRows(el: HTMLTextAreaElement | null) {
+    if (!el) {
+      return
+    }
+    // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的使用体验
+    // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
+    // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
+    // 如果全部是 ASCII 字符，则 90 个字符为一行
+    let oneRowLength = Config.mobile ? 20 : 50
+    if (Utils.isAscii(el.value)) {
+      oneRowLength = Config.mobile ? 30 : 90
+    }
+
+    let rows = Math.ceil(el.value.length / oneRowLength)
+    // 如果值是空字符串，rows 会是 0，此时设置为 1
+    if (rows === 0) {
+      rows = 1
+    }
+    // 限制 rows 的最大值，以免占用太多空间
+    if (rows > 6) {
+      rows = 6
+    }
+    el.setAttribute('rows', rows.toString())
   }
 }
 

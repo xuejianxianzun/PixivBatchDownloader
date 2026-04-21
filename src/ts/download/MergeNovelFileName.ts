@@ -121,9 +121,6 @@ class MergeNovelFileName {
     // 生成文件名
     let name = fileName.generateFileName(rule, schema)
 
-    // 处理一些边界情况
-    name = fileName.handleEdgeCases(name)
-
     // 处理文件名长度限制
     const extResult = '.' + schema['{ext}'].value
     // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况

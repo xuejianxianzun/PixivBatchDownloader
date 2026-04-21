@@ -13,62 +13,23 @@ import { lang } from './Language'
 interface NamingSchema {
   [key: string]: { value: string; safe: boolean }
 }
-;[]
 
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
-  private readonly addStr = '[downloader_add]'
-
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
-    // 命名规则
-    let userSetName = nameRuleManager.rule
+    let rule = nameRuleManager.rule
 
-    // 检查是否要使用特定的其他命名规则
-    // 这是一个定制功能，所以这里设置的规则只会修改原有的文件名，而不会涉及到文件夹部分
-    // 如果一个作品符合多条规则，则把多条规则合并。例如：
-    // 包含[原神]，命名规则{id}_genshin
-    // 包含[Loli]，命名规则{id}_loli
-    // 包含[AI生成]，命名规则{id}_AI
-    // 比如说有一张ai生成的原神萝莉图例子，以上三个tag都有，那么把文件命名为{id}_genshin_loli_AI
-    let diffNames: string[] = []
-    if (settings.UseDifferentNameRuleIfWorkHasTagSwitch) {
-      const workTags = data.tags.map((tag) => tag.toLowerCase())
-      for (const item of settings.UseDifferentNameRuleIfWorkHasTagList) {
-        for (const setTag of item.tags) {
-          if (workTags.includes(setTag.toLowerCase())) {
-            diffNames.push(item.rule)
-            // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
-            // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
-            break
-          }
-        }
-      }
+    // 1 把特定标记替换成它所代表的设置的值
+    for (const item of this.flagToSettingValue) {
+      const value = item.func(rule, item.flag, data)
+      rule = rule.replaceAll(item.flag, value)
     }
 
-    if (diffNames.length > 0) {
-      let fileName = diffNames.join('').replace(/{id}/g, '')
-      fileName = '{id}' + fileName
+    rule = this.handleCustomFeature(rule, data)
 
-      const names = userSetName.split('/')
-      names.splice(names.length - 1, 1, fileName)
-      userSetName = names.join('/')
-    }
-
-    // 判断是否要为每个作品创建单独的文件夹
-    let createFolderForEachWork =
-      settings.workDir &&
-      store.downloadCount[data.idNum] > settings.workDirFileNumber
-
-    let r18FolderName = settings.r18Folder ? settings.r18FolderName : ''
-
-    const allRule =
-      userSetName +
-      (createFolderForEachWork ? settings.workDirNameRule : '') +
-      r18FolderName
-
-    // 1 生成所有命名标记的值
+    // 2 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const p_num = this.createPNum(data)
     const schema: NamingSchema = {
@@ -97,11 +58,11 @@ class FileName {
         safe: true,
       },
       '{p_num}': {
-        value: !allRule.includes('{p_num}') ? '' : p_num,
+        value: !rule.includes('{p_num}') ? '' : p_num,
         safe: true,
       },
       '{rank}': {
-        value: !allRule.includes('{rank}') ? '' : this.createRank(data.rank),
+        value: !rule.includes('{rank}') ? '' : this.createRank(data.rank),
         safe: true,
       },
       '{title}': {
@@ -123,7 +84,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: !allRule.includes('{px}')
+        value: !rule.includes('{px}')
           ? ''
           : data.fullWidth
             ? data.fullWidth + 'x' + data.fullHeight
@@ -131,23 +92,23 @@ class FileName {
         safe: true,
       },
       '{char_count}': {
-        value: !allRule.includes('{char_count}') ? '' : this.getCharCount(data),
+        value: !rule.includes('{char_count}') ? '' : this.getCharCount(data),
         safe: true,
       },
       '{tags}': {
-        value: !allRule.includes('{tags}')
+        value: !rule.includes('{tags}')
           ? ''
           : data.tags.join(settings.tagsSeparator),
         safe: false,
       },
       '{tags_translate}': {
-        value: !allRule.includes('{tags_translate}')
+        value: !rule.includes('{tags_translate}')
           ? ''
           : data.tagsWithTransl.join(settings.tagsSeparator),
         safe: false,
       },
       '{tags_transl_only}': {
-        value: !allRule.includes('{tags_transl_only}')
+        value: !rule.includes('{tags_transl_only}')
           ? ''
           : data.tagsTranslOnly.join(settings.tagsSeparator),
         safe: false,
@@ -181,25 +142,41 @@ class FileName {
         safe: true,
       },
       '{date}': {
-        value: !allRule.includes('{date}')
+        value: !rule.includes('{date}')
           ? ''
           : DateFormat.format(data.date, settings.dateFormat),
         safe: false,
       },
       '{upload_date}': {
-        value: !allRule.includes('{upload_date}')
+        value: !rule.includes('{upload_date}')
           ? ''
           : DateFormat.format(data.uploadDate, settings.dateFormat),
         safe: false,
       },
       '{task_date}': {
-        value: !allRule.includes('{task_date}')
+        value: !rule.includes('{task_date}')
           ? ''
           : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
         safe: false,
       },
       '{type}': {
         value: Config.worksTypeName[data.type],
+        safe: true,
+      },
+      '{type_illust}': {
+        value: data.type === 0 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_manga}': {
+        value: data.type === 1 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_ugoira}': {
+        value: data.type === 2 ? Config.worksTypeName[data.type] : '',
+        safe: true,
+      },
+      '{type_novel}': {
+        value: data.type === 3 ? Config.worksTypeName[data.type] : '',
         safe: true,
       },
       '{AI}': {
@@ -219,86 +196,16 @@ class FileName {
         safe: true,
       },
       '{sl}': {
-        value: (data.sl ?? 0).toString(),
+        value: (data.sl ?? '').toString(),
         safe: true,
       },
     }
 
-    // 2 生成文件名
-    let result = this.generateFileName(userSetName, schema)
-
-    // 3 根据某些设置向结果中添加新的文件夹
-    // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
-
-    // 根据作品类型自动创建对应的文件夹
-    if (settings.createFolderByType) {
-      // 根据作品类型和对应开关确定是否需要要为其建立文件夹
-      const allSwitch = [
-        settings.createFolderByTypeIllust,
-        settings.createFolderByTypeManga,
-        settings.createFolderByTypeUgoira,
-        settings.createFolderByTypeNovel,
-      ]
-      if (allSwitch[data.type]) {
-        const folder = Config.worksTypeName[data.type]
-        result = this.appendFolder(result, folder)
-      }
-    }
-
-    // 根据 sl 创建文件夹
-    if (settings.createFolderBySl && data.sl !== null) {
-      const folder = 'sl' + schema['{sl}'].value
-      result = this.appendFolder(result, folder)
-    }
-
-    // 根据第一个匹配的 tag 建立文件夹
-    if (settings.createFolderByTag && settings.createFolderTagList.length > 0) {
-      const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-
-      // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
-      // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
-      // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
-      // 例如 用户输入顺序：巨乳 欧派
-      // 作品 tag 里的顺序：欧派 巨乳
-      for (const tag of settings.createFolderTagList) {
-        // 查找匹配的时候转换成小写
-        const nowTag = tag.toLowerCase()
-        if (workTags.includes(nowTag)) {
-          // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-          result = this.appendFolder(result, tag)
-          break
-        }
-      }
-    }
-
-    // 把 R18(G) 作品存入指定目录里
-    if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-      result = this.appendFolder(
-        result,
-        this.generateFileName(r18FolderName, schema)
-      )
-    }
-
-    // 为每个作品创建单独的文件夹
-    if (createFolderForEachWork) {
-      const workDirName = this.generateFileName(
-        settings.workDirNameRule,
-        schema
-      )
-      // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
-      const allPath = workDirName.split('/')
-      for (const path of allPath) {
-        if (path.length > 0) {
-          result = this.appendFolder(result, path)
-        }
-      }
-    }
-
-    // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
-    result = this.handleEdgeCases(result)
+    // 3 生成文件名
+    let result = this.generateFileName(rule, schema)
 
     // 5 生成后缀名
-    // 如果是动图，那么此时
+    // 处理动图的后缀名
     if (Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
       // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
       if (settings.imageSize !== 'thumb') {
@@ -307,16 +214,36 @@ class FileName {
       // 下载动图时，如果选择的尺寸是“方形缩略图”则不修改其后缀名，因为此时下载的是静态缩略图。
       // 其他三种尺寸都是动图。“普通”和“小图”也是动图，只是尺寸比“原图”小。
     }
-    // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
+
+    // 处理小说的后缀名
     if (data.type === 3) {
       data.ext = settings.novelSaveAs
     }
+
     const extResult = '.' + data.ext
 
     // 6 处理不创建文件夹的情况
-    if (settings.notFolderWhenOneFile && store.result.length === 1) {
+    if (settings.noFolderSwitch) {
+      let noFolder = false
+      if (data.type === 3) {
+        // 小说
+        noFolder = settings.noFolderWhenNovel
+      } else if (data.type === 2) {
+        // 动图
+        noFolder = settings.noFolderWhenSingleImageWork
+      } else {
+        // 插画或漫画，根据单图作品或多图作品来决定
+        if (data.pageCount > 1) {
+          noFolder = settings.noFolderWhenMultiImageWork
+        } else {
+          noFolder = settings.noFolderWhenSingleImageWork
+        }
+      }
+
       // 舍弃文件夹部分，只保留文件名
-      result = result.split('/').pop()!
+      if (noFolder) {
+        result = result.split('/').pop()!
+      }
     }
 
     // 7 处理文件名长度限制
@@ -372,7 +299,121 @@ class FileName {
     // 处理连续的 /
     result = result.replace(/\/{2,100}/g, '/')
 
+    // 处理一些边界情况
+    result = this.handleEdgeCases(result)
+
     return result
+  }
+
+  /** 特定标记与其对应的处理函数的映射 */
+  private readonly flagToSettingValue: {
+    flag: string
+    func: (rule: string, flag: string, data: Result) => string
+  }[] = [
+    {
+      flag: '{multi_image_folder}',
+      func: this.getMultiImageFolder.bind(this),
+    },
+    {
+      flag: '{r18_g_folder}',
+      func: this.getR18Folder.bind(this),
+    },
+    {
+      flag: '{match_tag_folder}',
+      func: this.getMatchTagFolder.bind(this),
+    },
+  ]
+
+  /** 获取 为多图作品添加一层文件夹 的文件夹规则 */
+  private getMultiImageFolder(
+    rule: string,
+    flag: string,
+    data: Result
+  ): string {
+    if (rule.includes(flag)) {
+      // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
+      if (settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
+        return settings.folderForMultiImageWorksRule
+      } else {
+        return ''
+      }
+    }
+    return ''
+  }
+
+  /** 获取 为 R-18(G) 作品添加一层文件夹 的文件夹规则 */
+  private getR18Folder(rule: string, flag: string, data: Result): string {
+    if (rule.includes(flag)) {
+      // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
+      if (
+        settings.r18Folder &&
+        (data.xRestrict === 1 || data.xRestrict === 2)
+      ) {
+        return settings.r18FolderName
+      } else {
+        return ''
+      }
+    }
+    return ''
+  }
+
+  /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
+  private getMatchTagFolder(rule: string, flag: string, data: Result): string {
+    if (rule.includes(flag)) {
+      if (
+        settings.createFolderByTag &&
+        settings.createFolderTagList.length > 0
+      ) {
+        // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
+        // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+        // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+        // 例如 用户输入顺序：巨乳 欧派
+        // 作品 tag 里的顺序：欧派 巨乳
+        const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+        for (const userTag of settings.createFolderTagList) {
+          // 查找匹配的时候转换成小写
+          if (workTags.includes(userTag.toLowerCase())) {
+            return userTag
+          }
+        }
+        return ''
+      } else {
+        return ''
+      }
+    }
+    return ''
+  }
+
+  /** 处理一个定制功能：如果作品含有某些标签，则对这个作品使用另一种命名规则 */
+  private handleCustomFeature(rule: string, data: Result): string {
+    // 此规则只会修改文件名，不会修改文件夹
+    // 如果一个作品符合多条规则，则把多条规则合并。例如：
+    // 包含[原神]，命名规则{id}_genshin
+    // 包含[Loli]，命名规则{id}_loli
+    // 包含[AI生成]，命名规则{id}_AI
+    // 比如说有一张ai生成的原神萝莉图例子，以上三个tag都有，那么把文件命名为{id}_genshin_loli_AI
+    let diffNames: string[] = []
+    if (settings.UseDifferentNameRuleIfWorkHasTagSwitch) {
+      const workTags = data.tags.map((tag) => tag.toLowerCase())
+      for (const item of settings.UseDifferentNameRuleIfWorkHasTagList) {
+        for (const setTag of item.tags) {
+          if (workTags.includes(setTag.toLowerCase())) {
+            diffNames.push(item.rule)
+            // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
+            // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
+            break
+          }
+        }
+      }
+    }
+    if (diffNames.length > 0) {
+      // 把文件名部分设置为 id + diffNames
+      const fileName = '{id}' + diffNames.join('').replace(/{id}/g, '')
+      const parts = rule.split('/')
+      parts[parts.length - 1] = fileName
+      rule = parts.join('/')
+    }
+    return rule
   }
 
   // 生成 {rank} 标记的值
@@ -391,32 +432,32 @@ class FileName {
 
   // 生成 {p_num} 标记的值
   private createPNum(data: Result) {
-    if (data.type === 0 || data.type === 1 || data.type === 2) {
-      let index = data.index ?? Tools.getResultIndex(data)
-      // 处理第一张图不带序号的情况
-      if (index === 0 && settings.noSerialNo) {
-        if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
-          return ''
-        }
-        if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
-          return ''
-        }
-        if (data.type === 2 && settings.setNoSerialNoForUgoira) {
-          return ''
-        }
-      }
-
-      // 处理序号的起始值
-      if (settings.serialNoStart === 1) {
-        index = index + 1
-      }
-
-      // 处理在序号前面填充 0 的情况
-      return this.zeroPadding(index)
-    } else {
+    if (data.type === 3) {
       // 小说没有编号，返回空字符串
       return ''
     }
+
+    let index = data.index ?? Tools.getResultIndex(data)
+    // 处理第一张图不带序号的情况
+    if (index === 0 && settings.noSerialNo) {
+      if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
+        return ''
+      }
+      if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
+        return ''
+      }
+      if (data.type === 2 && settings.setNoSerialNoForUgoira) {
+        return ''
+      }
+    }
+
+    // 处理序号的起始值
+    if (settings.serialNoStart === 1) {
+      index = index + 1
+    }
+
+    // 处理在序号前面填充 0 的情况
+    return this.zeroPadding(index)
   }
 
   /** 在序号前面填充 0 */
@@ -522,25 +563,28 @@ class FileName {
     return rule
   }
 
+  /** 如果任意一层路径或文件名是 Windows 保留文件名，则在其后添加这个字符串 */
+  private readonly addStr = '[WindowsReservedName]'
+
   /** 处理一些边界情况 */
-  public handleEdgeCases(result: string) {
+  public handleEdgeCases(string: string) {
     // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    result = result.replace(/\/{2,100}/g, '/')
+    string = string.replace(/\/{2,100}/g, '/')
 
     // 对每一层路径和文件名进行处理
-    const paths = result.split('/')
+    const parts = string.split('/')
 
-    for (let i = 0; i < paths.length; i++) {
+    for (let i = 0; i < parts.length; i++) {
       // 去掉每层路径首尾的空格
       // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-      paths[i] = paths[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+      parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
 
       // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-      paths[i] = Utils.handleWindowsReservedName(paths[i], this.addStr)
+      parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
     }
 
-    result = paths.join('/')
-    return result
+    string = parts.join('/')
+    return string
   }
 
   // 文件名超长的一种测试情况：

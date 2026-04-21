@@ -1,3 +1,5 @@
+import { setTimeoutWorker } from './SetTimeoutWorker'
+
 class Utils {
   // 不安全的字符，这里多数是控制字符，需要替换掉
   static unsafeStr = new RegExp(
@@ -320,68 +322,65 @@ class Utils {
       total: number
     }[]
   > {
-    return new Promise((resolve) => {
-      // 限制单个文件的体积上限为 500 MB
-      const fileByteLengthLimit = 524288000
+    // 限制单个文件的体积上限为 500 MB
+    const fileByteLengthLimit = 524288000
 
-      const result: {
-        url: string
-        total: number
-      }[] = []
+    const result: {
+      url: string
+      total: number
+    }[] = []
 
-      // 在这个数组里储存数组字面量
-      let JSONStringArray: string[] = []
+    // 在这个数组里储存数组字面量
+    let JSONStringArray: string[] = []
 
-      const length = data.length
+    const length = data.length
+    let index = 0
+    let total = 0
+    let bytelength = 0
+    let startNewFile = true
+    const textEncode = new TextEncoder()
 
-      let index = 0
-      let total = 0
-      let bytelength = 0
-      let startNewFile = true
-      const textEncode = new TextEncoder()
-
-      while (index < length) {
-        // 添加数组的开始符号
-        if (startNewFile) {
-          startNewFile = false
-          JSONStringArray.push('[')
-          bytelength = bytelength + 1
-        }
-
-        // 循环添加每一项数据
-        const string = JSON.stringify(data[index])
-        JSONStringArray.push(string)
-        JSONStringArray.push(',')
-        bytelength = bytelength + textEncode.encode(string).length + 1
-
-        index++
-        total++
-
-        // 分割文件
-        if (index === length || bytelength >= fileByteLengthLimit) {
-          // 删除最后一个分隔符，否则会导致格式错误
-          JSONStringArray.pop()
-          // 添加数组的结束符号
-          JSONStringArray.push(']')
-
-          // 生成文件数据
-          const blob = new Blob(JSONStringArray, { type: 'application/json' })
-          const url = URL.createObjectURL(blob)
-          result.push({
-            url,
-            total,
-          })
-
-          // 重置变量
-          startNewFile = true
-          bytelength = 0
-          total = 0
-          JSONStringArray = []
-        }
+    while (index < length) {
+      // 添加数组的开始符号
+      if (startNewFile) {
+        startNewFile = false
+        JSONStringArray.push('[')
+        bytelength = bytelength + 1
       }
 
-      return resolve(result)
-    })
+      // 循环添加每一项数据
+      const string = JSON.stringify(data[index])
+      JSONStringArray.push(string)
+      JSONStringArray.push(',')
+      bytelength = bytelength + textEncode.encode(string).length + 1
+
+      index++
+      total++
+
+      // 分割文件
+      if (index === length || bytelength >= fileByteLengthLimit) {
+        // 删除最后一个分隔符，否则会导致格式错误
+        JSONStringArray.pop()
+        // 添加数组的结束符号
+        JSONStringArray.push(']')
+
+        // 生成文件数据
+        const blob = new Blob(JSONStringArray, { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        result.push({
+          url,
+          total,
+        })
+
+        // 重置变量
+        startNewFile = true
+        bytelength = 0
+        total = 0
+        JSONStringArray = []
+      }
+    }
+
+    return result
   }
 
   /**防抖 */
@@ -484,7 +483,7 @@ class Utils {
   }
 
   static sleep(time: number) {
-    return new Promise((res) => window.setTimeout(res, time))
+    return setTimeoutWorker.sleep(time)
   }
 
   /**检测元素在视口中是否可见
@@ -620,6 +619,15 @@ class Utils {
     el.addEventListener('touchcancel', cancel)
     // 手指移动时（如滚动）取消长按
     el.addEventListener('touchmove', cancel, { passive: true })
+  }
+
+  /** 判断鼠标是否处于某个元素的范围内 */
+  static mouseInElementArea(el: Element | undefined, x: number, y: number) {
+    if (!el) {
+      return false
+    }
+    const rect = el.getBoundingClientRect()
+    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
   }
 }
 

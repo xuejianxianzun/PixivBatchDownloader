@@ -3,7 +3,6 @@ import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { lang } from './Language'
 import { log } from './Log'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { token } from './Token'
@@ -49,15 +48,19 @@ class Bookmark {
 
   /**添加收藏
    *
-   * 可选参数 tags：可以直接传入这个作品的 tag 列表
+   * @param id 作品 id
+   *
+   * @param type 作品类型，illusts 或 novels
+   *
+   * @param tags 可以直接传入这个作品的 tag 列表
    *
    * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
    *
-   * 可选参数 needAddTag：控制是否添加 tag。缺省时使用 settings.widthTagBoolean
+   * @param needAddTag 控制是否添加 tag。缺省时使用 settings.widthTagBoolean
    *
-   * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
+   * @param restrict 指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
    *
-   * 可选参数 slowly：未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
+   * @param slowly 未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
    */
   public async add(
     id: string,
@@ -67,49 +70,51 @@ class Bookmark {
     restrict?: boolean,
     slowly?: boolean
   ) {
-    return new Promise<number>(async (resolve, reject) => {
-      const _needAddTag =
-        needAddTag === undefined ? settings.widthTagBoolean : !!needAddTag
-      if (_needAddTag) {
-        // 需要添加 tags
-        if (tags === undefined) {
-          // 如果未传递 tags，则请求作品数据来获取 tags
-          try {
-            const data = await this.getWorkData(type, id)
-            tags = Tools.extractTags(data)
-          } catch (error) {
-            // 请求失败的话使用空 tags。这不是致命问题
-            tags = []
-          }
+    const _needAddTag =
+      needAddTag === undefined ? settings.widthTagBoolean : !!needAddTag
+    if (_needAddTag) {
+      // 需要添加 tags
+      if (tags === undefined) {
+        // 如果未传递 tags，则请求作品数据来获取 tags
+        try {
+          const data = await this.getWorkData(type, id)
+          tags = Tools.extractTags(data)
+        } catch (error) {
+          // 请求失败的话使用空 tags。这不是致命问题
+          tags = []
         }
-      } else {
-        // 不需要添加 tags
-        tags = []
       }
+    } else {
+      // 不需要添加 tags
+      tags = []
+    }
 
-      const _restrict =
-        restrict === undefined ? settings.restrictBoolean : !!restrict
+    const _restrict =
+      restrict === undefined ? settings.restrictBoolean : !!restrict
 
-      // 立即执行的情况
-      if (!slowly) {
-        const status = await this.sendRequest(id, type, tags, _restrict)
-        return resolve(status)
-      }
+    // 立即执行的情况
+    if (!slowly) {
+      const status = await this.sendRequest(id, type, tags, _restrict)
+      return status
+    } else {
+      log.warning(
+        lang.transl('_提示添加收藏时会慢速执行'),
+        'tipSlowlyAddBookmark'
+      )
+    }
 
-      // 需要排队的情况
-      const NO = ++this.taskID
-      await this.waitCallMe(NO)
-      setTimeoutWorker.set(async () => {
-        const status = await this.sendRequest(id, type, tags!, _restrict)
-        this.nextTaskID++
-        return resolve(status)
-      }, settings.slowCrawlDealy)
-    })
+    // 需要排队的情况
+    const NO = ++this.taskID
+    await this.waitCallMe(NO)
+    await Utils.sleep(settings.slowCrawlDealy)
+    const status = await this.sendRequest(id, type, tags!, _restrict)
+    this.nextTaskID++
+    return status
   }
 
   private async waitCallMe(NO: number) {
     while (this.nextTaskID !== NO) {
-      await new Promise<void>((resolve) => setTimeoutWorker.set(resolve, 300))
+      await Utils.sleep(300)
     }
     return NO
   }
@@ -122,38 +127,36 @@ class Bookmark {
     offsetStart: number = 0,
     hide: boolean
   ): Promise<BookmarkResult[]> {
-    return new Promise(async (resolve) => {
-      const result: BookmarkResult[] = []
-      let offset = offsetStart
-      const onceOffset = 100
+    const result: BookmarkResult[] = []
+    let offset = offsetStart
+    const onceOffset = 100
 
-      while (true) {
-        const data = await API.getBookmarkData(userID, type, '', offset, hide)
+    while (true) {
+      const data = await API.getBookmarkData(userID, type, '', offset, hide)
 
-        for (const workData of data.body.works) {
-          result.push({
-            id: workData.id,
-            type:
-              (workData as ArtworkCommonData).illustType === undefined
-                ? 'novels'
-                : 'illusts',
-            tags: workData.tags,
-            restrict: workData.bookmarkData?.private || false,
-          })
-        }
-        log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark')
+      for (const workData of data.body.works) {
+        result.push({
+          id: workData.id,
+          type:
+            (workData as ArtworkCommonData).illustType === undefined
+              ? 'novels'
+              : 'illusts',
+          tags: workData.tags,
+          restrict: workData.bookmarkData?.private || false,
+        })
+      }
+      log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark')
 
-        offset += onceOffset
-        if (data.body.works.length === 0) {
-          break
-        }
-
-        await Utils.sleep(settings.slowCrawlDealy)
+      offset += onceOffset
+      if (data.body.works.length === 0) {
+        break
       }
 
-      log.persistentRefresh('resutlCountWhenCrawlingBookmark')
-      resolve(result)
-    })
+      await Utils.sleep(settings.slowCrawlDealy)
+    }
+
+    log.persistentRefresh('resutlCountWhenCrawlingBookmark')
+    return result
   }
 
   public async addBookmarksInBatchs(
@@ -228,12 +231,7 @@ class Bookmark {
           case 400:
             await token.reset()
             await Utils.sleep(3000)
-            return new Promise<number>((retryResolve, retryReject) => {
-              this.sendRequest(id, type, tags, hide).then(
-                retryResolve as any,
-                retryReject
-              )
-            })
+            return this.sendRequest(id, type, tags, hide)
           case 403:
             // 显示 403 错误的提示
             // 当一个账号被限制无法收藏时，依然可以正常删除收藏，所以“取消收藏本页面中的所有作品”的功能不受影响

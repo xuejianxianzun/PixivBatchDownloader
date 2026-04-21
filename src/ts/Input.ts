@@ -1,6 +1,7 @@
 import { Config } from './Config'
 import { lang } from './Language'
 import { theme } from './Theme'
+import { Utils } from './utils/Utils'
 
 interface Option {
   /**可选，输入框的最大宽度。注意：如果页面(或父元素）的宽度不够，输入框的宽度会自动缩小。 */
@@ -157,18 +158,16 @@ class Input {
   /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
    * 如果用户点击取消按钮，则抛出 reject
    */
-  public submit(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      window.setTimeout(() => {
-        if (this.cancelled) {
-          return reject('')
-        }
-        if (this.submitted) {
-          return resolve(this.value)
-        }
-        return resolve(this.submit())
-      }, 100)
-    })
+  public async submit(): Promise<string> {
+    while (true) {
+      await Utils.sleep(100)
+      if (this.cancelled) {
+        return ''
+      }
+      if (this.submitted) {
+        return this.value
+      }
+    }
   }
 }
 

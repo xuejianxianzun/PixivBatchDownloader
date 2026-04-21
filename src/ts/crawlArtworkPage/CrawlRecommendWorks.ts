@@ -5,6 +5,7 @@ import { pageType } from '../PageType'
 import { wiki } from '../setting/Wiki'
 import { states } from '../store/States'
 import { IDData } from '../store/StoreType'
+import { Utils } from '../utils/Utils'
 
 // 在作品页面里，点击收藏按钮后会出现推荐作品。这个模块用于抓取推荐作品
 class CrawlRecommendWorks {
@@ -30,7 +31,7 @@ class CrawlRecommendWorks {
   private timer: number | undefined
   private IDList: IDData[] = []
 
-  private foundTarget() {
+  private async foundTarget() {
     if (this.found || pageType.type !== pageType.list.Artwork) {
       return
     }
@@ -42,28 +43,22 @@ class CrawlRecommendWorks {
 
       // 等待一段时间再获取作品超链接，因为立刻获取的话可能还未生成
       // 其实在 PC 端页面是可以立即获取到的，但是在移动端页面需要等待较长时间，500ms 不够用
-      window.setTimeout(
-        () => {
-          this.readyCrawl()
-        },
-        Config.mobile ? 1000 : 100
-      )
+      await Utils.sleep(Config.mobile ? 1000 : 100)
+      this.readyCrawl()
     }
   }
 
   private bindEvents() {
-    window.addEventListener(EVT.list.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, async () => {
       // 页面切换后，页面元素可能还没来得及变化，所以需要等待一段时间后再开始查找
       // 如果立即查找，那么经常会查找到已经存在的推荐列表，于是就会立即停止查找
-      window.setTimeout(() => {
-        this.found = false
-        this.IDList = []
-
-        window.clearTimeout(this.timer)
-        this.timer = window.setInterval(() => {
-          this.foundTarget()
-        }, 300)
-      }, 600)
+      await Utils.sleep(600)
+      this.found = false
+      this.IDList = []
+      window.clearTimeout(this.timer)
+      this.timer = window.setInterval(() => {
+        this.foundTarget()
+      }, 300)
     })
   }
 

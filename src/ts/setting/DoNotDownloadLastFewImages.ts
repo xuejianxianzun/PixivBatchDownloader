@@ -212,14 +212,14 @@ class DoNotDownloadLastFewImages {
       `input[data-valueInput='${uid}']`
     )! as HTMLInputElement
 
-      // 当输入框发生变化时，进行更新
-      ;[uidInput, valueInput].forEach((el) => {
-        el?.addEventListener('change', () => {
-          if (el.value) {
-            this.updateRule(uid, uidInput.value, valueInput.value, false)
-          }
-        })
+    // 当输入框发生变化时，进行更新
+    ;[uidInput, valueInput].forEach((el) => {
+      el?.addEventListener('change', () => {
+        if (el.value) {
+          this.updateRule(uid, uidInput.value, valueInput.value, false)
+        }
       })
+    })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {
@@ -262,19 +262,17 @@ class DoNotDownloadLastFewImages {
     }
   }
 
-  private async getUserName(uid: number): Promise<string> {
-    return new Promise(async (resolve) => {
-      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
-        console.log(err)
-        log.error(
-          `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
-        )
-      })
-      if (profile && profile.body.name) {
-        return resolve(profile.body.name)
-      }
-      return resolve('')
+  private async getUserName(uid: number) {
+    const profile = await API.getUserProfile(uid.toString()).catch((err) => {
+      console.log(err)
+      log.error(
+        `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
+      )
     })
+    if (profile && profile.body.name) {
+      return profile.body.name
+    }
+    return ''
   }
 
   // 添加规则

@@ -5,8 +5,8 @@ import { toast } from './Toast'
 import { token } from './Token'
 import { states } from './store/States'
 import { WorkBookmarkData } from './Bookmark'
-import { setTimeoutWorker } from './SetTimeoutWorker'
 import { settings } from './setting/Settings'
+import { Utils } from './utils/Utils'
 
 class UnBookmarkWorks {
   public async start(list: WorkBookmarkData[]) {
@@ -48,16 +48,10 @@ class UnBookmarkWorks {
     states.busy = false
   }
 
-  private waitSlowMode(slowMode: boolean): Promise<void> {
-    return new Promise((resolve) => {
-      if (!slowMode) {
-        return resolve()
-      } else {
-        setTimeoutWorker.set(() => {
-          return resolve()
-        }, settings.slowCrawlDealy)
-      }
-    })
+  private async waitSlowMode(slowMode: boolean) {
+    if (slowMode) {
+      return Utils.sleep(settings.slowCrawlDealy)
+    }
   }
 }
 

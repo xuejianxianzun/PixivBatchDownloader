@@ -1,9 +1,9 @@
 import browser from 'webextension-polyfill'
-import { Msg } from '../CheckDownloadCount'
+import { Msg } from '../serviceWorker/CheckDownloadCount'
 import { log } from '../Log'
 import { lang } from '../Language'
 
-// 当接收到 SW 发送的特定消息时，显示提示
+// 这是一个前台脚本。当接收到 SW 发送的特定消息时，显示提示
 class DownloadCountWarning {
   constructor() {
     browser.runtime.onMessage.addListener((msg: any) => {

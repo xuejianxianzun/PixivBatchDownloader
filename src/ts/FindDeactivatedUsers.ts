@@ -3,12 +3,12 @@ import { msgBox } from './MsgBox'
 import { lang } from './Language'
 import { followingList } from './FollowingList'
 import { log } from './Log'
-import { Utils } from './utils/Utils'
 import { API } from './API'
 import { toast } from './Toast'
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 class FindDeactivatedUsers {
   constructor() {

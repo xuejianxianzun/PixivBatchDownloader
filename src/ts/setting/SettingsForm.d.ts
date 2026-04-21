@@ -40,9 +40,8 @@ export interface SettingsForm extends HTMLFormElement {
   userSetName: HTMLInputElement
   fileNameSelect: HTMLSelectElement
   noSerialNo: HTMLInputElement
-  workDir: HTMLInputElement
-  workDirFileNumber: HTMLInputElement
-  workDirNameRule: HTMLInputElement
+  folderForMultiImageWorksSwitch: HTMLInputElement
+  folderForMultiImageWorksRule: HTMLInputElement
   previewResult: HTMLInputElement
   previewResultLimit: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
@@ -79,11 +78,6 @@ export interface SettingsForm extends HTMLFormElement {
   bgDisplay: HTMLInputElement
   bgOpacity: HTMLInputElement
   bgPositionY: HTMLInputElement
-  createFolderByType: HTMLInputElement
-  createFolderByTypeIllust: HTMLInputElement
-  createFolderByTypeManga: HTMLInputElement
-  createFolderByTypeUgoira: HTMLInputElement
-  createFolderByTypeNovel: HTMLInputElement
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
   downAllAges: HTMLInputElement
@@ -122,7 +116,10 @@ export interface SettingsForm extends HTMLFormElement {
   showOriginImage: HTMLInputElement
   showOriginImageSize: HTMLInputElement
   replaceSquareThumb: HTMLInputElement
-  notFolderWhenOneFile: HTMLInputElement
+  noFolderSwitch: HTMLInputElement
+  noFolderWhenSingleImageWork: HTMLInputElement
+  noFolderWhenMultiImageWork: HTMLInputElement
+  noFolderWhenNovel: HTMLInputElement
   noSerialNoForSingleImg: HTMLInputElement
   noSerialNoForMultiImg: HTMLInputElement
   setNoSerialNoForUgoira: HTMLInputElement
@@ -135,6 +132,8 @@ export interface SettingsForm extends HTMLFormElement {
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
   previewUgoira: HTMLInputElement
+  previewSingleImageWork: HTMLInputElement
+  previewMultiImageWork: HTMLInputElement
   userRatioLimit: HTMLInputElement
   timedCrawlInterval: HTMLInputElement
   slowCrawl: HTMLInputElement
@@ -194,4 +193,5 @@ export interface SettingsForm extends HTMLFormElement {
   onlyCrawlLastFewImagesCount: HTMLInputElement
   doNotCrawlFirstImagesSwitch: HTMLInputElement
   doNotCrawlFirstImagesCount: HTMLInputElement
+  singleEPUBFileSizeLimit: HTMLInputElement
 }

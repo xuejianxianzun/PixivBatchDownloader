@@ -13,7 +13,6 @@ import {
   BookMarkNewNovelData,
 } from '../crawl/CrawlResult'
 import { states } from '../store/States'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
@@ -198,12 +197,9 @@ class InitBookmarkNewPage extends InitPageBase {
     } else {
       // 继续抓取
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getIdList()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getIdList()
+        await Utils.sleep(settings.slowCrawlDealy)
       }
+      this.getIdList()
     }
   }
 

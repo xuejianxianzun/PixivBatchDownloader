@@ -5,11 +5,9 @@ import { EVT } from '../EVT'
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
 import { Tools } from '../Tools'
-import { log } from '../Log'
 import { msgBox } from '../MsgBox'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
-import { Config } from '../Config'
 import { settings } from '../setting/Settings'
+import { Utils } from '../utils/Utils'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -109,89 +107,66 @@ class BookmarkAllWorks {
 
   // 获取每个作品的 tag 数据
   private async getTagData() {
-    return new Promise<void>(async (resolve, reject) => {
-      for (const id of this.idList) {
-        this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
-
-        try {
-          // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
-          await new Promise(async (res) => {
-            setTimeoutWorker.set(
-              async () => {
-                let data
-                if (id.type === 'novels') {
-                  data = await API.getNovelData(id.id)
-                } else {
-                  data = await API.getArtworkData(id.id)
-                }
-
-                this.bookmarKData.push({
-                  type: id.type,
-                  id: data.body.id,
-                  tags: Tools.extractTags(data),
-                  restrict: false,
-                })
-                res(id)
-              },
-              this.idList.length >= 120 ? settings.slowCrawlDealy : 0
-            )
-          })
-        } catch (error) {
-          const e = error as {
-            status: number
-            statusText: string
-          }
-          let msg = ''
-          if (e.status) {
-            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}: ${
-              e.status
-            }. ${lang.transl('_请稍后重试')}`
-          } else {
-            msg = `${lang.transl('_发生错误原因')}${lang.transl(
-              '_未知错误'
-            )}${lang.transl('_请稍后重试')}`
-          }
-
-          // 显示提示，并中止执行
-          log.error(msg)
-          msgBox.error(msg)
-          this.textSpan.textContent = `× Error`
-          this.tipWrap.removeAttribute('disabled')
-          EVT.fire('bookmarkModeEnd')
-          return reject()
-        }
+    for (const id of this.idList) {
+      this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
+      const noTagData = {
+        type: id.type,
+        id: id.id,
+        tags: [],
+        restrict: false,
       }
+      try {
+        // 如果下载器的收藏按钮设置为“不添加标签”，就不需要请求作品的数据
+        if (!settings.widthTagBoolean) {
+          this.bookmarKData.push(noTagData)
+          continue
+        }
 
-      resolve()
-    })
+        // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
+        const delay = this.idList.length >= 120 ? settings.slowCrawlDealy : 0
+        await Utils.sleep(delay)
+        let data
+        if (id.type === 'novels') {
+          data = await API.getNovelData(id.id)
+        } else {
+          data = await API.getArtworkData(id.id)
+        }
+
+        this.bookmarKData.push({
+          type: id.type,
+          id: data.body.id,
+          tags: Tools.extractTags(data),
+          restrict: false,
+        })
+      } catch (error) {
+        // 出现错误时，添加没有 tags 的数据。因为对于添加收藏的任务来说，附带 tags 不是必须的
+        this.bookmarKData.push(noTagData)
+      }
+    }
   }
 
   // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
   private async addBookmarkAll() {
-    return new Promise<void>(async (resolve) => {
-      let index = 0
-      for (const data of this.bookmarKData) {
-        this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
+    let index = 0
+    for (const data of this.bookmarKData) {
+      this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
+      const status = await bookmark.add(
+        data.id,
+        data.type,
+        data.tags,
+        undefined,
+        undefined,
+        true
+      )
 
-        const status = await bookmark.add(
-          data.id,
-          data.type,
-          data.tags,
-          undefined,
-          undefined,
-          true
-        )
-        if (status === 403) {
-          const msg = Tools.addBookmark403Error()
-          msgBox.error(msg)
-          break
-        }
-
-        index++
+      if (status === 403) {
+        const msg = Tools.addBookmark403Error()
+        msgBox.error(msg)
+        break
       }
 
-      resolve()
-    })
+      index++
+    }
   }
 
   private complete() {

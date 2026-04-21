@@ -4,8 +4,8 @@ import { lang } from '../Language'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { log } from '../Log'
+import { Utils } from '../utils/Utils'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -16,7 +16,7 @@ class BookmarkAfterDL {
     }
 
     this.bindEvents()
-    this.check()
+    this.addBookmark()
   }
 
   private successCount = 0
@@ -125,21 +125,16 @@ class BookmarkAfterDL {
 
   private busy = false
 
-  private check() {
-    setTimeoutWorker.set(() => {
-      this.addBookmark()
-    }, 200)
-  }
-
   // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
-  private async addBookmark() {
+  private async addBookmark(): Promise<void> {
+    await Utils.sleep(200)
     if (this.busy || this.queue.length === 0) {
-      return this.check()
+      return this.addBookmark()
     }
 
     const id = this.queue.shift()
     if (!id) {
-      return this.check()
+      return this.addBookmark()
     }
 
     this.busy = true
@@ -150,7 +145,7 @@ class BookmarkAfterDL {
     const data = dataSource.find((val) => val.idNum === id)
     if (data === undefined) {
       log.error(`Not find ${id} in result`)
-      return this.check()
+      return this.addBookmark()
     }
 
     // 添加收藏
@@ -181,7 +176,7 @@ class BookmarkAfterDL {
     }
 
     this.busy = false
-    return this.check()
+    return this.addBookmark()
   }
 }
 

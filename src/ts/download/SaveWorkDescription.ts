@@ -10,8 +10,9 @@ import { lang } from '../Language'
 import { log } from '../Log'
 import { toast } from '../Toast'
 import { SendDownload } from './SendDownload'
+import { nameRuleManager } from '../setting/NameRuleManager'
 
-// 为每个作品创建一个 txt 文件，保存这个作品的元数据
+// 为每个作品创建一个 txt 文件，保存这个作品的简介
 class SaveWorkDescription {
   constructor() {
     this.bindEvents()
@@ -32,10 +33,9 @@ class SaveWorkDescription {
       this.savedIds = []
     })
 
-    window.addEventListener(EVT.list.crawlComplete, () => {
-      window.setTimeout(() => {
-        this.summary()
-      }, 50)
+    window.addEventListener(EVT.list.crawlComplete, async () => {
+      await Utils.sleep(50)
+      this.summary()
     })
   }
 
@@ -190,7 +190,7 @@ class SaveWorkDescription {
       // 如果是同一个画师
       // 在文件名里添加画师名字
       txtName = `${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
-      const array = settings.userSetName.split('/')
+      const array = nameRuleManager.rule.split('/')
       array.pop() // 去掉最后的文件名部分，只保留文件夹部分
       let folder = ''
       // 倒序遍历 array

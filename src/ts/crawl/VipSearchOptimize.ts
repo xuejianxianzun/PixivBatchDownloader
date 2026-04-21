@@ -65,30 +65,27 @@ class VipSearchOptimize {
     id: string,
     workType: WorkTypeString
   ): Promise<boolean> {
-    return new Promise(async (resolve) => {
-      // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-      if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
-        return resolve(false)
-      }
+    // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+    if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
+      return false
+    }
 
-      let bmk = 99999999
-      if (workType === 'novels') {
-        const data = await API.getNovelData(id)
-        bmk = data.body.bookmarkCount
-      } else {
-        const data = await API.getArtworkData(id)
-        bmk = data.body.bookmarkCount
-      }
+    let bmk = 99999999
+    if (workType === 'novels') {
+      const data = await API.getNovelData(id)
+      bmk = data.body.bookmarkCount
+    } else {
+      const data = await API.getArtworkData(id)
+      bmk = data.body.bookmarkCount
+    }
 
-      const check = bmk >= settings.BMKNumMin
-      console.log(bmk)
-      if (!check) {
-        console.log('抽查的作品收藏数量低于最低要求，停止抓取')
-        return resolve(true)
-      }
+    const check = bmk >= settings.BMKNumMin
+    if (!check) {
+      console.log('抽查的作品收藏数量低于最低要求，停止抓取')
+      return true
+    }
 
-      return resolve(false)
-    })
+    return false
   }
 
   /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品

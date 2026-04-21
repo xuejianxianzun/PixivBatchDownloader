@@ -142,28 +142,26 @@ class WorkPublishTime {
     id: number,
     type: 'illusts' | 'novels' = 'illusts'
   ): Promise<number[]> {
-    return new Promise(async (resolve) => {
-      // 为了避免出现 429 错误，每次抓取之间设置了间隔时间
-      window.setTimeout(async () => {
-        try {
-          const data = await API[
-            type === 'illusts' ? 'getArtworkData' : 'getNovelData'
-          ](id.toString())
-          if (data.error === false) {
-            const dateStr = data.body.createDate
-            if (!dateStr) {
-              return resolve(this.crawlWork(++id, type))
-            }
-            const time = new Date(dateStr).getTime()
-            return resolve([id, time])
-          } else {
-            return resolve(this.crawlWork(++id, type))
-          }
-        } catch (error) {
-          return resolve(this.crawlWork(++id, type))
+    // 为了避免出现 429 错误，每次抓取之间设置了间隔时间
+    await Utils.sleep(1600)
+    try {
+      const data = await API[
+        type === 'illusts' ? 'getArtworkData' : 'getNovelData'
+      ](id.toString())
+      if (data.error === false) {
+        const dateStr = data.body.createDate
+        if (!dateStr) {
+          return this.crawlWork(++id, type)
         }
-      }, 1600)
-    })
+        // 正常获取到数据，返回作品 id 和发布时间的时间戳
+        const time = new Date(dateStr).getTime()
+        return [id, time]
+      } else {
+        return this.crawlWork(++id, type)
+      }
+    } catch (error) {
+      return this.crawlWork(++id, type)
+    }
   }
 }
 

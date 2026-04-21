@@ -18,7 +18,6 @@ import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { states } from '../store/States'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
 import { unBookmarkWorks } from '../UnBookmarkWorks'
 import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
@@ -548,12 +547,9 @@ One possible reason: You have been banned from Pixiv.`)
 
       // 继续抓取
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getIdList()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getIdList()
+        await Utils.sleep(settings.slowCrawlDealy)
       }
+      this.getIdList()
     }
   }
 

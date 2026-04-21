@@ -170,14 +170,10 @@ class EVENT {
     getPageTheme: 'getPageTheme',
     /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
     sendBrowserDownload: 'sendBrowserDownload',
-    /**需要显示预览作品详细信息的面板时触发 */
-    showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
     /**通过鼠标滚轮事件来切换预览图 */
     wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
-    /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
-    previewEnd: 'previewEnd',
     /**当关注的用户列表发生变化时触发 */
     followingUsersChange: 'followingUsersChange',
     /**网络请求错误，并且有状态码 */
@@ -249,7 +245,6 @@ class EVENT {
       | 'startTimedCrawl'
       | 'cancelTimedCrawl'
       | 'sendBrowserDownload'
-      | 'previewEnd'
       | 'followingUsersChange'
       | 'exportLog'
   ): void
@@ -284,8 +279,6 @@ class EVENT {
   public fire(type: 'skipDownload', data: DonwloadSkipData): void
 
   public fire(type: 'showMsg', data: Msg): void
-
-  public fire(type: 'showPreviewWorkDetailPanel', data: ArtworkData): void
 
   public fire(type: 'wheelScrollSwitchPreviewImage', data: Event): void
 

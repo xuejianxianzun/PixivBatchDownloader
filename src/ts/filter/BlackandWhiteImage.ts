@@ -43,25 +43,23 @@ class BlackAndWhiteImage {
   }
 
   private async loadImg(url: string): Promise<HTMLImageElement> {
-    return new Promise(async (resolve, reject) => {
-      // 如果传递的是 blobURL 就直接使用
-      if (url.startsWith('blob')) {
-        resolve(Utils.loadImg(url))
-      } else {
-        // 不是 blobURL 的话先获取图片
-        const res = await fetch(url).catch((error) => {
-          // fetch 加载图片可能会失败 TypeError: Failed to fetch
-          console.log(`Load image error! url: ${url}`)
-        })
-        // 如果 fetch 加载图片失败，res 会是 undefined
-        if (!res || !res.ok) {
-          return reject()
-        }
-        const blob = await res.blob()
-        const blobURL = URL.createObjectURL(blob)
-        resolve(Utils.loadImg(blobURL))
+    // 如果传递的是 blobURL 就直接使用
+    if (url.startsWith('blob')) {
+      return Utils.loadImg(url)
+    } else {
+      // 不是 blobURL 的话先获取图片
+      const res = await fetch(url).catch((error) => {
+        // fetch 加载图片可能会失败 TypeError: Failed to fetch
+        console.log(`Load image error! url: ${url}`)
+      })
+      // 如果 fetch 加载图片失败
+      if (!res || !res.ok) {
+        throw new Error(`Failed to load image! url: ${url}`)
       }
-    })
+      const blob = await res.blob()
+      const blobURL = URL.createObjectURL(blob)
+      return Utils.loadImg(blobURL)
+    }
   }
 
   private getImageData(img: HTMLImageElement) {

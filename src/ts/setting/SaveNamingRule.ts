@@ -18,7 +18,9 @@ class SaveNamingRule {
 
     this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement
     this.loadBtn = wrap.querySelector('button.nameLoad')! as HTMLButtonElement
-    this.listWrap = wrap.querySelector('ul.namingRuleList')! as HTMLUListElement
+    this.listWrap = document.querySelector(
+      'ul.namingRuleList'
+    )! as HTMLUListElement
 
     this.createList()
 
@@ -28,9 +30,15 @@ class SaveNamingRule {
   private readonly limit = 20 // 最大保存数量
   private saveBtn: HTMLButtonElement
   private loadBtn: HTMLButtonElement
-  private listWrap: HTMLElement
+  private listWrap: HTMLUListElement
   private ruleInput: HTMLInputElement
   private _show = false // 是否显示列表
+
+  private readonly html = `
+  <div class="saveNamingRuleWrap">
+    <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+    <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
+  </div>`
 
   private set show(boolean: boolean) {
     this._show = boolean
@@ -128,13 +136,6 @@ class SaveNamingRule {
   private hideListWrap() {
     this.listWrap.style.display = 'none'
   }
-
-  private readonly html = `
-  <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
-  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
-  <ul class="namingRuleList"></ul>
-  </div>`
 }
 
 export { SaveNamingRule }

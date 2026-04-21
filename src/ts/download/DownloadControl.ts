@@ -667,16 +667,15 @@ class DownloadControl {
   }
 
   // 在有下载出错的情况下，是否已经完成了下载
-  private checkCompleteWithError() {
+  private async checkCompleteWithError() {
     if (
       this.errorIdList.length > 0 &&
       this.downloaded + this.errorIdList.length === store.result.length
     ) {
-      // 进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
+      // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
       this.pauseDownload()
-      setTimeout(() => {
-        this.startDownload()
-      }, 2000)
+      await Utils.sleep(2000)
+      this.startDownload()
     }
   }
 

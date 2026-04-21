@@ -31,10 +31,7 @@ class ShowBorderOnDownloadedWorks {
   private ready = false
 
   private async waitReady() {
-    while (true) {
-      if (this.ready) {
-        return true
-      }
+    while (!this.ready) {
       await Utils.sleep(30)
     }
   }

@@ -674,6 +674,10 @@ body.mobile #quickCrawlBtn {
   align-items: flex-start;
   column-gap: 4px;
   margin: 2px 0;
+  border-radius: 6px;
+}
+.centerWrap .centerWrap_con .settingForm p.option:hover {
+  background-color: rgba(99, 205, 247, 0.1);
 }
 .centerWrap .centerWrap_con .settingForm p.option .pinButton {
   position: absolute;
@@ -771,6 +775,9 @@ body.mobile #quickCrawlBtn {
   background-color: #fff;
   border-radius: 4px;
 }
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName:hover {
+  background-color: transparent;
+}
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName::after {
   display: block;
   content: '';
@@ -780,6 +787,9 @@ body.mobile #quickCrawlBtn {
   height: 1px;
   background-color: #eee;
   z-index: -1;
+}
+.centerWrap .centerWrap_con .settingForm p.option .grow {
+  flex-grow: 1;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1 {
   width: 50px;
@@ -831,6 +841,15 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w100 {
   width: 100px;
 }
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w150 {
+  width: 150px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w200 {
+  width: 200px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w250 {
+  width: 250px;
+}
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
   width: 160px;
 }
@@ -842,7 +861,7 @@ body.mobile #quickCrawlBtn {
   margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
-  width: 80px;
+  width: auto;
   height: 22px;
   margin: 2px 0;
   vertical-align: middle;
@@ -905,6 +924,7 @@ body.mobile #quickCrawlBtn {
   padding-right: 5px;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContent {
+  position: relative;
   display: none;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContent:first-child {
@@ -1025,7 +1045,22 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .right1 {
   width: 100%;
 }
+.centerWrap .centerWrap_con .settingForm .fileNameRuleLine1 {
+  display: flex;
+  flex-basis: 100%;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 4px;
+}
+.centerWrap .centerWrap_con .settingForm .fileNameRuleBtnsArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 4px;
+}
 .centerWrap .centerWrap_con .settingForm .fileNameRule {
+  display: flex;
+  flex-grow: 1;
   min-width: 310px !important;
 }
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
@@ -1197,7 +1232,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .settingForm .namingRuleList {
   position: absolute;
-  right: -30px;
+  right: 0px;
   top: 25px;
   z-index: 1002;
   background: #fff;
@@ -1314,6 +1349,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap.theme-dark p.option.new::before {
   color: #fff !important;
 }
+.centerWrap.theme-dark p.option:hover {
+  background-color: rgba(204, 240, 254, 0.3);
+}
 .centerWrap.theme-dark button,
 .centerWrap.theme-dark .tip {
   color: #fff;
@@ -1382,6 +1420,9 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG p.option.new::before {
   color: #fff !important;
+}
+.centerWrap.xzBG p.option:hover {
+  background-color: rgba(209, 239, 251, 0.2) !important;
 }
 .centerWrap.xzBG button,
 .centerWrap.xzBG .tip {
@@ -1464,25 +1505,25 @@ body.mobile #quickCrawlBtn {
 .theme-dark.showBlobKeywords .key {
   color: #42c3ff;
 }
-.lang_zh-cn input[name='workDirNameRule'] {
+.lang_zh-cn input[name='folderForMultiImageWorksRule'] {
   width: 200px !important;
 }
 .lang_zh-cn .fileNameRule {
   min-width: 340px !important;
 }
-.lang_zh-tw input[name='workDirNameRule'] {
+.lang_zh-tw input[name='folderForMultiImageWorksRule'] {
   width: 200px !important;
 }
 .lang_zh-tw .fileNameRule {
   min-width: 340px !important;
 }
-.lang_en input[name='workDirNameRule'] {
+.lang_en input[name='folderForMultiImageWorksRule'] {
   width: 130px !important;
 }
-.lang_ja input[name='workDirNameRule'] {
+.lang_ja input[name='folderForMultiImageWorksRule'] {
   width: 170px !important;
 }
-.lang_ko input[name='workDirNameRule'] {
+.lang_ko input[name='folderForMultiImageWorksRule'] {
   width: 240px !important;
 }
 .lang_ko button[type='button'] {

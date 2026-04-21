@@ -246,6 +246,11 @@
         align-items: flex-start;
         column-gap: 4px;
         margin: 2px 0;
+        border-radius: 6px;
+
+        &:hover {
+          background-color: rgba(99, 205, 247, 0.1);
+        }
 
         // 在选项左侧显示置顶按钮
         .pinButton {
@@ -368,6 +373,10 @@
             border-radius: 4px;
           }
 
+          &:hover {
+            background-color: transparent;
+          }
+
           &::after {
             display: block;
             content: '';
@@ -378,6 +387,10 @@
             background-color: #eee;
             z-index: -1;
           }
+        }
+
+        .grow {
+          flex-grow: 1;
         }
 
         .setinput_style1 {
@@ -440,6 +453,18 @@
             width: 100px;
           }
 
+          &.w150 {
+            width: 150px;
+          }
+
+          &.w200 {
+            width: 200px;
+          }
+
+          &.w250 {
+            width: 250px;
+          }
+
           &.postDate {
             width: 160px;
           }
@@ -458,7 +483,7 @@
       }
 
       select {
-        width: 80px;
+        width: auto;
         height: 22px;
         margin: 2px 0;
         vertical-align: middle;
@@ -541,6 +566,7 @@
       }
 
       .tabsContent {
+        position: relative;
         display: none;
 
         &:first-child {
@@ -687,7 +713,24 @@
         width: 100%;
       }
 
+      .fileNameRuleLine1 {
+        display: flex;
+        flex-basis: 100%;
+        justify-content: space-between;
+        align-items: center;
+        column-gap: 4px;
+      }
+
+      .fileNameRuleBtnsArea {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 4px;
+      }
+
       .fileNameRule {
+        display: flex;
+        flex-grow: 1;
         min-width: 310px !important;
       }
 
@@ -899,7 +942,7 @@
 
       .namingRuleList {
         position: absolute;
-        right: -30px;
+        right: 0px;
         top: 25px;
         z-index: 1002;
         background: #fff;
@@ -1057,6 +1100,10 @@
     color: #fff !important;
   }
 
+  p.option:hover {
+    background-color: rgba(204, 240, 254, 0.3);
+  }
+
   button,
   .tip {
     color: #fff;
@@ -1147,6 +1194,10 @@
 
   p.option.new::before {
     color: #fff !important;
+  }
+
+  p.option:hover {
+    background-color: rgb(209 239 251 / 20%) !important;
   }
 
   button,
@@ -1267,7 +1318,7 @@
 }
 
 .lang_zh-cn {
-  input[name='workDirNameRule'] {
+  input[name='folderForMultiImageWorksRule'] {
     width: 200px !important;
   }
 
@@ -1277,7 +1328,7 @@
 }
 
 .lang_zh-tw {
-  input[name='workDirNameRule'] {
+  input[name='folderForMultiImageWorksRule'] {
     width: 200px !important;
   }
 
@@ -1287,19 +1338,19 @@
 }
 
 .lang_en {
-  input[name='workDirNameRule'] {
+  input[name='folderForMultiImageWorksRule'] {
     width: 130px !important;
   }
 }
 
 .lang_ja {
-  input[name='workDirNameRule'] {
+  input[name='folderForMultiImageWorksRule'] {
     width: 170px !important;
   }
 }
 
 .lang_ko {
-  input[name='workDirNameRule'] {
+  input[name='folderForMultiImageWorksRule'] {
     width: 240px !important;
   }
 

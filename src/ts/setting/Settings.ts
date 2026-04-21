@@ -125,9 +125,8 @@ interface XzSetting {
   downloadThread: number
   userSetName: string
   namingRuleList: string[]
-  workDir: boolean
-  workDirFileNumber: number
-  workDirNameRule: string
+  folderForMultiImageWorksSwitch: boolean
+  folderForMultiImageWorksRule: string
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -199,14 +198,8 @@ interface XzSetting {
   bgDisplay: boolean
   bgOpacity: number
   bgPositionY: 'center' | 'top'
-  createFolderByType: boolean
-  createFolderByTypeIllust: boolean
-  createFolderByTypeManga: boolean
-  createFolderByTypeUgoira: boolean
-  createFolderByTypeNovel: boolean
   createFolderByTag: boolean
   createFolderTagList: string[]
-  createFolderBySl: boolean
   downloadUgoiraFirst: boolean
   downAllAges: boolean
   downR18: boolean
@@ -244,7 +237,10 @@ interface XzSetting {
   tipHowToUse: boolean
   whatIsNewFlag: string
   replaceSquareThumb: boolean
-  notFolderWhenOneFile: boolean
+  noFolderSwitch: boolean
+  noFolderWhenSingleImageWork: boolean
+  noFolderWhenMultiImageWork: boolean
+  noFolderWhenNovel: boolean
   noSerialNo: boolean
   noSerialNoForSingleImg: boolean
   noSerialNoForMultiImg: boolean
@@ -262,6 +258,8 @@ interface XzSetting {
   doNotCrawlLastImagesCount: number
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
+  previewSingleImageWork: boolean
+  previewMultiImageWork: boolean
   previewUgoira: boolean
   tipPreviewWork: boolean
   tipHotkeysViewLargeImage: boolean
@@ -358,6 +356,7 @@ interface XzSetting {
   doNotCrawlFirstImagesCount: number
   pinnedOptions: number[]
   debugForWiki: boolean
+  singleEPUBFileSizeLimit: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -621,9 +620,8 @@ class Settings {
     downloadThread: 3,
     userSetName: Config.defaultNameRule,
     namingRuleList: [Config.defaultNameRule],
-    workDir: false,
-    workDirFileNumber: 1,
-    workDirNameRule: '{id_num}',
+    folderForMultiImageWorksSwitch: false,
+    folderForMultiImageWorksRule: '{id_num}',
     showOptions: true,
     postDate: false,
     // 2009 年 1 月 1 日
@@ -692,14 +690,8 @@ class Settings {
     bgDisplay: false,
     bgOpacity: 60,
     bgPositionY: 'center',
-    createFolderByType: false,
-    createFolderByTypeIllust: false,
-    createFolderByTypeManga: false,
-    createFolderByTypeUgoira: false,
-    createFolderByTypeNovel: false,
     createFolderByTag: false,
     createFolderTagList: [],
-    createFolderBySl: false,
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
@@ -764,7 +756,10 @@ class Settings {
     tipHowToUse: true,
     whatIsNewFlag: Config.whatIsNewFlagDefault,
     replaceSquareThumb: true,
-    notFolderWhenOneFile: false,
+    noFolderSwitch: false,
+    noFolderWhenSingleImageWork: true,
+    noFolderWhenMultiImageWork: false,
+    noFolderWhenNovel: false,
     noSerialNo: true,
     noSerialNoForSingleImg: false,
     noSerialNoForMultiImg: false,
@@ -779,6 +774,8 @@ class Settings {
     doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
+    previewSingleImageWork: true,
+    previewMultiImageWork: true,
     previewUgoira: true,
     tipPreviewWork: true,
     tipHotkeysViewLargeImage: true,
@@ -864,6 +861,7 @@ class Settings {
     doNotCrawlFirstImagesCount: 1,
     pinnedOptions: [],
     debugForWiki: false,
+    singleEPUBFileSizeLimit: 200,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -878,7 +876,7 @@ class Settings {
 
   // 值为整数的设置不必单独列出
 
-  // 值为 number[] 的设置（目前没有）
+  // 值为 number[] 的设置
   private numberArrayKeys = ['pinnedOptions']
 
   // 值为字符串数组的设置
@@ -1201,7 +1199,14 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'workDirNameRule') {
+    if (key === 'singleEPUBFileSizeLimit') {
+      const v = value as number
+      if (isNaN(v) || v < 100 || v > 1000) {
+        value = this.defaultSettings[key]
+      }
+    }
+
+    if (key === 'folderForMultiImageWorksRule') {
       value = (value as string).replace('{id}', '{id_num}')
     }
 

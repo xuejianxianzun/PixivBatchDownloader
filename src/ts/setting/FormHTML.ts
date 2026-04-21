@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 设置项编号从 0 开始，现在最大是 104
+// 设置项编号从 0 开始，现在最大是 105
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -417,49 +417,63 @@ export const formHtml = `
     </div>
   </div>
   <div class="tabsContent">
+    <ul class="namingRuleList"></ul>
 
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${Config.defaultNameRule}">
-      &nbsp;
-      <select name="fileNameSelect" class="beautify_scrollbar">
-        <option value="default">…</option>
-        <option value="{id}">{id}</option>
-        <option value="{user}">{user}</option>
-        <option value="{user_id}">{user_id}</option>
-        <option value="{title}">{title}</option>
-        <option value="{page_title}">{page_title}</option>
-        <option value="{tags}">{tags}</option>
-        <option value="{tags_translate}">{tags_translate}</option>
-        <option value="{tags_transl_only}">{tags_transl_only}</option>
-        <option value="{page_tag}">{page_tag}</option>
-        <option value="{type}">{type}</option>
-        <option value="{AI}">{AI}</option>
-        <option value="{age}">{age}</option>
-        <option value="{age_r}">{age_r}</option>
-        <option value="{like}">{like}</option>
-        <option value="{bmk}">{bmk}</option>
-        <option value="{bmk_1000}">{bmk_1000}</option>
-        <option value="{bmk_id}">{bmk_id}</option>
-        <option value="{view}">{view}</option>
-        <option value="{rank}">{rank}</option>
-        <option value="{date}">{date}</option>
-        <option value="{upload_date}">{upload_date}</option>
-        <option value="{task_date}">{task_date}</option>
-        <option value="{px}">{px}</option>
-        <option value="{char_count}">{char_count}</option>
-        <option value="{series_title}">{series_title}</option>
-        <option value="{series_order}">{series_order}</option>
-        <option value="{series_id}">{series_id}</option>
-        <option value="{id_num}">{id_num}</option>
-        <option value="{p_num}">{p_num}</option>
-      </select>
-      &nbsp;
-      <slot data-name="saveNamingRule"></slot>
-      <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-xztext="_提示"></button>
+      <span class="fileNameRuleLine1">
+        <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+
+        <span class="fileNameRuleBtnsArea">
+          <slot data-name="saveNamingRule"></slot>
+          <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
+          &nbsp;
+          <select name="fileNameSelect" class="beautify_scrollbar">
+            <option value="default">…</option>
+            <option value="{id}">{id}</option>
+            <option value="{user}">{user}</option>
+            <option value="{user_id}">{user_id}</option>
+            <option value="{title}">{title}</option>
+            <option value="{page_title}">{page_title}</option>
+            <option value="{tags}">{tags}</option>
+            <option value="{tags_translate}">{tags_translate}</option>
+            <option value="{tags_transl_only}">{tags_transl_only}</option>
+            <option value="{page_tag}">{page_tag}</option>
+            <option value="{type}">{type}</option>
+            <option value="{type_illust}">{type_illust}</option>
+            <option value="{type_manga}">{type_manga}</option>
+            <option value="{type_ugoira}">{type_ugoira}</option>
+            <option value="{type_novel}">{type_novel}</option>
+            <option value="{AI}">{AI}</option>
+            <option value="{age}">{age}</option>
+            <option value="{age_r}">{age_r}</option>
+            <option value="{like}">{like}</option>
+            <option value="{bmk}">{bmk}</option>
+            <option value="{bmk_1000}">{bmk_1000}</option>
+            <option value="{bmk_id}">{bmk_id}</option>
+            <option value="{view}">{view}</option>
+            <option value="{rank}">{rank}</option>
+            <option value="{date}">{date}</option>
+            <option value="{upload_date}">{upload_date}</option>
+            <option value="{task_date}">{task_date}</option>
+            <option value="{px}">{px}</option>
+            <option value="{char_count}">{char_count}</option>
+            <option value="{series_title}">{series_title}</option>
+            <option value="{series_order}">{series_order}</option>
+            <option value="{series_id}">{series_id}</option>
+            <option value="{id_num}">{id_num}</option>
+            <option value="{p_num}">{p_num}</option>
+            <option value="{sl}">{sl}</option>
+            <option value="{multi_image_folder}">{multi_image_folder}</option>
+            <option value="{r18_g_folder}">{r18_g_folder}</option>
+            <option value="{match_tag_folder}">{match_tag_folder}</option>
+          </select>
+        </span>
+      </span>
+
+      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${Config.defaultNameRule}">${Config.defaultNameRule}</textarea>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
@@ -501,6 +515,18 @@ export const formHtml = `
       <br>
       <span class="blue name">{type}</span>
       <span data-xztext="_命名标记type"></span>
+      <br>
+      * <span class="blue name">{type_illust}</span>
+      <span data-xztext="_命名标记type_illust"></span>
+      <br>
+      * <span class="blue name">{type_manga}</span>
+      <span data-xztext="_命名标记type_manga"></span>
+      <br>
+      * <span class="blue name">{type_ugoira}</span>
+      <span data-xztext="_命名标记type_ugoira"></span>
+      <br>
+      * <span class="blue name">{type_novel}</span>
+      <span data-xztext="_命名标记type_novel"></span>
       <br>
       * <span class="blue name">{AI}</span>
       <span data-xztext="_命名标记AI"></span>
@@ -561,6 +587,18 @@ export const formHtml = `
       <br>
       * <span class="blue name">{p_num}</span>
       <span data-xztext="_命名标记p_num"></span>
+      <br>
+      * <span class="blue name">{sl}</span>
+      <span data-xztext="_命名标记_sl"></span>
+      <br>
+      * <span class="blue name">{multi_image_folder}</span>
+      <span data-xztext="_命名标记_multi_image_folder"></span>
+      <br>
+      * <span class="blue name">{r18_g_folder}</span>
+      <span data-xztext="_命名标记_r18_g_folder"></span>
+      <br>
+      * <span class="blue name">{match_tag_folder}</span>
+      <span data-xztext="_命名标记_match_tag_folder"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
@@ -572,12 +610,24 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
     <p class="option" data-no="64">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
-        <span data-xztext="_只有一个抓取结果时不建立文件夹"></span>
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不创建文件夹的提示">
+        <span data-xztext="_不创建文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
+        <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
+        <input type="checkbox" name="noFolderWhenMultiImageWork" id="noFolderWhenMultiImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenMultiImageWork" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenNovel" data-xztext="_小说"></label>
+      </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
@@ -807,58 +857,36 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
     <p class="option" data-no="19">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为作品建立单独的文件夹"></a>
-      <input type="checkbox" name="workDir" class="need_beautify checkbox_switch">
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品添加一层文件夹"></a>
+      <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="workDir">
-        <label for="workDirFileNumber" data-xztext="_文件数量大于"></label>
-        <input type="text" name="workDirFileNumber" id="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-        <span>&nbsp;</span>
-        <label for="workDirNameRule" data-xztext="_目录名"></label>
-        <input class="has_tip setinput_style1 blue" type="text" data-xztip="_用idm_num代替id" name="workDirNameRule" id="workDirNameRule" value="{id_num}">
+      <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
+        <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
+        <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </p>
-
-    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
-    <p class="option" data-no="42">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
-        <span data-xztext="_根据作品类型自动建立文件夹"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch">
+    
+    <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
+    <p class="option" data-no="38">
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为r18作品添加一层文件夹"></a>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="createFolderByType">
-        <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeIllust" class="has_tip" data-tip="${Config.worksTypeName[0]}">
-          <span data-xztext="_插画"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeManga" class="has_tip" data-tip="${Config.worksTypeName[1]}">
-          <span data-xztext="_漫画"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${Config.worksTypeName[2]}">
-          <span data-xztext="_动图"></span>
-        </label>
-        <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
-        <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="createFolderByTypeNovel" class="has_tip" data-tip="${Config.worksTypeName[3]}">
-          <span data-xztext="_小说"></span>
-        </label>
+      <span class="subOptionWrap" data-show="r18Folder">
+        <span data-xztext="_文件夹规则"></span>
+        <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
-        <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
-        <span class="gray1"> ? </span>
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_使用第一个匹配的标签建立文件夹"></span>
       </a>
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="createFolderByTag">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
@@ -871,18 +899,6 @@ export const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
-      </span>
-    </p>
-    
-    <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
-    <p class="option" data-no="38">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_目录名"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton showMsgBtn" data-title="_把r18作品存入指定的文件夹里" data-msg="_把r18作品存入指定的文件夹里可以使用命名标记替代的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -953,7 +969,7 @@ export const formHtml = `
     <p class="option" data-no="83">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-for-no="83" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="tagsSeparatorTip">
@@ -992,7 +1008,7 @@ export const formHtml = `
     <p class="option" data-no="31">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-for-no="31" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="dateFormatTip">
@@ -1130,12 +1146,12 @@ export const formHtml = `
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="novelSaveAs1"> TXT </label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="novelSaveAs1"> TXT </label>
     </p>
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
@@ -1159,7 +1175,7 @@ export const formHtml = `
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
-        <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-xztext="_提示"></button>
+        <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-for-no="91" data-xztext="_提示"></button>
       </span>
     </p>
 
@@ -1229,6 +1245,16 @@ export const formHtml = `
       <br>
       <span class="blue name">{page_title}</span>
       <span data-xztext="_系列小说的命名标记_page_title"></span>
+    </p>
+
+    <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
+    <p class="option" data-no="105">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_合并系列小说时的分割阈值"></span>
+      </a>
+
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
@@ -1435,11 +1461,27 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+
       <span class="subOptionWrap" data-show="PreviewWork">
+      
+        <input type="checkbox" name="previewSingleImageWork" id="previewSingleImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewSingleImageWork" data-xztext="_单图作品"></label>
+        <input type="checkbox" name="previewMultiImageWork" id="previewMultiImageWork" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewMultiImageWork" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="previewUgoira" id="previewUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="previewUgoira" data-xztext="_动图"></label>
+
+        <span class="verticalSplit"></span>
+
         <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
         <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
+
         <span class="verticalSplit"></span>
+        
         <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
         <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
@@ -1460,19 +1502,12 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-for-no="55" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
     <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
-    </p>
-
-    <span class="optionAnchor" data-for-no="71" aria-hidden="true"></span>
-    <p class="option" data-no="71">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
-      <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
@@ -1489,7 +1524,7 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="showOriginImageSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-for-no="62" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -1569,7 +1604,7 @@ export const formHtml = `
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-for-no="14" data-xztext="_提示"></button>
     </p>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">

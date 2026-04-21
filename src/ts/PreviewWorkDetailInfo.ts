@@ -7,60 +7,126 @@ import { Utils } from './utils/Utils'
 import { lang } from './Language'
 import { toast } from './Toast'
 import { copyWorkInfo } from './CopyWorkInfo'
+import { artworkThumbnail } from './ArtworkThumbnail'
+import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
+import { cacheWorkData } from './store/CacheWorkData'
+import { states } from './store/States'
 
 // 预览作品的详细信息
-// 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
 class PreviewWorkDetailInfo {
   constructor() {
     this.bindEvents()
   }
 
-  // 因为预览作品模块里没有保存鼠标位置，所以本模块需要自己保存鼠标位置
+  // 在进入缩略图时，如果 workId 与上一次显示时的 workId 相同，就不会再次显示详情面板
+  private workId = ''
+  private workEl: HTMLElement | null = null
+
+  private resetWorkIdTimer: number | undefined = undefined
+  // 启动延迟清除 workId 的定时器的时机：1. 关闭详情面板之后 2. 鼠标移出了作品缩略图区域（这可能是因为面板显示了）
+  // 但是期间一旦触发了特定事件，就取消重置操作：1. 显示详情面板 2. 鼠标进入了作品缩略图（这可能是因为面板被关闭了）
+  // 这样短时间内在同一个作品的缩略图上重复触发 onEnter 事件时，不会重复显示详情面板
+
+  // 保存鼠标位置
   private mouseX = 0
   private mouseY = 0
 
   public show = false
-
-  // 保存当前预览的作品 ID，避免在一个预览图上多次显示这个详情面板
-  // 当预览图的窗口消失时，会重置这个 ID
-  private showWorkID = ''
+  private delayShowTimer: number | undefined = undefined
 
   private bindEvents() {
-    window.addEventListener(
-      EVT.list.showPreviewWorkDetailPanel,
-      (ev: CustomEventInit) => {
-        if (settings.PreviewWorkDetailInfo) {
-          const data = ev.detail.data as ArtworkData
-          this.create(data)
-        }
+    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
+      window.clearTimeout(this.resetWorkIdTimer)
+
+      if (id === '' || id === this.workId) {
+        return
       }
-    )
+
+      // 在多图作品的缩略图列表上触发时，不执行
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        return
+      }
+
+      this.workId = id
+      this.workEl = el
+      this.readyShow()
+    })
+
+    artworkThumbnail.onLeave(() => {
+      window.clearTimeout(this.delayShowTimer)
+      this.delayResetWorkId()
+    })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.remove()
+    })
 
     window.addEventListener('mousemove', (ev) => {
       this.mouseX = ev.clientX
       this.mouseY = ev.clientY
     })
 
-    window.addEventListener(EVT.list.previewEnd, () => {
-      this.showWorkID = ''
-    })
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        if (ev.key === 'Escape' && this.show) {
+          ev.stopPropagation()
+          ev.preventDefault()
+          this.remove()
+        }
+      },
+      {
+        capture: true,
+        passive: true,
+      }
+    )
   }
 
-  private create(workData: ArtworkData) {
-    // 有可能会重复创建，所以需要处理一下
+  private readyShow() {
+    window.clearTimeout(this.delayShowTimer)
+    this.delayShowTimer = window.setTimeout(async () => {
+      this.create()
+    }, settings.previewWorkWait)
+  }
+
+  // 关闭详情面板之后，延迟一段时间再重置 workId，避免在同一个作品上重复显示详情面板
+  private delayResetWorkId() {
+    window.clearTimeout(this.resetWorkIdTimer)
+
+    // 如果详情面板是显示的，则不重置 workId。这样在关闭面板之后，如果鼠标落到下方的同一个缩略图上，不会重复触发显示面板的事件
     if (this.show) {
       return
     }
 
-    if (workData.body.id === this.showWorkID) {
+    this.resetWorkIdTimer = window.setTimeout(() => {
+      // 处理三层重叠元素的情况：作品缩略图（最底层）- 预览作品或缩略图上的按钮（中间层）- 详情面板（最上层）
+      // 有时详情面板会重叠在其他元素上方。当点击面板使其消失时，如果鼠标仍处于缩略图区域内，不应该重置 workId，因为此时不满足重置条件。此时重置的话，当中间的元素消失，或者鼠标从中间元素移动到缩略图上时，，就会再次触发显示详情面板的事件，导致面板再次出现
+      const mouseInThumbnailArea = Utils.mouseInElementArea(
+        this.workEl || undefined,
+        this.mouseX,
+        this.mouseY
+      )
+      if (mouseInThumbnailArea) {
+        return
+      }
+
+      this.workId = ''
+    }, 300)
+  }
+
+  private async create() {
+    if (!settings.PreviewWorkDetailInfo || this.show) {
       return
-    } else {
-      this.showWorkID = workData.body.id
     }
 
-    // 这里先把 show 状态设置为 true。实际显示出来还需要经过后面的处理
     this.show = true
+    states.previewWorkDetailInfoPanelIsShow = true
+    window.clearTimeout(this.resetWorkIdTimer)
 
+    const workData = await cacheWorkData.getWorkDataAsync(
+      this.workId,
+      'artwork'
+    )
     const wrap = document.createElement('div')
 
     // 设置文字内容
@@ -255,13 +321,18 @@ class PreviewWorkDetailInfo {
     }
 
     wrap.style.top = top + 'px'
-
     wrap.style.opacity = '1'
   }
 
-  private remove(el: HTMLDivElement) {
+  private remove(el?: HTMLDivElement) {
+    el =
+      el ||
+      (document.querySelector('.xz_PreviewWorkDetailPanel') as HTMLDivElement)
     el && el.parentNode && el.parentNode.removeChild(el)
     this.show = false
+    states.previewWorkDetailInfoPanelIsShow = false
+
+    this.delayResetWorkId()
 
     EVT.fire('PreviewWorkDetailPanelClosed', {
       x: this.mouseX,
@@ -313,5 +384,4 @@ class PreviewWorkDetailInfo {
   }
 }
 
-const previewWorkDetailInfo = new PreviewWorkDetailInfo()
-export { previewWorkDetailInfo }
+new PreviewWorkDetailInfo()

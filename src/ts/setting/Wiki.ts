@@ -47,6 +47,16 @@ class Wiki {
       }
     })
 
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      if (!states.settingInitialized) {
+        return
+      }
+      const data = ev.detail.data as any
+      if (data.name === 'debugForWiki') {
+        this.setOptionLink()
+      }
+    })
+
     // 切换 Wiki 网址为本地调试的网址或者线上网址
     ppdTask.register(3, 'Switch Wiki Home', () => {
       setSetting('debugForWiki', !settings.debugForWiki)
@@ -126,10 +136,10 @@ class Wiki {
     'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
     'More-Download': [
       58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
-      28, 100, 101,
+      28, 100, 101, 105,
     ],
     'More-Enhance': [
-      60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14, 102,
+      60, 84, 87, 68, 63, 55, 62, 40, 56, 86, 48, 88, 18, 34, 14, 102,
     ],
     'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37, 93],
     'More-Hidden': [79, 80, 14, 15],
@@ -203,10 +213,10 @@ class Wiki {
       '.centerWrap_con a.settingNameStyle'
     )
     allLinks.forEach(async (el) => {
-      // 查找其父元素，如 <p class='option' data-no='0'>
-      const p = el.parentElement
-      if (p!.dataset.no) {
-        const id = Number(p!.dataset.no)
+      // 查找其所属的 p 元素，如 <p class='option' data-no='0'>
+      const p = el.closest('p.option') as HTMLParagraphElement
+      if (p && p.dataset.no) {
+        const id = Number(p.dataset.no)
         const link = await this.link(id)
         el.setAttribute('href', link)
       }

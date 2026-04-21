@@ -11,6 +11,8 @@ import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
+import { cacheWorkData } from '../store/CacheWorkData'
+import { Utils } from '../utils/Utils'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -196,11 +198,18 @@ class QuickBookmark {
 
   private async getWorkData() {
     try {
-      // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
-      if (this.isNovel) {
-        return await API.getNovelData(Tools.getNovelId())
+      const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
+      const type = this.isNovel ? 'novel' : 'artwork'
+      const cached = cacheWorkData.get(id, type)
+      if (!cached) {
+        // 如果缓存里没有这个作品的数据，则让缓存模块加载数据并返回，这样有可能减少一次网络请求
+        // 在页面初始化时，下载器可能有多个模块都需要获取作品数据。使用 getWorkDataAsync 方法可以避免重复请求
+        return await cacheWorkData.getWorkDataAsync(id, type)
       } else {
-        return await API.getArtworkData(Tools.getIllustId())
+        // 如果缓存里有这个作品的数据，则不使用缓存的数据，因为作品的收藏状态可能已经发生了变化
+        return await API[type === 'novel' ? 'getNovelData' : 'getArtworkData'](
+          id
+        )
       }
     } catch (error: Error | any) {
       return null as any
@@ -231,22 +240,21 @@ class QuickBookmark {
 
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
-    window.setTimeout(async () => {
-      const status = await bookmark.add(
-        id,
-        type,
-        Tools.extractTags(this.workData!)
-      )
+    await Utils.sleep(100)
+    const status = await bookmark.add(
+      id,
+      type,
+      Tools.extractTags(this.workData!)
+    )
 
-      if (status === 403) {
-        return
-      }
+    if (status === 403) {
+      return
+    }
 
-      if (status !== 429) {
-        this.isBookmarked = true
-        toast.success(lang.transl('_已收藏'), { position: 'mouse' })
-      }
-    }, 100)
+    if (status !== 429) {
+      this.isBookmarked = true
+      toast.success(lang.transl('_已收藏'), { position: 'mouse' })
+    }
   }
 
   private async delBookmark() {

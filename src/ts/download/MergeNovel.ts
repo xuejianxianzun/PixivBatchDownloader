@@ -14,7 +14,6 @@ import { getNovelGlossarys } from '../crawlNovelPage/GetNovelGlossarys'
 import { DateFormat } from '../utils/DateFormat'
 import { pageType } from '../PageType'
 import { cacheWorkData } from '../store/CacheWorkData'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { mergeNovelFileName } from './MergeNovelFileName'
 import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
@@ -85,7 +84,7 @@ class MergeNovel {
   /**每次请求之间等待一段时间 */
   private async sleep(time: number) {
     if (this.slowMode) {
-      return new Promise((res) => setTimeoutWorker.set(res, time))
+      return Utils.sleep(time)
     }
   }
 
@@ -695,22 +694,7 @@ class MergeNovel {
     this.allNovelData.sort(Utils.sortByProperty('no', 'asc'))
   }
 
-  /** 限制单个 EPUB 文件的大小 */
-  // 每当添加完一篇小说的文件，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加
-  // 这样最终会生成多个 EPUB 文件，文件名后面会添加 part1, part2 之类的后缀
-  // 目前体积限制为 200 MiB，这主要是担心手机上的阅读器打开大体积的 EPUB 文件时可能会出现性能问题
-  // 实际可用的体积上限取决于 jszip.min.js 的限制，通常文件体积不能超过 2 GiB
-  // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB，其中只有 1 个超过了 200 MiB
-  // 所以绝大多数的系列小说都不需要分割。之所以添加分割功能，是因为遇到了一个体积非常大的系列小说：
-  // https://www.pixiv.net/novel/series/7708974
-  // 含有 1150 张插画，这些插画的总体积高达 3.96 GB。之前没有分割，会因为体积过大导致 jszip 报错，进而导致程序卡住
-  // 虽然这么大的系列小说很罕见，但不得不处理。要成功下载它就必须分割成多个文件。
-  // 分割之后它生成了 28 个 EPUB 文件，总体积 3.74 GB（因为 jszip 压缩了文件，所以体积比未压缩时小。解压后是完全相同的）
-  // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过 100 MiB 的 EPUB 文件：
-  // 1. 单篇小说的体积已经超出限制（例如 200 MiB）
-  // 2. 添加了多篇小说时，最后一篇导致总体积超出限制。例如 90 + 60，或者 30 + 30 + 50 的情况
-  // 我在自己的手机上测试打开 180 MB 的单个 EPUB 文件，阅读正常，里面的插画也能正常显示。
-  private readonly epubSizeLimit = 200 * 1024 * 1024
+  private readonly MiB = 1024 * 1024
 
   /** 保存每个部分的体积日志。只有当保存格式是 EPUB 时才会用到 */
   // 一开始会添加第一项，如果体积达到了限制才会添加下一项
@@ -742,10 +726,19 @@ class MergeNovel {
     }
   }
 
+  /** 限制单个 EPUB 文件的大小 */
+  // 每当添加完一篇小说，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加，这样可能会生成多个 EPUB 文件
+  // 实际可用的体积上限取决于 jszip 的限制，通常文件体积不能超过 2 GiB
+  // 默认的体积限制是 200 MiB，这主要是担心一些阅读器打开大体积的 EPUB 文件时可能会出现性能问题
+  // 例如 Windows 上的 Aquile Reader 打开 400 MiB 的 EPUB 文件时占用了 8 GB 内存，闲置一段时间后内存依然超过 5 GB。不过其他阅读器就没这么离谱了，就连手机上的静读天下也能顺利阅读这个小说。
+  // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB， 所以绝大多数的系列小说都不需要分割
+  // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过限制的 EPUB 文件：
+  // 1. 单篇小说的体积已经超出限制
+  // 2. 添加了多篇小说时，最后一篇导致总体积超出限制
   private checkSizeLimit(): boolean {
     const current = this.sizeLog.find((item) => item.inUse)
     if (current) {
-      return current.size >= this.epubSizeLimit
+      return current.size >= settings.singleEPUBFileSizeLimit * this.MiB
     }
     return false
   }

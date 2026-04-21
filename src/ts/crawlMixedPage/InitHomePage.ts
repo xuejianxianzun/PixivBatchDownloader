@@ -87,18 +87,17 @@ class InitHomePage extends InitPageBase {
     this.removeAD()
   }
 
-  private removeAD() {
+  private async removeAD() {
     // 查找首页的“推荐作品”里的广告元素，将其移除
-    window.setTimeout(() => {
-      const findAD = document.body.querySelector(
-        '.homeRecommendedWorks div[id^="adsdk"]'
-      )
-      if (findAD) {
-        findAD.closest('li')?.remove()
-      } else {
-        return this.removeAD()
-      }
-    }, 1000)
+    await Utils.sleep(1000)
+    const findAD = document.body.querySelector(
+      '.homeRecommendedWorks div[id^="adsdk"]'
+    )
+    if (findAD) {
+      findAD.closest('li')?.remove()
+    } else {
+      this.removeAD()
+    }
   }
 
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看

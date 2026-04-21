@@ -110,6 +110,11 @@ class HighlightFollowingUsers {
             : this.checkUserLinkReg
         )
         if (test && test.length > 1) {
+          // 如果匹配到了用户链接，则检查 href 的原始值。这是因为当原始 href 值为空字符串时(<a href=''></a>)，a.href 的值会被浏览器自动解析成当前页面的 URL，这可能导致误判。需要排除这种情况
+          if (!a.getAttribute('href')) {
+            continue
+          }
+
           match = followingList.following.includes(test[1])
 
           // 要高亮的元素

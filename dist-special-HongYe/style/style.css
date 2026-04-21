@@ -502,6 +502,10 @@ body.mobile #quickCrawlBtn {
   overflow: hidden;
   font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
+.centerWrap ::selection {
+  background: #0ea8ef;
+  color: #fff;
+}
 .centerWrap hr {
   border: none;
   height: 1px;
@@ -678,6 +682,9 @@ body.mobile #quickCrawlBtn {
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
 }
+.centerWrap .centerWrap_con .settingForm .optionAnchor {
+  display: none;
+}
 .centerWrap .centerWrap_con .settingForm p.option {
   position: relative;
   display: flex;
@@ -685,6 +692,26 @@ body.mobile #quickCrawlBtn {
   align-items: flex-start;
   column-gap: 4px;
   margin: 2px 0;
+  border-radius: 6px;
+}
+.centerWrap .centerWrap_con .settingForm p.option:hover {
+  background-color: rgba(99, 205, 247, 0.1);
+}
+.centerWrap .centerWrap_con .settingForm p.option .pinButton {
+  position: absolute;
+  z-index: 1;
+  left: -26px;
+  top: 0;
+  cursor: pointer;
+  display: none;
+  opacity: 0.6;
+}
+.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton,
+.centerWrap .centerWrap_con .settingForm p.option:hover .pinButton {
+  display: block;
+}
+.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton {
+  opacity: 1;
 }
 .centerWrap .centerWrap_con .settingForm p.option.new::before {
   content: '✨';
@@ -696,6 +723,10 @@ body.mobile #quickCrawlBtn {
   top: -1px;
   text-align: center;
   font-size: 1.1em;
+}
+.centerWrap .centerWrap_con .settingForm p.option:hover::before,
+.centerWrap .centerWrap_con .settingForm p.option.pinned.new::before {
+  display: none;
 }
 .centerWrap .centerWrap_con .settingForm p.option > * {
   line-height: 26px;
@@ -732,6 +763,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
   line-height: 26px;
 }
+.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap.noGrow {
+  flex-grow: 0;
+}
 .centerWrap .centerWrap_con .settingForm p.option[data-no='12'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='35'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='39'] .subOptionWrap,
@@ -759,6 +793,9 @@ body.mobile #quickCrawlBtn {
   background-color: #fff;
   border-radius: 4px;
 }
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName:hover {
+  background-color: transparent;
+}
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName::after {
   display: block;
   content: '';
@@ -768,6 +805,9 @@ body.mobile #quickCrawlBtn {
   height: 1px;
   background-color: #eee;
   z-index: -1;
+}
+.centerWrap .centerWrap_con .settingForm p.option .grow {
+  flex-grow: 1;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1 {
   width: 50px;
@@ -788,8 +828,45 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1:hover {
   border-bottom: 1px solid #0096fa !important;
 }
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w20 {
+  width: 20px;
+  min-width: 20px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w30 {
+  width: 30px;
+  min-width: 30px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w40 {
+  width: 40px;
+  min-width: 40px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w50 {
+  width: 50px;
+  min-width: 50px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w60 {
+  width: 60px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w70 {
+  width: 70px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w80 {
+  width: 80px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w90 {
+  width: 90px;
+}
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w100 {
   width: 100px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w150 {
+  width: 150px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w200 {
+  width: 200px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w250 {
+  width: 250px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
   width: 160px;
@@ -802,7 +879,7 @@ body.mobile #quickCrawlBtn {
   margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
-  width: 80px;
+  width: auto;
   height: 22px;
   margin: 2px 0;
   vertical-align: middle;
@@ -864,10 +941,11 @@ body.mobile #quickCrawlBtn {
   cursor: pointer;
   padding-right: 5px;
 }
-.centerWrap .centerWrap_con .settingForm .tabsContnet {
+.centerWrap .centerWrap_con .settingForm .tabsContent {
+  position: relative;
   display: none;
 }
-.centerWrap .centerWrap_con .settingForm .tabsContnet:first-child {
+.centerWrap .centerWrap_con .settingForm .tabsContent:first-child {
   display: block;
 }
 .centerWrap .centerWrap_con .settingForm label.active {
@@ -985,7 +1063,22 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .right1 {
   width: 100%;
 }
+.centerWrap .centerWrap_con .settingForm .fileNameRuleLine1 {
+  display: flex;
+  flex-basis: 100%;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 4px;
+}
+.centerWrap .centerWrap_con .settingForm .fileNameRuleBtnsArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 4px;
+}
 .centerWrap .centerWrap_con .settingForm .fileNameRule {
+  display: flex;
+  flex-grow: 1;
   min-width: 310px !important;
 }
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
@@ -1157,7 +1250,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .settingForm .namingRuleList {
   position: absolute;
-  right: -30px;
+  right: 0px;
   top: 25px;
   z-index: 1002;
   background: #fff;
@@ -1274,6 +1367,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap.theme-dark p.option.new::before {
   color: #fff !important;
 }
+.centerWrap.theme-dark p.option:hover {
+  background-color: rgba(204, 240, 254, 0.3);
+}
 .centerWrap.theme-dark button,
 .centerWrap.theme-dark .tip {
   color: #fff;
@@ -1342,6 +1438,9 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG p.option.new::before {
   color: #fff !important;
+}
+.centerWrap.xzBG p.option:hover {
+  background-color: rgba(209, 239, 251, 0.2) !important;
 }
 .centerWrap.xzBG button,
 .centerWrap.xzBG .tip {
@@ -1424,25 +1523,25 @@ body.mobile #quickCrawlBtn {
 .theme-dark.showBlobKeywords .key {
   color: #42c3ff;
 }
-.lang_zh-cn input[name='workDirNameRule'] {
+.lang_zh-cn input[name='folderForMultiImageWorksRule'] {
   width: 200px !important;
 }
 .lang_zh-cn .fileNameRule {
   min-width: 340px !important;
 }
-.lang_zh-tw input[name='workDirNameRule'] {
+.lang_zh-tw input[name='folderForMultiImageWorksRule'] {
   width: 200px !important;
 }
 .lang_zh-tw .fileNameRule {
   min-width: 340px !important;
 }
-.lang_en input[name='workDirNameRule'] {
+.lang_en input[name='folderForMultiImageWorksRule'] {
   width: 130px !important;
 }
-.lang_ja input[name='workDirNameRule'] {
+.lang_ja input[name='folderForMultiImageWorksRule'] {
   width: 170px !important;
 }
-.lang_ko input[name='workDirNameRule'] {
+.lang_ko input[name='folderForMultiImageWorksRule'] {
   width: 240px !important;
 }
 .lang_ko button[type='button'] {
@@ -1626,6 +1725,9 @@ body.mobile #quickCrawlBtn {
   margin-bottom: 20px;
   font-size: 14px;
   padding: 10px 30px;
+}
+.logContent .blue {
+  color: #0ea8ef;
 }
 .logContent span {
   line-height: 1.4;

@@ -10,9 +10,9 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
+import { Utils } from '../utils/Utils'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -144,12 +144,9 @@ class InitNewNovelPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      setTimeoutWorker.set(() => {
-        this.getIdList()
-      }, settings.slowCrawlDealy)
-    } else {
-      this.getIdList()
+      await Utils.sleep(settings.slowCrawlDealy)
     }
+    this.getIdList()
   }
 
   protected resetGetIdListStatus() {

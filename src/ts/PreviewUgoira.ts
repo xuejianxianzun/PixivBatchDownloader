@@ -1,7 +1,6 @@
 import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from './API'
 import { log } from './Log'
-import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
 // 预览动图
@@ -13,9 +12,6 @@ class PreviewUgoira {
     wrapWidth?: number,
     wrapHeight?: number
   ) {
-    if (!settings.previewUgoira) {
-      return
-    }
     this.id = id
     this.canvasWrap = canvasWrap
     this.prevSize = prevSize
@@ -152,32 +148,28 @@ class PreviewUgoira {
   }
 
   /**获取该作品的 meta 数据 */
-  private getMeta(id: string | number): Promise<UgoiraMetaBody> {
-    return new Promise(async (resolve, reject) => {
-      const meta = await API.getUgoiraMeta(id as string)
-      if (meta.error) {
-        throw reject(meta.message)
-      }
+  private async getMeta(id: string | number): Promise<UgoiraMetaBody> {
+    const meta = await API.getUgoiraMeta(id as string)
+    if (meta.error) {
+      throw new Error(meta.message)
+    }
 
-      resolve(meta.body)
-    })
+    return meta.body
   }
 
   /** 发送 HEAD 请求，获取 zip 压缩包的体积 */
-  private getFileLength(): Promise<number> {
-    return new Promise(async (resolve, reject) => {
-      const response = await fetch(this.zipURL, {
-        method: 'head',
-        credentials: 'same-origin',
-      })
-
-      const length = response.headers.get('content-length')
-      if (!length) {
-        throw reject('getFileLength error: get length failed')
-      }
-
-      resolve(Number.parseInt(length))
+  private async getFileLength(): Promise<number> {
+    const response = await fetch(this.zipURL, {
+      method: 'head',
+      credentials: 'same-origin',
     })
+
+    const length = response.headers.get('content-length')
+    if (!length) {
+      throw new Error('getFileLength error: get length failed')
+    }
+
+    return Number.parseInt(length)
   }
 
   /** 根据 zip 文件的体积分割出数个区间，生成对应的标记文本 */
@@ -207,17 +199,15 @@ class PreviewUgoira {
     return result
   }
 
-  private loadRangeFileAsBuff(range: string): Promise<ArrayBuffer> {
-    return new Promise(async (resolve, reject) => {
-      const res = await fetch(this.zipURL, {
-        method: 'get',
-        headers: {
-          range: range,
-        },
-      })
-      const buff = await res.arrayBuffer()
-      resolve(buff)
+  private async loadRangeFileAsBuff(range: string): Promise<ArrayBuffer> {
+    const res = await fetch(this.zipURL, {
+      method: 'get',
+      headers: {
+        range: range,
+      },
     })
+    const buff = await res.arrayBuffer()
+    return buff
   }
 
   /**把 ArrayBuffer 追加到已存在的 ArrayBuffer 容器里  */

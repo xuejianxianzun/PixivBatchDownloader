@@ -14,6 +14,7 @@ class SaveAvatarImage {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveAvatarImage, () => {
+      EVT.fire('closeCenterPanel')
       this.saveAvatarImage()
     })
   }
@@ -45,7 +46,6 @@ class SaveAvatarImage {
     const msg = lang.transl('_保存用户头像')
     log.success('✅' + msg)
     toast.success(msg)
-    EVT.fire('closeCenterPanel')
   }
 }
 

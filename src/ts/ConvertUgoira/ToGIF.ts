@@ -61,12 +61,12 @@ class ToGIF {
     })
   }
 
-  private MBSize = 1024 * 1024
+  private readonly MiB = 1024 * 1024
   /**根据 zip 文件的体积，决定转换动图使的质量 */
   // 使用更小的 quality 可以获得更好的画面质量（颜色质量）
   // 以前下载器使用的都是默认值 10，现在改为体积越小则使用越高的质量，以减少某些动图转换成 GIF 之后色差严重的问题
   private setQuality(fileSize: number) {
-    const MB = Math.floor(fileSize / this.MBSize)
+    const MB = Math.floor(fileSize / this.MiB)
     switch (MB) {
       case 0:
         return 1

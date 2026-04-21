@@ -27,7 +27,6 @@ import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
 import '../pageFunciton/CopyButtonOnWorkPage'
 import '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
-import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
@@ -230,9 +229,7 @@ abstract class InitPageBase {
 
     EVT.fire('crawlStart')
 
-    if (Utils.isPixiv()) {
-      await mute.getMuteSettings()
-    }
+    await mute.getMuteSettings()
 
     this.getWantPage()
 
@@ -295,9 +292,7 @@ abstract class InitPageBase {
 
       EVT.fire('crawlStart')
 
-      if (Utils.isPixiv()) {
-        await mute.getMuteSettings()
-      }
+      await mute.getMuteSettings()
 
       this.finishedRequest = 0
 
@@ -502,11 +497,7 @@ abstract class InitPageBase {
         // 如果不使用缓存，则必定会导致一个小说发送两次请求
         // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
         // 但通常问题不大
-        let data = cacheWorkData.get(id, 'novel')
-        if (!data) {
-          data = await API.getNovelData(id, unlisted)
-          cacheWorkData.set(data)
-        }
+        const data = await cacheWorkData.getWorkDataAsync(id, 'novel', unlisted)
         // 自动合并系列小说
         const seriesId = data.body.seriesNavData?.seriesId
         const canMerge = seriesId && settings.autoMergeNovel
@@ -548,9 +539,8 @@ abstract class InitPageBase {
         console.error(error)
 
         // 再次发送这个请求
-        window.setTimeout(() => {
-          this.getWorksData(idData)
-        }, 2000)
+        await Utils.sleep(2000)
+        this.getWorksData(idData)
       }
     }
   }
@@ -604,12 +594,9 @@ abstract class InitPageBase {
 
       // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
       if (states.slowCrawlMode) {
-        setTimeoutWorker.set(() => {
-          this.getWorksData()
-        }, settings.slowCrawlDealy)
-      } else {
-        this.getWorksData()
+        await Utils.sleep(settings.slowCrawlDealy)
       }
+      this.getWorksData()
     } else {
       // 没有剩余作品，统计此后有多少个完成的请求
       this.finishedRequest++

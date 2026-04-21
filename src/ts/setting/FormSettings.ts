@@ -3,8 +3,7 @@ import { settings, setSetting, SettingKeys } from './Settings'
 import { SettingsForm } from './SettingsForm'
 import { DateFormat } from '../utils/DateFormat'
 import { nameRuleManager } from './NameRuleManager'
-import { Utils } from '../utils/Utils'
-import { Config } from '../Config'
+import { Tools } from '../Tools'
 
 // 管理 from 表单里的输入选项（input 元素和 textarea 元素）
 // 从 settings 里恢复选项的值；当选项改变时保存到 settings 里
@@ -64,7 +63,7 @@ class FormSettings {
       'magnifier',
       'noSerialNo',
       'createFolderByTag',
-      'workDir',
+      'folderForMultiImageWorksSwitch',
       'r18Folder',
       'sizeSwitch',
       'autoStartDownload',
@@ -75,11 +74,6 @@ class FormSettings {
       'removeBlockedUsersWork',
       'blockTagsForSpecificUser',
       'bgDisplay',
-      'createFolderByType',
-      'createFolderByTypeIllust',
-      'createFolderByTypeManga',
-      'createFolderByTypeUgoira',
-      'createFolderByTypeNovel',
       'zeroPadding',
       'showFastSearchArea',
       'saveMetaType0',
@@ -99,7 +93,10 @@ class FormSettings {
       'showDownloadBtnOnThumb',
       'showOriginImage',
       'replaceSquareThumb',
-      'notFolderWhenOneFile',
+      'noFolderSwitch',
+      'noFolderWhenSingleImageWork',
+      'noFolderWhenMultiImageWork',
+      'noFolderWhenNovel',
       'noSerialNoForSingleImg',
       'noSerialNoForMultiImg',
       'setNoSerialNoForUgoira',
@@ -111,6 +108,8 @@ class FormSettings {
       'doNotCrawlLastImagesSwitch',
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
+      'previewSingleImageWork',
+      'previewMultiImageWork',
       'previewUgoira',
       'slowCrawl',
       'downloadOnClickBookmark',
@@ -168,7 +167,6 @@ class FormSettings {
       'idRangeValueForNovelWorks',
       'idRangeValueForNovelSeries',
       'needTag',
-      'workDirFileNumber',
       'r18FolderName',
       'sizeMin',
       'sizeMax',
@@ -177,7 +175,7 @@ class FormSettings {
       'tagsSeparator',
       'bgOpacity',
       'zeroPaddingLength',
-      'workDirNameRule',
+      'folderForMultiImageWorksRule',
       'autoExportResultNumber',
       'previewWorkWait',
       'previewResultLimit',
@@ -196,6 +194,7 @@ class FormSettings {
       'doNotCrawlLastImagesCount',
       'onlyCrawlLastFewImagesCount',
       'doNotCrawlFirstImagesCount',
+      'singleEPUBFileSizeLimit',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -274,30 +273,6 @@ class FormSettings {
     }
   }
 
-  /**根据文本长度，动态设置 textarea 的高度 */
-  private setRows(name: SettingKeys) {
-    const el = this.form[name] as HTMLInputElement
-    // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的交互体验
-    // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
-    // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
-    // 如果全部是 ASCII 字符，则 90 个字符为一行
-    let oneRowLength = Config.mobile ? 20 : 50
-    if (Utils.isAscii(el.value)) {
-      oneRowLength = Config.mobile ? 30 : 90
-    }
-
-    let rows = Math.ceil(el.value.length / oneRowLength)
-    // 如果值是空字符串，rows 会是 0，此时设置为 1
-    if (rows === 0) {
-      rows = 1
-    }
-    // 最大 rows 限制为 4
-    if (rows > 4) {
-      rows = 4
-    }
-    el.setAttribute('rows', rows.toString())
-  }
-
   // 读取设置，恢复到表单里
   private restoreFormSettings() {
     for (const name of this.inputFileds.text) {
@@ -310,7 +285,7 @@ class FormSettings {
 
     for (const name of this.inputFileds.textarea) {
       this.restoreString(name)
-      this.setRows(name)
+      Tools.setRows(this.form[name] as HTMLTextAreaElement)
     }
 
     for (const name of this.inputFileds.checkbox) {
@@ -330,7 +305,7 @@ class FormSettings {
     el.addEventListener('change', () => {
       setSetting(name, el.value)
       if (this.inputFileds.textarea.includes(name)) {
-        this.setRows(name)
+        Tools.setRows(this.form[name] as HTMLTextAreaElement)
       }
     })
   }

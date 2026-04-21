@@ -167,9 +167,10 @@ class ExportFollowingList {
           userComment: userData.userComment,
           profileImageUrl: userData.profileImageUrl,
         })
-      } else {
-        this.JSONData.push(userData)
       }
+
+      // 始终添加 JSON 数据
+      this.JSONData.push(userData)
 
       if (this.JSONData.length >= this.totalNeed) {
         // 抓取到了指定数量的用户
@@ -184,9 +185,8 @@ class ExportFollowingList {
 
     this.requestTimes++
     // 获取下一批用户列表
-    window.setTimeout(() => {
-      this.getUserList()
-    }, settings.slowCrawlDealy)
+    await Utils.sleep(settings.slowCrawlDealy)
+    this.getUserList()
   }
 
   private async getUserListComplete() {

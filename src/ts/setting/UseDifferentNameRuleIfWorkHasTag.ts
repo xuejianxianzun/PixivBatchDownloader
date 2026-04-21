@@ -211,14 +211,14 @@ class UseDifferentNameRuleIfWorkHasTag {
       `input[data-ruleInput='${id}']`
     )! as HTMLInputElement
 
-      // 当输入框发生变化时，进行更新
-      ;[tagsInput, ruleInput].forEach((el) => {
-        el?.addEventListener('change', () => {
-          if (el.value) {
-            this.updateRule(id, tagsInput.value, ruleInput.value, false)
-          }
-        })
+    // 当输入框发生变化时，进行更新
+    ;[tagsInput, ruleInput].forEach((el) => {
+      el?.addEventListener('change', () => {
+        if (el.value) {
+          this.updateRule(id, tagsInput.value, ruleInput.value, false)
+        }
       })
+    })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {

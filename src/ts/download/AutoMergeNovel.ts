@@ -45,19 +45,15 @@ class AutoMergeNovel {
 
   /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它 */
   private async next(): Promise<string> {
-    return new Promise((resolve) => {
-      const check = () => {
-        if (
-          this.pendingQueue.length > 0 &&
-          this.pendingQueue[0] !== this.workingId
-        ) {
-          return resolve(this.pendingQueue[0])
-        } else {
-          window.setTimeout(check, 100)
-        }
+    while (true) {
+      if (
+        this.pendingQueue.length > 0 &&
+        this.pendingQueue[0] !== this.workingId
+      ) {
+        return this.pendingQueue[0]
       }
-      check()
-    })
+      await Utils.sleep(100)
+    }
   }
 
   /** 如果某个系列 id 已经存在于等待队列里，则等待这个系列合并完成（等待它从等待队列里移除） */

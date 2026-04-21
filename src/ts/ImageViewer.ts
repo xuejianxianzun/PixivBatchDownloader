@@ -109,11 +109,7 @@ class ImageViewer {
         }
       } else {
         // 需要 Alt 的快捷键
-        if (ev.code === 'KeyB') {
-          // 按 Alt + B 收藏当前作品
-          ev.stopPropagation()
-          this.addBookmark()
-        } else if (ev.code === 'KeyC') {
+        if (ev.code === 'KeyC') {
           // 按 Alt + C 复制当前作品的信息
           // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
           ev.stopPropagation()
@@ -122,82 +118,117 @@ class ImageViewer {
       }
     })
 
-    // 监听左右方向键，防止在看图时，左右方向键导致 Pixiv 切换作品
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (this.show) {
-          if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
-            // 阻止事件冒泡
-            ev.stopPropagation()
-            ev.preventDefault()
-            // 控制切换到上一张或者下一张
-            // true 表示启用循环切换
-            ev.code === 'ArrowLeft'
-              ? this.myViewer.prev(true)
-              : this.myViewer.next(true)
+        if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+          return
+        }
+
+        // 监听左右方向键，防止在看图时左右方向键导致 Pixiv 切换作品
+        if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
+          // 阻止事件冒泡
+          ev.stopPropagation()
+          ev.preventDefault()
+          // 控制切换到上一张或者下一张
+          // true 表示启用循环切换
+          ev.code === 'ArrowLeft'
+            ? this.myViewer.prev(true)
+            : this.myViewer.next(true)
+          return
+        }
+
+        // 按 Esc 退出图片查看器
+        if (ev.code === 'Escape') {
+          ev.stopPropagation()
+          ev.preventDefault()
+
+          // 打开图片查看器之后，myViewer 对象的实际值并不完全符合类型定义里
+          // 所以需要使用类型上没有的元素来关闭图片查看器
+          const closeButton = (this.myViewer as any).button as HTMLButtonElement
+          if (closeButton) {
+            closeButton.click()
+            return
           }
+          // 如果没有找到关闭按钮，就给 viewer 元素添加 .viewer-hide 使其 display: none 来隐藏图片查看器
+          const wrap = (this.myViewer as any).viewer as HTMLDivElement
+          if (wrap) {
+            wrap.classList.add('viewer-hide')
+          }
+          return
+        }
+
+        // 按 B 收藏当前作品
+        // 实际上 Alt + B 也会生效
+        if (ev.code === 'KeyB') {
+          ev.stopPropagation()
+          this.addBookmark()
+          return
         }
       },
-      true
+      {
+        capture: true,
+        passive: false,
+      }
     )
   }
 
   // 图片查看器需要一个图片列表元素，创建缩略图列表
   private async createImageList(): Promise<HTMLElement | undefined> {
-    return new Promise(async (resolve) => {
-      // 获取作品数据
-      if (cacheWorkData.has(this.cfg.workId)) {
-        this.workData = cacheWorkData.get(this.cfg.workId)
-      } else {
-        this.cfg.showLoading && (loading.show = true)
+    // 获取作品数据
+    if (cacheWorkData.has(this.cfg.workId)) {
+      this.workData = await cacheWorkData.getWorkDataAsync(
+        this.cfg.workId,
+        'artwork'
+      )
+    } else {
+      this.cfg.showLoading && (loading.show = true)
 
-        const unlisted = pageType.type === pageType.list.Unlisted
-        const data = await API.getArtworkData(this.cfg.workId, unlisted)
-        this.workData = data
-        cacheWorkData.set(data)
+      const unlisted = pageType.type === pageType.list.Unlisted
+      const data = await API.getArtworkData(this.cfg.workId, unlisted)
+      this.workData = data
+      cacheWorkData.set(data)
 
-        this.cfg.showLoading && (loading.show = false)
-      }
+      this.cfg.showLoading && (loading.show = false)
+    }
 
-      const body = this.workData!.body
-      // 处理插画、漫画、动图作品，不处理其他类型的作品
-      if (
-        body.illustType === 0 ||
-        body.illustType === 1 ||
-        body.illustType === 2
-      ) {
-        // 创建缩略图列表
-        this.pageCount = body.pageCount
-        this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original
+    const body = this.workData!.body
+    // 处理插画、漫画、动图作品，不处理其他类型的作品
+    if (
+      body.illustType === 0 ||
+      body.illustType === 1 ||
+      body.illustType === 2
+    ) {
+      // 创建缩略图列表
+      this.pageCount = body.pageCount
+      this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original
 
-        // 缩略图列表的结构： div > ul > li > img + a
-        this.viewerWarpper = document.createElement('div')
-        this.viewerUl = document.createElement('ul')
-        this.viewerUl.classList.add('beautify_scrollbar')
-        this.viewerWarpper.appendChild(this.viewerUl)
-        this.viewerWarpper.style.display = 'none'
+      // 缩略图列表的结构： div > ul > li > img + a
+      this.viewerWarpper = document.createElement('div')
+      this.viewerUl = document.createElement('ul')
+      this.viewerUl.classList.add('beautify_scrollbar')
+      this.viewerWarpper.appendChild(this.viewerUl)
+      this.viewerWarpper.style.display = 'none'
 
-        // 生成 UL 里面的缩略图列表
-        let html: string[] = []
-        for (let index = 0; index < body.pageCount; index++) {
-          const thumb = Tools.convertThumbURLTo540px(
-            body.urls.thumb.replace('p0', 'p' + index)
-          )
-          const imgUrl = this.firstImageURL.replace('p0', 'p' + index)
-          const imageName = imgUrl.split('/').pop()
-          // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
-          const str = `<li data-index="${index}">
+      // 生成 UL 里面的缩略图列表
+      let html: string[] = []
+      for (let index = 0; index < body.pageCount; index++) {
+        const thumb = Tools.convertThumbURLTo540px(
+          body.urls.thumb.replace('p0', 'p' + index)
+        )
+        const imgUrl = this.firstImageURL.replace('p0', 'p' + index)
+        const imageName = imgUrl.split('/').pop()
+        // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
+        const str = `<li data-index="${index}">
               <img src="${thumb}" data-src="${imgUrl}" alt="${imageName}" />
               <a href="${window.location.href}"></a>
             </li>`
-          html.push(str)
-        }
-        this.viewerUl.innerHTML = html.join('')
+        html.push(str)
       }
+      this.viewerUl.innerHTML = html.join('')
+    }
 
-      return resolve(this.viewerWarpper)
-    })
+    return this.viewerWarpper
   }
 
   // 配置图片查看器
@@ -501,7 +532,7 @@ class ImageViewer {
   private addBookmarkBtn() {
     const li = document.createElement('li')
     li.setAttribute('role', 'button')
-    li.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
+    li.setAttribute('title', lang.transl('_收藏') + ' (B)')
     li.classList.add(this.addBtnClass)
     // 这个五角星显示的比较小，需要单独加大字号
     li.style.fontSize = '20px'

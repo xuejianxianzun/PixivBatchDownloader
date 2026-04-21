@@ -14,7 +14,8 @@ class SaveWorkMeta {
     this.bindEvents()
   }
 
-  // 保存已经下载了元数据的作品的 id
+  // 已经保存了元数据的作品的 id
+  // 一个作品里可能有多张图片，所以可能触发多次下载完成事件。这里保存作品 id 来避免重复保存元数据文件
   private savedIds: number[] = []
 
   private readonly CRLF = '\n' // txt 文件中使用的换行符
@@ -26,9 +27,12 @@ class SaveWorkMeta {
       this.saveMeta(Number.parseInt(successData.id))
     })
 
-    // 当开始新的抓取时，清空保存的 id 列表
-    window.addEventListener(EVT.list.crawlStart, () => {
-      this.savedIds = []
+    // 当开始新的抓取，以及下载完毕时，清空保存的 id 列表
+    const resetIdsEvt = [EVT.list.crawlStart, EVT.list.downloadComplete]
+    resetIdsEvt.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.savedIds = []
+      })
     })
   }
 

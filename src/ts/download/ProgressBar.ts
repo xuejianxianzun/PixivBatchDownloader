@@ -64,8 +64,8 @@ class ProgressBar {
   private totalNumberEl!: HTMLSpanElement
   private allProgressBar: ProgressBarEl[] = []
 
-  private readonly KB = 1024
-  private readonly MB = 1024 * 1024
+  private readonly KiB = 1024
+  private readonly MiB = 1024 * 1024
 
   private createElements() {
     this.wrap = Tools.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
@@ -137,17 +137,17 @@ class ProgressBar {
     bar.name.setAttribute('title', data.name)
 
     let text = ''
-    if (data.total >= this.MB) {
+    if (data.total >= this.MiB) {
       // 如果判断条件加上： || data.total === 0
       // 则文件未下载时显示的默认单位会是 MiB
       // 使用 MiB 作为单位
-      text = `${(data.loaded / this.MB).toFixed(1)}/${(
-        data.total / this.MB
+      text = `${(data.loaded / this.MiB).toFixed(1)}/${(
+        data.total / this.MiB
       ).toFixed(1)} MiB`
     } else {
       // 使用 KiB 作为单位
-      text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(
-        data.total / this.KB
+      text = `${Math.floor(data.loaded / this.KiB)}/${Math.floor(
+        data.total / this.KiB
       )} KiB`
     }
 
