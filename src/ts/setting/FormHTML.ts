@@ -861,6 +861,10 @@ export const formHtml = `
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
+        <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
+        >
+        <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
+
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
       </span>

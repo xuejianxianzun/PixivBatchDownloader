@@ -127,6 +127,7 @@ interface XzSetting {
   namingRuleList: string[]
   folderForMultiImageWorksSwitch: boolean
   folderForMultiImageWorksRule: string
+  folderForMultiImageWorksImageNumber: number
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -622,6 +623,7 @@ class Settings {
     namingRuleList: [Config.defaultNameRule],
     folderForMultiImageWorksSwitch: false,
     folderForMultiImageWorksRule: '{id_num}',
+    folderForMultiImageWorksImageNumber: 1,
     showOptions: true,
     postDate: false,
     // 2009 年 1 月 1 日
@@ -1193,6 +1195,13 @@ class Settings {
     }
 
     if (key === 'borderWidth' && (value as number) < 1) {
+      value = this.defaultSettings[key]
+    }
+
+    if (
+      key === 'folderForMultiImageWorksImageNumber' &&
+      (value as number) < 1
+    ) {
       value = this.defaultSettings[key]
     }
 

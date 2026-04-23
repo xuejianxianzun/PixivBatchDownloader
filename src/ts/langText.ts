@@ -5084,6 +5084,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '이미지 <span class="key">수</span>',
     '<span class="key">Количество</span> изображений',
   ],
+  _图片数量2: [
+    '图片数量',
+    '圖片數量',
+    'Number of images',
+    '画像の数',
+    '이미지 수',
+    'Количество изображений',
+  ],
   _不抓取多图作品的最后一张图片: [
     '不抓取多图作品的<span class="key">最后一张</span>图片',
     '不抓取多圖作品的<span class="key">最後一張</span>圖片',

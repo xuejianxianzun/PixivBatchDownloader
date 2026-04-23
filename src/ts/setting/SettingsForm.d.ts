@@ -42,6 +42,7 @@ export interface SettingsForm extends HTMLFormElement {
   noSerialNo: HTMLInputElement
   folderForMultiImageWorksSwitch: HTMLInputElement
   folderForMultiImageWorksRule: HTMLInputElement
+  folderForMultiImageWorksImageNumber: HTMLInputElement
   previewResult: HTMLInputElement
   previewResultLimit: HTMLInputElement
   BMKNumSwitch: HTMLInputElement

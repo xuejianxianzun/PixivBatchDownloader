@@ -332,7 +332,11 @@ class FileName {
   ): string {
     if (rule.includes(flag)) {
       // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
-      if (settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
+      if (
+        settings.folderForMultiImageWorksSwitch &&
+        data.pageCount > 1 &&
+        data.pageCount > settings.folderForMultiImageWorksImageNumber
+      ) {
         return settings.folderForMultiImageWorksRule
       } else {
         return ''

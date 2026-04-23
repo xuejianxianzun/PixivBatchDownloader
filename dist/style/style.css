@@ -1505,26 +1505,11 @@ body.mobile #quickCrawlBtn {
 .theme-dark.showBlobKeywords .key {
   color: #42c3ff;
 }
-.lang_zh-cn input[name='folderForMultiImageWorksRule'] {
-  width: 200px !important;
-}
 .lang_zh-cn .fileNameRule {
   min-width: 340px !important;
 }
-.lang_zh-tw input[name='folderForMultiImageWorksRule'] {
-  width: 200px !important;
-}
 .lang_zh-tw .fileNameRule {
   min-width: 340px !important;
-}
-.lang_en input[name='folderForMultiImageWorksRule'] {
-  width: 130px !important;
-}
-.lang_ja input[name='folderForMultiImageWorksRule'] {
-  width: 170px !important;
-}
-.lang_ko input[name='folderForMultiImageWorksRule'] {
-  width: 240px !important;
 }
 .lang_ko button[type='button'] {
   word-break: keep-all;

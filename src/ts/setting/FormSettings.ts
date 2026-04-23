@@ -175,6 +175,7 @@ class FormSettings {
       'tagsSeparator',
       'bgOpacity',
       'zeroPaddingLength',
+      'folderForMultiImageWorksImageNumber',
       'folderForMultiImageWorksRule',
       'autoExportResultNumber',
       'previewWorkWait',

@@ -4160,7 +4160,9 @@ class FileName {
     getMultiImageFolder(rule, flag, data) {
         if (rule.includes(flag)) {
             // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksSwitch &&
+                data.pageCount > 1 &&
+                data.pageCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksImageNumber) {
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule;
             }
             else {
@@ -33868,6 +33870,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         '이미지 <span class="key">수</span>',
         '<span class="key">Количество</span> изображений',
     ],
+    _图片数量2: [
+        '图片数量',
+        '圖片數量',
+        'Number of images',
+        '画像の数',
+        '이미지 수',
+        'Количество изображений',
+    ],
     _不抓取多图作品的最后一张图片: [
         '不抓取多图作品的<span class="key">最后一张</span>图片',
         '不抓取多圖作品的<span class="key">最後一張</span>圖片',
@@ -41720,6 +41730,10 @@ const formHtml = `
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
+        <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
+        >
+        <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
+
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
       </span>
@@ -42997,6 +43011,7 @@ class FormSettings {
             'tagsSeparator',
             'bgOpacity',
             'zeroPaddingLength',
+            'folderForMultiImageWorksImageNumber',
             'folderForMultiImageWorksRule',
             'autoExportResultNumber',
             'previewWorkWait',
@@ -44228,6 +44243,7 @@ class Settings {
         namingRuleList: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule],
         folderForMultiImageWorksSwitch: false,
         folderForMultiImageWorksRule: '{id_num}',
+        folderForMultiImageWorksImageNumber: 1,
         showOptions: true,
         postDate: false,
         // 2009 年 1 月 1 日
@@ -44749,6 +44765,10 @@ class Settings {
             value = 999999;
         }
         if (key === 'borderWidth' && value < 1) {
+            value = this.defaultSettings[key];
+        }
+        if (key === 'folderForMultiImageWorksImageNumber' &&
+            value < 1) {
             value = this.defaultSettings[key];
         }
         if (key === 'setWidthAndOr' && value === '') {
