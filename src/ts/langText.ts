@@ -1186,14 +1186,6 @@ Zip 파일이 원본 파일입니다.`,
     '명명 규칙',
     'Правила названий',
   ],
-  _设置文件夹名的提示: [
-    '可以使用<span class="key">/</span>建立文件夹。示例：',
-    '可以使用斜線(<span class="key">/</span>)建立資料夾。範例：',
-    'You can create a directory with <span class="key">/</span>. Example:',
-    'フォルダーは<span class="key">/</span>で作成できます。例：',
-    '<span class="key">/</span>을 사용하여 디렉토리를 생성할 수 있습니다. 예:',
-    'Вы можете создать каталог с помощью <span class="key">/</span>. Пример:',
-  ],
   _添加命名标记前缀: [
     '添加命名标记<span class="key">前缀</span>',
     '加入命名標記<span class="key">前綴</span>',
@@ -1211,12 +1203,12 @@ Zip 파일이 원본 파일입니다.`,
     `Например, добавьте тег 'user_' перед именем пользователя`,
   ],
   _命名标记id: [
-    '默认文件名，如 <span class="blue">44920385_p0</span>',
-    '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
-    'Default file name, for example <span class="blue">44920385_p0</span>',
-    'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
-    '기본 파일명. 예: <span class="blue">44920385_p0</span>',
-    'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
+    `每个文件的 ID。图片文件会附带序号，如 <span class="blue">44920385_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
+    `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">44920385_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
+    `The ID of each file. Image files include a sequence number, such as <span class="blue">44920385_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">44920385_p1</span> and <span class="blue">44920385_p2</span>.`,
+    `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">44920385_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span> です。`,
+    `각 파일의 ID입니다. image 파일에는 <span class="blue">44920385_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">44920385_p1</span>, <span class="blue">44920385_p2</span> 입니다.`,
+    `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">44920385_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">44920385_p1</span> и <span class="blue">44920385_p2</span>.`,
   ],
   _命名标记title: [
     '作品标题',
@@ -1457,34 +1449,6 @@ Zip 파일이 원본 파일입니다.`,
     `作品がAI生成の場合、<span class="blue">AI</span>を出力します。それ以外の場合はそれを無視します。`,
     `작품이 AI 생성이라면 <span class="blue">AI</span>를 출력하며, 그렇지 않으면 이를 무시합니다。`,
     `Если работа сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте её。`,
-  ],
-  _命名标记提醒: [
-    `你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-title {title}-user {user}<br>
-    如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 {AI} 建立文件夹。例如：{user}/{AI}/{id}<br>
-    为了防止文件名重复，命名规则里必须含有 {id} 或者 {id_num}{p_num}。`,
-    `你可以使用多個標記，並且可以在標記之間新增自定義文字。例如：pixiv/{id}-title {title}-user {user}<br>
-    如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 {AI} 建立資料夾。例如：{user}/{AI}/{id}<br>
-    為了防止檔名重複，命名規則裡必須含有 {id} 或者 {id_num}{p_num}。`,
-    `You can use multiple tags and add custom text between tags. For example: pixiv/{id}-title {title}-user {user}<br>
-    If you want to put AI-generated works in a separate folder, you can use {AI} to create a folder. For example: {user}/{AI}/{id}<br>
-    To prevent duplicate file names, the naming rule must contain {id} or {id_num}{p_num}.`,
-    `複数のタグを使用し、タグの間にカスタム テキストを追加できます。例: pixiv/{id}-title {title}-user {user}<br>
-    AI生成作品を別のフォルダに入れたい場合は、{AI}を使ってフォルダを作成することができます。例: {user}/{AI}/{id}<br>
-    ファイル名の重複を防ぐために、命名規則に {id} または {id_num}{p_num} を含める必要があります。`,
-    `여러 태그를 사용하고 태그 사이에 사용자 정의 텍스트를 추가할 수 있습니다. 예: pixiv/{id}-title {title}-user {user}<br>
-    AI가 생성한 작품을 별도의 폴더에 넣고 싶다면, {AI}를 사용해 폴더를 만들 수 있습니다. 예: {user}/{AI}/{id}<br>
-    파일 이름 중복을 방지하려면 명명 규칙에 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.`,
-    `Вы можете использовать несколько тегов и добавлять собственный текст между тегами. Например: pixiv/{id}-title {title}-user {user}<br>
-    Если вы хотите поместить созданные ИИ работы в отдельную папку, вы можете использовать {AI} для создания папки. Например: {пользователь}/{AI}/{id}<br>
-    Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.`,
-  ],
-  _有些标记并不总是可用的提醒: [
-    `有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。`,
-    `有些標記並不總是可用，有時它們會是空字符串，下載器會忽略它們。`,
-    `Some tags are not always available, and sometimes they will be empty strings, which the downloader will ignore.`,
-    `一部のタグは常に利用可能ではなく、時には空文字列になり、ダウンロードツールはそれらを無視します。`,
-    `일부 태그는 항상 사용 가능하지 않으며, 때때로 빈 문자열이 되어 다운로더가 이를 무시합니다.`,
-    `Некоторые теги не всегда доступны, иногда они будут пустыми строками, и загрузчик их игнорирует。`,
   ],
   _命名规则一定要包含id: [
     '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -7682,14 +7646,6 @@ If you want to use this feature, please note:
     `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
     `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если он вам больше не нужен, вы можете обновить эту страницу`,
   ],
-  _提示点击下方的标记就可以把它复制到剪贴板: [
-    `提示：点击下方的标记就可以把它复制到剪贴板。`,
-    `提示：點擊下方的標記就可以把它複製到剪貼板。`,
-    `Tip: Click the marker below to copy it to the clipboard.`,
-    `ヒント：下のマーカーをクリックすると、それをクリップボードにコピーできます。`,
-    `팁: 아래 표시를 클릭하면 클립보드에 복사할 수 있습니다.`,
-    `Подсказка: Нажмите на маркер ниже, чтобы скопировать его в буфер обмена.`,
-  ],
   _合并系列小说时的命名规则: [
     `合并系列小说时的<span class="key">命名</span>规则`,
     `合併系列小說時的<span class="key">命名</span>規則`,
@@ -8854,6 +8810,110 @@ If the work matches either blocking condition, the downloader will not preview i
 1. "Теги, которые не должны содержаться", заданные в загрузчике<br>
 2. Теги, которые вы добавили в Mute в настройках аккаунта Pixiv<br>
 Если работа подпадает хотя бы под одно из этих условий блокировки, загрузчик не будет показывать ее в предпросмотре.`,
+  ],
+  _命名标记的提示: [
+    `命名规则用来设置文件夹和文件的名字。一个命名规则可以由 3 部分组成：<br>
+- 特殊标记，例如 <span class="blue name">{id}</span>、<span class="blue name">{user}</span>、<span class="blue name">{title}</span> 等，每个标记都可能会输出一些字符。标记的含义在下面有说明。<br>
+- 斜线 <span class="blue name">/</span> 用来建立文件夹。每个斜线前面的内容都是文件夹的名字，最后一个斜线之后的部分是文件名。你可以添加多层文件夹，也可以自由的组织文件夹结构。<br>
+- 普通字符和符号。你可以在标记之间添加普通字符，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+建立文件夹的说明：<br>
+- 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{id_num}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
+- 如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 <span class="blue name">{AI}</span> 标记，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 如果你想根据作品类型建立文件夹，可以使用 <span class="blue name">{type}</span> 标记，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+提示：<br>
+- * 有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。<br>
+-  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
+- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+<br>
+命名标记列表：<br>
+提示：点击标记的名字就可以复制它。<br>`,
+    `命名規則用來設定資料夾和檔案的名字。一個命名規則可以由 3 個部分組成：<br>
+- 特殊標記，例如 <span class="blue name">{id}</span>、<span class="blue name">{user}</span>、<span class="blue name">{title}</span> 等，每個標記都可能會輸出一些字元。標記的含義在下面有說明。<br>
+- 斜線 <span class="blue name">/</span> 用來建立資料夾。每個斜線前面的內容都是資料夾的名字，最後一個斜線之後的部分是檔名。你可以添加多層資料夾，也可以自由地組織資料夾結構。<br>
+- 普通字元和符號。你可以在標記之間添加普通字元，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+建立資料夾的說明：<br>
+- 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{id_num}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
+- 如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 <span class="blue name">{AI}</span> 標記，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 如果你想根據作品類型建立資料夾，可以使用 <span class="blue name">{type}</span> 標記，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+提示：<br>
+- * 有些標記並不總是可用，有時它們會是空字串，下載器會忽略它們。<br>
+-  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
+- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+<br>
+命名標記列表：<br>
+提示：點擊標記的名字就可以複製它。<br>`,
+    `The naming rule sets the names of folders and files. A naming rule can consist of 3 parts:<br>
+- Special tokens, such as <span class="blue name">{id}</span>, <span class="blue name">{user}</span>, <span class="blue name">{title}</span>, etc. Each token may output some characters. The meaning of each token is described below.<br>
+- A slash <span class="blue name">/</span> is used to create folders. The content before each slash is the folder name, and the part after the last slash is the file name. You can add multiple levels of folders and organize the folder structure freely.<br>
+- Regular characters and symbols. You can add regular characters between tokens, for example: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+Notes on creating folders:<br>
+- If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{id_num}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
+- If you want to put AI-generated works in a separate folder, use the <span class="blue name">{AI}</span> token, for example: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- If you want to create folders by work type, use the <span class="blue name">{type}</span> token, for example: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+Tips:<br>
+- * Some tokens are not always available and may be empty strings — the downloader will ignore them.<br>
+- If you want to use the work's ID in a folder name, use <span class="blue name">{id_num}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
+- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{id_num}</span> and <span class="blue name">{p_num}</span>.<br>
+<br>
+List of naming tokens:<br>
+Tip: Click a token name to copy it.<br>`,
+    `命名ルールはフォルダーとファイルの名前を設定するために使います。命名ルールは次の 3 つの部分で構成できます：<br>
+- 特殊トークン。例えば <span class="blue name">{id}</span>、<span class="blue name">{user}</span>、<span class="blue name">{title}</span> など。各トークンは何らかの文字を出力します。トークンの意味は下に説明があります。<br>
+- スラッシュ <span class="blue name">/</span> はフォルダーを作るために使います。各スラッシュの前の内容がフォルダー名になり、最後のスラッシュより後の部分がファイル名になります。複数階層のフォルダーを追加したり、自由にフォルダー構造を組み立てることができます。<br>
+- 通常の文字や記号。トークンの間に通常の文字を追加できます。例：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+フォルダー作成の説明：<br>
+- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{id_num}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{id_num}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
+- AI 生成の work を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- work の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+ヒント：<br>
+- * 一部のトークンは常に使えるわけではなく、空文字列になることがあります。その場合、ダウンローダーはそれを無視します。<br>
+- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{id_num}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
+- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{id_num}</span> と <span class="blue name">{p_num}</span> の両方を含める必要があります。<br>
+<br>
+命名トークン一覧：<br>
+ヒント：トークン名をクリックするとコピーできます。<br>`,
+    `명명 규칙은 폴더와 파일의 이름을 설정하는 데 사용합니다. 명명 규칙은 다음 3가지 부분으로 구성할 수 있습니다：<br>
+- 특수 토큰. 예를 들어 <span class="blue name">{id}</span>, <span class="blue name">{user}</span>, <span class="blue name">{title}</span> 등이 있으며, 각 토큰은 일부 문자를 출력할 수 있습니다. 토큰의 의미는 아래에 설명되어 있습니다.<br>
+- 슬래시 <span class="blue name">/</span> 는 폴더를 만드는 데 사용합니다. 각 슬래시 앞의 내용이 폴더 이름이 되고, 마지막 슬래시 뒤의 부분이 파일 이름이 됩니다. 여러 단계의 폴더를 추가하거나 폴더 구조를 자유롭게 구성할 수 있습니다.<br>
+- 일반 문자와 기호. 토큰 사이에 일반 문자를 추가할 수 있습니다. 예：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+폴더 생성 설명：<br>
+- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{id_num}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{id_num}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
+- AI로 생성된 work를 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- work 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+팁：<br>
+- * 일부 토큰은 항상 사용 가능한 것은 아니며, 빈 문자열이 될 수 있습니다. 이 경우 다운로더는 해당 토큰을 무시합니다.<br>
+- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{id_num}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
+- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{id_num}</span> 과 <span class="blue name">{p_num}</span> 을 모두 포함해야 합니다.<br>
+<br>
+명명 토큰 목록：<br>
+팁: 토큰 이름을 클릭하면 복사할 수 있습니다.<br>`,
+    `Правило именования задаёт названия папок и файлов. Правило именования может состоять из 3 частей:<br>
+- Специальные токены, например <span class="blue name">{id}</span>, <span class="blue name">{user}</span>, <span class="blue name">{title}</span> и другие. Каждый токен может выводить определённые символы. Значение каждого токена описано ниже.<br>
+- Слэш <span class="blue name">/</span> используется для создания папок. Содержимое перед каждым слэшем — это название папки, а часть после последнего слэша — имя файла. Можно добавлять несколько уровней папок и свободно организовывать структуру.<br>
+- Обычные символы и знаки. Между токенами можно вставлять обычные символы, например: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
+<br>
+Пояснения по созданию папок:<br>
+- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{id_num}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
+- Если вы хотите поместить work, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- Если вы хотите создавать папки по типу work, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
+<br>
+Советы:<br>
+- * Некоторые токены доступны не всегда и могут быть пустой строкой — загрузчик будет их игнорировать.<br>
+- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{id_num}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
+- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{id_num}</span> и <span class="blue name">{p_num}</span>.<br>
+<br>
+Список токенов именования:<br>
+Совет: нажмите на название токена, чтобы скопировать его.<br>`,
   ],
 }
 

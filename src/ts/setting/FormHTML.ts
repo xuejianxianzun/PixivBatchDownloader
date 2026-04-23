@@ -433,6 +433,8 @@ export const formHtml = `
           <select name="fileNameSelect" class="beautify_scrollbar">
             <option value="default">…</option>
             <option value="{id}">{id}</option>
+            <option value="{id_num}">{id_num}</option>
+            <option value="{p_num}">{p_num}</option>
             <option value="{user}">{user}</option>
             <option value="{user_id}">{user_id}</option>
             <option value="{title}">{title}</option>
@@ -463,8 +465,6 @@ export const formHtml = `
             <option value="{series_title}">{series_title}</option>
             <option value="{series_order}">{series_order}</option>
             <option value="{series_id}">{series_id}</option>
-            <option value="{id_num}">{id_num}</option>
-            <option value="{p_num}">{p_num}</option>
             <option value="{sl}">{sl}</option>
             <option value="{multi_image_folder}">{multi_image_folder}</option>
             <option value="{r18_g_folder}">{r18_g_folder}</option>
@@ -477,17 +477,16 @@ export const formHtml = `
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
-      <span data-xztext="_设置文件夹名的提示"></span>
-      <span>{user}<span class="key">/</span>{id}</span>
-      <br>
-      <span data-xztext="_命名标记提醒"></span>
-      <br>
-      * <span data-xztext="_有些标记并不总是可用的提醒"></span>
-      <br>
-      <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
+      <span data-xztext="_命名标记的提示"></span>
       <br>
       <span class="blue name">{id}</span>
       <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{id_num}</span>
+      <span data-xztext="_命名标记id_num"></span>
+      <br>
+      * <span class="blue name">{p_num}</span>
+      <span data-xztext="_命名标记p_num"></span>
       <br>
       <span class="blue name">{user}</span>
       <span data-xztext="_命名标记user"></span>
@@ -581,12 +580,6 @@ export const formHtml = `
       * <span class="blue name">{series_id}</span>
       <span data-xztext="_命名标记seriesId"></span>
       <span data-xztext="_当作品属于一个系列时可用"></span>
-      <br>
-      <span class="blue name">{id_num}</span>
-      <span data-xztext="_命名标记id_num"></span>
-      <br>
-      * <span class="blue name">{p_num}</span>
-      <span data-xztext="_命名标记p_num"></span>
       <br>
       * <span class="blue name">{sl}</span>
       <span data-xztext="_命名标记_sl"></span>
@@ -1185,11 +1178,6 @@ export const formHtml = `
 
     <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
       <span data-xztext="_系列小说的命名标记提醒"></span>
-      <br>
-      * <span data-xztext="_有些标记并不总是可用的提醒"></span>
-      <br>
-      <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
-      <br>
       <span class="blue name">{series_title}</span>
       <span data-xztext="_系列小说的命名标记_series_title"></span>
       <br>
