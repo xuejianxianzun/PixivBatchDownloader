@@ -126,6 +126,7 @@ export interface SettingsForm extends HTMLFormElement {
   removeAtFromUsername: HTMLInputElement
   showLargerThumbnails: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
+  checkBlockTagsForPreviewWork: HTMLInputElement
   swicthImageByKeyboard: HTMLInputElement
   doNotCrawlLastImagesSwitch: HTMLInputElement
   doNotCrawlLastImagesCount: HTMLInputElement

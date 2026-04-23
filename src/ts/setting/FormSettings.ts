@@ -104,6 +104,7 @@ class FormSettings {
       'showPreviewWorkTip',
       'showLargerThumbnails',
       'wheelScrollSwitchImageOnPreviewWork',
+      'checkBlockTagsForPreviewWork',
       'swicthImageByKeyboard',
       'doNotCrawlLastImagesSwitch',
       'downloadNovelCoverImage',

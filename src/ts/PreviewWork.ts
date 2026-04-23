@@ -110,20 +110,7 @@ class PreviewWork {
         this.readyShow()
       } else {
         // 准备显示预览
-        if (this.dontShowAfterPageSwitch) {
-          return
-        }
-
-        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
-        const tags = Tools.extractTags(this.workData, 'origin')
-        const checkTag = await filter.checkExcludeAndMuteTags(tags)
-        if (!checkTag) {
-          this.show = false
-          const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
-          toast.warning(msg, {
-            position: 'mouse',
-            stay: 2500,
-          })
+        if (!settings.PreviewWork || this.dontShowAfterPageSwitch) {
           return
         }
 
@@ -132,6 +119,21 @@ class PreviewWork {
         if (!checkType) {
           this.show = false
           return
+        }
+
+        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        if (settings.checkBlockTagsForPreviewWork) {
+          const tags = Tools.extractTags(this.workData, 'origin')
+          const checkTag = await filter.checkExcludeAndMuteTags(tags)
+          if (!checkTag) {
+            this.show = false
+            const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
+            toast.warning(msg, {
+              position: 'mouse',
+              stay: 2500,
+            })
+            return
+          }
         }
 
         this.isReadyShow = false

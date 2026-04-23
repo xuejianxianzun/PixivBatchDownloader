@@ -3,6 +3,16 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
+## next
+
+
+
+### 🐞修复了“预览作品”的开关失效的问题
+
+### 🔧在“预览作品”里添加了“检查屏蔽的标签”选项
+
+该功能改为默认不启用。你可以根据需要手动启用它。
+
 ## 18.7.0 2026-04-21
 
 ### ✨新功能：置顶任意选项

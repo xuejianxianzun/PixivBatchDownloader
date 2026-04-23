@@ -1469,6 +1469,13 @@ export const formHtml = `
 
         <span class="verticalSplit"></span>
 
+        <label for="checkBlockTagsForPreviewWork" data-xztext="_检查屏蔽的标签"></label>
+        <input type="checkbox" name="checkBlockTagsForPreviewWork" id="checkBlockTagsForPreviewWork" class="need_beautify checkbox_switch">
+        <span class="beautify_switch" tabindex="0"></span>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_检查屏蔽的标签" data-msg="_检查屏蔽的标签的帮助" data-xztext="_帮助">帮助</button>
+
+        <span class="verticalSplit"></span>
+
         <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
         <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>

@@ -27,7 +27,7 @@ class ShowWhatIsNew {
       <span>${lang.transl('_提示可以在release页面查看更新日志')}</span>
       <br>
       <br>
-      <div>${lang.transl('_更新说明1870')}</div>
+      <div>${lang.transl('_帮助')}</div>
       <br>
       <br>
       ${lang.transl('_赞助方式提示')}`

@@ -252,6 +252,7 @@ interface XzSetting {
   removeAtFromUsername: boolean
   showLargerThumbnails: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
+  checkBlockTagsForPreviewWork: boolean
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotCrawlLastImagesSwitch: boolean
@@ -768,6 +769,7 @@ class Settings {
     removeAtFromUsername: false,
     showLargerThumbnails: false,
     wheelScrollSwitchImageOnPreviewWork: true,
+    checkBlockTagsForPreviewWork: false,
     swicthImageByKeyboard: true,
     doNotCrawlLastImagesSwitch: false,
     doNotCrawlLastImagesCount: 1,
