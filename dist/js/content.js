@@ -2811,7 +2811,7 @@ class Config {
     static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
     /**始终保持显示的选项 */
     static optionWhiteList = [
-        2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 99, 100, 101,
+        2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 81, 99, 100, 101,
     ];
 }
 
@@ -11116,7 +11116,7 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以在release页面查看更新日志')}</span>
       <br>
       <br>
-      <div>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明1870')}</div>
+      <div>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_帮助')}</div>
       <br>
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_赞助方式提示')}`;
@@ -37630,7 +37630,7 @@ If the work matches either blocking condition, the downloader will not preview i
 1. "Теги, которые не должны содержаться", заданные в загрузчике<br>
 2. Теги, которые вы добавили в Mute в настройках аккаунта Pixiv<br>
 Если работа подпадает хотя бы под одно из этих условий блокировки, загрузчик не будет показывать ее в предпросмотре.`,
-    ]
+    ],
 };
 
 
