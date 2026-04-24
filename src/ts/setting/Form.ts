@@ -65,6 +65,8 @@ class Form {
           input.selectionStart = position + select.value.length
           input.selectionEnd = position + select.value.length
           input.focus()
+          // 重置下拉框
+          select.value = 'default'
         }
       })
     })

@@ -83,6 +83,7 @@ export interface SettingsForm extends HTMLFormElement {
   bgPositionY: HTMLInputElement
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
+  createFolderTagList2: HTMLTextAreaElement
   downAllAges: HTMLInputElement
   downR18: HTMLInputElement
   downR18G: HTMLInputElement

@@ -4156,7 +4156,16 @@ class FileName {
         },
         {
             flag: '{match_tag_folder}',
-            func: this.getMatchTagFolder.bind(this),
+            func: (rule, flag, data) => this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        },
+        // {match_tag_folder} 和 {match_tag_folder1} 是相同的
+        {
+            flag: '{match_tag_folder1}',
+            func: (rule, flag, data) => this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        },
+        {
+            flag: '{match_tag_folder2}',
+            func: (rule, flag, data) => this.getMatchTagFolder(rule, flag, data, 'createFolderTagList2'),
         },
     ];
     /** 获取 为多图作品添加一层文件夹 的文件夹规则 */
@@ -4191,17 +4200,16 @@ class FileName {
         return '';
     }
     /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
-    getMatchTagFolder(rule, flag, data) {
+    getMatchTagFolder(rule, flag, data, key) {
         if (rule.includes(flag)) {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList.length > 0) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].length > 0) {
                 // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
                 // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
                 // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
                 // 例如 用户输入顺序：巨乳 欧派
                 // 作品 tag 里的顺序：欧派 巨乳
                 const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
-                for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
+                for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key]) {
                     // 查找时转换成小写
                     if (workTags.includes(userTag.toLowerCase())) {
                         // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
@@ -30178,13 +30186,21 @@ Zip 파일이 원본 파일입니다.`,
         `이는 "R-18(G) 작품에 한 층의 폴더 추가"에서 설정한 폴더 규칙을 나타냅니다. 이 설정을 활성화한 경우, 다운로더는 R-18(G) 작품의 파일명을 생성할 때 이를 설정한 폴더 규칙으로 대체합니다. 비 R-18(G) 작품은 이 마커를 무시합니다.`,
         `Оно представляет правило папки, установленное в настройке «Добавить слой папки для работ R-18(G)». Если вы включили эту настройку, загрузчик при генерации имени файла для работ R-18(G) заменит его на правило папки, которое вы задали. Работы, не являющиеся R-18(G), будут игнорировать эту метку.`,
     ],
-    _命名标记_match_tag_folder: [
-        `它代表“使用第一个匹配的标签建立文件夹”设置。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
-        `它代表「使用第一個匹配的標籤建立資料夾」設定。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
-        `It represents the "Create folder using the first matched tag" setting. If you have enabled this setting and a tag you set is matched, it will output that tag; otherwise it will be ignored.`,
-        `これは「最初の一致したタグを使用してフォルダを作成」設定を表します。この設定を有効にしていて、設定したタグに一致した場合、そのタグを出力します。一致しなかった場合は無視されます。`,
-        `이는 "첫 번째 일치하는 태그로 폴더 생성" 설정을 나타냅니다. 이 설정을 활성화하고 설정한 태그와 일치하는 경우 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
-        `Оно представляет настройку «Создавать папку с использованием первого совпавшего тега». Если вы включили эту настройку и совпал один из заданных вами тегов, она выведет этот тег; в противном случае будет проигнорирована.`,
+    _命名标记_match_tag_folder1: [
+        `它是"使用第一个匹配的标签建立文件夹"里第一个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+        `它是「使用第一個匹配的標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+        `This is the match result of the first tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+        `これは「最初にマッチしたタグを使ってフォルダーを作成する」の最初のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+        `이것은 "처음 매칭된 태그로 폴더 만들기"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+        `Это результат совпадения первого списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+    ],
+    _命名标记_match_tag_folder2: [
+        `它是"使用第一个匹配的标签建立文件夹"里第二个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+        `它是「使用第一個匹配的標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+        `This is the match result of the second tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+        `これは「最初にマッチしたタグを使ってフォルダーを作成する」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+        `이것은 "처음 매칭된 태그로 폴더 만들기"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+        `Это результат совпадения второго списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
     ],
     _命名标记tags_trans: [
         `作品的标签列表，没有附带翻译后的标签`,
@@ -32879,66 +32895,90 @@ Note: This setting will put both R-18 and R-18G works in the same folder. If you
         'Создать папку с первым совпавшим <span class="key">тегом</span>',
     ],
     _使用第一个匹配的标签建立文件夹的说明: [
-        `如果作品含有某个标签，就使用它来建立一层文件夹。<br>
+        `如果作品含有你设置的标签，就使用它来建立一层文件夹。<br>
 <br>
 使用方法：<br>
-首先在这里输入目标标签，如果有多个标签，使用英语逗号 <span class="blue">,</span> 分割。<br>
-然后修改“命名规则”设置，在需要的地方插入<span class="blue">/{match_tag_folder}/</span>来添加一层文件夹。示例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+首先在这个设置里输入目标标签，如果有多个标签，使用英语逗号 <span class="blue">,</span> 分割。<br>
+你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果某个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+当然，如果你没有这个需求的话，可以只使用第一个标签列表。<br>
 <br>
-下载器在生成文件名时，会在作品的标签列表里查找你设置的标签。先查找第一个标签，如果找不到，再查找第二个，以此类推。一旦找到匹配的标签，就使用它替换命名规则中的<span class="blue">{match_tag_folder}</span>。<br>
-匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
-如果作品里含有你设置的多个标签，下载器只会使用第一个匹配的标签来建立文件夹。<br>
-<br>`,
-        `如果作品含有某個標籤，就使用它來建立一層資料夾。<br>
+在你设置标签列表之后，还需要修改"下载"选项卡里的"命名规则"设置，在需要的地方插入特定标记和斜线来添加一层文件夹。<span class="blue">/{match_tag_folder1}/</span>代表第一个标签列表的匹配结果，<span class="blue">/{match_tag_folder2}/</span>代表第二个标签列表的匹配结果。<br>
+示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
-使用方法：<br>
-首先在這裡輸入目標標籤，如果有多個標籤，使用英語逗號 <span class="blue">,</span> 分割。<br>
-然後修改「命名規則」設定，在需要的地方插入<span class="blue">/{match_tag_folder}/</span>來添加一層資料夾。示例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
-<br>
-下載器在產生檔名時，會在作品的標籤列表裡查找你設定的標籤。先查找第一個標籤，如果找不到，再查找第二個，以此類推。一旦找到匹配的標籤，就使用它替換命名規則中的<span class="blue">{match_tag_folder}</span>。<br>
-匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
-如果作品裡含有你設定的多個標籤，下載器只會使用第一個匹配的標籤來建立資料夾。<br>
-<br>`,
-        `If a work contains a certain tag, it will be used to create a folder layer.<br>
-<br>
-Usage:<br>
-First, enter the target tags here. If there are multiple tags, separate them with English commas <span class="blue">,</span>.<br>
-Then modify the "naming rule" setting and insert <span class="blue">/{match_tag_folder}/</span> where needed to add a folder layer. Example: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
-<br>
-When the downloader generates the filename, it will search the work's tag list for the tags you set. It starts with the first tag, and if not found, proceeds to the second, and so on. Once a matching tag is found, it replaces <span class="blue">{match_tag_folder}</span> in the naming rule with that tag.<br>
-The matching is exact and case-insensitive. If you set <span class="blue">A</span>, it can match <span class="blue">a</span> or <span class="blue">A</span>, but will not match <span class="blue">abc</span>.<br>
-If the work contains multiple tags you set, the downloader will only use the first matched tag to create the folder.<br>
-<br>`,
-        `作品に特定のタグが含まれている場合、それを使用して1層のフォルダを作成します。<br>
+匹配方式：<br>
+下载器会在作品的标签列表里查找你设置的标签。匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
+对于你设置的每个标签列表，下载器都会按顺序查找：先查找你设置的第一个标签，如果找不到就查找第二个，以此类推。一旦找到第一个匹配的标签，就停止查找，并用它替换命名规则中的对应标记：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
+如果没有匹配到你设置的标签，下载器会忽略对应的标记。<br>`,
+        `如果作品含有你設定的標籤，就使用它來建立一層資料夾。<br>
 <br>
 使用方法：<br>
-まずここにターゲットタグを入力します。複数のタグがある場合は、英語のカンマ <span class="blue">,</span> で区切ります。<br>
-次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{match_tag_folder}/</span>を挿入して1層のフォルダを追加します。例：<span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+首先在這個設定裡輸入目標標籤，如果有多個標籤，使用英語逗號 <span class="blue">,</span> 分割。<br>
+你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果某個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+當然，如果你沒有這個需求的話，可以只使用第一個標籤列表。<br>
 <br>
-ダウンローダーがファイル名を生成する際、作品のタグリストから設定したタグを検索します。最初のタグから検索し、見つからなければ次のタグを検索し、というように続けます。一致するタグが見つかると、命名規則内の<span class="blue">{match_tag_folder}</span>をそのタグに置き換えます。<br>
-一致は完全一致で、大文字小文字を区別しません。<span class="blue">A</span>を設定した場合、<span class="blue">a</span> または <span class="blue">A</span> に一致しますが、<span class="blue">abc</span> には一致しません。<br>
-作品に設定した複数のタグが含まれている場合、ダウンローダーは最初に一致したタグのみを使用してフォルダを作成します。<br>
-<br>`,
-        `작품에 특정 태그가 포함되어 있으면 해당 태그를 사용하여 한 층의 폴더를 생성합니다.<br>
+在你設定標籤列表之後，還需要修改「下載」選項卡裡的「命名規則」設定，在需要的地方插入特定標記和斜線來添加一層資料夾。<span class="blue">/{match_tag_folder1}/</span>代表第一個標籤列表的匹配結果，<span class="blue">/{match_tag_folder2}/</span>代表第二個標籤列表的匹配結果。<br>
+示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
-사용 방법:<br>
-먼저 여기에 대상 태그를 입력하세요. 여러 태그가 있는 경우 영어 쉼표 <span class="blue">,</span>로 구분합니다.<br>
-그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{match_tag_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요. 예시: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+匹配方式：<br>
+下載器會在作品的標籤列表裡查找你設定的標籤。匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
+對於你設定的每個標籤列表，下載器都會按順序查找：先查找你設定的第一個標籤，如果找不到就查找第二個，以此類推。一旦找到第一個匹配的標籤，就停止查找，並用它替換命名規則中的對應標記：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
+如果沒有匹配到你設定的標籤，下載器會忽略對應的標記。<br>`,
+        `If a work contains a tag you have set, that tag will be used to create a folder.<br>
 <br>
-다운로더가 파일명을 생성할 때 작품의 태그 목록에서 설정한 태그를 검색합니다. 첫 번째 태그부터 검색하고, 없으면 두 번째 태그를 검색하는 식으로 진행합니다. 일치하는 태그를 찾으면 명명 규칙의 <span class="blue">{match_tag_folder}</span>를 해당 태그로 대체합니다.<br>
-일치 모드는 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span>를 설정하면 <span class="blue">a</span> 또는 <span class="blue">A</span>와 일치하지만 <span class="blue">abc</span>와는 일치하지 않습니다.<br>
-작품에 설정한 여러 태그가 포함되어 있으면 다운로더는 첫 번째 일치하는 태그만 사용하여 폴더를 생성합니다.<br>
-<br>`,
-        `Если работа содержит определённый тег, он будет использован для создания слоя папки.<br>
+How to use:<br>
+First, enter the target tags in this setting. If there are multiple tags, separate them with a comma <span class="blue">,</span>.<br>
+You can set up 2 tag lists: <span class="blue">{match_tag_folder1}</span> and <span class="blue">{match_tag_folder2}</span>. This is designed for a common use case: if a character belongs to a certain work, create two levels of folders — the first for the work name and the second for the character name. For example, set the work name <span class="blue">GenshinImpact</span> in <span class="blue">{match_tag_folder1}</span> and the character name <span class="blue">フリーナ</span> in <span class="blue">{match_tag_folder2}</span>. If a work contains both tags, the downloader will add two folder levels for it: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
+Of course, if you don't need this, you can just use the first tag list.<br>
 <br>
-Способ использования:<br>
-Сначала введите здесь целевые теги. Если тегов несколько, разделяйте их английскими запятыми <span class="blue">,</span>.<br>
-Затем измените настройку «naming rule» и вставьте <span class="blue">/{match_tag_folder}/</span> в нужном месте, чтобы добавить слой папки. Пример: <span class="blue">pixiv/{match_tag_folder}/{id}</span><br>
+After setting up your tag lists, you also need to update the "Naming rule" in the "Download" tab. Insert the specific tokens and slashes where needed to add a folder level. <span class="blue">/{match_tag_folder1}/</span> represents the match result of the first tag list, and <span class="blue">/{match_tag_folder2}/</span> represents the match result of the second tag list.<br>
+Example: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
-При генерации имени файла загрузчик будет искать в списке тегов работы теги, которые вы задали. Поиск начинается с первого тега, если не найден — переходит ко второму и так далее. Как только найдётся совпадающий тег, он заменит <span class="blue">{match_tag_folder}</span> в правиле именования на этот тег.<br>
-Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, оно совпадёт с <span class="blue">a</span> или <span class="blue">A</span>, но не с <span class="blue">abc</span>.<br>
-Если в работе содержится несколько заданных вами тегов, загрузчик использует только первый совпавший тег для создания папки.<br>
-<br>`,
+How matching works:<br>
+The downloader searches for your set tags in the work's tag list. Matching is exact and case-insensitive. If you set <span class="blue">A</span>, it will match <span class="blue">a</span> or <span class="blue">A</span>, but not <span class="blue">abc</span>.<br>
+For each tag list you set, the downloader searches in order: it looks for the first tag first, and if not found, moves to the second, and so on. Once the first matching tag is found, the search stops, and it replaces the corresponding token in the naming rule: <span class="blue">{match_tag_folder1}</span> or <span class="blue">{match_tag_folder2}</span>.<br>
+If none of your set tags are matched, the downloader will ignore the corresponding token.<br>`,
+        `作品に設定したタグが含まれている場合、そのタグを使ってフォルダーを 1 階層作成します。<br>
+<br>
+使い方：<br>
+まずこの設定に対象のタグを入力してください。複数のタグがある場合は英語のカンマ <span class="blue">,</span> で区切ります。<br>
+タグリストは 2 つ設定できます：<span class="blue">{match_tag_folder1}</span> と <span class="blue">{match_tag_folder2}</span>。これはよくある使い方に対応しています。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。例えば <span class="blue">{match_tag_folder1}</span> に作品名 <span class="blue">GenshinImpact</span> を設定し、<span class="blue">{match_tag_folder2}</span> にキャラクター名 <span class="blue">フリーナ</span> を設定します。work に両方のタグが含まれている場合、ダウンローダーはその work に 2 階層のフォルダーを追加します：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+もちろん、この用途が不要であれば最初のタグリストだけを使えばかまいません。<br>
+<br>
+タグリストを設定したら、「ダウンロード」タブの「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
+例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
+<br>
+マッチ方式：<br>
+ダウンローダーは work のタグリストの中から設定したタグを検索します。マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
+設定した各タグリストに対して、ダウンローダーは順番に検索します。最初のタグから検索し、見つからなければ次のタグを検索します。最初にマッチしたタグが見つかった時点で検索を止め、命名ルール内の対応するトークン（<span class="blue">{match_tag_folder1}</span> または <span class="blue">{match_tag_folder2}</span>）をそのタグで置き換えます。<br>
+設定したタグがひとつもマッチしなかった場合、ダウンローダーは対応するトークンを無視します。<br>`,
+        `작품에 설정한 태그가 포함되어 있으면 해당 태그를 사용해 폴더를 한 단계 만듭니다.<br>
+<br>
+사용 방법：<br>
+먼저 이 설정에 대상 태그를 입력하세요. 태그가 여러 개라면 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
+태그 목록을 2개 설정할 수 있습니다：<span class="blue">{match_tag_folder1}</span> 과 <span class="blue">{match_tag_folder2}</span>. 이것은 흔한 요구사항을 처리하기 위한 것입니다. 어떤 캐릭터가 특정 작품에 속할 경우 폴더를 두 단계로 만듭니다. 첫 번째 단계는 작품 이름, 두 번째 단계는 캐릭터 이름입니다. 예를 들어 <span class="blue">{match_tag_folder1}</span> 에 작품 이름 <span class="blue">GenshinImpact</span> 를 설정하고, <span class="blue">{match_tag_folder2}</span> 에 캐릭터 이름 <span class="blue">フリーナ</span> 를 설정합니다. 작품에 두 태그가 모두 포함되어 있으면 다운로더가 해당 작품에 두 단계 폴더를 추가합니다：<span class="blue">GenshinImpact/フリーナ/</span>.<br>
+물론 이런 요구사항이 없다면 첫 번째 태그 목록만 사용해도 됩니다.<br>
+<br>
+태그 목록을 설정한 후에는 "다운로드" 탭의 "명명 규칙" 설정도 수정해야 합니다. 폴더를 추가하고 싶은 위치에 특정 토큰과 슬래시를 삽입하세요. <span class="blue">/{match_tag_folder1}/</span> 는 첫 번째 태그 목록의 매칭 결과를 나타내고, <span class="blue">/{match_tag_folder2}/</span> 는 두 번째 태그 목록의 매칭 결과를 나타냅니다.<br>
+예시：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
+<br>
+매칭 방식：<br>
+다운로더는 작품의 태그 목록에서 설정한 태그를 검색합니다. 매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
+설정한 각 태그 목록에 대해 다운로더는 순서대로 검색합니다. 첫 번째 태그부터 검색하고 찾지 못하면 두 번째 태그를 검색하는 식입니다. 처음으로 매칭되는 태그를 찾으면 검색을 멈추고 명명 규칙의 해당 토큰(<span class="blue">{match_tag_folder1}</span> 또는 <span class="blue">{match_tag_folder2}</span>)을 그 태그로 교체합니다.<br>
+설정한 태그가 하나도 매칭되지 않으면 다운로더는 해당 토큰을 무시합니다.<br>`,
+        `Если work содержит заданный вами тег, он будет использован для создания папки.<br>
+<br>
+Как использовать:<br>
+Сначала введите нужные теги в этой настройке. Если тегов несколько, разделите их английской запятой <span class="blue">,</span>.<br>
+Можно задать 2 списка тегов: <span class="blue">{match_tag_folder1}</span> и <span class="blue">{match_tag_folder2}</span>. Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создайте два уровня папок — первый для названия произведения, второй для имени персонажа. Например, задайте название произведения <span class="blue">GenshinImpact</span> в <span class="blue">{match_tag_folder1}</span>, а имя персонажа <span class="blue">フリーナ</span> — в <span class="blue">{match_tag_folder2}</span>. Если work содержит оба тега, загрузчик добавит для неё два уровня папок: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
+Конечно, если такой необходимости нет, можно использовать только первый список тегов.<br>
+<br>
+После настройки списков тегов нужно также изменить "Правило именования" на вкладке "Загрузка": вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
+Пример: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
+<br>
+Принцип совпадения:<br>
+Загрузчик ищет заданные вами теги в списке тегов work. Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
+Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
+Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
     ],
     _全年龄: [
         '全年龄',
@@ -40792,6 +40832,8 @@ class Form {
                     input.selectionStart = position + select.value.length;
                     input.selectionEnd = position + select.value.length;
                     input.focus();
+                    // 
+                    select.value = 'default';
                 }
             });
         });
@@ -41763,8 +41805,11 @@ const formHtml = `
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
-      <span class="subOptionWrap" data-show="createFolderByTag">
+      <span class="subOptionWrap namingTipArea" data-show="createFolderByTag">
+        <span class="name">{match_tag_folder1}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
+        <span class="name">{match_tag_folder2}</span>
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList2" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
     </p>
 
@@ -43064,6 +43109,7 @@ class FormSettings {
             'notNeedTag',
             'blockList',
             'createFolderTagList',
+            'createFolderTagList2',
             'seriesNovelNameRule',
             'titleIncludeList',
             'titleExcludeList',
@@ -43288,7 +43334,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 管理命名规则
 // 作为“图像作品的命名规则”和“小说的命名规则”设置的代理，保存命名规则，并应用“在不同的页面类型中使用不同的命名规则”设置
-// 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
+// 其他类必须使用这个模块来存取命名规则
 class NameRuleManager {
     constructor(type) {
         this.type = type;
@@ -43542,9 +43588,14 @@ class NamingRuleConfig {
         },
         { name: '{r18_g_folder}', mayEmpty: true, help: '_命名标记_r18_g_folder' },
         {
-            name: '{match_tag_folder}',
+            name: '{match_tag_folder1}',
             mayEmpty: true,
-            help: '_命名标记_match_tag_folder',
+            help: '_命名标记_match_tag_folder1',
+        },
+        {
+            name: '{match_tag_folder2}',
+            mayEmpty: true,
+            help: '_命名标记_match_tag_folder2',
         },
     ];
     getOptionList() {
@@ -44458,6 +44509,7 @@ class Settings {
         bgPositionY: 'center',
         createFolderByTag: false,
         createFolderTagList: [],
+        createFolderTagList2: [],
         downloadUgoiraFirst: false,
         switchTabBar: 'over',
         zeroPadding: false,
@@ -44673,6 +44725,7 @@ class Settings {
         'needTag',
         'notNeedTag',
         'createFolderTagList',
+        'createFolderTagList2',
         'exportLogExclude',
         'titleIncludeList',
         'titleExcludeList',

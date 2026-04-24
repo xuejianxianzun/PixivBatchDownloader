@@ -761,8 +761,11 @@ export const formHtml = `
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
-      <span class="subOptionWrap" data-show="createFolderByTag">
+      <span class="subOptionWrap namingTipArea" data-show="createFolderByTag">
+        <span class="name">{match_tag_folder1}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
+        <span class="name">{match_tag_folder2}</span>
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList2" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
     </p>
 

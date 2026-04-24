@@ -1,4 +1,4 @@
-import { settings } from './setting/Settings'
+import { SettingKeys, settings } from './setting/Settings'
 import { nameRuleManager } from './setting/NameRuleManager'
 import './SetUserName'
 import { store } from './store/Store'
@@ -320,7 +320,19 @@ class FileName {
     },
     {
       flag: '{match_tag_folder}',
-      func: this.getMatchTagFolder.bind(this),
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+    },
+    // {match_tag_folder} 和 {match_tag_folder1} 是相同的
+    {
+      flag: '{match_tag_folder1}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+    },
+    {
+      flag: '{match_tag_folder2}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList2'),
     },
   ]
 
@@ -364,19 +376,21 @@ class FileName {
   }
 
   /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
-  private getMatchTagFolder(rule: string, flag: string, data: Result): string {
+  private getMatchTagFolder(
+    rule: string,
+    flag: string,
+    data: Result,
+    key: 'createFolderTagList' | 'createFolderTagList2'
+  ): string {
     if (rule.includes(flag)) {
-      if (
-        settings.createFolderByTag &&
-        settings.createFolderTagList.length > 0
-      ) {
+      if (settings.createFolderByTag && settings[key].length > 0) {
         // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
         // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
         // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
         // 例如 用户输入顺序：巨乳 欧派
         // 作品 tag 里的顺序：欧派 巨乳
         const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-        for (const userTag of settings.createFolderTagList) {
+        for (const userTag of settings[key]) {
           // 查找时转换成小写
           if (workTags.includes(userTag.toLowerCase())) {
             // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹

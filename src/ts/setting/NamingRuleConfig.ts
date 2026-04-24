@@ -51,9 +51,14 @@ class NamingRuleConfig {
     },
     { name: '{r18_g_folder}', mayEmpty: true, help: '_命名标记_r18_g_folder' },
     {
-      name: '{match_tag_folder}',
+      name: '{match_tag_folder1}',
       mayEmpty: true,
-      help: '_命名标记_match_tag_folder',
+      help: '_命名标记_match_tag_folder1',
+    },
+    {
+      name: '{match_tag_folder2}',
+      mayEmpty: true,
+      help: '_命名标记_match_tag_folder2',
     },
   ]
 

@@ -228,6 +228,7 @@ class FormSettings {
       'notNeedTag',
       'blockList',
       'createFolderTagList',
+      'createFolderTagList2',
       'seriesNovelNameRule',
       'titleIncludeList',
       'titleExcludeList',

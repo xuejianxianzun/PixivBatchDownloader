@@ -203,6 +203,7 @@ interface XzSetting {
   bgPositionY: 'center' | 'top'
   createFolderByTag: boolean
   createFolderTagList: string[]
+  createFolderTagList2: string[]
   downloadUgoiraFirst: boolean
   downAllAges: boolean
   downR18: boolean
@@ -699,6 +700,7 @@ class Settings {
     bgPositionY: 'center',
     createFolderByTag: false,
     createFolderTagList: [],
+    createFolderTagList2: [],
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
@@ -925,6 +927,7 @@ class Settings {
     'needTag',
     'notNeedTag',
     'createFolderTagList',
+    'createFolderTagList2',
     'exportLogExclude',
     'titleIncludeList',
     'titleExcludeList',
