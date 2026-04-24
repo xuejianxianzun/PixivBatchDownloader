@@ -8,31 +8,42 @@ import { nameRuleManager } from './NameRuleManager'
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
-  constructor(ruleInput: HTMLInputElement) {
+  constructor(ruleInput: HTMLInputElement, type: 'artwork' | 'novel') {
     this.ruleInput = ruleInput
+    this.type = type
 
-    Tools.clearSlot('saveNamingRule')
-    const wrap = Tools.useSlot('saveNamingRule', this.html) as HTMLElement
+    let slotName = ''
+    if (type === 'artwork') {
+      slotName = `saveNamingRuleForArtwork`
+      this.settingKey = 'namingRuleList'
+    } else {
+      slotName = `saveNamingRuleForNovel`
+      this.settingKey = 'namingRuleListForNovel'
+    }
+
+    Tools.clearSlot(slotName)
+    const wrap = Tools.useSlot(slotName, this.html) as HTMLElement
     theme.register(wrap)
     lang.register(wrap)
 
     this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement
     this.loadBtn = wrap.querySelector('button.nameLoad')! as HTMLButtonElement
     this.listWrap = document.querySelector(
-      'ul.namingRuleList'
+      `ul.namingRuleList.${type}`
     )! as HTMLUListElement
-
     this.createList()
 
     this.bindEvents()
   }
 
-  private readonly limit = 20 // 最大保存数量
+  private type: 'artwork' | 'novel'
+  private settingKey: 'namingRuleList' | 'namingRuleListForNovel'
+  private ruleInput: HTMLInputElement
+  private listWrap: HTMLUListElement
   private saveBtn: HTMLButtonElement
   private loadBtn: HTMLButtonElement
-  private listWrap: HTMLUListElement
-  private ruleInput: HTMLInputElement
   private _show = false // 是否显示列表
+  private readonly limit = 20 // 最大保存数量
 
   private readonly html = `
   <div class="saveNamingRuleWrap">
@@ -65,47 +76,47 @@ class SaveNamingRule {
     // 设置发生变化时重新创建列表
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (data.name === 'namingRuleList') {
+      if (data.name === this.settingKey) {
         this.createList()
       }
     })
   }
 
   private add(rule: string) {
-    if (settings.namingRuleList.length === this.limit) {
+    if (settings[this.settingKey].length === this.limit) {
       this.delete(0)
     }
     // 如果这个规则已存在，不会重复添加它
-    if (!settings.namingRuleList.includes(rule)) {
-      const list = Array.from(settings.namingRuleList)
+    if (!settings[this.settingKey].includes(rule)) {
+      const list = Array.from(settings[this.settingKey])
       list.push(rule)
-      setSetting('namingRuleList', list)
+      setSetting(this.settingKey, list)
     }
 
     toast.success(lang.transl('_已保存命名规则'))
   }
 
   private delete(index: number) {
-    const list = Array.from(settings.namingRuleList)
+    const list = Array.from(settings[this.settingKey])
     list.splice(index, 1)
-    setSetting('namingRuleList', list)
+    setSetting(this.settingKey, list)
   }
 
   private select(rule: string) {
     this.ruleInput.value = rule
-    nameRuleManager.rule = rule
+    nameRuleManager.setRule(this.type, rule)
   }
 
   private createList() {
     const htmlArr = []
-    for (let i = 0; i < settings.namingRuleList.length; i++) {
+    for (let i = 0; i < settings[this.settingKey].length; i++) {
       const html = `<li>
-      <span class="rule">${settings.namingRuleList[i]}</span>
+      <span class="rule">${settings[this.settingKey][i]}</span>
       <button class="delete textButton" type="button" data-index="${i}">×</button>
     </li>`
       htmlArr.push(html)
     }
-    if (settings.namingRuleList.length === 0) {
+    if (settings[this.settingKey].length === 0) {
       htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`)
     }
     this.listWrap.innerHTML = htmlArr.join('')

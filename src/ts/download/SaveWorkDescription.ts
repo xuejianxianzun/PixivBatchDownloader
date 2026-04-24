@@ -189,8 +189,10 @@ class SaveWorkDescription {
     } else {
       // 如果是同一个画师
       // 在文件名里添加画师名字
-      txtName = `${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
-      const array = nameRuleManager.rule.split('/')
+      const result = store.resultMeta[0]
+      const type = result.type === 3 ? 'novel' : 'artwork'
+      txtName = `${name}-user ${result.user}-${title}-${time}.txt`
+      const array = nameRuleManager.getRule(type).split('/')
       array.pop() // 去掉最后的文件名部分，只保留文件夹部分
       let folder = ''
       // 倒序遍历 array

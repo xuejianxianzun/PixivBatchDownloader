@@ -124,7 +124,9 @@ interface XzSetting {
   autoStartDownload: boolean
   downloadThread: number
   userSetName: string
+  userSetNameForNovel: string
   namingRuleList: string[]
+  namingRuleListForNovel: string[]
   folderForMultiImageWorksSwitch: boolean
   folderForMultiImageWorksRule: string
   folderForMultiImageWorksImageNumber: number
@@ -221,6 +223,7 @@ interface XzSetting {
   /** 每个页面类型所使用的命名规则 */
   // 这里应该使用 Map 结构，但是 JSON.stringify 不能处理 Map 类型，所以简化成了 Object
   nameRuleForEachPageType: { [key in PageName]: string }
+  nameRuleForEachPageTypeForNovel: { [key in PageName]: string }
   showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
   boldKeywords: boolean
@@ -619,8 +622,10 @@ class Settings {
     notNeedTag: [],
     autoStartDownload: true,
     downloadThread: 3,
-    userSetName: Config.defaultNameRule,
-    namingRuleList: [Config.defaultNameRule],
+    userSetName: Config.defaultNameRuleForArtwork,
+    userSetNameForNovel: Config.defaultNameRuleForNovel,
+    namingRuleList: [Config.defaultNameRuleForArtwork],
+    namingRuleListForNovel: [Config.defaultNameRuleForNovel],
     folderForMultiImageWorksSwitch: false,
     folderForMultiImageWorksRule: '{id_num}',
     folderForMultiImageWorksImageNumber: 1,
@@ -708,38 +713,68 @@ class Settings {
     saveMetaFormatJSON: false,
     setNameRuleForEachPageType: false,
     nameRuleForEachPageType: {
-      [PageName.Unsupported]: Config.defaultNameRule,
-      [PageName.Home]: Config.defaultNameRule,
-      [PageName.Artwork]: Config.defaultNameRule,
-      [PageName.UserHome]: Config.defaultNameRule,
+      [PageName.Unsupported]: Config.defaultNameRuleForArtwork,
+      [PageName.Home]: Config.defaultNameRuleForArtwork,
+      [PageName.Artwork]: Config.defaultNameRuleForArtwork,
+      [PageName.UserHome]: Config.defaultNameRuleForArtwork,
       [PageName.BookmarkLegacy]:
         'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.Bookmark]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.ArtworkSearch]:
         'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      [PageName.AreaRanking]: Config.defaultNameRule,
+      [PageName.AreaRanking]: Config.defaultNameRuleForArtwork,
       [PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
       [PageName.Pixivision]: 'pixivision/{page_title}/{id}',
-      [PageName.BookmarkDetail]: Config.defaultNameRule,
-      [PageName.NewArtworkBookmark]: Config.defaultNameRule,
-      [PageName.Discover]: Config.defaultNameRule,
-      [PageName.NewArtwork]: Config.defaultNameRule,
-      [PageName.Novel]: Config.defaultNameRule,
+      [PageName.BookmarkDetail]: Config.defaultNameRuleForArtwork,
+      [PageName.NewArtworkBookmark]: Config.defaultNameRuleForArtwork,
+      [PageName.Discover]: Config.defaultNameRuleForArtwork,
+      [PageName.NewArtwork]: Config.defaultNameRuleForArtwork,
+      [PageName.Novel]: Config.defaultNameRuleForArtwork,
       [PageName.NovelSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
       [PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-      [PageName.NewNovelBookmark]: Config.defaultNameRule,
-      [PageName.NewNovel]: Config.defaultNameRule,
+      [PageName.NewNovelBookmark]: Config.defaultNameRuleForArtwork,
+      [PageName.NewNovel]: Config.defaultNameRuleForArtwork,
       [PageName.ArtworkSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-      [PageName.Following]: Config.defaultNameRule,
-      [PageName.Request]: Config.defaultNameRule,
-      [PageName.Unlisted]: Config.defaultNameRule,
-      [PageName.DiscoverUsers]: Config.defaultNameRule,
-      [PageName.Dashboard]: Config.defaultNameRule,
+      [PageName.Following]: Config.defaultNameRuleForArtwork,
+      [PageName.Request]: Config.defaultNameRuleForArtwork,
+      [PageName.Unlisted]: Config.defaultNameRuleForArtwork,
+      [PageName.DiscoverUsers]: Config.defaultNameRuleForArtwork,
+      [PageName.Dashboard]: Config.defaultNameRuleForArtwork,
       [PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
-      [PageName.SearchUsers]: Config.defaultNameRule,
+      [PageName.SearchUsers]: Config.defaultNameRuleForArtwork,
+    },
+    nameRuleForEachPageTypeForNovel: {
+      [PageName.Unsupported]: Config.defaultNameRuleForNovel,
+      [PageName.Home]: Config.defaultNameRuleForNovel,
+      [PageName.Artwork]: Config.defaultNameRuleForNovel,
+      [PageName.UserHome]: Config.defaultNameRuleForNovel,
+      [PageName.BookmarkLegacy]: Config.defaultNameRuleForNovel,
+      [PageName.Bookmark]: Config.defaultNameRuleForNovel,
+      [PageName.ArtworkSearch]: Config.defaultNameRuleForNovel,
+      [PageName.AreaRanking]: Config.defaultNameRuleForNovel,
+      [PageName.ArtworkRanking]: Config.defaultNameRuleForNovel,
+      [PageName.Pixivision]: Config.defaultNameRuleForNovel,
+      [PageName.BookmarkDetail]: Config.defaultNameRuleForNovel,
+      [PageName.NewArtworkBookmark]: Config.defaultNameRuleForNovel,
+      [PageName.Discover]: Config.defaultNameRuleForNovel,
+      [PageName.NewArtwork]: Config.defaultNameRuleForNovel,
+      [PageName.Novel]: Config.defaultNameRuleForNovel,
+      [PageName.NovelSeries]: Config.defaultNameRuleForNovel,
+      [PageName.NovelSearch]: Config.defaultNameRuleForNovel,
+      [PageName.NovelRanking]: Config.defaultNameRuleForNovel,
+      [PageName.NewNovelBookmark]: Config.defaultNameRuleForNovel,
+      [PageName.NewNovel]: Config.defaultNameRuleForNovel,
+      [PageName.ArtworkSeries]: Config.defaultNameRuleForNovel,
+      [PageName.Following]: Config.defaultNameRuleForNovel,
+      [PageName.Request]: Config.defaultNameRuleForNovel,
+      [PageName.Unlisted]: Config.defaultNameRuleForNovel,
+      [PageName.DiscoverUsers]: Config.defaultNameRuleForNovel,
+      [PageName.Dashboard]: Config.defaultNameRuleForNovel,
+      [PageName.Contest]: Config.defaultNameRuleForNovel,
+      [PageName.SearchUsers]: Config.defaultNameRuleForNovel,
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
@@ -885,6 +920,7 @@ class Settings {
   // 值为字符串数组的设置
   private stringArrayKeys = [
     'namingRuleList',
+    'namingRuleListForNovel',
     'blockList',
     'needTag',
     'notNeedTag',
@@ -975,8 +1011,16 @@ class Settings {
       }
 
       // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
-      const keys = ['crawlNumber', 'nameRuleForEachPageType'] as const
+      const keys = [
+        'crawlNumber',
+        'nameRuleForEachPageType',
+        'nameRuleForEachPageTypeForNovel',
+      ] as const
       for (const key of keys) {
+        if (!restoreData[key]) {
+          continue
+        }
+
         for (const [pageTypeNo, cfg] of Object.entries(
           this.defaultSettings[key]
         ) as unknown as PageEntry[]) {
@@ -1226,9 +1270,11 @@ class Settings {
       }
     }
 
-    // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理
     if (key === 'namingRuleList' && (value as string[]).length === 0) {
-      value = [Config.defaultNameRule]
+      value = [Config.defaultNameRuleForArtwork]
+    }
+    if (key === 'namingRuleListForNovel' && (value as string[]).length === 0) {
+      value = [Config.defaultNameRuleForNovel]
     }
 
     // 更改设置

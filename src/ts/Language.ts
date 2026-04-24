@@ -65,10 +65,10 @@ class Lang {
       this.type =
         data.value === 'auto' ? this.htmlLangTypeToLangType() : data.value
       if (this.type !== old) {
-        EVT.fire('langChange')
         this.elList.forEach((el) => {
           this.handleMark(el)
         })
+        EVT.fire('langChange')
       }
     })
   }

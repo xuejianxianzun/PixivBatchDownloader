@@ -67,7 +67,7 @@ class UseDifferentNameRuleIfWorkHasTag {
         </div>
 
         <div class="inputItem rule">
-          <span class="label nameLabel" data-xztext="_命名规则2"></span>
+          <span class="label nameLabel" data-xztext="_命名规则"></span>
           <input type="text" class="setinput_style1 blue addRuleInput" />
         </div>
 

@@ -38,7 +38,9 @@ export interface SettingsForm extends HTMLFormElement {
   autoStartDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
+  userSetNameForNovel: HTMLInputElement
   fileNameSelect: HTMLSelectElement
+  fileNameSelectForNovel: HTMLSelectElement
   noSerialNo: HTMLInputElement
   folderForMultiImageWorksSwitch: HTMLInputElement
   folderForMultiImageWorksRule: HTMLInputElement

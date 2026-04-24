@@ -60,7 +60,7 @@ class InitRankingArtworkPage extends InitPageBase {
   // 抓取完成后，对结果进行排序
   protected sortResult() {
     // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-    if (nameRuleManager.rule.includes('{rank}')) {
+    if (nameRuleManager.getRule('artwork').includes('{rank}')) {
       store.result.sort(Utils.sortByProperty('rank', 'asc'))
       store.resultMeta.sort(Utils.sortByProperty('rank', 'asc'))
     }

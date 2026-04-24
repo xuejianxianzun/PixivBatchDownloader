@@ -2777,8 +2777,10 @@ class Config {
     static sendDataURL = !this.isFirefox && (webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().extension).inIncognitoContext;
     /**ImageViewer 生成的 li 元素的 className */
     static ImageViewerLI = 'xz-thumb-li';
-    /** 默认的命名规则 */
-    static defaultNameRule = 'pixiv/{user}-{user_id}/{id}-{title}';
+    /** 图像作品的默认命名规则 */
+    static defaultNameRuleForArtwork = 'pixiv/{user}-{user_id}/{id}-{title}';
+    /** 小说的默认命名规则 */
+    static defaultNameRuleForNovel = '{follow_artwork}';
     static whatIsNewFlagDefault = 'xuejian&saber';
     /** 如果作品含有这些标签，就认为它是原创作品 */
     static originalTags = [
@@ -2812,7 +2814,7 @@ class Config {
     static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
     /**始终保持显示的选项 */
     static optionWhiteList = [
-        2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 81, 99, 100, 101,
+        2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 81, 99, 100, 101, 106,
     ];
 }
 
@@ -3878,13 +3880,12 @@ __webpack_require__.r(__webpack_exports__);
 class FileName {
     /**传入一个抓取结果，生成其文件名 */
     createFileName(data) {
-        let rule = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.rule;
+        let rule = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork');
         // 1 把特定标记替换成它所代表的设置的值
         for (const item of this.flagToSettingValue) {
             const value = item.func(rule, item.flag, data);
             rule = rule.replaceAll(item.flag, value);
         }
-        console.log(rule);
         rule = this.handleCustomFeature(rule, data);
         // 2 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
@@ -4057,7 +4058,6 @@ class FileName {
         };
         // 3 生成文件名
         let result = this.generateFileName(rule, schema);
-        console.log(result);
         // 5 生成后缀名
         // 处理动图的后缀名
         if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
@@ -4166,6 +4166,7 @@ class FileName {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksSwitch &&
                 data.pageCount > 1 &&
                 data.pageCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksImageNumber) {
+                // 原样返回用户设置的文件夹规则，不替换特殊字符，因为这里允许用户使用 / 来建立多层文件夹
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.folderForMultiImageWorksRule;
             }
             else {
@@ -4180,6 +4181,7 @@ class FileName {
             // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder &&
                 (data.xRestrict === 1 || data.xRestrict === 2)) {
+                // 原样返回用户设置的文件夹规则，不替换特殊字符，因为这里允许用户使用 / 来建立多层文件夹
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18FolderName;
             }
             else {
@@ -4202,12 +4204,12 @@ class FileName {
                 for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
                     // 查找时转换成小写
                     if (workTags.includes(userTag.toLowerCase())) {
-                        // 匹配成功后，替换特殊字符
+                        // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
                         const matchTag = this.generateFileName(flag, {
                             [flag]: {
                                 value: userTag,
-                                safe: false
-                            }
+                                safe: false,
+                            },
                         });
                         return matchTag;
                     }
@@ -5911,10 +5913,10 @@ class Lang {
             this.type =
                 data.value === 'auto' ? this.htmlLangTypeToLangType() : data.value;
             if (this.type !== old) {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('langChange');
                 this.elList.forEach((el) => {
                     this.handleMark(el);
                 });
+                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('langChange');
             }
         });
     }
@@ -16271,7 +16273,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     // 抓取完成后，对结果进行排序
     sortResult() {
         // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_13__.nameRuleManager.rule.includes('{rank}')) {
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_13__.nameRuleManager.getRule('artwork').includes('{rank}')) {
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
@@ -20316,7 +20318,7 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
     // 抓取完成后，对结果进行排序
     sortResult() {
         // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.includes('{rank}')) {
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.getRule('novel').includes('{rank}')) {
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
         }
@@ -20521,7 +20523,7 @@ class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
     // 抓取完成后，对结果进行排序
     sortResult() {
         // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__.nameRuleManager.rule.includes('{rank}')) {
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__.nameRuleManager.getRule('novel').includes('{rank}')) {
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
@@ -25751,8 +25753,10 @@ class SaveWorkDescription {
         else {
             // 如果是同一个画师
             // 在文件名里添加画师名字
-            txtName = `${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
-            const array = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.split('/');
+            const result = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0];
+            const type = result.type === 3 ? 'novel' : 'artwork';
+            txtName = `${name}-user ${result.user}-${title}-${time}.txt`;
+            const array = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.getRule(type).split('/');
             array.pop(); // 去掉最后的文件名部分，只保留文件夹部分
             let folder = '';
             // 倒序遍历 array
@@ -29982,15 +29986,23 @@ Zip 파일이 원본 파일입니다.`,
         `총 {}개의 작품을 크롤링하여 {}개의 크롤링 결과가 생성되었습니다`,
         `Всего скраулено {} работ, сгенерировано {} результатов краулинга`,
     ],
-    _命名规则: [
-        '<span class="key">命名</span>规则',
-        '<span class="key">命名</span>規則',
-        '<span class="key">Naming</span> rule',
-        '<span class="key">命名</span>規則',
-        '<span class="key">명명</span> 규칙',
-        '<span class="key">Правила</span> названий',
+    _图像作品的命名规则: [
+        `图像作品的<span class="key">命名</span>规则`,
+        `圖像作品的<span class="key">命名</span>規則`,
+        `<span class="key">Naming</span> rule for image works`,
+        `画像作品の<span class="key">命名</span>ルール`,
+        `이미지 작품의 <span class="key">명명</span> 규칙`,
+        `Правило <span class="key">именования</span> для работ с изображениями`,
     ],
-    _命名规则2: [
+    _小说的命名规则: [
+        `小说的<span class="key">命名</span>规则`,
+        `小說的<span class="key">命名</span>規則`,
+        `<span class="key">Naming</span> rule for novels`,
+        `小説の<span class="key">命名</span>ルール`,
+        `소설의 <span class="key">명명</span> 규칙`,
+        `Правило <span class="key">именования</span> для novel`,
+    ],
+    _命名规则: [
         '命名规则',
         '命名規則',
         'Naming rule',
@@ -30175,12 +30187,12 @@ Zip 파일이 원본 파일입니다.`,
         `Оно представляет настройку «Создавать папку с использованием первого совпавшего тега». Если вы включили эту настройку и совпал один из заданных вами тегов, она выведет этот тег; в противном случае будет проигнорирована.`,
     ],
     _命名标记tags_trans: [
-        '作品的标签列表，附带翻译后的标签（如果有）',
-        '作品的標籤清單，包含翻譯後的標籤（如果有的話）。',
-        'The tags of the work, with the translated tag (if any)',
-        '作品のタグリスト、翻訳付きタグ(あれば)',
-        '작품 태그, 번역된 태그 (있다면)',
-        'Теги произведения, с тегом перевода (если есть)',
+        `作品的标签列表，没有附带翻译后的标签`,
+        `作品的標籤列表，沒有附帶翻譯後的標籤`,
+        `The tag list of the work, without translated tags`,
+        `翻訳タグなしの作品のタグリスト`,
+        `번역 태그 없이 작품의 태그 목록만 포함`,
+        `Список тегов work без переведённых тегов`,
     ],
     _命名标记tags_transl_only: [
         '翻译后的标签列表',
@@ -30270,7 +30282,7 @@ Zip 파일이 원본 파일입니다.`,
         '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
         'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
     ],
-    _文件夹标记PTag: [
+    _文件夹标记page_tag: [
         `如果页面里的作品属于同一个标签，下载器会输出这个标签，否则忽略它。通常当你处于这些页面里时有值：搜索某个标签、在用户主页里查看某个标签分类下的作品、在自己的收藏里查看某个标签分类下的作品。`,
         `如果頁面裡的作品屬於同一個標籤，下載器會輸出這個標籤，否則忽略它。通常當你處於這些頁面裡時有值：搜尋某個標籤、在用戶主頁裡查看某個標籤分類下的作品、在自己的收藏裡查看某個標籤分類下的作品。`,
         `If the works on the page belong to the same tag, the downloader will output this tag; otherwise, ignore it. It usually has a value when you are on these pages: searching for a certain tag, viewing works under a certain tag category on the user page, viewing works under a certain tag category in your own bookmarks.`,
@@ -30279,38 +30291,30 @@ Zip 파일이 원본 파일입니다.`,
         `Если работы на странице принадлежат одному и тому же тегу, загрузчик выведет этот тег; в противном случае игнорируйте его. Обычно имеет значение, когда вы находитесь на этих страницах: при поиске определенного тега, просмотре работ под определенной категорией тега на странице пользователя, просмотре работ под определенной категорией тега в своих закладках。`,
     ],
     _命名标记seriesTitle: [
-        '系列标题。',
-        '系列標題。',
-        'Series title.',
-        'シリーズタイトル。',
-        '시리즈 제목.',
-        'Название серии.',
+        '系列标题。当作品属于一个系列时可用。',
+        '系列標題。當作品屬於一個系列時可用。',
+        'Series title. Available when the work belongs to a series.',
+        'シリーズタイトル。作品がシリーズに属している場合に利用できる。',
+        '시리즈 제목. 작품이 시리즈에 속할 때 사용할 수 있습니다.',
+        'Название серии. Доступно, если работа принадлежит к серии.',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。',
-        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。',
-        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>.',
-        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。',
-        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>.',
-        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>.',
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。 当作品属于一个系列时可用。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。當作品屬於一個系列時可用。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. Available when the work belongs to a series.',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。作品がシリーズに属している場合に利用できる。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 작품이 시리즈에 속할 때 사용할 수 있습니다.',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. Доступно, если работа принадлежит к серии.',
     ],
     _命名标记seriesId: [
-        `系列 ID，是数字。`,
-        `系列 ID，是數字。`,
-        `Series ID, it is a number.`,
-        `シリーズ ID、数値です。`,
-        `시리즈 ID, 숫자입니다。`,
-        `ID серии, это число。`,
+        `系列 ID，是数字。当作品属于一个系列时可用。`,
+        `系列 ID，是數字。當作品屬於一個系列時可用。`,
+        `Series ID, it is a number. Available when the work belongs to a series.`,
+        `シリーズ ID、数値です。作品がシリーズに属している場合に利用できる。`,
+        `시리즈 ID, 숫자입니다。작품이 시리즈에 속할 때 사용할 수 있습니다.`,
+        `ID серии, это число. Доступно, если работа принадлежит к серии.`,
     ],
-    _当作品属于一个系列时可用: [
-        '当作品属于一个系列时可用。',
-        '當作品屬於一個系列時可用。',
-        'Available when the work belongs to a series.',
-        '作品がシリーズに属している場合に利用できる。',
-        '작품이 시리즈에 속할 때 사용할 수 있습니다.',
-        'Доступно, если работа принадлежит к серии.',
-    ],
-    _文件夹标记PTitle: [
+    _命名标记page_title: [
         '开始抓取时的页面标题',
         '開始抓取時的頁面標題',
         'Page title when starting the scrape',
@@ -31023,13 +31027,25 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         '<span class="key">자동으로</span> 다운로드 시작',
         'Загрузка начинается <span class="key">автоматически</span>',
     ],
-    _自动开始下载的提示: [
-        '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
-        '當可下載時自動開始下載，不需要點選下載按鈕。',
-        'When the &quot;Start Download &quot; status is available, the download starts automatically and no need to click the download button.',
-        '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
-        '"다운로드 시작" 상태가 활성화되면, 다운로드가 자동으로 시작되고 다운로드 시작 버튼을 클릭할 필요가 없게 됩니다.',
-        'При активации этого тумблера загрузка начнется автоматически, без необходимости нажимать кнопку загрузки',
+    _自动开始下载的帮助内容: [
+        `抓取完成之后自动开始下载，不需要点击下载按钮。<br>
+<br>
+注意：即使你关闭了此设置，一些快速下载方式也总是会自动开始下载。例如点击作品缩略图上的下载按钮，或者下载手动选择的作品。`,
+        `抓取完成之後自動開始下載，不需要點擊下載按鈕。<br>
+<br>
+注意：即使你關閉了此設定，一些快速下載方式也總是會自動開始下載。例如點擊作品縮略圖上的下載按鈕，或者下載手動選擇的作品。`,
+        `Automatically starts downloading after crawling is complete, without needing to click the download button.<br>
+<br>
+Note: Even if you disable this setting, some quick download methods will always start downloading automatically — for example, clicking the download button on a work's thumbnail, or downloading manually selected works.`,
+        `crawl が完了すると自動的にダウンロードを開始します。ダウンロードボタンをクリックする必要はありません。<br>
+<br>
+注意：この設定をオフにしても、一部のクイックダウンロード方法は常に自動的にダウンロードを開始します。例えば、作品のサムネイル上のダウンロードボタンをクリックする場合や、手動で選択した作品をダウンロードする場合です。`,
+        `crawl이 완료된 후 자동으로 다운로드를 시작합니다. 다운로드 버튼을 클릭할 필요가 없습니다.<br>
+<br>
+주의: 이 설정을 꺼도 일부 빠른 다운로드 방법은 항상 자동으로 다운로드를 시작합니다. 예를 들어 작품 썸네일의 다운로드 버튼을 클릭하거나, 수동으로 선택한 작품을 다운로드하는 경우입니다.`,
+        `После завершения crawl загрузка начинается автоматически — нажимать кнопку загрузки не нужно.<br>
+<br>
+Обратите внимание: даже если вы отключите эту настройку, некоторые способы быстрой загрузки всегда будут запускаться автоматически. Например, при нажатии кнопки загрузки на миниатюре work или при загрузке work, выбранных вручную.`,
     ],
     _转换任务提示: [
         '正在转换 {} 个文件',
@@ -33138,6 +33154,32 @@ JSON 형식은 다운로더의 내부 데이터로, 더 많은 정보를 저장�
         '페이지 유형에 따라 <span class="key">다른</span> 명명 규칙 사용',
         'Использовать <span class="key">различные</span> правила именования в разных типах страниц',
     ],
+    _在不同的页面类型中使用不同的命名规则的帮助: [
+        `默认情况下，下载器会在所有页面类型里使用相同的命名规则。<br>
+如果你想为一些页面设置独立的命名规则，例如在搜索页面和作者主页里使用不同的命名规则，可以启用这个设置，这样下载器会为每种页面类型保存它独有的命名规则。<br>
+<br>
+注意：启用此设置之后，下载器会使用预设的命名规则覆盖你当前的命名规则。之后你可以根据需要自行修改，例如在搜索页面和作者主页里设置不同的命名规则。`,
+        `預設情況下，下載器會在所有頁面類型裡使用相同的命名規則。<br>
+如果你想為某些頁面設定獨立的命名規則，例如在搜尋頁面和作者主頁裡使用不同的命名規則，可以啟用這個設定，這樣下載器會為每種頁面類型儲存其獨有的命名規則。<br>
+<br>
+注意：啟用此設定之後，下載器會使用預設的命名規則覆蓋你目前的命名規則。之後你可以根據需要自行修改，例如在搜尋頁面和作者主頁裡設定不同的命名規則。`,
+        `By default, the downloader uses the same naming rule for all page types.<br>
+If you want to set separate naming rules for certain pages — for example, using different rules on the search page and an artist's profile page — you can enable this setting. The downloader will then save a unique naming rule for each page type.<br>
+<br>
+Note: After enabling this setting, the downloader will overwrite your current naming rule with the preset naming rules. You can then customize them as needed, such as setting different rules for the search page and an artist's profile page.`,
+        `デフォルトでは、ダウンローダーはすべてのページタイプで同じ命名ルールを使います。<br>
+検索ページと作者のプロフィールページで異なる命名ルールを使うなど、特定のページに独自の命名ルールを設定したい場合は、この設定を有効にしてください。有効にすると、ダウンローダーはページタイプごとに個別の命名ルールを保存します。<br>
+<br>
+注意：この設定を有効にすると、ダウンローダーは現在の命名ルールをプリセットの命名ルールで上書きします。その後、検索ページと作者のプロフィールページで異なるルールを設定するなど、必要に応じて自由に変更できます。`,
+        `기본적으로 다운로더는 모든 페이지 유형에서 동일한 명명 규칙을 사용합니다.<br>
+검색 페이지와 작가 프로필 페이지에서 서로 다른 명명 규칙을 사용하는 것처럼 특정 페이지에 별도의 명명 규칙을 설정하고 싶다면 이 설정을 활성화하세요. 활성화하면 다운로더가 각 페이지 유형마다 고유한 명명 규칙을 저장합니다.<br>
+<br>
+주의: 이 설정을 활성화하면 다운로더가 현재의 명명 규칙을 사전 설정된 명명 규칙으로 덮어씁니다. 이후 검색 페이지와 작가 프로필 페이지에 서로 다른 규칙을 설정하는 등 필요에 따라 자유롭게 수정할 수 있습니다.`,
+        `По умолчанию загрузчик использует одно и то же правило именования для всех типов страниц.<br>
+Если вы хотите задать отдельные правила именования для определённых страниц — например, использовать разные правила на странице поиска и на странице профиля автора — включите эту настройку. Тогда загрузчик будет сохранять уникальное правило именования для каждого типа страницы.<br>
+<br>
+Обратите внимание: после включения этой настройки загрузчик перезапишет ваше текущее правило именования предустановленными правилами. После этого вы можете изменить их по своему усмотрению, например задать разные правила для страницы поиска и страницы профиля автора.`,
+    ],
     _显示高级设置: [
         '显示<span class="key">高级</span>设置',
         '顯示<span class="key">進階</span>設定',
@@ -33460,14 +33502,6 @@ JSON 형식은 다운로더의 내부 데이터로, 더 많은 정보를 저장�
         `<span class="key">フォルダを作成しない</span>`,
         `<span class="key">폴더를 생성하지 않음</span>`,
         `<span class="key">Не создавать</span> папку`,
-    ],
-    _不创建文件夹的提示: [
-        `启用此设置后，符合条件的文件不会创建文件夹，而是直接保存到浏览器的下载目录里。`,
-        `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接保存到瀏覽器的下載目錄裡。`,
-        `After enabling this setting, files that meet the conditions will not create a folder and will be saved directly to the browser's download directory.`,
-        `この設定を有効にすると、条件に該当するファイルはフォルダを作成せず、ブラウザのダウンロードディレクトリに直接保存されます。`,
-        `이 설정을 활성화하면 조건에 맞는 파일은 폴더를 생성하지 않고 브라우저의 다운로드 디렉토리에 직접 저장됩니다.`,
-        `После включения этой настройки файлы, удовлетворяющие условиям, не будут создавать папку, а будут сохраняться напрямую в папку загрузок браузера.`,
     ],
     _以下情况不创建文件夹的帮助内容: [
         `启用此设置后，符合条件的文件不会创建文件夹，而是直接保存到浏览器的下载目录里。<br>
@@ -37712,6 +37746,20 @@ Tip: Click a token name to copy it.<br>`,
 Список токенов именования:<br>
 Совет: нажмите на название токена, чтобы скопировать его.<br>`,
     ],
+    _小说的命名标记的提示: [
+        `小说可以使用的命名标记与图像作品相同，并且有一个特殊的标记：<br>
+<span class="blue name">{follow_artwork}</span> 跟随图像作品的命名规则。它也是默认值，表示小说使用与图像作品相同的命名规则。如果你想为小说设置独立的命名规则，可以移除这个标记，并根据自己的需要设置命名规则。`,
+        `小說可以使用的命名標記與圖像作品相同，並且有一個特殊的標記：<br>
+<span class="blue name">{follow_artwork}</span> 跟隨圖像作品的命名規則。它也是預設值，表示小說使用與圖像作品相同的命名規則。如果你想為小說設定獨立的命名規則，可以移除這個標記，並根據自己的需要設定命名規則。`,
+        `Novels can use the same naming tokens as image works, and there is one special token:<br>
+<span class="blue name">{follow_artwork}</span> follows the naming rule of image works. It is also the default value, meaning novels use the same naming rule as image works. If you want to set a separate naming rule for novels, remove this token and configure the rule as you like.`,
+        `小説で使える命名トークンは画像作品と同じです。また、特別なトークンが 1 つあります：<br>
+<span class="blue name">{follow_artwork}</span> 画像作品の命名ルールに従います。これはデフォルト値でもあり、小説が画像作品と同じ命名ルールを使うことを意味します。小説に独自の命名ルールを設定したい場合は、このトークンを削除して、必要に応じてルールを設定してください。`,
+        `소설에서 사용할 수 있는 명명 토큰은 이미지 작품과 동일하며, 특별한 토큰이 하나 있습니다：<br>
+<span class="blue name">{follow_artwork}</span> 이미지 작품의 명명 규칙을 따릅니다. 이것은 기본값이기도 하며, 소설이 이미지 작품과 동일한 명명 규칙을 사용한다는 뜻입니다. 소설에 별도의 명명 규칙을 설정하고 싶다면 이 토큰을 제거하고 원하는 대로 규칙을 설정하세요.`,
+        `Для novel доступны те же токены именования, что и для работ с изображениями, плюс один специальный токен:<br>
+<span class="blue name">{follow_artwork}</span> следует правилу именования работ с изображениями. Это также значение по умолчанию, означающее, что novel использует то же правило именования, что и работы с изображениями. Если вы хотите задать для novel отдельное правило именования, удалите этот токен и настройте правило по своему усмотрению.`,
+    ],
 };
 
 
@@ -40706,54 +40754,44 @@ class Form {
         _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.form);
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.form);
         _setting_Options__WEBPACK_IMPORTED_MODULE_9__.options.init(allOptions);
-        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__.SaveNamingRule(this.form.userSetName);
+        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__.SaveNamingRule(this.form.userSetName, 'artwork');
+        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__.SaveNamingRule(this.form.userSetNameForNovel, 'novel');
         new _FormSettings__WEBPACK_IMPORTED_MODULE_6__.FormSettings(this.form);
         new _FormHelpManager__WEBPACK_IMPORTED_MODULE_12__.FormHelpManager(this.form);
         new _FormBeautify__WEBPACK_IMPORTED_MODULE_13__.FormBeautify(this.form);
         this.bindFormEvents();
         this.bindFunctionBtn();
+        this.bindCopyEvent();
+        // 语言变化时，有些命名标记的父元素的内容会被重设，此时需要重新绑定事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
+            this.bindCopyEvent();
+        });
     }
     form;
     bindFormEvents() {
-        // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
-        // const centerInputs: NodeListOf<HTMLInputElement> =
-        //   this.form.querySelectorAll('input[type=text]')
-        // for (const el of centerInputs) {
-        //   if (el.name !== 'userSetName') {
-        //     el.addEventListener('focus', function () {
-        //       this.select()
-        //     })
-        //   }
-        // }
-        // 把下拉框的选择项插入到文本框里
-        const from = this.form.fileNameSelect;
-        const to = this.form.userSetName;
-        from.addEventListener('change', () => {
-            if (from.value !== 'default') {
-                // 把选择项插入到光标位置，并设置新的光标位置
-                const position = to.selectionStart;
-                to.value =
-                    to.value.substring(0, position) +
-                        from.value +
-                        to.value.substring(position);
-                to.selectionStart = position + from.value.length;
-                to.selectionEnd = position + from.value.length;
-                to.focus();
-            }
-        });
-        // 点击命名规则帮助区域里的标记名字时，复制到剪贴板
-        const allName = this.form.querySelectorAll('.namingTipArea .name');
-        allName.forEach((el) => {
-            el.addEventListener('click', async () => {
-                const text = el.textContent;
-                if (text) {
-                    const copied = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.writeClipboardText(text);
-                    if (copied) {
-                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制'));
-                    }
-                    else {
-                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制失败'));
-                    }
+        // 用户点击下拉框的选项时，把它插入到输入框里
+        const list = [
+            {
+                select: this.form.fileNameSelect,
+                input: this.form.userSetName,
+            },
+            {
+                select: this.form.fileNameSelectForNovel,
+                input: this.form.userSetNameForNovel,
+            },
+        ];
+        list.forEach(({ select, input }) => {
+            select.addEventListener('change', () => {
+                if (select.value !== 'default') {
+                    // 把选择项插入到光标位置，并设置新的光标位置
+                    const position = input.selectionStart;
+                    input.value =
+                        input.value.substring(0, position) +
+                            select.value +
+                            input.value.substring(position);
+                    input.selectionStart = position + select.value.length;
+                    input.selectionEnd = position + select.value.length;
+                    input.focus();
                 }
             });
         });
@@ -40835,6 +40873,29 @@ class Form {
                     _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resetHelpTip');
                 });
             }
+        }
+    }
+    /** 点击命名规则帮助区域里的标记名字时，复制到剪贴板 */
+    bindCopyEvent() {
+        const allName = this.form.querySelectorAll('.namingTipArea .name');
+        for (const el of allName) {
+            if (el.dataset.bindCopy) {
+                continue;
+            }
+            // 防止重复绑定
+            el.dataset.bindCopy = 'true';
+            el.addEventListener('click', async () => {
+                const text = el.textContent;
+                if (text) {
+                    const copied = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.writeClipboardText(text);
+                    if (copied) {
+                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制'));
+                    }
+                    else {
+                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制失败'));
+                    }
+                }
+            });
         }
     }
 }
@@ -40939,8 +41000,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   formHtml: () => (/* binding */ formHtml)
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _NamingRuleConfig__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NamingRuleConfig */ "./src/ts/setting/NamingRuleConfig.ts");
 
-// 设置项编号从 0 开始，现在最大是 105
+
+// 设置项编号从 0 开始，现在最大是 106
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -41357,181 +41420,57 @@ const formHtml = `
     </div>
   </div>
   <div class="tabsContent">
-    <ul class="namingRuleList"></ul>
+    <ul class="namingRuleList artwork"></ul>
+    <ul class="namingRuleList novel"></ul>
 
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
       <span class="fileNameRuleLine1">
-        <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+        <a href="" target="_blank" class="settingNameStyle" data-xztext="_图像作品的命名规则"></a>
 
         <span class="fileNameRuleBtnsArea">
-          <slot data-name="saveNamingRule"></slot>
+          <slot data-name="saveNamingRuleForArtwork"></slot>
           <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" data-for-no="13" data-xztext="_提示"></button>
           &nbsp;
           <select name="fileNameSelect" class="beautify_scrollbar">
             <option value="default">…</option>
-            <option value="{id}">{id}</option>
-            <option value="{id_num}">{id_num}</option>
-            <option value="{p_num}">{p_num}</option>
-            <option value="{user}">{user}</option>
-            <option value="{user_id}">{user_id}</option>
-            <option value="{title}">{title}</option>
-            <option value="{page_title}">{page_title}</option>
-            <option value="{tags}">{tags}</option>
-            <option value="{tags_translate}">{tags_translate}</option>
-            <option value="{tags_transl_only}">{tags_transl_only}</option>
-            <option value="{page_tag}">{page_tag}</option>
-            <option value="{type}">{type}</option>
-            <option value="{type_illust}">{type_illust}</option>
-            <option value="{type_manga}">{type_manga}</option>
-            <option value="{type_ugoira}">{type_ugoira}</option>
-            <option value="{type_novel}">{type_novel}</option>
-            <option value="{AI}">{AI}</option>
-            <option value="{age}">{age}</option>
-            <option value="{age_r}">{age_r}</option>
-            <option value="{like}">{like}</option>
-            <option value="{bmk}">{bmk}</option>
-            <option value="{bmk_1000}">{bmk_1000}</option>
-            <option value="{bmk_id}">{bmk_id}</option>
-            <option value="{view}">{view}</option>
-            <option value="{rank}">{rank}</option>
-            <option value="{date}">{date}</option>
-            <option value="{upload_date}">{upload_date}</option>
-            <option value="{task_date}">{task_date}</option>
-            <option value="{px}">{px}</option>
-            <option value="{char_count}">{char_count}</option>
-            <option value="{series_title}">{series_title}</option>
-            <option value="{series_order}">{series_order}</option>
-            <option value="{series_id}">{series_id}</option>
-            <option value="{sl}">{sl}</option>
-            <option value="{multi_image_folder}">{multi_image_folder}</option>
-            <option value="{r18_g_folder}">{r18_g_folder}</option>
-            <option value="{match_tag_folder}">{match_tag_folder}</option>
+            ${_NamingRuleConfig__WEBPACK_IMPORTED_MODULE_1__.namingRuleConfig.getOptionList()}
           </select>
         </span>
       </span>
 
-      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}</textarea>
+      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForArtwork}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForArtwork}</textarea>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
       <span data-xztext="_命名标记的提示"></span>
-      <br>
-      <span class="blue name">{id}</span>
-      <span data-xztext="_命名标记id"></span>
-      <br>
-      <span class="blue name">{id_num}</span>
-      <span data-xztext="_命名标记id_num"></span>
-      <br>
-      * <span class="blue name">{p_num}</span>
-      <span data-xztext="_命名标记p_num"></span>
-      <br>
-      <span class="blue name">{user}</span>
-      <span data-xztext="_命名标记user"></span>
-      <br>
-      <span class="blue name">{user_id}</span>
-      <span data-xztext="_用户id"></span>
-      <br>
-      <span class="blue name">{title}</span>
-      <span data-xztext="_命名标记title"></span>
-      <br>
-      <span class="blue name">{tags}</span>
-      <span data-xztext="_命名标记tags"></span>
-      <br>
-      <span class="blue name">{tags_translate}</span>
-      <span data-xztext="_命名标记tags_trans"></span>
-      <br>
-      <span class="blue name">{tags_transl_only}</span>
-      <span data-xztext="_命名标记tags_transl_only"></span>
-      <br>
-      <span class="blue name">{page_title}</span>
-      <span data-xztext="_文件夹标记PTitle"></span>
-      <br>
-      * <span class="blue name">{page_tag}</span>
-      <span data-xztext="_文件夹标记PTag"></span>
-      <br>
-      <span class="blue name">{type}</span>
-      <span data-xztext="_命名标记type"></span>
-      <br>
-      * <span class="blue name">{type_illust}</span>
-      <span data-xztext="_命名标记type_illust"></span>
-      <br>
-      * <span class="blue name">{type_manga}</span>
-      <span data-xztext="_命名标记type_manga"></span>
-      <br>
-      * <span class="blue name">{type_ugoira}</span>
-      <span data-xztext="_命名标记type_ugoira"></span>
-      <br>
-      * <span class="blue name">{type_novel}</span>
-      <span data-xztext="_命名标记type_novel"></span>
-      <br>
-      * <span class="blue name">{AI}</span>
-      <span data-xztext="_命名标记AI"></span>
-      <br>
-      <span class="blue name">{age}</span>
-      <span data-xztext="_命名标记age"></span>
-      <br>
-      * <span class="blue name">{age_r}</span>
-      <span data-xztext="_命名标记age_r"></span>
-      <br>
-      <span class="blue name">{like}</span>
-      <span data-xztext="_命名标记like"></span>
-      <br>
-      <span class="blue name">{bmk}</span>
-      <span data-xztext="_命名标记bmk"></span>
-      <br>
-      <span class="blue name">{bmk_1000}</span>
-      <span data-xztext="_命名标记bmk_1000"></span>
-      <br>
-      <span class="blue name">{bmk_id}</span>
-      <span data-xztext="_命名标记bmk_id"></span>
-      <br>
-      <span class="blue name">{view}</span>
-      <span data-xztext="_命名标记view"></span>
-      <br>
-      * <span class="blue name">{rank}</span>
-      <span data-xztext="_命名标记rank"></span>
-      <br>
-      <span class="blue name">{date}</span>
-      <span data-xztext="_命名标记date"></span>
-      <br>
-      <span class="blue name">{upload_date}</span>
-      <span data-xztext="_命名标记upload_date"></span>
-      <br>
-      <span class="blue name">{task_date}</span>
-      <span data-xztext="_命名标记taskDate"></span>
-      <br>
-      * <span class="blue name">{px}</span>
-      <span data-xztext="_命名标记px"></span>
-      <br>
-      * <span class="blue name">{char_count}</span>
-      <span data-xztext="_命名标记char_count"></span>
-      <br>
-      * <span class="blue name">{series_title}</span>
-      <span data-xztext="_命名标记seriesTitle"></span>
-      <span data-xztext="_当作品属于一个系列时可用"></span>
-      <br>
-      * <span class="blue name">{series_order}</span>
-      <span data-xztext="_命名标记seriesOrder"></span>
-      <span data-xztext="_当作品属于一个系列时可用"></span>
-      <br>
-      * <span class="blue name">{series_id}</span>
-      <span data-xztext="_命名标记seriesId"></span>
-      <span data-xztext="_当作品属于一个系列时可用"></span>
-      <br>
-      * <span class="blue name">{sl}</span>
-      <span data-xztext="_命名标记_sl"></span>
-      <br>
-      * <span class="blue name">{multi_image_folder}</span>
-      <span data-xztext="_命名标记_multi_image_folder"></span>
-      <br>
-      * <span class="blue name">{r18_g_folder}</span>
-      <span data-xztext="_命名标记_r18_g_folder"></span>
-      <br>
-      * <span class="blue name">{match_tag_folder}</span>
-      <span data-xztext="_命名标记_match_tag_folder"></span>
+      ${_NamingRuleConfig__WEBPACK_IMPORTED_MODULE_1__.namingRuleConfig.getHelpHtml()}
+    </p>
+
+    <span class="optionAnchor" data-for-no="106" aria-hidden="true"></span>
+    <p class="option" data-no="106">
+      <span class="fileNameRuleLine1">
+        <a href="" target="_blank" class="settingNameStyle" data-xztext="_小说的命名规则"></a>
+
+        <span class="fileNameRuleBtnsArea">
+          <slot data-name="saveNamingRuleForNovel"></slot>
+          <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTipForNovel" data-for-no="106" data-xztext="_提示"></button>
+          &nbsp;
+          <select name="fileNameSelectForNovel" class="beautify_scrollbar">
+            <option value="default">…</option>
+            ${_NamingRuleConfig__WEBPACK_IMPORTED_MODULE_1__.namingRuleConfig.getOptionList()}
+            <option value="{follow_artwork}">{follow_artwork}</option>
+          </select>
+        </span>
+      </span>
+
+      <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetNameForNovel" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForNovel}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForNovel}</textarea>
+    </p>
+
+    <p class="fileNameTip tip namingTipArea" id="fileNameTipForNovel">
+      <span data-xztext="_小说的命名标记的提示"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
@@ -41539,13 +41478,13 @@ const formHtml = `
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_在不同的页面类型中使用不同的命名规则" data-msg="_在不同的页面类型中使用不同的命名规则的帮助" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
     <p class="option" data-no="64">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不创建文件夹的提示">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_不创建文件夹"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -41573,12 +41512,12 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
     <p class="option" data-no="17">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_自动开始下载"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_自动开始下载" data-msg="_自动开始下载的帮助内容" data-xztext="_帮助"></button>
     </p>
 
     <span class="optionAnchor" data-for-no="33" aria-hidden="true"></span>
@@ -41970,7 +41909,80 @@ const formHtml = `
       <span class="blue">ss</span> <span>08</span>
       <br>
     </p>
+
+    <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
+    <p class="option" data-no="91">
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
+      <span class="rowWrap">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
+        <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-for-no="91" data-xztext="_提示"></button>
+      </span>
+    </p>
     
+    <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
+      <span data-xztext="_系列小说的命名标记提醒"></span>
+      <br>
+      <span class="blue name">{series_title}</span>
+      <span data-xztext="_系列小说的命名标记_series_title"></span>
+      <br>
+      <span class="blue name">{series_id}</span>
+      <span data-xztext="_系列小说的命名标记_series_id"></span>
+      <br>
+      <span class="blue name">{user}</span>
+      <span data-xztext="_系列小说的命名标记_user"></span>
+      <br>
+      <span class="blue name">{user_id}</span>
+      <span data-xztext="_系列小说的命名标记_user_id"></span>
+      <br>
+      * <span class="blue name">{part}</span>
+      <span data-xztext="_系列小说的命名标记_part"></span>
+      <br>
+      <span class="blue name">{ext}</span>
+      <span data-xztext="_系列小说的命名标记_ext"></span>
+      <br>
+      <span class="blue name">{age}</span>
+      <span data-xztext="_系列小说的命名标记_age"></span>
+      <br>
+      * <span class="blue name">{age_r}</span>
+      <span data-xztext="_系列小说的命名标记_age_r"></span>
+      <br>
+      * <span class="blue name">{AI}</span>
+      <span data-xztext="_系列小说的命名标记_AI"></span>
+      <br>
+      <span class="blue name">{lang}</span>
+      <span data-xztext="_系列小说的命名标记_lang"></span>
+      <br>
+      <span class="blue name">{total}</span>
+      <span data-xztext="_系列小说的命名标记_total"></span>
+      <br>
+      <span class="blue name">{char_count}</span>
+      <span data-xztext="_系列小说的命名标记_char_count"></span>
+      <br>
+      <span class="blue name">{create_date}</span>
+      <span data-xztext="_系列小说的命名标记_create_date"></span>
+      <br>
+      <span class="blue name">{last_date}</span>
+      <span data-xztext="_系列小说的命名标记_last_date"></span>
+      <br>
+      <span class="blue name">{task_date}</span>
+      <span data-xztext="_系列小说的命名标记_task_date"></span>
+      <br>
+      <span class="blue name">{first_id}</span>
+      <span data-xztext="_系列小说的命名标记_first_id"></span>
+      <br>
+      <span class="blue name">{latest_id}</span>
+      <span data-xztext="_系列小说的命名标记_latest_id"></span>
+      <br>
+      <span class="blue name">{tags}</span>
+      <span data-xztext="_系列小说的命名标记_tags"></span>
+      <br>
+      * <span class="blue name">{page_tag}</span>
+      <span data-xztext="_文件夹标记page_tag"></span>
+      <br>
+      <span class="blue name">{page_title}</span>
+      <span data-xztext="_系列小说的命名标记_page_title"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
     </p>
@@ -42105,78 +42117,6 @@ const formHtml = `
         <input type="checkbox" name="skipNovelsInSeriesWhenAutoMerge" id="skipNovelsInSeriesWhenAutoMerge" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
-
-    <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
-    <p class="option" data-no="91">
-      <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
-      <span class="rowWrap">
-        <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
-        <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-for-no="91" data-xztext="_提示"></button>
-      </span>
-    </p>
-
-    <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
-      <span data-xztext="_系列小说的命名标记提醒"></span>
-      <span class="blue name">{series_title}</span>
-      <span data-xztext="_系列小说的命名标记_series_title"></span>
-      <br>
-      <span class="blue name">{series_id}</span>
-      <span data-xztext="_系列小说的命名标记_series_id"></span>
-      <br>
-      <span class="blue name">{user}</span>
-      <span data-xztext="_系列小说的命名标记_user"></span>
-      <br>
-      <span class="blue name">{user_id}</span>
-      <span data-xztext="_系列小说的命名标记_user_id"></span>
-      <br>
-      * <span class="blue name">{part}</span>
-      <span data-xztext="_系列小说的命名标记_part"></span>
-      <br>
-      <span class="blue name">{ext}</span>
-      <span data-xztext="_系列小说的命名标记_ext"></span>
-      <br>
-      <span class="blue name">{age}</span>
-      <span data-xztext="_系列小说的命名标记_age"></span>
-      <br>
-      * <span class="blue name">{age_r}</span>
-      <span data-xztext="_系列小说的命名标记_age_r"></span>
-      <br>
-      * <span class="blue name">{AI}</span>
-      <span data-xztext="_系列小说的命名标记_AI"></span>
-      <br>
-      <span class="blue name">{lang}</span>
-      <span data-xztext="_系列小说的命名标记_lang"></span>
-      <br>
-      <span class="blue name">{total}</span>
-      <span data-xztext="_系列小说的命名标记_total"></span>
-      <br>
-      <span class="blue name">{char_count}</span>
-      <span data-xztext="_系列小说的命名标记_char_count"></span>
-      <br>
-      <span class="blue name">{create_date}</span>
-      <span data-xztext="_系列小说的命名标记_create_date"></span>
-      <br>
-      <span class="blue name">{last_date}</span>
-      <span data-xztext="_系列小说的命名标记_last_date"></span>
-      <br>
-      <span class="blue name">{task_date}</span>
-      <span data-xztext="_系列小说的命名标记_task_date"></span>
-      <br>
-      <span class="blue name">{first_id}</span>
-      <span data-xztext="_系列小说的命名标记_first_id"></span>
-      <br>
-      <span class="blue name">{latest_id}</span>
-      <span data-xztext="_系列小说的命名标记_latest_id"></span>
-      <br>
-      <span class="blue name">{tags}</span>
-      <span data-xztext="_系列小说的命名标记_tags"></span>
-      <br>
-      * <span class="blue name">{page_tag}</span>
-      <span data-xztext="_文件夹标记PTag"></span>
-      <br>
-      <span class="blue name">{page_title}</span>
-      <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
@@ -42911,9 +42851,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _NameRuleManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -42921,13 +42859,12 @@ __webpack_require__.r(__webpack_exports__);
 class FormSettings {
     constructor(form) {
         this.form = form;
-        _NameRuleManager__WEBPACK_IMPORTED_MODULE_3__.nameRuleManager.registerInput(this.form.userSetName);
         this.bindEvents();
         this.restoreFormSettings();
         this.ListenChange();
     }
     form;
-    // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
+    // 没有填写 userSetName 和 userSetNameForNovel 字段，因为它们由 nameRuleManager 管理
     inputFileds = {
         checkbox: [
             'downType0',
@@ -43171,7 +43108,7 @@ class FormSettings {
         }
         for (const name of this.inputFileds.textarea) {
             this.restoreString(name);
-            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.form[name]);
+            _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.setRows(this.form[name]);
         }
         for (const name of this.inputFileds.checkbox) {
             this.restoreBoolean(name);
@@ -43187,7 +43124,7 @@ class FormSettings {
         el.addEventListener('change', () => {
             (0,_Settings__WEBPACK_IMPORTED_MODULE_1__.setSetting)(name, el.value);
             if (this.inputFileds.textarea.includes(name)) {
-                _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.form[name]);
+                _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.setRows(this.form[name]);
             }
         });
     }
@@ -43331,13 +43268,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   nameRuleManager: () => (/* binding */ nameRuleManager)
 /* harmony export */ });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
+
 
 
 
@@ -43346,97 +43287,114 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 管理命名规则
-// 在实际使用中，作为 settings.userSetName 的代理
+// 作为“图像作品的命名规则”和“小说的命名规则”设置的代理，保存命名规则，并应用“在不同的页面类型中使用不同的命名规则”设置
 // 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
 class NameRuleManager {
-    constructor() {
+    constructor(type) {
+        this.type = type;
+        this.ruleList =
+            type === 'artwork'
+                ? 'nameRuleForEachPageType'
+                : 'nameRuleForEachPageTypeForNovel';
+        this.ruleSetting =
+            type === 'artwork' ? 'userSetName' : 'userSetNameForNovel';
+        this.defauleRule =
+            type === 'artwork'
+                ? _Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForArtwork
+                : _Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForNovel;
         this.bindEvents();
+        this.bindInputEvent();
     }
     bindEvents() {
         const evts = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resetSettingsEnd,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitchedTypeChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettingsEnd,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitchedTypeChange,
         ];
         evts.forEach((evt) => {
             window.addEventListener(evt, () => {
-                this.textarea = document.querySelector('textarea[name="userSetName"]');
                 this.setInputValue();
             });
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             // 当用户开启这个开关时，设置当前页面类型的命名规则
             if (data.name === 'setNameRuleForEachPageType' && data.value) {
-                if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !==
-                    _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
                     this.setInputValue();
                 }
             }
         });
     }
+    type;
+    ruleList;
+    ruleSetting;
+    defauleRule;
     textarea = null;
-    saveCurrentPageRule(rule) {
-        _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
-        (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType);
-    }
-    // 所有页面通用的命名规则
-    generalRule = '{page_title}/{id}';
     get rule() {
         // 在 Pixivision 页面里，总是使用预设的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
+        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
+            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
         }
-        if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.setNameRuleForEachPageType) {
-            let rule = _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
+        if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setNameRuleForEachPageType) {
+            let rule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
             if (rule === undefined) {
-                rule = this.generalRule;
+                rule = this.defauleRule;
                 this.saveCurrentPageRule(rule);
             }
             return rule;
         }
         else {
-            return _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName;
+            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting];
         }
     }
     set rule(str) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
             return;
         }
         // 检查传递的命名规则的合法性
-        // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
-        const check = str.includes('{id}') ||
-            (str.includes('{id_num}') && str.includes('{p_num}'));
+        let check = true;
+        // 对于小说的命名规则，可以只使用 {follow_artwork}，表示跟随图像作品的命名规则
+        if (this.type === 'novel' && str.includes('{follow_artwork}')) {
+            check = true;
+        }
+        else {
+            // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
+            // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {id_num}{p_num}
+            check =
+                str.includes('{id}') ||
+                    (str.includes('{id_num}') && str.includes('{p_num}'));
+        }
         if (!check) {
             window.setTimeout(() => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_命名规则一定要包含id'));
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_命名规则一定要包含id'));
             }, 300);
         }
         else {
-            // 替换特殊字符
-            str = this.handleUserSetName(str) || this.generalRule;
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('userSetName', str);
-            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.textarea);
-            if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.setNameRuleForEachPageType) {
+            // 检查通过，替换特殊字符
+            str = this.handleUserSetName(str) || this.defauleRule;
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleSetting, str);
+            _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.setRows(this.textarea);
+            if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setNameRuleForEachPageType) {
                 this.saveCurrentPageRule(str);
             }
             this.setInputValue();
         }
     }
-    // 命名规则输入框的集合
-    inputList = [];
-    // 注册命名规则输入框
-    registerInput(input) {
-        this.inputList.push(input);
+    async bindInputEvent() {
+        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        const name = this.type === 'artwork' ? 'userSetName' : 'userSetNameForNovel';
+        this.textarea = document.querySelector(`textarea[name="${name}"]`);
         this.setInputValue();
+        const input = this.textarea;
         // 保存事件被触发之前的值
         let lastValue = input.value;
         // 给输入框绑定事件
-        const evList = ['change', 'focus'];
+        const eventList = ['change', 'focus'];
         // change 事件只对用户手动输入有效
         // 当用户从下拉框添加一个命名标记时，不会触发 change 事件，需要监听 focus 事件
-        evList.forEach((evName) => {
-            input.addEventListener(evName, () => {
+        eventList.forEach((ev) => {
+            input.addEventListener(ev, () => {
                 // 当事件触发时，比较输入框的值是否与事件触发之前发生了变化
                 // 如果值没有变化，就什么都不做
                 // 对于 change 事件来说，值必然发生了变化，但是 focus 就不一定了
@@ -43446,39 +43404,43 @@ class NameRuleManager {
                     return;
                 }
                 lastValue = input.value;
-                if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== input.value) {
                     this.rule = input.value;
                 }
             });
         });
     }
     // 设置输入框的值为当前命名规则
-    setInputValue() {
-        // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
-        // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
-            this.inputList.forEach((input) => {
-                input.value = _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
-            });
+    async setInputValue() {
+        if (!this.textarea) {
             return;
         }
-        // 如果 settings.nameRuleForEachPageType 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
-        const rule = this.rule;
-        this.inputList.forEach((input) => {
-            input.value = rule;
-        });
-        if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_6__.settings.userSetName) {
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('userSetName', rule);
+        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
+        // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
+        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
+            this.textarea.value = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+            return;
         }
-        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.setRows(this.textarea);
+        // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
+        const rule = this.rule;
+        this.textarea.value = rule;
+        if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleSetting, rule);
+        }
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.setRows(this.textarea);
     }
-    // 处理用命名规则的非法字符和非法规则
+    saveCurrentPageRule(rule) {
+        _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] = rule;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleList, _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList]);
+    }
+    // 处理命名规则的非法字符和非法规则
     // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
     // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
     // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
     handleUserSetName(str) {
         // 替换命名规则里可能存在的非法字符
-        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(str);
+        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(str);
         // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
         str = str.replace(/／/g, '/');
         // 处理连续的 /
@@ -43493,7 +43455,116 @@ class NameRuleManager {
         return str;
     }
 }
-const nameRuleManager = new NameRuleManager();
+const managerArtwork = new NameRuleManager('artwork');
+const managerNovel = new NameRuleManager('novel');
+function getRule(type) {
+    const artworkRule = managerArtwork.rule;
+    const novelRule = managerNovel.rule;
+    if (type === 'artwork') {
+        return artworkRule;
+    }
+    else {
+        return novelRule.replace('{follow_artwork}', artworkRule);
+    }
+}
+function setRule(type, rule) {
+    if (type === 'artwork') {
+        managerArtwork.rule = rule;
+    }
+    else {
+        managerNovel.rule = rule;
+    }
+}
+const nameRuleManager = {
+    getRule,
+    setRule,
+};
+
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/NamingRuleConfig.ts":
+/*!********************************************!*\
+  !*** ./src/ts/setting/NamingRuleConfig.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   namingRuleConfig: () => (/* binding */ namingRuleConfig)
+/* harmony export */ });
+class NamingRuleConfig {
+    namingConfig = [
+        { name: '{id}', mayEmpty: false, help: '_命名标记id' },
+        { name: '{id_num}', mayEmpty: false, help: '_命名标记id_num' },
+        { name: '{p_num}', mayEmpty: true, help: '_命名标记p_num' },
+        { name: '{user}', mayEmpty: false, help: '_命名标记user' },
+        { name: '{user_id}', mayEmpty: false, help: '_用户id' },
+        { name: '{title}', mayEmpty: false, help: '_命名标记title' },
+        { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+        { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
+        { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },
+        {
+            name: '{tags_transl_only}',
+            mayEmpty: false,
+            help: '_命名标记tags_transl_only',
+        },
+        { name: '{page_tag}', mayEmpty: true, help: '_文件夹标记page_tag' },
+        { name: '{type}', mayEmpty: false, help: '_命名标记type' },
+        { name: '{type_illust}', mayEmpty: true, help: '_命名标记type_illust' },
+        { name: '{type_manga}', mayEmpty: true, help: '_命名标记type_manga' },
+        { name: '{type_ugoira}', mayEmpty: true, help: '_命名标记type_ugoira' },
+        { name: '{type_novel}', mayEmpty: true, help: '_命名标记type_novel' },
+        { name: '{AI}', mayEmpty: true, help: '_命名标记AI' },
+        { name: '{age}', mayEmpty: false, help: '_命名标记age' },
+        { name: '{age_r}', mayEmpty: true, help: '_命名标记age_r' },
+        { name: '{like}', mayEmpty: false, help: '_命名标记like' },
+        { name: '{bmk}', mayEmpty: false, help: '_命名标记bmk' },
+        { name: '{bmk_1000}', mayEmpty: false, help: '_命名标记bmk_1000' },
+        { name: '{bmk_id}', mayEmpty: false, help: '_命名标记bmk_id' },
+        { name: '{view}', mayEmpty: false, help: '_命名标记view' },
+        { name: '{rank}', mayEmpty: true, help: '_命名标记rank' },
+        { name: '{date}', mayEmpty: false, help: '_命名标记date' },
+        { name: '{upload_date}', mayEmpty: false, help: '_命名标记upload_date' },
+        { name: '{task_date}', mayEmpty: false, help: '_命名标记taskDate' },
+        { name: '{px}', mayEmpty: true, help: '_命名标记px' },
+        { name: '{char_count}', mayEmpty: true, help: '_命名标记char_count' },
+        { name: '{series_title}', mayEmpty: true, help: '_命名标记seriesTitle' },
+        { name: '{series_order}', mayEmpty: true, help: '_命名标记seriesOrder' },
+        { name: '{series_id}', mayEmpty: true, help: '_命名标记seriesId' },
+        { name: '{sl}', mayEmpty: true, help: '_命名标记_sl' },
+        {
+            name: '{multi_image_folder}',
+            mayEmpty: true,
+            help: '_命名标记_multi_image_folder',
+        },
+        { name: '{r18_g_folder}', mayEmpty: true, help: '_命名标记_r18_g_folder' },
+        {
+            name: '{match_tag_folder}',
+            mayEmpty: true,
+            help: '_命名标记_match_tag_folder',
+        },
+    ];
+    getOptionList() {
+        const namingOptionList = this.namingConfig
+            .map((item) => `<option value="${item.name}">${item.name}</option>`)
+            .join('\n');
+        return namingOptionList;
+    }
+    getHelpHtml() {
+        const namingHelpHtml = this.namingConfig
+            .map((item) => {
+            return `${item.mayEmpty ? '* ' : ''}<span class="blue name">${item.name}</span>
+      <span data-xztext="${item.help}"></span>
+      <br>`;
+        })
+            .join('\n');
+        return namingHelpHtml;
+    }
+}
+const namingRuleConfig = new NamingRuleConfig();
 
 
 
@@ -43548,7 +43619,7 @@ class Options {
         24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
         48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
         69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
-        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105,
+        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106,
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
@@ -43858,24 +43929,36 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
-    constructor(ruleInput) {
+    constructor(ruleInput, type) {
         this.ruleInput = ruleInput;
-        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.clearSlot('saveNamingRule');
-        const wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('saveNamingRule', this.html);
+        this.type = type;
+        let slotName = '';
+        if (type === 'artwork') {
+            slotName = `saveNamingRuleForArtwork`;
+            this.settingKey = 'namingRuleList';
+        }
+        else {
+            slotName = `saveNamingRuleForNovel`;
+            this.settingKey = 'namingRuleListForNovel';
+        }
+        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.clearSlot(slotName);
+        const wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot(slotName, this.html);
         _Theme__WEBPACK_IMPORTED_MODULE_3__.theme.register(wrap);
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
-        this.listWrap = document.querySelector('ul.namingRuleList');
+        this.listWrap = document.querySelector(`ul.namingRuleList.${type}`);
         this.createList();
         this.bindEvents();
     }
-    limit = 20; // 最大保存数量
+    type;
+    settingKey;
+    ruleInput;
+    listWrap;
     saveBtn;
     loadBtn;
-    listWrap;
-    ruleInput;
     _show = false; // 是否显示列表
+    limit = 20; // 最大保存数量
     html = `
   <div class="saveNamingRuleWrap">
     <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
@@ -43901,42 +43984,42 @@ class SaveNamingRule {
         // 设置发生变化时重新创建列表
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'namingRuleList') {
+            if (data.name === this.settingKey) {
                 this.createList();
             }
         });
     }
     add(rule) {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList.length === this.limit) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey].length === this.limit) {
             this.delete(0);
         }
         // 如果这个规则已存在，不会重复添加它
-        if (!_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList.includes(rule)) {
-            const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList);
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey].includes(rule)) {
+            const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey]);
             list.push(rule);
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_4__.setSetting)('namingRuleList', list);
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_4__.setSetting)(this.settingKey, list);
         }
         _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已保存命名规则'));
     }
     delete(index) {
-        const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList);
+        const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey]);
         list.splice(index, 1);
-        (0,_Settings__WEBPACK_IMPORTED_MODULE_4__.setSetting)('namingRuleList', list);
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_4__.setSetting)(this.settingKey, list);
     }
     select(rule) {
         this.ruleInput.value = rule;
-        _NameRuleManager__WEBPACK_IMPORTED_MODULE_6__.nameRuleManager.rule = rule;
+        _NameRuleManager__WEBPACK_IMPORTED_MODULE_6__.nameRuleManager.setRule(this.type, rule);
     }
     createList() {
         const htmlArr = [];
-        for (let i = 0; i < _Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList.length; i++) {
+        for (let i = 0; i < _Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey].length; i++) {
             const html = `<li>
-      <span class="rule">${_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList[i]}</span>
+      <span class="rule">${_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey][i]}</span>
       <button class="delete textButton" type="button" data-index="${i}">×</button>
     </li>`;
             htmlArr.push(html);
         }
-        if (_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.namingRuleList.length === 0) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_4__.settings[this.settingKey].length === 0) {
             htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`);
         }
         this.listWrap.innerHTML = htmlArr.join('');
@@ -44298,8 +44381,10 @@ class Settings {
         notNeedTag: [],
         autoStartDownload: true,
         downloadThread: 3,
-        userSetName: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-        namingRuleList: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule],
+        userSetName: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+        userSetNameForNovel: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+        namingRuleList: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork],
+        namingRuleListForNovel: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel],
         folderForMultiImageWorksSwitch: false,
         folderForMultiImageWorksRule: '{id_num}',
         folderForMultiImageWorksImageNumber: 1,
@@ -44387,34 +44472,64 @@ class Settings {
         saveMetaFormatJSON: false,
         setNameRuleForEachPageType: false,
         nameRuleForEachPageType: {
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Home]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Artwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserHome]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Home]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Artwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserHome]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkLegacy]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Bookmark]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.AreaRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.AreaRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: 'pixivision/{page_title}/{id}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unlisted]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.DiscoverUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Dashboard]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unlisted]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.DiscoverUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Dashboard]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.SearchUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.SearchUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+        },
+        nameRuleForEachPageTypeForNovel: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Home]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Artwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserHome]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkLegacy]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Bookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSearch]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.AreaRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unlisted]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.DiscoverUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Dashboard]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Contest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.SearchUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
         },
         showAdvancedSettings: false,
         showNotificationAfterDownloadComplete: false,
@@ -44553,6 +44668,7 @@ class Settings {
     // 值为字符串数组的设置
     stringArrayKeys = [
         'namingRuleList',
+        'namingRuleListForNovel',
         'blockList',
         'needTag',
         'notNeedTag',
@@ -44629,8 +44745,15 @@ class Settings {
                 restoreData = result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
             }
             // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
-            const keys = ['crawlNumber', 'nameRuleForEachPageType'];
+            const keys = [
+                'crawlNumber',
+                'nameRuleForEachPageType',
+                'nameRuleForEachPageTypeForNovel',
+            ];
             for (const key of keys) {
+                if (!restoreData[key]) {
+                    continue;
+                }
                 for (const [pageTypeNo, cfg] of Object.entries(this.defaultSettings[key])) {
                     if (restoreData[key][pageTypeNo] === undefined) {
                         restoreData[key][pageTypeNo] = cfg;
@@ -44847,9 +44970,11 @@ class Settings {
                 value = this.defaultSettings[key];
             }
         }
-        // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理
         if (key === 'namingRuleList' && value.length === 0) {
-            value = [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule];
+            value = [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork];
+        }
+        if (key === 'namingRuleListForNovel' && value.length === 0) {
+            value = [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel];
         }
         // 更改设置
         ;
@@ -45002,6 +45127,12 @@ class ShowNewIcon {
             // 2026-04-20
             time: 1776693866003,
         },
+        {
+            // 小说的命名规则
+            id: 106,
+            // 2026-04-24
+            time: 1777025547205,
+        },
     ];
     /**显示 new 角标 */
     showNewIcon() {
@@ -45098,7 +45229,7 @@ class UseDifferentNameRuleIfWorkHasTag {
         </div>
 
         <div class="inputItem rule">
-          <span class="label nameLabel" data-xztext="_命名规则2"></span>
+          <span class="label nameLabel" data-xztext="_命名规则"></span>
           <input type="text" class="setinput_style1 blue addRuleInput" />
         </div>
 
@@ -45429,12 +45560,12 @@ class Wiki {
         Crawl: [
             0, 1, 2, 44, 81, 6, 23, 21, 51, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96, 99,
         ],
-        Download: [13, 50, 64, 16, 17, 33],
+        Download: [13, 50, 64, 16, 17, 33, 106],
         'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85, 103, 104],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98, 91],
         'More-Download': [
-            58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
-            28, 100, 101, 105,
+            58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20, 28,
+            100, 101, 105,
         ],
         'More-Enhance': [
             60, 84, 87, 68, 63, 55, 62, 40, 56, 86, 48, 88, 18, 34, 14, 102,
@@ -46000,6 +46131,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 // 储存下载器内部产生的、会变化的状态
@@ -46127,6 +46260,11 @@ class States {
         _PPDTask__WEBPACK_IMPORTED_MODULE_1__.ppdTask.register(2, 'Quick merge novel series', async () => {
             this.quickMergeNovel = true;
         });
+    }
+    async waitSettingInitialized() {
+        while (!this.settingInitialized) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(50);
+        }
     }
 }
 const states = new States();

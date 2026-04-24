@@ -19,7 +19,7 @@ interface NamingSchema {
 class FileName {
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
-    let rule = nameRuleManager.rule
+    let rule = nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork')
 
     // 1 把特定标记替换成它所代表的设置的值
     for (const item of this.flagToSettingValue) {
