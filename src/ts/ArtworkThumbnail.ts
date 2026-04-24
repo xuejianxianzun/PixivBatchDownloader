@@ -171,6 +171,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       if (
         selector === 'li[size="1"]' &&
         (pageType.type === pageType.list.UserHome ||
+          pageType.type == pageType.list.Artwork ||
           pageType.type == pageType.list.NewArtworkBookmark ||
           pageType.type === pageType.list.Bookmark)
       ) {

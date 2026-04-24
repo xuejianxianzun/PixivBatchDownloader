@@ -1798,6 +1798,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             // 在一些页面里不使用这个选择器，因为它会连带插画封面下方的标题、用户区域也一起选择
             if (selector === 'li[size="1"]' &&
                 (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Bookmark)) {
                 continue;
@@ -3883,6 +3884,7 @@ class FileName {
             const value = item.func(rule, item.flag, data);
             rule = rule.replaceAll(item.flag, value);
         }
+        console.log(rule);
         rule = this.handleCustomFeature(rule, data);
         // 2 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
@@ -4055,6 +4057,7 @@ class FileName {
         };
         // 3 生成文件名
         let result = this.generateFileName(rule, schema);
+        console.log(result);
         // 5 生成后缀名
         // 处理动图的后缀名
         if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
@@ -4197,9 +4200,16 @@ class FileName {
                 // 作品 tag 里的顺序：欧派 巨乳
                 const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
                 for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderTagList) {
-                    // 查找匹配的时候转换成小写
+                    // 查找时转换成小写
                     if (workTags.includes(userTag.toLowerCase())) {
-                        return userTag;
+                        // 匹配成功后，替换特殊字符
+                        const matchTag = this.generateFileName(flag, {
+                            [flag]: {
+                                value: userTag,
+                                safe: false
+                            }
+                        });
+                        return matchTag;
                     }
                 }
                 return '';
@@ -5946,13 +5956,10 @@ class Lang {
     }
     // translate
     transl(name, ...args) {
-        // if(!langText[name]){
-        //   console.log(`not found lang ${name}`)
+        // if(name in langText === false){
+        //   console.warn(`Lang: not found:${name}`)
+        //   return name
         // }
-        if (name in _langText__WEBPACK_IMPORTED_MODULE_0__.langText === false) {
-            console.warn(`Lang: not found:${name}`);
-            return name;
-        }
         let content = _langText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(this.type)];
         args.forEach((arg) => (content = content.replace('{}', arg)));
         return content;

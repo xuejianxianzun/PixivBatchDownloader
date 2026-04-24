@@ -337,6 +337,7 @@ class FileName {
         data.pageCount > 1 &&
         data.pageCount > settings.folderForMultiImageWorksImageNumber
       ) {
+        // 原样返回用户设置的文件夹规则，不替换特殊字符，因为这里允许用户使用 / 来建立多层文件夹
         return settings.folderForMultiImageWorksRule
       } else {
         return ''
@@ -353,6 +354,7 @@ class FileName {
         settings.r18Folder &&
         (data.xRestrict === 1 || data.xRestrict === 2)
       ) {
+        // 原样返回用户设置的文件夹规则，不替换特殊字符，因为这里允许用户使用 / 来建立多层文件夹
         return settings.r18FolderName
       } else {
         return ''
@@ -375,9 +377,16 @@ class FileName {
         // 作品 tag 里的顺序：欧派 巨乳
         const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
         for (const userTag of settings.createFolderTagList) {
-          // 查找匹配的时候转换成小写
+          // 查找时转换成小写
           if (workTags.includes(userTag.toLowerCase())) {
-            return userTag
+            // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
+            const matchTag = this.generateFileName(flag, {
+              [flag]: {
+                value: userTag,
+                safe: false,
+              },
+            })
+            return matchTag
           }
         }
         return ''
