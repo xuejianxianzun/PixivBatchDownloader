@@ -3,6 +3,10 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
+## 18.8.1 2026-04-25
+
+### 🐞修复了“使用第一个匹配的标签建立文件夹”匹配结果被转换成小写的问题
+
 ## 18.8.0 2026-04-25
 
 ### 💡对移除了“为每个作品建立单独的文件夹”设置的补充说明

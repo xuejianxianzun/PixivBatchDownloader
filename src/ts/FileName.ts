@@ -432,6 +432,15 @@ class FileName {
     // 查找结束
 
     if (value) {
+      // 前面匹配时把用户设置的标签转换成小写了，这里需要把它替换成原本的标签
+      if (settings[key].includes(value) === false) {
+        const index = settings[key].findIndex(
+          (tag) => tag.toLowerCase() === value
+        )
+        if (index !== -1) {
+          value = settings[key][index]
+        }
+      }
       // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
       const str = this.generateFileName(flag, {
         [flag]: {

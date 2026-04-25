@@ -316,7 +316,6 @@ class SetTagAlias {
     for (const tag of tags) {
       const alias = this.findAlias(tag)
       if (alias) {
-        console.log(`标签 "${tag}" 有别名 "${alias}"，已替换`)
         set.add(alias)
         // 特殊处理：如果标签里有收藏数量标记（例如：原神10000users入り），会同时添加别名和原标签
         // 因为别名里没有收藏数量，只添加别名的话会丢失收藏数量的信息
