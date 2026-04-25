@@ -4244,6 +4244,13 @@ class FileName {
         }
         // 查找结束
         if (value) {
+            // 前面匹配时把用户设置的标签转换成小写了，这里需要把它替换成原本的标签
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].includes(value) === false) {
+                const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].findIndex((tag) => tag.toLowerCase() === value);
+                if (index !== -1) {
+                    value = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key][index];
+                }
+            }
             // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
             const str = this.generateFileName(flag, {
                 [flag]: {
@@ -44444,7 +44451,6 @@ class SetTagAlias {
         for (const tag of tags) {
             const alias = this.findAlias(tag);
             if (alias) {
-                console.log(`标签 "${tag}" 有别名 "${alias}"，已替换`);
                 set.add(alias);
                 // 特殊处理：如果标签里有收藏数量标记（例如：原神10000users入り），会同时添加别名和原标签
                 // 因为别名里没有收藏数量，只添加别名的话会丢失收藏数量的信息
