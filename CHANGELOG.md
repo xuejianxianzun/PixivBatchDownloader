@@ -3,7 +3,7 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
-## next
+## 18.8.0 2026-04-25
 
 ### 💡对移除了“为每个作品建立单独的文件夹”设置的补充说明
 
@@ -56,6 +56,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/614
 之前下载器没有处理 `{match_tag_folder}` 匹配的标签里的特殊字符，但有些标签含有斜线，会意外生成文件夹。有些含有冒号会导致文件名异常无法下载。现在修复。
 
 ### 😊在“命名规则”的帮助里添加了更详细的说明
+
+### 🕑更新了作品发布时间数据
 
 ## 18.7.0 2026-04-21
 
