@@ -343,13 +343,7 @@
         // 默认样式下，选项的文字占据左侧空间，subOptionWrap 占据右侧空间
         // 但是有些 subOptionWrap 需要占满整行宽度。通常有两种情况：
         // 1. 让 textarea 占满宽度。如果 textarea 只占据右侧空间，宽度比较窄，有时会影响使用体验
-        // 2. 元素数量比较多，空间太小的话很拥挤。例如“针对特定用户屏蔽标签”有添加、显示列表的需求
-        &[data-no='12'] .subOptionWrap,
-        &[data-no='35'] .subOptionWrap,
-        &[data-no='39'] .subOptionWrap,
-        &[data-no='43'] .subOptionWrap,
-        &[data-no='80'] .subOptionWrap,
-        &[data-no='95'] .subOptionWrap,
+        // 2. 元素数量比较多，空间太小的话很拥挤。例如“针对特定用户屏蔽标签”有显示列表的需求
         .setUserNameWrap,
         .DoNotDownloadLastFewImagesWarp {
           flex-basis: 100%;

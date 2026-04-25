@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { namingRuleConfig } from './NamingRuleConfig'
 
-// 设置项编号从 0 开始，现在最大是 106
+// 设置项编号从 0 开始，现在最大是 107
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -365,7 +365,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="notNeedTagSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="notNeedTagSwitch">
         <span class="gray1" data-xztext="_任一"></span>
         <span class="verticalSplit"></span>
         <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
@@ -401,7 +401,7 @@ export const formHtml = `
       <input type="checkbox" name="titleExcludeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       
-      <span class="subOptionWrap" data-show="titleExcludeSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="titleExcludeSwitch">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="titleExcludeList" rows="1" placeholder="word1,word2,word3"></textarea>
 
         <label for="alsoCheckSeriesTitle" class="has_tip" data-xztext="_也检查系列标题" data-xztip="_也检查系列标题的说明"></label>
@@ -655,7 +655,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="userBlockList">
+      <span class="subOptionWrap flexBasis100" data-show="userBlockList">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="blockList" rows="1" placeholder="11111,22222,33333"></textarea>
         <br>
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
@@ -673,7 +673,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+      <span class="subOptionWrap flexBasis100" data-show="blockTagsForSpecificUser">
         <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
     </p>
@@ -761,7 +761,7 @@ export const formHtml = `
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
-      <span class="subOptionWrap namingTipArea" data-show="createFolderByTag">
+      <span class="subOptionWrap namingTipArea flexBasis100" data-show="createFolderByTag">
         <span class="name">{match_tag_folder1}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
         <span class="name">{match_tag_folder2}</span>
@@ -769,12 +769,27 @@ export const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="107" aria-hidden="true"></span>
+    <p class="option" data-no="107">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_标签别名"></span>
+      </a>
+
+      <label for="useTagAliasForTagsNamingRule" data-xztext="_应用到文件名里的tags系列标记"></label>
+      <input type="checkbox" name="useTagAliasForTagsNamingRule" id="useTagAliasForTagsNamingRule" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_标签别名" data-msg="_标签别名的帮助" data-xztext="_帮助"></button>
+
+      <slot data-name="setTagAliasSlot"></slot>
+    </p>
+
     <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
     <p class="option" data-no="80">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
     </p>

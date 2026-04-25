@@ -3857,14 +3857,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _SetUserName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SetUserName */ "./src/ts/SetUserName.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _setting_SetUserName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/SetUserName */ "./src/ts/setting/SetUserName.ts");
+/* harmony import */ var _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/SetTagAlias */ "./src/ts/setting/SetTagAlias.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+
 
 
 
@@ -3892,19 +3894,19 @@ class FileName {
         const p_num = this.createPNum(data);
         const schema = {
             '{p_title}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
             },
             '{page_title}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
             },
             '{p_tag}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.tag,
+                value: this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]),
                 safe: false,
             },
             '{page_tag}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.tag,
+                value: this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]),
                 safe: false,
             },
             '{id}': {
@@ -3954,19 +3956,19 @@ class FileName {
             '{tags}': {
                 value: !rule.includes('{tags}')
                     ? ''
-                    : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
+                    : this.handleTagsRule(data.tags),
                 safe: false,
             },
             '{tags_translate}': {
                 value: !rule.includes('{tags_translate}')
                     ? ''
-                    : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
+                    : this.handleTagsRule(data.tagsWithTransl),
                 safe: false,
             },
             '{tags_transl_only}': {
                 value: !rule.includes('{tags_transl_only}')
                     ? ''
-                    : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
+                    : this.handleTagsRule(data.tagsTranslOnly),
                 safe: false,
             },
             '{bmk}': {
@@ -3982,11 +3984,11 @@ class FileName {
                 safe: true,
             },
             '{age}': {
-                value: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getAgeLimit(data.xRestrict),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getAgeLimit(data.xRestrict),
                 safe: true,
             },
             '{age_r}': {
-                value: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getAgeLimit(data.xRestrict, false),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getAgeLimit(data.xRestrict, false),
                 safe: true,
             },
             '{like}': {
@@ -4000,39 +4002,39 @@ class FileName {
             '{date}': {
                 value: !rule.includes('{date}')
                     ? ''
-                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
+                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{upload_date}': {
                 value: !rule.includes('{upload_date}')
                     ? ''
-                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
+                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{task_date}': {
                 value: !rule.includes('{task_date}')
                     ? ''
-                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
+                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{type}': {
-                value: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type],
+                value: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.worksTypeName[data.type],
                 safe: true,
             },
             '{type_illust}': {
-                value: data.type === 0 ? _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type] : '',
+                value: data.type === 0 ? _Config__WEBPACK_IMPORTED_MODULE_5__.Config.worksTypeName[data.type] : '',
                 safe: true,
             },
             '{type_manga}': {
-                value: data.type === 1 ? _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type] : '',
+                value: data.type === 1 ? _Config__WEBPACK_IMPORTED_MODULE_5__.Config.worksTypeName[data.type] : '',
                 safe: true,
             },
             '{type_ugoira}': {
-                value: data.type === 2 ? _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type] : '',
+                value: data.type === 2 ? _Config__WEBPACK_IMPORTED_MODULE_5__.Config.worksTypeName[data.type] : '',
                 safe: true,
             },
             '{type_novel}': {
-                value: data.type === 3 ? _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type] : '',
+                value: data.type === 3 ? _Config__WEBPACK_IMPORTED_MODULE_5__.Config.worksTypeName[data.type] : '',
                 safe: true,
             },
             '{AI}': {
@@ -4060,7 +4062,7 @@ class FileName {
         let result = this.generateFileName(rule, schema);
         // 5 生成后缀名
         // 处理动图的后缀名
-        if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
             // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.imageSize !== 'thumb') {
                 data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.ugoiraSaveAs;
@@ -4115,11 +4117,11 @@ class FileName {
                 let temp = obj.value ?? '';
                 // 替换不可以作为文件名的特殊字符
                 if (!obj.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(temp);
                 }
                 // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.removeEmojis(temp);
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.removeEmojis(temp);
                 }
                 // 有些标记可能是空字符串，移除它们前面的分割符号
                 if (temp === '') {
@@ -4201,32 +4203,55 @@ class FileName {
     }
     /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
     getMatchTagFolder(rule, flag, data, key) {
-        if (rule.includes(flag)) {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].length > 0) {
-                // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
-                // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
-                // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
-                // 例如 用户输入顺序：巨乳 欧派
-                // 作品 tag 里的顺序：欧派 巨乳
-                const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
-                for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key]) {
-                    // 查找时转换成小写
-                    if (workTags.includes(userTag.toLowerCase())) {
-                        // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
-                        const matchTag = this.generateFileName(flag, {
-                            [flag]: {
-                                value: userTag,
-                                safe: false,
-                            },
-                        });
-                        return matchTag;
-                    }
+        if (!rule.includes(flag) || !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag || _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].length === 0) {
+            return '';
+        }
+        let value = '';
+        const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
+        const userSetTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].map((val) => val.toLowerCase());
+        // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
+        const aliasList = new Set();
+        for (const tag of workTags) {
+            const alias = _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__.setTagAlias.findAlias(tag);
+            if (alias) {
+                aliasList.add(alias);
+            }
+        }
+        console.log('匹配到的所有标签别名：', aliasList);
+        // 如果匹配到了任意标签别名，就查找用户设置的标签里是否含有这个别名。如果有就使用它
+        // 遍历查找时，遍历的是用户设置的标签列表，而非其他列表
+        // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+        // 不要循环其他列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+        // 例如 用户输入顺序：A,B
+        // 作品 tag 里的顺序：B,A
+        if (aliasList.size > 0) {
+            for (const userTag of userSetTags) {
+                if (aliasList.has(userTag)) {
+                    value = userTag;
+                    console.log('用户使用的别名：', userTag);
+                    break;
                 }
-                return '';
             }
-            else {
-                return '';
+        }
+        // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
+        if (!value) {
+            for (const userTag of userSetTags) {
+                if (workTags.includes(userTag)) {
+                    value = userTag;
+                    break;
+                }
             }
+        }
+        // 查找结束
+        if (value) {
+            // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
+            const str = this.generateFileName(flag, {
+                [flag]: {
+                    value,
+                    safe: false,
+                },
+            });
+            return str;
         }
         return '';
     }
@@ -4261,7 +4286,11 @@ class FileName {
         }
         return rule;
     }
-    // 生成 {rank} 标记的值
+    /** 生成 {tags} 系列标记的值 */
+    handleTagsRule(tags) {
+        return _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__.setTagAlias.handleTagsNamingRule(tags).join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator);
+    }
+    /** 生成 {rank} 标记的值 */
     createRank(rank) {
         // 处理空值
         if (rank === null) {
@@ -4274,13 +4303,13 @@ class FileName {
         // 其他情况应该是期望的 number 类型
         return '#' + rank;
     }
-    // 生成 {p_num} 标记的值
+    /** 生成 {p_num} 标记的值 */
     createPNum(data) {
         if (data.type === 3) {
             // 小说没有编号，返回空字符串
             return '';
         }
-        let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
+        let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getResultIndex(data);
         // 处理第一张图不带序号的情况
         if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
             if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
@@ -4307,7 +4336,7 @@ class FileName {
             ? p.padStart(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPaddingLength, '0')
             : p;
     }
-    // 生成 {id} 标记的值
+    /** 生成 {id} 标记的值 */
     createId(data, p_num) {
         // 如果不需要添加序号，或者没有序号，则只返回数字 id
         if (p_num === '') {
@@ -4340,11 +4369,11 @@ class FileName {
             return '';
         }
     }
-    // 在文件名前面添加一层文件夹
+    /** 在文件名前面添加一层文件夹 */
     // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
     appendFolder(fullPath, folderName) {
         const allPart = fullPath.split('/');
-        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(folderName));
+        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(folderName));
         return allPart.join('/');
     }
     // 不能出现在文件名开头的一些特定字符
@@ -4358,7 +4387,7 @@ class FileName {
         }
         return false;
     }
-    // 移除文件名开头的特定字符
+    /** 移除文件名开头的特定字符 */
     removeStartChar(str) {
         while (this.checkStartChar(str)) {
             for (const check of this.checkStartCharList) {
@@ -4406,7 +4435,7 @@ class FileName {
             // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
             parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
             // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-            parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.handleWindowsReservedName(parts[i], this.addStr);
+            parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.handleWindowsReservedName(parts[i], this.addStr);
         }
         string = parts.join('/');
         return string;
@@ -4430,7 +4459,7 @@ class FileName {
         // 文件名超长
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimitSwitch) {
             // 如果用户未启用此设置，则显示提示
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_文件名可能超长的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit.toString(), fullName), 'tipFullNameTooLong');
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_文件名可能超长的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit.toString(), fullName), 'tipFullNameTooLong');
             return result;
         }
         // 开始截断
@@ -4478,7 +4507,7 @@ class FileName {
             result = allPart.join('/');
             excess = result.length + ext.length - _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_下载器截断了一些文件名的提示', fullName), 'tipTruncatedFullName');
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_下载器截断了一些文件名的提示', fullName), 'tipTruncatedFullName');
         // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
         // console.log(result.length)
         return result;
@@ -9671,267 +9700,6 @@ class SelectWork {
     }
 }
 new SelectWork();
-
-
-/***/ }),
-
-/***/ "./src/ts/SetUserName.ts":
-/*!*******************************!*\
-  !*** ./src/ts/SetUserName.ts ***!
-  \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-
-
-
-
-
-
-
-// 为某些用户设置固定的用户名，或者别名
-class SetUserName {
-    constructor() {
-        this.createWrap();
-        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
-        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
-        this.bindEvents();
-    }
-    slotName = 'setUserNameSlot';
-    wrap; // 最外层元素
-    expandBtn; // 展开/折叠 按钮
-    totalSpan; // 显示规则数量
-    showAddBtn; // 添加 按钮，点击显示添加区域
-    addWrap; // 用于添加新项目的区域
-    addInputUid; // 用于添加新项目的 uid 的输入框
-    addInputName; // 用于添加新项目的 name 的输入框
-    addBtn; // 添加 按钮
-    cancelBtn; // 取消 按钮
-    listWrap; // 列表区域容器
-    _addWrapShow = false;
-    set addWrapShow(val) {
-        this._addWrapShow = val;
-        if (val) {
-            this.addWrap.style.display = 'flex';
-            this.addInputUid.focus();
-        }
-        else {
-            this.addWrap.style.display = 'none';
-            this.addInputUid.value = '';
-            this.addInputName.value = '';
-        }
-    }
-    get addWrapShow() {
-        return this._addWrapShow;
-    }
-    wrapHTML = `
-  <span class="setUserNameWrap">
-
-    <span class="controlBar">
-    <span class="total">0</span>
-      <button type="button" class="textButton expand" data-xztext="_收起"></button>
-      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
-    </span>
-
-    <div class="addWrap">
-      <div class="settingItem addInputWrap" >
-        <div class="inputItem uid">
-          <span class="label uidLabel" data-xztext="_用户id"></span>
-          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
-        </div>
-
-        <div class="inputItem name">
-          <span class="label nameLabel" data-xztext="_命名标记user"></span>
-          <input type="text" class="setinput_style1 blue addNameInput" />
-        </div>
-
-        <div class="btns">
-          <button type="button" class="textButton add" data-xztitle="_添加">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-yes_submit"></use>
-            </svg>
-          </button>
-
-          
-          <button type="button" class="textButton cancel" data-xztitle="_取消">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-close_cancel"></use>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="listWrap">
-    </div>
-  </span>
-  `;
-    // 创建列表外部的容器，静态 html
-    createWrap() {
-        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot(this.slotName, this.wrapHTML);
-        this.expandBtn = this.wrap.querySelector('.expand');
-        this.showAddBtn = this.wrap.querySelector('.showAdd');
-        this.totalSpan = this.wrap.querySelector('.total');
-        this.addWrap = this.wrap.querySelector('.addWrap');
-        this.addInputUid = this.wrap.querySelector('.addUidInput');
-        this.addInputName = this.wrap.querySelector('.addNameInput');
-        this.addBtn = this.wrap.querySelector('.add');
-        this.cancelBtn = this.wrap.querySelector('.cancel');
-        this.listWrap = this.wrap.querySelector('.listWrap');
-        // 展开/折叠按钮
-        this.expandBtn.addEventListener('click', () => {
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameShow', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameShow);
-        });
-        // 切换显示添加规则的区域
-        this.showAddBtn.addEventListener('click', () => {
-            this.addWrapShow = !this.addWrapShow;
-        });
-        // 添加规则的按钮
-        this.addBtn.addEventListener('click', () => {
-            this.addRule(this.addInputUid.value, this.addInputName.value);
-        });
-        // 取消添加的按钮
-        this.cancelBtn.addEventListener('click', () => {
-            this.addWrapShow = false;
-        });
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'setUserNameShow') {
-                this.showListWrap();
-            }
-            if (data.name === 'setUserNameList') {
-                this.createAllList();
-            }
-        });
-    }
-    showListWrap() {
-        const show = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameShow;
-        this.listWrap.style.display = show ? 'flex' : 'none';
-        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.expandBtn, show ? '_收起' : '_展开');
-    }
-    // 根据规则动态创建 html
-    createAllList() {
-        this.totalSpan.textContent = Object.keys(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList).length.toString();
-        this.listWrap.innerHTML = '';
-        const df = document.createDocumentFragment();
-        for (const [uid, name] of Object.entries(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList)) {
-            df.append(this.createOneList(uid, name));
-        }
-        this.listWrap.append(df);
-    }
-    // 创建规则对应的元素，并绑定事件
-    createOneList(uid, name) {
-        const html = `
-      <div class="inputItem uid">
-        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
-      </div>
-
-      <div class="inputItem name">
-        <input type="text" class="setinput_style1 blue" data-nameInput="${uid}" value="${name}" />
-      </div>
-
-      <div class="btns">
-        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-refresh"></use>
-          </svg>
-        </button>
-
-        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-delete"></use>
-          </svg>
-        </button>
-    </div>`;
-        const element = document.createElement('div');
-        element.classList.add('settingItem');
-        element.dataset.key = uid;
-        element.innerHTML = html;
-        const updateRule = element.querySelector(`button[data-updateRule='${uid}']`);
-        const deleteRule = element.querySelector(`button[data-deleteRule='${uid}']`);
-        const uidInput = element.querySelector(`input[data-uidInput='${uid}']`);
-        const nameInput = element.querySelector(`input[data-nameInput='${uid}']`);
-        [uidInput, nameInput].forEach((el) => {
-            el?.addEventListener('change', () => {
-                if (el.value) {
-                    this.updateRule(uid, uidInput.value, nameInput.value, false);
-                }
-            });
-        });
-        // 更新规则
-        updateRule?.addEventListener('click', () => {
-            this.updateRule(uid, uidInput.value, nameInput.value);
-        });
-        // 删除规则
-        deleteRule?.addEventListener('click', () => {
-            this.deleteRule(uid);
-        });
-        return element;
-    }
-    // 检查用户输入的值
-    checkValue(uidInput, nameInput) {
-        if (!uidInput || !nameInput) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_必填项不能为空'));
-            return false;
-        }
-        const uid = Number.parseInt(uidInput);
-        if (!uid || isNaN(uid)) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户ID必须是数字'));
-            return false;
-        }
-        return {
-            uidInput,
-            nameInput,
-        };
-    }
-    // 添加规则
-    addRule(uid, name) {
-        const check = this.checkValue(uid, name);
-        if (!check) {
-            return;
-        }
-        _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid] = name;
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
-        this.addWrapShow = false;
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加成功'));
-    }
-    // 更新规则
-    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
-    updateRule(oldUid, uid, name, tip = true) {
-        const check = this.checkValue(uid, name);
-        if (!check) {
-            return;
-        }
-        delete _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[oldUid];
-        _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid] = name;
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
-        this.addWrapShow = false;
-        if (tip) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_更新成功'));
-        }
-    }
-    // 删除规则
-    deleteRule(uid) {
-        delete _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid];
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
-        this.removeListElement(uid);
-    }
-    removeListElement(uid) {
-        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
-        listElement?.remove();
-    }
-}
-new SetUserName();
 
 
 /***/ }),
@@ -25388,6 +25156,7 @@ class Resume {
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime = meta.date;
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
         // 恢复模式就绪
+        await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'), 'restoreCrawlResult');
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resume');
     }
@@ -32899,28 +32668,38 @@ Note: This setting will put both R-18 and R-18G works in the same folder. If you
 <br>
 使用方法：<br>
 首先在这个设置里输入目标标签，如果有多个标签，使用英语逗号 <span class="blue">,</span> 分割。<br>
-你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果某个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 当然，如果你没有这个需求的话，可以只使用第一个标签列表。<br>
 <br>
 在你设置标签列表之后，还需要修改"下载"选项卡里的"命名规则"设置，在需要的地方插入特定标记和斜线来添加一层文件夹。<span class="blue">/{match_tag_folder1}/</span>代表第一个标签列表的匹配结果，<span class="blue">/{match_tag_folder2}/</span>代表第二个标签列表的匹配结果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+使用标签别名来统一文件夹名字：<br>
+有些标签有多种变体，例如 <span class="blue">GenshinImpact</span> 有这些变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。如果你想把这些标签都视为 <span class="blue">GenshinImpact</span>，并且只建立 <span class="blue">GenshinImpact</span> 文件夹（而不是使用变体来建立多个不同的文件夹），就可以使用该设置下方的"标签别名"功能。<br>
+把这些变体的别名设置为 <span class="blue">GenshinImpact</span>，然后在这个设置里只需要使用 <span class="blue">GenshinImpact</span> 即可匹配到所有变体。<br>
+<br>
 匹配方式：<br>
-下载器会在作品的标签列表里查找你设置的标签。匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
+下载器会在作品的标签列表里查找你设置的标签，并且会优先使用标签别名。<br>
+匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
 对于你设置的每个标签列表，下载器都会按顺序查找：先查找你设置的第一个标签，如果找不到就查找第二个，以此类推。一旦找到第一个匹配的标签，就停止查找，并用它替换命名规则中的对应标记：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
 如果没有匹配到你设置的标签，下载器会忽略对应的标记。<br>`,
         `如果作品含有你設定的標籤，就使用它來建立一層資料夾。<br>
 <br>
 使用方法：<br>
 首先在這個設定裡輸入目標標籤，如果有多個標籤，使用英語逗號 <span class="blue">,</span> 分割。<br>
-你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果某個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 當然，如果你沒有這個需求的話，可以只使用第一個標籤列表。<br>
 <br>
 在你設定標籤列表之後，還需要修改「下載」選項卡裡的「命名規則」設定，在需要的地方插入特定標記和斜線來添加一層資料夾。<span class="blue">/{match_tag_folder1}/</span>代表第一個標籤列表的匹配結果，<span class="blue">/{match_tag_folder2}/</span>代表第二個標籤列表的匹配結果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+使用標籤別名來統一資料夾名字：<br>
+有些標籤有多種變體，例如 <span class="blue">GenshinImpact</span> 有這些變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。如果你想把這些標籤都視為 <span class="blue">GenshinImpact</span>，並且只建立 <span class="blue">GenshinImpact</span> 資料夾（而不是使用變體來建立多個不同的資料夾），就可以使用該設定下方的「標籤別名」功能。<br>
+把這些變體的別名設定為 <span class="blue">GenshinImpact</span>，然後在這個設定裡只需要使用 <span class="blue">GenshinImpact</span> 即可匹配到所有變體。<br>
+<br>
 匹配方式：<br>
-下載器會在作品的標籤列表裡查找你設定的標籤。匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
+下載器會在作品的標籤列表裡查找你設定的標籤，並且會優先使用標籤別名。<br>
+匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
 對於你設定的每個標籤列表，下載器都會按順序查找：先查找你設定的第一個標籤，如果找不到就查找第二個，以此類推。一旦找到第一個匹配的標籤，就停止查找，並用它替換命名規則中的對應標記：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
 如果沒有匹配到你設定的標籤，下載器會忽略對應的標記。<br>`,
         `If a work contains a tag you have set, that tag will be used to create a folder.<br>
@@ -32933,8 +32712,13 @@ Of course, if you don't need this, you can just use the first tag list.<br>
 After setting up your tag lists, you also need to update the "Naming rule" in the "Download" tab. Insert the specific tokens and slashes where needed to add a folder level. <span class="blue">/{match_tag_folder1}/</span> represents the match result of the first tag list, and <span class="blue">/{match_tag_folder2}/</span> represents the match result of the second tag list.<br>
 Example: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+Using tag aliases to unify folder names:<br>
+Some tags have multiple variants. For example, <span class="blue">GenshinImpact</span> has these variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. If you want to treat all these tags as <span class="blue">GenshinImpact</span> and only create a <span class="blue">GenshinImpact</span> folder (instead of creating multiple different folders using the variants), you can use the "Tag alias" feature below this setting.<br>
+Set the alias of these variants to <span class="blue">GenshinImpact</span>, and then you only need to use <span class="blue">GenshinImpact</span> in this setting to match all variants.<br>
+<br>
 How matching works:<br>
-The downloader searches for your set tags in the work's tag list. Matching is exact and case-insensitive. If you set <span class="blue">A</span>, it will match <span class="blue">a</span> or <span class="blue">A</span>, but not <span class="blue">abc</span>.<br>
+The downloader searches for your set tags in the work's tag list, with tag aliases taking priority.<br>
+Matching is exact and case-insensitive. If you set <span class="blue">A</span>, it will match <span class="blue">a</span> or <span class="blue">A</span>, but not <span class="blue">abc</span>.<br>
 For each tag list you set, the downloader searches in order: it looks for the first tag first, and if not found, moves to the second, and so on. Once the first matching tag is found, the search stops, and it replaces the corresponding token in the naming rule: <span class="blue">{match_tag_folder1}</span> or <span class="blue">{match_tag_folder2}</span>.<br>
 If none of your set tags are matched, the downloader will ignore the corresponding token.<br>`,
         `作品に設定したタグが含まれている場合、そのタグを使ってフォルダーを 1 階層作成します。<br>
@@ -32947,8 +32731,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 タグリストを設定したら、「ダウンロード」タブの「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
 例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+タグの別名を使ってフォルダー名を統一する：<br>
+タグには複数の表記ゆれがある場合があります。例えば <span class="blue">GenshinImpact</span> にはこのような表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。これらをすべて <span class="blue">GenshinImpact</span> として扱い、<span class="blue">GenshinImpact</span> フォルダーのみを作成したい（表記ゆれごとに別々のフォルダーを作りたくない）場合は、この設定の下にある「タグの別名」機能を使えます。<br>
+これらの表記ゆれの別名を <span class="blue">GenshinImpact</span> に設定すれば、この設定では <span class="blue">GenshinImpact</span> だけを使ってすべての表記ゆれにマッチさせることができます。<br>
+<br>
 マッチ方式：<br>
-ダウンローダーは work のタグリストの中から設定したタグを検索します。マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
+ダウンローダーは work のタグリストの中から設定したタグを検索します。タグの別名が優先して使用されます。<br>
+マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
 設定した各タグリストに対して、ダウンローダーは順番に検索します。最初のタグから検索し、見つからなければ次のタグを検索します。最初にマッチしたタグが見つかった時点で検索を止め、命名ルール内の対応するトークン（<span class="blue">{match_tag_folder1}</span> または <span class="blue">{match_tag_folder2}</span>）をそのタグで置き換えます。<br>
 設定したタグがひとつもマッチしなかった場合、ダウンローダーは対応するトークンを無視します。<br>`,
         `작품에 설정한 태그가 포함되어 있으면 해당 태그를 사용해 폴더를 한 단계 만듭니다.<br>
@@ -32961,8 +32750,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 태그 목록을 설정한 후에는 "다운로드" 탭의 "명명 규칙" 설정도 수정해야 합니다. 폴더를 추가하고 싶은 위치에 특정 토큰과 슬래시를 삽입하세요. <span class="blue">/{match_tag_folder1}/</span> 는 첫 번째 태그 목록의 매칭 결과를 나타내고, <span class="blue">/{match_tag_folder2}/</span> 는 두 번째 태그 목록의 매칭 결과를 나타냅니다.<br>
 예시：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+태그 별칭으로 폴더 이름 통일하기：<br>
+일부 태그에는 여러 변형이 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 이런 변형들이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. 이 태그들을 모두 <span class="blue">GenshinImpact</span> 로 취급하고 <span class="blue">GenshinImpact</span> 폴더만 만들고 싶다면（변형마다 다른 폴더를 만들지 않으려면）이 설정 아래의 "태그 별칭" 기능을 사용할 수 있습니다.<br>
+이 변형들의 별칭을 <span class="blue">GenshinImpact</span> 로 설정하면 이 설정에서 <span class="blue">GenshinImpact</span> 만 사용해도 모든 변형에 매칭됩니다.<br>
+<br>
 매칭 방식：<br>
-다운로더는 작품의 태그 목록에서 설정한 태그를 검색합니다. 매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
+다운로더는 작품의 태그 목록에서 설정한 태그를 검색하며, 태그 별칭을 우선적으로 사용합니다.<br>
+매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
 설정한 각 태그 목록에 대해 다운로더는 순서대로 검색합니다. 첫 번째 태그부터 검색하고 찾지 못하면 두 번째 태그를 검색하는 식입니다. 처음으로 매칭되는 태그를 찾으면 검색을 멈추고 명명 규칙의 해당 토큰(<span class="blue">{match_tag_folder1}</span> 또는 <span class="blue">{match_tag_folder2}</span>)을 그 태그로 교체합니다.<br>
 설정한 태그가 하나도 매칭되지 않으면 다운로더는 해당 토큰을 무시합니다.<br>`,
         `Если work содержит заданный вами тег, он будет использован для создания папки.<br>
@@ -32975,8 +32769,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 После настройки списков тегов нужно также изменить "Правило именования" на вкладке "Загрузка": вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
 Пример: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+Использование псевдонимов тегов для единообразия имён папок:<br>
+У некоторых тегов есть несколько вариантов написания. Например, у <span class="blue">GenshinImpact</span> есть такие варианты: <span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. Если вы хотите считать все эти теги одним тегом <span class="blue">GenshinImpact</span> и создавать только папку <span class="blue">GenshinImpact</span> (а не отдельные папки для каждого варианта), воспользуйтесь функцией "Псевдоним тега" ниже этой настройки.<br>
+Задайте псевдоним для этих вариантов как <span class="blue">GenshinImpact</span>, и тогда в этой настройке достаточно использовать только <span class="blue">GenshinImpact</span>, чтобы сопоставить все варианты.<br>
+<br>
 Принцип совпадения:<br>
-Загрузчик ищет заданные вами теги в списке тегов work. Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
+Загрузчик ищет заданные вами теги в списке тегов work, при этом псевдонимы тегов имеют приоритет.<br>
+Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
 Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
 Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
     ],
@@ -37800,6 +37599,96 @@ Tip: Click a token name to copy it.<br>`,
         `Для novel доступны те же токены именования, что и для работ с изображениями, плюс один специальный токен:<br>
 <span class="blue name">{follow_artwork}</span> следует правилу именования работ с изображениями. Это также значение по умолчанию, означающее, что novel использует то же правило именования, что и работы с изображениями. Если вы хотите задать для novel отдельное правило именования, удалите этот токен и настройте правило по своему усмотрению.`,
     ],
+    _标签别名: [
+        `标签<span class="key">别名</span>`,
+        `標籤<span class="key">別名</span>`,
+        `Tag <span class="key">alias</span>`,
+        `タグの<span class="key">別名</span>`,
+        `태그 <span class="key">별칭</span>`,
+        `<span class="key">Псевдоним</span> тега`,
+    ],
+    _标签别名的帮助: [
+        `如果一个标签有多种变体，你可以为它们设置一个通用的别名。例如 <span class="blue">GenshinImpact</span> 有多个变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
+<br>
+子选项：<br>
+- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
+<br>
+另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
+        `如果一個標籤有多種變體，你可以為它們設定一個通用的別名。例如 <span class="blue">GenshinImpact</span> 有多個變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
+<br>
+子選項：<br>
+- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
+<br>
+另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
+        `If a tag has multiple variants, you can set a common alias for them. For example, <span class="blue">GenshinImpact</span> has multiple variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
+<br>
+Sub-options:<br>
+- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
+<br>
+Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
+        `タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。例えば <span class="blue">GenshinImpact</span> には複数の表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
+<br>
+サブオプション：<br>
+- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
+<br>
+また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
+        `태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 여러 변형이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
+<br>
+하위 옵션：<br>
+- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
+<br>
+또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
+        `Если тег имеет несколько вариантов написания, вы можете задать для них общий псевдоним. Например, у <span class="blue">GenshinImpact</span> есть несколько вариантов: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
+<br>
+Вложенные параметры:<br>
+- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах work на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
+<br>
+Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
+    ],
+    _别名: [
+        `别名`,
+        `別名`,
+        `Alias`,
+        `別名`,
+        `별칭`,
+        `Псевдоним`,
+    ],
+    _标签列表: [
+        `标签列表`,
+        `標籤列表`,
+        `Tag list`,
+        `タグリスト`,
+        `태그 목록`,
+        `Список тегов`,
+    ],
+    _确定要删除这一条配置吗: [
+        `确定要删除这一条配置吗？`,
+        `確定要刪除這一條設定嗎？`,
+        `Are you sure you want to delete this entry?`,
+        `この設定を削除してもよろしいですか？`,
+        `이 설정을 삭제하시겠습니까？`,
+        `Вы уверены, что хотите удалить эту запись？`,
+    ],
+    _应用到文件名里的tags系列标记: [
+        `应用到文件名里的 {tags} 系列标记`,
+        `應用到檔名裡的 {tags} 系列標記`,
+        `{tags} series tokens applied to the file name`,
+        `ファイル名に適用される {tags} 系のトークン`,
+        `파일 이름에 적용되는 {tags} 계열 토큰`,
+        `Токены серии {tags}, применяемые в имени файла`,
+    ],
 };
 
 
@@ -40832,7 +40721,7 @@ class Form {
                     input.selectionStart = position + select.value.length;
                     input.selectionEnd = position + select.value.length;
                     input.focus();
-                    // 
+                    // 重置下拉框
                     select.value = 'default';
                 }
             });
@@ -41045,7 +40934,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NamingRuleConfig__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NamingRuleConfig */ "./src/ts/setting/NamingRuleConfig.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 106
+// 设置项编号从 0 开始，现在最大是 107
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -41409,7 +41298,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="notNeedTagSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="notNeedTagSwitch">
         <span class="gray1" data-xztext="_任一"></span>
         <span class="verticalSplit"></span>
         <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
@@ -41445,7 +41334,7 @@ const formHtml = `
       <input type="checkbox" name="titleExcludeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       
-      <span class="subOptionWrap" data-show="titleExcludeSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="titleExcludeSwitch">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="titleExcludeList" rows="1" placeholder="word1,word2,word3"></textarea>
 
         <label for="alsoCheckSeriesTitle" class="has_tip" data-xztext="_也检查系列标题" data-xztip="_也检查系列标题的说明"></label>
@@ -41699,7 +41588,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="userBlockList">
+      <span class="subOptionWrap flexBasis100" data-show="userBlockList">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="blockList" rows="1" placeholder="11111,22222,33333"></textarea>
         <br>
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
@@ -41717,7 +41606,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+      <span class="subOptionWrap flexBasis100" data-show="blockTagsForSpecificUser">
         <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
     </p>
@@ -41805,7 +41694,7 @@ const formHtml = `
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_使用第一个匹配的标签建立文件夹" data-msg="_使用第一个匹配的标签建立文件夹的说明" data-xztext="_帮助"></button>
-      <span class="subOptionWrap namingTipArea" data-show="createFolderByTag">
+      <span class="subOptionWrap namingTipArea flexBasis100" data-show="createFolderByTag">
         <span class="name">{match_tag_folder1}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
         <span class="name">{match_tag_folder2}</span>
@@ -41813,12 +41702,27 @@ const formHtml = `
       </span>
     </p>
 
+    <span class="optionAnchor" data-for-no="107" aria-hidden="true"></span>
+    <p class="option" data-no="107">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_标签别名"></span>
+      </a>
+
+      <label for="useTagAliasForTagsNamingRule" data-xztext="_应用到文件名里的tags系列标记"></label>
+      <input type="checkbox" name="useTagAliasForTagsNamingRule" id="useTagAliasForTagsNamingRule" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_标签别名" data-msg="_标签别名的帮助" data-xztext="_帮助"></button>
+
+      <slot data-name="setTagAliasSlot"></slot>
+    </p>
+
     <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
     <p class="option" data-no="80">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
+      <span class="subOptionWrap flexBasis100" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
     </p>
@@ -43029,6 +42933,7 @@ class FormSettings {
             'removeEmoji',
             'onlyCrawlLastFewImagesSwitch',
             'doNotCrawlFirstImagesSwitch',
+            'useTagAliasForTagsNamingRule',
         ],
         text: [
             'onlyCrawlFirstFewImagesCount',
@@ -43670,7 +43575,7 @@ class Options {
         24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
         48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
         69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
-        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106,
+        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
@@ -44097,6 +44002,558 @@ class SaveNamingRule {
     }
 }
 
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/SetTagAlias.ts":
+/*!***************************************!*\
+  !*** ./src/ts/setting/SetTagAlias.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   setTagAlias: () => (/* binding */ setTagAlias)
+/* harmony export */ });
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+
+
+// 设置标签别名
+// 这个类是从 setUserName 复制过来修改的，复用了一些样式名
+class SetTagAlias {
+    constructor() {
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    slotName = 'setTagAliasSlot';
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addInputAlias; // 用于添加新项目的 alias 的输入框
+    addInputTags; // 用于添加新项目的 tags 的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'flex';
+            this.addInputAlias.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputAlias.value = '';
+            this.addInputTags.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
+  <span class="setUserNameWrap setTagAliasWrap">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel" data-xztext="_别名"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" />
+        </div>
+
+        <div class="inputItem name">
+          <span class="label nameLabel" data-xztext="_标签列表"></span>
+          <input type="text" class="setinput_style1 blue addNameInput" placeholder="tag1,tag2,tag3" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-yes_submit"></use>
+            </svg>
+          </button>
+
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-close_cancel"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </span>
+  `;
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot(this.slotName, this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputAlias = this.wrap.querySelector('.addUidInput');
+        this.addInputTags = this.wrap.querySelector('.addNameInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasShow', !_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputAlias.value, this.addInputTags.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'setTagAliasShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'setTagAliasList') {
+                this.createAllList();
+                this.updateCache();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent = Object.keys(_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList).length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const [alias, tags] of Object.entries(_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList)) {
+            df.append(this.createOneList(alias, tags));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(alias, tags) {
+        const html = `
+        <input type="text" class="setinput_style1 blue alias" data-uidInput="${alias}" value="${alias}" />
+        <input type="text" class="setinput_style1 blue tags" data-nameInput="${alias}" value="${tags}" />
+        <button type="button" class="textButton delete" data-deleteRule="${alias}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-delete"></use>
+          </svg>
+        </button>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = alias;
+        element.innerHTML = html;
+        const deleteRule = element.querySelector(`button[data-deleteRule='${alias}']`);
+        const uidInput = element.querySelector(`input[data-uidInput='${alias}']`);
+        const nameInput = element.querySelector(`input[data-nameInput='${alias}']`);
+        [uidInput, nameInput].forEach((el) => {
+            el?.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(alias, uidInput.value, nameInput.value);
+                }
+            });
+        });
+        // 删除规则
+        deleteRule?.addEventListener('click', () => {
+            this.deleteRule(alias);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(aliasInput, tagsInput) {
+        if (!aliasInput || !tagsInput) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_标签别名') + ':<br>' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_必填项不能为空');
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+            return false;
+        }
+        return {
+            aliasInput,
+            tagsInput,
+        };
+    }
+    // 添加规则
+    addRule(alias, tags) {
+        const check = this.checkValue(alias, tags);
+        if (!check) {
+            return;
+        }
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = tags;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    updateRule(oldAlias, alias, tags, tip = true) {
+        const check = this.checkValue(alias, tags);
+        if (!check) {
+            return;
+        }
+        delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[oldAlias];
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = tags;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(alias) {
+        const confirm = window.confirm(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_确定要删除这一条配置吗'));
+        if (!confirm) {
+            return;
+        }
+        delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias];
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
+        this.removeListElement(alias);
+    }
+    removeListElement(alias) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${alias}']`);
+        listElement?.remove();
+    }
+    cache = {};
+    /** 每当 setTagAliasList 变化时，把每个 tags 转换成数组，生成缓存数据，以避免在匹配时重复创建数组 */
+    updateCache() {
+        const cache = {};
+        for (const [alias, tags] of Object.entries(_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList)) {
+            cache[alias] = tags.split(',').map((t) => t.trim().toLowerCase());
+        }
+        this.cache = cache;
+    }
+    /** 传入一个标签，查找用户是否为它设置了别名 */
+    findAlias(tag) {
+        for (const [alias, tags] of Object.entries(this.cache)) {
+            // 把传入的标签转换成小写，并移除收藏数量标记
+            // 标签后面可能有数字+users入り的收藏数量标记，例如：原神10000users入り
+            const cleanTag = tag.toLowerCase().replace(/\d+users入り$/, '').trim();
+            if (tags.includes(cleanTag)) {
+                return alias;
+            }
+        }
+        return null;
+    }
+    /** 如果一个标签有对应的别名，就把它替换成别名 */
+    handleTagsNamingRule(tags) {
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.useTagAliasForTagsNamingRule) {
+            return tags;
+        }
+        const set = new Set();
+        for (const tag of tags) {
+            const alias = this.findAlias(tag);
+            if (alias) {
+                console.log(`标签 "${tag}" 有别名 "${alias}"，已替换`);
+                set.add(alias);
+                // 特殊处理：如果标签里有收藏数量标记（例如：原神10000users入り），会同时添加别名和原标签
+                // 因为别名里没有收藏数量，只添加别名的话会丢失收藏数量的信息
+                if (tag.includes('users入り')) {
+                    set.add(tag);
+                }
+            }
+            else {
+                set.add(tag);
+            }
+        }
+        return Array.from(set);
+    }
+}
+const setTagAlias = new SetTagAlias();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/SetUserName.ts":
+/*!***************************************!*\
+  !*** ./src/ts/setting/SetUserName.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+
+
+// 为某些用户设置固定的用户名，或者别名
+class SetUserName {
+    constructor() {
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    slotName = 'setUserNameSlot';
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addInputUid; // 用于添加新项目的 uid 的输入框
+    addInputName; // 用于添加新项目的 name 的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'flex';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addInputName.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
+  <span class="setUserNameWrap">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+        </div>
+
+        <div class="inputItem name">
+          <span class="label nameLabel" data-xztext="_命名标记user"></span>
+          <input type="text" class="setinput_style1 blue addNameInput" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-yes_submit"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-close_cancel"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </span>
+  `;
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot(this.slotName, this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputUid = this.wrap.querySelector('.addUidInput');
+        this.addInputName = this.wrap.querySelector('.addNameInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameShow', !_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputUid.value, this.addInputName.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'setUserNameShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'setUserNameList') {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent = Object.keys(_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList).length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const [uid, name] of Object.entries(_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList)) {
+            df.append(this.createOneList(uid, name));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(uid, name) {
+        const html = `
+      <div class="inputItem uid">
+        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+      </div>
+
+      <div class="inputItem name">
+        <input type="text" class="setinput_style1 blue" data-nameInput="${uid}" value="${name}" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-refresh"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-delete"></use>
+          </svg>
+        </button>
+    </div>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = uid;
+        element.innerHTML = html;
+        const updateRule = element.querySelector(`button[data-updateRule='${uid}']`);
+        const deleteRule = element.querySelector(`button[data-deleteRule='${uid}']`);
+        const uidInput = element.querySelector(`input[data-uidInput='${uid}']`);
+        const nameInput = element.querySelector(`input[data-nameInput='${uid}']`);
+        [uidInput, nameInput].forEach((el) => {
+            el?.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(uid, uidInput.value, nameInput.value, false);
+                }
+            });
+        });
+        // 更新规则
+        updateRule?.addEventListener('click', () => {
+            this.updateRule(uid, uidInput.value, nameInput.value);
+        });
+        // 删除规则
+        deleteRule?.addEventListener('click', () => {
+            this.deleteRule(uid);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(uidInput, nameInput) {
+        if (!uidInput || !nameInput) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_必填项不能为空'));
+            return false;
+        }
+        const uid = Number.parseInt(uidInput);
+        if (!uid || isNaN(uid)) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户ID必须是数字'));
+            return false;
+        }
+        return {
+            uidInput,
+            nameInput,
+        };
+    }
+    // 添加规则
+    addRule(uid, name) {
+        const check = this.checkValue(uid, name);
+        if (!check) {
+            return;
+        }
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid] = name;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    updateRule(oldUid, uid, name, tip = true) {
+        const check = this.checkValue(uid, name);
+        if (!check) {
+            return;
+        }
+        delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[oldUid];
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid] = name;
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(uid) {
+        delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList[uid];
+        (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setUserNameList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setUserNameList);
+        this.removeListElement(uid);
+    }
+    removeListElement(uid) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
+        listElement?.remove();
+    }
+}
+new SetUserName();
 
 
 /***/ }),
@@ -44610,6 +45067,9 @@ class Settings {
         setNoSerialNoForUgoira: true,
         setUserNameShow: true,
         setUserNameList: {},
+        setTagAliasShow: true,
+        setTagAliasList: {},
+        useTagAliasForTagsNamingRule: false,
         removeAtFromUsername: false,
         showLargerThumbnails: false,
         wheelScrollSwitchImageOnPreviewWork: true,
@@ -45186,6 +45646,12 @@ class ShowNewIcon {
             // 2026-04-24
             time: 1777025547205,
         },
+        {
+            // 标签别名
+            id: 107,
+            // 2026-04-24
+            time: 1777025547205,
+        },
     ];
     /**显示 new 角标 */
     showNewIcon() {
@@ -45615,7 +46081,7 @@ class Wiki {
         ],
         Download: [13, 50, 64, 16, 17, 33, 106],
         'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85, 103, 104],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98, 91],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98, 91, 107],
         'More-Download': [
             58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20, 28,
             100, 101, 105,

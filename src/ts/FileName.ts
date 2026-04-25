@@ -1,6 +1,7 @@
-import { SettingKeys, settings } from './setting/Settings'
+import { settings } from './setting/Settings'
 import { nameRuleManager } from './setting/NameRuleManager'
-import './SetUserName'
+import './setting/SetUserName'
+import { setTagAlias } from './setting/SetTagAlias'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './Config'
@@ -42,11 +43,11 @@ class FileName {
         safe: false,
       },
       '{p_tag}': {
-        value: store.tag,
+        value: this.handleTagsRule([store.tag]),
         safe: false,
       },
       '{page_tag}': {
-        value: store.tag,
+        value: this.handleTagsRule([store.tag]),
         safe: false,
       },
       '{id}': {
@@ -96,21 +97,19 @@ class FileName {
         safe: true,
       },
       '{tags}': {
-        value: !rule.includes('{tags}')
-          ? ''
-          : data.tags.join(settings.tagsSeparator),
+        value: !rule.includes('{tags}') ? '' : this.handleTagsRule(data.tags),
         safe: false,
       },
       '{tags_translate}': {
         value: !rule.includes('{tags_translate}')
           ? ''
-          : data.tagsWithTransl.join(settings.tagsSeparator),
+          : this.handleTagsRule(data.tagsWithTransl),
         safe: false,
       },
       '{tags_transl_only}': {
         value: !rule.includes('{tags_transl_only}')
           ? ''
-          : data.tagsTranslOnly.join(settings.tagsSeparator),
+          : this.handleTagsRule(data.tagsTranslOnly),
         safe: false,
       },
       '{bmk}': {
@@ -382,32 +381,67 @@ class FileName {
     data: Result,
     key: 'createFolderTagList' | 'createFolderTagList2'
   ): string {
-    if (rule.includes(flag)) {
-      if (settings.createFolderByTag && settings[key].length > 0) {
-        // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
-        // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
-        // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
-        // 例如 用户输入顺序：巨乳 欧派
-        // 作品 tag 里的顺序：欧派 巨乳
-        const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-        for (const userTag of settings[key]) {
-          // 查找时转换成小写
-          if (workTags.includes(userTag.toLowerCase())) {
-            // 匹配成功后，替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
-            const matchTag = this.generateFileName(flag, {
-              [flag]: {
-                value: userTag,
-                safe: false,
-              },
-            })
-            return matchTag
-          }
-        }
-        return ''
-      } else {
-        return ''
+    if (
+      !rule.includes(flag) ||
+      !settings.createFolderByTag ||
+      settings[key].length === 0
+    ) {
+      return ''
+    }
+
+    let value = ''
+    const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+    const userSetTags = settings[key].map((val) => val.toLowerCase())
+
+    // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
+    const aliasList = new Set<string>()
+    for (const tag of workTags) {
+      const alias = setTagAlias.findAlias(tag)
+      if (alias) {
+        aliasList.add(alias)
       }
     }
+    console.log('匹配到的所有标签别名：', aliasList)
+
+    // 如果匹配到了任意标签别名，就查找用户设置的标签里是否含有这个别名。如果有就使用它
+    // 遍历查找时，遍历的是用户设置的标签列表，而非其他列表
+    // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+    // 不要循环其他列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+    // 例如 用户输入顺序：A,B
+    // 作品 tag 里的顺序：B,A
+    if (aliasList.size > 0) {
+      for (const userTag of userSetTags) {
+        if (aliasList.has(userTag)) {
+          value = userTag
+          console.log('用户使用的别名：', userTag)
+          break
+        }
+      }
+    }
+
+    // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
+    if (!value) {
+      for (const userTag of userSetTags) {
+        if (workTags.includes(userTag)) {
+          value = userTag
+          break
+        }
+      }
+    }
+
+    // 查找结束
+
+    if (value) {
+      // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
+      const str = this.generateFileName(flag, {
+        [flag]: {
+          value,
+          safe: false,
+        },
+      })
+      return str
+    }
+
     return ''
   }
 
@@ -443,7 +477,12 @@ class FileName {
     return rule
   }
 
-  // 生成 {rank} 标记的值
+  /** 生成 {tags} 系列标记的值 */
+  private handleTagsRule(tags: string[]): string {
+    return setTagAlias.handleTagsNamingRule(tags).join(settings.tagsSeparator)
+  }
+
+  /** 生成 {rank} 标记的值 */
   private createRank(rank: number | null): string {
     // 处理空值
     if (rank === null) {
@@ -457,7 +496,7 @@ class FileName {
     return '#' + rank
   }
 
-  // 生成 {p_num} 标记的值
+  /** 生成 {p_num} 标记的值 */
   private createPNum(data: Result) {
     if (data.type === 3) {
       // 小说没有编号，返回空字符串
@@ -495,7 +534,7 @@ class FileName {
       : p
   }
 
-  // 生成 {id} 标记的值
+  /** 生成 {id} 标记的值 */
   private createId(data: Result, p_num: string) {
     // 如果不需要添加序号，或者没有序号，则只返回数字 id
     if (p_num === '') {
@@ -529,7 +568,7 @@ class FileName {
     }
   }
 
-  // 在文件名前面添加一层文件夹
+  /** 在文件名前面添加一层文件夹 */
   // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
   private appendFolder(fullPath: string, folderName: string): string {
     const allPart = fullPath.split('/')
@@ -550,7 +589,7 @@ class FileName {
     return false
   }
 
-  // 移除文件名开头的特定字符
+  /** 移除文件名开头的特定字符 */
   private removeStartChar(str: string) {
     while (this.checkStartChar(str)) {
       for (const check of this.checkStartCharList) {

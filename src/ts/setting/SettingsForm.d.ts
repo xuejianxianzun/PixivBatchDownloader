@@ -198,4 +198,5 @@ export interface SettingsForm extends HTMLFormElement {
   doNotCrawlFirstImagesSwitch: HTMLInputElement
   doNotCrawlFirstImagesCount: HTMLInputElement
   singleEPUBFileSizeLimit: HTMLInputElement
+  useTagAliasForTagsNamingRule: HTMLInputElement
 }

@@ -1,0 +1,38 @@
+@import './var.less';
+
+.setUserNameWrap.setTagAliasWrap {
+  .addWrap {
+    .settingItem {
+      flex-basis: 100%;
+
+      .name {
+        max-width: unset !important;
+        flex-basis: 60%;
+        flex-grow: 0;
+      }
+
+      .btns {
+        padding-right: 0;
+      }
+    }
+  }
+
+  .listWrap {
+    display: flex;
+    flex-wrap: wrap;
+
+    .settingItem {
+      flex-basis: 100%;
+      column-gap: 10px;
+
+      input.alias {
+        flex-basis: 20%;
+        flex-grow: 1;
+      }
+      input.tags {
+        flex-basis: 70%;
+        flex-grow: 1;
+      }
+    }
+  }
+}

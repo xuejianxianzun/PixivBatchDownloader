@@ -148,6 +148,7 @@ class FormSettings {
       'removeEmoji',
       'onlyCrawlLastFewImagesSwitch',
       'doNotCrawlFirstImagesSwitch',
+      'useTagAliasForTagsNamingRule',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',

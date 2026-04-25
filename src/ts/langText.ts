@@ -4090,28 +4090,38 @@ Note: This setting will put both R-18 and R-18G works in the same folder. If you
 <br>
 使用方法：<br>
 首先在这个设置里输入目标标签，如果有多个标签，使用英语逗号 <span class="blue">,</span> 分割。<br>
-你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果某个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 当然，如果你没有这个需求的话，可以只使用第一个标签列表。<br>
 <br>
 在你设置标签列表之后，还需要修改"下载"选项卡里的"命名规则"设置，在需要的地方插入特定标记和斜线来添加一层文件夹。<span class="blue">/{match_tag_folder1}/</span>代表第一个标签列表的匹配结果，<span class="blue">/{match_tag_folder2}/</span>代表第二个标签列表的匹配结果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+使用标签别名来统一文件夹名字：<br>
+有些标签有多种变体，例如 <span class="blue">GenshinImpact</span> 有这些变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。如果你想把这些标签都视为 <span class="blue">GenshinImpact</span>，并且只建立 <span class="blue">GenshinImpact</span> 文件夹（而不是使用变体来建立多个不同的文件夹），就可以使用该设置下方的"标签别名"功能。<br>
+把这些变体的别名设置为 <span class="blue">GenshinImpact</span>，然后在这个设置里只需要使用 <span class="blue">GenshinImpact</span> 即可匹配到所有变体。<br>
+<br>
 匹配方式：<br>
-下载器会在作品的标签列表里查找你设置的标签。匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
+下载器会在作品的标签列表里查找你设置的标签，并且会优先使用标签别名。<br>
+匹配模式是完全一致，不区分大小写。如果你设置了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不会匹配到 <span class="blue">abc</span>。<br>
 对于你设置的每个标签列表，下载器都会按顺序查找：先查找你设置的第一个标签，如果找不到就查找第二个，以此类推。一旦找到第一个匹配的标签，就停止查找，并用它替换命名规则中的对应标记：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
 如果没有匹配到你设置的标签，下载器会忽略对应的标记。<br>`,
     `如果作品含有你設定的標籤，就使用它來建立一層資料夾。<br>
 <br>
 使用方法：<br>
 首先在這個設定裡輸入目標標籤，如果有多個標籤，使用英語逗號 <span class="blue">,</span> 分割。<br>
-你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果某個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 當然，如果你沒有這個需求的話，可以只使用第一個標籤列表。<br>
 <br>
 在你設定標籤列表之後，還需要修改「下載」選項卡裡的「命名規則」設定，在需要的地方插入特定標記和斜線來添加一層資料夾。<span class="blue">/{match_tag_folder1}/</span>代表第一個標籤列表的匹配結果，<span class="blue">/{match_tag_folder2}/</span>代表第二個標籤列表的匹配結果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+使用標籤別名來統一資料夾名字：<br>
+有些標籤有多種變體，例如 <span class="blue">GenshinImpact</span> 有這些變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。如果你想把這些標籤都視為 <span class="blue">GenshinImpact</span>，並且只建立 <span class="blue">GenshinImpact</span> 資料夾（而不是使用變體來建立多個不同的資料夾），就可以使用該設定下方的「標籤別名」功能。<br>
+把這些變體的別名設定為 <span class="blue">GenshinImpact</span>，然後在這個設定裡只需要使用 <span class="blue">GenshinImpact</span> 即可匹配到所有變體。<br>
+<br>
 匹配方式：<br>
-下載器會在作品的標籤列表裡查找你設定的標籤。匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
+下載器會在作品的標籤列表裡查找你設定的標籤，並且會優先使用標籤別名。<br>
+匹配模式是完全一致，不區分大小寫。如果你設定了 <span class="blue">A</span>，可以匹配到 <span class="blue">a</span> 或者 <span class="blue">A</span>，但不會匹配到 <span class="blue">abc</span>。<br>
 對於你設定的每個標籤列表，下載器都會按順序查找：先查找你設定的第一個標籤，如果找不到就查找第二個，以此類推。一旦找到第一個匹配的標籤，就停止查找，並用它替換命名規則中的對應標記：<span class="blue">{match_tag_folder1}</span> 或 <span class="blue">{match_tag_folder2}</span>。<br>
 如果沒有匹配到你設定的標籤，下載器會忽略對應的標記。<br>`,
     `If a work contains a tag you have set, that tag will be used to create a folder.<br>
@@ -4124,8 +4134,13 @@ Of course, if you don't need this, you can just use the first tag list.<br>
 After setting up your tag lists, you also need to update the "Naming rule" in the "Download" tab. Insert the specific tokens and slashes where needed to add a folder level. <span class="blue">/{match_tag_folder1}/</span> represents the match result of the first tag list, and <span class="blue">/{match_tag_folder2}/</span> represents the match result of the second tag list.<br>
 Example: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+Using tag aliases to unify folder names:<br>
+Some tags have multiple variants. For example, <span class="blue">GenshinImpact</span> has these variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. If you want to treat all these tags as <span class="blue">GenshinImpact</span> and only create a <span class="blue">GenshinImpact</span> folder (instead of creating multiple different folders using the variants), you can use the "Tag alias" feature below this setting.<br>
+Set the alias of these variants to <span class="blue">GenshinImpact</span>, and then you only need to use <span class="blue">GenshinImpact</span> in this setting to match all variants.<br>
+<br>
 How matching works:<br>
-The downloader searches for your set tags in the work's tag list. Matching is exact and case-insensitive. If you set <span class="blue">A</span>, it will match <span class="blue">a</span> or <span class="blue">A</span>, but not <span class="blue">abc</span>.<br>
+The downloader searches for your set tags in the work's tag list, with tag aliases taking priority.<br>
+Matching is exact and case-insensitive. If you set <span class="blue">A</span>, it will match <span class="blue">a</span> or <span class="blue">A</span>, but not <span class="blue">abc</span>.<br>
 For each tag list you set, the downloader searches in order: it looks for the first tag first, and if not found, moves to the second, and so on. Once the first matching tag is found, the search stops, and it replaces the corresponding token in the naming rule: <span class="blue">{match_tag_folder1}</span> or <span class="blue">{match_tag_folder2}</span>.<br>
 If none of your set tags are matched, the downloader will ignore the corresponding token.<br>`,
     `作品に設定したタグが含まれている場合、そのタグを使ってフォルダーを 1 階層作成します。<br>
@@ -4138,8 +4153,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 タグリストを設定したら、「ダウンロード」タブの「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
 例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+タグの別名を使ってフォルダー名を統一する：<br>
+タグには複数の表記ゆれがある場合があります。例えば <span class="blue">GenshinImpact</span> にはこのような表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>。これらをすべて <span class="blue">GenshinImpact</span> として扱い、<span class="blue">GenshinImpact</span> フォルダーのみを作成したい（表記ゆれごとに別々のフォルダーを作りたくない）場合は、この設定の下にある「タグの別名」機能を使えます。<br>
+これらの表記ゆれの別名を <span class="blue">GenshinImpact</span> に設定すれば、この設定では <span class="blue">GenshinImpact</span> だけを使ってすべての表記ゆれにマッチさせることができます。<br>
+<br>
 マッチ方式：<br>
-ダウンローダーは work のタグリストの中から設定したタグを検索します。マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
+ダウンローダーは work のタグリストの中から設定したタグを検索します。タグの別名が優先して使用されます。<br>
+マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
 設定した各タグリストに対して、ダウンローダーは順番に検索します。最初のタグから検索し、見つからなければ次のタグを検索します。最初にマッチしたタグが見つかった時点で検索を止め、命名ルール内の対応するトークン（<span class="blue">{match_tag_folder1}</span> または <span class="blue">{match_tag_folder2}</span>）をそのタグで置き換えます。<br>
 設定したタグがひとつもマッチしなかった場合、ダウンローダーは対応するトークンを無視します。<br>`,
     `작품에 설정한 태그가 포함되어 있으면 해당 태그를 사용해 폴더를 한 단계 만듭니다.<br>
@@ -4152,8 +4172,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 태그 목록을 설정한 후에는 "다운로드" 탭의 "명명 규칙" 설정도 수정해야 합니다. 폴더를 추가하고 싶은 위치에 특정 토큰과 슬래시를 삽입하세요. <span class="blue">/{match_tag_folder1}/</span> 는 첫 번째 태그 목록의 매칭 결과를 나타내고, <span class="blue">/{match_tag_folder2}/</span> 는 두 번째 태그 목록의 매칭 결과를 나타냅니다.<br>
 예시：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+태그 별칭으로 폴더 이름 통일하기：<br>
+일부 태그에는 여러 변형이 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 이런 변형들이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. 이 태그들을 모두 <span class="blue">GenshinImpact</span> 로 취급하고 <span class="blue">GenshinImpact</span> 폴더만 만들고 싶다면（변형마다 다른 폴더를 만들지 않으려면）이 설정 아래의 "태그 별칭" 기능을 사용할 수 있습니다.<br>
+이 변형들의 별칭을 <span class="blue">GenshinImpact</span> 로 설정하면 이 설정에서 <span class="blue">GenshinImpact</span> 만 사용해도 모든 변형에 매칭됩니다.<br>
+<br>
 매칭 방식：<br>
-다운로더는 작품의 태그 목록에서 설정한 태그를 검색합니다. 매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
+다운로더는 작품의 태그 목록에서 설정한 태그를 검색하며, 태그 별칭을 우선적으로 사용합니다.<br>
+매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
 설정한 각 태그 목록에 대해 다운로더는 순서대로 검색합니다. 첫 번째 태그부터 검색하고 찾지 못하면 두 번째 태그를 검색하는 식입니다. 처음으로 매칭되는 태그를 찾으면 검색을 멈추고 명명 규칙의 해당 토큰(<span class="blue">{match_tag_folder1}</span> 또는 <span class="blue">{match_tag_folder2}</span>)을 그 태그로 교체합니다.<br>
 설정한 태그가 하나도 매칭되지 않으면 다운로더는 해당 토큰을 무시합니다.<br>`,
     `Если work содержит заданный вами тег, он будет использован для создания папки.<br>
@@ -4166,8 +4191,13 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 После настройки списков тегов нужно также изменить "Правило именования" на вкладке "Загрузка": вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
 Пример: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
+Использование псевдонимов тегов для единообразия имён папок:<br>
+У некоторых тегов есть несколько вариантов написания. Например, у <span class="blue">GenshinImpact</span> есть такие варианты: <span class="blue">GenshinImpact,Genshin Impact,Genshin,原神,原神インパクト</span>. Если вы хотите считать все эти теги одним тегом <span class="blue">GenshinImpact</span> и создавать только папку <span class="blue">GenshinImpact</span> (а не отдельные папки для каждого варианта), воспользуйтесь функцией "Псевдоним тега" ниже этой настройки.<br>
+Задайте псевдоним для этих вариантов как <span class="blue">GenshinImpact</span>, и тогда в этой настройке достаточно использовать только <span class="blue">GenshinImpact</span>, чтобы сопоставить все варианты.<br>
+<br>
 Принцип совпадения:<br>
-Загрузчик ищет заданные вами теги в списке тегов work. Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
+Загрузчик ищет заданные вами теги в списке тегов work, при этом псевдонимы тегов имеют приоритет.<br>
+Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
 Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
 Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
   ],
@@ -8990,6 +9020,89 @@ Tip: Click a token name to copy it.<br>`,
 <span class="blue name">{follow_artwork}</span> 이미지 작품의 명명 규칙을 따릅니다. 이것은 기본값이기도 하며, 소설이 이미지 작품과 동일한 명명 규칙을 사용한다는 뜻입니다. 소설에 별도의 명명 규칙을 설정하고 싶다면 이 토큰을 제거하고 원하는 대로 규칙을 설정하세요.`,
     `Для novel доступны те же токены именования, что и для работ с изображениями, плюс один специальный токен:<br>
 <span class="blue name">{follow_artwork}</span> следует правилу именования работ с изображениями. Это также значение по умолчанию, означающее, что novel использует то же правило именования, что и работы с изображениями. Если вы хотите задать для novel отдельное правило именования, удалите этот токен и настройте правило по своему усмотрению.`,
+  ],
+  _标签别名: [
+    `标签<span class="key">别名</span>`,
+    `標籤<span class="key">別名</span>`,
+    `Tag <span class="key">alias</span>`,
+    `タグの<span class="key">別名</span>`,
+    `태그 <span class="key">별칭</span>`,
+    `<span class="key">Псевдоним</span> тега`,
+  ],
+  _标签别名的帮助: [
+    `如果一个标签有多种变体，你可以为它们设置一个通用的别名。例如 <span class="blue">GenshinImpact</span> 有多个变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
+<br>
+子选项：<br>
+- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
+<br>
+另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
+    `如果一個標籤有多種變體，你可以為它們設定一個通用的別名。例如 <span class="blue">GenshinImpact</span> 有多個變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
+<br>
+子選項：<br>
+- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
+<br>
+另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
+    `If a tag has multiple variants, you can set a common alias for them. For example, <span class="blue">GenshinImpact</span> has multiple variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
+<br>
+Sub-options:<br>
+- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
+<br>
+Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
+    `タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。例えば <span class="blue">GenshinImpact</span> には複数の表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
+これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
+<br>
+サブオプション：<br>
+- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
+<br>
+また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
+    `태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 여러 변형이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
+<br>
+하위 옵션：<br>
+- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
+<br>
+또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
+    `Если тег имеет несколько вариантов написания, вы можете задать для них общий псевдоним. Например, у <span class="blue">GenshinImpact</span> есть несколько вариантов: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
+Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
+<br>
+Вложенные параметры:<br>
+- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах work на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
+<br>
+Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
+  ],
+  _别名: [`别名`, `別名`, `Alias`, `別名`, `별칭`, `Псевдоним`],
+  _标签列表: [
+    `标签列表`,
+    `標籤列表`,
+    `Tag list`,
+    `タグリスト`,
+    `태그 목록`,
+    `Список тегов`,
+  ],
+  _确定要删除这一条配置吗: [
+    `确定要删除这一条配置吗？`,
+    `確定要刪除這一條設定嗎？`,
+    `Are you sure you want to delete this entry?`,
+    `この設定を削除してもよろしいですか？`,
+    `이 설정을 삭제하시겠습니까？`,
+    `Вы уверены, что хотите удалить эту запись？`,
+  ],
+  _应用到文件名里的tags系列标记: [
+    `应用到文件名里的 {tags} 系列标记`,
+    `應用到檔名裡的 {tags} 系列標記`,
+    `{tags} series tokens applied to the file name`,
+    `ファイル名に適用される {tags} 系のトークン`,
+    `파일 이름에 적용되는 {tags} 계열 토큰`,
+    `Токены серии {tags}, применяемые в имени файла`,
   ],
 }
 

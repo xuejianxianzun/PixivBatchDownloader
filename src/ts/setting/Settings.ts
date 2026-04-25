@@ -254,6 +254,11 @@ interface XzSetting {
   setUserNameList: {
     [uid: string]: string
   }
+  setTagAliasShow: boolean
+  setTagAliasList: {
+    [alias: string]: string
+  }
+  useTagAliasForTagsNamingRule: boolean
   removeAtFromUsername: boolean
   showLargerThumbnails: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
@@ -805,6 +810,9 @@ class Settings {
     setNoSerialNoForUgoira: true,
     setUserNameShow: true,
     setUserNameList: {},
+    setTagAliasShow: true,
+    setTagAliasList: {},
+    useTagAliasForTagsNamingRule: false,
     removeAtFromUsername: false,
     showLargerThumbnails: false,
     wheelScrollSwitchImageOnPreviewWork: true,
