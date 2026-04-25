@@ -41,7 +41,7 @@ async function copys () {
 
 // 打包发布目录
 function pack () {
-  const zipName = path.resolve(__dirname, packName + '.zip')
+  const zipName = path.resolve(__dirname, 'zip/' + packName + '.zip')
   const output = fs.createWriteStream(zipName)
 
   const archive = archiver('zip', {
