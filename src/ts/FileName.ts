@@ -401,7 +401,7 @@ class FileName {
         aliasList.add(alias)
       }
     }
-    console.log('匹配到的所有标签别名：', aliasList)
+    // console.log('匹配到的所有标签别名：', aliasList)
 
     // 如果匹配到了任意标签别名，就查找用户设置的标签里是否含有这个别名。如果有就使用它
     // 遍历查找时，遍历的是用户设置的标签列表，而非其他列表
@@ -413,7 +413,7 @@ class FileName {
       for (const userTag of userSetTags) {
         if (aliasList.has(userTag)) {
           value = userTag
-          console.log('用户使用的别名：', userTag)
+          // console.log('用户使用的别名：', userTag)
           break
         }
       }

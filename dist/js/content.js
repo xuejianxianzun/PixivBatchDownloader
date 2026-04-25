@@ -3954,9 +3954,7 @@ class FileName {
                 safe: true,
             },
             '{tags}': {
-                value: !rule.includes('{tags}')
-                    ? ''
-                    : this.handleTagsRule(data.tags),
+                value: !rule.includes('{tags}') ? '' : this.handleTagsRule(data.tags),
                 safe: false,
             },
             '{tags_translate}': {
@@ -4203,7 +4201,9 @@ class FileName {
     }
     /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
     getMatchTagFolder(rule, flag, data, key) {
-        if (!rule.includes(flag) || !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag || _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].length === 0) {
+        if (!rule.includes(flag) ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderByTag ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].length === 0) {
             return '';
         }
         let value = '';
@@ -4217,7 +4217,7 @@ class FileName {
                 aliasList.add(alias);
             }
         }
-        console.log('匹配到的所有标签别名：', aliasList);
+        // console.log('匹配到的所有标签别名：', aliasList)
         // 如果匹配到了任意标签别名，就查找用户设置的标签里是否含有这个别名。如果有就使用它
         // 遍历查找时，遍历的是用户设置的标签列表，而非其他列表
         // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
@@ -4228,7 +4228,7 @@ class FileName {
             for (const userTag of userSetTags) {
                 if (aliasList.has(userTag)) {
                     value = userTag;
-                    console.log('用户使用的别名：', userTag);
+                    // console.log('用户使用的别名：', userTag)
                     break;
                 }
             }
@@ -10900,17 +10900,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '18.7.0';
-    msg = `
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
-      <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以在release页面查看更新日志')}</span>
-      <br>
-      <br>
-      <div>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_帮助')}</div>
-      <br>
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_赞助方式提示')}`;
+    flag = '18.8.0';
+    textKey = '_版本更新说明18_8_0';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -10925,7 +10916,17 @@ class ShowWhatIsNew {
         (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('whatIsNewFlag', this.flag);
     }
     showMsg() {
-        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(this.msg, {
+        const msg = `
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以在release页面查看更新日志')}</span>
+      <br>
+      <br>
+      <div>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(this.textKey)}</div>
+      <br>
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_赞助方式提示')}`;
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
             title: _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ` ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近更新')}`,
             btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
         });
@@ -37657,14 +37658,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 <br>
 Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
     ],
-    _别名: [
-        `别名`,
-        `別名`,
-        `Alias`,
-        `別名`,
-        `별칭`,
-        `Псевдоним`,
-    ],
+    _别名: [`别名`, `別名`, `Alias`, `別名`, `별칭`, `Псевдоним`],
     _标签列表: [
         `标签列表`,
         `標籤列表`,
@@ -37688,6 +37682,176 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `ファイル名に適用される {tags} 系のトークン`,
         `파일 이름에 적용되는 {tags} 계열 토큰`,
         `Токены серии {tags}, применяемые в имени файла`,
+    ],
+    _版本更新说明18_8_0: [
+        `<strong>💡对移除了"为每个作品建立单独的文件夹"设置的补充说明</strong><br>
+下载器在上一次更新里移除了"为每个作品建立单独的文件夹"，这让使用此功能的用户遇到了困扰，有些用户不知道怎么实现和之前相同的效果。这与你之前在这个设置里设置的"图片数量大于"有关：<br>
+- 如果你之前设置的图片数量是大于 <span class="blue">0</span>，也就是会对所有作品生效，可以修改命名规则：在文件名前面添加一层文件夹规则，例如  <span class="blue">{id_num}/</span> 或者你之前使用的规则。对于默认的命名规则，就是修改成  <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
+- 如果你之前设置的图片数量是大于  <span class="blue">1</span>，也就是只对多图作品生效，请改为使用"为多图作品添加一层文件夹"设置，并使用  <span class="blue">{multi_image_folder}/</span> 添加一层文件夹。<br>
+<br>
+<strong>🐞修复了"预览作品"的开关失效的问题</strong><br>
+<br>
+<strong>✨新增设置：小说的命名规则</strong><br>
+之前图像作品和小说使用同一套命名规则，现在我把它们拆分成 2 个独立的设置了。<br>
+PS：小说的命名规则默认会跟随图像作品的命名规则，以保持行为与之前版本一致。你可以根据需要来决定是否修改小说的命名规则。<br>
+<br>
+<strong>✨"使用第一个匹配的标签建立文件夹"现在可以设置两层文件夹了</strong><br>
+这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。<br>
+现在你可以设置两个标签列表来实现这个效果。<br>
+<br>
+<strong>✨新增设置：标签别名</strong><br>
+该设置位于"更多"-"命名"里。<br>
+如果一个标签有多种变体，你可以为它们设置一个通用的别名。它可以影响命名标记里的 <span class="blue">{tags}</span> 系列标记，以及"使用第一个匹配的标签建立文件夹"功能。<br>
+<br>
+<strong>✨在"预览作品"里添加了"检查屏蔽的标签"选项</strong><br>
+该功能默认未启用。你可以根据需要手动启用它。<br>
+<br>
+<strong>✨"为多图作品添加一层文件夹"里添加了"图片数量"选项</strong><br>
+之前没有这个选项，下载器会为所有多图作品都应用这个设置。现在你可以只为图片超过设置值的多图作品应用此设置。<br>
+<br>
+<strong>🐞修复了没有处理 {match_tag_folder} 标签里的特殊字符的问题</strong><br>
+<br>
+<strong>😊在"命名规则"的帮助里添加了更详细的说明</strong><br>`,
+        `<strong>💡對移除了「為每個作品建立單獨的資料夾」設定的補充說明</strong><br>
+下載器在上一次更新裡移除了「為每個作品建立單獨的資料夾」，這讓使用此功能的用戶遇到了困擾，有些用戶不知道怎麼實現和之前相同的效果。這與你之前在這個設定裡設定的「圖片數量大於」有關：<br>
+- 如果你之前設定的圖片數量是大於 <span class="blue">0</span>，也就是會對所有作品生效，可以修改命名規則：在檔名前面添加一層資料夾規則，例如 <span class="blue">{id_num}/</span> 或者你之前使用的規則。對於預設的命名規則，就是修改成 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
+- 如果你之前設定的圖片數量是大於 <span class="blue">1</span>，也就是只對多圖作品生效，請改為使用「為多圖作品添加一層資料夾」設定，並使用 <span class="blue">{multi_image_folder}/</span> 添加一層資料夾。<br>
+<br>
+<strong>🐞修復了「預覽作品」的開關失效的問題</strong><br>
+<br>
+<strong>✨新增設定：小說的命名規則</strong><br>
+之前圖像作品和小說使用同一套命名規則，現在我把它們拆分成 2 個獨立的設定了。<br>
+PS：小說的命名規則預設會跟隨圖像作品的命名規則，以保持行為與之前版本一致。你可以根據需要來決定是否修改小說的命名規則。<br>
+<br>
+<strong>✨「使用第一個匹配的標籤建立資料夾」現在可以設定兩層資料夾了</strong><br>
+這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。<br>
+現在你可以設定兩個標籤列表來實現這個效果。<br>
+<br>
+<strong>✨新增設定：標籤別名</strong><br>
+該設定位於「更多」-「命名」裡。<br>
+如果一個標籤有多種變體，你可以為它們設定一個通用的別名。它可以影響命名標記裡的 <span class="blue">{tags}</span> 系列標記，以及「使用第一個匹配的標籤建立資料夾」功能。<br>
+<br>
+<strong>✨在「預覽作品」裡添加了「檢查屏蔽的標籤」選項</strong><br>
+該功能預設未啟用。你可以根據需要手動啟用它。<br>
+<br>
+<strong>✨「為多圖作品添加一層資料夾」裡添加了「圖片數量」選項</strong><br>
+之前沒有這個選項，下載器會為所有多圖作品都應用這個設定。現在你可以只為圖片超過設定值的多圖作品應用此設定。<br>
+<br>
+<strong>🐞修復了沒有處理 {match_tag_folder} 標籤裡的特殊字元的問題</strong><br>
+<br>
+<strong>😊在「命名規則」的幫助裡添加了更詳細的說明</strong><br>`,
+        `<strong>💡Additional notes on the removal of the "Create a separate folder for each work" setting</strong><br>
+The previous update removed "Create a separate folder for each work", which caused trouble for users who relied on this feature — some didn't know how to achieve the same result. This relates to the "Image count greater than" value you had set:<br>
+- If your previous setting was greater than <span class="blue">0</span> (applying to all works), you can update your naming rule by adding a folder level before the file name, such as <span class="blue">{id_num}/</span> or whatever you used before. For the default naming rule, change it to <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
+- If your previous setting was greater than <span class="blue">1</span> (applying to multi-image works only), switch to using the "Add a folder for multi-image works" setting and use <span class="blue">{multi_image_folder}/</span> to add a folder level.<br>
+<br>
+<strong>🐞Fixed an issue where the "Preview work" toggle was not working</strong><br>
+<br>
+<strong>✨New setting: Naming rule for novels</strong><br>
+Previously, image works and novels shared the same naming rule. I have now split them into 2 separate settings.<br>
+PS: The naming rule for novels defaults to following the image works naming rule, to keep behavior consistent with previous versions. You can change the novel naming rule as needed.<br>
+<br>
+<strong>✨"Create folder using the first matching tag" now supports two folder levels</strong><br>
+This addresses a common use case: if a character belongs to a certain work, create two folder levels — the first for the work name and the second for the character name.<br>
+You can now set two tag lists to achieve this.<br>
+<br>
+<strong>✨New setting: Tag alias</strong><br>
+This setting is located under "More" - "Naming".<br>
+If a tag has multiple variants, you can set a common alias for them. This can affect the <span class="blue">{tags}</span> series tokens in the naming rule, as well as the "Create folder using the first matching tag" feature.<br>
+<br>
+<strong>✨Added a "Check blocked tags" option in "Preview work"</strong><br>
+This feature is disabled by default. You can enable it manually as needed.<br>
+<br>
+<strong>✨Added an "Image count" option in "Add a folder for multi-image works"</strong><br>
+Previously this option did not exist and the setting applied to all multi-image works. Now you can apply it only to multi-image works with more images than the set value.<br>
+<br>
+<strong>🐞Fixed an issue where special characters in {match_tag_folder} tags were not handled</strong><br>
+<br>
+<strong>😊Added more detailed explanations in the "Naming rule" help</strong><br>`,
+        `<strong>💡「作品ごとに個別フォルダーを作成する」設定の削除に関する補足説明</strong><br>
+前回のアップデートで「作品ごとに個別フォルダーを作成する」が削除され、この機能を使っていたユーザーが困惑し、以前と同じ効果を実現する方法が分からないという声がありました。これは以前この設定で設定していた「画像数が～より大きい」の値と関係しています：<br>
+- 以前の設定が <span class="blue">0</span> より大きい（つまりすべての作品に適用）だった場合は、命名ルールを変更してください。ファイル名の前にフォルダー階層を追加します。例えば <span class="blue">{id_num}/</span> や以前使っていたルールを使います。デフォルトの命名ルールなら <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> に変更します。<br>
+- 以前の設定が <span class="blue">1</span> より大きい（つまり複数 image の作品にのみ適用）だった場合は、「複数 image の作品にフォルダーを追加する」設定に切り替えて、<span class="blue">{multi_image_folder}/</span> でフォルダー階層を追加してください。<br>
+<br>
+<strong>🐞「作品のプレビュー」のスイッチが機能しない問題を修正しました</strong><br>
+<br>
+<strong>✨新設定：novel の命名ルール</strong><br>
+以前は画像作品と novel が同じ命名ルールを使っていましたが、これらを 2 つの独立した設定に分けました。<br>
+PS：novel の命名ルールはデフォルトで画像作品の命名ルールに従います。これにより以前のバージョンと同じ動作を維持します。必要に応じて novel の命名ルールを変更できます。<br>
+<br>
+<strong>✨「最初にマッチしたタグを使ってフォルダーを作成する」で 2 階層のフォルダーが設定できるようになりました</strong><br>
+これはよくある使い方に対応するためです。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。<br>
+これを実現するために、2 つのタグリストを設定できるようになりました。<br>
+<br>
+<strong>✨新設定：タグの別名</strong><br>
+この設定は「その他」-「命名」にあります。<br>
+タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。これにより命名ルール内の <span class="blue">{tags}</span> 系のトークン、および「最初にマッチしたタグを使ってフォルダーを作成する」機能に影響を与えることができます。<br>
+<br>
+<strong>✨「作品のプレビュー」に「ブロックしたタグを確認」オプションを追加しました</strong><br>
+この機能はデフォルトでは無効です。必要に応じて手動で有効にしてください。<br>
+<br>
+<strong>✨「複数 image の作品にフォルダーを追加する」に「image 数」オプションを追加しました</strong><br>
+以前はこのオプションがなく、すべての複数 image 作品にこの設定が適用されていました。これからは設定値を超える image 数の複数 image 作品にのみ適用できます。<br>
+<br>
+<strong>🐞{match_tag_folder} タグ内の特殊文字が処理されていない問題を修正しました</strong><br>
+<br>
+<strong>😊「命名ルール」のヘルプにより詳細な説明を追加しました</strong><br>`,
+        `<strong>💡"각 작품마다 별도 폴더 만들기" 설정 제거에 대한 추가 설명</strong><br>
+이전 업데이트에서 "각 작품마다 별도 폴더 만들기"가 제거되어 해당 기능을 사용하던 분들이 불편을 겪었고, 이전과 동일한 효과를 어떻게 구현하는지 모르는 분들도 계셨습니다. 이것은 이전에 이 설정에서 설정했던 "이미지 수가 ~보다 큰" 값과 관련이 있습니다：<br>
+- 이전 설정이 <span class="blue">0</span> 보다 큰 경우（즉 모든 작품에 적용）명명 규칙을 수정하세요. 파일 이름 앞에 폴더 규칙을 추가합니다. 예를 들어 <span class="blue">{id_num}/</span> 또는 이전에 사용하던 규칙을 사용하세요. 기본 명명 규칙이라면 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> 로 변경하면 됩니다.<br>
+- 이전 설정이 <span class="blue">1</span> 보다 큰 경우（즉 다중 이미지 작품에만 적용）"다중 이미지 작품에 폴더 추가" 설정으로 전환하고 <span class="blue">{multi_image_folder}/</span> 를 사용해 폴더를 추가하세요.<br>
+<br>
+<strong>🐞"작품 미리보기" 토글이 작동하지 않는 문제를 수정했습니다</strong><br>
+<br>
+<strong>✨새 설정: 소설의 명명 규칙</strong><br>
+이전에는 이미지 작품과 소설이 동일한 명명 규칙을 사용했지만, 이제 2개의 독립된 설정으로 분리했습니다.<br>
+PS: 소설의 명명 규칙은 기본적으로 이미지 작품의 명명 규칙을 따릅니다. 이전 버전과 동일한 동작을 유지하기 위해서입니다. 필요에 따라 소설의 명명 규칙을 변경할 수 있습니다.<br>
+<br>
+<strong>✨"처음 매칭된 태그로 폴더 만들기"에서 이제 두 단계 폴더를 설정할 수 있습니다</strong><br>
+이것은 흔한 요구사항을 처리하기 위한 것입니다. 어떤 캐릭터가 특정 작품에 속할 경우 두 단계 폴더를 만드는 것입니다. 첫 번째 단계는 작품 이름, 두 번째 단계는 캐릭터 이름입니다.<br>
+이제 두 개의 태그 목록을 설정해 이 효과를 구현할 수 있습니다.<br>
+<br>
+<strong>✨새 설정: 태그 별칭</strong><br>
+이 설정은 "더보기" - "명명"에 있습니다.<br>
+태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 이를 통해 명명 규칙의 <span class="blue">{tags}</span> 계열 토큰과 "처음 매칭된 태그로 폴더 만들기" 기능에 영향을 줄 수 있습니다.<br>
+<br>
+<strong>✨"작품 미리보기"에 "차단된 태그 확인" 옵션을 추가했습니다</strong><br>
+이 기능은 기본적으로 비활성화되어 있습니다. 필요에 따라 수동으로 활성화할 수 있습니다.<br>
+<br>
+<strong>✨"다중 이미지 작품에 폴더 추가"에 "이미지 수" 옵션을 추가했습니다</strong><br>
+이전에는 이 옵션이 없어 모든 다중 이미지 작품에 이 설정이 적용되었습니다. 이제 설정값을 초과하는 이미지 수를 가진 다중 이미지 작품에만 적용할 수 있습니다.<br>
+<br>
+<strong>🐞{match_tag_folder} 태그 내의 특수 문자가 처리되지 않던 문제를 수정했습니다</strong><br>
+<br>
+<strong>😊"명명 규칙" 도움말에 더 자세한 설명을 추가했습니다</strong><br>`,
+        `<strong>💡Дополнительные пояснения по удалению настройки "Создавать отдельную папку для каждой work"</strong><br>
+В предыдущем обновлении была удалена настройка "Создавать отдельную папку для каждой work", что вызвало затруднения у пользователей, которые ею пользовались, — некоторые не знали, как добиться того же результата. Это связано со значением "Количество image больше чем", которое вы задавали в этой настройке ранее：<br>
+- Если раньше у вас было задано значение больше <span class="blue">0</span> (то есть настройка применялась ко всем work), измените правило именования: добавьте уровень папки перед именем файла, например <span class="blue">{id_num}/</span> или то правило, которое вы использовали раньше. Для правила именования по умолчанию измените его на <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
+- Если раньше у вас было задано значение больше <span class="blue">1</span> (то есть настройка применялась только к work с несколькими image), переключитесь на настройку "Добавить папку для work с несколькими image" и используйте <span class="blue">{multi_image_folder}/</span> для добавления уровня папки.<br>
+<br>
+<strong>🐞Исправлена проблема, из-за которой переключатель "Предпросмотр work" не работал</strong><br>
+<br>
+<strong>✨Новая настройка: правило именования для novel</strong><br>
+Раньше work с изображениями и novel использовали одно и то же правило именования. Теперь они разделены на 2 независимые настройки.<br>
+PS: По умолчанию правило именования для novel следует правилу именования work с изображениями, чтобы поведение соответствовало предыдущим версиям. При необходимости вы можете изменить правило именования для novel.<br>
+<br>
+<strong>✨"Создать папку по первому совпавшему тегу" теперь поддерживает два уровня папок</strong><br>
+Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создать два уровня папок — первый для названия произведения, второй для имени персонажа.<br>
+Теперь для этого можно задать два списка тегов.<br>
+<br>
+<strong>✨Новая настройка: псевдоним тега</strong><br>
+Эта настройка находится в разделе "Ещё" - "Именование".<br>
+Если тег имеет несколько вариантов написания, можно задать для них общий псевдоним. Это может влиять на токены серии <span class="blue">{tags}</span> в правиле именования, а также на функцию "Создать папку по первому совпавшему тегу".<br>
+<br>
+<strong>✨В "Предпросмотр work" добавлен параметр "Проверить заблокированные теги"</strong><br>
+По умолчанию эта функция отключена. При необходимости вы можете включить её вручную.<br>
+<br>
+<strong>✨В "Добавить папку для work с несколькими image" добавлен параметр "Количество image"</strong><br>
+Раньше этого параметра не было, и настройка применялась ко всем work с несколькими image. Теперь её можно применять только к work с количеством image, превышающим заданное значение.<br>
+<br>
+<strong>🐞Исправлена проблема, из-за которой специальные символы в тегах {match_tag_folder} не обрабатывались</strong><br>
+<br>
+<strong>😊В справку "Правило именования" добавлены более подробные пояснения</strong><br>`,
     ],
 };
 
@@ -44225,6 +44389,7 @@ class SetTagAlias {
             return;
         }
         delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[oldAlias];
+        alias = alias.trim();
         _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = tags;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
         this.addWrapShow = false;
@@ -44260,7 +44425,10 @@ class SetTagAlias {
         for (const [alias, tags] of Object.entries(this.cache)) {
             // 把传入的标签转换成小写，并移除收藏数量标记
             // 标签后面可能有数字+users入り的收藏数量标记，例如：原神10000users入り
-            const cleanTag = tag.toLowerCase().replace(/\d+users入り$/, '').trim();
+            const cleanTag = tag
+                .toLowerCase()
+                .replace(/\d+users入り$/, '')
+                .trim();
             if (tags.includes(cleanTag)) {
                 return alias;
             }
@@ -46081,7 +46249,9 @@ class Wiki {
         ],
         Download: [13, 50, 64, 16, 17, 33, 106],
         'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85, 103, 104],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98, 91, 107],
+        'More-Naming': [
+            65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98, 91, 107,
+        ],
         'More-Download': [
             58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20, 28,
             100, 101, 105,
@@ -61402,6 +61572,27 @@ const illustsData = [
     [143740001, 1776582360000],
     [143750000, 1776597660000],
     [143760000, 1776609000000],
+    [143770000, 1776632040000],
+    [143780001, 1776664620000],
+    [143790000, 1776685080000],
+    [143800000, 1776697380000],
+    [143810000, 1776726780000],
+    [143820000, 1776759000000],
+    [143830000, 1776774960000],
+    [143840000, 1776788580000],
+    [143850000, 1776824400000],
+    [143860000, 1776852000000],
+    [143870000, 1776865560000],
+    [143880000, 1776886320000],
+    [143890000, 1776920880000],
+    [143900000, 1776943200000],
+    [143910000, 1776956400000],
+    [143920000, 1776984600000],
+    [143930000, 1777016700000],
+    [143940000, 1777032900000],
+    [143950000, 1777045740000],
+    [143960000, 1777077420000],
+    [143970000, 1777101180000],
 ];
 
 
@@ -64205,6 +64396,11 @@ const novelsData = [
     [27830001, 1776336509000],
     [27840000, 1776437397000],
     [27850000, 1776526500000],
+    [27860000, 1776614397000],
+    [27870000, 1776745292000],
+    [27880000, 1776856761000],
+    [27890000, 1776957576000],
+    [27900000, 1777080987000],
 ];
 
 
