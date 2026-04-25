@@ -202,6 +202,7 @@ class Resume {
     store.URLWhenCrawlStart = meta.URLWhenCrawlStart || ''
 
     // 恢复模式就绪
+    await states.waitSettingInitialized()
     log.success(lang.transl('_已恢复抓取结果'), 'restoreCrawlResult')
     EVT.fire('resume')
   }

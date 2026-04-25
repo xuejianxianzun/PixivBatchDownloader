@@ -65,10 +65,10 @@ class Lang {
       this.type =
         data.value === 'auto' ? this.htmlLangTypeToLangType() : data.value
       if (this.type !== old) {
-        EVT.fire('langChange')
         this.elList.forEach((el) => {
           this.handleMark(el)
         })
+        EVT.fire('langChange')
       }
     })
   }
@@ -120,8 +120,9 @@ class Lang {
 
   // translate
   public transl(name: LangTextKey, ...args: string[]) {
-    // if(!langText[name]){
-    //   console.log(`not found lang ${name}`)
+    // if(name in langText === false){
+    //   console.warn(`Lang: not found:${name}`)
+    //   return name
     // }
     let content = langText[name][this.flagIndex.get(this.type)!]
     args.forEach((arg) => (content = content.replace('{}', arg)))

@@ -20,17 +20,8 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '18.7.0'
-  private msg = `
-      <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
-      <br>
-      <span>${lang.transl('_提示可以在release页面查看更新日志')}</span>
-      <br>
-      <br>
-      <div>${lang.transl('_更新说明1870')}</div>
-      <br>
-      <br>
-      ${lang.transl('_赞助方式提示')}`
+  private flag = '18.8.0'
+  private textKey = '_版本更新说明18_8_0' as const
 
   private show() {
     // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
@@ -49,7 +40,17 @@ class ShowWhatIsNew {
   }
 
   private showMsg() {
-    msgBox.show(this.msg, {
+    const msg = `
+      <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <span>${lang.transl('_提示可以在release页面查看更新日志')}</span>
+      <br>
+      <br>
+      <div>${lang.transl(this.textKey)}</div>
+      <br>
+      <br>
+      ${lang.transl('_赞助方式提示')}`
+    msgBox.show(msg, {
       title: Config.appName + ` ${lang.transl('_最近更新')}`,
       btn: lang.transl('_我知道了'),
     })

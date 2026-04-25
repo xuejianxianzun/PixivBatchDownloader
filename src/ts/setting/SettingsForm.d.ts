@@ -38,10 +38,13 @@ export interface SettingsForm extends HTMLFormElement {
   autoStartDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
+  userSetNameForNovel: HTMLInputElement
   fileNameSelect: HTMLSelectElement
+  fileNameSelectForNovel: HTMLSelectElement
   noSerialNo: HTMLInputElement
   folderForMultiImageWorksSwitch: HTMLInputElement
   folderForMultiImageWorksRule: HTMLInputElement
+  folderForMultiImageWorksImageNumber: HTMLInputElement
   previewResult: HTMLInputElement
   previewResultLimit: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
@@ -80,6 +83,7 @@ export interface SettingsForm extends HTMLFormElement {
   bgPositionY: HTMLInputElement
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
+  createFolderTagList2: HTMLTextAreaElement
   downAllAges: HTMLInputElement
   downR18: HTMLInputElement
   downR18G: HTMLInputElement
@@ -126,6 +130,7 @@ export interface SettingsForm extends HTMLFormElement {
   removeAtFromUsername: HTMLInputElement
   showLargerThumbnails: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
+  checkBlockTagsForPreviewWork: HTMLInputElement
   swicthImageByKeyboard: HTMLInputElement
   doNotCrawlLastImagesSwitch: HTMLInputElement
   doNotCrawlLastImagesCount: HTMLInputElement
@@ -194,4 +199,5 @@ export interface SettingsForm extends HTMLFormElement {
   doNotCrawlFirstImagesSwitch: HTMLInputElement
   doNotCrawlFirstImagesCount: HTMLInputElement
   singleEPUBFileSizeLimit: HTMLInputElement
+  useTagAliasForTagsNamingRule: HTMLInputElement
 }

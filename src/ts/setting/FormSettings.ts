@@ -21,18 +21,14 @@ class FormSettings {
   constructor(form: SettingsForm) {
     this.form = form
 
-    nameRuleManager.registerInput(this.form.userSetName)
-
     this.bindEvents()
-
     this.restoreFormSettings()
-
     this.ListenChange()
   }
 
   private form!: SettingsForm
 
-  // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
+  // 没有填写 userSetName 和 userSetNameForNovel 字段，因为它们由 nameRuleManager 管理
   private readonly inputFileds: InputFileds = {
     checkbox: [
       'downType0',
@@ -104,6 +100,7 @@ class FormSettings {
       'showPreviewWorkTip',
       'showLargerThumbnails',
       'wheelScrollSwitchImageOnPreviewWork',
+      'checkBlockTagsForPreviewWork',
       'swicthImageByKeyboard',
       'doNotCrawlLastImagesSwitch',
       'downloadNovelCoverImage',
@@ -152,6 +149,7 @@ class FormSettings {
       'removeEmoji',
       'onlyCrawlLastFewImagesSwitch',
       'doNotCrawlFirstImagesSwitch',
+      'useTagAliasForTagsNamingRule',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -175,6 +173,7 @@ class FormSettings {
       'tagsSeparator',
       'bgOpacity',
       'zeroPaddingLength',
+      'folderForMultiImageWorksImageNumber',
       'folderForMultiImageWorksRule',
       'autoExportResultNumber',
       'previewWorkWait',
@@ -231,6 +230,7 @@ class FormSettings {
       'notNeedTag',
       'blockList',
       'createFolderTagList',
+      'createFolderTagList2',
       'seriesNovelNameRule',
       'titleIncludeList',
       'titleExcludeList',

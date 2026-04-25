@@ -1,17 +1,32 @@
+import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
+import { states } from '../store/States'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting } from './Settings'
 
 // 管理命名规则
-// 在实际使用中，作为 settings.userSetName 的代理
-// 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
+// 作为“图像作品的命名规则”和“小说的命名规则”设置的代理，保存命名规则，并应用“在不同的页面类型中使用不同的命名规则”设置
+// 其他类必须使用这个模块来存取命名规则
 class NameRuleManager {
-  constructor() {
+  constructor(type: 'artwork' | 'novel') {
+    this.type = type
+    this.ruleList =
+      type === 'artwork'
+        ? 'nameRuleForEachPageType'
+        : 'nameRuleForEachPageTypeForNovel'
+    this.ruleSetting =
+      type === 'artwork' ? 'userSetName' : 'userSetNameForNovel'
+    this.defauleRule =
+      type === 'artwork'
+        ? Config.defaultNameRuleForArtwork
+        : Config.defaultNameRuleForNovel
+
     this.bindEvents()
+    this.bindInputEvent()
   }
 
   private bindEvents() {
@@ -22,7 +37,6 @@ class NameRuleManager {
     ]
     evts.forEach((evt) => {
       window.addEventListener(evt, () => {
-        this.textarea = document.querySelector('textarea[name="userSetName"]')
         this.setInputValue()
       })
     })
@@ -32,8 +46,7 @@ class NameRuleManager {
       // 当用户开启这个开关时，设置当前页面类型的命名规则
       if (data.name === 'setNameRuleForEachPageType' && data.value) {
         if (
-          settings.nameRuleForEachPageType[pageType.type] !==
-          settings.userSetName
+          settings[this.ruleList][pageType.type] !== settings[this.ruleSetting]
         ) {
           this.setInputValue()
         }
@@ -41,31 +54,29 @@ class NameRuleManager {
     })
   }
 
+  private type: 'artwork' | 'novel'
+  private ruleList:
+    | 'nameRuleForEachPageType'
+    | 'nameRuleForEachPageTypeForNovel'
+  private ruleSetting: 'userSetName' | 'userSetNameForNovel'
+  private defauleRule: string
   private textarea: HTMLTextAreaElement | null = null
-
-  private saveCurrentPageRule(rule: string) {
-    settings.nameRuleForEachPageType[pageType.type] = rule
-    setSetting('nameRuleForEachPageType', settings.nameRuleForEachPageType)
-  }
-
-  // 所有页面通用的命名规则
-  private readonly generalRule = '{page_title}/{id}'
 
   public get rule() {
     // 在 Pixivision 页面里，总是使用预设的命名规则
     if (pageType.type === pageType.list.Pixivision) {
-      return settings.nameRuleForEachPageType[pageType.type]
+      return settings[this.ruleList][pageType.type]
     }
 
     if (settings.setNameRuleForEachPageType) {
-      let rule = settings.nameRuleForEachPageType[pageType.type]
+      let rule = settings[this.ruleList][pageType.type]
       if (rule === undefined) {
-        rule = this.generalRule
+        rule = this.defauleRule
         this.saveCurrentPageRule(rule)
       }
       return rule
     } else {
-      return settings.userSetName
+      return settings[this.ruleSetting]
     }
   }
 
@@ -75,18 +86,27 @@ class NameRuleManager {
     }
 
     // 检查传递的命名规则的合法性
-    // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
-    const check =
-      str.includes('{id}') ||
-      (str.includes('{id_num}') && str.includes('{p_num}'))
+    let check = true
+
+    // 对于小说的命名规则，可以只使用 {follow_artwork}，表示跟随图像作品的命名规则
+    if (this.type === 'novel' && str.includes('{follow_artwork}')) {
+      check = true
+    } else {
+      // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
+      // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {id_num}{p_num}
+      check =
+        str.includes('{id}') ||
+        (str.includes('{id_num}') && str.includes('{p_num}'))
+    }
+
     if (!check) {
       window.setTimeout(() => {
         msgBox.error(lang.transl('_命名规则一定要包含id'))
       }, 300)
     } else {
-      // 替换特殊字符
-      str = this.handleUserSetName(str) || this.generalRule
-      setSetting('userSetName', str)
+      // 检查通过，替换特殊字符
+      str = this.handleUserSetName(str) || this.defauleRule
+      setSetting(this.ruleSetting, str)
       Tools.setRows(this.textarea)
 
       if (settings.setNameRuleForEachPageType) {
@@ -97,23 +117,23 @@ class NameRuleManager {
     }
   }
 
-  // 命名规则输入框的集合
-  private inputList: HTMLInputElement[] = []
+  private async bindInputEvent() {
+    await states.waitSettingInitialized()
 
-  // 注册命名规则输入框
-  public registerInput(input: HTMLInputElement) {
-    this.inputList.push(input)
+    const name = this.type === 'artwork' ? 'userSetName' : 'userSetNameForNovel'
+    this.textarea = document.querySelector(`textarea[name="${name}"]`)
     this.setInputValue()
 
+    const input = this.textarea!
     // 保存事件被触发之前的值
     let lastValue = input.value
 
     // 给输入框绑定事件
-    const evList = ['change', 'focus']
+    const eventList = ['change', 'focus']
     // change 事件只对用户手动输入有效
     // 当用户从下拉框添加一个命名标记时，不会触发 change 事件，需要监听 focus 事件
-    evList.forEach((evName) => {
-      input.addEventListener(evName, () => {
+    eventList.forEach((ev) => {
+      input.addEventListener(ev, () => {
         // 当事件触发时，比较输入框的值是否与事件触发之前发生了变化
         // 如果值没有变化，就什么都不做
         // 对于 change 事件来说，值必然发生了变化，但是 focus 就不一定了
@@ -123,7 +143,7 @@ class NameRuleManager {
           return
         }
         lastValue = input.value
-        if (settings.nameRuleForEachPageType[pageType.type] !== input.value) {
+        if (settings[this.ruleList][pageType.type] !== input.value) {
           this.rule = input.value
         }
       })
@@ -131,30 +151,36 @@ class NameRuleManager {
   }
 
   // 设置输入框的值为当前命名规则
-  private setInputValue() {
+  private async setInputValue() {
+    if (!this.textarea) {
+      return
+    }
+    await states.waitSettingInitialized()
+
     // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
     // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
     if (pageType.type === pageType.list.Pixivision) {
-      this.inputList.forEach((input) => {
-        input.value = settings.nameRuleForEachPageType[pageType.type]
-      })
+      this.textarea.value = settings[this.ruleList][pageType.type]
       return
     }
 
-    // 如果 settings.nameRuleForEachPageType 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
+    // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
     const rule = this.rule
-    this.inputList.forEach((input) => {
-      input.value = rule
-    })
+    this.textarea.value = rule
 
-    if (rule !== settings.userSetName) {
-      setSetting('userSetName', rule)
+    if (rule !== settings[this.ruleSetting]) {
+      setSetting(this.ruleSetting, rule)
     }
 
     Tools.setRows(this.textarea)
   }
 
-  // 处理用命名规则的非法字符和非法规则
+  private saveCurrentPageRule(rule: string) {
+    settings[this.ruleList][pageType.type] = rule
+    setSetting(this.ruleList, settings[this.ruleList])
+  }
+
+  // 处理命名规则的非法字符和非法规则
   // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
   // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
   // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
@@ -179,5 +205,30 @@ class NameRuleManager {
   }
 }
 
-const nameRuleManager = new NameRuleManager()
+const managerArtwork = new NameRuleManager('artwork')
+const managerNovel = new NameRuleManager('novel')
+
+function getRule(type: 'artwork' | 'novel') {
+  const artworkRule = managerArtwork.rule
+  const novelRule = managerNovel.rule
+  if (type === 'artwork') {
+    return artworkRule
+  } else {
+    return novelRule.replace('{follow_artwork}', artworkRule)
+  }
+}
+
+function setRule(type: 'artwork' | 'novel', rule: string) {
+  if (type === 'artwork') {
+    managerArtwork.rule = rule
+  } else {
+    managerNovel.rule = rule
+  }
+}
+
+const nameRuleManager = {
+  getRule,
+  setRule,
+}
+
 export { nameRuleManager }

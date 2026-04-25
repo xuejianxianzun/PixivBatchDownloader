@@ -1,10 +1,10 @@
-import { Tools } from './Tools'
-import { EVT } from './EVT'
-import { lang } from './Language'
-import { settings, setSetting } from './setting/Settings'
-import { theme } from './Theme'
-import { toast } from './Toast'
-import { msgBox } from './MsgBox'
+import { Tools } from '../Tools'
+import { EVT } from '../EVT'
+import { lang } from '../Language'
+import { settings, setSetting } from './Settings'
+import { theme } from '../Theme'
+import { toast } from '../Toast'
+import { msgBox } from '../MsgBox'
 
 // 为某些用户设置固定的用户名，或者别名
 class SetUserName {

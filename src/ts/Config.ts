@@ -40,8 +40,11 @@ class Config {
     !this.isFirefox && browser.extension.inIncognitoContext
   /**ImageViewer 生成的 li 元素的 className */
   static readonly ImageViewerLI = 'xz-thumb-li'
-  /** 默认的命名规则 */
-  static readonly defaultNameRule = 'pixiv/{user}-{user_id}/{id}-{title}'
+  /** 图像作品的默认命名规则 */
+  static readonly defaultNameRuleForArtwork =
+    'pixiv/{user}-{user_id}/{id}-{title}'
+  /** 小说的默认命名规则 */
+  static readonly defaultNameRuleForNovel = '{follow_artwork}'
   static readonly whatIsNewFlagDefault = 'xuejian&saber'
   /** 如果作品含有这些标签，就认为它是原创作品 */
   static readonly originalTags = [
@@ -75,7 +78,7 @@ class Config {
   static readonly AITagsLower = Config.AITags.map((tag) => tag.toLowerCase())
   /**始终保持显示的选项 */
   static readonly optionWhiteList: number[] = [
-    2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 99, 100, 101,
+    2, 4, 13, 17, 26, 28, 32, 36, 44, 50, 51, 57, 64, 37, 81, 99, 100, 101, 106,
   ]
 }
 

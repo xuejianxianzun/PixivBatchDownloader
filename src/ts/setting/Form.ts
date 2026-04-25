@@ -23,58 +23,50 @@ class Form {
     theme.register(this.form)
     lang.register(this.form)
     options.init(allOptions as NodeListOf<HTMLElement>)
-    new SaveNamingRule(this.form.userSetName)
+    new SaveNamingRule(this.form.userSetName, 'artwork')
+    new SaveNamingRule(this.form.userSetNameForNovel, 'novel')
     new FormSettings(this.form)
     new FormHelpManager(this.form)
     new FormBeautify(this.form)
 
     this.bindFormEvents()
     this.bindFunctionBtn()
+    this.bindCopyEvent()
+
+    // 语言变化时，有些命名标记的父元素的内容会被重设，此时需要重新绑定事件
+    window.addEventListener(EVT.list.langChange, () => {
+      this.bindCopyEvent()
+    })
   }
 
   private form: SettingsForm
 
   private bindFormEvents() {
-    // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
-    // const centerInputs: NodeListOf<HTMLInputElement> =
-    //   this.form.querySelectorAll('input[type=text]')
-    // for (const el of centerInputs) {
-    //   if (el.name !== 'userSetName') {
-    //     el.addEventListener('focus', function () {
-    //       this.select()
-    //     })
-    //   }
-    // }
-
-    // 把下拉框的选择项插入到文本框里
-    const from = this.form.fileNameSelect
-    const to = this.form.userSetName
-    from.addEventListener('change', () => {
-      if (from.value !== 'default') {
-        // 把选择项插入到光标位置，并设置新的光标位置
-        const position = to.selectionStart!
-        to.value =
-          to.value.substring(0, position) +
-          from.value +
-          to.value.substring(position)
-        to.selectionStart = position + from.value.length
-        to.selectionEnd = position + from.value.length
-        to.focus()
-      }
-    })
-
-    // 点击命名规则帮助区域里的标记名字时，复制到剪贴板
-    const allName = this.form.querySelectorAll('.namingTipArea .name')
-    allName.forEach((el) => {
-      el.addEventListener('click', async () => {
-        const text = el.textContent
-        if (text) {
-          const copied = await Utils.writeClipboardText(text)
-          if (copied) {
-            toast.success(lang.transl('_已复制'))
-          } else {
-            toast.error(lang.transl('_复制失败'))
-          }
+    // 用户点击下拉框的选项时，把它插入到输入框里
+    const list = [
+      {
+        select: this.form.fileNameSelect,
+        input: this.form.userSetName,
+      },
+      {
+        select: this.form.fileNameSelectForNovel,
+        input: this.form.userSetNameForNovel,
+      },
+    ]
+    list.forEach(({ select, input }) => {
+      select.addEventListener('change', () => {
+        if (select.value !== 'default') {
+          // 把选择项插入到光标位置，并设置新的光标位置
+          const position = input.selectionStart!
+          input.value =
+            input.value.substring(0, position) +
+            select.value +
+            input.value.substring(position)
+          input.selectionStart = position + select.value.length
+          input.selectionEnd = position + select.value.length
+          input.focus()
+          // 重置下拉框
+          select.value = 'default'
         }
       })
     })
@@ -167,6 +159,32 @@ class Form {
           EVT.fire('resetHelpTip')
         })
       }
+    }
+  }
+
+  /** 点击命名规则帮助区域里的标记名字时，复制到剪贴板 */
+  private bindCopyEvent() {
+    const allName = this.form.querySelectorAll(
+      '.namingTipArea .name'
+    ) as NodeListOf<HTMLElement>
+    for (const el of allName) {
+      if (el.dataset.bindCopy) {
+        continue
+      }
+
+      // 防止重复绑定
+      el.dataset.bindCopy = 'true'
+      el.addEventListener('click', async () => {
+        const text = el.textContent
+        if (text) {
+          const copied = await Utils.writeClipboardText(text)
+          if (copied) {
+            toast.success(lang.transl('_已复制'))
+          } else {
+            toast.error(lang.transl('_复制失败'))
+          }
+        }
+      })
     }
   }
 }

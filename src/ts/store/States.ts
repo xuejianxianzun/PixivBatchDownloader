@@ -1,5 +1,6 @@
 import { EVT } from '../EVT'
 import { ppdTask } from '../PPDTask'
+import { Utils } from '../utils/Utils'
 
 // 储存下载器内部产生的、会变化的状态
 // 这里的状态不需要持久化保存
@@ -155,6 +156,12 @@ class States {
     ppdTask.register(2, 'Quick merge novel series', async () => {
       this.quickMergeNovel = true
     })
+  }
+
+  public async waitSettingInitialized() {
+    while (!this.settingInitialized) {
+      await Utils.sleep(50)
+    }
   }
 }
 
