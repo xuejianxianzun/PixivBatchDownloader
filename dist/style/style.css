@@ -667,7 +667,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .optionAnchor {
   display: none;
 }
-.centerWrap .centerWrap_con .settingForm p.option {
+.centerWrap .centerWrap_con .settingForm div.option {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -676,10 +676,10 @@ body.mobile #quickCrawlBtn {
   margin: 2px 0;
   border-radius: 6px;
 }
-.centerWrap .centerWrap_con .settingForm p.option:hover {
+.centerWrap .centerWrap_con .settingForm div.option:hover {
   background-color: rgba(99, 205, 247, 0.1);
 }
-.centerWrap .centerWrap_con .settingForm p.option .pinButton {
+.centerWrap .centerWrap_con .settingForm div.option .pinButton {
   position: absolute;
   z-index: 1;
   left: -26px;
@@ -688,51 +688,51 @@ body.mobile #quickCrawlBtn {
   display: none;
   opacity: 0.6;
 }
-.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton,
-.centerWrap .centerWrap_con .settingForm p.option:hover .pinButton {
+.centerWrap .centerWrap_con .settingForm div.option.pinned .pinButton,
+.centerWrap .centerWrap_con .settingForm div.option:hover .pinButton {
   display: block;
 }
-.centerWrap .centerWrap_con .settingForm p.option.pinned .pinButton {
+.centerWrap .centerWrap_con .settingForm div.option.pinned .pinButton {
   opacity: 1;
 }
-.centerWrap .centerWrap_con .settingForm p.option.new::before {
+.centerWrap .centerWrap_con .settingForm div.option.new::before {
   content: '✨';
   position: absolute;
   z-index: 1;
   width: 24px;
   left: -22px;
   height: 26px;
-  top: -1px;
+  top: 3px;
   text-align: center;
   font-size: 1.1em;
 }
-.centerWrap .centerWrap_con .settingForm p.option:hover::before,
-.centerWrap .centerWrap_con .settingForm p.option.pinned.new::before {
+.centerWrap .centerWrap_con .settingForm div.option:hover::before,
+.centerWrap .centerWrap_con .settingForm div.option.pinned.new::before {
   display: none;
 }
-.centerWrap .centerWrap_con .settingForm p.option > * {
+.centerWrap .centerWrap_con .settingForm div.option > * {
   line-height: 26px;
   flex-shrink: 0;
 }
-.centerWrap .centerWrap_con .settingForm p.option .rowWrap {
+.centerWrap .centerWrap_con .settingForm div.option .rowWrap {
   display: flex;
   flex-basis: 100%;
   flex-wrap: nowrap;
   align-items: flex-start;
   justify-content: center;
 }
-.centerWrap .centerWrap_con .settingForm p.option .rowWrap button,
-.centerWrap .centerWrap_con .settingForm p.option .rowWrap .textButton {
+.centerWrap .centerWrap_con .settingForm div.option .rowWrap button,
+.centerWrap .centerWrap_con .settingForm div.option .rowWrap .textButton {
   flex-shrink: 0;
 }
-.centerWrap .centerWrap_con .settingForm p.option .beautify_switch,
-.centerWrap .centerWrap_con .settingForm p.option .beautify_checkbox {
+.centerWrap .centerWrap_con .settingForm div.option .beautify_switch,
+.centerWrap .centerWrap_con .settingForm div.option .beautify_checkbox {
   margin: 6px 0;
 }
-.centerWrap .centerWrap_con .settingForm p.option .beautify_radio {
+.centerWrap .centerWrap_con .settingForm div.option .beautify_radio {
   margin: 7px 0;
 }
-.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap {
+.centerWrap .centerWrap_con .settingForm div.option .subOptionWrap {
   max-width: 100%;
   min-height: 26px;
   line-height: 26px;
@@ -742,23 +742,23 @@ body.mobile #quickCrawlBtn {
   flex-grow: 1;
   column-gap: 4px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
+.centerWrap .centerWrap_con .settingForm div.option .subOptionWrap > * {
   line-height: 26px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap.noGrow {
+.centerWrap .centerWrap_con .settingForm div.option .subOptionWrap.noGrow {
   flex-grow: 0;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setUserNameWrap,
-.centerWrap .centerWrap_con .settingForm p.option .DoNotDownloadLastFewImagesWarp {
+.centerWrap .centerWrap_con .settingForm div.option .setUserNameWrap,
+.centerWrap .centerWrap_con .settingForm div.option .DoNotDownloadLastFewImagesWarp {
   flex-basis: 100%;
 }
-.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
+.centerWrap .centerWrap_con .settingForm div.option.settingCategoryName {
   justify-content: center;
   margin: 14px 0;
   position: relative;
   text-align: center;
 }
-.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName span {
+.centerWrap .centerWrap_con .settingForm div.option.settingCategoryName span {
   display: inline-block;
   height: 26px;
   padding: 0px 20px;
@@ -769,10 +769,10 @@ body.mobile #quickCrawlBtn {
   background-color: #fff;
   border-radius: 4px;
 }
-.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName:hover {
+.centerWrap .centerWrap_con .settingForm div.option.settingCategoryName:hover {
   background-color: transparent;
 }
-.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName::after {
+.centerWrap .centerWrap_con .settingForm div.option.settingCategoryName::after {
   display: block;
   content: '';
   position: absolute;
@@ -782,10 +782,10 @@ body.mobile #quickCrawlBtn {
   background-color: #eee;
   z-index: -1;
 }
-.centerWrap .centerWrap_con .settingForm p.option .grow {
+.centerWrap .centerWrap_con .settingForm div.option .grow {
   flex-grow: 1;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1 {
   width: 50px;
   min-width: 50px;
   font-size: 14px !important;
@@ -800,58 +800,58 @@ body.mobile #quickCrawlBtn {
   padding: 0 !important;
   background: none !important;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1:focus,
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1:hover {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1:focus,
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1:hover {
   border-bottom: 1px solid #0096fa !important;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w20 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w20 {
   width: 20px;
   min-width: 20px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w30 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w30 {
   width: 30px;
   min-width: 30px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w40 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w40 {
   width: 40px;
   min-width: 40px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w50 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w50 {
   width: 50px;
   min-width: 50px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w60 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w60 {
   width: 60px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w70 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w70 {
   width: 70px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w80 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w80 {
   width: 80px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w90 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w90 {
   width: 90px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w100 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w100 {
   width: 100px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w150 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w150 {
   width: 150px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w200 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w200 {
   width: 200px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w250 {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.w250 {
   width: 250px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.postDate {
   width: 160px;
 }
-.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
+.centerWrap .centerWrap_con .settingForm div.option .setinput_style1.bmkNum {
   width: 60px;
 }
-.centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
-.centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
+.centerWrap .centerWrap_con .settingForm div.option button[role='setMin'],
+.centerWrap .centerWrap_con .settingForm div.option button[role='setMax'] {
   margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
@@ -1289,7 +1289,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con input[name='bgOpacity'] {
   margin: 5px 0;
 }
-.centerWrap.theme-white p.option > .settingNameStyle {
+.centerWrap.theme-white div.option > .settingNameStyle {
   color: #333;
 }
 .centerWrap.mobile {
@@ -1337,13 +1337,13 @@ body.mobile #quickCrawlBtn {
   box-shadow: #10506e 0px 0px 15px;
   color: #fff;
 }
-.centerWrap.theme-dark p.option > .settingNameStyle {
+.centerWrap.theme-dark div.option > .settingNameStyle {
   color: inherit;
 }
-.centerWrap.theme-dark p.option.new::before {
+.centerWrap.theme-dark div.option.new::before {
   color: #fff !important;
 }
-.centerWrap.theme-dark p.option:hover {
+.centerWrap.theme-dark div.option:hover {
   background-color: rgba(204, 240, 254, 0.3);
 }
 .centerWrap.theme-dark button,
@@ -1409,13 +1409,13 @@ body.mobile #quickCrawlBtn {
   background: #222;
   color: #fff;
 }
-.centerWrap.xzBG p.option > .settingNameStyle {
+.centerWrap.xzBG div.option > .settingNameStyle {
   color: inherit;
 }
-.centerWrap.xzBG p.option.new::before {
+.centerWrap.xzBG div.option.new::before {
   color: #fff !important;
 }
-.centerWrap.xzBG p.option:hover {
+.centerWrap.xzBG div.option:hover {
   background-color: rgba(209, 239, 251, 0.2) !important;
 }
 .centerWrap.xzBG button,

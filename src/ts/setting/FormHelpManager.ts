@@ -78,7 +78,7 @@ class FormHelpManager {
         const no = btn.dataset.forNo
         if (no) {
           const option = this.form.querySelector(
-            `p.option[data-no="${no}"]`
+            `div.option[data-no="${no}"]`
           ) as HTMLElement
           if (option) {
             option.insertAdjacentElement('afterend', tipEl)

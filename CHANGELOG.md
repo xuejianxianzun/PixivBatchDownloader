@@ -3,6 +3,12 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
+## next
+
+### ♻️把选项的 p 标签改为了 div 标签
+
+之前每个选项都是 p 标签 `p.option`，但后来有些选项内部的复杂元素里使用了 div 元素，这不符合规范，因为 p 标签内部不能包含 div 元素。所以我把选项的标签都改为了 div。
+
 ## 18.8.1 2026-04-25
 
 ### 🐞修复了“使用第一个匹配的标签建立文件夹”匹配结果被转换成小写的问题
