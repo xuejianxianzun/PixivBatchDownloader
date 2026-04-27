@@ -730,6 +730,7 @@ export const formHtml = `
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品添加一层文件夹"></a>
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
@@ -738,7 +739,6 @@ export const formHtml = `
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </div>
     
     <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
@@ -1141,7 +1141,7 @@ export const formHtml = `
         <span data-xztext="_合并系列小说时的分割阈值"></span>
       </a>
 
-      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> <span>MiB</span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
     </div>
 

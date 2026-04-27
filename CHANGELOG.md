@@ -3,7 +3,9 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
-## next
+## 18.8.2 2026-04-27
+
+### 🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名不会生效的问题
 
 ### ♻️把选项的 p 标签改为了 div 标签
 

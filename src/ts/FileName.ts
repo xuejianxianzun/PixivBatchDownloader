@@ -391,9 +391,9 @@ class FileName {
 
     let value = ''
     const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-    const userSetTags = settings[key].map((val) => val.toLowerCase())
 
     // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
+    // 注意：标签别名是始终保持原本的大小写的，没有转换成小写
     const aliasList = new Set<string>()
     for (const tag of workTags) {
       const alias = setTagAlias.findAlias(tag)
@@ -410,7 +410,7 @@ class FileName {
     // 例如 用户输入顺序：A,B
     // 作品 tag 里的顺序：B,A
     if (aliasList.size > 0) {
-      for (const userTag of userSetTags) {
+      for (const userTag of settings[key]) {
         if (aliasList.has(userTag)) {
           value = userTag
           // console.log('用户使用的别名：', userTag)
@@ -421,8 +421,8 @@ class FileName {
 
     // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
     if (!value) {
-      for (const userTag of userSetTags) {
-        if (workTags.includes(userTag)) {
+      for (const userTag of settings[key]) {
+        if (workTags.includes(userTag.toLowerCase())) {
           value = userTag
           break
         }
@@ -432,15 +432,6 @@ class FileName {
     // 查找结束
 
     if (value) {
-      // 前面匹配时把用户设置的标签转换成小写了，这里需要把它替换成原本的标签
-      if (settings[key].includes(value) === false) {
-        const index = settings[key].findIndex(
-          (tag) => tag.toLowerCase() === value
-        )
-        if (index !== -1) {
-          value = settings[key][index]
-        }
-      }
       // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
       const str = this.generateFileName(flag, {
         [flag]: {

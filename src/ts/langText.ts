@@ -3376,7 +3376,7 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
   _收藏设置: [
     `下载器的<span class="key">收藏</span>功能 (✩)`,
     `下載器的<span class="key">收藏</span>功能 (✩)`,
-    `Downloader's <span class="key">bookmark</span> function (✩)`,
+    `Downloader's <span class="key">bookmark</span> feature (✩)`,
     `ダウンロードツールの<span class="key">ブックマーク</span>機能 (✩)`,
     `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
     `Функция <span class="key">закладок</span> загрузчика (✩)`,
@@ -8689,24 +8689,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
   ],
   _多图作品不抓取后几张图片的说明: [
-    `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br><br>
-    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
-    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-    `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br><br>
-    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br><br>
-    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-    `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br><br>
-    Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
-    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-    `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br><br>
-    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br><br>
-    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-    `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
-    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
-    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-    `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br><br>
-    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br><br>
-    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+    `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。如果你不想抓取这些图片，可以使用这个设置来排除最后一张或多张图片。<br><br>
+注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
+多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+    `常見的使用場景：有些繪師作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。如果你不想抓取這些圖片，可以使用這個設定來排除最後一張或多張圖片。<br><br>
+注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而不是排除整個作品。<br><br>
+多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+    `Common use cases: in some artists' works, the last image or last few images are promotional images, or images with mosaic censorship. If you do not want to crawl those images, you can use this setting to exclude the last one or several images.<br><br>
+Note: if the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
+The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
+    `よくある使用場面: 作品によっては、最後の1枚または数枚の画像が宣伝画像だったり、モザイク入りの画像だったりします。こうした画像をクロールしたくない場合は、この設定で最後の1枚または複数枚の画像を除外できます。<br><br>
+注意: 設定した数字が作品内の画像数より多い場合、ダウンローダーは作品全体を除外せず、最初の1枚を残します。<br><br>
+複数画像作品で"最初/最後の数枚だけをクロールする"条件と、"最初/最後の数枚をクロールしない"条件は同時に使えます。"クロールしない"方が優先されるため、1枚の画像が両方の条件に当てはまる場合、その画像はクロールされません。`,
+    `자주 있는 사용 상황: 어떤 작가의 작품은 마지막 한 장이나 몇 장의 이미지가 홍보용 이미지이거나 모자이크가 있는 이미지일 수 있습니다. 이런 이미지를 크롤링하고 싶지 않다면 이 설정으로 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
+주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 첫 번째 이미지를 남깁니다.<br><br>
+여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
+    `Частый сценарий использования: у некоторых художников последние одно или несколько изображений в work являются рекламными изображениями или изображениями с мозаичной цензурой. Если вы не хотите обрабатывать такие изображения, используйте эту настройку, чтобы исключить последнее одно или несколько изображений.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит первое изображение, а не исключит весь work целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
   ],
   _多图作品不抓取前几张图片: [
     `多图作品不抓取<span class="key">前几张</span>图片`,
@@ -8717,29 +8717,29 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
   ],
   _多图作品不抓取前几张图片的说明: [
-    `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br><br>
-    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
-    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-    `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br><br>
-    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br><br>
-    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-    `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br><br>
-    Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
-    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-    `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br><br>
-    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br><br>
-    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-    `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br><br>
-    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
-    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-    `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br><br>
-    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br><br>
-    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+    `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。如果你想跳过第一张，从第二张开始抓取，就可以启用这个设置。<br><br>
+注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
+多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+    `常見的使用場景：有些繪師作品的第一張圖片有文字，第二張沒有文字；或者第一張是全年齡，第二張是 R-18。如果你想跳過第一張，從第二張開始抓取，就可以啟用這個設定。<br><br>
+注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而不是排除整個作品。<br><br>
+多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+    `Common use cases: some artists make works where the first image has text and the second image does not; or the first image is all-ages and the second is R-18. If you want to skip the first image and start crawling from the second one, you can enable this setting.<br><br>
+Note: if the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
+The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
+    `よくある使用場面: 作品によっては、1枚目の画像には文字が入っていて、2枚目には入っていないことがあります。あるいは、1枚目は全年齢で、2枚目はR-18の場合もあります。1枚目を飛ばして2枚目からクロールしたいときは、この設定を有効にしてください。<br><br>
+注意: 設定した数字が作品内の画像数より多い場合、ダウンローダーは作品全体を除外せず、最後の1枚を残します。<br><br>
+複数画像作品で"最初/最後の数枚だけをクロールする"条件と、"最初/最後の数枚をクロールしない"条件は同時に使えます。"クロールしない"方が優先されるため、1枚の画像が両方の条件に当てはまる場合、その画像はクロールされません。`,
+    `자주 있는 사용 상황: 어떤 작가의 작품은 첫 번째 이미지에는 글자가 있고 두 번째 이미지에는 없을 수 있습니다. 또는 첫 번째 이미지는 전체이용가이고 두 번째 이미지는 R-18일 수도 있습니다. 첫 번째 이미지를 건너뛰고 두 번째 이미지부터 크롤링하고 싶다면 이 설정을 켜면 됩니다.<br><br>
+주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 마지막 이미지를 남깁니다.<br><br>
+여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
+    `Частый сценарий использования: у некоторых художников в work на первом изображении есть текст, а на втором нет; или первое изображение для всех возрастов, а второе уже R-18. Если вы хотите пропустить первое изображение и начать обработку со второго, включите эту настройку.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит последнее изображение, а не исключит весь work целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
   ],
   _多图作品只抓取前几张图片: [
     `多图作品只抓取<span class="key">前几张</span>图片`,
     `多圖作品只抓取<span class="key">前幾張</span>圖片`,
-    `Multi-image works only crawl the <span class="key">first few</span> images`,
+    `Only crawl the <span class="key">first few</span> images of multi-image works`,
     `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
     `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
     `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
@@ -9104,175 +9104,13 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `파일 이름에 적용되는 {tags} 계열 토큰`,
     `Токены серии {tags}, применяемые в имени файла`,
   ],
-  _版本更新说明18_8_0: [
-    `<strong>💡对移除了"为每个作品建立单独的文件夹"设置的补充说明</strong><br>
-下载器在上一次更新里移除了"为每个作品建立单独的文件夹"，这让使用此功能的用户遇到了困扰，有些用户不知道怎么实现和之前相同的效果。这与你之前在这个设置里设置的"图片数量大于"有关：<br>
-- 如果你之前设置的图片数量是大于 <span class="blue">0</span>，也就是会对所有作品生效，可以修改命名规则：在文件名前面添加一层文件夹规则，例如  <span class="blue">{id_num}/</span> 或者你之前使用的规则。对于默认的命名规则，就是修改成  <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- 如果你之前设置的图片数量是大于  <span class="blue">1</span>，也就是只对多图作品生效，请改为使用"为多图作品添加一层文件夹"设置，并使用  <span class="blue">{multi_image_folder}/</span> 添加一层文件夹。<br>
-<br>
-<strong>🐞修复了"预览作品"的开关失效的问题</strong><br>
-<br>
-<strong>✨新增设置：小说的命名规则</strong><br>
-之前图像作品和小说使用同一套命名规则，现在我把它们拆分成 2 个独立的设置了。<br>
-PS：小说的命名规则默认会跟随图像作品的命名规则，以保持行为与之前版本一致。你可以根据需要来决定是否修改小说的命名规则。<br>
-<br>
-<strong>✨"使用第一个匹配的标签建立文件夹"现在可以设置两层文件夹了</strong><br>
-这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。<br>
-现在你可以设置两个标签列表来实现这个效果。<br>
-<br>
-<strong>✨新增设置：标签别名</strong><br>
-该设置位于"更多"-"命名"里。<br>
-如果一个标签有多种变体，你可以为它们设置一个通用的别名。它可以影响命名标记里的 <span class="blue">{tags}</span> 系列标记，以及"使用第一个匹配的标签建立文件夹"功能。<br>
-<br>
-<strong>✨在"预览作品"里添加了"检查屏蔽的标签"选项</strong><br>
-该功能默认未启用。你可以根据需要手动启用它。<br>
-<br>
-<strong>✨"为多图作品添加一层文件夹"里添加了"图片数量"选项</strong><br>
-之前没有这个选项，下载器会为所有多图作品都应用这个设置。现在你可以只为图片超过设置值的多图作品应用此设置。<br>
-<br>
-<strong>🐞修复了没有处理 {match_tag_folder} 标签里的特殊字符的问题</strong><br>
-<br>
-<strong>😊在"命名规则"的帮助里添加了更详细的说明</strong><br>`,
-    `<strong>💡對移除了「為每個作品建立單獨的資料夾」設定的補充說明</strong><br>
-下載器在上一次更新裡移除了「為每個作品建立單獨的資料夾」，這讓使用此功能的用戶遇到了困擾，有些用戶不知道怎麼實現和之前相同的效果。這與你之前在這個設定裡設定的「圖片數量大於」有關：<br>
-- 如果你之前設定的圖片數量是大於 <span class="blue">0</span>，也就是會對所有作品生效，可以修改命名規則：在檔名前面添加一層資料夾規則，例如 <span class="blue">{id_num}/</span> 或者你之前使用的規則。對於預設的命名規則，就是修改成 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- 如果你之前設定的圖片數量是大於 <span class="blue">1</span>，也就是只對多圖作品生效，請改為使用「為多圖作品添加一層資料夾」設定，並使用 <span class="blue">{multi_image_folder}/</span> 添加一層資料夾。<br>
-<br>
-<strong>🐞修復了「預覽作品」的開關失效的問題</strong><br>
-<br>
-<strong>✨新增設定：小說的命名規則</strong><br>
-之前圖像作品和小說使用同一套命名規則，現在我把它們拆分成 2 個獨立的設定了。<br>
-PS：小說的命名規則預設會跟隨圖像作品的命名規則，以保持行為與之前版本一致。你可以根據需要來決定是否修改小說的命名規則。<br>
-<br>
-<strong>✨「使用第一個匹配的標籤建立資料夾」現在可以設定兩層資料夾了</strong><br>
-這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。<br>
-現在你可以設定兩個標籤列表來實現這個效果。<br>
-<br>
-<strong>✨新增設定：標籤別名</strong><br>
-該設定位於「更多」-「命名」裡。<br>
-如果一個標籤有多種變體，你可以為它們設定一個通用的別名。它可以影響命名標記裡的 <span class="blue">{tags}</span> 系列標記，以及「使用第一個匹配的標籤建立資料夾」功能。<br>
-<br>
-<strong>✨在「預覽作品」裡添加了「檢查屏蔽的標籤」選項</strong><br>
-該功能預設未啟用。你可以根據需要手動啟用它。<br>
-<br>
-<strong>✨「為多圖作品添加一層資料夾」裡添加了「圖片數量」選項</strong><br>
-之前沒有這個選項，下載器會為所有多圖作品都應用這個設定。現在你可以只為圖片超過設定值的多圖作品應用此設定。<br>
-<br>
-<strong>🐞修復了沒有處理 {match_tag_folder} 標籤裡的特殊字元的問題</strong><br>
-<br>
-<strong>😊在「命名規則」的幫助裡添加了更詳細的說明</strong><br>`,
-    `<strong>💡Additional notes on the removal of the "Create a separate folder for each work" setting</strong><br>
-The previous update removed "Create a separate folder for each work", which caused trouble for users who relied on this feature — some didn't know how to achieve the same result. This relates to the "Image count greater than" value you had set:<br>
-- If your previous setting was greater than <span class="blue">0</span> (applying to all works), you can update your naming rule by adding a folder level before the file name, such as <span class="blue">{id_num}/</span> or whatever you used before. For the default naming rule, change it to <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- If your previous setting was greater than <span class="blue">1</span> (applying to multi-image works only), switch to using the "Add a folder for multi-image works" setting and use <span class="blue">{multi_image_folder}/</span> to add a folder level.<br>
-<br>
-<strong>🐞Fixed an issue where the "Preview work" toggle was not working</strong><br>
-<br>
-<strong>✨New setting: Naming rule for novels</strong><br>
-Previously, image works and novels shared the same naming rule. I have now split them into 2 separate settings.<br>
-PS: The naming rule for novels defaults to following the image works naming rule, to keep behavior consistent with previous versions. You can change the novel naming rule as needed.<br>
-<br>
-<strong>✨"Create folder using the first matching tag" now supports two folder levels</strong><br>
-This addresses a common use case: if a character belongs to a certain work, create two folder levels — the first for the work name and the second for the character name.<br>
-You can now set two tag lists to achieve this.<br>
-<br>
-<strong>✨New setting: Tag alias</strong><br>
-This setting is located under "More" - "Naming".<br>
-If a tag has multiple variants, you can set a common alias for them. This can affect the <span class="blue">{tags}</span> series tokens in the naming rule, as well as the "Create folder using the first matching tag" feature.<br>
-<br>
-<strong>✨Added a "Check blocked tags" option in "Preview work"</strong><br>
-This feature is disabled by default. You can enable it manually as needed.<br>
-<br>
-<strong>✨Added an "Image count" option in "Add a folder for multi-image works"</strong><br>
-Previously this option did not exist and the setting applied to all multi-image works. Now you can apply it only to multi-image works with more images than the set value.<br>
-<br>
-<strong>🐞Fixed an issue where special characters in {match_tag_folder} tags were not handled</strong><br>
-<br>
-<strong>😊Added more detailed explanations in the "Naming rule" help</strong><br>`,
-    `<strong>💡「作品ごとに個別フォルダーを作成する」設定の削除に関する補足説明</strong><br>
-前回のアップデートで「作品ごとに個別フォルダーを作成する」が削除され、この機能を使っていたユーザーが困惑し、以前と同じ効果を実現する方法が分からないという声がありました。これは以前この設定で設定していた「画像数が～より大きい」の値と関係しています：<br>
-- 以前の設定が <span class="blue">0</span> より大きい（つまりすべての作品に適用）だった場合は、命名ルールを変更してください。ファイル名の前にフォルダー階層を追加します。例えば <span class="blue">{id_num}/</span> や以前使っていたルールを使います。デフォルトの命名ルールなら <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> に変更します。<br>
-- 以前の設定が <span class="blue">1</span> より大きい（つまり複数 image の作品にのみ適用）だった場合は、「複数 image の作品にフォルダーを追加する」設定に切り替えて、<span class="blue">{multi_image_folder}/</span> でフォルダー階層を追加してください。<br>
-<br>
-<strong>🐞「作品のプレビュー」のスイッチが機能しない問題を修正しました</strong><br>
-<br>
-<strong>✨新設定：novel の命名ルール</strong><br>
-以前は画像作品と novel が同じ命名ルールを使っていましたが、これらを 2 つの独立した設定に分けました。<br>
-PS：novel の命名ルールはデフォルトで画像作品の命名ルールに従います。これにより以前のバージョンと同じ動作を維持します。必要に応じて novel の命名ルールを変更できます。<br>
-<br>
-<strong>✨「最初にマッチしたタグを使ってフォルダーを作成する」で 2 階層のフォルダーが設定できるようになりました</strong><br>
-これはよくある使い方に対応するためです。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。<br>
-これを実現するために、2 つのタグリストを設定できるようになりました。<br>
-<br>
-<strong>✨新設定：タグの別名</strong><br>
-この設定は「その他」-「命名」にあります。<br>
-タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。これにより命名ルール内の <span class="blue">{tags}</span> 系のトークン、および「最初にマッチしたタグを使ってフォルダーを作成する」機能に影響を与えることができます。<br>
-<br>
-<strong>✨「作品のプレビュー」に「ブロックしたタグを確認」オプションを追加しました</strong><br>
-この機能はデフォルトでは無効です。必要に応じて手動で有効にしてください。<br>
-<br>
-<strong>✨「複数 image の作品にフォルダーを追加する」に「image 数」オプションを追加しました</strong><br>
-以前はこのオプションがなく、すべての複数 image 作品にこの設定が適用されていました。これからは設定値を超える image 数の複数 image 作品にのみ適用できます。<br>
-<br>
-<strong>🐞{match_tag_folder} タグ内の特殊文字が処理されていない問題を修正しました</strong><br>
-<br>
-<strong>😊「命名ルール」のヘルプにより詳細な説明を追加しました</strong><br>`,
-    `<strong>💡"각 작품마다 별도 폴더 만들기" 설정 제거에 대한 추가 설명</strong><br>
-이전 업데이트에서 "각 작품마다 별도 폴더 만들기"가 제거되어 해당 기능을 사용하던 분들이 불편을 겪었고, 이전과 동일한 효과를 어떻게 구현하는지 모르는 분들도 계셨습니다. 이것은 이전에 이 설정에서 설정했던 "이미지 수가 ~보다 큰" 값과 관련이 있습니다：<br>
-- 이전 설정이 <span class="blue">0</span> 보다 큰 경우（즉 모든 작품에 적용）명명 규칙을 수정하세요. 파일 이름 앞에 폴더 규칙을 추가합니다. 예를 들어 <span class="blue">{id_num}/</span> 또는 이전에 사용하던 규칙을 사용하세요. 기본 명명 규칙이라면 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> 로 변경하면 됩니다.<br>
-- 이전 설정이 <span class="blue">1</span> 보다 큰 경우（즉 다중 이미지 작품에만 적용）"다중 이미지 작품에 폴더 추가" 설정으로 전환하고 <span class="blue">{multi_image_folder}/</span> 를 사용해 폴더를 추가하세요.<br>
-<br>
-<strong>🐞"작품 미리보기" 토글이 작동하지 않는 문제를 수정했습니다</strong><br>
-<br>
-<strong>✨새 설정: 소설의 명명 규칙</strong><br>
-이전에는 이미지 작품과 소설이 동일한 명명 규칙을 사용했지만, 이제 2개의 독립된 설정으로 분리했습니다.<br>
-PS: 소설의 명명 규칙은 기본적으로 이미지 작품의 명명 규칙을 따릅니다. 이전 버전과 동일한 동작을 유지하기 위해서입니다. 필요에 따라 소설의 명명 규칙을 변경할 수 있습니다.<br>
-<br>
-<strong>✨"처음 매칭된 태그로 폴더 만들기"에서 이제 두 단계 폴더를 설정할 수 있습니다</strong><br>
-이것은 흔한 요구사항을 처리하기 위한 것입니다. 어떤 캐릭터가 특정 작품에 속할 경우 두 단계 폴더를 만드는 것입니다. 첫 번째 단계는 작품 이름, 두 번째 단계는 캐릭터 이름입니다.<br>
-이제 두 개의 태그 목록을 설정해 이 효과를 구현할 수 있습니다.<br>
-<br>
-<strong>✨새 설정: 태그 별칭</strong><br>
-이 설정은 "더보기" - "명명"에 있습니다.<br>
-태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 이를 통해 명명 규칙의 <span class="blue">{tags}</span> 계열 토큰과 "처음 매칭된 태그로 폴더 만들기" 기능에 영향을 줄 수 있습니다.<br>
-<br>
-<strong>✨"작품 미리보기"에 "차단된 태그 확인" 옵션을 추가했습니다</strong><br>
-이 기능은 기본적으로 비활성화되어 있습니다. 필요에 따라 수동으로 활성화할 수 있습니다.<br>
-<br>
-<strong>✨"다중 이미지 작품에 폴더 추가"에 "이미지 수" 옵션을 추가했습니다</strong><br>
-이전에는 이 옵션이 없어 모든 다중 이미지 작품에 이 설정이 적용되었습니다. 이제 설정값을 초과하는 이미지 수를 가진 다중 이미지 작품에만 적용할 수 있습니다.<br>
-<br>
-<strong>🐞{match_tag_folder} 태그 내의 특수 문자가 처리되지 않던 문제를 수정했습니다</strong><br>
-<br>
-<strong>😊"명명 규칙" 도움말에 더 자세한 설명을 추가했습니다</strong><br>`,
-    `<strong>💡Дополнительные пояснения по удалению настройки "Создавать отдельную папку для каждой work"</strong><br>
-В предыдущем обновлении была удалена настройка "Создавать отдельную папку для каждой work", что вызвало затруднения у пользователей, которые ею пользовались, — некоторые не знали, как добиться того же результата. Это связано со значением "Количество image больше чем", которое вы задавали в этой настройке ранее：<br>
-- Если раньше у вас было задано значение больше <span class="blue">0</span> (то есть настройка применялась ко всем work), измените правило именования: добавьте уровень папки перед именем файла, например <span class="blue">{id_num}/</span> или то правило, которое вы использовали раньше. Для правила именования по умолчанию измените его на <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- Если раньше у вас было задано значение больше <span class="blue">1</span> (то есть настройка применялась только к work с несколькими image), переключитесь на настройку "Добавить папку для work с несколькими image" и используйте <span class="blue">{multi_image_folder}/</span> для добавления уровня папки.<br>
-<br>
-<strong>🐞Исправлена проблема, из-за которой переключатель "Предпросмотр work" не работал</strong><br>
-<br>
-<strong>✨Новая настройка: правило именования для novel</strong><br>
-Раньше work с изображениями и novel использовали одно и то же правило именования. Теперь они разделены на 2 независимые настройки.<br>
-PS: По умолчанию правило именования для novel следует правилу именования work с изображениями, чтобы поведение соответствовало предыдущим версиям. При необходимости вы можете изменить правило именования для novel.<br>
-<br>
-<strong>✨"Создать папку по первому совпавшему тегу" теперь поддерживает два уровня папок</strong><br>
-Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создать два уровня папок — первый для названия произведения, второй для имени персонажа.<br>
-Теперь для этого можно задать два списка тегов.<br>
-<br>
-<strong>✨Новая настройка: псевдоним тега</strong><br>
-Эта настройка находится в разделе "Ещё" - "Именование".<br>
-Если тег имеет несколько вариантов написания, можно задать для них общий псевдоним. Это может влиять на токены серии <span class="blue">{tags}</span> в правиле именования, а также на функцию "Создать папку по первому совпавшему тегу".<br>
-<br>
-<strong>✨В "Предпросмотр work" добавлен параметр "Проверить заблокированные теги"</strong><br>
-По умолчанию эта функция отключена. При необходимости вы можете включить её вручную.<br>
-<br>
-<strong>✨В "Добавить папку для work с несколькими image" добавлен параметр "Количество image"</strong><br>
-Раньше этого параметра не было, и настройка применялась ко всем work с несколькими image. Теперь её можно применять только к work с количеством image, превышающим заданное значение.<br>
-<br>
-<strong>🐞Исправлена проблема, из-за которой специальные символы в тегах {match_tag_folder} не обрабатывались</strong><br>
-<br>
-<strong>😊В справку "Правило именования" добавлены более подробные пояснения</strong><br>`,
+  _版本更新说明18_8_2: [
+    `🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名不会生效的问题`,
+    `🐞修復了在某些情況下，"使用第一個匹配的標籤建立資料夾"裡的標籤別名不會生效的問題`,
+    `🐞Fixed an issue where, in some cases, tag aliases in "Use the first matched tag to create a folder" did not take effect`,
+    `🐞一部の状況で、"最初に一致したタグを使ってフォルダーを作成する" のタグエイリアスが反映されない問題を修正しました`,
+    `🐞일부 상황에서 "처음 일치한 태그로 폴더 만들기"의 태그 별칭이 적용되지 않던 문제를 수정했습니다`,
+    `🐞Исправлена проблема, из-за которой в некоторых случаях псевдонимы тегов в настройке "Создавать папку по первому совпавшему тегу" не работали`,
   ],
 }
 
