@@ -2407,6 +2407,7 @@ class CenterPanel {
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
       <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
+      <button class="textButton gray1" id="showRecentUpdates" type="button" data-xztext="_最近更新"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
       <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
@@ -2509,6 +2510,9 @@ class CenterPanel {
             .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_fanboxDownloader的说明'), {
             title: 'Pixiv Fanbox Downloader',
         }));
+        this.centerPanel
+            .querySelector('#showRecentUpdates')
+            .addEventListener('click', () => _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('showRecentUpdates'));
         this.centerPanel.addEventListener('click', (e) => {
             e.stopPropagation();
         });
@@ -3693,6 +3697,8 @@ class EVENT {
         requestStatusError: 'requestStatusError',
         /** 触发导出日志的事件 */
         exportLog: 'exportLog',
+        /** 显示最近更新 */
+        showRecentUpdates: 'showRecentUpdates',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -10891,8 +10897,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
-
 
 
 
@@ -10906,8 +10910,7 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             this.show();
         });
-        // 版本更新说明只会显示一次，如果需要调试它，可以使用这个命令直接显示
-        _PPDTask__WEBPACK_IMPORTED_MODULE_6__.ppdTask.register(4, 'Show What Is New', () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.showRecentUpdates, () => {
             this.showMsg();
         });
     }

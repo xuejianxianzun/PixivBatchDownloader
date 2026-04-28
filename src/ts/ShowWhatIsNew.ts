@@ -4,7 +4,6 @@ import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
 import { EVT } from './EVT'
 import { setSetting, settings } from './setting/Settings'
-import { ppdTask } from './PPDTask'
 
 // 显示版本更新说明
 class ShowWhatIsNew {
@@ -14,8 +13,8 @@ class ShowWhatIsNew {
       this.show()
     })
 
-    // 版本更新说明只会显示一次，如果需要调试它，可以使用这个命令直接显示
-    ppdTask.register(4, 'Show What Is New', () => {
+    /** 强制显示最近更新 */
+    window.addEventListener(EVT.list.showRecentUpdates, () => {
       this.showMsg()
     })
   }
