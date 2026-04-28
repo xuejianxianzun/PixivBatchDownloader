@@ -118,6 +118,7 @@ class CenterPanel {
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
       <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
+      <button class="textButton gray1" id="showRecentUpdates" type="button" data-xztext="_最近更新"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
       <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
@@ -260,6 +261,10 @@ class CenterPanel {
           title: 'Pixiv Fanbox Downloader',
         })
       )
+
+    this.centerPanel
+      .querySelector('#showRecentUpdates')!
+      .addEventListener('click', () => EVT.fire('showRecentUpdates'))
 
     this.centerPanel.addEventListener('click', (e) => {
       e.stopPropagation()

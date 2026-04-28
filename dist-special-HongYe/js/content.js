@@ -2407,6 +2407,7 @@ class CenterPanel {
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
       <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
+      <button class="textButton gray1" id="showRecentUpdates" type="button" data-xztext="_最近更新"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
       <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
@@ -2509,6 +2510,9 @@ class CenterPanel {
             .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_fanboxDownloader的说明'), {
             title: 'Pixiv Fanbox Downloader',
         }));
+        this.centerPanel
+            .querySelector('#showRecentUpdates')
+            .addEventListener('click', () => _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('showRecentUpdates'));
         this.centerPanel.addEventListener('click', (e) => {
             e.stopPropagation();
         });
@@ -4078,7 +4082,9 @@ class CopyWorkInfo {
             '{page_tag}': '#' + page_tag,
             '{id}': _id,
             '{id_num}': idNum,
+            '{pid}': idNum,
             '{p_num}': p || 0,
+            '{p}': p || 0,
             '{rank}': 'rank' in data.body ? `#${data.body.rank}` : '',
             '{title}': body.title,
             '{user}': user,
@@ -4346,6 +4352,8 @@ class EVENT {
         requestStatusError: 'requestStatusError',
         /** 触发导出日志的事件 */
         exportLog: 'exportLog',
+        /** 显示最近更新 */
+        showRecentUpdates: 'showRecentUpdates',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -4546,7 +4554,8 @@ class FileName {
         rule = this.handleCustomFeature(rule, data);
         // 2 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
-        const p_num = this.createPNum(data);
+        const pid = (data.idNum || parseInt(data.id)).toString();
+        const p = this.createPNum(data);
         const schema = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
@@ -4565,15 +4574,23 @@ class FileName {
                 safe: false,
             },
             '{id}': {
-                value: this.createId(data, p_num),
+                value: this.createId(data, p),
                 safe: true,
             },
             '{id_num}': {
-                value: (data.idNum || parseInt(data.id)).toString(),
+                value: pid,
+                safe: true,
+            },
+            '{pid}': {
+                value: pid,
                 safe: true,
             },
             '{p_num}': {
-                value: !rule.includes('{p_num}') ? '' : p_num,
+                value: p,
+                safe: true,
+            },
+            '{p}': {
+                value: p,
                 safe: true,
             },
             '{rank}': {
@@ -4863,8 +4880,8 @@ class FileName {
         }
         let value = '';
         const workTags = data.tagsWithTransl.map((val) => val.toLowerCase());
-        const userSetTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].map((val) => val.toLowerCase());
         // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
+        // 注意：标签别名是始终保持原本的大小写的，没有转换成小写
         const aliasList = new Set();
         for (const tag of workTags) {
             const alias = _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__.setTagAlias.findAlias(tag);
@@ -4880,7 +4897,7 @@ class FileName {
         // 例如 用户输入顺序：A,B
         // 作品 tag 里的顺序：B,A
         if (aliasList.size > 0) {
-            for (const userTag of userSetTags) {
+            for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key]) {
                 if (aliasList.has(userTag)) {
                     value = userTag;
                     // console.log('用户使用的别名：', userTag)
@@ -4890,8 +4907,8 @@ class FileName {
         }
         // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
         if (!value) {
-            for (const userTag of userSetTags) {
-                if (workTags.includes(userTag)) {
+            for (const userTag of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key]) {
+                if (workTags.includes(userTag.toLowerCase())) {
                     value = userTag;
                     break;
                 }
@@ -4899,13 +4916,6 @@ class FileName {
         }
         // 查找结束
         if (value) {
-            // 前面匹配时把用户设置的标签转换成小写了，这里需要把它替换成原本的标签
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].includes(value) === false) {
-                const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key].findIndex((tag) => tag.toLowerCase() === value);
-                if (index !== -1) {
-                    value = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings[key][index];
-                }
-            }
             // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
             const str = this.generateFileName(flag, {
                 [flag]: {
@@ -4965,7 +4975,7 @@ class FileName {
         // 其他情况应该是期望的 number 类型
         return '#' + rank;
     }
-    /** 生成 {p_num} 标记的值 */
+    /** 生成 {p} 标记的值 */
     createPNum(data) {
         if (data.type === 3) {
             // 小说没有编号，返回空字符串
@@ -4999,13 +5009,13 @@ class FileName {
             : p;
     }
     /** 生成 {id} 标记的值 */
-    createId(data, p_num) {
+    createId(data, p) {
         // 如果不需要添加序号，或者没有序号，则只返回数字 id
-        if (p_num === '') {
+        if (p === '') {
             return data.idNum.toString();
         }
         // 添加序号
-        return `${data.idNum}_p${p_num}`;
+        return `${data.idNum}_p${p}`;
     }
     // 返回收藏数的简化显示
     getBKM1000(bmk) {
@@ -11678,8 +11688,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
-
 
 
 
@@ -11693,13 +11701,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             this.show();
         });
-        // 版本更新说明只会显示一次，如果需要调试它，可以使用这个命令直接显示
-        _PPDTask__WEBPACK_IMPORTED_MODULE_6__.ppdTask.register(4, 'Show What Is New', () => {
+        /** 强制显示最近更新 */
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.showRecentUpdates, () => {
             this.showMsg();
         });
     }
-    flag = '18.8.0';
-    textKey = '_版本更新说明18_8_0';
+    flag = '18.8.2';
+    textKey = '_版本更新说明18_8_2';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -30892,12 +30900,12 @@ Zip 파일이 원본 파일입니다.`,
         `Например, добавьте тег 'user_' перед именем пользователя`,
     ],
     _命名标记id: [
-        `每个文件的 ID。图片文件会附带序号，如 <span class="blue">44920385_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
-        `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">44920385_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
-        `The ID of each file. Image files include a sequence number, such as <span class="blue">44920385_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">44920385_p1</span> and <span class="blue">44920385_p2</span>.`,
-        `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">44920385_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span> です。`,
-        `각 파일의 ID입니다. image 파일에는 <span class="blue">44920385_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">44920385_p1</span>, <span class="blue">44920385_p2</span> 입니다.`,
-        `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">44920385_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">44920385_p1</span> и <span class="blue">44920385_p2</span>.`,
+        `每个文件的 ID。图片文件会附带序号，如 <span class="blue">85633671_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
+        `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">85633671_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
+        `The ID of each file. Image files include a sequence number, such as <span class="blue">85633671_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">85633671_p1</span> and <span class="blue">85633671_p2</span>.`,
+        `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">85633671_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span> です。`,
+        `각 파일의 ID입니다. image 파일에는 <span class="blue">85633671_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">85633671_p1</span>, <span class="blue">85633671_p2</span> 입니다.`,
+        `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">85633671_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">85633671_p1</span> и <span class="blue">85633671_p2</span>.`,
     ],
     _命名标记title: [
         '作品标题',
@@ -31003,15 +31011,15 @@ Zip 파일이 원본 파일입니다.`,
         '조회수',
         'Колличество просмотров',
     ],
-    _命名标记id_num: [
-        `作品的数字 ID，不包括序号，例如 <span class="blue">62751951</span>。`,
-        `作品的數字 ID，不包括序號，例如 <span class="blue">62751951</span>。`,
-        `The numeric ID of the work, excluding the sequence number, for example <span class="blue">62751951</span>.`,
-        `作品の数字 ID、シーケンス番号を含まない、例：<span class="blue">62751951</span>。`,
-        `작품의 숫자 ID, 순서 번호를 포함하지 않음, 예: <span class="blue">62751951</span>。`,
-        `Числовой ID работы, без порядкового номера, например <span class="blue">62751951</span>.`,
+    _命名标记pid: [
+        `作品的数字 ID，不包括序号，例如 <span class="blue">85633671</span>。`,
+        `作品的數字 ID，不包括序號，例如 <span class="blue">85633671</span>。`,
+        `The numeric ID of the work, excluding the sequence number, for example <span class="blue">85633671</span>.`,
+        `作品の数字 ID、シーケンス番号を含まない、例：<span class="blue">85633671</span>。`,
+        `작품의 숫자 ID, 순서 번호를 포함하지 않음, 예: <span class="blue">85633671</span>。`,
+        `Числовой ID работы, без порядкового номера, например <span class="blue">85633671</span>.`,
     ],
-    _命名标记p_num: [
+    _命名标记p: [
         `图片在作品内的序号，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。小说作品没有这个属性，下载器会忽略它。`,
         `圖片在作品內的序號，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每個作品都會重新計數。小說作品沒有這個屬性，下載器會忽略它。`,
         `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it.`,
@@ -31148,12 +31156,12 @@ Zip 파일이 원본 파일입니다.`,
         `Если работа сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте её。`,
     ],
     _命名规则一定要包含id: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {pid}{p}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {pid}{p}。',
+        'To prevent duplicate file names, {id} or {pid}{p} must be included in the naming rules.',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {pid}{p} を含める必要があります。',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {pid}{p}이 포함되어야 합니다.',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {pid}{p} должны быть включены в правила именования.',
     ],
     _文件夹标记page_tag: [
         `如果页面里的作品属于同一个标签，下载器会输出这个标签，否则忽略它。通常当你处于这些页面里时有值：搜索某个标签、在用户主页里查看某个标签分类下的作品、在自己的收藏里查看某个标签分类下的作品。`,
@@ -33047,7 +33055,7 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     _收藏设置: [
         `下载器的<span class="key">收藏</span>功能 (✩)`,
         `下載器的<span class="key">收藏</span>功能 (✩)`,
-        `Downloader's <span class="key">bookmark</span> function (✩)`,
+        `Downloader's <span class="key">bookmark</span> feature (✩)`,
         `ダウンロードツールの<span class="key">ブックマーク</span>機能 (✩)`,
         `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
         `Функция <span class="key">закладок</span> загрузчика (✩)`,
@@ -33329,66 +33337,66 @@ This setting is also used when you use the Downloader to bookmark works in batch
         `Добавить слой папки для <span class="key">многоизображных</span> работ`,
     ],
     为多图作品添加一层文件夹的帮助: [
-        `如果你想为多图作品添加一层文件夹来保存（并且不为单图作品添加这个文件夹），可以启用这个设置。<br>
+        `如果你想仅为多图作品额外创建一层文件夹（并且不为单图作品创建该文件夹），可以启用此设置。<br>
 <br>
 使用方法：<br>
-首先在这里设置文件夹的规则。<br>
-然后修改“命名规则”设置，在你需要的地方插入<span class="blue">/{multi_image_folder}/</span>来添加一层文件夹。<br>
+先在这里设置这层文件夹的命名规则。<br>
+然后修改“图像作品的命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-下载器为多图作品生成文件名时会把 <span class="blue">{multi_image_folder}</span> 替换成你在这里设置的值。<br>
+下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。另外，如果你想在文件夹的名字里使用作品 ID，应该使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>`,
-        `如果你想為多圖作品添加一層資料夾來保存（並且不為單圖作品添加這個資料夾），可以啟用這個設定。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+        `如果你想僅為多圖作品額外建立一層資料夾（而且不為單圖作品建立這個資料夾），可以啟用此設定。<br>
 <br>
 使用方法：<br>
-首先在這裡設定資料夾的規則。<br>
-然後修改「命名規則」設定，在你需要的地方插入<span class="blue">/{multi_image_folder}/</span>來添加一層資料夾。<br>
+先在這裡設定這層資料夾的命名規則。<br>
+然後修改 "圖像作品的命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-下載器為多圖作品產生檔名時會把 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的值。<br>
+下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-在設定資料夾規則時，你可以使用命名規則裡的標記，也可以添加自訂字元。另外，如果你想在資料夾的名字裡使用作品 ID，應該使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>`,
-        `If you want to add an extra folder layer for multi-image works (and not add this folder for single-image works), you can enable this setting.<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+        `If you want to create an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
 <br>
-Usage:<br>
-First, set the folder rule here.<br>
-Then modify the "naming rule" setting and insert <span class="blue">/{multi_image_folder}/</span> where needed to add a folder layer.<br>
+How to use:<br>
+First, set the Naming rule for this folder layer here.<br>
+Then edit the "Naming rule for image works" setting and add <span class="blue">/{multi_image_folder}/</span> where you want to insert the folder.<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates the filename for a multi-image work, it will replace <span class="blue">{multi_image_folder}</span> with the value you set here.<br>
+When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use tags from the naming rule or add custom characters. Additionally, if you want to use the work ID in the folder name, you should use <span class="blue">{id_num}</span> instead of <span class="blue">{id}</span>.<br>`,
-        `多画像作品に1層のフォルダを追加して保存したい場合（単画像作品にはこのフォルダを追加しない場合）、この設定を有効にできます。<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters. Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>`,
+        `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成したくない場合は、この設定を有効にしてください。<br>
 <br>
-使用方法：<br>
-まずここでフォルダのルールを設定します。<br>
-次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{multi_image_folder}/</span>を挿入して1層のフォルダを追加します。<br>
+使い方：<br>
+まず、ここでこのフォルダ階層の命名規則を設定します。<br>
+次に "画像作品の命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{multi_image_folder}/</span>を追加します。<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが多画像作品のファイル名を生成する際、<span class="blue">{multi_image_folder}</span>をここで設定した値に置き換えます。<br>
+ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダルールを設定する際、命名規則のタグを使用したり、カスタム文字を追加したりできます。また、フォルダ名に作品IDを使用したい場合は、<span class="blue">{id}</span>ではなく<span class="blue">{id_num}</span>を使用してください。<br>`,
-        `다중 이미지 작품에 한 층의 폴더를 추가하여 저장하고 싶고(단일 이미지 작품에는 이 폴더를 추가하지 않음), 이 설정을 활성화할 수 있습니다.<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>`,
+        `여러 장 이미지 작품에만 폴더를 한 단계 더 만들고, 한 장짜리 작품에는 이 폴더를 만들지 않으려면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기서 폴더 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{multi_image_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
+그런 다음 "이미지 작품의 명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 추가하세요.<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 다중 이미지 작품의 파일명을 생성할 때 <span class="blue">{multi_image_folder}</span>를 여기서 설정한 값으로 대체합니다.<br>
+다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때 명명 규칙의 태그를 사용하거나 사용자 정의 문자를 추가할 수 있습니다. 또한 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 대신 <span class="blue">{id_num}</span>를 사용해야 합니다.<br>`,
-        `Если вы хотите добавить дополнительный слой папки для многоизображных работ (и не добавлять эту папку для одноизображных работ), вы можете включить эту настройку.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다. 주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>`,
+        `Если вы хотите создавать дополнительный уровень папки только для работ с несколькими изображениями, и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
 <br>
-Способ использования:<br>
-Сначала задайте здесь правило папки.<br>
-Затем измените настройку «naming rule» и вставьте <span class="blue">/{multi_image_folder}/</span> в нужном месте, чтобы добавить слой папки.<br>
+Как использовать:<br>
+Сначала задайте здесь правило названий для этой папки.<br>
+Затем измените настройку "Правила названий для графических работ" и добавьте <span class="blue">/{multi_image_folder}/</span> в то место, где нужно вставить папку.<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-При генерации имени файла для многоизображной работы загрузчик заменит <span class="blue">{multi_image_folder}</span> на значение, которое вы задали здесь.<br>
+Когда загрузчик будет создавать имена файлов для работ с несколькими изображениями, он заменит <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки вы можете использовать метки из правила именования или добавлять собственные символы. Кроме того, если вы хотите использовать ID произведения в имени папки, следует использовать <span class="blue">{id_num}</span>, а не <span class="blue">{id}</span>.<br>`,
+При настройке правила папки можно использовать маркеры из правил названий, а также добавлять свои символы. Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>`,
     ],
     _文件夹规则: [
         `文件夹规则`,
@@ -33481,78 +33489,84 @@ When setting the folder rule, you can use tags from the naming rule or add custo
         `Добавить слой папки для работ <span class="key">R-18(G)</span>`,
     ],
     _为r18作品添加一层文件夹的帮助: [
-        `如果你想为 R-18(G) 作品添加一层文件夹，可以启用这个设置。<br>
+        `如果你想为 R-18(G) 作品额外添加一层文件夹，可以启用这个设置。<br>
 <br>
 使用方法：<br>
-首先在这里设置文件夹的规则。<br>
-然后修改“命名规则”设置，在你需要的地方插入<span class="blue">/{r18_g_folder}/</span>来添加一层文件夹。<br>
+先在这里设置这层文件夹的命名规则。<br>
+然后修改“命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换成你在这里设置的值。<br>
+下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
 在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。<br>
-如果你想在文件夹的名字里使用作品 ID，应该使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>
-注意：这个设置会把 R-18 和 R-18G 作品放在同一个文件夹里。如果你想分开存放，可以关闭这个设置，使用命名规则 <span class="blue">{age_r}</span> 代替，它可以区分 R-18 和 R-18G 作品。<br>`,
-        `如果你想為 R-18(G) 作品添加一層資料夾，可以啟用這個設定。<br>
+需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
+<br>
+注意：这个设置会为 R-18 和 R-18G 作品都添加这层文件夹。如果你想把它们分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
+        `如果你想為 R-18(G) 作品額外添加一層資料夾，可以啟用這個設定。<br>
 <br>
 使用方法：<br>
-首先在這裡設定資料夾的規則。<br>
-然後修改「命名規則」設定，在你需要的地方插入<span class="blue">/{r18_g_folder}/</span>來添加一層資料夾。<br>
+先在這裡設定這層資料夾的命名規則。<br>
+然後修改 "命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下載器為 R-18(G) 作品產生檔名時會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的值。<br>
+下載器為 R-18(G) 作品產生檔名時，會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-在設定資料夾規則時，你可以使用命名規則裡的標記，也可以添加自訂字元。<br>
-如果你想在資料夾的名字裡使用作品 ID，應該使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>
-注意：這個設定會把 R-18 和 R-18G 作品放在同一個資料夾裡。如果你想分開存放，可以關閉這個設定，使用命名規則 <span class="blue">{age_r}</span> 代替，它可以區分 R-18 和 R-18G 作品。<br>`,
-        `If you want to add a folder layer for R-18(G) works, you can enable this setting.<br>
+設定資料夾規則時，你可以使用命名規則裡的標記，也可以加入自訂字元。<br>
+需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
 <br>
-Usage:<br>
-First, set the folder rule here.<br>
-Then modify the "naming rule" setting and insert <span class="blue">/{r18_g_folder}/</span> where needed to add a folder layer.<br>
+注意：這個設定會為 R-18 和 R-18G 作品都添加這層資料夾。如果你想把它們分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
+        `If you want to add an extra folder layer for R-18(G) works, you can enable this setting.<br>
+<br>
+How to use:<br>
+First, set the Naming rule for this folder layer here.<br>
+Then edit the "Naming rule" setting and add <span class="blue">/{r18_g_folder}/</span> where you want to insert the folder.<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates the filename for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the value you set here.<br>
+When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use tags from the naming rule or add custom characters.<br>
-If you want to use the work ID in the folder name, you should use <span class="blue">{id_num}</span> instead of <span class="blue">{id}</span>.<br>
-Note: This setting will put both R-18 and R-18G works in the same folder. If you want to store them separately, you can disable this setting and use the naming rule tag <span class="blue">{age_r}</span> instead, which can distinguish between R-18 and R-18G works.<br>`,
-        `R-18(G)作品に1層のフォルダを追加したい場合、この設定を有効にできます。<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>
 <br>
-使用方法：<br>
-まずここでフォルダのルールを設定します。<br>
-次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{r18_g_folder}/</span>を挿入して1層のフォルダを追加します。<br>
+Note: This setting adds this folder layer for both R-18 and R-18G works. If you want to store them separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
+        `R-18(G) 作品用に追加のフォルダ階層を作りたい場合は、この設定を有効にしてください。<br>
+<br>
+使い方：<br>
+まず、ここでこのフォルダ階層の命名規則を設定します。<br>
+次に "命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{r18_g_folder}/</span>を追加します。<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが R-18(G)作品のファイル名を生成する際、<span class="blue">{r18_g_folder}</span>をここで設定した値に置き換えます。<br>
+ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダルールを設定する際、命名規則のタグを使用したり、カスタム文字を追加したりできます。<br>
-フォルダ名に作品IDを使用したい場合は、<span class="blue">{id}</span>ではなく<span class="blue">{id_num}</span>を使用してください。<br>
-注意：この設定は R-18 と R-18G の作品を同じフォルダに置きます。別々に保存したい場合は、この設定を無効にして、代わりに命名規則タグ <span class="blue">{age_r}</span> を使用してください。これにより R-18 と R-18G を区別できます。<br>`,
-        `R-18(G) 작품에 한 층의 폴더를 추가하고 싶다면 이 설정을 활성화할 수 있습니다.<br>
+フォルダ規則を設定するときは、命名規則内のマーカーも使えますし、任意の文字を追加することもできます。<br>
+なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>
+<br>
+注意：この設定を有効にすると、R-18 と R-18G の作品の両方にこのフォルダ階層が追加されます。別々に保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 と R-18G の作品を区別できます。<br>`,
+        `R-18(G) 작품에 폴더를 한 단계 더 추가하고 싶다면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기서 폴더 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{r18_g_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
+그런 다음 "명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 추가하세요.<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 R-18(G) 작품의 파일명을 생성할 때 <span class="blue">{r18_g_folder}</span>를 여기서 설정한 값으로 대체합니다.<br>
+다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때 명명 규칙의 태그를 사용하거나 사용자 정의 문자를 추가할 수 있습니다.<br>
-폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 대신 <span class="blue">{id_num}</span>를 사용해야 합니다.<br>
-주의: 이 설정은 R-18과 R-18G 작품을 같은 폴더에 넣습니다. 따로 저장하고 싶다면 이 설정을 비활성화하고 대신 명명 규칙 태그 <span class="blue">{age_r}</span>를 사용하세요. 이 태그는 R-18과 R-18G를 구분할 수 있습니다.<br>`,
-        `Если вы хотите добавить слой папки для работ R-18(G), вы можете включить эту настройку.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>
 <br>
-Способ использования:<br>
-Сначала задайте здесь правило папки.<br>
-Затем измените настройку «naming rule» и вставьте <span class="blue">/{r18_g_folder}/</span> в нужном месте, чтобы добавить слой папки.<br>
+주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 이 폴더 단계를 추가합니다. 둘을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
+        `Если вы хотите добавить дополнительный уровень папки для работ R-18(G), включите эту настройку.<br>
+<br>
+Как использовать:<br>
+Сначала задайте здесь правило названий для этой папки.<br>
+Затем измените настройку "Правила названий" и добавьте <span class="blue">/{r18_g_folder}/</span> в то место, где нужно вставить папку.<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-При генерации имени файла для работ R-18(G) загрузчик заменит <span class="blue">{r18_g_folder}</span> на значение, которое вы задали здесь.<br>
+Когда загрузчик будет создавать имена файлов для работ R-18(G), он заменит <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки вы можете использовать метки из правила именования или добавлять собственные символы.<br>
-Если вы хотите использовать ID произведения в имени папки, следует использовать <span class="blue">{id_num}</span>, а не <span class="blue">{id}</span>.<br>
-Примечание: Эта настройка помещает работы R-18 и R-18G в одну и ту же папку. Если вы хотите хранить их отдельно, отключите эту настройку и используйте вместо неё тег правила именования <span class="blue">{age_r}</span>, который может различать R-18 и R-18G.<br>`,
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>
+<br>
+Внимание: эта настройка добавляет этот уровень папки и для работ R-18, и для работ R-18G. Если вы хотите хранить их отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать отдельный уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
     ],
     _必填项不能为空: [
         '必填项不能为空',
@@ -38355,24 +38369,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取后几张图片的说明: [
-        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br><br>
-    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
-    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br><br>
-    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br><br>
-    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br><br>
-    Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
-    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br><br>
-    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br><br>
-    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
-    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
-    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br><br>
-    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br><br>
-    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。如果你不想抓取这些图片，可以使用这个设置来排除最后一张或多张图片。<br><br>
+注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
+多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些繪師作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。如果你不想抓取這些圖片，可以使用這個設定來排除最後一張或多張圖片。<br><br>
+注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而不是排除整個作品。<br><br>
+多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+        `Common use cases: in some artists' works, the last image or last few images are promotional images, or images with mosaic censorship. If you do not want to crawl those images, you can use this setting to exclude the last one or several images.<br><br>
+Note: if the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
+The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
+        `よくある使用場面: 作品によっては、最後の1枚または数枚の画像が宣伝画像だったり、モザイク入りの画像だったりします。こうした画像をクロールしたくない場合は、この設定で最後の1枚または複数枚の画像を除外できます。<br><br>
+注意: 設定した数字が作品内の画像数より多い場合、ダウンローダーは作品全体を除外せず、最初の1枚を残します。<br><br>
+複数画像作品で"最初/最後の数枚だけをクロールする"条件と、"最初/最後の数枚をクロールしない"条件は同時に使えます。"クロールしない"方が優先されるため、1枚の画像が両方の条件に当てはまる場合、その画像はクロールされません。`,
+        `자주 있는 사용 상황: 어떤 작가의 작품은 마지막 한 장이나 몇 장의 이미지가 홍보용 이미지이거나 모자이크가 있는 이미지일 수 있습니다. 이런 이미지를 크롤링하고 싶지 않다면 이 설정으로 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
+주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 첫 번째 이미지를 남깁니다.<br><br>
+여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
+        `Частый сценарий использования: у некоторых художников последние одно или несколько изображений в work являются рекламными изображениями или изображениями с мозаичной цензурой. Если вы не хотите обрабатывать такие изображения, используйте эту настройку, чтобы исключить последнее одно или несколько изображений.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит первое изображение, а не исключит весь work целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
     ],
     _多图作品不抓取前几张图片: [
         `多图作品不抓取<span class="key">前几张</span>图片`,
@@ -38383,29 +38397,29 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取前几张图片的说明: [
-        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br><br>
-    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
-    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br><br>
-    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br><br>
-    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br><br>
-    Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
-    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br><br>
-    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br><br>
-    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br><br>
-    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
-    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br><br>
-    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br><br>
-    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。如果你想跳过第一张，从第二张开始抓取，就可以启用这个设置。<br><br>
+注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
+多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些繪師作品的第一張圖片有文字，第二張沒有文字；或者第一張是全年齡，第二張是 R-18。如果你想跳過第一張，從第二張開始抓取，就可以啟用這個設定。<br><br>
+注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而不是排除整個作品。<br><br>
+多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+        `Common use cases: some artists make works where the first image has text and the second image does not; or the first image is all-ages and the second is R-18. If you want to skip the first image and start crawling from the second one, you can enable this setting.<br><br>
+Note: if the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
+The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
+        `よくある使用場面: 作品によっては、1枚目の画像には文字が入っていて、2枚目には入っていないことがあります。あるいは、1枚目は全年齢で、2枚目はR-18の場合もあります。1枚目を飛ばして2枚目からクロールしたいときは、この設定を有効にしてください。<br><br>
+注意: 設定した数字が作品内の画像数より多い場合、ダウンローダーは作品全体を除外せず、最後の1枚を残します。<br><br>
+複数画像作品で"最初/最後の数枚だけをクロールする"条件と、"最初/最後の数枚をクロールしない"条件は同時に使えます。"クロールしない"方が優先されるため、1枚の画像が両方の条件に当てはまる場合、その画像はクロールされません。`,
+        `자주 있는 사용 상황: 어떤 작가의 작품은 첫 번째 이미지에는 글자가 있고 두 번째 이미지에는 없을 수 있습니다. 또는 첫 번째 이미지는 전체이용가이고 두 번째 이미지는 R-18일 수도 있습니다. 첫 번째 이미지를 건너뛰고 두 번째 이미지부터 크롤링하고 싶다면 이 설정을 켜면 됩니다.<br><br>
+주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 마지막 이미지를 남깁니다.<br><br>
+여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
+        `Частый сценарий использования: у некоторых художников в work на первом изображении есть текст, а на втором нет; или первое изображение для всех возрастов, а второе уже R-18. Если вы хотите пропустить первое изображение и начать обработку со второго, включите эту настройку.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит последнее изображение, а не исключит весь work целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
     ],
     _多图作品只抓取前几张图片: [
         `多图作品只抓取<span class="key">前几张</span>图片`,
         `多圖作品只抓取<span class="key">前幾張</span>圖片`,
-        `Multi-image works only crawl the <span class="key">first few</span> images`,
+        `Only crawl the <span class="key">first few</span> images of multi-image works`,
         `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
         `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
         `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
@@ -38576,14 +38590,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - 普通字符和符号。你可以在标记之间添加普通字符，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 建立文件夹的说明：<br>
-- 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{id_num}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
+- 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{pid}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
 - 如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 <span class="blue name">{AI}</span> 标记，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - 如果你想根据作品类型建立文件夹，可以使用 <span class="blue name">{type}</span> 标记，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
 - * 有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。<br>
--  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
-- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+-  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
+- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
 <br>
 命名标记列表：<br>
 提示：点击标记的名字就可以复制它。<br>`,
@@ -38593,14 +38607,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - 普通字元和符號。你可以在標記之間添加普通字元，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 建立資料夾的說明：<br>
-- 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{id_num}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
+- 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{pid}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
 - 如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 <span class="blue name">{AI}</span> 標記，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - 如果你想根據作品類型建立資料夾，可以使用 <span class="blue name">{type}</span> 標記，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
 - * 有些標記並不總是可用，有時它們會是空字串，下載器會忽略它們。<br>
--  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
-- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+-  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
+- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
 <br>
 命名標記列表：<br>
 提示：點擊標記的名字就可以複製它。<br>`,
@@ -38610,14 +38624,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - Regular characters and symbols. You can add regular characters between tokens, for example: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 Notes on creating folders:<br>
-- If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{id_num}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
+- If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{pid}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
 - If you want to put AI-generated works in a separate folder, use the <span class="blue name">{AI}</span> token, for example: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - If you want to create folders by work type, use the <span class="blue name">{type}</span> token, for example: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Tips:<br>
 - * Some tokens are not always available and may be empty strings — the downloader will ignore them.<br>
-- If you want to use the work's ID in a folder name, use <span class="blue name">{id_num}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
-- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{id_num}</span> and <span class="blue name">{p_num}</span>.<br>
+- If you want to use the work's ID in a folder name, use <span class="blue name">{pid}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
+- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{pid}</span> and <span class="blue name">{p}</span>.<br>
 <br>
 List of naming tokens:<br>
 Tip: Click a token name to copy it.<br>`,
@@ -38627,14 +38641,14 @@ Tip: Click a token name to copy it.<br>`,
 - 通常の文字や記号。トークンの間に通常の文字を追加できます。例：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 フォルダー作成の説明：<br>
-- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{id_num}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{id_num}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
+- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{pid}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{pid}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
 - AI 生成の work を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - work の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 ヒント：<br>
 - * 一部のトークンは常に使えるわけではなく、空文字列になることがあります。その場合、ダウンローダーはそれを無視します。<br>
-- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{id_num}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
-- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{id_num}</span> と <span class="blue name">{p_num}</span> の両方を含める必要があります。<br>
+- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
+- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の両方を含める必要があります。<br>
 <br>
 命名トークン一覧：<br>
 ヒント：トークン名をクリックするとコピーできます。<br>`,
@@ -38644,14 +38658,14 @@ Tip: Click a token name to copy it.<br>`,
 - 일반 문자와 기호. 토큰 사이에 일반 문자를 추가할 수 있습니다. 예：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 폴더 생성 설명：<br>
-- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{id_num}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{id_num}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
+- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{pid}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{pid}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
 - AI로 생성된 work를 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - work 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 팁：<br>
 - * 일부 토큰은 항상 사용 가능한 것은 아니며, 빈 문자열이 될 수 있습니다. 이 경우 다운로더는 해당 토큰을 무시합니다.<br>
-- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{id_num}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
-- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{id_num}</span> 과 <span class="blue name">{p_num}</span> 을 모두 포함해야 합니다.<br>
+- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
+- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{pid}</span> 과 <span class="blue name">{p}</span> 을 모두 포함해야 합니다.<br>
 <br>
 명명 토큰 목록：<br>
 팁: 토큰 이름을 클릭하면 복사할 수 있습니다.<br>`,
@@ -38661,14 +38675,14 @@ Tip: Click a token name to copy it.<br>`,
 - Обычные символы и знаки. Между токенами можно вставлять обычные символы, например: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 Пояснения по созданию папок:<br>
-- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{id_num}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
+- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{pid}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
 - Если вы хотите поместить work, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - Если вы хотите создавать папки по типу work, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Советы:<br>
 - * Некоторые токены доступны не всегда и могут быть пустой строкой — загрузчик будет их игнорировать.<br>
-- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{id_num}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
-- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{id_num}</span> и <span class="blue name">{p_num}</span>.<br>
+- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
+- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
 <br>
 Список токенов именования:<br>
 Совет: нажмите на название токена, чтобы скопировать его.<br>`,
@@ -38770,175 +38784,49 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `파일 이름에 적용되는 {tags} 계열 토큰`,
         `Токены серии {tags}, применяемые в имени файла`,
     ],
-    _版本更新说明18_8_0: [
-        `<strong>💡对移除了"为每个作品建立单独的文件夹"设置的补充说明</strong><br>
-下载器在上一次更新里移除了"为每个作品建立单独的文件夹"，这让使用此功能的用户遇到了困扰，有些用户不知道怎么实现和之前相同的效果。这与你之前在这个设置里设置的"图片数量大于"有关：<br>
-- 如果你之前设置的图片数量是大于 <span class="blue">0</span>，也就是会对所有作品生效，可以修改命名规则：在文件名前面添加一层文件夹规则，例如  <span class="blue">{id_num}/</span> 或者你之前使用的规则。对于默认的命名规则，就是修改成  <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- 如果你之前设置的图片数量是大于  <span class="blue">1</span>，也就是只对多图作品生效，请改为使用"为多图作品添加一层文件夹"设置，并使用  <span class="blue">{multi_image_folder}/</span> 添加一层文件夹。<br>
+    _版本更新说明18_8_2: [
+        `<strong>🔧调整了两个命名标记</strong><br>
+为了使一些命名标记更容易理解，我为它们添加了别名：<br>
+- <span class="blue">{id_num}</span> 改为 <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> 改为 <span class="blue">{p}</span><br>
+提示：原本的名字依然可以正常使用，所以你不需要修改现在使用的设置。<br>
 <br>
-<strong>🐞修复了"预览作品"的开关失效的问题</strong><br>
+<strong>🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名没有生效的问题</strong><br>`,
+        `<strong>🔧調整了兩個命名標記</strong><br>
+為了讓一些命名標記更容易理解，我為它們添加了別名：<br>
+- <span class="blue">{id_num}</span> 改為 <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> 改為 <span class="blue">{p}</span><br>
+提示：原本的名稱依然可以正常使用，所以你不需要修改現在使用的設定。<br>
 <br>
-<strong>✨新增设置：小说的命名规则</strong><br>
-之前图像作品和小说使用同一套命名规则，现在我把它们拆分成 2 个独立的设置了。<br>
-PS：小说的命名规则默认会跟随图像作品的命名规则，以保持行为与之前版本一致。你可以根据需要来决定是否修改小说的命名规则。<br>
+<strong>🐞修復了在某些情況下，"使用第一個匹配的標籤建立資料夾" 裡的標籤別名沒有生效的問題</strong><br>`,
+        `<strong>🔧Adjusted two naming markers</strong><br>
+To make some naming markers easier to understand, I added aliases for them:<br>
+- <span class="blue">{id_num}</span> changed to <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> changed to <span class="blue">{p}</span><br>
+Tip: The original names still work normally, so you don't need to change your current settings.<br>
 <br>
-<strong>✨"使用第一个匹配的标签建立文件夹"现在可以设置两层文件夹了</strong><br>
-这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。<br>
-现在你可以设置两个标签列表来实现这个效果。<br>
+<strong>🐞Fixed an issue where, in some cases, the tag alias in "Use the first matching tag to create a folder" did not take effect</strong><br>`,
+        `<strong>🔧2つの命名マーカーを調整しました</strong><br>
+一部の命名マーカーをより分かりやすくするため、別名を追加しました。<br>
+- <span class="blue">{id_num}</span> を <span class="blue">{pid}</span> に変更<br>
+- <span class="blue">{p_num}</span> を <span class="blue">{p}</span> に変更<br>
+ヒント：元の名前もそのまま使えるので、現在使っている設定を変更する必要はありません。<br>
 <br>
-<strong>✨新增设置：标签别名</strong><br>
-该设置位于"更多"-"命名"里。<br>
-如果一个标签有多种变体，你可以为它们设置一个通用的别名。它可以影响命名标记里的 <span class="blue">{tags}</span> 系列标记，以及"使用第一个匹配的标签建立文件夹"功能。<br>
+<strong>🐞一部の状況で、"最初に一致したタグでフォルダを作成する" のタグ別名が反映されない問題を修正しました</strong><br>`,
+        `<strong>🔧명명 마커 2개를 조정했습니다</strong><br>
+일부 명명 마커를 더 이해하기 쉽게 하기 위해 별칭을 추가했습니다.<br>
+- <span class="blue">{id_num}</span> 를 <span class="blue">{pid}</span> 로 변경<br>
+- <span class="blue">{p_num}</span> 를 <span class="blue">{p}</span> 로 변경<br>
+안내: 원래 이름도 계속 정상적으로 사용할 수 있으므로, 지금 사용 중인 설정을 바꿀 필요는 없습니다.<br>
 <br>
-<strong>✨在"预览作品"里添加了"检查屏蔽的标签"选项</strong><br>
-该功能默认未启用。你可以根据需要手动启用它。<br>
+<strong>🐞일부 경우 "첫 번째로 일치하는 태그로 폴더 만들기" 에서 태그 별칭이 적용되지 않던 문제를 수정했습니다</strong><br>`,
+        `<strong>🔧Скорректированы два маркера названий</strong><br>
+Чтобы некоторые маркеры названий было проще понять, я добавил для них псевдонимы:<br>
+- <span class="blue">{id_num}</span> изменен на <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> изменен на <span class="blue">{p}</span><br>
+Подсказка: исходные названия по-прежнему работают, поэтому вам не нужно менять текущие настройки.<br>
 <br>
-<strong>✨"为多图作品添加一层文件夹"里添加了"图片数量"选项</strong><br>
-之前没有这个选项，下载器会为所有多图作品都应用这个设置。现在你可以只为图片超过设置值的多图作品应用此设置。<br>
-<br>
-<strong>🐞修复了没有处理 {match_tag_folder} 标签里的特殊字符的问题</strong><br>
-<br>
-<strong>😊在"命名规则"的帮助里添加了更详细的说明</strong><br>`,
-        `<strong>💡對移除了「為每個作品建立單獨的資料夾」設定的補充說明</strong><br>
-下載器在上一次更新裡移除了「為每個作品建立單獨的資料夾」，這讓使用此功能的用戶遇到了困擾，有些用戶不知道怎麼實現和之前相同的效果。這與你之前在這個設定裡設定的「圖片數量大於」有關：<br>
-- 如果你之前設定的圖片數量是大於 <span class="blue">0</span>，也就是會對所有作品生效，可以修改命名規則：在檔名前面添加一層資料夾規則，例如 <span class="blue">{id_num}/</span> 或者你之前使用的規則。對於預設的命名規則，就是修改成 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- 如果你之前設定的圖片數量是大於 <span class="blue">1</span>，也就是只對多圖作品生效，請改為使用「為多圖作品添加一層資料夾」設定，並使用 <span class="blue">{multi_image_folder}/</span> 添加一層資料夾。<br>
-<br>
-<strong>🐞修復了「預覽作品」的開關失效的問題</strong><br>
-<br>
-<strong>✨新增設定：小說的命名規則</strong><br>
-之前圖像作品和小說使用同一套命名規則，現在我把它們拆分成 2 個獨立的設定了。<br>
-PS：小說的命名規則預設會跟隨圖像作品的命名規則，以保持行為與之前版本一致。你可以根據需要來決定是否修改小說的命名規則。<br>
-<br>
-<strong>✨「使用第一個匹配的標籤建立資料夾」現在可以設定兩層資料夾了</strong><br>
-這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。<br>
-現在你可以設定兩個標籤列表來實現這個效果。<br>
-<br>
-<strong>✨新增設定：標籤別名</strong><br>
-該設定位於「更多」-「命名」裡。<br>
-如果一個標籤有多種變體，你可以為它們設定一個通用的別名。它可以影響命名標記裡的 <span class="blue">{tags}</span> 系列標記，以及「使用第一個匹配的標籤建立資料夾」功能。<br>
-<br>
-<strong>✨在「預覽作品」裡添加了「檢查屏蔽的標籤」選項</strong><br>
-該功能預設未啟用。你可以根據需要手動啟用它。<br>
-<br>
-<strong>✨「為多圖作品添加一層資料夾」裡添加了「圖片數量」選項</strong><br>
-之前沒有這個選項，下載器會為所有多圖作品都應用這個設定。現在你可以只為圖片超過設定值的多圖作品應用此設定。<br>
-<br>
-<strong>🐞修復了沒有處理 {match_tag_folder} 標籤裡的特殊字元的問題</strong><br>
-<br>
-<strong>😊在「命名規則」的幫助裡添加了更詳細的說明</strong><br>`,
-        `<strong>💡Additional notes on the removal of the "Create a separate folder for each work" setting</strong><br>
-The previous update removed "Create a separate folder for each work", which caused trouble for users who relied on this feature — some didn't know how to achieve the same result. This relates to the "Image count greater than" value you had set:<br>
-- If your previous setting was greater than <span class="blue">0</span> (applying to all works), you can update your naming rule by adding a folder level before the file name, such as <span class="blue">{id_num}/</span> or whatever you used before. For the default naming rule, change it to <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- If your previous setting was greater than <span class="blue">1</span> (applying to multi-image works only), switch to using the "Add a folder for multi-image works" setting and use <span class="blue">{multi_image_folder}/</span> to add a folder level.<br>
-<br>
-<strong>🐞Fixed an issue where the "Preview work" toggle was not working</strong><br>
-<br>
-<strong>✨New setting: Naming rule for novels</strong><br>
-Previously, image works and novels shared the same naming rule. I have now split them into 2 separate settings.<br>
-PS: The naming rule for novels defaults to following the image works naming rule, to keep behavior consistent with previous versions. You can change the novel naming rule as needed.<br>
-<br>
-<strong>✨"Create folder using the first matching tag" now supports two folder levels</strong><br>
-This addresses a common use case: if a character belongs to a certain work, create two folder levels — the first for the work name and the second for the character name.<br>
-You can now set two tag lists to achieve this.<br>
-<br>
-<strong>✨New setting: Tag alias</strong><br>
-This setting is located under "More" - "Naming".<br>
-If a tag has multiple variants, you can set a common alias for them. This can affect the <span class="blue">{tags}</span> series tokens in the naming rule, as well as the "Create folder using the first matching tag" feature.<br>
-<br>
-<strong>✨Added a "Check blocked tags" option in "Preview work"</strong><br>
-This feature is disabled by default. You can enable it manually as needed.<br>
-<br>
-<strong>✨Added an "Image count" option in "Add a folder for multi-image works"</strong><br>
-Previously this option did not exist and the setting applied to all multi-image works. Now you can apply it only to multi-image works with more images than the set value.<br>
-<br>
-<strong>🐞Fixed an issue where special characters in {match_tag_folder} tags were not handled</strong><br>
-<br>
-<strong>😊Added more detailed explanations in the "Naming rule" help</strong><br>`,
-        `<strong>💡「作品ごとに個別フォルダーを作成する」設定の削除に関する補足説明</strong><br>
-前回のアップデートで「作品ごとに個別フォルダーを作成する」が削除され、この機能を使っていたユーザーが困惑し、以前と同じ効果を実現する方法が分からないという声がありました。これは以前この設定で設定していた「画像数が～より大きい」の値と関係しています：<br>
-- 以前の設定が <span class="blue">0</span> より大きい（つまりすべての作品に適用）だった場合は、命名ルールを変更してください。ファイル名の前にフォルダー階層を追加します。例えば <span class="blue">{id_num}/</span> や以前使っていたルールを使います。デフォルトの命名ルールなら <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> に変更します。<br>
-- 以前の設定が <span class="blue">1</span> より大きい（つまり複数 image の作品にのみ適用）だった場合は、「複数 image の作品にフォルダーを追加する」設定に切り替えて、<span class="blue">{multi_image_folder}/</span> でフォルダー階層を追加してください。<br>
-<br>
-<strong>🐞「作品のプレビュー」のスイッチが機能しない問題を修正しました</strong><br>
-<br>
-<strong>✨新設定：novel の命名ルール</strong><br>
-以前は画像作品と novel が同じ命名ルールを使っていましたが、これらを 2 つの独立した設定に分けました。<br>
-PS：novel の命名ルールはデフォルトで画像作品の命名ルールに従います。これにより以前のバージョンと同じ動作を維持します。必要に応じて novel の命名ルールを変更できます。<br>
-<br>
-<strong>✨「最初にマッチしたタグを使ってフォルダーを作成する」で 2 階層のフォルダーが設定できるようになりました</strong><br>
-これはよくある使い方に対応するためです。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。<br>
-これを実現するために、2 つのタグリストを設定できるようになりました。<br>
-<br>
-<strong>✨新設定：タグの別名</strong><br>
-この設定は「その他」-「命名」にあります。<br>
-タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。これにより命名ルール内の <span class="blue">{tags}</span> 系のトークン、および「最初にマッチしたタグを使ってフォルダーを作成する」機能に影響を与えることができます。<br>
-<br>
-<strong>✨「作品のプレビュー」に「ブロックしたタグを確認」オプションを追加しました</strong><br>
-この機能はデフォルトでは無効です。必要に応じて手動で有効にしてください。<br>
-<br>
-<strong>✨「複数 image の作品にフォルダーを追加する」に「image 数」オプションを追加しました</strong><br>
-以前はこのオプションがなく、すべての複数 image 作品にこの設定が適用されていました。これからは設定値を超える image 数の複数 image 作品にのみ適用できます。<br>
-<br>
-<strong>🐞{match_tag_folder} タグ内の特殊文字が処理されていない問題を修正しました</strong><br>
-<br>
-<strong>😊「命名ルール」のヘルプにより詳細な説明を追加しました</strong><br>`,
-        `<strong>💡"각 작품마다 별도 폴더 만들기" 설정 제거에 대한 추가 설명</strong><br>
-이전 업데이트에서 "각 작품마다 별도 폴더 만들기"가 제거되어 해당 기능을 사용하던 분들이 불편을 겪었고, 이전과 동일한 효과를 어떻게 구현하는지 모르는 분들도 계셨습니다. 이것은 이전에 이 설정에서 설정했던 "이미지 수가 ~보다 큰" 값과 관련이 있습니다：<br>
-- 이전 설정이 <span class="blue">0</span> 보다 큰 경우（즉 모든 작품에 적용）명명 규칙을 수정하세요. 파일 이름 앞에 폴더 규칙을 추가합니다. 예를 들어 <span class="blue">{id_num}/</span> 또는 이전에 사용하던 규칙을 사용하세요. 기본 명명 규칙이라면 <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span> 로 변경하면 됩니다.<br>
-- 이전 설정이 <span class="blue">1</span> 보다 큰 경우（즉 다중 이미지 작품에만 적용）"다중 이미지 작품에 폴더 추가" 설정으로 전환하고 <span class="blue">{multi_image_folder}/</span> 를 사용해 폴더를 추가하세요.<br>
-<br>
-<strong>🐞"작품 미리보기" 토글이 작동하지 않는 문제를 수정했습니다</strong><br>
-<br>
-<strong>✨새 설정: 소설의 명명 규칙</strong><br>
-이전에는 이미지 작품과 소설이 동일한 명명 규칙을 사용했지만, 이제 2개의 독립된 설정으로 분리했습니다.<br>
-PS: 소설의 명명 규칙은 기본적으로 이미지 작품의 명명 규칙을 따릅니다. 이전 버전과 동일한 동작을 유지하기 위해서입니다. 필요에 따라 소설의 명명 규칙을 변경할 수 있습니다.<br>
-<br>
-<strong>✨"처음 매칭된 태그로 폴더 만들기"에서 이제 두 단계 폴더를 설정할 수 있습니다</strong><br>
-이것은 흔한 요구사항을 처리하기 위한 것입니다. 어떤 캐릭터가 특정 작품에 속할 경우 두 단계 폴더를 만드는 것입니다. 첫 번째 단계는 작품 이름, 두 번째 단계는 캐릭터 이름입니다.<br>
-이제 두 개의 태그 목록을 설정해 이 효과를 구현할 수 있습니다.<br>
-<br>
-<strong>✨새 설정: 태그 별칭</strong><br>
-이 설정은 "더보기" - "명명"에 있습니다.<br>
-태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 이를 통해 명명 규칙의 <span class="blue">{tags}</span> 계열 토큰과 "처음 매칭된 태그로 폴더 만들기" 기능에 영향을 줄 수 있습니다.<br>
-<br>
-<strong>✨"작품 미리보기"에 "차단된 태그 확인" 옵션을 추가했습니다</strong><br>
-이 기능은 기본적으로 비활성화되어 있습니다. 필요에 따라 수동으로 활성화할 수 있습니다.<br>
-<br>
-<strong>✨"다중 이미지 작품에 폴더 추가"에 "이미지 수" 옵션을 추가했습니다</strong><br>
-이전에는 이 옵션이 없어 모든 다중 이미지 작품에 이 설정이 적용되었습니다. 이제 설정값을 초과하는 이미지 수를 가진 다중 이미지 작품에만 적용할 수 있습니다.<br>
-<br>
-<strong>🐞{match_tag_folder} 태그 내의 특수 문자가 처리되지 않던 문제를 수정했습니다</strong><br>
-<br>
-<strong>😊"명명 규칙" 도움말에 더 자세한 설명을 추가했습니다</strong><br>`,
-        `<strong>💡Дополнительные пояснения по удалению настройки "Создавать отдельную папку для каждой work"</strong><br>
-В предыдущем обновлении была удалена настройка "Создавать отдельную папку для каждой work", что вызвало затруднения у пользователей, которые ею пользовались, — некоторые не знали, как добиться того же результата. Это связано со значением "Количество image больше чем", которое вы задавали в этой настройке ранее：<br>
-- Если раньше у вас было задано значение больше <span class="blue">0</span> (то есть настройка применялась ко всем work), измените правило именования: добавьте уровень папки перед именем файла, например <span class="blue">{id_num}/</span> или то правило, которое вы использовали раньше. Для правила именования по умолчанию измените его на <span class="blue">pixiv/{user}-{user_id}/{id_num}/{id}-{title}</span><br>
-- Если раньше у вас было задано значение больше <span class="blue">1</span> (то есть настройка применялась только к work с несколькими image), переключитесь на настройку "Добавить папку для work с несколькими image" и используйте <span class="blue">{multi_image_folder}/</span> для добавления уровня папки.<br>
-<br>
-<strong>🐞Исправлена проблема, из-за которой переключатель "Предпросмотр work" не работал</strong><br>
-<br>
-<strong>✨Новая настройка: правило именования для novel</strong><br>
-Раньше work с изображениями и novel использовали одно и то же правило именования. Теперь они разделены на 2 независимые настройки.<br>
-PS: По умолчанию правило именования для novel следует правилу именования work с изображениями, чтобы поведение соответствовало предыдущим версиям. При необходимости вы можете изменить правило именования для novel.<br>
-<br>
-<strong>✨"Создать папку по первому совпавшему тегу" теперь поддерживает два уровня папок</strong><br>
-Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создать два уровня папок — первый для названия произведения, второй для имени персонажа.<br>
-Теперь для этого можно задать два списка тегов.<br>
-<br>
-<strong>✨Новая настройка: псевдоним тега</strong><br>
-Эта настройка находится в разделе "Ещё" - "Именование".<br>
-Если тег имеет несколько вариантов написания, можно задать для них общий псевдоним. Это может влиять на токены серии <span class="blue">{tags}</span> в правиле именования, а также на функцию "Создать папку по первому совпавшему тегу".<br>
-<br>
-<strong>✨В "Предпросмотр work" добавлен параметр "Проверить заблокированные теги"</strong><br>
-По умолчанию эта функция отключена. При необходимости вы можете включить её вручную.<br>
-<br>
-<strong>✨В "Добавить папку для work с несколькими image" добавлен параметр "Количество image"</strong><br>
-Раньше этого параметра не было, и настройка применялась ко всем work с несколькими image. Теперь её можно применять только к work с количеством image, превышающим заданное значение.<br>
-<br>
-<strong>🐞Исправлена проблема, из-за которой специальные символы в тегах {match_tag_folder} не обрабатывались</strong><br>
-<br>
-<strong>😊В справку "Правило именования" добавлены более подробные пояснения</strong><br>`,
+<strong>🐞Исправлена проблема, из-за которой в некоторых случаях псевдоним тега в "Создавать папку по первому совпавшему тегу" не работал</strong><br>`,
     ],
 };
 
@@ -41776,7 +41664,7 @@ class CrawlNumber {
     /** 抓取多少作品的设置  */
     work = {
         name: 'work',
-        selector: 'p.option[data-no="0"]',
+        selector: 'div.option[data-no="0"]',
         self: null,
         input: null,
         minBtn: null,
@@ -41786,7 +41674,7 @@ class CrawlNumber {
     /** 抓取多少页面的设置  */
     page = {
         name: 'page',
-        selector: 'p.option[data-no="1"]',
+        selector: 'div.option[data-no="1"]',
         self: null,
         input: null,
         minBtn: null,
@@ -42548,7 +42436,7 @@ const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="0" aria-hidden="true"></span>
-    <p class="option" data-no="0">
+    <div class="option" data-no="0">
       <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
@@ -42557,10 +42445,10 @@ const formHtml = `
       <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="1" aria-hidden="true"></span>
-    <p class="option" data-no="1">
+    <div class="option" data-no="1">
       <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
@@ -42569,10 +42457,10 @@ const formHtml = `
       <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少页面" data-msg="_抓取多少页面的提示"" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="2" aria-hidden="true"></span>
-    <p class="option" data-no="2">
+    <div class="option" data-no="2">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_作品类型"></span>
       </a>
@@ -42588,10 +42476,10 @@ const formHtml = `
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setWorkType3" data-xztext="_小说"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="44" aria-hidden="true"></span>
-    <p class="option" data-no="44">
+    <div class="option" data-no="44">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_年龄限制"></span>
       </a>
@@ -42604,10 +42492,10 @@ const formHtml = `
       <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="downR18G"> R-18G</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="81" aria-hidden="true"></span>
-    <p class="option" data-no="81">
+    <div class="option" data-no="81">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_AI作品"></span>
       </a>
@@ -42620,10 +42508,10 @@ const formHtml = `
       <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="96" aria-hidden="true"></span>
-    <p class="option" data-no="96">
+    <div class="option" data-no="96">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_原创作品"></span>
       </a>
@@ -42639,10 +42527,10 @@ const formHtml = `
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_原创作品" data-msg="_宽松匹配原创作品的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="6" aria-hidden="true"></span>
-    <p class="option" data-no="6">
+    <div class="option" data-no="6">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_收藏状态"></span>
       </a>
@@ -42652,10 +42540,10 @@ const formHtml = `
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownBookmarked" data-xztext="_已收藏"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="23" aria-hidden="true"></span>
-    <p class="option" data-no="23">
+    <div class="option" data-no="23">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片色彩"></span>
       </a>
@@ -42665,10 +42553,10 @@ const formHtml = `
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="21" aria-hidden="true"></span>
-    <p class="option" data-no="21">
+    <div class="option" data-no="21">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片数量"></span>
       </a>
@@ -42678,20 +42566,20 @@ const formHtml = `
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownMultiImg" data-xztext="_多图作品"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="51" aria-hidden="true"></span>
-    <p class="option" data-no="51">
+    <div class="option" data-no="51">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="99" aria-hidden="true"></span>
-    <p class="option" data-no="99">
+    <div class="option" data-no="99">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
         <span data-xztext="_不抓取下载过的作品"></span>
         <span class="gray1"> ? </span>
@@ -42699,10 +42587,10 @@ const formHtml = `
       <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_不抓取下载过的作品" data-msg="_不抓取下载过的作品的帮助信息" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="15" aria-hidden="true"></span>
-    <p class="option" data-no="15">
+    <div class="option" data-no="15">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
         <span class="gray1"> ? </span>
@@ -42712,10 +42600,10 @@ const formHtml = `
       <span class="subOptionWrap" data-show="crawlLatestFewWorks">
         <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="5" aria-hidden="true"></span>
-    <p class="option" data-no="5">
+    <div class="option" data-no="5">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
         <span data-xztext="_收藏数量"></span>
         <span class="gray1"> ? </span>
@@ -42740,10 +42628,10 @@ const formHtml = `
           <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
         </span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="7" aria-hidden="true"></span>
-    <p class="option" data-no="7">
+    <div class="option" data-no="7">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
         <span data-xztext="_图片的宽高"></span>
         <span class="gray1"> ? </span>
@@ -42772,10 +42660,10 @@ const formHtml = `
         <span data-xztext="_高度"></span>
         <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="8" aria-hidden="true"></span>
-    <p class="option" data-no="8">
+    <div class="option" data-no="8">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
         <span data-xztext="_图片的宽高比例"></span>
         <span class="gray1"> ? </span>
@@ -42814,10 +42702,10 @@ const formHtml = `
           <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
         </span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="9" aria-hidden="true"></span>
-    <p class="option" data-no="9">
+    <div class="option" data-no="9">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
         <span data-xztext="_id范围"></span>
         <span class="gray1"> ? </span>
@@ -42853,10 +42741,10 @@ const formHtml = `
         <label for="idRangeComparisonForNovelSeries2">&lt;</label>
         <input type="text" name="idRangeValueForNovelSeries" class="setinput_style1 w80 blue" value="0" placeholder="0">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="10" aria-hidden="true"></span>
-    <p class="option" data-no="10">
+    <div class="option" data-no="10">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
         <span data-xztext="_投稿时间"></span>
         <span class="gray1"> ? </span>
@@ -42872,10 +42760,10 @@ const formHtml = `
         <button type="button" class="textButton grayButton mr0" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
         <button type="button" class="textButton grayButton" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="11" aria-hidden="true"></span>
-    <p class="option" data-no="11">
+    <div class="option" data-no="11">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
         <span data-xztext="_必须含有tag"></span>
         <span class="gray1"> ? </span>
@@ -42891,10 +42779,10 @@ const formHtml = `
         <label for="needTagMode2" data-xztext="_任一"></label>
         <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="12" aria-hidden="true"></span>
-    <p class="option" data-no="12">
+    <div class="option" data-no="12">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
         <span class="gray1"> ? </span>
@@ -42912,10 +42800,10 @@ const formHtml = `
         <label for="tagMatchMode2" data-xztext="_完全一致"></label>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="94" aria-hidden="true"></span>
-    <p class="option" data-no="94">
+    <div class="option" data-no="94">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
         <span data-xztext="_标题必须含有"></span>
         <span class="gray1"> ? </span>
@@ -42926,10 +42814,10 @@ const formHtml = `
       <span class="subOptionWrap" data-show="titleIncludeSwitch">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="titleIncludeList" rows="1" placeholder="word1,word2,word3"></textarea>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="95" aria-hidden="true"></span>
-    <p class="option" data-no="95">
+    <div class="option" data-no="95">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
         <span data-xztext="_标题不能含有"></span>
         <span class="gray1"> ? </span>
@@ -42945,7 +42833,7 @@ const formHtml = `
         <input type="checkbox" name="alsoCheckSeriesTitle" id="alsoCheckSeriesTitle" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <div class="centerWrap_btns">
       <slot data-name="stopCrawl"></slot>
@@ -42960,7 +42848,7 @@ const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
-    <p class="option" data-no="13">
+    <div class="option" data-no="13">
       <span class="fileNameRuleLine1">
         <a href="" target="_blank" class="settingNameStyle" data-xztext="_图像作品的命名规则"></a>
 
@@ -42976,7 +42864,7 @@ const formHtml = `
       </span>
 
       <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForArtwork}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForArtwork}</textarea>
-    </p>
+    </div>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
       <span data-xztext="_命名标记的提示"></span>
@@ -42984,7 +42872,7 @@ const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="106" aria-hidden="true"></span>
-    <p class="option" data-no="106">
+    <div class="option" data-no="106">
       <span class="fileNameRuleLine1">
         <a href="" target="_blank" class="settingNameStyle" data-xztext="_小说的命名规则"></a>
 
@@ -43001,22 +42889,22 @@ const formHtml = `
       </span>
 
       <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetNameForNovel" rows="1" placeholder="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForNovel}">${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRuleForNovel}</textarea>
-    </p>
+    </div>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTipForNovel">
       <span data-xztext="_小说的命名标记的提示"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
-    <p class="option" data-no="50">
+    <div class="option" data-no="50">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_在不同的页面类型中使用不同的命名规则" data-msg="_在不同的页面类型中使用不同的命名规则的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
-    <p class="option" data-no="64">
+    <div class="option" data-no="64">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_不创建文件夹"></span>
       </a>
@@ -43034,10 +42922,10 @@ const formHtml = `
         <label for="noFolderWhenNovel" data-xztext="_小说"></label>
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
-    <p class="option" data-no="16">
+    <div class="option" data-no="16">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
       </a>
@@ -43045,24 +42933,24 @@ const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
-    <p class="option" data-no="17">
+    <div class="option" data-no="17">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_自动开始下载"></span>
       </a>
       <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_自动开始下载" data-msg="_自动开始下载的帮助内容" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="33" aria-hidden="true"></span>
-    <p class="option" data-no="33">
+    <div class="option" data-no="33">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <div class="centerWrap_btns">
       <slot data-name="exportResult"></slot>
@@ -43079,21 +42967,21 @@ const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="57" aria-hidden="true"></span>
-    <p class="option" data-no="57">
+    <div class="option" data-no="57">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="59">
+    <div class="option settingCategoryName" data-no="59">
       <span data-xztext="_抓取"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="75" aria-hidden="true"></span>
-    <p class="option" data-no="75">
+    <div class="option" data-no="75">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
         <span data-xztext="_减慢抓取速度"></span>
         <span class="gray1"> ? </span>
@@ -43107,10 +42995,10 @@ const formHtml = `
         <span data-xztext="_间隔时间"></span>
         <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="47" aria-hidden="true"></span>
-    <p class="option" data-no="47">
+    <div class="option" data-no="47">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
         <span class="gray1"> ? </span>
@@ -43121,10 +43009,10 @@ const formHtml = `
         &lt;=&nbsp;
         <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="3" aria-hidden="true"></span>
-    <p class="option" data-no="3">
+    <div class="option" data-no="3">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
       </a>
@@ -43134,10 +43022,10 @@ const formHtml = `
         <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取前几张图片" data-msg="_多图作品只抓取前几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="104" aria-hidden="true"></span>
-    <p class="option" data-no="104">
+    <div class="option" data-no="104">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
       </a>
@@ -43147,10 +43035,10 @@ const formHtml = `
         <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取后几张图片" data-msg="_多图作品只抓取后几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="103" aria-hidden="true"></span>
-    <p class="option" data-no="103">
+    <div class="option" data-no="103">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
       </a>
@@ -43160,10 +43048,10 @@ const formHtml = `
         <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取前几张图片" data-msg="_多图作品不抓取前几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="69" aria-hidden="true"></span>
-    <p class="option" data-no="69">      
+    <div class="option" data-no="69">      
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
       </a>
@@ -43173,18 +43061,18 @@ const formHtml = `
         <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取后几张图片" data-msg="_多图作品不抓取后几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="79" aria-hidden="true"></span>
-    <p class="option" data-no="79">
+    <div class="option" data-no="79">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="35" aria-hidden="true"></span>
-    <p class="option" data-no="35">
+    <div class="option" data-no="35">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
         <span data-xztext="_用户阻止名单"></span>
         <span class="gray1"> ? </span>
@@ -43199,10 +43087,10 @@ const formHtml = `
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
         <button type="button" class="gray1 textButton showMsgBtn" data-title="_用户阻止名单" data-msg="_用户阻止名单的说明2" data-xztext="_帮助"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="39" aria-hidden="true"></span>
-    <p class="option" data-no="39">
+    <div class="option" data-no="39">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
         <span data-xztext="_针对特定用户屏蔽tag"></span>
         <span class="gray1"> ? </span>
@@ -43212,20 +43100,20 @@ const formHtml = `
       <span class="subOptionWrap flexBasis100" data-show="blockTagsForSpecificUser">
         <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="74" aria-hidden="true"></span>
-    <p class="option" data-no="74">
+    <div class="option" data-no="74">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
       <span class="settingNameStyle" data-xztext="_分钟"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
-    <p class="option" data-no="54">
+    <div class="option" data-no="54">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
         <span data-xztext="_自动导出抓取结果"></span>
         <span class="gray1"> ? </span>
@@ -43245,40 +43133,40 @@ const formHtml = `
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="autoExportResultJSON"> JSON </label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="85" aria-hidden="true"></span>
-    <p class="option" data-no="85">
+    <div class="option" data-no="85">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
         <span data-xztext="_导出ID列表"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="65">
+    <div class="option settingCategoryName" data-no="65">
       <span data-xztext="_命名"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
-    <p class="option" data-no="19">
+    <div class="option" data-no="19">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品添加一层文件夹"></a>
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
         <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
 
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
-        <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
+        <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{pid}">
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
-    <p class="option" data-no="38">
+    <div class="option" data-no="38">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_为r18作品添加一层文件夹"></a>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -43287,10 +43175,10 @@ const formHtml = `
         <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
-    <p class="option" data-no="43">
+    <div class="option" data-no="43">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_使用第一个匹配的标签建立文件夹"></span>
       </a>
@@ -43303,10 +43191,10 @@ const formHtml = `
         <span class="name">{match_tag_folder2}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList2" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="107" aria-hidden="true"></span>
-    <p class="option" data-no="107">
+    <div class="option" data-no="107">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_标签别名"></span>
       </a>
@@ -43318,20 +43206,20 @@ const formHtml = `
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_标签别名" data-msg="_标签别名的帮助" data-xztext="_帮助"></button>
 
       <slot data-name="setTagAliasSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
-    <p class="option" data-no="80">
+    <div class="option" data-no="80">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap flexBasis100" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="98" aria-hidden="true"></span>
-    <p class="option" data-no="98">
+    <div class="option" data-no="98">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
         <span data-xztext="_序号起始值"></span>
         <span class="gray1"> ? </span>
@@ -43342,10 +43230,10 @@ const formHtml = `
       <input type="radio" name="serialNoStart" id="serialNoStart1" class="need_beautify radio" value="1">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="serialNoStart1"> 1 </label>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="22" aria-hidden="true"></span>
-    <p class="option" data-no="22">
+    <div class="option" data-no="22">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>
         <span class="gray1"> ? </span>
@@ -43363,10 +43251,10 @@ const formHtml = `
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setNoSerialNoForUgoira" data-xztext="_动图"></label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="46" aria-hidden="true"></span>
-    <p class="option" data-no="46">
+    <div class="option" data-no="46">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
         <span data-xztext="_在序号前面填充0"></span>
         <span class="gray1"> ? </span>
@@ -43377,10 +43265,10 @@ const formHtml = `
         <span data-xztext="_序号总长度"></span>
         <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="29" aria-hidden="true"></span>
-    <p class="option" data-no="29">
+    <div class="option" data-no="29">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
       </a>
@@ -43391,53 +43279,53 @@ const formHtml = `
         <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_文件名长度限制" data-msg="_文件名长度限制的说明" data-xztext="_帮助"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="83" aria-hidden="true"></span>
-    <p class="option" data-no="83">
+    <div class="option" data-no="83">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-for-no="83" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     
     <span class="optionAnchor" data-for-no="97" aria-hidden="true"></span>
-    <p class="option" data-no="97">
+    <div class="option" data-no="97">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_移除文件名里的emoji"></span>
       </a>
       <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="67" aria-hidden="true"></span>
-    <p class="option" data-no="67">
+    <div class="option" data-no="67">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="removeAtFromUsername" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="66" aria-hidden="true"></span>
-    <p class="option" data-no="66">
+    <div class="option" data-no="66">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
         <span data-xztext="_自定义用户名"></span>
         <span class="gray1"> ? </span>
       </a>
       <slot data-name="setUserNameSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="31" aria-hidden="true"></span>
-    <p class="option" data-no="31">
+    <div class="option" data-no="31">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-for-no="31" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip" id="dateFormatTip">
       <span data-xztext="_日期格式提示"></span>
@@ -43463,13 +43351,13 @@ const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
-    <p class="option" data-no="91">
+    <div class="option" data-no="91">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
         <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-for-no="91" data-xztext="_提示"></button>
       </span>
-    </p>
+    </div>
     
     <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
       <span data-xztext="_系列小说的命名标记提醒"></span>
@@ -43535,21 +43423,21 @@ const formHtml = `
       <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
 
-    <p class="option settingCategoryName" data-no="58">
+    <div class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="101" aria-hidden="true"></span>
-    <p class="option" data-no="101">
+    <div class="option" data-no="101">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
       <button type="button" class="textButton gray1" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button type="button" class="textButton gray1" id="importDownloadRecord" data-xztext="_导入"></button>
       <button type="button" class="textButton gray1" id="clearDownloadRecord" data-xztext="_清除"></button>
       <button type="button" class="textButton gray1 showMsgBtn" data-title="_管理下载记录" data-msg="_管理下载记录的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="28" aria-hidden="true"></span>
-    <p class="option" data-no="28">
+    <div class="option" data-no="28">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -43563,10 +43451,10 @@ const formHtml = `
         <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
       <button type="button" class="textButton gray1 showMsgBtn" data-title="_不下载重复文件" data-msg="_不下载重复文件的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="100" aria-hidden="true"></span>
-    <p class="option" data-no="100">
+    <div class="option" data-no="100">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -43578,10 +43466,10 @@ const formHtml = `
         <span data-xztext="_颜色"></span> (Hex)
         <input type="text" name="borderColor" class="setinput_style1 blue w80" id="borderColor" value="#ff4060">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="90" aria-hidden="true"></span>
-    <p class="option" data-no="90">
+    <div class="option" data-no="90">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
@@ -43592,28 +43480,28 @@ const formHtml = `
       <span data-xztext="_间隔时间"></span>
       <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
       <span data-xztext="_秒"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="76" aria-hidden="true"></span>
-    <p class="option" data-no="76">
+    <div class="option" data-no="76">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击收藏按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="77" aria-hidden="true"></span>
-    <p class="option" data-no="77">
+    <div class="option" data-no="77">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击点赞按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
-    <p class="option" data-no="4">
+    <div class="option" data-no="4">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
         <span data-xztext="_动图保存格式"></span>
         <span class="gray1"> ? </span>
@@ -43630,19 +43518,19 @@ const formHtml = `
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
-    <p class="option" data-no="24">
+    <div class="option" data-no="24">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
         <span data-xztext="_同时转换多少个动图"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="26" aria-hidden="true"></span>
-    <p class="option" data-no="26">
+    <div class="option" data-no="26">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
@@ -43653,10 +43541,10 @@ const formHtml = `
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs1"> TXT </label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
-    <p class="option" data-no="73">
+    <div class="option" data-no="73">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
         <span data-xztext="_自动合并系列小说"></span>
         <span class="gray1"> ? </span>
@@ -43669,44 +43557,44 @@ const formHtml = `
         <input type="checkbox" name="skipNovelsInSeriesWhenAutoMerge" id="skipNovelsInSeriesWhenAutoMerge" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
-    <p class="option" data-no="105">
+    <div class="option" data-no="105">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_合并系列小说时的分割阈值"></span>
       </a>
 
-      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> <span>MiB</span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
-    <p class="option" data-no="27">
+    <div class="option" data-no="27">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="70" aria-hidden="true"></span>
-    <p class="option" data-no="70">
+    <div class="option" data-no="70">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
       <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="72" aria-hidden="true"></span>
-    <p class="option" data-no="72">
+    <div class="option" data-no="72">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
       <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="49" aria-hidden="true"></span>
-    <p class="option" data-no="49">
+    <div class="option" data-no="49">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
         <span data-xztext="_保存作品的元数据"></span>
         <span class="gray1"> ? </span>
@@ -43731,10 +43619,10 @@ const formHtml = `
       <input type="checkbox" name="saveMetaFormatJSON" id="saveMetaFormatJSON" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="saveMetaFormatJSON"> JSON </label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="89" aria-hidden="true"></span>
-    <p class="option" data-no="89">
+    <div class="option" data-no="89">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
         <span data-xztext="_保存作品的简介"></span>
         <span class="gray1"> ? </span>
@@ -43751,10 +43639,10 @@ const formHtml = `
         <input type="checkbox" name="summarizeDescription" id="summarizeDescription" class="need_beautify checkbox_switch">
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="30" aria-hidden="true"></span>
-    <p class="option" data-no="30">
+    <div class="option" data-no="30">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -43771,10 +43659,10 @@ const formHtml = `
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize4" data-xztext="_方形缩略图"></label>
       <label for="imageSize4" class="gray1">(250px)</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="25" aria-hidden="true"></span>
-    <p class="option" data-no="25">
+    <div class="option" data-no="25">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
         <span data-xztext="_文件体积限制"></span>
         <span class="gray1"> ? </span>
@@ -43786,10 +43674,10 @@ const formHtml = `
         &nbsp;-&nbsp;
         <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="82" aria-hidden="true"></span>
-    <p class="option" data-no="82">
+    <div class="option" data-no="82">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
       <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -43812,11 +43700,11 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="downloadOrder2" data-xztext="_升序"></label>
       </span>
-    </p>
+    </div>
 
     
     <span class="optionAnchor" data-for-no="20" aria-hidden="true"></span>
-    <p class="option" data-no="20">
+    <div class="option" data-no="20">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
         <span data-xztext="_把文件保存到用户上次选择的位置"></span>
         <span class="gray1"> ? </span>
@@ -43824,19 +43712,19 @@ const formHtml = `
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_把文件保存到用户上次选择的位置" data-msg="_把文件保存到用户上次选择的位置的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="52" aria-hidden="true"></span>
-    <p class="option" data-no="52">
+    <div class="option" data-no="52">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
         <span data-xztext="_下载完成后显示通知"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="60">
+    <div class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
     
@@ -43848,37 +43736,37 @@ const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
-    <p class="option" data-no="84">
+    <div class="option" data-no="84">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="68" aria-hidden="true"></span>
-    <p class="option" data-no="68">
+    <div class="option" data-no="68">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="63" aria-hidden="true"></span>
-    <p class="option" data-no="63">
+    <div class="option" data-no="63">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
         <span data-xztext="_替换方形缩略图以显示图片比例"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="55" aria-hidden="true"></span>
-    <p class="option" data-no="55">
+    <div class="option" data-no="55">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
         <span data-xztext="_预览作品"></span>
         <span class="gray1"> ? </span>
@@ -43935,14 +43823,14 @@ const formHtml = `
         <span class="verticalSplit"></span>
         <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-for-no="55" data-xztext="_快捷键列表"></button>
       </span>
-    </p>
+    </div>
 
     <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
-    <p class="option" data-no="62">
+    <div class="option" data-no="62">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
@@ -43957,14 +43845,14 @@ const formHtml = `
         <span class="verticalSplit"></span>
         <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-for-no="62" data-xztext="_快捷键列表"></button>
       </span>
-    </p>
+    </div>
 
     <p class="tip" id="showOriginImageShortcutTip">
       <span data-xztext="_查看作品大图时的快捷键"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="102" aria-hidden="true"></span>
-    <p class="option" data-no="102">
+    <div class="option" data-no="102">
       <a href="" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
         <span data-xztext="_缩略图上按钮的位置"></span>
         <span class="gray1"> ? </span>
@@ -43975,10 +43863,10 @@ const formHtml = `
       <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="magnifierPosition2" data-xztext="_右侧"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="40" aria-hidden="true"></span>
-    <p class="option" data-no="40">
+    <div class="option" data-no="40">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -43991,17 +43879,17 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierSize2" data-xztext="_普通"></label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="56" aria-hidden="true"></span>
-    <p class="option" data-no="56">
+    <div class="option" data-no="56">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="14" aria-hidden="true"></span>
-    <p class="option" data-no="14">
+    <div class="option" data-no="14">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
         <span data-xztext="_复制按钮"></span>
         <span class="gray1"> ? </span>
@@ -44036,7 +43924,7 @@ const formHtml = `
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-for-no="14" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
       <span data-xztext="_复制内容的格式的提示"></span>
@@ -44050,17 +43938,17 @@ const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="86" aria-hidden="true"></span>
-    <p class="option" data-no="86">
+    <div class="option" data-no="86">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
         <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="displayThumbnailListOnMultiImageWorkPage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="87" aria-hidden="true"></span>
-    <p class="option" data-no="87">
+    <div class="option" data-no="87">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
         <span data-xztext="_预览作品的详细信息"></span>
         <span class="gray1"> ? </span>
@@ -44072,40 +43960,40 @@ const formHtml = `
         <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
         <span>&nbsp;px</span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="48" aria-hidden="true"></span>
-    <p class="option" data-no="48">
+    <div class="option" data-no="48">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
         <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="92" aria-hidden="true"></span>
-    <p class="option" data-no="92">
+    <div class="option" data-no="92">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_过滤搜索页面的作品"></span>
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_过滤搜索页面的作品" data-msg="_过滤搜索页面的作品的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="88" aria-hidden="true"></span>
-    <p class="option" data-no="88">
+    <div class="option" data-no="88">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
         <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="removeWorksOfFollowedUsersOnSearchPage" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="18" aria-hidden="true"></span>
-    <p class="option" data-no="18">
+    <div class="option" data-no="18">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
         <span data-xztext="_预览搜索结果"></span>
         <span class="gray1"> ? </span>
@@ -44116,10 +44004,10 @@ const formHtml = `
         <span class="settingNameStyle" data-xztext="_上限"></span>
         <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="34" aria-hidden="true"></span>
-    <p class="option" data-no="34">
+    <div class="option" data-no="34">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
         <span data-xztext="_收藏设置"></span>
         <span class="gray1"> ? </span>
@@ -44137,14 +44025,14 @@ const formHtml = `
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="restrict2" data-xztext="_不公开"></label>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="61">
+    <div class="option settingCategoryName" data-no="61">
       <span data-xztext="_其他"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="93" aria-hidden="true"></span>
-    <p class="option" data-no="93">
+    <div class="option" data-no="93">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
         <span data-xztext="_日志区域的默认可见性"></span>
         <span class="gray1"> ? </span>
@@ -44155,10 +44043,10 @@ const formHtml = `
       <input type="radio" name="logVisibleDefault" id="logVisibleDefault2" class="need_beautify radio" value="hide">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="logVisibleDefault2" data-xztext="_隐藏"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="78" aria-hidden="true"></span>
-    <p class="option" data-no="78">
+    <div class="option" data-no="78">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
       <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -44182,10 +44070,10 @@ const formHtml = `
         <span data-xztext="_排除关键字"></span>&nbsp;
         <input type="text" name="exportLogExclude" class="setinput_style1 blue setinput_tag">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="36" aria-hidden="true"></span>
-    <p class="option" data-no="36">
+    <div class="option" data-no="36">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -44196,10 +44084,10 @@ const formHtml = `
       <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="theme3">Dark</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="41" aria-hidden="true"></span>
-    <p class="option" data-no="41">
+    <div class="option" data-no="41">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
         <span data-xztext="_背景图片"></span>
         <span class="gray1"> ? </span>
@@ -44220,10 +44108,10 @@ const formHtml = `
         <span data-xztext="_不透明度"></span>&nbsp;
         <input name="bgOpacity" type="range" />
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="45" aria-hidden="true"></span>
-    <p class="option" data-no="45">
+    <div class="option" data-no="45">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
         <span data-xztext="_选项卡切换方式"></span>
         <span class="gray1"> ? </span>
@@ -44234,20 +44122,20 @@ const formHtml = `
       <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="53" aria-hidden="true"></span>
-    <p class="option" data-no="53">
+    <div class="option" data-no="53">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
         <span data-xztext="_高亮显示关键字"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="32" aria-hidden="true"></span>
-    <p class="option" data-no="32">
+    <div class="option" data-no="32">
       <a href="" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -44270,10 +44158,10 @@ const formHtml = `
       <input type="radio" name="userSetLang" id="userSetLang7" class="need_beautify radio" value="ru">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="userSetLang7">Русский</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="37" aria-hidden="true"></span>
-    <p class="option" data-no="37">
+    <div class="option" data-no="37">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
         <span data-xztext="_管理设置"></span>
         <span class="gray1"> ? </span>
@@ -44282,7 +44170,7 @@ const formHtml = `
       <button type="button" class="textButton gray1" id="importSettings" data-xztext="_导入设置"></button>
       <button type="button" class="textButton gray1" id="resetSettings" data-xztext="_重置设置"></button>
       <button type="button" class="textButton gray1" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
-    </p>
+    </div>
 
   </div>
 </form>`;
@@ -44369,7 +44257,7 @@ class FormHelpManager {
                 // 所以这里还需要查找这个提示区域对应的选项，然后把提示区域移动到选项之后，让它们挨在一起
                 const no = btn.dataset.forNo;
                 if (no) {
-                    const option = this.form.querySelector(`p.option[data-no="${no}"]`);
+                    const option = this.form.querySelector(`div.option[data-no="${no}"]`);
                     if (option) {
                         option.insertAdjacentElement('afterend', tipEl);
                     }
@@ -44922,10 +44810,9 @@ class NameRuleManager {
         }
         else {
             // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
-            // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {id_num}{p_num}
+            // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p}
             check =
-                str.includes('{id}') ||
-                    (str.includes('{id_num}') && str.includes('{p_num}'));
+                str.includes('{id}') || (str.includes('{pid}') && str.includes('{p}'));
         }
         if (!check) {
             window.setTimeout(() => {
@@ -45060,8 +44947,8 @@ __webpack_require__.r(__webpack_exports__);
 class NamingRuleConfig {
     namingConfig = [
         { name: '{id}', mayEmpty: false, help: '_命名标记id' },
-        { name: '{id_num}', mayEmpty: false, help: '_命名标记id_num' },
-        { name: '{p_num}', mayEmpty: true, help: '_命名标记p_num' },
+        { name: '{pid}', mayEmpty: false, help: '_命名标记pid' },
+        { name: '{p}', mayEmpty: true, help: '_命名标记p' },
         { name: '{user}', mayEmpty: false, help: '_命名标记user' },
         { name: '{user_id}', mayEmpty: false, help: '_用户id' },
         { name: '{title}', mayEmpty: false, help: '_命名标记title' },
@@ -46510,7 +46397,7 @@ class Settings {
         namingRuleList: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork],
         namingRuleListForNovel: [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel],
         folderForMultiImageWorksSwitch: false,
-        folderForMultiImageWorksRule: '{id_num}',
+        folderForMultiImageWorksRule: '{pid}',
         folderForMultiImageWorksImageNumber: 1,
         showOptions: true,
         postDate: false,
@@ -47092,8 +46979,8 @@ class Settings {
                 value = this.defaultSettings[key];
             }
         }
-        if (key === 'folderForMultiImageWorksRule') {
-            value = value.replace('{id}', '{id_num}');
+        if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
+            value = value.replace('{id}', '{pid}');
         }
         if (key === 'borderColor') {
             if (value === '' || value.startsWith('#') === false) {
@@ -47777,10 +47664,10 @@ class Wiki {
         // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
         const allLinks = document.querySelectorAll('.centerWrap_con a.settingNameStyle');
         allLinks.forEach(async (el) => {
-            // 查找其所属的 p 元素，如 <p class='option' data-no='0'>
-            const p = el.closest('p.option');
-            if (p && p.dataset.no) {
-                const id = Number(p.dataset.no);
+            // 查找其所属的选项元素，如 <div class='option' data-no='0'>
+            const option = el.closest('div.option');
+            if (option && option.dataset.no) {
+                const id = Number(option.dataset.no);
                 const link = await this.link(id);
                 el.setAttribute('href', link);
             }
@@ -63042,6 +62929,15 @@ const illustsData = [
     [143950000, 1777045740000],
     [143960000, 1777077420000],
     [143970000, 1777101180000],
+    [143980000, 1777117140000],
+    [143990000, 1777129260000],
+    [144000000, 1777154880000],
+    [144010000, 1777179300000],
+    [144020001, 1777197240000],
+    [144030000, 1777209060000],
+    [144040000, 1777222080000],
+    [144050000, 1777257060000],
+    [144060000, 1777282680000],
 ];
 
 
@@ -65850,6 +65746,8 @@ const novelsData = [
     [27880000, 1776856761000],
     [27890000, 1776957576000],
     [27900000, 1777080987000],
+    [27910000, 1777179096000],
+    [27920000, 1777281369000],
 ];
 
 

@@ -12,7 +12,7 @@ export const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="0" aria-hidden="true"></span>
-    <p class="option" data-no="0">
+    <div class="option" data-no="0">
       <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
@@ -21,10 +21,10 @@ export const formHtml = `
       <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="1" aria-hidden="true"></span>
-    <p class="option" data-no="1">
+    <div class="option" data-no="1">
       <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
@@ -33,10 +33,10 @@ export const formHtml = `
       <button type="button" class="textButton grayButton" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少页面" data-msg="_抓取多少页面的提示"" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="2" aria-hidden="true"></span>
-    <p class="option" data-no="2">
+    <div class="option" data-no="2">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_作品类型"></span>
       </a>
@@ -52,10 +52,10 @@ export const formHtml = `
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setWorkType3" data-xztext="_小说"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="44" aria-hidden="true"></span>
-    <p class="option" data-no="44">
+    <div class="option" data-no="44">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_年龄限制"></span>
       </a>
@@ -68,10 +68,10 @@ export const formHtml = `
       <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="downR18G"> R-18G</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="81" aria-hidden="true"></span>
-    <p class="option" data-no="81">
+    <div class="option" data-no="81">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_AI作品"></span>
       </a>
@@ -84,10 +84,10 @@ export const formHtml = `
       <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="96" aria-hidden="true"></span>
-    <p class="option" data-no="96">
+    <div class="option" data-no="96">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_原创作品"></span>
       </a>
@@ -103,10 +103,10 @@ export const formHtml = `
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_原创作品" data-msg="_宽松匹配原创作品的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="6" aria-hidden="true"></span>
-    <p class="option" data-no="6">
+    <div class="option" data-no="6">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_收藏状态"></span>
       </a>
@@ -116,10 +116,10 @@ export const formHtml = `
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownBookmarked" data-xztext="_已收藏"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="23" aria-hidden="true"></span>
-    <p class="option" data-no="23">
+    <div class="option" data-no="23">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片色彩"></span>
       </a>
@@ -129,10 +129,10 @@ export const formHtml = `
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="21" aria-hidden="true"></span>
-    <p class="option" data-no="21">
+    <div class="option" data-no="21">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片数量"></span>
       </a>
@@ -142,20 +142,20 @@ export const formHtml = `
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setDownMultiImg" data-xztext="_多图作品"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="51" aria-hidden="true"></span>
-    <p class="option" data-no="51">
+    <div class="option" data-no="51">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="99" aria-hidden="true"></span>
-    <p class="option" data-no="99">
+    <div class="option" data-no="99">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
         <span data-xztext="_不抓取下载过的作品"></span>
         <span class="gray1"> ? </span>
@@ -163,10 +163,10 @@ export const formHtml = `
       <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_不抓取下载过的作品" data-msg="_不抓取下载过的作品的帮助信息" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="15" aria-hidden="true"></span>
-    <p class="option" data-no="15">
+    <div class="option" data-no="15">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
         <span class="gray1"> ? </span>
@@ -176,10 +176,10 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="crawlLatestFewWorks">
         <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="5" aria-hidden="true"></span>
-    <p class="option" data-no="5">
+    <div class="option" data-no="5">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
         <span data-xztext="_收藏数量"></span>
         <span class="gray1"> ? </span>
@@ -204,10 +204,10 @@ export const formHtml = `
           <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
         </span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="7" aria-hidden="true"></span>
-    <p class="option" data-no="7">
+    <div class="option" data-no="7">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
         <span data-xztext="_图片的宽高"></span>
         <span class="gray1"> ? </span>
@@ -236,10 +236,10 @@ export const formHtml = `
         <span data-xztext="_高度"></span>
         <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="8" aria-hidden="true"></span>
-    <p class="option" data-no="8">
+    <div class="option" data-no="8">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
         <span data-xztext="_图片的宽高比例"></span>
         <span class="gray1"> ? </span>
@@ -278,10 +278,10 @@ export const formHtml = `
           <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
         </span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="9" aria-hidden="true"></span>
-    <p class="option" data-no="9">
+    <div class="option" data-no="9">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
         <span data-xztext="_id范围"></span>
         <span class="gray1"> ? </span>
@@ -317,10 +317,10 @@ export const formHtml = `
         <label for="idRangeComparisonForNovelSeries2">&lt;</label>
         <input type="text" name="idRangeValueForNovelSeries" class="setinput_style1 w80 blue" value="0" placeholder="0">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="10" aria-hidden="true"></span>
-    <p class="option" data-no="10">
+    <div class="option" data-no="10">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
         <span data-xztext="_投稿时间"></span>
         <span class="gray1"> ? </span>
@@ -336,10 +336,10 @@ export const formHtml = `
         <button type="button" class="textButton grayButton mr0" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
         <button type="button" class="textButton grayButton" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="11" aria-hidden="true"></span>
-    <p class="option" data-no="11">
+    <div class="option" data-no="11">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
         <span data-xztext="_必须含有tag"></span>
         <span class="gray1"> ? </span>
@@ -355,10 +355,10 @@ export const formHtml = `
         <label for="needTagMode2" data-xztext="_任一"></label>
         <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="12" aria-hidden="true"></span>
-    <p class="option" data-no="12">
+    <div class="option" data-no="12">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
         <span class="gray1"> ? </span>
@@ -376,10 +376,10 @@ export const formHtml = `
         <label for="tagMatchMode2" data-xztext="_完全一致"></label>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="94" aria-hidden="true"></span>
-    <p class="option" data-no="94">
+    <div class="option" data-no="94">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
         <span data-xztext="_标题必须含有"></span>
         <span class="gray1"> ? </span>
@@ -390,10 +390,10 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="titleIncludeSwitch">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="titleIncludeList" rows="1" placeholder="word1,word2,word3"></textarea>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="95" aria-hidden="true"></span>
-    <p class="option" data-no="95">
+    <div class="option" data-no="95">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
         <span data-xztext="_标题不能含有"></span>
         <span class="gray1"> ? </span>
@@ -409,7 +409,7 @@ export const formHtml = `
         <input type="checkbox" name="alsoCheckSeriesTitle" id="alsoCheckSeriesTitle" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <div class="centerWrap_btns">
       <slot data-name="stopCrawl"></slot>
@@ -424,7 +424,7 @@ export const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
-    <p class="option" data-no="13">
+    <div class="option" data-no="13">
       <span class="fileNameRuleLine1">
         <a href="" target="_blank" class="settingNameStyle" data-xztext="_图像作品的命名规则"></a>
 
@@ -440,7 +440,7 @@ export const formHtml = `
       </span>
 
       <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetName" rows="1" placeholder="${Config.defaultNameRuleForArtwork}">${Config.defaultNameRuleForArtwork}</textarea>
-    </p>
+    </div>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
       <span data-xztext="_命名标记的提示"></span>
@@ -448,7 +448,7 @@ export const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="106" aria-hidden="true"></span>
-    <p class="option" data-no="106">
+    <div class="option" data-no="106">
       <span class="fileNameRuleLine1">
         <a href="" target="_blank" class="settingNameStyle" data-xztext="_小说的命名规则"></a>
 
@@ -465,22 +465,22 @@ export const formHtml = `
       </span>
 
       <textarea class="centerPanelTextArea beautify_scrollbar grow fileNameRule" name="userSetNameForNovel" rows="1" placeholder="${Config.defaultNameRuleForNovel}">${Config.defaultNameRuleForNovel}</textarea>
-    </p>
+    </div>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTipForNovel">
       <span data-xztext="_小说的命名标记的提示"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
-    <p class="option" data-no="50">
+    <div class="option" data-no="50">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_在不同的页面类型中使用不同的命名规则" data-msg="_在不同的页面类型中使用不同的命名规则的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
-    <p class="option" data-no="64">
+    <div class="option" data-no="64">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_不创建文件夹"></span>
       </a>
@@ -498,10 +498,10 @@ export const formHtml = `
         <label for="noFolderWhenNovel" data-xztext="_小说"></label>
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
-    <p class="option" data-no="16">
+    <div class="option" data-no="16">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
       </a>
@@ -509,24 +509,24 @@ export const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
-    <p class="option" data-no="17">
+    <div class="option" data-no="17">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_自动开始下载"></span>
       </a>
       <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_自动开始下载" data-msg="_自动开始下载的帮助内容" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="33" aria-hidden="true"></span>
-    <p class="option" data-no="33">
+    <div class="option" data-no="33">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <div class="centerWrap_btns">
       <slot data-name="exportResult"></slot>
@@ -543,21 +543,21 @@ export const formHtml = `
     <div class="pinnedOptionTarget"></div>
 
     <span class="optionAnchor" data-for-no="57" aria-hidden="true"></span>
-    <p class="option" data-no="57">
+    <div class="option" data-no="57">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="59">
+    <div class="option settingCategoryName" data-no="59">
       <span data-xztext="_抓取"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="75" aria-hidden="true"></span>
-    <p class="option" data-no="75">
+    <div class="option" data-no="75">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
         <span data-xztext="_减慢抓取速度"></span>
         <span class="gray1"> ? </span>
@@ -571,10 +571,10 @@ export const formHtml = `
         <span data-xztext="_间隔时间"></span>
         <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="47" aria-hidden="true"></span>
-    <p class="option" data-no="47">
+    <div class="option" data-no="47">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
         <span class="gray1"> ? </span>
@@ -585,10 +585,10 @@ export const formHtml = `
         &lt;=&nbsp;
         <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="3" aria-hidden="true"></span>
-    <p class="option" data-no="3">
+    <div class="option" data-no="3">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
       </a>
@@ -598,10 +598,10 @@ export const formHtml = `
         <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取前几张图片" data-msg="_多图作品只抓取前几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="104" aria-hidden="true"></span>
-    <p class="option" data-no="104">
+    <div class="option" data-no="104">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
       </a>
@@ -611,10 +611,10 @@ export const formHtml = `
         <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取后几张图片" data-msg="_多图作品只抓取后几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="103" aria-hidden="true"></span>
-    <p class="option" data-no="103">
+    <div class="option" data-no="103">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
       </a>
@@ -624,10 +624,10 @@ export const formHtml = `
         <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取前几张图片" data-msg="_多图作品不抓取前几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="69" aria-hidden="true"></span>
-    <p class="option" data-no="69">      
+    <div class="option" data-no="69">      
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
       </a>
@@ -637,18 +637,18 @@ export const formHtml = `
         <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取后几张图片" data-msg="_多图作品不抓取后几张图片的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="79" aria-hidden="true"></span>
-    <p class="option" data-no="79">
+    <div class="option" data-no="79">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="35" aria-hidden="true"></span>
-    <p class="option" data-no="35">
+    <div class="option" data-no="35">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
         <span data-xztext="_用户阻止名单"></span>
         <span class="gray1"> ? </span>
@@ -663,10 +663,10 @@ export const formHtml = `
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
         <button type="button" class="gray1 textButton showMsgBtn" data-title="_用户阻止名单" data-msg="_用户阻止名单的说明2" data-xztext="_帮助"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="39" aria-hidden="true"></span>
-    <p class="option" data-no="39">
+    <div class="option" data-no="39">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
         <span data-xztext="_针对特定用户屏蔽tag"></span>
         <span class="gray1"> ? </span>
@@ -676,20 +676,20 @@ export const formHtml = `
       <span class="subOptionWrap flexBasis100" data-show="blockTagsForSpecificUser">
         <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="74" aria-hidden="true"></span>
-    <p class="option" data-no="74">
+    <div class="option" data-no="74">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
       <span class="settingNameStyle" data-xztext="_分钟"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
-    <p class="option" data-no="54">
+    <div class="option" data-no="54">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
         <span data-xztext="_自动导出抓取结果"></span>
         <span class="gray1"> ? </span>
@@ -709,40 +709,40 @@ export const formHtml = `
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="autoExportResultJSON"> JSON </label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="85" aria-hidden="true"></span>
-    <p class="option" data-no="85">
+    <div class="option" data-no="85">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
         <span data-xztext="_导出ID列表"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="65">
+    <div class="option settingCategoryName" data-no="65">
       <span data-xztext="_命名"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
-    <p class="option" data-no="19">
+    <div class="option" data-no="19">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_为多图作品添加一层文件夹"></a>
       <input type="checkbox" name="folderForMultiImageWorksSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
         <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
 
         <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
-        <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{id_num}">
+        <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{pid}">
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_为多图作品添加一层文件夹" data-msg="为多图作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
-    <p class="option" data-no="38">
+    <div class="option" data-no="38">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_为r18作品添加一层文件夹"></a>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -751,10 +751,10 @@ export const formHtml = `
         <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
-    <p class="option" data-no="43">
+    <div class="option" data-no="43">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_使用第一个匹配的标签建立文件夹"></span>
       </a>
@@ -767,10 +767,10 @@ export const formHtml = `
         <span class="name">{match_tag_folder2}</span>
         <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList2" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="107" aria-hidden="true"></span>
-    <p class="option" data-no="107">
+    <div class="option" data-no="107">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_标签别名"></span>
       </a>
@@ -782,20 +782,20 @@ export const formHtml = `
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_标签别名" data-msg="_标签别名的帮助" data-xztext="_帮助"></button>
 
       <slot data-name="setTagAliasSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
-    <p class="option" data-no="80">
+    <div class="option" data-no="80">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap flexBasis100" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="98" aria-hidden="true"></span>
-    <p class="option" data-no="98">
+    <div class="option" data-no="98">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
         <span data-xztext="_序号起始值"></span>
         <span class="gray1"> ? </span>
@@ -806,10 +806,10 @@ export const formHtml = `
       <input type="radio" name="serialNoStart" id="serialNoStart1" class="need_beautify radio" value="1">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="serialNoStart1"> 1 </label>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="22" aria-hidden="true"></span>
-    <p class="option" data-no="22">
+    <div class="option" data-no="22">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>
         <span class="gray1"> ? </span>
@@ -827,10 +827,10 @@ export const formHtml = `
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setNoSerialNoForUgoira" data-xztext="_动图"></label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="46" aria-hidden="true"></span>
-    <p class="option" data-no="46">
+    <div class="option" data-no="46">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
         <span data-xztext="_在序号前面填充0"></span>
         <span class="gray1"> ? </span>
@@ -841,10 +841,10 @@ export const formHtml = `
         <span data-xztext="_序号总长度"></span>
         <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="29" aria-hidden="true"></span>
-    <p class="option" data-no="29">
+    <div class="option" data-no="29">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
       </a>
@@ -855,53 +855,53 @@ export const formHtml = `
         <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_文件名长度限制" data-msg="_文件名长度限制的说明" data-xztext="_帮助"></button>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="83" aria-hidden="true"></span>
-    <p class="option" data-no="83">
+    <div class="option" data-no="83">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-for-no="83" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     
     <span class="optionAnchor" data-for-no="97" aria-hidden="true"></span>
-    <p class="option" data-no="97">
+    <div class="option" data-no="97">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_移除文件名里的emoji"></span>
       </a>
       <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="67" aria-hidden="true"></span>
-    <p class="option" data-no="67">
+    <div class="option" data-no="67">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="removeAtFromUsername" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="66" aria-hidden="true"></span>
-    <p class="option" data-no="66">
+    <div class="option" data-no="66">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
         <span data-xztext="_自定义用户名"></span>
         <span class="gray1"> ? </span>
       </a>
       <slot data-name="setUserNameSlot"></slot>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="31" aria-hidden="true"></span>
-    <p class="option" data-no="31">
+    <div class="option" data-no="31">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-for-no="31" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip" id="dateFormatTip">
       <span data-xztext="_日期格式提示"></span>
@@ -927,13 +927,13 @@ export const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
-    <p class="option" data-no="91">
+    <div class="option" data-no="91">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
         <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-for-no="91" data-xztext="_提示"></button>
       </span>
-    </p>
+    </div>
     
     <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
       <span data-xztext="_系列小说的命名标记提醒"></span>
@@ -999,21 +999,21 @@ export const formHtml = `
       <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
 
-    <p class="option settingCategoryName" data-no="58">
+    <div class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="101" aria-hidden="true"></span>
-    <p class="option" data-no="101">
+    <div class="option" data-no="101">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
       <button type="button" class="textButton gray1" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button type="button" class="textButton gray1" id="importDownloadRecord" data-xztext="_导入"></button>
       <button type="button" class="textButton gray1" id="clearDownloadRecord" data-xztext="_清除"></button>
       <button type="button" class="textButton gray1 showMsgBtn" data-title="_管理下载记录" data-msg="_管理下载记录的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="28" aria-hidden="true"></span>
-    <p class="option" data-no="28">
+    <div class="option" data-no="28">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -1027,10 +1027,10 @@ export const formHtml = `
         <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
       <button type="button" class="textButton gray1 showMsgBtn" data-title="_不下载重复文件" data-msg="_不下载重复文件的提示" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="100" aria-hidden="true"></span>
-    <p class="option" data-no="100">
+    <div class="option" data-no="100">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -1042,10 +1042,10 @@ export const formHtml = `
         <span data-xztext="_颜色"></span> (Hex)
         <input type="text" name="borderColor" class="setinput_style1 blue w80" id="borderColor" value="#ff4060">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="90" aria-hidden="true"></span>
-    <p class="option" data-no="90">
+    <div class="option" data-no="90">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
@@ -1056,28 +1056,28 @@ export const formHtml = `
       <span data-xztext="_间隔时间"></span>
       <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
       <span data-xztext="_秒"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="76" aria-hidden="true"></span>
-    <p class="option" data-no="76">
+    <div class="option" data-no="76">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击收藏按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="77" aria-hidden="true"></span>
-    <p class="option" data-no="77">
+    <div class="option" data-no="77">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击点赞按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
-    <p class="option" data-no="4">
+    <div class="option" data-no="4">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
         <span data-xztext="_动图保存格式"></span>
         <span class="gray1"> ? </span>
@@ -1094,19 +1094,19 @@ export const formHtml = `
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
-    <p class="option" data-no="24">
+    <div class="option" data-no="24">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
         <span data-xztext="_同时转换多少个动图"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="26" aria-hidden="true"></span>
-    <p class="option" data-no="26">
+    <div class="option" data-no="26">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
@@ -1117,10 +1117,10 @@ export const formHtml = `
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs1"> TXT </label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
-    <p class="option" data-no="73">
+    <div class="option" data-no="73">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
         <span data-xztext="_自动合并系列小说"></span>
         <span class="gray1"> ? </span>
@@ -1133,44 +1133,44 @@ export const formHtml = `
         <input type="checkbox" name="skipNovelsInSeriesWhenAutoMerge" id="skipNovelsInSeriesWhenAutoMerge" class="need_beautify checkbox_switch" checked>
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="105" aria-hidden="true"></span>
-    <p class="option" data-no="105">
+    <div class="option" data-no="105">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_合并系列小说时的分割阈值"></span>
       </a>
 
-      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> MiB
+      <input type="text" name="singleEPUBFileSizeLimit" class="setinput_style1 blue" value="200"> <span>MiB</span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_合并系列小说时的分割阈值" data-msg="_合并系列小说时的分割阈值的帮助" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
-    <p class="option" data-no="27">
+    <div class="option" data-no="27">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="70" aria-hidden="true"></span>
-    <p class="option" data-no="70">
+    <div class="option" data-no="70">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
       <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="72" aria-hidden="true"></span>
-    <p class="option" data-no="72">
+    <div class="option" data-no="72">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
       <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="49" aria-hidden="true"></span>
-    <p class="option" data-no="49">
+    <div class="option" data-no="49">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
         <span data-xztext="_保存作品的元数据"></span>
         <span class="gray1"> ? </span>
@@ -1195,10 +1195,10 @@ export const formHtml = `
       <input type="checkbox" name="saveMetaFormatJSON" id="saveMetaFormatJSON" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="saveMetaFormatJSON"> JSON </label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="89" aria-hidden="true"></span>
-    <p class="option" data-no="89">
+    <div class="option" data-no="89">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
         <span data-xztext="_保存作品的简介"></span>
         <span class="gray1"> ? </span>
@@ -1215,10 +1215,10 @@ export const formHtml = `
         <input type="checkbox" name="summarizeDescription" id="summarizeDescription" class="need_beautify checkbox_switch">
         <span class="beautify_switch" tabindex="0"></span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="30" aria-hidden="true"></span>
-    <p class="option" data-no="30">
+    <div class="option" data-no="30">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -1235,10 +1235,10 @@ export const formHtml = `
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize4" data-xztext="_方形缩略图"></label>
       <label for="imageSize4" class="gray1">(250px)</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="25" aria-hidden="true"></span>
-    <p class="option" data-no="25">
+    <div class="option" data-no="25">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
         <span data-xztext="_文件体积限制"></span>
         <span class="gray1"> ? </span>
@@ -1250,10 +1250,10 @@ export const formHtml = `
         &nbsp;-&nbsp;
         <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="82" aria-hidden="true"></span>
-    <p class="option" data-no="82">
+    <div class="option" data-no="82">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
       <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -1276,11 +1276,11 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="downloadOrder2" data-xztext="_升序"></label>
       </span>
-    </p>
+    </div>
 
     
     <span class="optionAnchor" data-for-no="20" aria-hidden="true"></span>
-    <p class="option" data-no="20">
+    <div class="option" data-no="20">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
         <span data-xztext="_把文件保存到用户上次选择的位置"></span>
         <span class="gray1"> ? </span>
@@ -1288,19 +1288,19 @@ export const formHtml = `
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_把文件保存到用户上次选择的位置" data-msg="_把文件保存到用户上次选择的位置的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
     
     <span class="optionAnchor" data-for-no="52" aria-hidden="true"></span>
-    <p class="option" data-no="52">
+    <div class="option" data-no="52">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
         <span data-xztext="_下载完成后显示通知"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="60">
+    <div class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
     
@@ -1312,37 +1312,37 @@ export const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
-    <p class="option" data-no="84">
+    <div class="option" data-no="84">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="68" aria-hidden="true"></span>
-    <p class="option" data-no="68">
+    <div class="option" data-no="68">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="63" aria-hidden="true"></span>
-    <p class="option" data-no="63">
+    <div class="option" data-no="63">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
         <span data-xztext="_替换方形缩略图以显示图片比例"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="55" aria-hidden="true"></span>
-    <p class="option" data-no="55">
+    <div class="option" data-no="55">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
         <span data-xztext="_预览作品"></span>
         <span class="gray1"> ? </span>
@@ -1399,14 +1399,14 @@ export const formHtml = `
         <span class="verticalSplit"></span>
         <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-for-no="55" data-xztext="_快捷键列表"></button>
       </span>
-    </p>
+    </div>
 
     <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
-    <p class="option" data-no="62">
+    <div class="option" data-no="62">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
@@ -1421,14 +1421,14 @@ export const formHtml = `
         <span class="verticalSplit"></span>
         <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-for-no="62" data-xztext="_快捷键列表"></button>
       </span>
-    </p>
+    </div>
 
     <p class="tip" id="showOriginImageShortcutTip">
       <span data-xztext="_查看作品大图时的快捷键"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="102" aria-hidden="true"></span>
-    <p class="option" data-no="102">
+    <div class="option" data-no="102">
       <a href="" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
         <span data-xztext="_缩略图上按钮的位置"></span>
         <span class="gray1"> ? </span>
@@ -1439,10 +1439,10 @@ export const formHtml = `
       <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="magnifierPosition2" data-xztext="_右侧"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="40" aria-hidden="true"></span>
-    <p class="option" data-no="40">
+    <div class="option" data-no="40">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -1455,17 +1455,17 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierSize2" data-xztext="_普通"></label>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="56" aria-hidden="true"></span>
-    <p class="option" data-no="56">
+    <div class="option" data-no="56">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="14" aria-hidden="true"></span>
-    <p class="option" data-no="14">
+    <div class="option" data-no="14">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
         <span data-xztext="_复制按钮"></span>
         <span class="gray1"> ? </span>
@@ -1500,7 +1500,7 @@ export const formHtml = `
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-for-no="14" data-xztext="_提示"></button>
-    </p>
+    </div>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
       <span data-xztext="_复制内容的格式的提示"></span>
@@ -1514,17 +1514,17 @@ export const formHtml = `
     </p>
 
     <span class="optionAnchor" data-for-no="86" aria-hidden="true"></span>
-    <p class="option" data-no="86">
+    <div class="option" data-no="86">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
         <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="displayThumbnailListOnMultiImageWorkPage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="87" aria-hidden="true"></span>
-    <p class="option" data-no="87">
+    <div class="option" data-no="87">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
         <span data-xztext="_预览作品的详细信息"></span>
         <span class="gray1"> ? </span>
@@ -1536,40 +1536,40 @@ export const formHtml = `
         <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
         <span>&nbsp;px</span>
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="48" aria-hidden="true"></span>
-    <p class="option" data-no="48">
+    <div class="option" data-no="48">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
         <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="92" aria-hidden="true"></span>
-    <p class="option" data-no="92">
+    <div class="option" data-no="92">
       <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_过滤搜索页面的作品"></span>
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_过滤搜索页面的作品" data-msg="_过滤搜索页面的作品的说明" data-xztext="_帮助"></button>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="88" aria-hidden="true"></span>
-    <p class="option" data-no="88">
+    <div class="option" data-no="88">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
         <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="removeWorksOfFollowedUsersOnSearchPage" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="18" aria-hidden="true"></span>
-    <p class="option" data-no="18">
+    <div class="option" data-no="18">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
         <span data-xztext="_预览搜索结果"></span>
         <span class="gray1"> ? </span>
@@ -1580,10 +1580,10 @@ export const formHtml = `
         <span class="settingNameStyle" data-xztext="_上限"></span>
         <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="34" aria-hidden="true"></span>
-    <p class="option" data-no="34">
+    <div class="option" data-no="34">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
         <span data-xztext="_收藏设置"></span>
         <span class="gray1"> ? </span>
@@ -1601,14 +1601,14 @@ export const formHtml = `
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="restrict2" data-xztext="_不公开"></label>
-    </p>
+    </div>
 
-    <p class="option settingCategoryName" data-no="61">
+    <div class="option settingCategoryName" data-no="61">
       <span data-xztext="_其他"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="93" aria-hidden="true"></span>
-    <p class="option" data-no="93">
+    <div class="option" data-no="93">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
         <span data-xztext="_日志区域的默认可见性"></span>
         <span class="gray1"> ? </span>
@@ -1619,10 +1619,10 @@ export const formHtml = `
       <input type="radio" name="logVisibleDefault" id="logVisibleDefault2" class="need_beautify radio" value="hide">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="logVisibleDefault2" data-xztext="_隐藏"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="78" aria-hidden="true"></span>
-    <p class="option" data-no="78">
+    <div class="option" data-no="78">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
       <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
@@ -1646,10 +1646,10 @@ export const formHtml = `
         <span data-xztext="_排除关键字"></span>&nbsp;
         <input type="text" name="exportLogExclude" class="setinput_style1 blue setinput_tag">
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="36" aria-hidden="true"></span>
-    <p class="option" data-no="36">
+    <div class="option" data-no="36">
       <a href="" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -1660,10 +1660,10 @@ export const formHtml = `
       <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="theme3">Dark</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="41" aria-hidden="true"></span>
-    <p class="option" data-no="41">
+    <div class="option" data-no="41">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
         <span data-xztext="_背景图片"></span>
         <span class="gray1"> ? </span>
@@ -1684,10 +1684,10 @@ export const formHtml = `
         <span data-xztext="_不透明度"></span>&nbsp;
         <input name="bgOpacity" type="range" />
       </span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="45" aria-hidden="true"></span>
-    <p class="option" data-no="45">
+    <div class="option" data-no="45">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
         <span data-xztext="_选项卡切换方式"></span>
         <span class="gray1"> ? </span>
@@ -1698,20 +1698,20 @@ export const formHtml = `
       <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="53" aria-hidden="true"></span>
-    <p class="option" data-no="53">
+    <div class="option" data-no="53">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
         <span data-xztext="_高亮显示关键字"></span>
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="32" aria-hidden="true"></span>
-    <p class="option" data-no="32">
+    <div class="option" data-no="32">
       <a href="" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
@@ -1734,10 +1734,10 @@ export const formHtml = `
       <input type="radio" name="userSetLang" id="userSetLang7" class="need_beautify radio" value="ru">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="userSetLang7">Русский</label>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="37" aria-hidden="true"></span>
-    <p class="option" data-no="37">
+    <div class="option" data-no="37">
       <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
         <span data-xztext="_管理设置"></span>
         <span class="gray1"> ? </span>
@@ -1746,7 +1746,7 @@ export const formHtml = `
       <button type="button" class="textButton gray1" id="importSettings" data-xztext="_导入设置"></button>
       <button type="button" class="textButton gray1" id="resetSettings" data-xztext="_重置设置"></button>
       <button type="button" class="textButton gray1" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
-    </p>
+    </div>
 
   </div>
 </form>`

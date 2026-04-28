@@ -239,7 +239,7 @@
       }
 
       // 使选项里的元素在交叉轴上（垂直）对齐到顶部
-      p.option {
+      div.option {
         position: relative;
         display: flex;
         flex-wrap: wrap;
@@ -280,7 +280,7 @@
           width: 24px;
           left: -22px;
           height: 26px;
-          top: -1px;
+          top: 3px;
           text-align: center;
           font-size: 1.1em;
         }
@@ -1023,7 +1023,7 @@
 .centerWrap.theme-white {
   // 对于选项名称，在默认的亮色主题里，设置更深的文字颜色，以和选项的内容做出区分
   // 目前选项名称是 #333, 选项内容是 #444
-  p.option > .settingNameStyle {
+  div.option > .settingNameStyle {
     color: #333;
   }
 }
@@ -1086,15 +1086,15 @@
   box-shadow: @darkBoxShadow 0px 0px 15px;
   color: #fff;
 
-  p.option > .settingNameStyle {
+  div.option > .settingNameStyle {
     color: inherit;
   }
 
-  p.option.new::before {
+  div.option.new::before {
     color: #fff !important;
   }
 
-  p.option:hover {
+  div.option:hover {
     background-color: rgba(204, 240, 254, 0.3);
   }
 
@@ -1182,15 +1182,15 @@
   background: #222;
   color: #fff;
 
-  p.option > .settingNameStyle {
+  div.option > .settingNameStyle {
     color: inherit;
   }
 
-  p.option.new::before {
+  div.option.new::before {
     color: #fff !important;
   }
 
-  p.option:hover {
+  div.option:hover {
     background-color: rgb(209 239 251 / 20%) !important;
   }
 

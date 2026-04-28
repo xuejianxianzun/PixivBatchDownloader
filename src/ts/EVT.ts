@@ -180,6 +180,8 @@ class EVENT {
     requestStatusError: 'requestStatusError',
     /** 触发导出日志的事件 */
     exportLog: 'exportLog',
+    /** 显示最近更新 */
+    showRecentUpdates: 'showRecentUpdates',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -247,6 +249,7 @@ class EVENT {
       | 'sendBrowserDownload'
       | 'followingUsersChange'
       | 'exportLog'
+      | 'showRecentUpdates'
   ): void
 
   // 对于需要携带数据的事件进行重载

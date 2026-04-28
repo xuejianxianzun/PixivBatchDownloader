@@ -634,7 +634,7 @@ class Settings {
     namingRuleList: [Config.defaultNameRuleForArtwork],
     namingRuleListForNovel: [Config.defaultNameRuleForNovel],
     folderForMultiImageWorksSwitch: false,
-    folderForMultiImageWorksRule: '{id_num}',
+    folderForMultiImageWorksRule: '{pid}',
     folderForMultiImageWorksImageNumber: 1,
     showOptions: true,
     postDate: false,
@@ -1272,8 +1272,8 @@ class Settings {
       }
     }
 
-    if (key === 'folderForMultiImageWorksRule') {
-      value = (value as string).replace('{id}', '{id_num}')
+    if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
+      value = (value as string).replace('{id}', '{pid}')
     }
 
     if (key === 'borderColor') {

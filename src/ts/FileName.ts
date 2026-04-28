@@ -32,7 +32,8 @@ class FileName {
 
     // 2 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
-    const p_num = this.createPNum(data)
+    const pid = (data.idNum || parseInt(data.id)).toString()
+    const p = this.createPNum(data)
     const schema: NamingSchema = {
       '{p_title}': {
         value: store.title,
@@ -51,15 +52,23 @@ class FileName {
         safe: false,
       },
       '{id}': {
-        value: this.createId(data, p_num),
+        value: this.createId(data, p),
         safe: true,
       },
       '{id_num}': {
-        value: (data.idNum || parseInt(data.id)).toString(),
+        value: pid,
+        safe: true,
+      },
+      '{pid}': {
+        value: pid,
         safe: true,
       },
       '{p_num}': {
-        value: !rule.includes('{p_num}') ? '' : p_num,
+        value: p,
+        safe: true,
+      },
+      '{p}': {
+        value: p,
         safe: true,
       },
       '{rank}': {
@@ -391,9 +400,9 @@ class FileName {
 
     let value = ''
     const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
-    const userSetTags = settings[key].map((val) => val.toLowerCase())
 
     // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
+    // 注意：标签别名是始终保持原本的大小写的，没有转换成小写
     const aliasList = new Set<string>()
     for (const tag of workTags) {
       const alias = setTagAlias.findAlias(tag)
@@ -410,7 +419,7 @@ class FileName {
     // 例如 用户输入顺序：A,B
     // 作品 tag 里的顺序：B,A
     if (aliasList.size > 0) {
-      for (const userTag of userSetTags) {
+      for (const userTag of settings[key]) {
         if (aliasList.has(userTag)) {
           value = userTag
           // console.log('用户使用的别名：', userTag)
@@ -421,8 +430,8 @@ class FileName {
 
     // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
     if (!value) {
-      for (const userTag of userSetTags) {
-        if (workTags.includes(userTag)) {
+      for (const userTag of settings[key]) {
+        if (workTags.includes(userTag.toLowerCase())) {
           value = userTag
           break
         }
@@ -432,15 +441,6 @@ class FileName {
     // 查找结束
 
     if (value) {
-      // 前面匹配时把用户设置的标签转换成小写了，这里需要把它替换成原本的标签
-      if (settings[key].includes(value) === false) {
-        const index = settings[key].findIndex(
-          (tag) => tag.toLowerCase() === value
-        )
-        if (index !== -1) {
-          value = settings[key][index]
-        }
-      }
       // 替换特殊字符。例如一些标签里含有斜线 /，如果不替换的话会错误的建立文件夹
       const str = this.generateFileName(flag, {
         [flag]: {
@@ -505,7 +505,7 @@ class FileName {
     return '#' + rank
   }
 
-  /** 生成 {p_num} 标记的值 */
+  /** 生成 {p} 标记的值 */
   private createPNum(data: Result) {
     if (data.type === 3) {
       // 小说没有编号，返回空字符串
@@ -544,13 +544,13 @@ class FileName {
   }
 
   /** 生成 {id} 标记的值 */
-  private createId(data: Result, p_num: string) {
+  private createId(data: Result, p: string) {
     // 如果不需要添加序号，或者没有序号，则只返回数字 id
-    if (p_num === '') {
+    if (p === '') {
       return data.idNum.toString()
     }
     // 添加序号
-    return `${data.idNum}_p${p_num}`
+    return `${data.idNum}_p${p}`
   }
 
   // 返回收藏数的简化显示

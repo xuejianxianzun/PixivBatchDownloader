@@ -4,7 +4,6 @@ import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
 import { EVT } from './EVT'
 import { setSetting, settings } from './setting/Settings'
-import { ppdTask } from './PPDTask'
 
 // 显示版本更新说明
 class ShowWhatIsNew {
@@ -14,14 +13,14 @@ class ShowWhatIsNew {
       this.show()
     })
 
-    // 版本更新说明只会显示一次，如果需要调试它，可以使用这个命令直接显示
-    ppdTask.register(4, 'Show What Is New', () => {
+    /** 强制显示最近更新 */
+    window.addEventListener(EVT.list.showRecentUpdates, () => {
       this.showMsg()
     })
   }
 
-  private flag = '18.8.0'
-  private textKey = '_版本更新说明18_8_0' as const
+  private flag = '18.8.2'
+  private textKey = '_版本更新说明18_8_2' as const
 
   private show() {
     // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明

@@ -12,7 +12,7 @@ interface OptionElement {
   /**这个设置项的选择器 */
   selector: string
   /**这个设置项的元素本身 */
-  self: HTMLParagraphElement
+  self: HTMLDivElement
   /**这个设置项里的 input 控件 */
   input: HTMLInputElement
   /**设置最小值的按钮 */
@@ -37,7 +37,7 @@ class CrawlNumber {
   /** 抓取多少作品的设置  */
   private work: OptionElement = {
     name: 'work',
-    selector: 'p.option[data-no="0"]',
+    selector: 'div.option[data-no="0"]',
     self: null!,
     input: null!,
     minBtn: null!,
@@ -48,7 +48,7 @@ class CrawlNumber {
   /** 抓取多少页面的设置  */
   private page: OptionElement = {
     name: 'page',
-    selector: 'p.option[data-no="1"]',
+    selector: 'div.option[data-no="1"]',
     self: null!,
     input: null!,
     minBtn: null!,
@@ -59,7 +59,7 @@ class CrawlNumber {
   private getElements() {
     ;[this.work, this.page].forEach((item) => {
       // 获取每个设置的元素
-      item.self = document.querySelector(item.selector) as HTMLParagraphElement
+      item.self = document.querySelector(item.selector) as HTMLDivElement
       item.input = item.self.querySelector(
         'input[type="text"]'
       ) as HTMLInputElement
