@@ -1211,12 +1211,12 @@ Zip 파일이 원본 파일입니다.`,
     `Например, добавьте тег 'user_' перед именем пользователя`,
   ],
   _命名标记id: [
-    `每个文件的 ID。图片文件会附带序号，如 <span class="blue">44920385_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
-    `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">44920385_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span>。`,
-    `The ID of each file. Image files include a sequence number, such as <span class="blue">44920385_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">44920385_p1</span> and <span class="blue">44920385_p2</span>.`,
-    `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">44920385_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">44920385_p1</span>、<span class="blue">44920385_p2</span> です。`,
-    `각 파일의 ID입니다. image 파일에는 <span class="blue">44920385_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">44920385_p1</span>, <span class="blue">44920385_p2</span> 입니다.`,
-    `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">44920385_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">44920385_p1</span> и <span class="blue">44920385_p2</span>.`,
+    `每个文件的 ID。图片文件会附带序号，如 <span class="blue">85633671_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
+    `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">85633671_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
+    `The ID of each file. Image files include a sequence number, such as <span class="blue">85633671_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">85633671_p1</span> and <span class="blue">85633671_p2</span>.`,
+    `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">85633671_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span> です。`,
+    `각 파일의 ID입니다. image 파일에는 <span class="blue">85633671_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">85633671_p1</span>, <span class="blue">85633671_p2</span> 입니다.`,
+    `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">85633671_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">85633671_p1</span> и <span class="blue">85633671_p2</span>.`,
   ],
   _命名标记title: [
     '作品标题',
@@ -1322,15 +1322,15 @@ Zip 파일이 원본 파일입니다.`,
     '조회수',
     'Колличество просмотров',
   ],
-  _命名标记id_num: [
-    `作品的数字 ID，不包括序号，例如 <span class="blue">62751951</span>。`,
-    `作品的數字 ID，不包括序號，例如 <span class="blue">62751951</span>。`,
-    `The numeric ID of the work, excluding the sequence number, for example <span class="blue">62751951</span>.`,
-    `作品の数字 ID、シーケンス番号を含まない、例：<span class="blue">62751951</span>。`,
-    `작품의 숫자 ID, 순서 번호를 포함하지 않음, 예: <span class="blue">62751951</span>。`,
-    `Числовой ID работы, без порядкового номера, например <span class="blue">62751951</span>.`,
+  _命名标记pid: [
+    `作品的数字 ID，不包括序号，例如 <span class="blue">85633671</span>。`,
+    `作品的數字 ID，不包括序號，例如 <span class="blue">85633671</span>。`,
+    `The numeric ID of the work, excluding the sequence number, for example <span class="blue">85633671</span>.`,
+    `作品の数字 ID、シーケンス番号を含まない、例：<span class="blue">85633671</span>。`,
+    `작품의 숫자 ID, 순서 번호를 포함하지 않음, 예: <span class="blue">85633671</span>。`,
+    `Числовой ID работы, без порядкового номера, например <span class="blue">85633671</span>.`,
   ],
-  _命名标记p_num: [
+  _命名标记p: [
     `图片在作品内的序号，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。小说作品没有这个属性，下载器会忽略它。`,
     `圖片在作品內的序號，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每個作品都會重新計數。小說作品沒有這個屬性，下載器會忽略它。`,
     `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it.`,
@@ -1467,12 +1467,12 @@ Zip 파일이 원본 파일입니다.`,
     `Если работа сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте её。`,
   ],
   _命名规则一定要包含id: [
-    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
-    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。',
-    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
-    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
-    '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
-    'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
+    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {pid}{p}',
+    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {pid}{p}。',
+    'To prevent duplicate file names, {id} or {pid}{p} must be included in the naming rules.',
+    'ファイル名の重複を防ぐために、命名規則には {id} または {pid}{p} を含める必要があります。',
+    '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {pid}{p}이 포함되어야 합니다.',
+    'Чтобы предотвратить дублирование имен файлов, {id} или {pid}{p} должны быть включены в правила именования.',
   ],
   _文件夹标记page_tag: [
     `如果页面里的作品属于同一个标签，下载器会输出这个标签，否则忽略它。通常当你处于这些页面里时有值：搜索某个标签、在用户主页里查看某个标签分类下的作品、在自己的收藏里查看某个标签分类下的作品。`,
@@ -3658,66 +3658,66 @@ This setting is also used when you use the Downloader to bookmark works in batch
     `Добавить слой папки для <span class="key">многоизображных</span> работ`,
   ],
   为多图作品添加一层文件夹的帮助: [
-    `如果你想为多图作品添加一层文件夹来保存（并且不为单图作品添加这个文件夹），可以启用这个设置。<br>
+    `如果你想仅为多图作品额外创建一层文件夹（并且不为单图作品创建该文件夹），可以启用此设置。<br>
 <br>
 使用方法：<br>
-首先在这里设置文件夹的规则。<br>
-然后修改“命名规则”设置，在你需要的地方插入<span class="blue">/{multi_image_folder}/</span>来添加一层文件夹。<br>
+先在这里设置这层文件夹的命名规则。<br>
+然后修改“图像作品的命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-下载器为多图作品生成文件名时会把 <span class="blue">{multi_image_folder}</span> 替换成你在这里设置的值。<br>
+下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。另外，如果你想在文件夹的名字里使用作品 ID，应该使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>`,
-    `如果你想為多圖作品添加一層資料夾來保存（並且不為單圖作品添加這個資料夾），可以啟用這個設定。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+    `如果你想僅為多圖作品額外建立一層資料夾（而且不為單圖作品建立這個資料夾），可以啟用此設定。<br>
 <br>
 使用方法：<br>
-首先在這裡設定資料夾的規則。<br>
-然後修改「命名規則」設定，在你需要的地方插入<span class="blue">/{multi_image_folder}/</span>來添加一層資料夾。<br>
+先在這裡設定這層資料夾的命名規則。<br>
+然後修改 "圖像作品的命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-下載器為多圖作品產生檔名時會把 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的值。<br>
+下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-在設定資料夾規則時，你可以使用命名規則裡的標記，也可以添加自訂字元。另外，如果你想在資料夾的名字裡使用作品 ID，應該使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>`,
-    `If you want to add an extra folder layer for multi-image works (and not add this folder for single-image works), you can enable this setting.<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+    `If you want to create an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
 <br>
-Usage:<br>
-First, set the folder rule here.<br>
-Then modify the "naming rule" setting and insert <span class="blue">/{multi_image_folder}/</span> where needed to add a folder layer.<br>
+How to use:<br>
+First, set the Naming rule for this folder layer here.<br>
+Then edit the "Naming rule for image works" setting and add <span class="blue">/{multi_image_folder}/</span> where you want to insert the folder.<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates the filename for a multi-image work, it will replace <span class="blue">{multi_image_folder}</span> with the value you set here.<br>
+When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use tags from the naming rule or add custom characters. Additionally, if you want to use the work ID in the folder name, you should use <span class="blue">{id_num}</span> instead of <span class="blue">{id}</span>.<br>`,
-    `多画像作品に1層のフォルダを追加して保存したい場合（単画像作品にはこのフォルダを追加しない場合）、この設定を有効にできます。<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters. Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>`,
+    `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成したくない場合は、この設定を有効にしてください。<br>
 <br>
-使用方法：<br>
-まずここでフォルダのルールを設定します。<br>
-次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{multi_image_folder}/</span>を挿入して1層のフォルダを追加します。<br>
+使い方：<br>
+まず、ここでこのフォルダ階層の命名規則を設定します。<br>
+次に "画像作品の命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{multi_image_folder}/</span>を追加します。<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが多画像作品のファイル名を生成する際、<span class="blue">{multi_image_folder}</span>をここで設定した値に置き換えます。<br>
+ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダルールを設定する際、命名規則のタグを使用したり、カスタム文字を追加したりできます。また、フォルダ名に作品IDを使用したい場合は、<span class="blue">{id}</span>ではなく<span class="blue">{id_num}</span>を使用してください。<br>`,
-    `다중 이미지 작품에 한 층의 폴더를 추가하여 저장하고 싶고(단일 이미지 작품에는 이 폴더를 추가하지 않음), 이 설정을 활성화할 수 있습니다.<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>`,
+    `여러 장 이미지 작품에만 폴더를 한 단계 더 만들고, 한 장짜리 작품에는 이 폴더를 만들지 않으려면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기서 폴더 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{multi_image_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
+그런 다음 "이미지 작품의 명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 추가하세요.<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 다중 이미지 작품의 파일명을 생성할 때 <span class="blue">{multi_image_folder}</span>를 여기서 설정한 값으로 대체합니다.<br>
+다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때 명명 규칙의 태그를 사용하거나 사용자 정의 문자를 추가할 수 있습니다. 또한 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 대신 <span class="blue">{id_num}</span>를 사용해야 합니다.<br>`,
-    `Если вы хотите добавить дополнительный слой папки для многоизображных работ (и не добавлять эту папку для одноизображных работ), вы можете включить эту настройку.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다. 주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>`,
+    `Если вы хотите создавать дополнительный уровень папки только для работ с несколькими изображениями, и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
 <br>
-Способ использования:<br>
-Сначала задайте здесь правило папки.<br>
-Затем измените настройку «naming rule» и вставьте <span class="blue">/{multi_image_folder}/</span> в нужном месте, чтобы добавить слой папки.<br>
+Как использовать:<br>
+Сначала задайте здесь правило названий для этой папки.<br>
+Затем измените настройку "Правила названий для графических работ" и добавьте <span class="blue">/{multi_image_folder}/</span> в то место, где нужно вставить папку.<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
 <br>
-При генерации имени файла для многоизображной работы загрузчик заменит <span class="blue">{multi_image_folder}</span> на значение, которое вы задали здесь.<br>
+Когда загрузчик будет создавать имена файлов для работ с несколькими изображениями, он заменит <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки вы можете использовать метки из правила именования или добавлять собственные символы. Кроме того, если вы хотите использовать ID произведения в имени папки, следует использовать <span class="blue">{id_num}</span>, а не <span class="blue">{id}</span>.<br>`,
+При настройке правила папки можно использовать маркеры из правил названий, а также добавлять свои символы. Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>`,
   ],
   _文件夹规则: [
     `文件夹规则`,
@@ -3810,78 +3810,84 @@ When setting the folder rule, you can use tags from the naming rule or add custo
     `Добавить слой папки для работ <span class="key">R-18(G)</span>`,
   ],
   _为r18作品添加一层文件夹的帮助: [
-    `如果你想为 R-18(G) 作品添加一层文件夹，可以启用这个设置。<br>
+    `如果你想为 R-18(G) 作品额外添加一层文件夹，可以启用这个设置。<br>
 <br>
 使用方法：<br>
-首先在这里设置文件夹的规则。<br>
-然后修改“命名规则”设置，在你需要的地方插入<span class="blue">/{r18_g_folder}/</span>来添加一层文件夹。<br>
+先在这里设置这层文件夹的命名规则。<br>
+然后修改“命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换成你在这里设置的值。<br>
+下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
 在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。<br>
-如果你想在文件夹的名字里使用作品 ID，应该使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>
-注意：这个设置会把 R-18 和 R-18G 作品放在同一个文件夹里。如果你想分开存放，可以关闭这个设置，使用命名规则 <span class="blue">{age_r}</span> 代替，它可以区分 R-18 和 R-18G 作品。<br>`,
-    `如果你想為 R-18(G) 作品添加一層資料夾，可以啟用這個設定。<br>
+需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
+<br>
+注意：这个设置会为 R-18 和 R-18G 作品都添加这层文件夹。如果你想把它们分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
+    `如果你想為 R-18(G) 作品額外添加一層資料夾，可以啟用這個設定。<br>
 <br>
 使用方法：<br>
-首先在這裡設定資料夾的規則。<br>
-然後修改「命名規則」設定，在你需要的地方插入<span class="blue">/{r18_g_folder}/</span>來添加一層資料夾。<br>
+先在這裡設定這層資料夾的命名規則。<br>
+然後修改 "命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下載器為 R-18(G) 作品產生檔名時會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的值。<br>
+下載器為 R-18(G) 作品產生檔名時，會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-在設定資料夾規則時，你可以使用命名規則裡的標記，也可以添加自訂字元。<br>
-如果你想在資料夾的名字裡使用作品 ID，應該使用 <span class="blue">{id_num}</span> 而非 <span class="blue">{id}</span>。<br>
-注意：這個設定會把 R-18 和 R-18G 作品放在同一個資料夾裡。如果你想分開存放，可以關閉這個設定，使用命名規則 <span class="blue">{age_r}</span> 代替，它可以區分 R-18 和 R-18G 作品。<br>`,
-    `If you want to add a folder layer for R-18(G) works, you can enable this setting.<br>
+設定資料夾規則時，你可以使用命名規則裡的標記，也可以加入自訂字元。<br>
+需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
 <br>
-Usage:<br>
-First, set the folder rule here.<br>
-Then modify the "naming rule" setting and insert <span class="blue">/{r18_g_folder}/</span> where needed to add a folder layer.<br>
+注意：這個設定會為 R-18 和 R-18G 作品都添加這層資料夾。如果你想把它們分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
+    `If you want to add an extra folder layer for R-18(G) works, you can enable this setting.<br>
+<br>
+How to use:<br>
+First, set the Naming rule for this folder layer here.<br>
+Then edit the "Naming rule" setting and add <span class="blue">/{r18_g_folder}/</span> where you want to insert the folder.<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates the filename for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the value you set here.<br>
+When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use tags from the naming rule or add custom characters.<br>
-If you want to use the work ID in the folder name, you should use <span class="blue">{id_num}</span> instead of <span class="blue">{id}</span>.<br>
-Note: This setting will put both R-18 and R-18G works in the same folder. If you want to store them separately, you can disable this setting and use the naming rule tag <span class="blue">{age_r}</span> instead, which can distinguish between R-18 and R-18G works.<br>`,
-    `R-18(G)作品に1層のフォルダを追加したい場合、この設定を有効にできます。<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>
 <br>
-使用方法：<br>
-まずここでフォルダのルールを設定します。<br>
-次に「命名規則」設定を変更し、必要な場所に<span class="blue">/{r18_g_folder}/</span>を挿入して1層のフォルダを追加します。<br>
+Note: This setting adds this folder layer for both R-18 and R-18G works. If you want to store them separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
+    `R-18(G) 作品用に追加のフォルダ階層を作りたい場合は、この設定を有効にしてください。<br>
+<br>
+使い方：<br>
+まず、ここでこのフォルダ階層の命名規則を設定します。<br>
+次に "命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{r18_g_folder}/</span>を追加します。<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが R-18(G)作品のファイル名を生成する際、<span class="blue">{r18_g_folder}</span>をここで設定した値に置き換えます。<br>
+ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダルールを設定する際、命名規則のタグを使用したり、カスタム文字を追加したりできます。<br>
-フォルダ名に作品IDを使用したい場合は、<span class="blue">{id}</span>ではなく<span class="blue">{id_num}</span>を使用してください。<br>
-注意：この設定は R-18 と R-18G の作品を同じフォルダに置きます。別々に保存したい場合は、この設定を無効にして、代わりに命名規則タグ <span class="blue">{age_r}</span> を使用してください。これにより R-18 と R-18G を区別できます。<br>`,
-    `R-18(G) 작품에 한 층의 폴더를 추가하고 싶다면 이 설정을 활성화할 수 있습니다.<br>
+フォルダ規則を設定するときは、命名規則内のマーカーも使えますし、任意の文字を追加することもできます。<br>
+なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>
+<br>
+注意：この設定を有効にすると、R-18 と R-18G の作品の両方にこのフォルダ階層が追加されます。別々に保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 と R-18G の作品を区別できます。<br>`,
+    `R-18(G) 작품에 폴더를 한 단계 더 추가하고 싶다면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기서 폴더 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정하고 필요한 위치에 <span class="blue">/{r18_g_folder}/</span>를 삽입하여 한 층의 폴더를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
+그런 다음 "명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 추가하세요.<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 R-18(G) 작품의 파일명을 생성할 때 <span class="blue">{r18_g_folder}</span>를 여기서 설정한 값으로 대체합니다.<br>
+다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때 명명 규칙의 태그를 사용하거나 사용자 정의 문자를 추가할 수 있습니다.<br>
-폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 대신 <span class="blue">{id_num}</span>를 사용해야 합니다.<br>
-주의: 이 설정은 R-18과 R-18G 작품을 같은 폴더에 넣습니다. 따로 저장하고 싶다면 이 설정을 비활성화하고 대신 명명 규칙 태그 <span class="blue">{age_r}</span>를 사용하세요. 이 태그는 R-18과 R-18G를 구분할 수 있습니다.<br>`,
-    `Если вы хотите добавить слой папки для работ R-18(G), вы можете включить эту настройку.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>
 <br>
-Способ использования:<br>
-Сначала задайте здесь правило папки.<br>
-Затем измените настройку «naming rule» и вставьте <span class="blue">/{r18_g_folder}/</span> в нужном месте, чтобы добавить слой папки.<br>
+주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 이 폴더 단계를 추가합니다. 둘을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
+    `Если вы хотите добавить дополнительный уровень папки для работ R-18(G), включите эту настройку.<br>
+<br>
+Как использовать:<br>
+Сначала задайте здесь правило названий для этой папки.<br>
+Затем измените настройку "Правила названий" и добавьте <span class="blue">/{r18_g_folder}/</span> в то место, где нужно вставить папку.<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-При генерации имени файла для работ R-18(G) загрузчик заменит <span class="blue">{r18_g_folder}</span> на значение, которое вы задали здесь.<br>
+Когда загрузчик будет создавать имена файлов для работ R-18(G), он заменит <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки вы можете использовать метки из правила именования или добавлять собственные символы.<br>
-Если вы хотите использовать ID произведения в имени папки, следует использовать <span class="blue">{id_num}</span>, а не <span class="blue">{id}</span>.<br>
-Примечание: Эта настройка помещает работы R-18 и R-18G в одну и ту же папку. Если вы хотите хранить их отдельно, отключите эту настройку и используйте вместо неё тег правила именования <span class="blue">{age_r}</span>, который может различать R-18 и R-18G.<br>`,
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>
+<br>
+Внимание: эта настройка добавляет этот уровень папки и для работ R-18, и для работ R-18G. Если вы хотите хранить их отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать отдельный уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
   ],
   _必填项不能为空: [
     '必填项不能为空',
@@ -8910,14 +8916,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - 普通字符和符号。你可以在标记之间添加普通字符，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 建立文件夹的说明：<br>
-- 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{id_num}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
+- 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{pid}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
 - 如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 <span class="blue name">{AI}</span> 标记，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - 如果你想根据作品类型建立文件夹，可以使用 <span class="blue name">{type}</span> 标记，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
 - * 有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。<br>
--  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
-- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+-  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
+- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
 <br>
 命名标记列表：<br>
 提示：点击标记的名字就可以复制它。<br>`,
@@ -8927,14 +8933,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - 普通字元和符號。你可以在標記之間添加普通字元，例如 <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 建立資料夾的說明：<br>
-- 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{id_num}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{id_num}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
+- 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{pid}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
 - 如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 <span class="blue name">{AI}</span> 標記，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - 如果你想根據作品類型建立資料夾，可以使用 <span class="blue name">{type}</span> 標記，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
 - * 有些標記並不總是可用，有時它們會是空字串，下載器會忽略它們。<br>
--  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{id_num}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
-- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{id_num}</span> 和 <span class="blue name">{p_num}</span>。<br>
+-  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
+- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
 <br>
 命名標記列表：<br>
 提示：點擊標記的名字就可以複製它。<br>`,
@@ -8944,14 +8950,14 @@ If the work matches either blocking condition, the downloader will not preview i
 - Regular characters and symbols. You can add regular characters between tokens, for example: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 Notes on creating folders:<br>
-- If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{id_num}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
+- If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{pid}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
 - If you want to put AI-generated works in a separate folder, use the <span class="blue name">{AI}</span> token, for example: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - If you want to create folders by work type, use the <span class="blue name">{type}</span> token, for example: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Tips:<br>
 - * Some tokens are not always available and may be empty strings — the downloader will ignore them.<br>
-- If you want to use the work's ID in a folder name, use <span class="blue name">{id_num}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
-- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{id_num}</span> and <span class="blue name">{p_num}</span>.<br>
+- If you want to use the work's ID in a folder name, use <span class="blue name">{pid}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
+- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{pid}</span> and <span class="blue name">{p}</span>.<br>
 <br>
 List of naming tokens:<br>
 Tip: Click a token name to copy it.<br>`,
@@ -8961,14 +8967,14 @@ Tip: Click a token name to copy it.<br>`,
 - 通常の文字や記号。トークンの間に通常の文字を追加できます。例：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 フォルダー作成の説明：<br>
-- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{id_num}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{id_num}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
+- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{pid}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{pid}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
 - AI 生成の work を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - work の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 ヒント：<br>
 - * 一部のトークンは常に使えるわけではなく、空文字列になることがあります。その場合、ダウンローダーはそれを無視します。<br>
-- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{id_num}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
-- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{id_num}</span> と <span class="blue name">{p_num}</span> の両方を含める必要があります。<br>
+- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
+- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の両方を含める必要があります。<br>
 <br>
 命名トークン一覧：<br>
 ヒント：トークン名をクリックするとコピーできます。<br>`,
@@ -8978,14 +8984,14 @@ Tip: Click a token name to copy it.<br>`,
 - 일반 문자와 기호. 토큰 사이에 일반 문자를 추가할 수 있습니다. 예：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 폴더 생성 설명：<br>
-- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{id_num}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{id_num}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
+- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{pid}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{pid}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
 - AI로 생성된 work를 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - work 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 팁：<br>
 - * 일부 토큰은 항상 사용 가능한 것은 아니며, 빈 문자열이 될 수 있습니다. 이 경우 다운로더는 해당 토큰을 무시합니다.<br>
-- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{id_num}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
-- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{id_num}</span> 과 <span class="blue name">{p_num}</span> 을 모두 포함해야 합니다.<br>
+- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
+- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{pid}</span> 과 <span class="blue name">{p}</span> 을 모두 포함해야 합니다.<br>
 <br>
 명명 토큰 목록：<br>
 팁: 토큰 이름을 클릭하면 복사할 수 있습니다.<br>`,
@@ -8995,14 +9001,14 @@ Tip: Click a token name to copy it.<br>`,
 - Обычные символы и знаки. Между токенами можно вставлять обычные символы, например: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 Пояснения по созданию папок:<br>
-- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{id_num}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{id_num}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
+- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{pid}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
 - Если вы хотите поместить work, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
 - Если вы хотите создавать папки по типу work, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Советы:<br>
 - * Некоторые токены доступны не всегда и могут быть пустой строкой — загрузчик будет их игнорировать.<br>
-- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{id_num}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
-- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{id_num}</span> и <span class="blue name">{p_num}</span>.<br>
+- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
+- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
 <br>
 Список токенов именования:<br>
 Совет: нажмите на название токена, чтобы скопировать его.<br>`,
@@ -9105,12 +9111,48 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `Токены серии {tags}, применяемые в имени файла`,
   ],
   _版本更新说明18_8_2: [
-    `🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名不会生效的问题`,
-    `🐞修復了在某些情況下，"使用第一個匹配的標籤建立資料夾"裡的標籤別名不會生效的問題`,
-    `🐞Fixed an issue where, in some cases, tag aliases in "Use the first matched tag to create a folder" did not take effect`,
-    `🐞一部の状況で、"最初に一致したタグを使ってフォルダーを作成する" のタグエイリアスが反映されない問題を修正しました`,
-    `🐞일부 상황에서 "처음 일치한 태그로 폴더 만들기"의 태그 별칭이 적용되지 않던 문제를 수정했습니다`,
-    `🐞Исправлена проблема, из-за которой в некоторых случаях псевдонимы тегов в настройке "Создавать папку по первому совпавшему тегу" не работали`,
+    `<strong>🔧调整了两个命名标记</strong><br>
+为了使一些命名标记更容易理解，我为它们添加了别名：<br>
+- <span class="blue">{id_num}</span> 改为 <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> 改为 <span class="blue">{p}</span><br>
+提示：原本的名字依然可以正常使用，所以你不需要修改现在使用的设置。<br>
+<br>
+<strong>🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名没有生效的问题</strong><br>`,
+    `<strong>🔧調整了兩個命名標記</strong><br>
+為了讓一些命名標記更容易理解，我為它們添加了別名：<br>
+- <span class="blue">{id_num}</span> 改為 <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> 改為 <span class="blue">{p}</span><br>
+提示：原本的名稱依然可以正常使用，所以你不需要修改現在使用的設定。<br>
+<br>
+<strong>🐞修復了在某些情況下，"使用第一個匹配的標籤建立資料夾" 裡的標籤別名沒有生效的問題</strong><br>`,
+    `<strong>🔧Adjusted two naming markers</strong><br>
+To make some naming markers easier to understand, I added aliases for them:<br>
+- <span class="blue">{id_num}</span> changed to <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> changed to <span class="blue">{p}</span><br>
+Tip: The original names still work normally, so you don't need to change your current settings.<br>
+<br>
+<strong>🐞Fixed an issue where, in some cases, the tag alias in "Use the first matching tag to create a folder" did not take effect</strong><br>`,
+    `<strong>🔧2つの命名マーカーを調整しました</strong><br>
+一部の命名マーカーをより分かりやすくするため、別名を追加しました。<br>
+- <span class="blue">{id_num}</span> を <span class="blue">{pid}</span> に変更<br>
+- <span class="blue">{p_num}</span> を <span class="blue">{p}</span> に変更<br>
+ヒント：元の名前もそのまま使えるので、現在使っている設定を変更する必要はありません。<br>
+<br>
+<strong>🐞一部の状況で、"最初に一致したタグでフォルダを作成する" のタグ別名が反映されない問題を修正しました</strong><br>`,
+    `<strong>🔧명명 마커 2개를 조정했습니다</strong><br>
+일부 명명 마커를 더 이해하기 쉽게 하기 위해 별칭을 추가했습니다.<br>
+- <span class="blue">{id_num}</span> 를 <span class="blue">{pid}</span> 로 변경<br>
+- <span class="blue">{p_num}</span> 를 <span class="blue">{p}</span> 로 변경<br>
+안내: 원래 이름도 계속 정상적으로 사용할 수 있으므로, 지금 사용 중인 설정을 바꿀 필요는 없습니다.<br>
+<br>
+<strong>🐞일부 경우 "첫 번째로 일치하는 태그로 폴더 만들기" 에서 태그 별칭이 적용되지 않던 문제를 수정했습니다</strong><br>`,
+    `<strong>🔧Скорректированы два маркера названий</strong><br>
+Чтобы некоторые маркеры названий было проще понять, я добавил для них псевдонимы:<br>
+- <span class="blue">{id_num}</span> изменен на <span class="blue">{pid}</span><br>
+- <span class="blue">{p_num}</span> изменен на <span class="blue">{p}</span><br>
+Подсказка: исходные названия по-прежнему работают, поэтому вам не нужно менять текущие настройки.<br>
+<br>
+<strong>🐞Исправлена проблема, из-за которой в некоторых случаях псевдоним тега в "Создавать папку по первому совпавшему тегу" не работал</strong><br>`,
   ],
 }
 

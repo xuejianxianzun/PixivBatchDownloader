@@ -32,7 +32,8 @@ class FileName {
 
     // 2 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
-    const p_num = this.createPNum(data)
+    const pid = (data.idNum || parseInt(data.id)).toString()
+    const p = this.createPNum(data)
     const schema: NamingSchema = {
       '{p_title}': {
         value: store.title,
@@ -51,15 +52,23 @@ class FileName {
         safe: false,
       },
       '{id}': {
-        value: this.createId(data, p_num),
+        value: this.createId(data, p),
         safe: true,
       },
       '{id_num}': {
-        value: (data.idNum || parseInt(data.id)).toString(),
+        value: pid,
+        safe: true,
+      },
+      '{pid}': {
+        value: pid,
         safe: true,
       },
       '{p_num}': {
-        value: !rule.includes('{p_num}') ? '' : p_num,
+        value: p,
+        safe: true,
+      },
+      '{p}': {
+        value: p,
         safe: true,
       },
       '{rank}': {
@@ -496,7 +505,7 @@ class FileName {
     return '#' + rank
   }
 
-  /** 生成 {p_num} 标记的值 */
+  /** 生成 {p} 标记的值 */
   private createPNum(data: Result) {
     if (data.type === 3) {
       // 小说没有编号，返回空字符串
@@ -535,13 +544,13 @@ class FileName {
   }
 
   /** 生成 {id} 标记的值 */
-  private createId(data: Result, p_num: string) {
+  private createId(data: Result, p: string) {
     // 如果不需要添加序号，或者没有序号，则只返回数字 id
-    if (p_num === '') {
+    if (p === '') {
       return data.idNum.toString()
     }
     // 添加序号
-    return `${data.idNum}_p${p_num}`
+    return `${data.idNum}_p${p}`
   }
 
   // 返回收藏数的简化显示

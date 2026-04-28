@@ -7,8 +7,8 @@ type ConfigItem = {
 class NamingRuleConfig {
   private readonly namingConfig: ConfigItem[] = [
     { name: '{id}', mayEmpty: false, help: '_命名标记id' },
-    { name: '{id_num}', mayEmpty: false, help: '_命名标记id_num' },
-    { name: '{p_num}', mayEmpty: true, help: '_命名标记p_num' },
+    { name: '{pid}', mayEmpty: false, help: '_命名标记pid' },
+    { name: '{p}', mayEmpty: true, help: '_命名标记p' },
     { name: '{user}', mayEmpty: false, help: '_命名标记user' },
     { name: '{user_id}', mayEmpty: false, help: '_用户id' },
     { name: '{title}', mayEmpty: false, help: '_命名标记title' },
