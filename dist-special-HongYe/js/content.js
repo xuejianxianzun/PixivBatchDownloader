@@ -42930,7 +42930,7 @@ const formHtml = `
         <span data-xztext="_下载线程"></span>
       </a>
       <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="24">
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
     <div class="option" data-no="17">
@@ -43726,14 +43726,14 @@ const formHtml = `
 
     <div class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
-    </p>
+    </div>
     
-    <p class="option" data-no="999">
+    <div class="option" data-no="999">
     <span class="settingNameStyle1">
     <span>把图片显示为<span class="key">灰色</span></span>
     <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
-    </p>
+    </div>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
     <div class="option" data-no="84">
