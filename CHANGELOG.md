@@ -3,7 +3,7 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
-## 18.8.2 2026-04-27
+## 18.8.2 2026-04-28
 
 ### 🔧调整了两个命名标记：{id_num} 和 {p_num}
 
