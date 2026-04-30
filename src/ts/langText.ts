@@ -3661,63 +3661,82 @@ This setting is also used when you use the Downloader to bookmark works in batch
     `如果你想仅为多图作品额外创建一层文件夹（并且不为单图作品创建该文件夹），可以启用此设置。<br>
 <br>
 使用方法：<br>
-先在这里设置这层文件夹的命名规则。<br>
-然后修改“图像作品的命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
-示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+先在这里设置这层文件夹的规则。注意：在这个设置里，你只需要设置为多图作品额外添加的文件夹。不要在这里填写完整的命名规则。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。<br>
+默认值 <span class="blue">{pid}</span> 会使用作品 ID 创建这层文件夹。如果你想使用作品标题来创建这层文件夹，就填写 <span class="blue">{title}</span>。
 <br>
-下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+然后你需要修改“下载”选项卡里的“图像作品的命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+<br>
+修改后的“图像作品的命名规则”的示例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+工作原理：下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>`,
     `如果你想僅為多圖作品額外建立一層資料夾（而且不為單圖作品建立這個資料夾），可以啟用此設定。<br>
 <br>
 使用方法：<br>
-先在這裡設定這層資料夾的命名規則。<br>
-然後修改 "圖像作品的命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
-示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+先在這裡設定這層資料夾的規則。注意：在這個設定裡，你只需要設定為多圖作品額外添加的資料夾，不要在這裡填寫完整的命名規則。<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
+預設值 <span class="blue">{pid}</span> 會使用作品 ID 建立這層資料夾。如果你想使用作品標題來建立這層資料夾，就填寫 <span class="blue">{title}</span>。<br>
 <br>
-下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
+然後你需要修改 "下載" 分頁裡的 "圖像作品的命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
 <br>
-設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
-    `If you want to create an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
+修改後的 "圖像作品的命名規則" 範例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+運作原理：下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>`,
+    `If you want to add an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
 <br>
 How to use:<br>
-First, set the Naming rule for this folder layer here.<br>
-Then edit the "Naming rule for image works" setting and add <span class="blue">/{multi_image_folder}/</span> where you want to insert the folder.<br>
-Example: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+First, set the rule for this folder layer here. Note: In this setting, you only need to set the extra folder added for multi-image works. Do not enter the full Naming rule here.<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+The default value <span class="blue">{pid}</span> will create this folder layer using the work ID. If you want to create this folder layer using the work title, enter <span class="blue">{title}</span>.<br>
 <br>
-When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>
+Then you need to edit the "Naming rule for image works" setting in the "Download" tab, and insert <span class="blue">/{multi_image_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters. Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>`,
-    `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成したくない場合は、この設定を有効にしてください。<br>
+Example of the modified "Naming rule for image works":<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+How it works: When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>`,
+    `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成しないようにしたい場合は、この設定を有効にしてください。<br>
 <br>
 使い方：<br>
-まず、ここでこのフォルダ階層の命名規則を設定します。<br>
-次に "画像作品の命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{multi_image_folder}/</span>を追加します。<br>
-例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+まず、ここでこのフォルダ階層の規則を設定します。注意：この設定では、複数画像作品に追加するフォルダだけを設定してください。ここに完全な命名規則を入力しないでください。<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
+デフォルト値の <span class="blue">{pid}</span> は、作品 ID を使ってこのフォルダ階層を作成します。作品タイトルを使ってこのフォルダ階層を作成したい場合は、<span class="blue">{title}</span> を入力してください。<br>
 <br>
-ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
+そのあと、"ダウンロード" タブにある "画像作品の命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{multi_image_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
 <br>
-フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>`,
+変更後の "画像作品の命名規則" の例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+仕組み：ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>`,
     `여러 장 이미지 작품에만 폴더를 한 단계 더 만들고, 한 장짜리 작품에는 이 폴더를 만들지 않으려면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
-그런 다음 "이미지 작품의 명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 추가하세요.<br>
-예시: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+먼저 여기에서 이 폴더 단계의 규칙을 설정하세요. 주의: 이 설정에서는 여러 장 이미지 작품에 추가할 폴더만 설정하면 됩니다. 여기에 전체 명명 규칙을 입력하면 안 됩니다.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+기본값 <span class="blue">{pid}</span> 는 작품 ID를 사용해 이 폴더 단계를 만듭니다. 작품 제목으로 이 폴더 단계를 만들고 싶다면 <span class="blue">{title}</span> 를 입력하세요.<br>
 <br>
-다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
+그다음 "다운로드" 탭에 있는 "이미지 작품의 명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
 <br>
-폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다. 주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>`,
-    `Если вы хотите создавать дополнительный уровень папки только для работ с несколькими изображениями, и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
+수정한 "이미지 작품의 명명 규칙" 예시:<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+동작 방식: 다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기에서 설정한 폴더 규칙으로 바꿉니다.<br>`,
+    `Если вы хотите добавить дополнительный уровень папки только для работ с несколькими изображениями и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
 <br>
 Как использовать:<br>
-Сначала задайте здесь правило названий для этой папки.<br>
-Затем измените настройку "Правила названий для графических работ" и добавьте <span class="blue">/{multi_image_folder}/</span> в то место, где нужно вставить папку.<br>
-Пример: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только папку, которая будет дополнительно добавляться для работ с несколькими изображениями. Не вводите здесь полное правило названий.<br>
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+Значение по умолчанию <span class="blue">{pid}</span> создаст этот уровень папки с использованием ID work. Если вы хотите создавать этот уровень папки по названию work, укажите <span class="blue">{title}</span>.<br>
 <br>
-Когда загрузчик будет создавать имена файлов для работ с несколькими изображениями, он заменит <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>
+Затем вам нужно изменить настройку "Правила названий для графических работ" на вкладке "Скачать" и вставить <span class="blue">/{multi_image_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
 <br>
-При настройке правила папки можно использовать маркеры из правил названий, а также добавлять свои символы. Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>`,
+Пример измененного "Правила названий для графических работ":<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+Как это работает: когда загрузчик создает имена файлов для работ с несколькими изображениями, он заменяет <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>`,
   ],
   _文件夹规则: [
     `文件夹规则`,
@@ -3726,6 +3745,14 @@ When setting the folder rule, you can use markers from the Naming rule, or add y
     `フォルダ規則`,
     `폴더 규칙`,
     `Правило папки`,
+  ],
+  _要添加的这层文件夹的规则: [
+    `要添加的这层文件夹的规则`,
+    `要添加的這層資料夾的規則`,
+    `Rule for the folder layer to add`,
+    `追加するこのフォルダ階層の規則`,
+    `추가할 이 폴더 단계의 규칙`,
+    `Правило для этого добавляемого уровня папки`,
   ],
   _文件数量大于: [
     '文件数量 >',
@@ -3813,81 +3840,87 @@ When setting the folder rule, you can use markers from the Naming rule, or add y
     `如果你想为 R-18(G) 作品额外添加一层文件夹，可以启用这个设置。<br>
 <br>
 使用方法：<br>
-先在这里设置这层文件夹的命名规则。<br>
-然后修改“命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
+先在这里设置这层文件夹的规则。注意：在这个设置里，你只需要设置你想额外添加的这层文件夹。不要在这里填写完整的命名规则。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。<br>
+<br>
+然后你需要修改“下载”选项卡里的“命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+<br>
+修改后的命名规则的示例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
+工作原理：下载器为 R-18(G) 作品生成文件名时，会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。<br>
-需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
-<br>
-注意：这个设置会为 R-18 和 R-18G 作品都添加这层文件夹。如果你想把它们分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
+注意：这个设置会为 R-18 和 R-18G 作品添加相同的文件夹名字。如果你想把 R-18 和 R-18G 作品分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
     `如果你想為 R-18(G) 作品額外添加一層資料夾，可以啟用這個設定。<br>
 <br>
 使用方法：<br>
-先在這裡設定這層資料夾的命名規則。<br>
-然後修改 "命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
+先在這裡設定這層資料夾的規則。注意：在這個設定裡，你只需要設定你想額外添加的這層資料夾。不要在這裡填寫完整的命名規則。<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
+<br>
+然後你需要修改 "下載" 分頁裡的 "命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
+<br>
+修改後的命名規則範例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下載器為 R-18(G) 作品產生檔名時，會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
+運作原理：下載器為 R-18(G) 作品產生檔名時，會將 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-設定資料夾規則時，你可以使用命名規則裡的標記，也可以加入自訂字元。<br>
-需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
-<br>
-注意：這個設定會為 R-18 和 R-18G 作品都添加這層資料夾。如果你想把它們分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
+注意：這個設定會為 R-18 和 R-18G 作品添加相同的資料夾名稱。如果你想把 R-18 和 R-18G 作品分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
     `If you want to add an extra folder layer for R-18(G) works, you can enable this setting.<br>
 <br>
 How to use:<br>
-First, set the Naming rule for this folder layer here.<br>
-Then edit the "Naming rule" setting and add <span class="blue">/{r18_g_folder}/</span> where you want to insert the folder.<br>
+First, set the rule for this folder layer here. Note: In this setting, you only need to set the extra folder layer you want to add. Do not enter the full Naming rule here.<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+<br>
+Then you need to edit the "Naming rule" setting in the "Download" tab, and insert <span class="blue">/{r18_g_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
+<br>
+Example of the modified Naming rule:<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
+How it works: When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
-Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>
-<br>
-Note: This setting adds this folder layer for both R-18 and R-18G works. If you want to store them separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
+Note: This setting will add the same folder name for both R-18 and R-18G works. If you want to store R-18 and R-18G works separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
     `R-18(G) 作品用に追加のフォルダ階層を作りたい場合は、この設定を有効にしてください。<br>
 <br>
 使い方：<br>
-まず、ここでこのフォルダ階層の命名規則を設定します。<br>
-次に "命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{r18_g_folder}/</span>を追加します。<br>
+まず、ここでこのフォルダ階層の規則を設定します。注意：この設定では、追加したいこのフォルダ階層だけを設定してください。ここに完全な命名規則を入力しないでください。<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
+<br>
+そのあと、"ダウンロード" タブにある "命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{r18_g_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
+<br>
+変更後の命名規則の例：<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
+仕組み：ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダ規則を設定するときは、命名規則内のマーカーも使えますし、任意の文字を追加することもできます。<br>
-なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>
-<br>
-注意：この設定を有効にすると、R-18 と R-18G の作品の両方にこのフォルダ階層が追加されます。別々に保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 と R-18G の作品を区別できます。<br>`,
+注意：この設定では、R-18 作品と R-18G 作品の両方に同じフォルダ名が追加されます。R-18 作品と R-18G 作品を分けて保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 作品と R-18G 作品を区別できます。<br>`,
     `R-18(G) 작품에 폴더를 한 단계 더 추가하고 싶다면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 규칙을 설정하세요. 주의: 이 설정에서는 추가하고 싶은 이 폴더 단계만 설정하면 됩니다. 여기에 전체 명명 규칙을 입력하면 안 됩니다.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+<br>
+그다음 "다운로드" 탭에 있는 "명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
+<br>
+수정한 명명 규칙 예시:<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
+동작 방식: 다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기에서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
-주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>
-<br>
-주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 이 폴더 단계를 추가합니다. 둘을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
+주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 같은 폴더 이름을 추가합니다. R-18 작품과 R-18G 작품을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
     `Если вы хотите добавить дополнительный уровень папки для работ R-18(G), включите эту настройку.<br>
 <br>
 Как использовать:<br>
-Сначала задайте здесь правило названий для этой папки.<br>
-Затем измените настройку "Правила названий" и добавьте <span class="blue">/{r18_g_folder}/</span> в то место, где нужно вставить папку.<br>
+Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только тот дополнительный уровень папки, который вы хотите добавить. Не вводите здесь полное правило названий.<br>
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+<br>
+Затем вам нужно изменить настройку "Правила названий" на вкладке "Скачать" и вставить <span class="blue">/{r18_g_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
+<br>
+Пример измененного правила названий:<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-Когда загрузчик будет создавать имена файлов для работ R-18(G), он заменит <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
+Как это работает: когда загрузчик создает имена файлов для работ R-18(G), он заменяет <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
-Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>
-<br>
-Внимание: эта настройка добавляет этот уровень папки и для работ R-18, и для работ R-18G. Если вы хотите хранить их отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать отдельный уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
+Внимание: эта настройка добавляет одинаковое имя папки и для работ R-18, и для работ R-18G. Если вы хотите хранить работы R-18 и R-18G отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
   ],
   _必填项不能为空: [
     '必填项不能为空',
@@ -4770,49 +4803,79 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `<span class="key">폴더를 생성하지 않음</span>`,
     `<span class="key">Не создавать</span> папку`,
   ],
-  _以下情况不创建文件夹的帮助内容: [
+  _不创建文件夹的帮助内容: [
     `启用此设置后，符合条件的文件不会创建文件夹，而是直接保存到浏览器的下载目录里。<br>
 <br>
 子选项：<br>
-- 单图作品：只有 1 张图片的插画、漫画、动图作品。<br>
-- 多图作品：有多张图片的插画、漫画作品。<br>
-- 小说：单篇小说作品。不包括合并系列小说后生成的合集文件。<br>
-如果你启用了所有子选项，那么所有作品都不会创建文件夹。`,
-    `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接保存到瀏覽器的下載目錄裡。<br>
+- 从插画、漫画里下载 1 张图片时：如果你只从这个作品里下载了 1 张图片，就不为这张图片创建文件夹。每个作品都会单独计算。<br>
+- 从插画、漫画里下载多张图片时：如果你从这个作品里下载了多张图片，就不为这些图片创建文件夹。每个作品都会单独计算。<br>
+- 动图：不为动图作品创建文件夹。<br>
+- 小说：不为单篇小说作品创建文件夹。<br>
+<br>
+提示：<br>
+如果你启用了所有子选项，那么所有作品都不会创建文件夹。<br>
+此设置不适用于合并系列小说后生成的合集文件。如果你想让合集文件不创建文件夹，可以在"更多"-"命名"里修改"
+合并系列小说时的命名规则"。`,
+    `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接儲存到瀏覽器的下載目錄裡。<br>
 <br>
 子選項：<br>
-- 單圖作品：只有 1 張圖片的插畫、漫畫、動圖作品。<br>
-- 多圖作品：有多張圖片的插畫、漫畫作品。<br>
-- 小說：單篇小說作品。不包括合併系列小說後生成的合集檔案。<br>
-如果你啟用了所有子選項，那麼所有作品都不會建立資料夾。`,
-    `After enabling this setting, files that meet the conditions will not create a folder and will be saved directly to the browser's download directory.<br>
+- 從插畫、漫畫裡下載 1 張圖片時：如果你只從這個作品裡下載了 1 張圖片，就不會為這張圖片建立資料夾。每個作品都會分開計算。<br>
+- 從插畫、漫畫裡下載多張圖片時：如果你從這個作品裡下載了多張圖片，就不會為這些圖片建立資料夾。每個作品都會分開計算。<br>
+- 動圖：不為動圖作品建立資料夾。<br>
+- 小說：不為單篇小說作品建立資料夾。<br>
+<br>
+提示：<br>
+如果你啟用了所有子選項，那麼所有作品都不會建立資料夾。<br>
+此設定不適用於合併系列小說後產生的合集檔案。如果你想讓合集檔案不建立資料夾，可以在"更多"-"命名"裡修改"
+合併系列小說時的命名規則"。`,
+    `After enabling this setting, files that meet the conditions will not have a folder created for them, and will instead be saved directly to the browser's download directory.<br>
 <br>
 Sub-options:<br>
-- Single-image works: Illustrations, manga, and Ugoira works that have only 1 image.<br>
-- Multi-image works: Illustrations and manga works that have multiple images.<br>
-- Novel: Single novel work. Does not include the collection file generated after merging a series of novels.<br>
-If you enable all sub-options, no works will create folders.`,
-    `この設定を有効にすると、条件に該当するファイルはフォルダを作成せず、ブラウザのダウンロードディレクトリに直接保存されます。<br>
+- When downloading 1 image from an illustration or manga: If you download only 1 image from this work, no folder will be created for that image. Each work is counted separately.<br>
+- When downloading multiple images from an illustration or manga: If you download multiple images from this work, no folder will be created for those images. Each work is counted separately.<br>
+- Ugoira: No folder will be created for Ugoira works.<br>
+- Novel: No folder will be created for a single novel work.<br>
 <br>
-サブオプション：<br>
-- 単画像作品：画像が1枚のみのイラスト、漫画、動画像作品。<br>
-- 複数画像作品：複数の画像があるイラスト、漫画作品。<br>
-- 小説：単一の小説作品。シリーズ小説をマージして生成された合集ファイルは含まれません。<br>
-すべてのサブオプションを有効にすると、すべての作品でフォルダが作成されなくなります。`,
-    `이 설정을 활성화하면 조건에 맞는 파일은 폴더를 생성하지 않고 브라우저의 다운로드 디렉토리에 직접 저장됩니다.<br>
+Tip:<br>
+If you enable all sub-options, then no folders will be created for any works.<br>
+This setting does not apply to collection files generated after merging a novel series. If you want collection files to be saved without creating folders, you can change the "
+Naming rule when merging a novel series" in "More"-"Naming".`,
+    `この設定を有効にすると、条件に合うファイルはフォルダを作成せず、ブラウザのダウンロードフォルダに直接保存されます。<br>
+<br>
+子オプション：<br>
+- イラスト・漫画から 1 枚ダウンロードするとき：この作品から 1 枚だけダウンロードした場合、その画像用のフォルダは作成されません。作品ごとに個別で判定されます。<br>
+- イラスト・漫画から複数の画像をダウンロードするとき：この作品から複数の画像をダウンロードした場合、それらの画像用のフォルダは作成されません。作品ごとに個別で判定されます。<br>
+- 動画：Ugoira 作品用のフォルダは作成されません。<br>
+- 小説：単体の小説作品用のフォルダは作成されません。<br>
+<br>
+ヒント：<br>
+すべての子オプションを有効にすると、どの作品でもフォルダは作成されなくなります。<br>
+この設定は、シリーズ小説を結合したあとに生成される合集ファイルには適用されません。合集ファイルでフォルダを作成しないようにしたい場合は、"その他"-"命名" で "
+シリーズ小説を結合するときの命名規則" を変更してください。`,
+    `이 설정을 켜면 조건에 맞는 파일은 폴더를 만들지 않고, 브라우저의 다운로드 폴더에 바로 저장됩니다.<br>
 <br>
 하위 옵션:<br>
-- 단일 이미지 작품: 이미지가 1장만 있는 일러스트, 만화, 동화 작품.<br>
-- 다중 이미지 작품: 여러 장의 이미지가 있는 일러스트, 만화 작품.<br>
-- 소설: 단편 소설 작품. 시리즈 소설을 병합한 후 생성된 컬렉션 파일은 포함되지 않습니다.<br>
-모든 하위 옵션을 활성화하면 모든 작품에 폴더가 생성되지 않습니다.`,
-    `После включения этой настройки файлы, удовлетворяющие условиям, не будут создавать папку, а будут сохраняться напрямую в папку загрузок браузера.<br>
+- 일러스트 또는 만화에서 이미지 1장을 다운로드할 때: 이 work에서 이미지를 1장만 다운로드했다면, 그 이미지용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- 일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때: 이 work에서 이미지를 여러 장 다운로드했다면, 그 이미지들용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- Ugoira: Ugoira work용 폴더를 만들지 않습니다.<br>
+- 소설: 단일 novel work용 폴더를 만들지 않습니다.<br>
 <br>
-Подопции:<br>
-- Одноизображные работы: иллюстрации, манга и Ugoira, имеющие только 1 изображение.<br>
-- Многоизображные работы: иллюстрации и манга, имеющие несколько изображений.<br>
-- Новелла: одиночная новелла. Не включает файл коллекции, созданный после объединения серии новелл.<br>
-Если вы включите все подопции, ни одна работа не будет создавать папки.`,
+안내:<br>
+모든 하위 옵션을 켜면 어떤 work도 폴더를 만들지 않습니다.<br>
+이 설정은 시리즈 novel을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "더보기"-"명명" 에서 "
+시리즈 novel 병합 시 명명 규칙" 을 수정하면 됩니다。`,
+    `После включения этой настройки для подходящих файлов папки создаваться не будут, и они будут сохраняться прямо в папку загрузок браузера.<br>
+<br>
+Подпункты:<br>
+- При скачивании 1 изображения из иллюстрации или манги: если вы скачали только 1 изображение из этой работы, папка для него создаваться не будет. Каждая работа считается отдельно.<br>
+- При скачивании нескольких изображений из иллюстрации или манги: если вы скачали несколько изображений из этой работы, папка для этих изображений создаваться не будет. Каждая работа считается отдельно.<br>
+- Ugoira: для работ Ugoira папка создаваться не будет.<br>
+- Novel: для отдельной работы-романа папка создаваться не будет.<br>
+<br>
+Подсказка:<br>
+Если вы включите все подпункты, папки не будут создаваться ни для каких работ.<br>
+Эта настройка не применяется к файлам-сборникам, созданным после объединения серии novel. Если вы хотите, чтобы для файлов-сборников тоже не создавались папки, можно изменить "
+Правила названий при объединении серии novel" в разделе "Ещё"-"Именование".`,
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -9153,6 +9216,22 @@ Tip: The original names still work normally, so you don't need to change your cu
 Подсказка: исходные названия по-прежнему работают, поэтому вам не нужно менять текущие настройки.<br>
 <br>
 <strong>🐞Исправлена проблема, из-за которой в некоторых случаях псевдоним тега в "Создавать папку по первому совпавшему тегу" не работал</strong><br>`,
+  ],
+  _从插画漫画里下载1张图片时: [
+    `从插画、漫画里下载 1 张图片时`,
+    `從插畫、漫畫裡下載 1 張圖片時`,
+    `When downloading 1 image from an illustration or manga`,
+    `イラスト・漫画から 1 枚ダウンロードするとき`,
+    `일러스트 또는 만화에서 이미지 1장을 다운로드할 때`,
+    `При скачивании 1 изображения из illustration или manga`,
+  ],
+  _从插画漫画里下载多张图片时: [
+    `从插画、漫画里下载多张图片时`,
+    `從插畫、漫畫裡下載多張圖片時`,
+    `When downloading multiple images from an illustration or manga`,
+    `イラスト・漫画から複数の画像をダウンロードするとき`,
+    `일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때`,
+    `При скачивании нескольких изображений из иллюстрации или манги`,
   ],
 }
 

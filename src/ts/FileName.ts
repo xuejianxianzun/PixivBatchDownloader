@@ -80,7 +80,7 @@ class FileName {
         safe: false,
       },
       '{user}': {
-        value: this.RemoveAtFromUsername(
+        value: this.removeAtFromUsername(
           settings.setUserNameList[data.userId] || data.user
         ),
         safe: false,
@@ -213,11 +213,12 @@ class FileName {
     let result = this.generateFileName(rule, schema)
 
     // 5 生成后缀名
+    let ext = data.ext
     // 处理动图的后缀名
-    if (Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
+    if (Config.ugoiraExtensions.includes(ext) && data.ugoiraInfo) {
       // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
       if (settings.imageSize !== 'thumb') {
-        data.ext = settings.ugoiraSaveAs
+        ext = settings.ugoiraSaveAs
       }
       // 下载动图时，如果选择的尺寸是“方形缩略图”则不修改其后缀名，因为此时下载的是静态缩略图。
       // 其他三种尺寸都是动图。“普通”和“小图”也是动图，只是尺寸比“原图”小。
@@ -225,33 +226,15 @@ class FileName {
 
     // 处理小说的后缀名
     if (data.type === 3) {
-      data.ext = settings.novelSaveAs
+      ext = settings.novelSaveAs
     }
 
-    const extResult = '.' + data.ext
+    const extResult = '.' + ext
 
     // 6 处理不创建文件夹的情况
-    if (settings.noFolderSwitch) {
-      let noFolder = false
-      if (data.type === 3) {
-        // 小说
-        noFolder = settings.noFolderWhenNovel
-      } else if (data.type === 2) {
-        // 动图
-        noFolder = settings.noFolderWhenSingleImageWork
-      } else {
-        // 插画或漫画，根据单图作品或多图作品来决定
-        if (data.pageCount > 1) {
-          noFolder = settings.noFolderWhenMultiImageWork
-        } else {
-          noFolder = settings.noFolderWhenSingleImageWork
-        }
-      }
-
+    if (this.handleNoFolder(data) === false) {
       // 舍弃文件夹部分，只保留文件名
-      if (noFolder) {
-        result = result.split('/').pop()!
-      }
+      result = result.split('/').pop()!
     }
 
     // 7 处理文件名长度限制
@@ -491,6 +474,43 @@ class FileName {
     return setTagAlias.handleTagsNamingRule(tags).join(settings.tagsSeparator)
   }
 
+  /** 判断是否不为这个文件创建文件夹 */
+  private handleNoFolder(result: Result): boolean {
+    if (!settings.noFolderSwitch) {
+      return false
+    }
+
+    // 对设置取反，即如果符合某个条件，就返回 false 表示不创建文件夹
+
+    // 动图
+    if (result.type === 2) {
+      return !settings.noFolderWhenUgoira
+    }
+
+    // 小说
+    if (result.type === 3) {
+      return !settings.noFolderWhenNovel
+    }
+
+    // 处理插画和漫画
+    if (result.pageCount === 1) {
+      // 从插画、漫画里下载 1 张图片时
+      return !settings.noFolderWhenDownload1Image
+    } else {
+      // 如果这个作品的图片数量大于 1，那么需要统计实际会从它里面下载多少张图片
+      let imageCount = store.downloadCount[result.idNum.toString()]
+      if (imageCount === undefined) {
+        imageCount =
+          store.result.filter((item) => item.idNum === result.idNum).length || 1
+      }
+      if (imageCount === 1) {
+        return !settings.noFolderWhenDownload1Image
+      } else {
+        return !settings.noFolderWhenDownloadMultipleImages
+      }
+    }
+  }
+
   /** 生成 {rank} 标记的值 */
   private createRank(rank: number | null): string {
     // 处理空值
@@ -611,13 +631,15 @@ class FileName {
   }
 
   private readonly atList = ['@', '＠']
-  public RemoveAtFromUsername(name: string) {
+  /** 移除用户名里的 @ 和后续字符 */
+  public removeAtFromUsername(name: string) {
     if (!settings.removeAtFromUsername) {
       return name
     }
 
     for (const at of this.atList) {
       let index = name.indexOf(at)
+      // 仅当 @ 不是开头第一个字符时才会移除它
       if (index > 0) {
         name = name.substring(0, index)
       }

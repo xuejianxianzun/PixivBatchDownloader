@@ -121,8 +121,9 @@ export interface SettingsForm extends HTMLFormElement {
   showOriginImageSize: HTMLInputElement
   replaceSquareThumb: HTMLInputElement
   noFolderSwitch: HTMLInputElement
-  noFolderWhenSingleImageWork: HTMLInputElement
-  noFolderWhenMultiImageWork: HTMLInputElement
+  noFolderWhenUgoira: HTMLInputElement
+  noFolderWhenDownload1Image: HTMLInputElement
+  noFolderWhenDownloadMultipleImages: HTMLInputElement
   noFolderWhenNovel: HTMLInputElement
   noSerialNoForSingleImg: HTMLInputElement
   noSerialNoForMultiImg: HTMLInputElement

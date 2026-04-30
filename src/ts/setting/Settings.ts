@@ -243,8 +243,9 @@ interface XzSetting {
   whatIsNewFlag: string
   replaceSquareThumb: boolean
   noFolderSwitch: boolean
-  noFolderWhenSingleImageWork: boolean
-  noFolderWhenMultiImageWork: boolean
+  noFolderWhenUgoira: boolean
+  noFolderWhenDownload1Image: boolean
+  noFolderWhenDownloadMultipleImages: boolean
   noFolderWhenNovel: boolean
   noSerialNo: boolean
   noSerialNoForSingleImg: boolean
@@ -263,6 +264,7 @@ interface XzSetting {
   showLargerThumbnails: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
   checkBlockTagsForPreviewWork: boolean
+  // 这里存在拼写错误，但为了保持兼容性不做修改
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotCrawlLastImagesSwitch: boolean
@@ -801,8 +803,9 @@ class Settings {
     whatIsNewFlag: Config.whatIsNewFlagDefault,
     replaceSquareThumb: true,
     noFolderSwitch: false,
-    noFolderWhenSingleImageWork: true,
-    noFolderWhenMultiImageWork: false,
+    noFolderWhenUgoira: true,
+    noFolderWhenDownload1Image: true,
+    noFolderWhenDownloadMultipleImages: false,
     noFolderWhenNovel: false,
     noSerialNo: true,
     noSerialNoForSingleImg: false,
@@ -1014,7 +1017,7 @@ class Settings {
 
   // 读取恢复设置
   private restore() {
-    let restoreData = this.defaultSettings
+    let restoreData = Utils.deepCopy(this.defaultSettings)
     // 首先从 browser.storage 获取配置
     browser.storage.local.get(Config.settingStoreName).then((result) => {
       if (result[Config.settingStoreName]) {
@@ -1141,7 +1144,7 @@ class Settings {
 
     if (keyType === 'number' && valueType !== 'number') {
       // 时间是需要特殊处理的 number 类型
-      if (key === 'postDateStart' || key == 'postDateEnd') {
+      if (key === 'postDateStart' || key === 'postDateEnd') {
         if (valueType === 'string') {
           if (value === '') {
             // 如果日期是空字符串，则替换为默认值
@@ -1219,10 +1222,6 @@ class Settings {
       value = 0
     }
 
-    if (key === 'onlyCrawlFirstFewImagesCount' && (value as number) < 1) {
-      value = this.defaultSettings[key]
-    }
-
     if (key === 'fullNameLengthLimit') {
       // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
       if ((value as number) < 20) {
@@ -1272,7 +1271,7 @@ class Settings {
     }
 
     if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
-      value = (value as string).replace('{id}', '{pid}')
+      value = (value as string).replaceAll('{id}', '{pid}')
     }
 
     if (key === 'borderColor') {

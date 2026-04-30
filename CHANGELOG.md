@@ -3,6 +3,18 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool
 
+## next 2026-04-30
+
+### ⚠️🔧调整了“不创建文件夹”设置的子选项
+
+该设置的子选项已经重新设计，以提供更细致的控制能力。
+
+如果你使用这个设置，需要重新选择你需要的选项。
+
+### 😊优化了一些帮助信息
+
+我发现很多用户依然搞不懂“为多图作品添加一层文件夹”和“为 R-18(G) 作品添加一层文件夹”怎么用，可能是因为之前的帮助信息写的不够明确易懂，所以我优化了它们的帮助信息。
+
 ## 18.8.2 2026-04-28
 
 ### 🔧调整了两个命名标记：{id_num} 和 {p_num}

@@ -486,18 +486,27 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_不创建文件夹的帮助内容" data-xztext="_帮助"></button>
+
       <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
-        <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
+
+        <input type="checkbox" name="noFolderWhenDownload1Image" id="noFolderWhenDownload1Image" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
-        <input type="checkbox" name="noFolderWhenMultiImageWork" id="noFolderWhenMultiImageWork" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownload1Image" data-xztext="_从插画漫画里下载1张图片时"></label>
+
+        <input type="checkbox" name="noFolderWhenDownloadMultipleImages" id="noFolderWhenDownloadMultipleImages" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenMultiImageWork" data-xztext="_多图作品"></label>
-        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownloadMultipleImages" data-xztext="_从插画漫画里下载多张图片时"></label>
+        
+        <input type="checkbox" name="noFolderWhenUgoira" id="noFolderWhenUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenUgoira" data-xztext="_动图"></label>
+
+        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="noFolderWhenNovel" data-xztext="_小说"></label>
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
     </div>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
@@ -734,9 +743,9 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
-        <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
+        <input class="setinput_style1 blue w50 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
 
-        <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
+        <label for="folderForMultiImageWorksRule" data-xztext="_要添加的这层文件夹的规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{pid}">
       </span>
     </div>
@@ -747,8 +756,8 @@ export const formHtml = `
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_文件夹规则"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
+        <label for="r18FolderName" data-xztext="_要添加的这层文件夹的规则"></label>
+        <input type="text" name="r18FolderName" id="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </div>
