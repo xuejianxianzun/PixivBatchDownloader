@@ -150,6 +150,11 @@ class FormSettings {
       'onlyCrawlLastFewImagesSwitch',
       'doNotCrawlFirstImagesSwitch',
       'useTagAliasForTagsNamingRule',
+      'ugoiraSaveAsWebM',
+      'ugoiraSaveAsGIF',
+      'ugoiraSaveAsAPNG',
+      'ugoiraSaveAsZIP',
+      'ugoiraSaveAsUgoira',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -196,7 +201,6 @@ class FormSettings {
       'singleEPUBFileSizeLimit',
     ],
     radio: [
-      'ugoiraSaveAs',
       'novelSaveAs',
       'widthHeightLimit',
       'userRatioLimit',

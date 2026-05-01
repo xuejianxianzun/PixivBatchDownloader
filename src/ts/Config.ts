@@ -15,10 +15,16 @@ class Config {
   static readonly retryMax = 10
   /**作品类型所对应的字符串名称 */
   static readonly worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel']
-  /**下载器所有动图格式的后缀名 */
-  static readonly ugoiraExtensions = ['zip', 'webm', 'gif', 'apng']
-  /**下载器所有小说格式的后缀名 */
-  static readonly novelExtensions = ['txt', 'epub']
+  /**下载器可以把动图保存为的所有格式，也是扩展名 */
+  static readonly allUgoiraFormats = [
+    'webm',
+    'gif',
+    'apng',
+    'zip',
+    'ugoira',
+  ] as const
+  /**下载器可以把小说保存为的所有格式，也是扩展名 */
+  static readonly allNovelFormats = ['txt', 'epub'] as const
   /**按收藏数量过滤作品时，预设的最大收藏数量 */
   static readonly BookmarkCountLimit = 9999999
   /**Pixiv 作品总数量上限 */

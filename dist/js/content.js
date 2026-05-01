@@ -2758,10 +2758,16 @@ class Config {
     static retryMax = 10;
     /**作品类型所对应的字符串名称 */
     static worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
-    /**下载器所有动图格式的后缀名 */
-    static ugoiraExtensions = ['zip', 'webm', 'gif', 'apng'];
-    /**下载器所有小说格式的后缀名 */
-    static novelExtensions = ['txt', 'epub'];
+    /**下载器可以把动图保存为的所有格式，也是扩展名 */
+    static allUgoiraFormats = [
+        'webm',
+        'gif',
+        'apng',
+        'zip',
+        'ugoira',
+    ];
+    /**下载器可以把小说保存为的所有格式，也是扩展名 */
+    static allNovelFormats = ['txt', 'epub'];
     /**按收藏数量过滤作品时，预设的最大收藏数量 */
     static BookmarkCountLimit = 9999999;
     /**Pixiv 作品总数量上限 */
@@ -3052,7 +3058,9 @@ class ToGIF {
             const width = ImageBitmapList[0].width;
             const height = ImageBitmapList[0].height;
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', {
+                willReadFrequently: true,
+            });
             canvas.width = width;
             canvas.height = height;
             // 添加帧数据
@@ -4075,30 +4083,21 @@ class FileName {
         };
         // 3 生成文件名
         let result = this.generateFileName(rule, schema);
-        // 5 生成后缀名
+        // 5 生成扩展名
         let ext = data.ext;
-        // 处理动图的后缀名
-        if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.ugoiraExtensions.includes(ext) && data.ugoiraInfo) {
-            // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.imageSize !== 'thumb') {
-                ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.ugoiraSaveAs;
-            }
-            // 下载动图时，如果选择的尺寸是“方形缩略图”则不修改其后缀名，因为此时下载的是静态缩略图。
-            // 其他三种尺寸都是动图。“普通”和“小图”也是动图，只是尺寸比“原图”小。
-        }
-        // 处理小说的后缀名
+        // 处理小说的扩展名
         if (data.type === 3) {
             ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
         }
         const extResult = '.' + ext;
         // 6 处理不创建文件夹的情况
-        if (this.handleNoFolder(data) === false) {
+        if (this.shouldCreateFolder(data) === false) {
             // 舍弃文件夹部分，只保留文件名
             result = result.split('/').pop();
         }
         // 7 处理文件名长度限制
         result = this.lengthLimit(result, extResult, schema['{id}'].value);
-        // 8 添加后缀名
+        // 8 添加扩展名
         result += extResult;
         // 9 返回结果
         return result;
@@ -4288,10 +4287,10 @@ class FileName {
     handleTagsRule(tags) {
         return _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__.setTagAlias.handleTagsNamingRule(tags).join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator);
     }
-    /** 判断是否不为这个文件创建文件夹 */
-    handleNoFolder(result) {
+    /** 是否要为这个文件创建文件夹 */
+    shouldCreateFolder(result) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderSwitch) {
-            return false;
+            return true;
         }
         // 对设置取反，即如果符合某个条件，就返回 false 表示不创建文件夹
         // 动图
@@ -4468,7 +4467,7 @@ class FileName {
             // 去掉每层路径首尾的空格
             // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
             parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
-            // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
+            // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
             parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.handleWindowsReservedName(parts[i], this.addStr);
         }
         string = parts.join('/');
@@ -21447,15 +21446,16 @@ class Download {
         this.download(arg);
     }
     async download(arg) {
+        const result = arg.result;
         // 获取文件名
-        let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
+        let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result);
         // 重置当前下载记录条
         this.setProgressBar(_fileName, 0, 0);
         await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
         this.lastRequestTime = Date.now();
-        if (arg.result.type === 3) {
+        if (result.type === 3) {
             // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
-            const blob = await this.getNovelFileURL(arg.result.novelMeta, _fileName);
+            const blob = await this.getNovelFileURL(result.novelMeta, _fileName);
             const blobURL = URL.createObjectURL(blob);
             // 等待上一个文件下载完成
             await this.waitPreviousFileDownload();
@@ -21467,7 +21467,7 @@ class Download {
         }
         // 下载图像作品
         // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-        const url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || arg.result.original;
+        const url = result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || result.original;
         // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
         // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'original') {
@@ -21495,7 +21495,7 @@ class Download {
             const contentLength = response.headers.get('Content-Length') || '0';
             const total = parseInt(contentLength, 10);
             // 检查体积设置，如果检查不通过，会把 this.skip 设置成 true，从而中断下载
-            const sizeCheck = await this.checkSize(arg.result, total);
+            const sizeCheck = await this.checkSize(result, total);
             if (!sizeCheck) {
                 // 当因为体积问题跳过下载时，直接把进度条拉满
                 // 如果不把进度条拉满，用户看到这个文件的进度条只有一点点，就会以为下载卡住或出错了
@@ -21532,9 +21532,18 @@ class Download {
             }
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, false);
             // 转换动图
-            const convertResult = await this.convertUgoira(arg.result, file);
-            file = convertResult || file;
+            if (result.type === 2) {
+                // 如果不需要转换会返回 null，此时继续使用 file
+                const convertResult = await this.convertUgoira(result, file, _fileName);
+                file = convertResult || file;
+                const lastName = this.lastUgoiraFileName;
+                if (lastName && lastName !== _fileName) {
+                    _fileName = lastName;
+                    this.setProgressBar(lastName, file.size, file.size);
+                }
+            }
             if (this.cancel) {
+                file = null;
                 return;
             }
             // 生成下载链接
@@ -21542,12 +21551,16 @@ class Download {
             // 对插画、漫画进行颜色检查
             // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
             // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
-            await this.checkColor(arg.result, blobURL);
+            if (result.type === 0 || result.type === 1) {
+                await this.checkColor(result, blobURL);
+            }
             // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
-            const newFileName = await this.checkNamingRulePX(arg.result, blobURL);
-            if (newFileName && newFileName !== _fileName) {
-                _fileName = newFileName;
-                this.setProgressBar(newFileName, file.size, file.size);
+            if (result.index > 0) {
+                const newFileName = await this.checkNamingRulePX(result, blobURL);
+                if (newFileName && newFileName !== _fileName) {
+                    _fileName = newFileName;
+                    this.setProgressBar(newFileName, file.size, file.size);
+                }
             }
             // 等待上一个文件下载完成
             await this.waitPreviousFileDownload();
@@ -21565,6 +21578,9 @@ class Download {
             }
             // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
             // 储存重试的时间戳等信息
+            if (this.retryInterval.length > _Config__WEBPACK_IMPORTED_MODULE_12__.Config.retryMax) {
+                this.retryInterval.shift();
+            }
             this.retryInterval.push(Date.now() - this.lastRequestTime);
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, true);
             this.retry++;
@@ -21629,30 +21645,107 @@ class Download {
         const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'](novelMeta, filename);
         return blob;
     }
-    /** 转换动图，返回 Blob 文件。如果不需要转换，或者转换失败，会返回 null */
-    async convertUgoira(result, zipFile) {
-        const convertExt = ['webm', 'gif', 'apng'];
-        const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAs;
-        // ext 有可能是 'zip'，这会导致 includes 时产生类型错误，所以这里断言来避免报错
-        // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
-        if (!convertExt.includes(ext) ||
-            !result.ugoiraInfo ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'thumb') {
+    lastUgoiraFileName = '';
+    /** 转换动图，并返回一个 Blob 文件。注意：用户可以同时选择多种动图的保存格式，这里只会返回最后转换成功的那个格式的 Blob 文件。前面转换的文件不会返回，而是会直接下载
+     *
+     * 如果不需要转换，或者转换失败，会返回 null */
+    async convertUgoira(result, zipFile, fileName) {
+        // 当下载的图片尺寸是方形缩略图不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
+        if (!result.ugoiraInfo || _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'thumb') {
             return null;
         }
-        try {
-            const blob = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira[ext](zipFile, result.ugoiraInfo, result.idNum);
-            return blob || null;
-        }
-        catch (error) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
-                '<br>' +
-                _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
-            this.error = true;
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', result.id);
+        // 用户可以同时选择多种动图的保存格式，需要全部处理
+        const needConvertFormats = [];
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebM)
+            needConvertFormats.push('webm');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsGIF)
+            needConvertFormats.push('gif');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsAPNG)
+            needConvertFormats.push('apng');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsZIP)
+            needConvertFormats.push('zip');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsUgoira)
+            needConvertFormats.push('ugoira');
+        if (needConvertFormats.length === 0) {
+            // 如果用户没有选择任何动图格式，则不进行转换
+            // 注意：此时下载器依然会保存原始 zip 文件，而不是跳过这个文件
             return null;
         }
+        while (needConvertFormats.length > 0) {
+            let file = null;
+            const format = needConvertFormats.shift();
+            const _fileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(fileName, '.' + format);
+            this.lastUgoiraFileName = _fileName;
+            this.setProgressBar(this.lastUgoiraFileName, zipFile.size, zipFile.size);
+            // 保存为 ZIP 或 Ugoria 格式时，在里面添加 animation.json 文件，保存动图的元信息
+            if (format === 'zip' || format === 'ugoira') {
+                // 对于播放动画来说，只有 frames 是必须的。其他数据是作品的元数据，不是必须的
+                const animationInfo = {
+                    frames: result.ugoiraInfo.frames,
+                    mime_type: result.ugoiraInfo.mime_type,
+                    id: result.idNum,
+                    title: result.title,
+                    tags: result.tags,
+                    date: result.date,
+                    xRestrict: result.xRestrict,
+                    width: result.fullWidth,
+                    height: result.fullHeight,
+                    user: result.user,
+                    userId: result.userId,
+                    regularSrc: result.regular,
+                    originalSrc: result.original,
+                };
+                // 把 animationInfo 写入 animation.json，并添加到 zip 文件里
+                const zip = await new JSZip().loadAsync(zipFile);
+                zip.file('animation.json', JSON.stringify(animationInfo));
+                file = await zip.generateAsync({
+                    type: 'blob',
+                    // ugoira 格式需要二进制流的 mimeType。如果使用 zip 的 mimeType，浏览器在保存文件时会把它的扩展名强制设为 zip
+                    mimeType: format === 'ugoira'
+                        ? 'application/octet-stream'
+                        : 'application/zip',
+                });
+                console.log(file?.type);
+            }
+            else {
+                // 处理其他格式：webm gif apng，需要进行转换
+                try {
+                    const blob = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira[format](zipFile, result.ugoiraInfo, result.idNum);
+                    file = blob || null;
+                }
+                catch (error) {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
+                        '<br>' +
+                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                    this.error = true;
+                    _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', result.id);
+                    file = null;
+                }
+            }
+            if (!file) {
+                continue;
+            }
+            // 如果这不是最后一个待处理的格式，就直接在这里下载
+            if (needConvertFormats.length > 0) {
+                this.setProgressBar(this.lastUgoiraFileName, file.size, file.size);
+                // 等待上一个文件下载完成
+                await this.waitPreviousFileDownload();
+                // 发送下载任务
+                const blobURL = URL.createObjectURL(file);
+                // 此时不会返回下载成功或失败的消息，所以这个抓取结果会保持下载中的状态
+                this.sendDownload(file, blobURL, _fileName, result.id, -1, false);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(200);
+                setTimeout(() => {
+                    URL.revokeObjectURL(blobURL);
+                }, 10000);
+            }
+            else {
+                // 如果这是最后一个待处理的格式，就返回这个 Blob 文件，让后续下载流程继续处理
+                return file;
+            }
+        }
+        return null;
     }
     /** 检查宽高条件和宽高比 */
     async checkWidthHeight(result) {
@@ -21700,16 +21793,14 @@ class Download {
     }
     /* 对插画、漫画进行颜色检查 */
     async checkColor(result, blobURL) {
-        if (result.type === 0 || result.type === 1) {
-            const checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
-                mini: blobURL,
-            });
-            if (!checkResult) {
-                return this.skipDownload({
-                    id: result.id,
-                    reason: 'color',
-                }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
-            }
+        const checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
+            mini: blobURL,
+        });
+        if (!checkResult) {
+            return this.skipDownload({
+                id: result.id,
+                reason: 'color',
+            }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
         }
     }
     /** 如果这张图片的宽高与作品里第一张图片的宽高不同，则为其重新生成文件名。此时 {px} 标记的结果与第一张图片不同。 */
@@ -21749,7 +21840,7 @@ class Download {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(50);
         }
     }
-    async sendDownload(blob, blobURL, fileName, id, taskBatch) {
+    async sendDownload(blob, blobURL, fileName, id, taskBatch, reply = true) {
         // 如果任务已停止，就不再下载这个文件
         if (this.cancel) {
             // 释放 blob URL
@@ -21761,7 +21852,7 @@ class Download {
             dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.blobToDataURL(blob);
         }
         const sendData = {
-            msg: 'save_work_file',
+            msg: reply ? 'save_work_file' : 'no_reply',
             fileName: fileName,
             id,
             taskBatch,
@@ -27820,7 +27911,7 @@ class Filter {
         if (!ext) {
             return false;
         }
-        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.novelExtensions.includes(ext)) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.allNovelFormats.includes(ext)) {
             // 这是小说的记录，如果传入的类型也是小说，则是完全匹配
             return !(type === 'novels');
         }
@@ -29386,12 +29477,12 @@ Zip 파일이 원본 파일입니다.`,
         'APNG изображение',
     ],
     _zipFile: [
-        'Zip 文件',
-        '壓縮檔（Zip）',
-        'Zip file',
+        'ZIP 文件',
+        '壓縮檔（ZIP）',
+        'ZIP file',
         'ZIP ファイル',
-        'Zip 파일',
-        'Zip файл',
+        'ZIP 파일',
+        'ZIP файл',
     ],
     _当前有x个作品: [
         '当前有 {} 个作品',
@@ -40247,8 +40338,7 @@ __webpack_require__.r(__webpack_exports__);
 // 为了兼容以前的版本的设置，把旧的设置值转换为新版本的设置值
 class ConvertOldSettings {
     // 旧设置和新设置的对应关系
-    // 为了集中管理，便于使用，写到了一个对象里
-    data = {
+    stringSettingsMap = {
         ratio: {
             '0': 'square',
             '1': 'horizontal',
@@ -40271,13 +40361,10 @@ class ConvertOldSettings {
             '3': 'zh-tw',
             '4': 'ko',
         },
-        ugoiraSaveAs: {
-            png: 'apng',
-        },
     };
-    // 传递需要转换的设置的键值
-    convert(key, value) {
-        const map = this.data[key];
+    /** 传入设置名和旧的设置值，返回新的设置值 */
+    convertString(key, value) {
+        const map = this.stringSettingsMap[key];
         // 如果这是一个可以转换的设置
         if (map) {
             // 如果传递的值是旧的设置值，则能够获取到新的设置值
@@ -42175,22 +42262,32 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <div class="option" data-no="4">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_动图保存格式"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="apng">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsWebM" id="ugoiraSaveAsWebM" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsWebM" data-xztext="_webmVideo"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsGIF" id="ugoiraSaveAsGIF" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsGIF" data-xztext="_gif"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsAPNG" id="ugoiraSaveAsAPNG" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsAPNG" data-xztext="_apng"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsZIP" id="ugoiraSaveAsZIP" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsZIP" data-xztext="_zipFile"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsUgoira" id="ugoiraSaveAsUgoira" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsUgoira">Ugoira</label>
+
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_动图保存格式" data-msg="_动图保存格式的说明" data-xztext="_帮助"></button>
+
     </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
@@ -43099,6 +43196,11 @@ class FormSettings {
             'onlyCrawlLastFewImagesSwitch',
             'doNotCrawlFirstImagesSwitch',
             'useTagAliasForTagsNamingRule',
+            'ugoiraSaveAsWebM',
+            'ugoiraSaveAsGIF',
+            'ugoiraSaveAsAPNG',
+            'ugoiraSaveAsZIP',
+            'ugoiraSaveAsUgoira',
         ],
         text: [
             'onlyCrawlFirstFewImagesCount',
@@ -43145,7 +43247,6 @@ class FormSettings {
             'singleEPUBFileSizeLimit',
         ],
         radio: [
-            'ugoiraSaveAs',
             'novelSaveAs',
             'widthHeightLimit',
             'userRatioLimit',
@@ -45051,6 +45152,11 @@ class Settings {
         downNotBookmarked: true,
         downBookmarked: true,
         ugoiraSaveAs: 'webm',
+        ugoiraSaveAsWebM: true,
+        ugoiraSaveAsGIF: false,
+        ugoiraSaveAsAPNG: false,
+        ugoiraSaveAsZIP: false,
+        ugoiraSaveAsUgoira: false,
         convertUgoiraThread: 1,
         needTag: [],
         notNeedTag: [],
@@ -45521,7 +45627,15 @@ class Settings {
         const valueType = typeof value;
         // 把旧的设置值转换为新的设置值。需要转换的值都是 string 类型
         if (valueType === 'string') {
-            value = _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_3__.convertOldSettings.convert(key, value);
+            value = _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_3__.convertOldSettings.convertString(key, value);
+        }
+        // 使用旧的 ugoiraSaveAs 值，设置对应的选项的选中状态
+        if (key === 'ugoiraSaveAs') {
+            this.settings.ugoiraSaveAsWebM = value === 'webm';
+            this.settings.ugoiraSaveAsGIF = value === 'gif';
+            this.settings.ugoiraSaveAsAPNG = value === 'apng';
+            this.settings.ugoiraSaveAsZIP = value === 'zip';
+            this.settings.ugoiraSaveAsUgoira = false;
         }
         // 将传入的值转换成选项对应的类型
         if (keyType === 'string' && valueType !== 'string') {
@@ -46609,9 +46723,8 @@ class SaveArtworkData {
                     frames: meta.body.frames,
                     mime_type: meta.body.mime_type,
                 };
-                // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
-                // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
-                let ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.ugoiraSaveAs;
+                let ext = 'zip';
+                // 当下载动图的方形缩略图时，从它的 url 里获取图片的扩展名
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.imageSize === 'thumb') {
                     const tempExt = body.urls.thumb.split('.');
                     ext = tempExt[tempExt.length - 1];
@@ -46621,15 +46734,14 @@ class SaveArtworkData {
                     id: body.id,
                     idNum: idNum,
                     isOriginal: body.isOriginal,
-                    // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
-                    thumb: body.urls.thumb,
                     pageCount: pageCount,
-                    // 对于动图，当用户设置了不下载原图时，下载器会保存尺寸较小的 zip 文件（如果有）
-                    // meta.body.originalSrc 和 meta.body.src 都是 zip 文件
-                    // 前者是完整尺寸，后者是 600x600 的
+                    // 对于动图，原图是原尺寸的 zip 文件
+                    // 普通和小图是相同的，是图片最大宽高为 600x600 的 zip 文件
+                    // 方形缩略图是静态缩略图
                     original: meta.body.originalSrc,
                     regular: meta.body.src,
                     small: meta.body.src,
+                    thumb: body.urls.thumb,
                     title: title,
                     description: description,
                     tags: tags,

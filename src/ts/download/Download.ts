@@ -1,4 +1,6 @@
 import browser from 'webextension-polyfill'
+
+declare const JSZip: any
 import { EVT } from '../EVT'
 import { log } from '../Log'
 import { lang } from '../Language'
@@ -12,7 +14,7 @@ import {
 import { progressBar } from './ProgressBar'
 import { filter } from '../filter/Filter'
 import { downloadRecord } from './DownloadRecord'
-import { settings } from '../setting/Settings'
+import { SettingKeys, settings } from '../setting/Settings'
 import { makeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
@@ -99,8 +101,9 @@ class Download {
   }
 
   private async download(arg: downloadArgument): Promise<void> {
+    const result = arg.result
     // 获取文件名
-    let _fileName = fileName.createFileName(arg.result)
+    let _fileName = fileName.createFileName(result)
 
     // 重置当前下载记录条
     this.setProgressBar(_fileName, 0, 0)
@@ -108,9 +111,9 @@ class Download {
     await downloadInterval.wait()
     this.lastRequestTime = Date.now()
 
-    if (arg.result.type === 3) {
+    if (result.type === 3) {
       // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
-      const blob = await this.getNovelFileURL(arg.result.novelMeta, _fileName)
+      const blob = await this.getNovelFileURL(result.novelMeta, _fileName)
       const blobURL = URL.createObjectURL(blob)
 
       // 等待上一个文件下载完成
@@ -125,7 +128,7 @@ class Download {
 
     // 下载图像作品
     // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-    const url = arg.result[settings.imageSize] || arg.result.original
+    const url = result[settings.imageSize] || result.original
 
     // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
     // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
@@ -159,7 +162,7 @@ class Download {
       const total = parseInt(contentLength, 10)
 
       // 检查体积设置，如果检查不通过，会把 this.skip 设置成 true，从而中断下载
-      const sizeCheck = await this.checkSize(arg.result, total)
+      const sizeCheck = await this.checkSize(result, total)
       if (!sizeCheck) {
         // 当因为体积问题跳过下载时，直接把进度条拉满
         // 如果不把进度条拉满，用户看到这个文件的进度条只有一点点，就会以为下载卡住或出错了
@@ -203,10 +206,19 @@ class Download {
       progressBar.errorColor(this.progressBarIndex, false)
 
       // 转换动图
-      const convertResult = await this.convertUgoira(arg.result, file)
-      file = convertResult || file
+      if (result.type === 2) {
+        // 如果不需要转换会返回 null，此时继续使用 file
+        const convertResult = await this.convertUgoira(result, file, _fileName)
+        file = convertResult || file
+        const lastName = this.lastUgoiraFileName
+        if (lastName && lastName !== _fileName) {
+          _fileName = lastName
+          this.setProgressBar(lastName, file.size, file.size)
+        }
+      }
 
       if (this.cancel) {
+        file = null as any
         return
       }
 
@@ -216,13 +228,17 @@ class Download {
       // 对插画、漫画进行颜色检查
       // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
       // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
-      await this.checkColor(arg.result, blobURL)
+      if (result.type === 0 || result.type === 1) {
+        await this.checkColor(result, blobURL)
+      }
 
       // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
-      const newFileName = await this.checkNamingRulePX(arg.result, blobURL)
-      if (newFileName && newFileName !== _fileName) {
-        _fileName = newFileName
-        this.setProgressBar(newFileName, file.size, file.size)
+      if (result.index > 0) {
+        const newFileName = await this.checkNamingRulePX(result, blobURL)
+        if (newFileName && newFileName !== _fileName) {
+          _fileName = newFileName
+          this.setProgressBar(newFileName, file.size, file.size)
+        }
       }
 
       // 等待上一个文件下载完成
@@ -243,6 +259,9 @@ class Download {
 
       // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
       // 储存重试的时间戳等信息
+      if (this.retryInterval.length > Config.retryMax) {
+        this.retryInterval.shift()
+      }
       this.retryInterval.push(Date.now() - this.lastRequestTime)
 
       progressBar.errorColor(this.progressBarIndex, true)
@@ -324,38 +343,124 @@ class Download {
     return blob
   }
 
-  /** 转换动图，返回 Blob 文件。如果不需要转换，或者转换失败，会返回 null */
-  private async convertUgoira(result: Result, zipFile: Blob) {
-    const convertExt = ['webm', 'gif', 'apng'] as const
-    const ext = settings.ugoiraSaveAs as (typeof convertExt)[number]
-    // ext 有可能是 'zip'，这会导致 includes 时产生类型错误，所以这里断言来避免报错
+  private lastUgoiraFileName = ''
 
-    // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
-    if (
-      !convertExt.includes(ext) ||
-      !result.ugoiraInfo ||
-      settings.imageSize === 'thumb'
-    ) {
+  /** 转换动图，并返回一个 Blob 文件。注意：用户可以同时选择多种动图的保存格式，这里只会返回最后转换成功的那个格式的 Blob 文件。前面转换的文件不会返回，而是会直接下载
+   *
+   * 如果不需要转换，或者转换失败，会返回 null */
+  private async convertUgoira(
+    result: Result,
+    zipFile: Blob,
+    fileName: string
+  ): Promise<Blob | null> {
+    // 当下载的图片尺寸是方形缩略图不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
+    if (!result.ugoiraInfo || settings.imageSize === 'thumb') {
       return null
     }
 
-    try {
-      const blob = await convertUgoira[ext](
-        zipFile,
-        result.ugoiraInfo,
-        result.idNum
-      )
-      return blob || null
-    } catch (error) {
-      const msg =
-        lang.transl('_动图转换失败的提示', Tools.createWorkLink(result.idNum)) +
-        '<br>' +
-        lang.transl('_下载器会暂时跳过它')
-      log.error(msg)
-      this.error = true
-      EVT.fire('downloadError', result.id)
+    // 用户可以同时选择多种动图的保存格式，需要全部处理
+    const needConvertFormats: (typeof Config.allUgoiraFormats)[number][] = []
+    if (settings.ugoiraSaveAsWebM) needConvertFormats.push('webm')
+    if (settings.ugoiraSaveAsGIF) needConvertFormats.push('gif')
+    if (settings.ugoiraSaveAsAPNG) needConvertFormats.push('apng')
+    if (settings.ugoiraSaveAsZIP) needConvertFormats.push('zip')
+    if (settings.ugoiraSaveAsUgoira) needConvertFormats.push('ugoira')
+
+    if (needConvertFormats.length === 0) {
+      // 如果用户没有选择任何动图格式，则不进行转换
+      // 注意：此时下载器依然会保存原始 zip 文件，而不是跳过这个文件
       return null
     }
+
+    while (needConvertFormats.length > 0) {
+      let file: Blob | null = null
+      const format = needConvertFormats.shift()!
+      const newFileName = Utils.replaceExtension(fileName, '.' + format)
+      this.lastUgoiraFileName = newFileName
+      // 显示新的文件名。此时转换尚未开始，所以体积使用 zip 文件的体积
+      this.setProgressBar(this.lastUgoiraFileName, zipFile.size, zipFile.size)
+
+      // 保存为 ZIP 或 Ugoria 格式时，在里面添加 animation.json 文件，保存动图的元信息
+      if (format === 'zip' || format === 'ugoira') {
+        // 对于播放动画来说，只有 frames 是必须的。其他数据是作品的元数据，不是必须的
+        const animationInfo = {
+          frames: result.ugoiraInfo.frames,
+          mime_type: result.ugoiraInfo.mime_type,
+          id: result.idNum,
+          title: result.title,
+          tags: result.tags,
+          date: result.date,
+          xRestrict: result.xRestrict,
+          width: result.fullWidth,
+          height: result.fullHeight,
+          user: result.user,
+          userId: result.userId,
+          regularSrc: result.regular,
+          originalSrc: result.original,
+        }
+        // 把 animationInfo 写入 animation.json，并添加到 zip 文件里
+        const zip = await new JSZip().loadAsync(zipFile)
+        zip.file('animation.json', JSON.stringify(animationInfo))
+        file = await zip.generateAsync({
+          type: 'blob',
+          // ugoira 格式需要二进制流的 mimeType。如果使用 zip 的 mimeType，浏览器在保存文件时会把它的扩展名强制设为 zip
+          mimeType:
+            format === 'ugoira'
+              ? 'application/octet-stream'
+              : 'application/zip',
+        })
+        console.log(file?.type)
+      } else {
+        // 处理其他格式：webm gif apng，需要进行转换
+        try {
+          const blob = await convertUgoira[format](
+            zipFile,
+            result.ugoiraInfo,
+            result.idNum
+          )
+          file = blob || null
+        } catch (error) {
+          const msg =
+            lang.transl(
+              '_动图转换失败的提示',
+              Tools.createWorkLink(result.idNum)
+            ) +
+            '<br>' +
+            lang.transl('_下载器会暂时跳过它')
+          log.error(msg)
+          this.error = true
+          EVT.fire('downloadError', result.id)
+          file = null
+        }
+      }
+
+      if (!file) {
+        continue
+      }
+
+      // 如果这不是最后一个待处理的格式，就直接在这里下载
+      if (needConvertFormats.length > 0) {
+        // 显示转换后的文件的体积
+        this.setProgressBar(this.lastUgoiraFileName, file.size, file.size)
+
+        // 等待上一个文件下载完成
+        await this.waitPreviousFileDownload()
+
+        // 发送下载任务
+        const blobURL = URL.createObjectURL(file)
+        // 此时不会返回下载成功或失败的消息，所以这个抓取结果会保持下载中的状态
+        this.sendDownload(file, blobURL, newFileName, result.id, -1, false)
+        await Utils.sleep(200)
+        setTimeout(() => {
+          URL.revokeObjectURL(blobURL)
+        }, 10000)
+      } else {
+        // 如果这是最后一个待处理的格式，就返回这个 Blob 文件，让后续下载流程继续处理
+        return file
+      }
+    }
+
+    return null
   }
 
   /** 检查宽高条件和宽高比 */
@@ -416,19 +521,17 @@ class Download {
 
   /* 对插画、漫画进行颜色检查 */
   private async checkColor(result: Result, blobURL: string) {
-    if (result.type === 0 || result.type === 1) {
-      const checkResult = await filter.check({
-        mini: blobURL,
-      })
-      if (!checkResult) {
-        return this.skipDownload(
-          {
-            id: result.id,
-            reason: 'color',
-          },
-          lang.transl('_不保存图片因为颜色', Tools.createWorkLink(result.id))
-        )
-      }
+    const checkResult = await filter.check({
+      mini: blobURL,
+    })
+    if (!checkResult) {
+      return this.skipDownload(
+        {
+          id: result.id,
+          reason: 'color',
+        },
+        lang.transl('_不保存图片因为颜色', Tools.createWorkLink(result.id))
+      )
     }
   }
 
@@ -483,7 +586,8 @@ class Download {
     blobURL: string,
     fileName: string,
     id: string,
-    taskBatch: number
+    taskBatch: number,
+    reply = true
   ) {
     // 如果任务已停止，就不再下载这个文件
     if (this.cancel) {
@@ -498,7 +602,7 @@ class Download {
     }
 
     const sendData: SendToBackEndData = {
-      msg: 'save_work_file',
+      msg: reply ? 'save_work_file' : 'no_reply',
       fileName: fileName,
       id,
       taskBatch,

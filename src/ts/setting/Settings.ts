@@ -115,7 +115,13 @@ interface XzSetting {
   downBlackWhiteImg: boolean
   downNotBookmarked: boolean
   downBookmarked: boolean
+  /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的动图转换格式 */
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'apng'
+  ugoiraSaveAsWebM: boolean
+  ugoiraSaveAsGIF: boolean
+  ugoiraSaveAsAPNG: boolean
+  ugoiraSaveAsZIP: boolean
+  ugoiraSaveAsUgoira: boolean
   convertUgoiraThread: number
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
@@ -625,6 +631,11 @@ class Settings {
     downNotBookmarked: true,
     downBookmarked: true,
     ugoiraSaveAs: 'webm',
+    ugoiraSaveAsWebM: true,
+    ugoiraSaveAsGIF: false,
+    ugoiraSaveAsAPNG: false,
+    ugoiraSaveAsZIP: false,
+    ugoiraSaveAsUgoira: false,
     convertUgoiraThread: 1,
     needTag: [],
     notNeedTag: [],
@@ -1134,7 +1145,16 @@ class Settings {
 
     // 把旧的设置值转换为新的设置值。需要转换的值都是 string 类型
     if (valueType === 'string') {
-      value = convertOldSettings.convert(key, value as string)
+      value = convertOldSettings.convertString(key, value as string)
+    }
+
+    // 使用旧的 ugoiraSaveAs 值，设置对应的选项的选中状态
+    if (key === 'ugoiraSaveAs') {
+      this.settings.ugoiraSaveAsWebM = value === 'webm'
+      this.settings.ugoiraSaveAsGIF = value === 'gif'
+      this.settings.ugoiraSaveAsAPNG = value === 'apng'
+      this.settings.ugoiraSaveAsZIP = value === 'zip'
+      this.settings.ugoiraSaveAsUgoira = false
     }
 
     // 将传入的值转换成选项对应的类型

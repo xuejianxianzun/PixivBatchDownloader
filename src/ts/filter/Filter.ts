@@ -1049,7 +1049,7 @@ class Filter {
       return false
     }
 
-    if (Config.novelExtensions.includes(ext)) {
+    if (Config.allNovelFormats.includes(ext as any)) {
       // 这是小说的记录，如果传入的类型也是小说，则是完全匹配
       return !(type === 'novels')
     } else {

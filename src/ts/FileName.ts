@@ -212,19 +212,10 @@ class FileName {
     // 3 生成文件名
     let result = this.generateFileName(rule, schema)
 
-    // 5 生成后缀名
+    // 5 生成扩展名
     let ext = data.ext
-    // 处理动图的后缀名
-    if (Config.ugoiraExtensions.includes(ext) && data.ugoiraInfo) {
-      // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
-      if (settings.imageSize !== 'thumb') {
-        ext = settings.ugoiraSaveAs
-      }
-      // 下载动图时，如果选择的尺寸是“方形缩略图”则不修改其后缀名，因为此时下载的是静态缩略图。
-      // 其他三种尺寸都是动图。“普通”和“小图”也是动图，只是尺寸比“原图”小。
-    }
 
-    // 处理小说的后缀名
+    // 处理小说的扩展名
     if (data.type === 3) {
       ext = settings.novelSaveAs
     }
@@ -232,7 +223,7 @@ class FileName {
     const extResult = '.' + ext
 
     // 6 处理不创建文件夹的情况
-    if (this.handleNoFolder(data) === false) {
+    if (this.shouldCreateFolder(data) === false) {
       // 舍弃文件夹部分，只保留文件名
       result = result.split('/').pop()!
     }
@@ -240,7 +231,7 @@ class FileName {
     // 7 处理文件名长度限制
     result = this.lengthLimit(result, extResult, (schema['{id}'] as any).value)
 
-    // 8 添加后缀名
+    // 8 添加扩展名
     result += extResult
 
     // 9 返回结果
@@ -474,10 +465,10 @@ class FileName {
     return setTagAlias.handleTagsNamingRule(tags).join(settings.tagsSeparator)
   }
 
-  /** 判断是否不为这个文件创建文件夹 */
-  private handleNoFolder(result: Result): boolean {
+  /** 是否要为这个文件创建文件夹 */
+  private shouldCreateFolder(result: Result): boolean {
     if (!settings.noFolderSwitch) {
-      return false
+      return true
     }
 
     // 对设置取反，即如果符合某个条件，就返回 false 表示不创建文件夹
@@ -676,7 +667,7 @@ class FileName {
       // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
       parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
 
-      // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
+      // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
       parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
     }
 

@@ -1087,22 +1087,32 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <div class="option" data-no="4">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_动图保存格式"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="apng">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsWebM" id="ugoiraSaveAsWebM" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsWebM" data-xztext="_webmVideo"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsGIF" id="ugoiraSaveAsGIF" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsGIF" data-xztext="_gif"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsAPNG" id="ugoiraSaveAsAPNG" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsAPNG" data-xztext="_apng"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsZIP" id="ugoiraSaveAsZIP" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsZIP" data-xztext="_zipFile"></label>
+
+      <input type="checkbox" name="ugoiraSaveAsUgoira" id="ugoiraSaveAsUgoira" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="ugoiraSaveAsUgoira">Ugoira</label>
+
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_动图保存格式" data-msg="_动图保存格式的说明" data-xztext="_帮助"></button>
+
     </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>

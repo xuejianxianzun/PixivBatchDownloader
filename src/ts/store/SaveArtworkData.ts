@@ -151,9 +151,8 @@ class SaveArtworkData {
           mime_type: meta.body.mime_type,
         }
 
-        // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
-        // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
-        let ext: string = settings.ugoiraSaveAs
+        let ext: string = 'zip'
+        // 当下载动图的方形缩略图时，从它的 url 里获取图片的扩展名
         if (settings.imageSize === 'thumb') {
           const tempExt = body.urls.thumb.split('.')
           ext = tempExt[tempExt.length - 1]
@@ -164,15 +163,14 @@ class SaveArtworkData {
           id: body.id,
           idNum: idNum,
           isOriginal: body.isOriginal,
-          // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
-          thumb: body.urls.thumb,
           pageCount: pageCount,
-          // 对于动图，当用户设置了不下载原图时，下载器会保存尺寸较小的 zip 文件（如果有）
-          // meta.body.originalSrc 和 meta.body.src 都是 zip 文件
-          // 前者是完整尺寸，后者是 600x600 的
+          // 对于动图，原图是原尺寸的 zip 文件
+          // 普通和小图是相同的，是图片最大宽高为 600x600 的 zip 文件
+          // 方形缩略图是静态缩略图
           original: meta.body.originalSrc,
           regular: meta.body.src,
           small: meta.body.src,
+          thumb: body.urls.thumb,
           title: title,
           description: description,
           tags: tags,
