@@ -3412,10 +3412,17 @@ class Config {
     static retryMax = 10;
     /**作品类型所对应的字符串名称 */
     static worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
-    /**下载器所有动图格式的后缀名 */
-    static ugoiraExtensions = ['zip', 'webm', 'gif', 'apng'];
-    /**下载器所有小说格式的后缀名 */
-    static novelExtensions = ['txt', 'epub'];
+    /**下载器可以把动图保存为的所有格式，也是扩展名 */
+    static allUgoiraFormats = [
+        'webm',
+        'webp',
+        'gif',
+        'apng',
+        'zip',
+        'ugoira',
+    ];
+    /**下载器可以把小说保存为的所有格式，也是扩展名 */
+    static allNovelFormats = ['txt', 'epub'];
     /**按收藏数量过滤作品时，预设的最大收藏数量 */
     static BookmarkCountLimit = 9999999;
     /**Pixiv 作品总数量上限 */
@@ -3494,16 +3501,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ToWebM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ToWebM */ "./src/ts/ConvertUgoira/ToWebM.ts");
-/* harmony import */ var _ToGIF__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToGIF */ "./src/ts/ConvertUgoira/ToGIF.ts");
-/* harmony import */ var _ToAPNG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ToAPNG */ "./src/ts/ConvertUgoira/ToAPNG.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
-
+/* harmony import */ var _ToWebP__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToWebP */ "./src/ts/ConvertUgoira/ToWebP.ts");
+/* harmony import */ var _ToGIF__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ToGIF */ "./src/ts/ConvertUgoira/ToGIF.ts");
+/* harmony import */ var _ToAPNG__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ToAPNG */ "./src/ts/ConvertUgoira/ToAPNG.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -3519,14 +3522,17 @@ class ConvertUgoira {
         this.setMaxCount();
         this.bindEvents();
     }
-    _count = 0; // 统计有几个转换任务
-    maxCount = 1; // 允许同时运行多少个转换任务
-    msgFlag = 'tipConvertUgoira';
+    /** 统计有多少个转换任务在同时执行 */
+    _count = 0;
+    /** 同时运行的转换任务的上限 */
+    maxCount = 1;
+    /** 缓存每个作品的 ImageBitmap 列表，key 为作品 id */
+    imageBitmapCache = new Map();
+    /** 当前正在转换中的作品 id 集合 */
+    convertingIds = new Set();
+    /** 保存清理缓存的定时器，key 为作品 id */
+    clearCacheTimers = new Map();
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.resetOnce(this.msgFlag);
-        });
-        // 设置发生变化时
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'convertUgoiraThread') {
@@ -3536,10 +3542,6 @@ class ConvertUgoira {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.convertSuccess, () => {
             this.complete();
         });
-        // 如果转换动图时页面被隐藏了，则显示提示
-        // document.addEventListener('visibilitychange', () => {
-        //   this.checkHidden()
-        // })
     }
     setMaxCount() {
         this.maxCount =
@@ -3548,31 +3550,44 @@ class ConvertUgoira {
     set count(num) {
         this._count = num;
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('convertChange', this._count);
-        // this.checkHidden()
     }
-    async start(file, info, type) {
+    /** 生成或从缓存中获取 ImageBitmap 列表 */
+    async getImageBitmapList(file, id) {
+        if (this.imageBitmapCache.has(id)) {
+            return this.imageBitmapCache.get(id);
+        }
+        const zipFileBuffer = await file.arrayBuffer();
+        const indexList = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getJPGContentIndex(zipFileBuffer);
+        const imageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.extractImage(zipFileBuffer, indexList, 'ImageBitmap');
+        this.imageBitmapCache.set(id, imageBitmapList);
+        return imageBitmapList;
+    }
+    async start(file, info, type, id) {
         while (true) {
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(200);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(200);
             // 如果已经停止下载，就不添加这个任务，避免浪费资源
             // 此时不用返回真正的 Blob 对象，因为停止下载时，Download 里也不会执行后续操作了
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloading) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_7__.states.downloading) {
                 return '';
             }
             if (this._count < this.maxCount) {
                 this.count = this._count + 1;
-                // 提取每一张图片
-                const zipFileBuffer = await file.arrayBuffer();
-                const indexList = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getJPGContentIndex(zipFileBuffer);
-                const ImageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.extractImage(zipFileBuffer, indexList, 'ImageBitmap');
+                // 把这个 id 添加到转换中的 id 列表里，并取消清理它的缓存的定时器
+                this.convertingIds.add(id);
+                window.clearTimeout(this.clearCacheTimers.get(id));
+                const imageBitmapList = await this.getImageBitmapList(file, id);
                 if (type === 'gif') {
-                    return _ToGIF__WEBPACK_IMPORTED_MODULE_3__.toGIF.convert(ImageBitmapList, info, file.size);
+                    return _ToGIF__WEBPACK_IMPORTED_MODULE_4__.toGIF.convert(imageBitmapList, info, file.size);
                 }
                 else if (type === 'png') {
-                    return _ToAPNG__WEBPACK_IMPORTED_MODULE_4__.toAPNG.convert(ImageBitmapList, info);
+                    return _ToAPNG__WEBPACK_IMPORTED_MODULE_5__.toAPNG.convert(imageBitmapList, info);
+                }
+                else if (type === 'webp') {
+                    return _ToWebP__WEBPACK_IMPORTED_MODULE_3__.toWebP.convert(imageBitmapList, info);
                 }
                 else {
                     // 默认使用 webm 格式
-                    return _ToWebM__WEBPACK_IMPORTED_MODULE_2__.toWebM.convert(ImageBitmapList, info);
+                    return _ToWebM__WEBPACK_IMPORTED_MODULE_2__.toWebM.convert(imageBitmapList, info);
                 }
             }
         }
@@ -3582,27 +3597,64 @@ class ConvertUgoira {
     }
     // 转换成 WebM
     async webm(file, info, id) {
-        const delayTooLarge = info.frames.find((item) => item.delay > 32767);
-        if (delayTooLarge) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_动图不能转换为WEBM视频的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, '', 'artwork'));
-            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.warning(msg);
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(msg);
-            return await this.start(file, info, 'gif');
-        }
-        return await this.start(file, info, 'webm');
+        // WebM 视频的帧延迟不能大于 32767 ms，否则就无法转换成功
+        // 其他格式没有这个问题
+        info.frames.forEach((frame) => {
+            if (frame.delay > 32767) {
+                // 直接修改原始数据
+                frame.delay = 32767;
+            }
+        });
+        // 另一个已知问题：
+        // 如果图片高度是奇数，那么视频在播放时可能会在边缘出现一条绿线（视播放器和解码器的情况而定，也可能不会出现绿线）。这是 VP9 编码器的处理方式导致的（对奇数尺寸向下取整），不是下载器的问题，目前我也不打算处理。
+        // 例如 https://www.pixiv.net/artworks/144266793 的图片高度为 281 px，就会有这个问题。
+        // 原因：
+        // 如果图片的宽度或高度是奇数（尤其是高度），VP9/WebM 编码时容易在边缘（通常是底部）出现一条绿线。
+        // 这是因为 YUV 4:2:0 格式和 VP9 超级块对齐的要求导致的：
+        // 1. 编码器在内部会对奇数尺寸进行对齐处理（最常见的是向下取偶数，如 281 → 280）。
+        // 2. 容器中记录的分辨率可能是 281px，但实际编码的图像内容只有 280px。
+        // 3. 最后一行（或填充区域）没有有效像素数据，在解码/渲染时就表现为绿色条。
+        // 这不是 bug，而是视频编码的常见兼容性问题（H.264/H.265 也有类似要求）。
+        // 播放器渲染链路（尤其是某些内置解码器 + Renderer）处理 padding 不够完美时，就会露出绿线。
+        const blob = await this.start(file, info, 'webm', id);
+        this.clearCache(id);
+        return blob;
+    }
+    // 转换成 WebP
+    async webp(file, info, id) {
+        const blob = await this.start(file, info, 'webp', id);
+        this.clearCache(id);
+        return blob;
     }
     // 转换成 GIF
     async gif(file, info, id) {
-        return await this.start(file, info, 'gif');
+        const blob = await this.start(file, info, 'gif', id);
+        this.clearCache(id);
+        return blob;
     }
     // 转换成 APNG
     async apng(file, info, id) {
-        return await this.start(file, info, 'png');
+        const blob = await this.start(file, info, 'png', id);
+        this.clearCache(id);
+        return blob;
     }
-    checkHidden() {
-        if (this._count > 0 && document.visibilityState === 'hidden') {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.once(this.msgFlag, _Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_转换动图时页面被隐藏的提示'), 'warning');
-        }
+    /** 从转换中列表移除 id，并在一定时间后清理不再使用的 ImageBitmap 缓存 */
+    clearCache(id) {
+        this.convertingIds.delete(id);
+        // 延迟一定时间，检查不再使用的 id，并清除其缓存。
+        // 因为一个 id 可能需要执行多次转换格式的操作，所以在一次转换任务完成后，可能接下来还要使用缓存。因此不能立刻清除缓存，而是需要等一段时间，等可能的后续转换任务也完成了之后再清除缓存。
+        window.clearTimeout(this.clearCacheTimers.get(id));
+        this.clearCacheTimers.set(id, window.setTimeout(() => {
+            if (!this.convertingIds.has(id)) {
+                // console.log(`clear ${id}`)
+                const bitmaps = this.imageBitmapCache.get(id);
+                if (bitmaps) {
+                    bitmaps.forEach((bitmap) => bitmap.close());
+                }
+                this.imageBitmapCache.delete(id);
+                this.clearCacheTimers.delete(id);
+            }
+        }, 10000));
     }
 }
 const convertUgoira = new ConvertUgoira();
@@ -3622,10 +3674,42 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   toAPNG: () => (/* binding */ toAPNG)
 /* harmony export */ });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
 
 class ToAPNG {
+    worker;
+    workerReady = null;
+    async loadWorker() {
+        // 把 pako.min.js、UPNG.js 和 worker 脚本合并成一个 blob
+        // UPNG.js 在编码时依赖 pako 的 deflate，所以必须先加载 pako
+        const [pakoRes, upngRes, workerRes] = await Promise.all([
+            fetch(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL('lib/pako.min.js')),
+            fetch(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL('lib/UPNG.js')),
+            fetch(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL('lib/apng.worker.js')),
+        ]);
+        const [pakoText, upngText, workerText] = await Promise.all([
+            pakoRes.text(),
+            upngRes.text(),
+            workerRes.text(),
+        ]);
+        const blob = new Blob([pakoText, '\n', upngText, '\n', workerText], {
+            type: 'application/javascript',
+        });
+        const url = URL.createObjectURL(blob);
+        this.worker = new Worker(url);
+        URL.revokeObjectURL(url);
+        this.worker.onerror = (ev) => {
+            console.error('APNG worker error:', ev);
+        };
+    }
     async convert(ImageBitmapList, info) {
+        if (!this.workerReady) {
+            this.workerReady = this.loadWorker();
+        }
+        await this.workerReady;
         const width = ImageBitmapList[0].width;
         const height = ImageBitmapList[0].height;
         const canvas = document.createElement('canvas');
@@ -3634,7 +3718,7 @@ class ToAPNG {
         });
         canvas.width = width;
         canvas.height = height;
-        // 添加帧数据
+        // 提取每帧的像素数据
         let arrayBuffList = [];
         ImageBitmapList.forEach((imageBitmap) => {
             ctx.drawImage(imageBitmap, 0, 0);
@@ -3643,15 +3727,44 @@ class ToAPNG {
             arrayBuffList.push(buff);
         });
         const delayList = info.frames.map((frame) => frame.delay);
-        // 编码
+        // 在 worker 中编码，避免阻塞主线程
         // https://github.com/photopea/UPNG.js/#encoder
-        const pngFile = UPNG.encode(arrayBuffList, width, height, 0, delayList);
+        const pngFile = await this.encodeInWorker(arrayBuffList, width, height, delayList);
         const blob = new Blob([pngFile], {
             type: 'image/vnd.mozilla.apng',
         });
-        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('convertSuccess');
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('convertSuccess');
         arrayBuffList = null;
         return blob;
+    }
+    // 使用自增 ID 区分并发请求，确保多线程转换时响应能正确匹配
+    messageId = 0;
+    encodeInWorker(arrayBuffList, width, height, delayList) {
+        return new Promise((resolve, reject) => {
+            const id = ++this.messageId;
+            const timeoutId = window.setTimeout(() => {
+                this.worker.removeEventListener('message', handler);
+                reject(new Error('APNG encoding timeout'));
+            }, 120000);
+            const handler = (ev) => {
+                if (ev.data.id !== id)
+                    return;
+                window.clearTimeout(timeoutId);
+                this.worker.removeEventListener('message', handler);
+                if (ev.data.error) {
+                    reject(new Error(ev.data.error));
+                }
+                else if (!(ev.data.result instanceof ArrayBuffer)) {
+                    reject(new Error('Invalid APNG worker response'));
+                }
+                else {
+                    resolve(ev.data.result);
+                }
+            };
+            this.worker.addEventListener('message', handler);
+            // 以 Transferable 方式传递 ArrayBuffer，零拷贝转移所有权
+            this.worker.postMessage({ id, arrayBuffList, width, height, delayList }, arrayBuffList);
+        });
     }
 }
 const toAPNG = new ToAPNG();
@@ -3706,7 +3819,9 @@ class ToGIF {
             const width = ImageBitmapList[0].width;
             const height = ImageBitmapList[0].height;
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', {
+                willReadFrequently: true,
+            });
             canvas.width = width;
             canvas.height = height;
             // 添加帧数据
@@ -3803,6 +3918,51 @@ class ToWebM {
     }
 }
 const toWebM = new ToWebM();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/ConvertUgoira/ToWebP.ts":
+/*!****************************************!*\
+  !*** ./src/ts/ConvertUgoira/ToWebP.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   toWebP: () => (/* binding */ toWebP)
+/* harmony export */ });
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+class ToWebP {
+    constructor() {
+        this.loadWorker();
+    }
+    async loadWorker() {
+        const res = await fetch(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL('lib/ppd-webp.worker.js'));
+        const blob = await res.blob();
+        const workerUrl = URL.createObjectURL(blob);
+        PPDWebP.init(workerUrl);
+    }
+    async convert(ImageBitmapList, info) {
+        const delays = info.frames.map((frame) => frame.delay);
+        const blob = await PPDWebP.encode(ImageBitmapList, delays, {
+            // 在有损压缩时使用 94 质量。这是比较高的质量了，不过体积依然比无损的 100 小很多
+            quality: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.animatedWebPQuality === 'lossy' ? 0.94 : 1,
+            loopCount: 0, // loop forever
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('convertSuccess');
+        return blob;
+    }
+}
+const toWebP = new ToWebP();
 
 
 
@@ -4602,7 +4762,7 @@ class FileName {
                 safe: false,
             },
             '{user}': {
-                value: this.RemoveAtFromUsername(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setUserNameList[data.userId] || data.user),
+                value: this.removeAtFromUsername(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setUserNameList[data.userId] || data.user),
                 safe: false,
             },
             '{userid}': {
@@ -4730,49 +4890,21 @@ class FileName {
         };
         // 3 生成文件名
         let result = this.generateFileName(rule, schema);
-        // 5 生成后缀名
-        // 处理动图的后缀名
-        if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
-            // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.imageSize !== 'thumb') {
-                data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.ugoiraSaveAs;
-            }
-            // 下载动图时，如果选择的尺寸是“方形缩略图”则不修改其后缀名，因为此时下载的是静态缩略图。
-            // 其他三种尺寸都是动图。“普通”和“小图”也是动图，只是尺寸比“原图”小。
-        }
-        // 处理小说的后缀名
+        // 5 生成扩展名
+        let ext = data.ext;
+        // 处理小说的扩展名
         if (data.type === 3) {
-            data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
+            ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
         }
-        const extResult = '.' + data.ext;
+        const extResult = '.' + ext;
         // 6 处理不创建文件夹的情况
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderSwitch) {
-            let noFolder = false;
-            if (data.type === 3) {
-                // 小说
-                noFolder = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenNovel;
-            }
-            else if (data.type === 2) {
-                // 动图
-                noFolder = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenSingleImageWork;
-            }
-            else {
-                // 插画或漫画，根据单图作品或多图作品来决定
-                if (data.pageCount > 1) {
-                    noFolder = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenMultiImageWork;
-                }
-                else {
-                    noFolder = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenSingleImageWork;
-                }
-            }
+        if (this.shouldCreateFolder(data) === false) {
             // 舍弃文件夹部分，只保留文件名
-            if (noFolder) {
-                result = result.split('/').pop();
-            }
+            result = result.split('/').pop();
         }
         // 7 处理文件名长度限制
         result = this.lengthLimit(result, extResult, schema['{id}'].value);
-        // 8 添加后缀名
+        // 8 添加扩展名
         result += extResult;
         // 9 返回结果
         return result;
@@ -4962,6 +5094,40 @@ class FileName {
     handleTagsRule(tags) {
         return _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_3__.setTagAlias.handleTagsNamingRule(tags).join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator);
     }
+    /** 是否要为这个文件创建文件夹 */
+    shouldCreateFolder(result) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderSwitch) {
+            return true;
+        }
+        // 对设置取反，即如果符合某个条件，就返回 false 表示不创建文件夹
+        // 动图
+        if (result.type === 2) {
+            return !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenUgoira;
+        }
+        // 小说
+        if (result.type === 3) {
+            return !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenNovel;
+        }
+        // 处理插画和漫画
+        if (result.pageCount === 1) {
+            // 从插画、漫画里下载 1 张图片时
+            return !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenDownload1Image;
+        }
+        else {
+            // 如果这个作品的图片数量大于 1，那么需要统计实际会从它里面下载多少张图片
+            let imageCount = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.downloadCount[result.idNum.toString()];
+            if (imageCount === undefined) {
+                imageCount =
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.filter((item) => item.idNum === result.idNum).length || 1;
+            }
+            if (imageCount === 1) {
+                return !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenDownload1Image;
+            }
+            else {
+                return !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noFolderWhenDownloadMultipleImages;
+            }
+        }
+    }
     /** 生成 {rank} 标记的值 */
     createRank(rank) {
         // 处理空值
@@ -5071,12 +5237,14 @@ class FileName {
         return str;
     }
     atList = ['@', '＠'];
-    RemoveAtFromUsername(name) {
+    /** 移除用户名里的 @ 和后续字符 */
+    removeAtFromUsername(name) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeAtFromUsername) {
             return name;
         }
         for (const at of this.atList) {
             let index = name.indexOf(at);
+            // 仅当 @ 不是开头第一个字符时才会移除它
             if (index > 0) {
                 name = name.substring(0, index);
             }
@@ -5106,7 +5274,7 @@ class FileName {
             // 去掉每层路径首尾的空格
             // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
             parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
-            // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
+            // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
             parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.handleWindowsReservedName(parts[i], this.addStr);
         }
         string = parts.join('/');
@@ -6277,9 +6445,7 @@ class ImageViewer {
         li.addEventListener('click', this.copyWorkLink.bind(this));
     }
     async copyWorkLink() {
-        // 对于简体中文用户，复制的链接里路径使用 /i ，因为 /i 没有被 QQ 屏蔽，而 /artworks 被屏蔽了
-        const path = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.type === 'zh-cn' ? 'i' : 'artworks';
-        const url = `https://www.pixiv.net/${path}/${this.cfg.workId}`;
+        const url = `https://www.pixiv.net/artworks/${this.cfg.workId}`;
         navigator.clipboard.writeText(url);
         _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制作品链接'));
     }
@@ -9466,7 +9632,7 @@ class PreviewWorkDetailInfo {
             this.copyJSON(workData);
         });
         wrap.querySelector('#copyURL').addEventListener('click', () => {
-            const url = `https://www.pixiv.net/i/${workData.body.id}`;
+            const url = `https://www.pixiv.net/artworks/${workData.body.id}`;
             this.copy(url);
         });
         wrap.querySelector('#copyBtn').addEventListener('click', () => {
@@ -11706,8 +11872,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '18.8.2';
-    textKey = '_版本更新说明18_8_2';
+    flag = '18.9.0';
+    textKey = '_版本更新说明18_9_0';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -13059,9 +13225,7 @@ class Tools {
         }
     }
     static async extractImage(zipFile, indexList, target) {
-        const result = [];
-        let i = 0;
-        for (const index of indexList) {
+        const promises = indexList.map((index, i) => {
             // 起始位置
             const start = index;
             // 截止下一个文件名之前
@@ -13078,17 +13242,14 @@ class Tools {
                 type: 'image/jpeg',
             });
             if (target === 'ImageBitmap') {
-                const map = await createImageBitmap(blob);
-                result.push(map);
+                return createImageBitmap(blob);
             }
-            else if (target === 'img') {
+            else {
                 const url = URL.createObjectURL(blob);
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.loadImg(url);
-                result.push(img);
+                return _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.loadImg(url);
             }
-            ++i;
-        }
-        return result;
+        });
+        return Promise.all(promises);
     }
     /**根据 illustType，返回作品类型的描述字符串 */
     // 主要用于储存进 idList
@@ -13351,6 +13512,16 @@ class Tools {
             rows = 6;
         }
         el.setAttribute('rows', rows.toString());
+    }
+    /** 把动图的方形缩略图 URL 转换为最大尺寸的缩略图 URL */
+    // 输入：
+    // https://i.pximg.net/c/250x250_80_a2/img-master/img/2026/05/07/13/11/47/144478544_square1200.jpg
+    // 输出：
+    // https://i.pximg.net/img-original/img/2026/05/07/13/11/47/144478544_ugoira0.jpg
+    static squareThumbToOriginal(thumbUrl) {
+        return thumbUrl
+            .replace(/\/c\/\d+x\d+_\d+_\w+\/img-master\//, '/img-original/')
+            .replace(/_square1200\.jpg$/, '_ugoira0.jpg');
     }
 }
 
@@ -22493,15 +22664,16 @@ class Download {
         this.download(arg);
     }
     async download(arg) {
+        const result = arg.result;
         // 获取文件名
-        let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
+        let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result);
         // 重置当前下载记录条
         this.setProgressBar(_fileName, 0, 0);
         await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
         this.lastRequestTime = Date.now();
-        if (arg.result.type === 3) {
+        if (result.type === 3) {
             // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
-            const blob = await this.getNovelFileURL(arg.result.novelMeta, _fileName);
+            const blob = await this.getNovelFileURL(result.novelMeta, _fileName);
             const blobURL = URL.createObjectURL(blob);
             // 等待上一个文件下载完成
             await this.waitPreviousFileDownload();
@@ -22513,7 +22685,7 @@ class Download {
         }
         // 下载图像作品
         // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-        const url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || arg.result.original;
+        const url = result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || result.original;
         // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
         // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'original') {
@@ -22541,7 +22713,7 @@ class Download {
             const contentLength = response.headers.get('Content-Length') || '0';
             const total = parseInt(contentLength, 10);
             // 检查体积设置，如果检查不通过，会把 this.skip 设置成 true，从而中断下载
-            const sizeCheck = await this.checkSize(arg.result, total);
+            const sizeCheck = await this.checkSize(result, total);
             if (!sizeCheck) {
                 // 当因为体积问题跳过下载时，直接把进度条拉满
                 // 如果不把进度条拉满，用户看到这个文件的进度条只有一点点，就会以为下载卡住或出错了
@@ -22578,9 +22750,18 @@ class Download {
             }
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, false);
             // 转换动图
-            const convertResult = await this.convertUgoira(arg.result, file);
-            file = convertResult || file;
+            if (result.type === 2) {
+                // 如果不需要转换会返回 null，此时继续使用 file
+                const convertResult = await this.convertUgoira(result, file, _fileName);
+                file = convertResult || file;
+                const lastName = this.lastUgoiraFileName;
+                if (lastName && lastName !== _fileName) {
+                    _fileName = lastName;
+                    this.setProgressBar(lastName, file.size, file.size);
+                }
+            }
             if (this.cancel) {
+                file = null;
                 return;
             }
             // 生成下载链接
@@ -22588,12 +22769,16 @@ class Download {
             // 对插画、漫画进行颜色检查
             // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
             // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
-            await this.checkColor(arg.result, blobURL);
+            if (result.type === 0 || result.type === 1) {
+                await this.checkColor(result, blobURL);
+            }
             // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
-            const newFileName = await this.checkNamingRulePX(arg.result, blobURL);
-            if (newFileName && newFileName !== _fileName) {
-                _fileName = newFileName;
-                this.setProgressBar(newFileName, file.size, file.size);
+            if (result.index > 0) {
+                const newFileName = await this.checkNamingRulePX(result, blobURL);
+                if (newFileName && newFileName !== _fileName) {
+                    _fileName = newFileName;
+                    this.setProgressBar(newFileName, file.size, file.size);
+                }
             }
             // 等待上一个文件下载完成
             await this.waitPreviousFileDownload();
@@ -22611,6 +22796,9 @@ class Download {
             }
             // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
             // 储存重试的时间戳等信息
+            if (this.retryInterval.length > _Config__WEBPACK_IMPORTED_MODULE_12__.Config.retryMax) {
+                this.retryInterval.shift();
+            }
             this.retryInterval.push(Date.now() - this.lastRequestTime);
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, true);
             this.retry++;
@@ -22675,30 +22863,117 @@ class Download {
         const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'](novelMeta, filename);
         return blob;
     }
-    /** 转换动图，返回 Blob 文件。如果不需要转换，或者转换失败，会返回 null */
-    async convertUgoira(result, zipFile) {
-        const convertExt = ['webm', 'gif', 'apng'];
-        const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAs;
-        // ext 有可能是 'zip'，这会导致 includes 时产生类型错误，所以这里断言来避免报错
-        // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
-        if (!convertExt.includes(ext) ||
-            !result.ugoiraInfo ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'thumb') {
+    lastUgoiraFileName = '';
+    /** 转换动图，并返回一个 Blob 文件。注意：用户可以同时选择多种动图的保存格式，这里只会返回最后转换成功的那个格式的 Blob 文件。前面转换的文件不会返回，而是会直接下载
+     *
+     * 如果不需要转换，或者转换失败，会返回 null */
+    async convertUgoira(result, zipFile, fileName) {
+        // 当下载的图片尺寸是方形缩略图不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
+        if (!result.ugoiraInfo || _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'thumb') {
             return null;
         }
-        try {
-            const blob = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira[ext](zipFile, result.ugoiraInfo, result.idNum);
-            return blob || null;
-        }
-        catch (error) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
-                '<br>' +
-                _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
-            this.error = true;
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', result.id);
+        // 用户可以同时选择多种动图的保存格式，需要全部处理
+        const needConvertFormats = [];
+        // 当用户同时选择了多种格式时，只有最后 push 的那个会保存下载记录，所以在这个作品的下载记录里，文件名的扩展名就是最后保存的格式
+        // 不过这么做没什么实际作用。我把默认格式 webp 放在最后，是考虑到在特定情况下可能会避免一次重复下载：
+        // 如果用户选择了多种格式下载过了一次，之后又改成了只使用 WebP 格式下载；并且去重策略是“严格”（判断文件名），那么可以避免重复下载
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebM)
+            needConvertFormats.push('webm');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsGIF)
+            needConvertFormats.push('gif');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsAPNG)
+            needConvertFormats.push('apng');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsZIP)
+            needConvertFormats.push('zip');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsUgoira)
+            needConvertFormats.push('ugoira');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebP)
+            needConvertFormats.push('webp');
+        if (needConvertFormats.length === 0) {
+            // 如果用户没有选择任何动图格式，则不进行转换
+            // 注意：此时下载器依然会保存原始 zip 文件，而不是跳过这个文件
             return null;
         }
+        while (needConvertFormats.length > 0) {
+            let file = null;
+            const format = needConvertFormats.shift();
+            const newFileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(fileName, '.' + format);
+            this.lastUgoiraFileName = newFileName;
+            // 显示新的文件名。此时转换尚未开始，所以体积使用 zip 文件的体积
+            this.setProgressBar(this.lastUgoiraFileName, zipFile.size, zipFile.size);
+            // 保存为 ZIP 或 Ugoria 格式时，在里面添加 animation.json 文件，保存动图的元信息
+            if (format === 'zip' || format === 'ugoira') {
+                // 对于播放动画来说，只有 frames 是必须的。其他数据是作品的元数据，不是必须的
+                let animationInfo = {
+                    frames: result.ugoiraInfo.frames,
+                    mime_type: result.ugoiraInfo.mime_type,
+                    id: result.idNum,
+                    title: result.title,
+                    tags: result.tags,
+                    date: result.date,
+                    xRestrict: result.xRestrict,
+                    width: result.fullWidth,
+                    height: result.fullHeight,
+                    user: result.user,
+                    userId: result.userId,
+                    regularSrc: result.regular,
+                    originalSrc: result.original,
+                    thumbnail: result.ugoiraInfo.originalThumbnail || result.thumb,
+                };
+                // 把 animationInfo 写入 animation.json，并添加到 zip 文件里
+                const zip = await new JSZip().loadAsync(zipFile);
+                zip.file('animation.json', JSON.stringify(animationInfo));
+                file = await zip.generateAsync({
+                    type: 'blob',
+                    // ugoira 格式需要二进制流的 mimeType。如果使用 zip 的 mimeType，浏览器在保存文件时会把它的扩展名强制设为 zip
+                    mimeType: format === 'ugoira'
+                        ? 'application/octet-stream'
+                        : 'application/zip',
+                });
+            }
+            else {
+                // 处理其他格式：webm gif apng，需要进行转换
+                try {
+                    const blob = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__.convertUgoira[format](zipFile, result.ugoiraInfo, result.idNum);
+                    file = blob || null;
+                }
+                catch (error) {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
+                        '<br>' +
+                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                    this.error = true;
+                    _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', result.id);
+                    file = null;
+                }
+            }
+            if (!file) {
+                continue;
+            }
+            // 如果这不是最后一个待处理的格式，就直接在这里下载
+            if (needConvertFormats.length > 0) {
+                // 显示转换后的文件的体积
+                this.setProgressBar(this.lastUgoiraFileName, file.size, file.size);
+                // 等待上一个文件下载完成
+                await this.waitPreviousFileDownload();
+                // 发送下载任务
+                const blobURL = URL.createObjectURL(file);
+                // 此时不会返回下载成功或失败的消息，所以这个抓取结果会保持下载中的状态
+                this.sendDownload(file, blobURL, newFileName, result.id, -1, false);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(200);
+                setTimeout(() => {
+                    URL.revokeObjectURL(blobURL);
+                }, 3000);
+            }
+            else {
+                // 如果这是最后一个待处理的格式
+                // 保存动图的缩略图
+                await this.downloadUgoiraThumbnail(result, newFileName);
+                // 返回这个 Blob 文件，让后续下载流程继续处理
+                return file;
+            }
+        }
+        return null;
     }
     /** 检查宽高条件和宽高比 */
     async checkWidthHeight(result) {
@@ -22746,16 +23021,14 @@ class Download {
     }
     /* 对插画、漫画进行颜色检查 */
     async checkColor(result, blobURL) {
-        if (result.type === 0 || result.type === 1) {
-            const checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
-                mini: blobURL,
-            });
-            if (!checkResult) {
-                return this.skipDownload({
-                    id: result.id,
-                    reason: 'color',
-                }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
-            }
+        const checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check({
+            mini: blobURL,
+        });
+        if (!checkResult) {
+            return this.skipDownload({
+                id: result.id,
+                reason: 'color',
+            }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.id)));
         }
     }
     /** 如果这张图片的宽高与作品里第一张图片的宽高不同，则为其重新生成文件名。此时 {px} 标记的结果与第一张图片不同。 */
@@ -22795,7 +23068,71 @@ class Download {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(50);
         }
     }
-    async sendDownload(blob, blobURL, fileName, id, taskBatch) {
+    /** 处理“为动图保存一张缩略图”设置 */
+    async downloadUgoiraThumbnail(result, newFileName, usePng = false, retryCount = 0) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.saveThumbnailForUgoira || !result.ugoiraInfo) {
+            return;
+        }
+        let thumbURL = result.ugoiraInfo.originalThumbnail;
+        if (!thumbURL) {
+            // 下载器在之前版本里没有保存 originalThumbnail 字段，此时使用方形缩略图 URL 进行转换
+            // 但是存在一个问题：方形缩略图的扩展名都是 jpg，所以转换后的 URL 也都是 jpg 的
+            // 但 originalThumbnail 有可能是 png，此时使用 jpg 会导致转换后的 URL 错误，下载失败
+            thumbURL = _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.squareThumbToOriginal(result.thumb);
+        }
+        // 如果该标记为 true，表示之前在请求 jpg 图片时 404 了，现在使用 png 格式再试一次
+        if (usePng) {
+            thumbURL = thumbURL.replace('.jpg', '.png');
+        }
+        // 为 thumbBlob 添加 try catch ，如果状态码是 404 就直接返回它
+        let thumbBlob = null;
+        try {
+            const response = await fetch(thumbURL);
+            if (!response.ok) {
+                // 404 状态码有两种可能：
+                // 1. 该作品已不存在
+                // 2. 最大尺寸的缩略图是 png 格式，但从 thumb 里转换后的 URL 是 jpg 结尾，所以请求的 URL 不正确
+                if (response.status === 404 && usePng === false) {
+                    // 对于第二种情况，重试一次。这不占用 retryCount 次数
+                    if (thumbURL.endsWith('.jpg')) {
+                        return this.downloadUgoiraThumbnail(result, newFileName, true, retryCount);
+                    }
+                }
+                else {
+                    // 如果是其他状态码，或者已经重试了因为 jpg 导致的 404 错误，则跳过这个缩略图，不再重试它
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个缩略图') +
+                        ': ' +
+                        _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.createLinkHTML(thumbURL) +
+                        '<br>' +
+                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码') +
+                        ': ' +
+                        response.status.toString());
+                    return;
+                }
+            }
+            thumbBlob = await response.blob();
+        }
+        catch (error) {
+            // 如果网络请求失败，重试最多 3 次
+            if (retryCount <= 3) {
+                return this.downloadUgoiraThumbnail(result, newFileName, false, retryCount + 1);
+            }
+            else {
+                // 如果重试达到最大次数，就不再重试，也不抛出错误，因为这只是下载缩略图失败了，不影响动图文件的下载
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个缩略图') + ': ' + _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.createLinkHTML(thumbURL));
+                return;
+            }
+        }
+        // 下载缩略图
+        const thumbBlobURL = URL.createObjectURL(thumbBlob);
+        const thumbFileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(newFileName, '.jpg');
+        await this.waitPreviousFileDownload();
+        this.sendDownload(thumbBlob, thumbBlobURL, thumbFileName, result.id, -1, false);
+        setTimeout(() => {
+            URL.revokeObjectURL(thumbBlobURL);
+        }, 3000);
+    }
+    async sendDownload(blob, blobURL, fileName, id, taskBatch, reply = true) {
         // 如果任务已停止，就不再下载这个文件
         if (this.cancel) {
             // 释放 blob URL
@@ -22807,7 +23144,7 @@ class Download {
             dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.blobToDataURL(blob);
         }
         const sendData = {
-            msg: 'save_work_file',
+            msg: reply ? 'save_work_file' : 'no_reply',
             fileName: fileName,
             id,
             taskBatch,
@@ -23032,6 +23369,7 @@ class DownloadControl {
                 // 发送下载成功的事件
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadSuccess', msg.data);
                 this.downloadOrSkipAFile(msg.data);
+                // console.log('downloaded', msg.data.id )
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地失败
@@ -23834,7 +24172,7 @@ class DownloadNovelEmbeddedImage {
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, title, 'novel'), `${current} / ${total}`), 'downloadNovelImage' + id);
     }
     /**最多重试一定次数，避免无限重试 */
-    retryMax = 5;
+    retryMax = 10;
     async getImage(url, type, retry = 0) {
         try {
             const res = await fetch(url);
@@ -23845,7 +24183,7 @@ class DownloadNovelEmbeddedImage {
             return data;
         }
         catch (error) {
-            // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
+            // 发生网络错误时，有时候请求会立即结束并被捕获。但有时需要等比较长的时间，例如服务器错误的返回了 206 状态码，请求并不会立刻结束，而是要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
             retry++;
             // console.log(retry, url)
             if (retry > this.retryMax) {
@@ -25807,7 +26145,7 @@ class MergeNovelFileName {
                 safe: true,
             },
             '{user}': {
-                value: _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.RemoveAtFromUsername(body.userName),
+                value: _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.removeAtFromUsername(body.userName),
                 safe: false,
             },
             '{user_id}': {
@@ -28883,7 +29221,7 @@ class Filter {
         if (!ext) {
             return false;
         }
-        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.novelExtensions.includes(ext)) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.allNovelFormats.includes(ext)) {
             // 这是小说的记录，如果传入的类型也是小说，则是完全匹配
             return !(type === 'novels');
         }
@@ -30393,36 +30731,204 @@ And so on.
         'Сохранить <span class="key">Ugoira</span> как',
     ],
     _动图保存格式的说明: [
-        `Pixiv 的动图的源文件是一个 Zip 压缩文件，里面包含了多张静态图片。下载器可以把它转换成其他格式。<br>
-WebM 视频的体积最小，而且画质损失不明显。它是预设的选择。<br>
-GIF 图片的兼容性最好，但是体积比较大，而且画质也比较差，不推荐。<br>
-APNG 图片是无损压缩，画质最好，但体积通常是最大的。<br>
-Zip 文件是源文件。`,
-        `Pixiv 的動圖的原始檔是一個 Zip 壓縮檔案，裡面包含了多張靜態圖片。下載器可以把它轉換成其他格式。<br>
-WebM 影片的體積最小，而且畫質損失不明顯。它是預設的選擇。<br>
-GIF 圖片的相容性最好，但是體積比較大，而且畫質也比較差，不推薦。<br>
-APNG 圖片是無失真壓縮，畫質最好，但體積通常是最大的。<br>
-Zip 檔案是原始檔。`,
-        `The source file of Pixiv's animated image is a Zip compressed file containing multiple static images. The downloader can convert it to other formats. <br>
-WebM video has the smallest size and the image quality loss is not obvious. It is the default choice. <br>
-GIF images have the best compatibility, but they are larger in size and the image quality is also poor, so they are not recommended. <br>
-APNG images are lossless compression, with the best image quality, but usually the largest in size. <br>
-The Zip file is the source file.`,
-        `Pixivのアニメーション画像のソースファイルは、複数の静止画を含むZip圧縮ファイルです。ダウンローダーで他の形式に変換できます。<br>
-WebM動画はファイルサイズが最も小さく、画質の劣化も目立ちません。デフォルトの選択肢です。<br>
-GIF画像は互換性が最も優れていますが、ファイルサイズが大きく、画質も劣るため、あまりお勧めできません。<br>
-APNG画像はロスレス圧縮で、画質は最も優れていますが、ファイルサイズが最も大きくなります。<br>
-Zipファイルがソースファイルです。`,
-        `Pixiv 애니메이션 이미지의 원본 파일은 여러 개의 정적 이미지가 포함된 Zip 압축 파일입니다. 다운로더는 이를 다른 형식으로 변환할 수 있습니다. <br>
-WebM 비디오는 크기가 가장 작고 화질 저하가 눈에 띄지 않습니다. 기본 선택 사항입니다. <br>
-GIF 이미지는 호환성이 가장 뛰어나지만, 크기가 크고 화질이 좋지 않아 권장하지 않습니다. <br>
-APNG 이미지는 무손실 압축으로 화질이 가장 좋지만 일반적으로 크기가 가장 큽니다. <br>
-Zip 파일이 원본 파일입니다.`,
-        `Исходный файл анимированного изображения Pixiv — это сжатый файл Zip, содержащий несколько статических изображений. Загрузчик может конвертировать его в другие форматы. <br>
-Видео WebM имеет наименьший размер, и потеря качества изображения неочевидна. Это выбор по умолчанию. <br>
-Изображения GIF имеют лучшую совместимость, но они больше по размеру, а качество изображения также плохое, поэтому они не рекомендуются. <br>
-Изображения APNG — это сжатие без потерь, с наилучшим качеством изображения, но обычно самые большие по размеру. <br>
-Файл Zip является исходным файлом.`,
+        `下载器可以把动图保存为多种格式，并且你可以根据需要同时选择多种格式。<br>
+<br>
+格式列表：<br>
+- WebP 图片：可以选择有损或无损压缩。相比其他图像格式，在画质相同时的体积最小，推荐使用。<br>
+- WebM 视频：有损压缩。它是视频文件，需要使用视频播放器打开。<br>
+- GIF 图片：有损压缩。优点是兼容性好，缺点是画质最差，体积也比较大，不推荐。<br>
+- APNG 图片：无损压缩。缺点是体积最大，而且转换耗时也最长。<br>
+- ZIP 文件：无损。它是动图的源文件，包含多张静态图片，并且下载器会在里面添加一个 JSON 文件保存动画的元数据。<br>
+- Ugoira 文件：无损。它其实就是 ZIP 文件，只是扩展名为 .ugoira。<br>
+<br>
+子选项：<br>
+- WebP 图像质量：你可以设置 WebP 图片的质量，默认是高质量的有损压缩。你也可以改为无损压缩。<br>
+- 为动图保存一张缩略图：下载动图时，保存一张它的静态缩略图文件。<br>
+<br>
+推荐的格式：<br>
+我推荐优先使用 WebP 图片，因为它在相同画质时的体积最小。缺点是一些比较旧的看图软件可能不支持查看 WebP 动图。<br>
+另外，对于 Windows 用户我也很推荐使用 Ugoira 文件。你可以安装 <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> 来播放 .ugoira 文件（免费版即可），此时 Ugoira 文件有很多优点：原始文件，无损，有动画效果，无须转换，体积也小。但是其他系统可能没有类似的软件。<br>
+<br>
+每种格式的体积：<br>
+我下载了近期的 1000 个动图作品进行测试，下面是每种格式的平均体积，仅供参考：<br>
+- ZIP/Ugoira：9MB<br>
+- WebP：7 MB（有损压缩）或 35 MB（无损压缩）<br>
+- WebM：10 MB<br>
+- GIF：20 MB<br>
+- APNG：48 MB<br>
+从小到大排序：WebP（有损）< ZIP/Ugoira < WebM < GIF < WebP（无损）< APNG。<br>
+<br>
+在资源管理器里显示缩略图：<br>
+这部分说明只适用于 Windows 系统。通过一些设置，你可以在资源管理器里查看所有动图格式的缩略图。<br>
+- GIF 图片：系统本身就支持显示它的缩略图。<br>
+- WebP 图片：安装 <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>，然后按 F5 打开它的设置，在“快捷菜单”设置的“缩略图预览”里选择 WebP 格式，即可显示 WebP 动画的缩略图。<br>
+- WebM 视频：安装 <a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a> 即可显示 WebM 视频的缩略图。<br>
+- APNG 图片、ZIP 文件、Ugoira 文件：在 Icaros 里添加这些格式的扩展名，就可以显示它们的缩略图。如果你安装了 K-Lite Codec Pack，那么它应该自带了 Icaros，你可以在开始菜单里搜索来找到它。如果你找不到它，也可以单独安装 <a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a>。运行 Icaros，启用它的缩略图功能，在文件类型列表的末尾添加 <span class="blue">;apng;zip;ugoira</span>，或者把对应类型的文件拖拽到 Icaros 的窗口里来添加它。<br>`,
+        `下載器可以把動圖儲存為多種格式，而且你可以依照需要同時選擇多種格式。<br>
+<br>
+格式列表：<br>
+- WebP 圖片：可以選擇有損或無損壓縮。和其他圖像格式相比，在畫質相同時，它的體積最小，推薦使用。<br>
+- WebM 影片：有損壓縮。它是影片檔案，需要使用影片播放器開啟。<br>
+- GIF 圖片：有損壓縮。優點是相容性好，缺點是畫質最差，體積也比較大，不推薦。<br>
+- APNG 圖片：無損壓縮。缺點是體積最大，而且轉換耗時也最久。<br>
+- ZIP 檔案：無損。它是動圖的原始檔案，包含多張靜態圖片，而且下載器會在裡面加入一個 JSON 檔案來保存動畫的中繼資料。<br>
+- Ugoira 檔案：無損。它其實就是 ZIP 檔案，只是副檔名為 .ugoira。<br>
+<br>
+子選項：<br>
+- WebP 圖像品質：你可以設定 WebP 圖片的品質，預設是高品質的有損壓縮。你也可以改成無損壓縮。<br>
+- 為動圖儲存一張縮圖：下載動圖時，儲存一張它的靜態縮圖檔案。<br>
+<br>
+推薦的格式：<br>
+我推薦優先使用 WebP 圖片，因為它在相同畫質時的體積最小。缺點是一些比較舊的看圖軟體可能不支援查看 WebP 動圖。<br>
+另外，對於 Windows 使用者，我也很推薦使用 Ugoira 檔案。你可以安裝 <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> 來播放 .ugoira 檔案（免費版即可），這樣 Ugoira 檔案有很多優點：原始檔案、無損、有動畫效果、不需要轉換，而且體積也小。不過其他系統可能沒有類似的軟體。<br>
+<br>
+每種格式的體積：<br>
+我下載了近期的 1000 個動圖作品進行測試，下面是每種格式的平均體積，僅供參考：<br>
+- ZIP/Ugoira：9MB<br>
+- WebP：7 MB（有損壓縮）或 35 MB（無損壓縮）<br>
+- WebM：10 MB<br>
+- GIF：20 MB<br>
+- APNG：48 MB<br>
+從小到大排序：WebP（有損）< ZIP/Ugoira < WebM < GIF < WebP（無損）< APNG。<br>
+<br>
+在檔案總管裡顯示縮圖：<br>
+這部分說明只適用於 Windows 系統。透過一些設定，你可以在檔案總管裡查看所有動圖格式的縮圖。<br>
+- GIF 圖片：系統本身就支援顯示它的縮圖。<br>
+- WebP 圖片：安裝 <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>，然後按 F5 打開它的設定，在 "快捷選單" 設定的 "縮圖預覽" 裡選擇 WebP 格式，即可顯示 WebP 動畫的縮圖。<br>
+- WebM 影片：安裝 <a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a> 即可顯示 WebM 影片的縮圖。<br>
+- APNG 圖片、ZIP 檔案、Ugoira 檔案：在 Icaros 裡加入這些格式的副檔名，就可以顯示它們的縮圖。如果你安裝了 K-Lite Codec Pack，那它應該會附帶 Icaros，你可以在開始功能表裡搜尋找到它。如果你找不到它，也可以單獨安裝 <a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a>。執行 Icaros，啟用它的縮圖功能，在檔案類型列表的末尾添加 <span class="blue">;apng;zip;ugoira</span>，或者把對應類型的檔案拖曳到 Icaros 的視窗裡來添加它。<br>`,
+        `The downloader can save Ugoira in multiple formats, and you can also choose multiple formats at the same time if needed.<br>
+<br>
+Format list:<br>
+- WebP image: You can choose either lossy or lossless compression. Compared with other image formats, it has the smallest file size at the same image quality, so it is recommended.<br>
+- WebM video: Lossy compression. It is a video file, so you need a video player to open it.<br>
+- GIF image: Lossy compression. Its advantage is good compatibility, but the drawbacks are the worst image quality and a relatively large file size, so it is not recommended.<br>
+- APNG image: Lossless compression. The drawbacks are that it has the largest file size and also takes the longest time to convert.<br>
+- ZIP file: Lossless. It is the source file of the Ugoira, containing multiple static images, and the downloader also adds a JSON file inside it to save the animation metadata.<br>
+- Ugoira file: Lossless. It is basically just a ZIP file with the .ugoira extension.<br>
+<br>
+Sub-options:<br>
+- WebP image quality: You can set the quality of WebP images. By default, it uses high-quality lossy compression. You can also change it to lossless compression.<br>
+- Save a thumbnail for Ugoira: When downloading Ugoira, also save one static thumbnail file for it.<br>
+<br>
+Recommended formats:<br>
+I recommend using WebP images first, because they have the smallest file size at the same image quality. The drawback is that some older image viewers may not support animated WebP images.<br>
+Also, I highly recommend Ugoira files for Windows users. You can install <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> to play .ugoira files, and the free version is enough. In that case, Ugoira files have many advantages: original file, lossless, animated, no conversion needed, and small file size. But other systems may not have similar software.<br>
+<br>
+File size of each format:<br>
+I downloaded and tested 1,000 recent Ugoira works. Below is the average file size of each format, for reference only:<br>
+- ZIP/Ugoira: 9 MB<br>
+- WebP: 7 MB (lossy) or 35 MB (lossless)<br>
+- WebM: 10 MB<br>
+- GIF: 20 MB<br>
+- APNG: 48 MB<br>
+Sorted from smallest to largest: WebP (lossy) < ZIP/Ugoira < WebM < GIF < WebP (lossless) < APNG.<br>
+<br>
+Show thumbnails in File Explorer:<br>
+This part only applies to Windows. With a few settings, you can view thumbnails for all Ugoira formats in File Explorer.<br>
+- GIF image: The system already supports showing its thumbnail.<br>
+- WebP image: Install <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>, then press F5 to open its settings. In the "Context Menu" settings, under "Thumbnail Preview", select the WebP format, and then thumbnails for animated WebP files will be shown.<br>
+- WebM video: Install <a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a>, and thumbnails for WebM videos will be shown.<br>
+- APNG image, ZIP file, and Ugoira file: Add the extensions for these formats in Icaros, and their thumbnails can be shown. If you installed K-Lite Codec Pack, it should already include Icaros, and you can search for it in the Start menu. If you cannot find it, you can also install <a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a> separately. Run Icaros, enable its thumbnail feature, add <span class="blue">;apng;zip;ugoira</span> at the end of the file type list, or drag files of those types into the Icaros window to add them.<br>`,
+        `ダウンローダーでは、Ugoira を複数の形式で保存できます。必要に応じて、複数の形式を同時に選ぶこともできます。<br>
+<br>
+形式一覧：<br>
+- WebP 画像：非可逆圧縮と可逆圧縮を選べます。他の画像形式と比べて、同じ画質ならファイルサイズが最も小さいので、おすすめです。<br>
+- WebM 動画：非可逆圧縮です。動画ファイルなので、動画プレイヤーで開く必要があります。<br>
+- GIF 画像：非可逆圧縮です。互換性が高いのは利点ですが、画質が最も悪く、ファイルサイズも比較的大きいため、おすすめしません。<br>
+- APNG 画像：可逆圧縮です。欠点は、ファイルサイズが最も大きく、変換にかかる時間も最も長いことです。<br>
+- ZIP ファイル：可逆です。これは Ugoira の元ファイルで、複数の静止画像が含まれています。さらに、ダウンローダーがその中にアニメーションのメタデータを保存する JSON ファイルを追加します。<br>
+- Ugoira ファイル：可逆です。実際には拡張子が .ugoira になった ZIP ファイルです。<br>
+<br>
+サブオプション：<br>
+- WebP 画像品質：WebP 画像の品質を設定できます。デフォルトは高品質の非可逆圧縮です。可逆圧縮に変更することもできます。<br>
+- Ugoira 用にサムネイルを1枚保存する：Ugoira をダウンロードするときに、静止サムネイルファイルを1枚保存します。<br>
+<br>
+おすすめの形式：<br>
+まずは WebP 画像を使うのがおすすめです。同じ画質ならファイルサイズが最も小さいからです。欠点は、少し古い画像ビューアでは WebP アニメーションを表示できない場合があることです。<br>
+また、Windows ユーザーには Ugoira ファイルもとてもおすすめです。.ugoira ファイルを再生するために <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> をインストールできます。無料版で十分です。この場合、Ugoira ファイルには多くの利点があります。元ファイル、可逆、アニメーションあり、変換不要、しかもサイズも小さいです。ただし、他の OS には同様のソフトがないかもしれません。<br>
+<br>
+各形式のファイルサイズ：<br>
+最近の Ugoira 作品を 1000 件ダウンロードしてテストしました。以下は各形式の平均ファイルサイズです。参考用です。<br>
+- ZIP/Ugoira：9MB<br>
+- WebP：7 MB（非可逆圧縮）または 35 MB（可逆圧縮）<br>
+- WebM：10 MB<br>
+- GIF：20 MB<br>
+- APNG：48 MB<br>
+小さい順に並べると、WebP（非可逆）< ZIP/Ugoira < WebM < GIF < WebP（可逆）< APNG です。<br>
+<br>
+エクスプローラーでサムネイルを表示する：<br>
+この説明は Windows のみ対象です。いくつか設定すれば、エクスプローラーで全部の Ugoira 形式のサムネイルを表示できます。<br>
+- GIF 画像：システムがもともとサムネイル表示に対応しています。<br>
+- WebP 画像：<a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> をインストールしてから、F5 を押して設定を開きます。"ショートカットメニュー" 設定の "サムネイルプレビュー" で WebP 形式を選ぶと、WebP アニメーションのサムネイルを表示できます。<br>
+- WebM 動画：<a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a> をインストールすると、WebM 動画のサムネイルを表示できます。<br>
+- APNG 画像、ZIP ファイル、Ugoira ファイル：Icaros にこれらの形式の拡張子を追加すると、サムネイルを表示できます。K-Lite Codec Pack をインストールしていれば、Icaros も一緒に入っているはずなので、スタートメニューで検索して見つけられます。見つからない場合は、<a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a> を単独でインストールすることもできます。Icaros を起動してサムネイル機能を有効にし、ファイルタイプ一覧の末尾に <span class="blue">;apng;zip;ugoira</span> を追加するか、対応する種類のファイルを Icaros のウィンドウへドラッグ＆ドロップして追加してください。<br>`,
+        `다운로더는 Ugoira를 여러 형식으로 저장할 수 있고, 필요에 따라 여러 형식을 동시에 선택할 수도 있습니다.<br>
+<br>
+형식 목록:<br>
+- WebP 이미지: 손실 압축과 무손실 압축 중에서 선택할 수 있습니다. 다른 이미지 형식과 비교했을 때, 같은 화질이라면 파일 크기가 가장 작아서 추천합니다.<br>
+- WebM 비디오: 손실 압축입니다. 비디오 파일이므로 비디오 플레이어로 열어야 합니다.<br>
+- GIF 이미지: 손실 압축입니다. 장점은 호환성이 좋다는 점이지만, 단점은 화질이 가장 나쁘고 파일 크기도 비교적 커서 추천하지 않습니다.<br>
+- APNG 이미지: 무손실 압축입니다. 단점은 파일 크기가 가장 크고 변환 시간도 가장 오래 걸린다는 점입니다.<br>
+- ZIP 파일: 무손실입니다. 이것은 Ugoira의 원본 파일이며, 여러 장의 정적 이미지가 들어 있습니다. 또 다운로더가 그 안에 애니메이션 메타데이터를 저장하는 JSON 파일도 추가합니다.<br>
+- Ugoira 파일: 무손실입니다. 사실상 확장자만 .ugoira인 ZIP 파일입니다.<br>
+<br>
+하위 옵션:<br>
+- WebP 이미지 품질: WebP 이미지의 품질을 설정할 수 있습니다. 기본값은 고화질 손실 압축이며, 무손실 압축으로 바꿀 수도 있습니다.<br>
+- Ugoira용 썸네일 1장을 저장하기: Ugoira를 다운로드할 때 정적인 썸네일 파일 1장도 함께 저장합니다.<br>
+<br>
+추천 형식:<br>
+같은 화질일 때 파일 크기가 가장 작기 때문에, 우선 WebP 이미지를 추천합니다. 단점은 일부 오래된 이미지 뷰어에서는 WebP 애니메이션을 지원하지 않을 수 있다는 점입니다.<br>
+또한 Windows 사용자라면 Ugoira 파일도 아주 추천합니다. <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>를 설치하면 .ugoira 파일을 재생할 수 있고, 무료 버전으로도 충분합니다. 이 경우 Ugoira 파일은 장점이 많습니다. 원본 파일이고, 무손실이며, 애니메이션 효과가 있고, 변환이 필요 없고, 파일 크기도 작습니다. 다만 다른 운영체제에는 비슷한 소프트웨어가 없을 수도 있습니다.<br>
+<br>
+형식별 파일 크기:<br>
+최근 Ugoira 작품 1000개를 다운로드해서 테스트했습니다. 아래는 각 형식의 평균 파일 크기이며, 참고용입니다.<br>
+- ZIP/Ugoira: 9MB<br>
+- WebP: 7 MB(손실 압축) 또는 35 MB(무손실 압축)<br>
+- WebM: 10 MB<br>
+- GIF: 20 MB<br>
+- APNG: 48 MB<br>
+작은 것부터 큰 것 순서: WebP(손실) < ZIP/Ugoira < WebM < GIF < WebP(무손실) < APNG.<br>
+<br>
+탐색기에서 썸네일 표시하기:<br>
+이 설명은 Windows에서만 적용됩니다. 몇 가지 설정을 하면 탐색기에서 모든 Ugoira 형식의 썸네일을 볼 수 있습니다.<br>
+- GIF 이미지: 시스템에서 원래 썸네일 표시를 지원합니다.<br>
+- WebP 이미지: <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>를 설치한 다음 F5를 눌러 설정을 엽니다. "바로가기 메뉴" 설정의 "썸네일 미리보기"에서 WebP 형식을 선택하면 WebP 애니메이션의 썸네일을 표시할 수 있습니다.<br>
+- WebM 비디오: <a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a>를 설치하면 WebM 비디오의 썸네일을 표시할 수 있습니다.<br>
+- APNG 이미지, ZIP 파일, Ugoira 파일: Icaros에 이런 형식의 확장자를 추가하면 썸네일을 표시할 수 있습니다. K-Lite Codec Pack을 설치했다면 Icaros도 함께 들어 있을 가능성이 높으니 시작 메뉴에서 검색해서 찾을 수 있습니다. 찾을 수 없다면 <a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a>를 따로 설치해도 됩니다. Icaros를 실행하고 썸네일 기능을 켠 뒤, 파일 형식 목록 맨 끝에 <span class="blue">;apng;zip;ugoira</span> 를 추가하거나, 해당 형식의 파일을 Icaros 창으로 드래그해서 추가하면 됩니다.<br>`,
+        `Загрузчик может сохранять Ugoira в нескольких форматах, и при необходимости вы можете выбрать сразу несколько форматов одновременно.<br>
+<br>
+Список форматов:<br>
+- Изображение WebP: можно выбрать сжатие с потерями или без потерь. По сравнению с другими форматами изображений, при одинаковом качестве у него самый маленький размер файла, поэтому этот вариант рекомендуется.<br>
+- Видео WebM: сжатие с потерями. Это видеофайл, поэтому для открытия нужен видеоплеер.<br>
+- Изображение GIF: сжатие с потерями. Плюс в хорошей совместимости, но минусы в том, что качество изображения хуже всего, а размер файла сравнительно большой, поэтому этот вариант не рекомендуется.<br>
+- Изображение APNG: сжатие без потерь. Минусы в том, что размер файла самый большой, и конвертация занимает больше всего времени.<br>
+- ZIP-файл: без потерь. Это исходный файл Ugoira, в котором содержится несколько статических изображений, а загрузчик также добавляет внутрь JSON-файл для сохранения метаданных анимации.<br>
+- Файл Ugoira: без потерь. На самом деле это обычный ZIP-файл, только с расширением .ugoira.<br>
+<br>
+Подпункты:<br>
+- Качество изображения WebP: вы можете настроить качество изображений WebP. По умолчанию используется высококачественное сжатие с потерями. При желании можно переключить и на сжатие без потерь.<br>
+- Сохранить одну миниатюру для Ugoira: при скачивании Ugoira сохранить один статический файл миниатюры.<br>
+<br>
+Рекомендуемые форматы:<br>
+В первую очередь я рекомендую использовать изображения WebP, потому что при одинаковом качестве у них самый маленький размер файла. Недостаток в том, что некоторые старые программы для просмотра изображений могут не поддерживать анимированный WebP.<br>
+Кроме того, пользователям Windows я тоже очень рекомендую формат Ugoira. Вы можете установить <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a> для воспроизведения файлов .ugoira, и бесплатной версии будет достаточно. В этом случае у файлов Ugoira много преимуществ: это исходный файл, без потерь, с анимацией, без необходимости конвертации, и при этом он тоже небольшой по размеру. Но в других системах похожего ПО может не быть.<br>
+<br>
+Размер каждого формата:<br>
+Я скачал и протестировал 1000 недавних работ Ugoira. Ниже приведен средний размер файла для каждого формата, только для справки:<br>
+- ZIP/Ugoira: 9MB<br>
+- WebP: 7 MB (сжатие с потерями) или 35 MB (сжатие без потерь)<br>
+- WebM: 10 MB<br>
+- GIF: 20 MB<br>
+- APNG: 48 MB<br>
+Сортировка от меньшего к большему: WebP (с потерями) < ZIP/Ugoira < WebM < GIF < WebP (без потерь) < APNG.<br>
+<br>
+Показ миниатюр в Проводнике:<br>
+Эта часть относится только к Windows. После некоторых настроек вы сможете видеть миниатюры всех форматов Ugoira в Проводнике.<br>
+- Изображение GIF: система уже сама поддерживает показ его миниатюр.<br>
+- Изображение WebP: установите <a href="https://www.bandisoft.com/bandiview/" target="_blank">BandiView</a>, затем нажмите F5, чтобы открыть его настройки. В настройках "Контекстное меню", в разделе "Предпросмотр миниатюр", выберите формат WebP, и тогда миниатюры анимированных WebP будут отображаться.<br>
+- Видео WebM: установите <a href="https://www.codecguide.com/download_k-lite_codec_pack_standard.htm" target="_blank">K-Lite Codec Pack</a>, и миниатюры видео WebM будут отображаться.<br>
+- Изображение APNG, ZIP-файл и файл Ugoira: добавьте расширения этих форматов в Icaros, и их миниатюры будут отображаться. Если у вас установлен K-Lite Codec Pack, то Icaros, скорее всего, уже входит в комплект, и его можно найти через поиск в меню "Пуск". Если вы не можете его найти, можно отдельно установить <a href="https://github.com/Xanashi/Icaros/releases" target="_blank">Icaros</a>. Запустите Icaros, включите функцию миниатюр, добавьте <span class="blue">;apng;zip;ugoira</span> в конец списка типов файлов или перетащите файлы этих типов в окно Icaros, чтобы добавить их.<br>`,
     ],
     _webmVideo: [
         'WebM 视频',
@@ -30432,7 +30938,41 @@ Zip 파일이 원본 파일입니다.`,
         'WebM 동영상',
         'WebM видео',
     ],
-    _gif: [
+    _webp图片: [
+        'WebP 图片',
+        '圖片（WebP）',
+        'WebP image',
+        'WebP 画像',
+        'WebP 이미지',
+        'WebP изображение',
+    ],
+    _WebP图像质量: [
+        `WebP 图像质量`,
+        `WebP 圖像品質`,
+        `WebP image quality`,
+        `WebP 画像品質`,
+        `WebP 이미지 품질`,
+        `Качество изображения WebP`,
+    ],
+    _有损: ['有损', '有損', 'Lossy', '非可逆', '손실', 'С потерями'],
+    _无损: ['无损', '無損', 'Lossless', '可逆', '무손실', 'Без потерь'],
+    _为动图保存一张缩略图: [
+        `为动图保存一张缩略图`,
+        `為動圖儲存一張縮圖`,
+        `Save a thumbnail for Ugoira`,
+        `Ugoira 用にサムネイルを1枚保存する`,
+        `Ugoira용 썸네일 1장을 저장하기`,
+        `Сохранить одну миниатюру для Ugoira`,
+    ],
+    _跳过这个缩略图: [
+        `跳过这个缩略图`,
+        `跳過這張縮圖`,
+        `Skip this thumbnail`,
+        `このサムネイルをスキップ`,
+        `이 썸네일 건너뛰기`,
+        `Пропустить эту миниатюру`,
+    ],
+    _gif图片: [
         'GIF 图片',
         '圖片（GIF）',
         'GIF image',
@@ -30440,7 +30980,7 @@ Zip 파일이 원본 파일입니다.`,
         'GIF 이미지',
         'GIF изображение',
     ],
-    _apng: [
+    _apng图片: [
         'APNG 图片',
         '圖片（APNG）',
         'APNG image',
@@ -30448,13 +30988,21 @@ Zip 파일이 원본 파일입니다.`,
         'APNG 이미지',
         'APNG изображение',
     ],
-    _zipFile: [
-        'Zip 文件',
-        '壓縮檔（Zip）',
-        'Zip file',
+    _zip文件: [
+        'ZIP 文件',
+        '壓縮檔（ZIP）',
+        'ZIP file',
         'ZIP ファイル',
-        'Zip 파일',
-        'Zip файл',
+        'ZIP 파일',
+        'ZIP файл',
+    ],
+    _Ugoira文件: [
+        `Ugoira 文件`,
+        `Ugoira 檔案`,
+        `Ugoira file`,
+        `Ugoira ファイル`,
+        `Ugoira 파일`,
+        `Файл Ugoira`,
     ],
     _当前有x个作品: [
         '当前有 {} 个作品',
@@ -32699,7 +33247,6 @@ Note: Even if you disable this setting, some quick download methods will always 
         'Правило наименования сохранено',
     ],
     _命名: ['命名', '命名', 'Naming', '命名', '이름', 'Имя'],
-    _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실', 'Без потерь'],
     _文件名长度限制: [
         '文件名<span class="key">长度</span>限制',
         '檔案名稱<span class="key">長度</span>限制',
@@ -33340,63 +33887,82 @@ This setting is also used when you use the Downloader to bookmark works in batch
         `如果你想仅为多图作品额外创建一层文件夹（并且不为单图作品创建该文件夹），可以启用此设置。<br>
 <br>
 使用方法：<br>
-先在这里设置这层文件夹的命名规则。<br>
-然后修改“图像作品的命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
-示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+先在这里设置这层文件夹的规则。注意：在这个设置里，你只需要设置为多图作品额外添加的文件夹。不要在这里填写完整的命名规则。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。<br>
+默认值 <span class="blue">{pid}</span> 会使用作品 ID 创建这层文件夹。如果你想使用作品标题来创建这层文件夹，就填写 <span class="blue">{title}</span>。
 <br>
-下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
+然后你需要修改“下载”选项卡里的“图像作品的命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+<br>
+修改后的“图像作品的命名规则”的示例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+工作原理：下载器在为多图作品生成文件名时，会将 <span class="blue">{multi_image_folder}</span> 替换为你在这里设置的文件夹规则。<br>`,
         `如果你想僅為多圖作品額外建立一層資料夾（而且不為單圖作品建立這個資料夾），可以啟用此設定。<br>
 <br>
 使用方法：<br>
-先在這裡設定這層資料夾的命名規則。<br>
-然後修改 "圖像作品的命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{multi_image_folder}/</span>。<br>
-示例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+先在這裡設定這層資料夾的規則。注意：在這個設定裡，你只需要設定為多圖作品額外添加的資料夾，不要在這裡填寫完整的命名規則。<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
+預設值 <span class="blue">{pid}</span> 會使用作品 ID 建立這層資料夾。如果你想使用作品標題來建立這層資料夾，就填寫 <span class="blue">{title}</span>。<br>
 <br>
-下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
+然後你需要修改 "下載" 分頁裡的 "圖像作品的命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
 <br>
-設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>`,
-        `If you want to create an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
+修改後的 "圖像作品的命名規則" 範例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+運作原理：下載器在為多圖作品產生檔名時，會將 <span class="blue">{multi_image_folder}</span> 替換成你在這裡設定的資料夾規則。<br>`,
+        `If you want to add an extra folder layer only for multi-image works, and not create this folder for single-image works, you can enable this setting.<br>
 <br>
 How to use:<br>
-First, set the Naming rule for this folder layer here.<br>
-Then edit the "Naming rule for image works" setting and add <span class="blue">/{multi_image_folder}/</span> where you want to insert the folder.<br>
-Example: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+First, set the rule for this folder layer here. Note: In this setting, you only need to set the extra folder added for multi-image works. Do not enter the full Naming rule here.<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+The default value <span class="blue">{pid}</span> will create this folder layer using the work ID. If you want to create this folder layer using the work title, enter <span class="blue">{title}</span>.<br>
 <br>
-When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>
+Then you need to edit the "Naming rule for image works" setting in the "Download" tab, and insert <span class="blue">/{multi_image_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters. Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>`,
-        `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成したくない場合は、この設定を有効にしてください。<br>
+Example of the modified "Naming rule for image works":<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+How it works: When the downloader generates file names for multi-image works, it will replace <span class="blue">{multi_image_folder}</span> with the folder rule you set here.<br>`,
+        `複数画像作品にだけ追加のフォルダ階層を作成し、単一画像作品にはこのフォルダを作成しないようにしたい場合は、この設定を有効にしてください。<br>
 <br>
 使い方：<br>
-まず、ここでこのフォルダ階層の命名規則を設定します。<br>
-次に "画像作品の命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{multi_image_folder}/</span>を追加します。<br>
-例：<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+まず、ここでこのフォルダ階層の規則を設定します。注意：この設定では、複数画像作品に追加するフォルダだけを設定してください。ここに完全な命名規則を入力しないでください。<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
+デフォルト値の <span class="blue">{pid}</span> は、作品 ID を使ってこのフォルダ階層を作成します。作品タイトルを使ってこのフォルダ階層を作成したい場合は、<span class="blue">{title}</span> を入力してください。<br>
 <br>
-ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
+そのあと、"ダウンロード" タブにある "画像作品の命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{multi_image_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
 <br>
-フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>`,
+変更後の "画像作品の命名規則" の例：<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+仕組み：ダウンローダーが複数画像作品のファイル名を生成するとき、<span class="blue">{multi_image_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>`,
         `여러 장 이미지 작품에만 폴더를 한 단계 더 만들고, 한 장짜리 작품에는 이 폴더를 만들지 않으려면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
-그런 다음 "이미지 작품의 명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 추가하세요.<br>
-예시: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+먼저 여기에서 이 폴더 단계의 규칙을 설정하세요. 주의: 이 설정에서는 여러 장 이미지 작품에 추가할 폴더만 설정하면 됩니다. 여기에 전체 명명 규칙을 입력하면 안 됩니다.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+기본값 <span class="blue">{pid}</span> 는 작품 ID를 사용해 이 폴더 단계를 만듭니다. 작품 제목으로 이 폴더 단계를 만들고 싶다면 <span class="blue">{title}</span> 를 입력하세요.<br>
 <br>
-다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
+그다음 "다운로드" 탭에 있는 "이미지 작품의 명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
 <br>
-폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다. 주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>`,
-        `Если вы хотите создавать дополнительный уровень папки только для работ с несколькими изображениями, и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
+수정한 "이미지 작품의 명명 규칙" 예시:<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+동작 방식: 다운로더가 여러 장 이미지 작품의 파일명을 만들 때 <span class="blue">{multi_image_folder}</span> 를 여기에서 설정한 폴더 규칙으로 바꿉니다.<br>`,
+        `Если вы хотите добавить дополнительный уровень папки только для работ с несколькими изображениями и не создавать эту папку для работ с одним изображением, включите эту настройку.<br>
 <br>
 Как использовать:<br>
-Сначала задайте здесь правило названий для этой папки.<br>
-Затем измените настройку "Правила названий для графических работ" и добавьте <span class="blue">/{multi_image_folder}/</span> в то место, где нужно вставить папку.<br>
-Пример: <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только папку, которая будет дополнительно добавляться для работ с несколькими изображениями. Не вводите здесь полное правило названий.<br>
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+Значение по умолчанию <span class="blue">{pid}</span> создаст этот уровень папки с использованием ID work. Если вы хотите создавать этот уровень папки по названию work, укажите <span class="blue">{title}</span>.<br>
 <br>
-Когда загрузчик будет создавать имена файлов для работ с несколькими изображениями, он заменит <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>
+Затем вам нужно изменить настройку "Правила названий для графических работ" на вкладке "Скачать" и вставить <span class="blue">/{multi_image_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
 <br>
-При настройке правила папки можно использовать маркеры из правил названий, а также добавлять свои символы. Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>`,
+Пример измененного "Правила названий для графических работ":<br>
+<span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
+<br>
+Как это работает: когда загрузчик создает имена файлов для работ с несколькими изображениями, он заменяет <span class="blue">{multi_image_folder}</span> на правило папки, которое вы задали здесь.<br>`,
     ],
     _文件夹规则: [
         `文件夹规则`,
@@ -33405,6 +33971,14 @@ When setting the folder rule, you can use markers from the Naming rule, or add y
         `フォルダ規則`,
         `폴더 규칙`,
         `Правило папки`,
+    ],
+    _要添加的这层文件夹的规则: [
+        `要添加的这层文件夹的规则`,
+        `要添加的這層資料夾的規則`,
+        `Rule for the folder layer to add`,
+        `追加するこのフォルダ階層の規則`,
+        `추가할 이 폴더 단계의 규칙`,
+        `Правило для этого добавляемого уровня папки`,
     ],
     _文件数量大于: [
         '文件数量 >',
@@ -33492,81 +34066,87 @@ When setting the folder rule, you can use markers from the Naming rule, or add y
         `如果你想为 R-18(G) 作品额外添加一层文件夹，可以启用这个设置。<br>
 <br>
 使用方法：<br>
-先在这里设置这层文件夹的命名规则。<br>
-然后修改“命名规则”设置，在需要插入文件夹的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
+先在这里设置这层文件夹的规则。注意：在这个设置里，你只需要设置你想额外添加的这层文件夹。不要在这里填写完整的命名规则。<br>
+在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。<br>
+<br>
+然后你需要修改“下载”选项卡里的“命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+<br>
+修改后的命名规则的示例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下载器为 R-18(G) 作品生成文件名时会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
+工作原理：下载器为 R-18(G) 作品生成文件名时，会把 <span class="blue">{r18_g_folder}</span> 替换为你在这里设置的文件夹规则。<br>
 <br>
-在设置文件夹规则时，你可以使用命名规则里的标记，也可以添加自定义字符。<br>
-需要注意的是，如果你想在文件夹名称中使用作品 ID，应使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
-<br>
-注意：这个设置会为 R-18 和 R-18G 作品都添加这层文件夹。如果你想把它们分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
+注意：这个设置会为 R-18 和 R-18G 作品添加相同的文件夹名字。如果你想把 R-18 和 R-18G 作品分开存放，可以关闭这个设置，并在命名规则里使用 <span class="blue">{age_r}/</span> 来建立一层文件夹，它可以区分 R-18 和 R-18G 作品。<br>`,
         `如果你想為 R-18(G) 作品額外添加一層資料夾，可以啟用這個設定。<br>
 <br>
 使用方法：<br>
-先在這裡設定這層資料夾的命名規則。<br>
-然後修改 "命名規則" 設定，在需要插入資料夾的位置添加<span class="blue">/{r18_g_folder}/</span>。<br>
+先在這裡設定這層資料夾的規則。注意：在這個設定裡，你只需要設定你想額外添加的這層資料夾。不要在這裡填寫完整的命名規則。<br>
+設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
+<br>
+然後你需要修改 "下載" 分頁裡的 "命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
+<br>
+修改後的命名規則範例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-下載器為 R-18(G) 作品產生檔名時，會把 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
+運作原理：下載器為 R-18(G) 作品產生檔名時，會將 <span class="blue">{r18_g_folder}</span> 替換成你在這裡設定的資料夾規則。<br>
 <br>
-設定資料夾規則時，你可以使用命名規則裡的標記，也可以加入自訂字元。<br>
-需要注意的是，如果你想在資料夾名稱中使用作品 ID，應使用 <span class="blue">{pid}</span>，而不是 <span class="blue">{id}</span>。<br>
-<br>
-注意：這個設定會為 R-18 和 R-18G 作品都添加這層資料夾。如果你想把它們分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
+注意：這個設定會為 R-18 和 R-18G 作品添加相同的資料夾名稱。如果你想把 R-18 和 R-18G 作品分開存放，可以關閉這個設定，並在命名規則裡使用 <span class="blue">{age_r}/</span> 來建立一層資料夾，它可以區分 R-18 和 R-18G 作品。<br>`,
         `If you want to add an extra folder layer for R-18(G) works, you can enable this setting.<br>
 <br>
 How to use:<br>
-First, set the Naming rule for this folder layer here.<br>
-Then edit the "Naming rule" setting and add <span class="blue">/{r18_g_folder}/</span> where you want to insert the folder.<br>
+First, set the rule for this folder layer here. Note: In this setting, you only need to set the extra folder layer you want to add. Do not enter the full Naming rule here.<br>
+When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
+<br>
+Then you need to edit the "Naming rule" setting in the "Download" tab, and insert <span class="blue">/{r18_g_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
+<br>
+Example of the modified Naming rule:<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
+How it works: When the downloader generates file names for R-18(G) works, it will replace <span class="blue">{r18_g_folder}</span> with the folder rule you set here.<br>
 <br>
-When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
-Please note that if you want to use the work ID in the folder name, you should use <span class="blue">{pid}</span> instead of <span class="blue">{id}</span>.<br>
-<br>
-Note: This setting adds this folder layer for both R-18 and R-18G works. If you want to store them separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
+Note: This setting will add the same folder name for both R-18 and R-18G works. If you want to store R-18 and R-18G works separately, you can turn off this setting and use <span class="blue">{age_r}/</span> in the Naming rule to create a folder layer. It can distinguish between R-18 and R-18G works.<br>`,
         `R-18(G) 作品用に追加のフォルダ階層を作りたい場合は、この設定を有効にしてください。<br>
 <br>
 使い方：<br>
-まず、ここでこのフォルダ階層の命名規則を設定します。<br>
-次に "命名規則" の設定を変更し、フォルダを挿入したい位置に<span class="blue">/{r18_g_folder}/</span>を追加します。<br>
+まず、ここでこのフォルダ階層の規則を設定します。注意：この設定では、追加したいこのフォルダ階層だけを設定してください。ここに完全な命名規則を入力しないでください。<br>
+フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
+<br>
+そのあと、"ダウンロード" タブにある "命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{r18_g_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
+<br>
+変更後の命名規則の例：<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
+仕組み：ダウンローダーが R-18(G) 作品のファイル名を生成するとき、<span class="blue">{r18_g_folder}</span> はここで設定したフォルダ規則に置き換えられます。<br>
 <br>
-フォルダ規則を設定するときは、命名規則内のマーカーも使えますし、任意の文字を追加することもできます。<br>
-なお、フォルダ名に作品 ID を使いたい場合は、<span class="blue">{id}</span> ではなく <span class="blue">{pid}</span> を使用してください。<br>
-<br>
-注意：この設定を有効にすると、R-18 と R-18G の作品の両方にこのフォルダ階層が追加されます。別々に保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 と R-18G の作品を区別できます。<br>`,
+注意：この設定では、R-18 作品と R-18G 作品の両方に同じフォルダ名が追加されます。R-18 作品と R-18G 作品を分けて保存したい場合は、この設定を無効にして、命名規則で <span class="blue">{age_r}/</span> を使ってフォルダ階層を作成してください。これにより、R-18 作品と R-18G 作品を区別できます。<br>`,
         `R-18(G) 작품에 폴더를 한 단계 더 추가하고 싶다면 이 설정을 켜면 됩니다.<br>
 <br>
 사용 방법:<br>
-먼저 여기에서 이 폴더 단계의 명명 규칙을 설정하세요.<br>
-그런 다음 "명명 규칙" 설정을 수정해서, 폴더를 넣고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 추가하세요.<br>
+먼저 여기에서 이 폴더 단계의 규칙을 설정하세요. 주의: 이 설정에서는 추가하고 싶은 이 폴더 단계만 설정하면 됩니다. 여기에 전체 명명 규칙을 입력하면 안 됩니다.<br>
+폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
+<br>
+그다음 "다운로드" 탭에 있는 "명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
+<br>
+수정한 명명 규칙 예시:<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기서 설정한 폴더 규칙으로 바꿉니다.<br>
+동작 방식: 다운로더가 R-18(G) 작품의 파일명을 만들 때 <span class="blue">{r18_g_folder}</span> 를 여기에서 설정한 폴더 규칙으로 바꿉니다.<br>
 <br>
-폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
-주의할 점은, 폴더 이름에 작품 ID를 사용하려면 <span class="blue">{id}</span> 가 아니라 <span class="blue">{pid}</span> 을 사용해야 한다는 것입니다.<br>
-<br>
-주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 이 폴더 단계를 추가합니다. 둘을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
+주의: 이 설정은 R-18 작품과 R-18G 작품 모두에 같은 폴더 이름을 추가합니다. R-18 작품과 R-18G 작품을 따로 저장하고 싶다면 이 설정을 끄고, 명명 규칙에서 <span class="blue">{age_r}/</span> 를 사용해 폴더 단계를 만들면 됩니다. 이것으로 R-18 작품과 R-18G 작품을 구분할 수 있습니다.<br>`,
         `Если вы хотите добавить дополнительный уровень папки для работ R-18(G), включите эту настройку.<br>
 <br>
 Как использовать:<br>
-Сначала задайте здесь правило названий для этой папки.<br>
-Затем измените настройку "Правила названий" и добавьте <span class="blue">/{r18_g_folder}/</span> в то место, где нужно вставить папку.<br>
+Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только тот дополнительный уровень папки, который вы хотите добавить. Не вводите здесь полное правило названий.<br>
+При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
+<br>
+Затем вам нужно изменить настройку "Правила названий" на вкладке "Скачать" и вставить <span class="blue">/{r18_g_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
+<br>
+Пример измененного правила названий:<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
 <br>
-Когда загрузчик будет создавать имена файлов для работ R-18(G), он заменит <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
+Как это работает: когда загрузчик создает имена файлов для работ R-18(G), он заменяет <span class="blue">{r18_g_folder}</span> на правило папки, которое вы задали здесь.<br>
 <br>
-При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
-Обратите внимание: если вы хотите использовать ID работы в названии папки, нужно использовать <span class="blue">{pid}</span>, а не <span class="blue">{id}</span>.<br>
-<br>
-Внимание: эта настройка добавляет этот уровень папки и для работ R-18, и для работ R-18G. Если вы хотите хранить их отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать отдельный уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
+Внимание: эта настройка добавляет одинаковое имя папки и для работ R-18, и для работ R-18G. Если вы хотите хранить работы R-18 и R-18G отдельно, отключите эту настройку и используйте <span class="blue">{age_r}/</span> в правилах названий, чтобы создать уровень папки. Он позволяет различать работы R-18 и R-18G.<br>`,
     ],
     _必填项不能为空: [
         '必填项不能为空',
@@ -34444,49 +35024,79 @@ Note: After enabling this setting, the downloader will overwrite your current na
         `<span class="key">폴더를 생성하지 않음</span>`,
         `<span class="key">Не создавать</span> папку`,
     ],
-    _以下情况不创建文件夹的帮助内容: [
+    _不创建文件夹的帮助内容: [
         `启用此设置后，符合条件的文件不会创建文件夹，而是直接保存到浏览器的下载目录里。<br>
 <br>
 子选项：<br>
-- 单图作品：只有 1 张图片的插画、漫画、动图作品。<br>
-- 多图作品：有多张图片的插画、漫画作品。<br>
-- 小说：单篇小说作品。不包括合并系列小说后生成的合集文件。<br>
-如果你启用了所有子选项，那么所有作品都不会创建文件夹。`,
-        `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接保存到瀏覽器的下載目錄裡。<br>
+- 从插画、漫画里下载 1 张图片时：如果你只从这个作品里下载了 1 张图片，就不为这张图片创建文件夹。每个作品都会单独计算。<br>
+- 从插画、漫画里下载多张图片时：如果你从这个作品里下载了多张图片，就不为这些图片创建文件夹。每个作品都会单独计算。<br>
+- 动图：不为动图作品创建文件夹。<br>
+- 小说：不为单篇小说作品创建文件夹。<br>
+<br>
+提示：<br>
+如果你启用了所有子选项，那么所有作品都不会创建文件夹。<br>
+此设置不适用于合并系列小说后生成的合集文件。如果你想让合集文件不创建文件夹，可以在"更多"-"命名"里修改"
+合并系列小说时的命名规则"。`,
+        `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接儲存到瀏覽器的下載目錄裡。<br>
 <br>
 子選項：<br>
-- 單圖作品：只有 1 張圖片的插畫、漫畫、動圖作品。<br>
-- 多圖作品：有多張圖片的插畫、漫畫作品。<br>
-- 小說：單篇小說作品。不包括合併系列小說後生成的合集檔案。<br>
-如果你啟用了所有子選項，那麼所有作品都不會建立資料夾。`,
-        `After enabling this setting, files that meet the conditions will not create a folder and will be saved directly to the browser's download directory.<br>
+- 從插畫、漫畫裡下載 1 張圖片時：如果你只從這個作品裡下載了 1 張圖片，就不會為這張圖片建立資料夾。每個作品都會分開計算。<br>
+- 從插畫、漫畫裡下載多張圖片時：如果你從這個作品裡下載了多張圖片，就不會為這些圖片建立資料夾。每個作品都會分開計算。<br>
+- 動圖：不為動圖作品建立資料夾。<br>
+- 小說：不為單篇小說作品建立資料夾。<br>
+<br>
+提示：<br>
+如果你啟用了所有子選項，那麼所有作品都不會建立資料夾。<br>
+此設定不適用於合併系列小說後產生的合集檔案。如果你想讓合集檔案不建立資料夾，可以在"更多"-"命名"裡修改"
+合併系列小說時的命名規則"。`,
+        `After enabling this setting, files that meet the conditions will not have a folder created for them, and will instead be saved directly to the browser's download directory.<br>
 <br>
 Sub-options:<br>
-- Single-image works: Illustrations, manga, and Ugoira works that have only 1 image.<br>
-- Multi-image works: Illustrations and manga works that have multiple images.<br>
-- Novel: Single novel work. Does not include the collection file generated after merging a series of novels.<br>
-If you enable all sub-options, no works will create folders.`,
-        `この設定を有効にすると、条件に該当するファイルはフォルダを作成せず、ブラウザのダウンロードディレクトリに直接保存されます。<br>
+- When downloading 1 image from an illustration or manga: If you download only 1 image from this work, no folder will be created for that image. Each work is counted separately.<br>
+- When downloading multiple images from an illustration or manga: If you download multiple images from this work, no folder will be created for those images. Each work is counted separately.<br>
+- Ugoira: No folder will be created for Ugoira works.<br>
+- Novel: No folder will be created for a single novel work.<br>
 <br>
-サブオプション：<br>
-- 単画像作品：画像が1枚のみのイラスト、漫画、動画像作品。<br>
-- 複数画像作品：複数の画像があるイラスト、漫画作品。<br>
-- 小説：単一の小説作品。シリーズ小説をマージして生成された合集ファイルは含まれません。<br>
-すべてのサブオプションを有効にすると、すべての作品でフォルダが作成されなくなります。`,
-        `이 설정을 활성화하면 조건에 맞는 파일은 폴더를 생성하지 않고 브라우저의 다운로드 디렉토리에 직접 저장됩니다.<br>
+Tip:<br>
+If you enable all sub-options, then no folders will be created for any works.<br>
+This setting does not apply to collection files generated after merging a novel series. If you want collection files to be saved without creating folders, you can change the "
+Naming rule when merging a novel series" in "More"-"Naming".`,
+        `この設定を有効にすると、条件に合うファイルはフォルダを作成せず、ブラウザのダウンロードフォルダに直接保存されます。<br>
+<br>
+子オプション：<br>
+- イラスト・漫画から 1 枚ダウンロードするとき：この作品から 1 枚だけダウンロードした場合、その画像用のフォルダは作成されません。作品ごとに個別で判定されます。<br>
+- イラスト・漫画から複数の画像をダウンロードするとき：この作品から複数の画像をダウンロードした場合、それらの画像用のフォルダは作成されません。作品ごとに個別で判定されます。<br>
+- 動画：Ugoira 作品用のフォルダは作成されません。<br>
+- 小説：単体の小説作品用のフォルダは作成されません。<br>
+<br>
+ヒント：<br>
+すべての子オプションを有効にすると、どの作品でもフォルダは作成されなくなります。<br>
+この設定は、シリーズ小説を結合したあとに生成される合集ファイルには適用されません。合集ファイルでフォルダを作成しないようにしたい場合は、"その他"-"命名" で "
+シリーズ小説を結合するときの命名規則" を変更してください。`,
+        `이 설정을 켜면 조건에 맞는 파일은 폴더를 만들지 않고, 브라우저의 다운로드 폴더에 바로 저장됩니다.<br>
 <br>
 하위 옵션:<br>
-- 단일 이미지 작품: 이미지가 1장만 있는 일러스트, 만화, 동화 작품.<br>
-- 다중 이미지 작품: 여러 장의 이미지가 있는 일러스트, 만화 작품.<br>
-- 소설: 단편 소설 작품. 시리즈 소설을 병합한 후 생성된 컬렉션 파일은 포함되지 않습니다.<br>
-모든 하위 옵션을 활성화하면 모든 작품에 폴더가 생성되지 않습니다.`,
-        `После включения этой настройки файлы, удовлетворяющие условиям, не будут создавать папку, а будут сохраняться напрямую в папку загрузок браузера.<br>
+- 일러스트 또는 만화에서 이미지 1장을 다운로드할 때: 이 work에서 이미지를 1장만 다운로드했다면, 그 이미지용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- 일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때: 이 work에서 이미지를 여러 장 다운로드했다면, 그 이미지들용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- Ugoira: Ugoira work용 폴더를 만들지 않습니다.<br>
+- 소설: 단일 novel work용 폴더를 만들지 않습니다.<br>
 <br>
-Подопции:<br>
-- Одноизображные работы: иллюстрации, манга и Ugoira, имеющие только 1 изображение.<br>
-- Многоизображные работы: иллюстрации и манга, имеющие несколько изображений.<br>
-- Новелла: одиночная новелла. Не включает файл коллекции, созданный после объединения серии новелл.<br>
-Если вы включите все подопции, ни одна работа не будет создавать папки.`,
+안내:<br>
+모든 하위 옵션을 켜면 어떤 work도 폴더를 만들지 않습니다.<br>
+이 설정은 시리즈 novel을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "더보기"-"명명" 에서 "
+시리즈 novel 병합 시 명명 규칙" 을 수정하면 됩니다。`,
+        `После включения этой настройки для подходящих файлов папки создаваться не будут, и они будут сохраняться прямо в папку загрузок браузера.<br>
+<br>
+Подпункты:<br>
+- При скачивании 1 изображения из иллюстрации или манги: если вы скачали только 1 изображение из этой работы, папка для него создаваться не будет. Каждая работа считается отдельно.<br>
+- При скачивании нескольких изображений из иллюстрации или манги: если вы скачали несколько изображений из этой работы, папка для этих изображений создаваться не будет. Каждая работа считается отдельно.<br>
+- Ugoira: для работ Ugoira папка создаваться не будет.<br>
+- Novel: для отдельной работы-романа папка создаваться не будет.<br>
+<br>
+Подсказка:<br>
+Если вы включите все подпункты, папки не будут создаваться ни для каких работ.<br>
+Эта настройка не применяется к файлам-сборникам, созданным после объединения серии novel. Если вы хотите, чтобы для файлов-сборников тоже не создавались папки, можно изменить "
+Правила названий при объединении серии novel" в разделе "Ещё"-"Именование".`,
     ],
     _搜索页面页数限制: [
         '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -38784,49 +39394,89 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `파일 이름에 적용되는 {tags} 계열 토큰`,
         `Токены серии {tags}, применяемые в имени файла`,
     ],
-    _版本更新说明18_8_2: [
-        `<strong>🔧调整了两个命名标记</strong><br>
-为了使一些命名标记更容易理解，我为它们添加了别名：<br>
-- <span class="blue">{id_num}</span> 改为 <span class="blue">{pid}</span><br>
-- <span class="blue">{p_num}</span> 改为 <span class="blue">{p}</span><br>
-提示：原本的名字依然可以正常使用，所以你不需要修改现在使用的设置。<br>
+    _版本更新说明18_9_0: [
+        `<strong>⚠️🔧调整了“不创建文件夹”设置的子选项</strong><br>
+该设置的子选项已经重新设计，以提供更细致的控制能力。如果你使用这个设置，需要重新选择你需要的选项。<br>
 <br>
-<strong>🐞修复了在某些情况下，“使用第一个匹配的标签建立文件夹”里的标签别名没有生效的问题</strong><br>`,
-        `<strong>🔧調整了兩個命名標記</strong><br>
-為了讓一些命名標記更容易理解，我為它們添加了別名：<br>
-- <span class="blue">{id_num}</span> 改為 <span class="blue">{pid}</span><br>
-- <span class="blue">{p_num}</span> 改為 <span class="blue">{p}</span><br>
-提示：原本的名稱依然可以正常使用，所以你不需要修改現在使用的設定。<br>
+<strong>✨调整了动图保存格式</strong><br>
+- 新增格式：WebP 图片（有损）、WebP 图片（无损）、Ugoira 文件<br>
+- 多选：之前你只能选择一种格式，现在可以选择多种格式，在一次下载里把动图保存为多种格式。<br>
+- 默认值变化：之前的默认格式是 WebM 视频，现在改为 WebP 图片。这不会改变你之前选择的格式，只会影响下载器的新用户。<br>
+- 略微加快了转换速度。<br>
+- 转换 APNG 图片时不会再冻结页面。<br>
 <br>
-<strong>🐞修復了在某些情況下，"使用第一個匹配的標籤建立資料夾" 裡的標籤別名沒有生效的問題</strong><br>`,
-        `<strong>🔧Adjusted two naming markers</strong><br>
-To make some naming markers easier to understand, I added aliases for them:<br>
-- <span class="blue">{id_num}</span> changed to <span class="blue">{pid}</span><br>
-- <span class="blue">{p_num}</span> changed to <span class="blue">{p}</span><br>
-Tip: The original names still work normally, so you don't need to change your current settings.<br>
+<strong>😊优化了一些帮助信息</strong><br>`,
+        `<strong>⚠️🔧調整了 "不建立資料夾" 設定的子選項</strong><br>
+這個設定的子選項已重新設計，以提供更細緻的控制能力。如果你有使用這個設定，需要重新選擇你需要的選項。<br>
 <br>
-<strong>🐞Fixed an issue where, in some cases, the tag alias in "Use the first matching tag to create a folder" did not take effect</strong><br>`,
-        `<strong>🔧2つの命名マーカーを調整しました</strong><br>
-一部の命名マーカーをより分かりやすくするため、別名を追加しました。<br>
-- <span class="blue">{id_num}</span> を <span class="blue">{pid}</span> に変更<br>
-- <span class="blue">{p_num}</span> を <span class="blue">{p}</span> に変更<br>
-ヒント：元の名前もそのまま使えるので、現在使っている設定を変更する必要はありません。<br>
+<strong>✨調整了動圖儲存格式</strong><br>
+- 新增格式：WebP 圖片（有損）、WebP 圖片（無損）、Ugoira 檔案<br>
+- 多選：以前你只能選擇一種格式，現在可以同時選擇多種格式，在一次下載裡把動圖儲存成多種格式。<br>
+- 預設值變更：以前的預設格式是 WebM 影片，現在改成 WebP 圖片。這不會改變你之前選擇的格式，只會影響下載器的新使用者。<br>
+- 稍微加快了轉換速度。<br>
+- 轉換 APNG 圖片時不會再讓頁面凍結。<br>
 <br>
-<strong>🐞一部の状況で、"最初に一致したタグでフォルダを作成する" のタグ別名が反映されない問題を修正しました</strong><br>`,
-        `<strong>🔧명명 마커 2개를 조정했습니다</strong><br>
-일부 명명 마커를 더 이해하기 쉽게 하기 위해 별칭을 추가했습니다.<br>
-- <span class="blue">{id_num}</span> 를 <span class="blue">{pid}</span> 로 변경<br>
-- <span class="blue">{p_num}</span> 를 <span class="blue">{p}</span> 로 변경<br>
-안내: 원래 이름도 계속 정상적으로 사용할 수 있으므로, 지금 사용 중인 설정을 바꿀 필요는 없습니다.<br>
+<strong>😊優化了一些幫助資訊</strong><br>`,
+        `<strong>⚠️🔧Adjusted the sub-options of the "Do not create folders" setting</strong><br>
+The sub-options of this setting have been redesigned to provide more detailed control. If you use this setting, you need to select the options you want again.<br>
 <br>
-<strong>🐞일부 경우 "첫 번째로 일치하는 태그로 폴더 만들기" 에서 태그 별칭이 적용되지 않던 문제를 수정했습니다</strong><br>`,
-        `<strong>🔧Скорректированы два маркера названий</strong><br>
-Чтобы некоторые маркеры названий было проще понять, я добавил для них псевдонимы:<br>
-- <span class="blue">{id_num}</span> изменен на <span class="blue">{pid}</span><br>
-- <span class="blue">{p_num}</span> изменен на <span class="blue">{p}</span><br>
-Подсказка: исходные названия по-прежнему работают, поэтому вам не нужно менять текущие настройки.<br>
+<strong>✨Adjusted the Ugoira save formats</strong><br>
+- New formats: WebP image (lossy), WebP image (lossless), Ugoira file<br>
+- Multi-select: Previously, you could choose only one format. Now you can choose multiple formats and save Ugoira in multiple formats in a single download.<br>
+- Default value changed: The previous default format was WebM video, and now it has been changed to WebP image. This will not change the format you selected before. It only affects new users of the downloader.<br>
+- Conversion speed has been slightly improved.<br>
+- Converting APNG images will no longer freeze the page.<br>
 <br>
-<strong>🐞Исправлена проблема, из-за которой в некоторых случаях псевдоним тега в "Создавать папку по первому совпавшему тегу" не работал</strong><br>`,
+<strong>😊Improved some help information</strong><br>`,
+        `<strong>⚠️🔧"フォルダを作成しない" 設定のサブオプションを調整しました</strong><br>
+この設定のサブオプションは、より細かく制御できるように再設計されました。この設定を使っている場合は、必要なオプションをもう一度選び直してください。<br>
+<br>
+<strong>✨Ugoira の保存形式を調整しました</strong><br>
+- 追加された形式：WebP 画像（非可逆）、WebP 画像（可逆）、Ugoira ファイル<br>
+- 複数選択：以前は1つの形式しか選べませんでしたが、今は複数の形式を選べるようになり、1回のダウンロードで Ugoira を複数の形式で保存できます。<br>
+- デフォルト値の変更：以前のデフォルト形式は WebM 動画でしたが、現在は WebP 画像に変更されました。これは以前に選択した形式には影響せず、ダウンローダーの新規ユーザーにのみ影響します。<br>
+- 変換速度が少し向上しました。<br>
+- APNG 画像への変換時にページがフリーズしなくなりました。<br>
+<br>
+<strong>😊いくつかのヘルプ情報を改善しました</strong><br>`,
+        `<strong>⚠️🔧"폴더 만들지 않기" 설정의 하위 옵션을 조정했습니다</strong><br>
+이 설정의 하위 옵션을 더 세밀하게 제어할 수 있도록 다시 설계했습니다. 이 설정을 사용하고 있다면 필요한 옵션을 다시 선택해야 합니다.<br>
+<br>
+<strong>✨Ugoira 저장 형식을 조정했습니다</strong><br>
+- 새 형식 추가: WebP 이미지(손실), WebP 이미지(무손실), Ugoira 파일<br>
+- 다중 선택: 이전에는 한 가지 형식만 선택할 수 있었지만, 이제는 여러 형식을 선택해서 한 번의 다운로드로 Ugoira를 여러 형식으로 저장할 수 있습니다.<br>
+- 기본값 변경: 이전 기본 형식은 WebM 비디오였지만, 이제 WebP 이미지로 변경되었습니다. 이 변경은 이전에 선택한 형식에는 영향을 주지 않고, 다운로더의 신규 사용자에게만 영향을 줍니다.<br>
+- 변환 속도가 조금 빨라졌습니다.<br>
+- APNG 이미지로 변환할 때 더 이상 페이지가 멈추지 않습니다.<br>
+<br>
+<strong>😊일부 도움말 정보를 개선했습니다</strong><br>`,
+        `<strong>⚠️🔧Скорректированы подпункты настройки "Не создавать папки"</strong><br>
+Подпункты этой настройки были переработаны, чтобы дать более точный контроль. Если вы используете эту настройку, вам нужно заново выбрать нужные варианты.<br>
+<br>
+<strong>✨Скорректированы форматы сохранения Ugoira</strong><br>
+- Новые форматы: изображение WebP (с потерями), изображение WebP (без потерь), файл Ugoira<br>
+- Множественный выбор: раньше можно было выбрать только один формат, а теперь можно выбрать несколько форматов и сохранять Ugoira сразу в нескольких форматах за одну загрузку.<br>
+- Изменение значения по умолчанию: раньше форматом по умолчанию было видео WebM, а теперь это изображение WebP. Это не изменит формат, который вы выбрали раньше, и повлияет только на новых пользователей загрузчика.<br>
+- Скорость конвертации немного увеличена.<br>
+- При конвертации в изображение APNG страница больше не зависает.<br>
+<br>
+<strong>😊Улучшена некоторая справочная информация</strong><br>`,
+    ],
+    _从插画漫画里下载1张图片时: [
+        `从插画、漫画里下载 1 张图片时`,
+        `從插畫、漫畫裡下載 1 張圖片時`,
+        `When downloading 1 image from an illustration or manga`,
+        `イラスト・漫画から 1 枚ダウンロードするとき`,
+        `일러스트 또는 만화에서 이미지 1장을 다운로드할 때`,
+        `При скачивании 1 изображения из иллюстрации или манги`,
+    ],
+    _从插画漫画里下载多张图片时: [
+        `从插画、漫画里下载多张图片时`,
+        `從插畫、漫畫裡下載多張圖片時`,
+        `When downloading multiple images from an illustration or manga`,
+        `イラスト・漫画から複数の画像をダウンロードするとき`,
+        `일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때`,
+        `При скачивании нескольких изображений из иллюстрации или манги`,
     ],
 };
 
@@ -41583,8 +42233,7 @@ __webpack_require__.r(__webpack_exports__);
 // 为了兼容以前的版本的设置，把旧的设置值转换为新版本的设置值
 class ConvertOldSettings {
     // 旧设置和新设置的对应关系
-    // 为了集中管理，便于使用，写到了一个对象里
-    data = {
+    stringSettingsMap = {
         ratio: {
             '0': 'square',
             '1': 'horizontal',
@@ -41607,13 +42256,10 @@ class ConvertOldSettings {
             '3': 'zh-tw',
             '4': 'ko',
         },
-        ugoiraSaveAs: {
-            png: 'apng',
-        },
     };
-    // 传递需要转换的设置的键值
-    convert(key, value) {
-        const map = this.data[key];
+    /** 传入设置名和旧的设置值，返回新的设置值 */
+    convertString(key, value) {
+        const map = this.stringSettingsMap[key];
         // 如果这是一个可以转换的设置
         if (map) {
             // 如果传递的值是旧的设置值，则能够获取到新的设置值
@@ -42850,7 +43496,7 @@ const formHtml = `
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <div class="option" data-no="13">
       <span class="fileNameRuleLine1">
-        <a href="" target="_blank" class="settingNameStyle" data-xztext="_图像作品的命名规则"></a>
+        <a href="" target="_blank" class="settingNameStyle optionName" data-xztext="_图像作品的命名规则"></a>
 
         <span class="fileNameRuleBtnsArea">
           <slot data-name="saveNamingRuleForArtwork"></slot>
@@ -42874,7 +43520,7 @@ const formHtml = `
     <span class="optionAnchor" data-for-no="106" aria-hidden="true"></span>
     <div class="option" data-no="106">
       <span class="fileNameRuleLine1">
-        <a href="" target="_blank" class="settingNameStyle" data-xztext="_小说的命名规则"></a>
+        <a href="" target="_blank" class="settingNameStyle optionName" data-xztext="_小说的命名规则"></a>
 
         <span class="fileNameRuleBtnsArea">
           <slot data-name="saveNamingRuleForNovel"></slot>
@@ -42910,18 +43556,27 @@ const formHtml = `
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_不创建文件夹的帮助内容" data-xztext="_帮助"></button>
+
       <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
-        <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
+
+        <input type="checkbox" name="noFolderWhenDownload1Image" id="noFolderWhenDownload1Image" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
-        <input type="checkbox" name="noFolderWhenMultiImageWork" id="noFolderWhenMultiImageWork" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownload1Image" data-xztext="_从插画漫画里下载1张图片时"></label>
+
+        <input type="checkbox" name="noFolderWhenDownloadMultipleImages" id="noFolderWhenDownloadMultipleImages" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenMultiImageWork" data-xztext="_多图作品"></label>
-        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownloadMultipleImages" data-xztext="_从插画漫画里下载多张图片时"></label>
+        
+        <input type="checkbox" name="noFolderWhenUgoira" id="noFolderWhenUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenUgoira" data-xztext="_动图"></label>
+
+        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="noFolderWhenNovel" data-xztext="_小说"></label>
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
     </div>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
@@ -43109,7 +43764,7 @@ const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
-      <span class="settingNameStyle" data-xztext="_分钟"></span>
+      <span class="mr4" data-xztext="_分钟"></span>
     </div>
 
     <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
@@ -43125,7 +43780,7 @@ const formHtml = `
         <span>&gt;</span>
         <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
         <span class="verticalSplit"></span>
-        <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+        <span class="mr4" data-xztext="_文件格式"> </span>
         <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="autoExportResultCSV"> CSV </label>
@@ -43158,9 +43813,9 @@ const formHtml = `
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
-        <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
+        <input class="setinput_style1 blue w50 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
 
-        <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
+        <label for="folderForMultiImageWorksRule" data-xztext="_要添加的这层文件夹的规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{pid}">
       </span>
     </div>
@@ -43171,8 +43826,8 @@ const formHtml = `
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_文件夹规则"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
+        <label for="r18FolderName" data-xztext="_要添加的这层文件夹的规则"></label>
+        <input type="text" name="r18FolderName" id="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </div>
@@ -43502,22 +44157,57 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <div class="option" data-no="4">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_动图保存格式"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="apng">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
+
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_动图保存格式" data-msg="_动图保存格式的说明" data-xztext="_帮助"></button>
+
+      <span class="subOptionWrap flexBasis100" style="display: inline-flex;">
+
+        <input type="checkbox" name="ugoiraSaveAsWebP" id="ugoiraSaveAsWebP" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsWebP" data-xztext="_webp图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsWebM" id="ugoiraSaveAsWebM" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsWebM" data-xztext="_webmVideo"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsGIF" id="ugoiraSaveAsGIF" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsGIF" data-xztext="_gif图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsAPNG" id="ugoiraSaveAsAPNG" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsAPNG" data-xztext="_apng图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsZIP" id="ugoiraSaveAsZIP" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsZIP" data-xztext="_zip文件"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsUgoira" id="ugoiraSaveAsUgoira" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsUgoira" data-xztext="_Ugoira文件"></label>
+
+        <span class="verticalSplit"></span>
+        
+        <span data-xztext="_WebP图像质量"></span>
+        <input type="radio" name="animatedWebPQuality" id="webpUgoiraQuality0" class="need_beautify radio" value="lossy" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="webpUgoiraQuality0" data-xztext="_有损"></label>
+
+        <input type="radio" name="animatedWebPQuality" id="webpUgoiraQuality1" class="need_beautify radio" value="lossless">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="webpUgoiraQuality1" data-xztext="_无损"></label>
+
+        <span class="verticalSplit"></span>
+
+        <label for="saveThumbnailForUgoira" data-xztext="_为动图保存一张缩略图"></label>
+        <input type="checkbox" name="saveThumbnailForUgoira" id="saveThumbnailForUgoira" class="need_beautify checkbox_switch">
+        <span class="beautify_switch" tabindex="0"></span>
+
+      </span>
+
     </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
@@ -43612,7 +44302,7 @@ const formHtml = `
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setSaveMetaType3" data-xztext="_小说"></label>
       <span class="verticalSplit"></span>
-      <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+      <span class="mb4" data-xztext="_文件格式"> </span>
       <input type="checkbox" name="saveMetaFormatTXT" id="saveMetaFormatTXT" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="saveMetaFormatTXT"> TXT </label>
@@ -44373,8 +45063,9 @@ class FormSettings {
             'showOriginImage',
             'replaceSquareThumb',
             'noFolderSwitch',
-            'noFolderWhenSingleImageWork',
-            'noFolderWhenMultiImageWork',
+            'noFolderWhenUgoira',
+            'noFolderWhenDownload1Image',
+            'noFolderWhenDownloadMultipleImages',
             'noFolderWhenNovel',
             'noSerialNoForSingleImg',
             'noSerialNoForMultiImg',
@@ -44433,6 +45124,13 @@ class FormSettings {
             'onlyCrawlLastFewImagesSwitch',
             'doNotCrawlFirstImagesSwitch',
             'useTagAliasForTagsNamingRule',
+            'ugoiraSaveAsWebM',
+            'ugoiraSaveAsWebP',
+            'ugoiraSaveAsGIF',
+            'ugoiraSaveAsAPNG',
+            'ugoiraSaveAsZIP',
+            'ugoiraSaveAsUgoira',
+            'saveThumbnailForUgoira',
         ],
         text: [
             'onlyCrawlFirstFewImagesCount',
@@ -44479,7 +45177,6 @@ class FormSettings {
             'singleEPUBFileSizeLimit',
         ],
         radio: [
-            'ugoiraSaveAs',
             'novelSaveAs',
             'widthHeightLimit',
             'userRatioLimit',
@@ -44508,6 +45205,7 @@ class FormSettings {
             'copyImageSize',
             'logVisibleDefault',
             'serialNoStart',
+            'animatedWebPQuality',
         ],
         textarea: [
             'notNeedTag',
@@ -46386,7 +47084,15 @@ class Settings {
         downBlackWhiteImg: true,
         downNotBookmarked: true,
         downBookmarked: true,
-        ugoiraSaveAs: 'webm',
+        ugoiraSaveAs: 'webp',
+        ugoiraSaveAsWebM: false,
+        ugoiraSaveAsWebP: true,
+        ugoiraSaveAsGIF: false,
+        ugoiraSaveAsAPNG: false,
+        ugoiraSaveAsZIP: false,
+        ugoiraSaveAsUgoira: false,
+        animatedWebPQuality: 'lossy',
+        saveThumbnailForUgoira: false,
         convertUgoiraThread: 1,
         needTag: [],
         notNeedTag: [],
@@ -46561,8 +47267,9 @@ class Settings {
         whatIsNewFlag: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.whatIsNewFlagDefault,
         replaceSquareThumb: true,
         noFolderSwitch: false,
-        noFolderWhenSingleImageWork: true,
-        noFolderWhenMultiImageWork: false,
+        noFolderWhenUgoira: true,
+        noFolderWhenDownload1Image: true,
+        noFolderWhenDownloadMultipleImages: false,
         noFolderWhenNovel: false,
         noSerialNo: true,
         noSerialNoForSingleImg: false,
@@ -46755,7 +47462,7 @@ class Settings {
     }
     // 读取恢复设置
     restore() {
-        let restoreData = this.defaultSettings;
+        let restoreData = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.defaultSettings);
         // 首先从 browser.storage 获取配置
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName).then((result) => {
             if (result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]) {
@@ -46857,7 +47564,16 @@ class Settings {
         const valueType = typeof value;
         // 把旧的设置值转换为新的设置值。需要转换的值都是 string 类型
         if (valueType === 'string') {
-            value = _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_3__.convertOldSettings.convert(key, value);
+            value = _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_3__.convertOldSettings.convertString(key, value);
+        }
+        // 如果存在旧的 ugoiraSaveAs 设置，就使用它的值来设置一些新的设置的状态
+        if (key === 'ugoiraSaveAs') {
+            this.settings.ugoiraSaveAsWebM = value === 'webm';
+            this.settings.ugoiraSaveAsWebP = value === 'webp';
+            this.settings.ugoiraSaveAsGIF = value === 'gif';
+            this.settings.ugoiraSaveAsAPNG = value === 'apng';
+            this.settings.ugoiraSaveAsZIP = value === 'zip';
+            this.settings.ugoiraSaveAsUgoira = false;
         }
         // 将传入的值转换成选项对应的类型
         if (keyType === 'string' && valueType !== 'string') {
@@ -46865,7 +47581,7 @@ class Settings {
         }
         if (keyType === 'number' && valueType !== 'number') {
             // 时间是需要特殊处理的 number 类型
-            if (key === 'postDateStart' || key == 'postDateEnd') {
+            if (key === 'postDateStart' || key === 'postDateEnd') {
                 if (valueType === 'string') {
                     if (value === '') {
                         // 如果日期是空字符串，则替换为默认值
@@ -46939,9 +47655,6 @@ class Settings {
         if (key === 'downloadIntervalOnWorksNumber' && value < 0) {
             value = 0;
         }
-        if (key === 'onlyCrawlFirstFewImagesCount' && value < 1) {
-            value = this.defaultSettings[key];
-        }
         if (key === 'fullNameLengthLimit') {
             // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
             if (value < 20) {
@@ -46980,7 +47693,7 @@ class Settings {
             }
         }
         if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
-            value = value.replace('{id}', '{pid}');
+            value = value.replaceAll('{id}', '{pid}');
         }
         if (key === 'borderColor') {
             if (value === '' || value.startsWith('#') === false) {
@@ -47947,10 +48660,10 @@ class SaveArtworkData {
                 const ugoiraInfo = {
                     frames: meta.body.frames,
                     mime_type: meta.body.mime_type,
+                    originalThumbnail: body.urls.original,
                 };
-                // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
-                // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
-                let ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.ugoiraSaveAs;
+                let ext = 'zip';
+                // 当下载动图的方形缩略图时，从它的 url 里获取图片的扩展名
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.imageSize === 'thumb') {
                     const tempExt = body.urls.thumb.split('.');
                     ext = tempExt[tempExt.length - 1];
@@ -47960,15 +48673,14 @@ class SaveArtworkData {
                     id: body.id,
                     idNum: idNum,
                     isOriginal: body.isOriginal,
-                    // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
-                    thumb: body.urls.thumb,
                     pageCount: pageCount,
-                    // 对于动图，当用户设置了不下载原图时，下载器会保存尺寸较小的 zip 文件（如果有）
-                    // meta.body.originalSrc 和 meta.body.src 都是 zip 文件
-                    // 前者是完整尺寸，后者是 600x600 的
+                    // 对于动图，原图是原尺寸的 zip 文件
+                    // 普通和小图是相同的，是图片最大宽高为 600x600 的 zip 文件
+                    // 方形缩略图是静态缩略图
                     original: meta.body.originalSrc,
                     regular: meta.body.src,
                     small: meta.body.src,
+                    thumb: body.urls.thumb,
                     title: title,
                     description: description,
                     tags: tags,
@@ -62938,6 +63650,52 @@ const illustsData = [
     [144040000, 1777222080000],
     [144050000, 1777257060000],
     [144060000, 1777282680000],
+    [144070000, 1777296360000],
+    [144080000, 1777312980000],
+    [144090000, 1777348860000],
+    [144100000, 1777373220000],
+    [144110000, 1777386540000],
+    [144120002, 1777410660000],
+    [144130000, 1777438560000],
+    [144140000, 1777458060000],
+    [144150000, 1777470660000],
+    [144160000, 1777490460000],
+    [144170000, 1777524180000],
+    [144180000, 1777545660000],
+    [144190000, 1777558080000],
+    [144200000, 1777576800000],
+    [144210001, 1777608540000],
+    [144220000, 1777629720000],
+    [144230000, 1777641960000],
+    [144240000, 1777656600000],
+    [144250000, 1777687800000],
+    [144260000, 1777708740000],
+    [144270000, 1777723260000],
+    [144280000, 1777734540000],
+    [144290001, 1777761180000],
+    [144300000, 1777785180000],
+    [144310000, 1777802640000],
+    [144320000, 1777814700000],
+    [144330001, 1777827420000],
+    [144340000, 1777858080000],
+    [144350000, 1777879680000],
+    [144360000, 1777895100000],
+    [144370000, 1777906800000],
+    [144380000, 1777929360000],
+    [144390000, 1777953540000],
+    [144400000, 1777972680000],
+    [144410000, 1777985640000],
+    [144420001, 1777997400000],
+    [144430000, 1778027820000],
+    [144440000, 1778050500000],
+    [144450000, 1778065680000],
+    [144460000, 1778076960000],
+    [144470000, 1778098320000],
+    [144480000, 1778131800000],
+    [144490000, 1778152860000],
+    [144500000, 1778166000000],
+    [144510000, 1778193420000],
+    [144520000, 1778225160000],
 ];
 
 
@@ -65748,6 +66506,15 @@ const novelsData = [
     [27900000, 1777080987000],
     [27910000, 1777179096000],
     [27920000, 1777281369000],
+    [27930001, 1777385440000],
+    [27940000, 1777477509000],
+    [27950000, 1777595783000],
+    [27960000, 1777699991000],
+    [27970000, 1777794214000],
+    [27980000, 1777881457000],
+    [27990001, 1777967493000],
+    [28000000, 1778055996000],
+    [28010000, 1778148940000],
 ];
 
 
@@ -66907,6 +67674,10 @@ class Utils {
         }
         const rect = el.getBoundingClientRect();
         return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+    }
+    /** 为传入的 URL 创建一个 A 标签的字符串 */
+    static createLinkHTML(url) {
+        return `<a href="${url}" target="_blank">${url}</a>`;
     }
 }
 

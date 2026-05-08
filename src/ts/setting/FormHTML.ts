@@ -426,7 +426,7 @@ export const formHtml = `
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <div class="option" data-no="13">
       <span class="fileNameRuleLine1">
-        <a href="" target="_blank" class="settingNameStyle" data-xztext="_图像作品的命名规则"></a>
+        <a href="" target="_blank" class="settingNameStyle optionName" data-xztext="_图像作品的命名规则"></a>
 
         <span class="fileNameRuleBtnsArea">
           <slot data-name="saveNamingRuleForArtwork"></slot>
@@ -450,7 +450,7 @@ export const formHtml = `
     <span class="optionAnchor" data-for-no="106" aria-hidden="true"></span>
     <div class="option" data-no="106">
       <span class="fileNameRuleLine1">
-        <a href="" target="_blank" class="settingNameStyle" data-xztext="_小说的命名规则"></a>
+        <a href="" target="_blank" class="settingNameStyle optionName" data-xztext="_小说的命名规则"></a>
 
         <span class="fileNameRuleBtnsArea">
           <slot data-name="saveNamingRuleForNovel"></slot>
@@ -486,18 +486,27 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="noFolderSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_不创建文件夹的帮助内容" data-xztext="_帮助"></button>
+
       <span class="subOptionWrap noGrow" data-show="noFolderSwitch">
-        <input type="checkbox" name="noFolderWhenSingleImageWork" id="noFolderWhenSingleImageWork" class="need_beautify checkbox_common" checked>
+
+        <input type="checkbox" name="noFolderWhenDownload1Image" id="noFolderWhenDownload1Image" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenSingleImageWork" data-xztext="_单图作品"></label>
-        <input type="checkbox" name="noFolderWhenMultiImageWork" id="noFolderWhenMultiImageWork" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownload1Image" data-xztext="_从插画漫画里下载1张图片时"></label>
+
+        <input type="checkbox" name="noFolderWhenDownloadMultipleImages" id="noFolderWhenDownloadMultipleImages" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
-        <label for="noFolderWhenMultiImageWork" data-xztext="_多图作品"></label>
-        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common" checked>
+        <label for="noFolderWhenDownloadMultipleImages" data-xztext="_从插画漫画里下载多张图片时"></label>
+        
+        <input type="checkbox" name="noFolderWhenUgoira" id="noFolderWhenUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="noFolderWhenUgoira" data-xztext="_动图"></label>
+
+        <input type="checkbox" name="noFolderWhenNovel" id="noFolderWhenNovel" class="need_beautify checkbox_common">
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="noFolderWhenNovel" data-xztext="_小说"></label>
       </span>
-      <button type="button" class="gray1 textButton showMsgBtn" data-title="_不创建文件夹" data-msg="_以下情况不创建文件夹的帮助内容" data-xztext="_帮助"></button>
     </div>
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
@@ -685,7 +694,7 @@ export const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
-      <span class="settingNameStyle" data-xztext="_分钟"></span>
+      <span class="mr4" data-xztext="_分钟"></span>
     </div>
 
     <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
@@ -701,7 +710,7 @@ export const formHtml = `
         <span>&gt;</span>
         <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
         <span class="verticalSplit"></span>
-        <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+        <span class="mr4" data-xztext="_文件格式"> </span>
         <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="autoExportResultCSV"> CSV </label>
@@ -734,9 +743,9 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="folderForMultiImageWorksSwitch">
         <label for="folderForMultiImageWorksImageNumber" data-xztext="_图片数量2"></label>
         >
-        <input class="setinput_style1 blue w150 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
+        <input class="setinput_style1 blue w50 noGrow" type="text" name="folderForMultiImageWorksImageNumber" id="folderForMultiImageWorksImageNumber" value="1">
 
-        <label for="folderForMultiImageWorksRule" data-xztext="_文件夹规则"></label>
+        <label for="folderForMultiImageWorksRule" data-xztext="_要添加的这层文件夹的规则"></label>
         <input class="setinput_style1 blue w150 grow" type="text" name="folderForMultiImageWorksRule" id="folderForMultiImageWorksRule" value="{pid}">
       </span>
     </div>
@@ -747,8 +756,8 @@ export const formHtml = `
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_文件夹规则"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
+        <label for="r18FolderName" data-xztext="_要添加的这层文件夹的规则"></label>
+        <input type="text" name="r18FolderName" id="r18FolderName" class="setinput_style1 blue grow" value="[R-18&R-18G]">
       </span>
       <button type="button" class="gray1 textButton showMsgBtn" data-title="_为r18作品添加一层文件夹" data-msg="_为r18作品添加一层文件夹的帮助" data-xztext="_帮助"></button>
     </div>
@@ -1078,22 +1087,57 @@ export const formHtml = `
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <div class="option" data-no="4">
-      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_动图保存格式"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="apng">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip">
-      <span class="beautify_radio" tabindex="0"></span>
-      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
+
+      <button type="button" class="textButton gray1 showMsgBtn" data-title="_动图保存格式" data-msg="_动图保存格式的说明" data-xztext="_帮助"></button>
+
+      <span class="subOptionWrap flexBasis100" style="display: inline-flex;">
+
+        <input type="checkbox" name="ugoiraSaveAsWebP" id="ugoiraSaveAsWebP" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsWebP" data-xztext="_webp图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsWebM" id="ugoiraSaveAsWebM" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsWebM" data-xztext="_webmVideo"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsGIF" id="ugoiraSaveAsGIF" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsGIF" data-xztext="_gif图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsAPNG" id="ugoiraSaveAsAPNG" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsAPNG" data-xztext="_apng图片"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsZIP" id="ugoiraSaveAsZIP" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsZIP" data-xztext="_zip文件"></label>
+
+        <input type="checkbox" name="ugoiraSaveAsUgoira" id="ugoiraSaveAsUgoira" class="need_beautify checkbox_common">
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="ugoiraSaveAsUgoira" data-xztext="_Ugoira文件"></label>
+
+        <span class="verticalSplit"></span>
+        
+        <span data-xztext="_WebP图像质量"></span>
+        <input type="radio" name="animatedWebPQuality" id="webpUgoiraQuality0" class="need_beautify radio" value="lossy" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="webpUgoiraQuality0" data-xztext="_有损"></label>
+
+        <input type="radio" name="animatedWebPQuality" id="webpUgoiraQuality1" class="need_beautify radio" value="lossless">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="webpUgoiraQuality1" data-xztext="_无损"></label>
+
+        <span class="verticalSplit"></span>
+
+        <label for="saveThumbnailForUgoira" data-xztext="_为动图保存一张缩略图"></label>
+        <input type="checkbox" name="saveThumbnailForUgoira" id="saveThumbnailForUgoira" class="need_beautify checkbox_switch">
+        <span class="beautify_switch" tabindex="0"></span>
+
+      </span>
+
     </div>
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
@@ -1188,7 +1232,7 @@ export const formHtml = `
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setSaveMetaType3" data-xztext="_小说"></label>
       <span class="verticalSplit"></span>
-      <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+      <span class="mb4" data-xztext="_文件格式"> </span>
       <input type="checkbox" name="saveMetaFormatTXT" id="saveMetaFormatTXT" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="saveMetaFormatTXT"> TXT </label>

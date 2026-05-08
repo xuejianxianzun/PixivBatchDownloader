@@ -75,7 +75,7 @@ class API {
   static async fetch<T>(
     url: string,
     init?: RequestInit,
-    format: 'json' | 'text' = 'json'
+    format: 'json' | 'blob' | 'text' = 'json'
   ): Promise<T> {
     // 默认发送 get 请求
     init = init || {

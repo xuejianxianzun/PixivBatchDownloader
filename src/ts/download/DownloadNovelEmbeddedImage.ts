@@ -293,7 +293,7 @@ class DownloadNovelEmbeddedImage {
   }
 
   /**最多重试一定次数，避免无限重试 */
-  private readonly retryMax = 5
+  private readonly retryMax = 10
 
   // txt 里获取 Blob, epub 里需要获取 ArrayBuffer
   private async getImage(
@@ -319,7 +319,7 @@ class DownloadNovelEmbeddedImage {
       const data = await res[type]()
       return data
     } catch (error: Error | any) {
-      // 有时遇到错误时，请求并没有关闭（例如服务器错误的返回 206 状态码），要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
+      // 发生网络错误时，有时候请求会立即结束并被捕获。但有时需要等比较长的时间，例如服务器错误的返回了 206 状态码，请求并不会立刻结束，而是要等到浏览器认为请求超时才会报错。可能需要等待 5 分钟
       retry++
       // console.log(retry, url)
       if (retry > this.retryMax) {

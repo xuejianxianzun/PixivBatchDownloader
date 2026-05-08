@@ -931,9 +931,7 @@ class Tools {
     indexList: number[],
     target: 'img' | 'ImageBitmap'
   ) {
-    const result: HTMLImageElement[] | ImageBitmap[] = []
-    let i = 0
-    for (const index of indexList) {
+    const promises = indexList.map((index, i) => {
       // 起始位置
       const start = index
       // 截止下一个文件名之前
@@ -951,16 +949,16 @@ class Tools {
         type: 'image/jpeg',
       })
       if (target === 'ImageBitmap') {
-        const map = await createImageBitmap(blob)
-        ;(result as ImageBitmap[]).push(map)
-      } else if (target === 'img') {
+        return createImageBitmap(blob) as Promise<
+          ImageBitmap | HTMLImageElement
+        >
+      } else {
         const url = URL.createObjectURL(blob)
-        const img = await Utils.loadImg(url)
-        ;(result as HTMLImageElement[]).push(img)
+        return Utils.loadImg(url) as Promise<ImageBitmap | HTMLImageElement>
       }
-      ++i
-    }
-    return result
+    })
+
+    return Promise.all(promises)
   }
 
   /**根据 illustType，返回作品类型的描述字符串 */
@@ -1264,6 +1262,17 @@ class Tools {
       rows = 6
     }
     el.setAttribute('rows', rows.toString())
+  }
+
+  /** 把动图的方形缩略图 URL 转换为最大尺寸的缩略图 URL */
+  // 输入：
+  // https://i.pximg.net/c/250x250_80_a2/img-master/img/2026/05/07/13/11/47/144478544_square1200.jpg
+  // 输出：
+  // https://i.pximg.net/img-original/img/2026/05/07/13/11/47/144478544_ugoira0.jpg
+  static squareThumbToOriginal(thumbUrl: string) {
+    return thumbUrl
+      .replace(/\/c\/\d+x\d+_\d+_\w+\/img-master\//, '/img-original/')
+      .replace(/_square1200\.jpg$/, '_ugoira0.jpg')
   }
 }
 

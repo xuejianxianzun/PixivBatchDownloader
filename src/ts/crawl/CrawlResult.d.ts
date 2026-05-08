@@ -466,6 +466,8 @@ export interface UserProfile {
 export interface UgoiraInfo {
   mime_type: string
   frames: { file: string; delay: number }[]
+  /** 动图最大尺寸的缩略图，分辨率最高是 1920 x 1920 px */
+  originalThumbnail: string
 }
 
 // 从未分类书签中取出一些需要的数据

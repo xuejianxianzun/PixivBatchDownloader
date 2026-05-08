@@ -1869,7 +1869,8 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
     }
     // 有些文件本身不在抓取结果 store.result 里，所以也不会出现在下载进度条上
     // 对于这些文件直接下载，不需要返回下载结果
-    if (msg.msg === 'save_description_file' ||
+    if (msg.msg === 'no_reply' ||
+        msg.msg === 'save_description_file' ||
         msg.msg === 'save_novel_cover_file' ||
         msg.msg === 'save_novel_embedded_image' ||
         msg.msg === 'save_novel_series_file') {

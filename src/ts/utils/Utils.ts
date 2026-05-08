@@ -629,6 +629,11 @@ class Utils {
     const rect = el.getBoundingClientRect()
     return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
   }
+
+  /** 为传入的 URL 创建一个 A 标签的字符串 */
+  static createLinkHTML(url: string) {
+    return `<a href="${url}" target="_blank">${url}</a>`
+  }
 }
 
 export { Utils }

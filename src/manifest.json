@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader HongYe",
-  "version": "18.8.2",
+  "version": "18.9.0",
   "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "browser_specific_settings": {
@@ -44,7 +44,7 @@
         "lib/jszip.min.js",
         "lib/jepub.js",
         "lib/pako.min.js",
-        "lib/UPNG.js",
+        "lib/ppd-webp.js",
         "lib/iconfont.js",
         "js/content.js"
       ],
@@ -91,6 +91,10 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "lib/ppd-webp.worker.js",
+        "lib/pako.min.js",
+        "lib/UPNG.js",
+        "lib/apng.worker.js",
         "lib/gif.worker.js",
         "lib/listen_history_change.js",
         "lib/api_interceptor.js",

@@ -115,7 +115,16 @@ interface XzSetting {
   downBlackWhiteImg: boolean
   downNotBookmarked: boolean
   downBookmarked: boolean
-  ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'apng'
+  /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的动图转换格式 */
+  ugoiraSaveAs: 'webm' | 'webp' | 'gif' | 'zip' | 'apng'
+  ugoiraSaveAsWebM: boolean
+  ugoiraSaveAsWebP: boolean
+  ugoiraSaveAsGIF: boolean
+  ugoiraSaveAsAPNG: boolean
+  ugoiraSaveAsZIP: boolean
+  ugoiraSaveAsUgoira: boolean
+  animatedWebPQuality: 'lossy' | 'lossless'
+  saveThumbnailForUgoira: boolean
   convertUgoiraThread: number
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
@@ -243,8 +252,9 @@ interface XzSetting {
   whatIsNewFlag: string
   replaceSquareThumb: boolean
   noFolderSwitch: boolean
-  noFolderWhenSingleImageWork: boolean
-  noFolderWhenMultiImageWork: boolean
+  noFolderWhenUgoira: boolean
+  noFolderWhenDownload1Image: boolean
+  noFolderWhenDownloadMultipleImages: boolean
   noFolderWhenNovel: boolean
   noSerialNo: boolean
   noSerialNoForSingleImg: boolean
@@ -263,6 +273,7 @@ interface XzSetting {
   showLargerThumbnails: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
   checkBlockTagsForPreviewWork: boolean
+  // 这里存在拼写错误，但为了保持兼容性不做修改
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotCrawlLastImagesSwitch: boolean
@@ -623,7 +634,15 @@ class Settings {
     downBlackWhiteImg: true,
     downNotBookmarked: true,
     downBookmarked: true,
-    ugoiraSaveAs: 'webm',
+    ugoiraSaveAs: 'webp',
+    ugoiraSaveAsWebM: false,
+    ugoiraSaveAsWebP: true,
+    ugoiraSaveAsGIF: false,
+    ugoiraSaveAsAPNG: false,
+    ugoiraSaveAsZIP: false,
+    ugoiraSaveAsUgoira: false,
+    animatedWebPQuality: 'lossy',
+    saveThumbnailForUgoira: false,
     convertUgoiraThread: 1,
     needTag: [],
     notNeedTag: [],
@@ -802,8 +821,9 @@ class Settings {
     whatIsNewFlag: Config.whatIsNewFlagDefault,
     replaceSquareThumb: true,
     noFolderSwitch: false,
-    noFolderWhenSingleImageWork: true,
-    noFolderWhenMultiImageWork: false,
+    noFolderWhenUgoira: true,
+    noFolderWhenDownload1Image: true,
+    noFolderWhenDownloadMultipleImages: false,
     noFolderWhenNovel: false,
     noSerialNo: true,
     noSerialNoForSingleImg: false,
@@ -1015,7 +1035,7 @@ class Settings {
 
   // 读取恢复设置
   private restore() {
-    let restoreData = this.defaultSettings
+    let restoreData = Utils.deepCopy(this.defaultSettings)
     // 首先从 browser.storage 获取配置
     browser.storage.local.get(Config.settingStoreName).then((result) => {
       if (result[Config.settingStoreName]) {
@@ -1132,7 +1152,17 @@ class Settings {
 
     // 把旧的设置值转换为新的设置值。需要转换的值都是 string 类型
     if (valueType === 'string') {
-      value = convertOldSettings.convert(key, value as string)
+      value = convertOldSettings.convertString(key, value as string)
+    }
+
+    // 如果存在旧的 ugoiraSaveAs 设置，就使用它的值来设置一些新的设置的状态
+    if (key === 'ugoiraSaveAs') {
+      this.settings.ugoiraSaveAsWebM = value === 'webm'
+      this.settings.ugoiraSaveAsWebP = value === 'webp'
+      this.settings.ugoiraSaveAsGIF = value === 'gif'
+      this.settings.ugoiraSaveAsAPNG = value === 'apng'
+      this.settings.ugoiraSaveAsZIP = value === 'zip'
+      this.settings.ugoiraSaveAsUgoira = false
     }
 
     // 将传入的值转换成选项对应的类型
@@ -1142,7 +1172,7 @@ class Settings {
 
     if (keyType === 'number' && valueType !== 'number') {
       // 时间是需要特殊处理的 number 类型
-      if (key === 'postDateStart' || key == 'postDateEnd') {
+      if (key === 'postDateStart' || key === 'postDateEnd') {
         if (valueType === 'string') {
           if (value === '') {
             // 如果日期是空字符串，则替换为默认值
@@ -1220,10 +1250,6 @@ class Settings {
       value = 0
     }
 
-    if (key === 'onlyCrawlFirstFewImagesCount' && (value as number) < 1) {
-      value = this.defaultSettings[key]
-    }
-
     if (key === 'fullNameLengthLimit') {
       // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
       if ((value as number) < 20) {
@@ -1273,7 +1299,7 @@ class Settings {
     }
 
     if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
-      value = (value as string).replace('{id}', '{pid}')
+      value = (value as string).replaceAll('{id}', '{pid}')
     }
 
     if (key === 'borderColor') {

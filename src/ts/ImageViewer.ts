@@ -494,9 +494,7 @@ class ImageViewer {
   }
 
   private async copyWorkLink() {
-    // 对于简体中文用户，复制的链接里路径使用 /i ，因为 /i 没有被 QQ 屏蔽，而 /artworks 被屏蔽了
-    const path = lang.type === 'zh-cn' ? 'i' : 'artworks'
-    const url = `https://www.pixiv.net/${path}/${this.cfg.workId}`
+    const url = `https://www.pixiv.net/artworks/${this.cfg.workId}`
     navigator.clipboard.writeText(url)
     toast.success(lang.transl('_已复制作品链接'))
   }

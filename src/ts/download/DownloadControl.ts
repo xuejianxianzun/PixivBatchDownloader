@@ -200,6 +200,7 @@ class DownloadControl {
         EVT.fire('downloadSuccess', msg.data)
 
         this.downloadOrSkipAFile(msg.data)
+        // console.log('downloaded', msg.data.id )
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
 

@@ -1,0 +1,362 @@
+[
+  {
+    "zipFileSize": 1,
+    "webm": 0.3404,
+    "webpLossy": 0.3131,
+    "webpLossless": 1.3492,
+    "apng": 1.2399,
+    "gif": 0.7763
+  },
+  {
+    "zipFileSize": 2,
+    "webm": 1.2269,
+    "webpLossy": 1.0844,
+    "webpLossless": 4.6272,
+    "apng": 4.6985,
+    "gif": 2.8679
+  },
+  {
+    "zipFileSize": 3,
+    "webm": 2.2672,
+    "webpLossy": 1.8891,
+    "webpLossless": 8.1481,
+    "apng": 9.8156,
+    "gif": 4.7415
+  },
+  {
+    "zipFileSize": 4,
+    "webm": 3.2314,
+    "webpLossy": 2.7823,
+    "webpLossless": 11.6423,
+    "apng": 14.8516,
+    "gif": 7.6623
+  },
+  {
+    "zipFileSize": 5,
+    "webm": 5.6928,
+    "webpLossy": 3.7535,
+    "webpLossless": 16.6435,
+    "apng": 22.6732,
+    "gif": 10.2218
+  },
+  {
+    "zipFileSize": 6,
+    "webm": 6.2927,
+    "webpLossy": 4.2235,
+    "webpLossless": 19.6375,
+    "apng": 27.2067,
+    "gif": 12.0772
+  },
+  {
+    "zipFileSize": 7,
+    "webm": 8.2761,
+    "webpLossy": 5.1512,
+    "webpLossless": 23.5302,
+    "apng": 35.0373,
+    "gif": 13.7249
+  },
+  {
+    "zipFileSize": 8,
+    "webm": 8.8637,
+    "webpLossy": 5.9698,
+    "webpLossless": 27.1396,
+    "apng": 39.3854,
+    "gif": 15.0025
+  },
+  {
+    "zipFileSize": 9,
+    "webm": 8.8903,
+    "webpLossy": 6.5549,
+    "webpLossless": 29.122,
+    "apng": 39.5586,
+    "gif": 16.2094
+  },
+  {
+    "zipFileSize": 10,
+    "webm": 11.4862,
+    "webpLossy": 7.8962,
+    "webpLossless": 36.8946,
+    "apng": 53.1438,
+    "gif": 21.3838
+  },
+  {
+    "zipFileSize": 11,
+    "webm": 11.1623,
+    "webpLossy": 8.8759,
+    "webpLossless": 40.1,
+    "apng": 48.2186,
+    "gif": 21.2127
+  },
+  {
+    "zipFileSize": 12,
+    "webm": 12.823,
+    "webpLossy": 9.657,
+    "webpLossless": 45.1348,
+    "apng": 53.1722,
+    "gif": 24.5156
+  },
+  {
+    "zipFileSize": 13,
+    "webm": 12.8044,
+    "webpLossy": 10.4489,
+    "webpLossless": 49.86,
+    "apng": 63.6239,
+    "gif": 23.625
+  },
+  {
+    "zipFileSize": 14,
+    "webm": 15.4111,
+    "webpLossy": 10.5979,
+    "webpLossless": 50.0989,
+    "apng": 69.2796,
+    "gif": 25.7761
+  },
+  {
+    "zipFileSize": 15,
+    "webm": 13.78,
+    "webpLossy": 12.0183,
+    "webpLossless": 53.6661,
+    "apng": 70.8122,
+    "gif": 30.3387
+  },
+  {
+    "zipFileSize": 16,
+    "webm": 16.8214,
+    "webpLossy": 12.2667,
+    "webpLossless": 56.62,
+    "apng": 69.1338,
+    "gif": 31.9714
+  },
+  {
+    "zipFileSize": 17,
+    "webm": 14.2057,
+    "webpLossy": 12.813,
+    "webpLossless": 55.5048,
+    "apng": 67.2287,
+    "gif": 28.6674
+  },
+  {
+    "zipFileSize": 18,
+    "webm": 15.5856,
+    "webpLossy": 13.3938,
+    "webpLossless": 61.4663,
+    "apng": 74.5025,
+    "gif": 34.2688
+  },
+  {
+    "zipFileSize": 19,
+    "webm": 18.0325,
+    "webpLossy": 14.495,
+    "webpLossless": 67.434,
+    "apng": 74.4235,
+    "gif": 36.996
+  },
+  {
+    "zipFileSize": 20,
+    "webm": 15.3612,
+    "webpLossy": 13.8275,
+    "webpLossless": 67.575,
+    "apng": 96.9337,
+    "gif": 35.2188
+  },
+  {
+    "zipFileSize": 21,
+    "webm": 20.2037,
+    "webpLossy": 15.6605,
+    "webpLossless": 76.2558,
+    "apng": 95.3232,
+    "gif": 41.7011
+  },
+  {
+    "zipFileSize": 22,
+    "webm": 18.0058,
+    "webpLossy": 15.175,
+    "webpLossless": 71.7433,
+    "apng": 100.9117,
+    "gif": 41.5983
+  },
+  {
+    "zipFileSize": 23,
+    "webm": 18.1824,
+    "webpLossy": 17.0071,
+    "webpLossless": 80.5247,
+    "apng": 96.95,
+    "gif": 43.1512
+  },
+  {
+    "zipFileSize": 24,
+    "webm": 26.785,
+    "webpLossy": 18.477,
+    "webpLossless": 86.829,
+    "apng": 125.247,
+    "gif": 47.644
+  },
+  {
+    "zipFileSize": 25,
+    "webm": 17.6017,
+    "webpLossy": 18.4544,
+    "webpLossless": 82.7533,
+    "apng": 83.5578,
+    "gif": 43.6183
+  },
+  {
+    "zipFileSize": 26,
+    "webm": 21.5675,
+    "webpLossy": 18.6175,
+    "webpLossless": 87.8975,
+    "apng": 97.6975,
+    "gif": 38.69
+  },
+  {
+    "zipFileSize": 27,
+    "webm": 23.9567,
+    "webpLossy": 18.7417,
+    "webpLossless": 86.1942,
+    "apng": 87.2992,
+    "gif": 42.2667
+  },
+  {
+    "zipFileSize": 28,
+    "webm": 24.025,
+    "webpLossy": 25.885,
+    "webpLossless": 120.64,
+    "apng": 248.865,
+    "gif": 83.41
+  },
+  {
+    "zipFileSize": 29,
+    "webm": 33.5214,
+    "webpLossy": 19.9914,
+    "webpLossless": 95.62,
+    "apng": 145.31,
+    "gif": 51.05
+  },
+  {
+    "zipFileSize": 30,
+    "webm": 26.27,
+    "webpLossy": 22.795,
+    "webpLossless": 113.31,
+    "apng": 125.1,
+    "gif": 56.935
+  },
+  {
+    "zipFileSize": 31,
+    "webm": 31.9067,
+    "webpLossy": 23.3633,
+    "webpLossless": 116.8883,
+    "apng": 173.3883,
+    "gif": 75.0483
+  },
+  {
+    "zipFileSize": 32,
+    "webm": 44.944,
+    "webpLossy": 25.198,
+    "webpLossless": 122.668,
+    "apng": 249.858,
+    "gif": 100.848
+  },
+  {
+    "zipFileSize": 33,
+    "webm": 41.4767,
+    "webpLossy": 27.2933,
+    "webpLossless": 134.5083,
+    "apng": 263.8417,
+    "gif": 112.1283
+  },
+  {
+    "zipFileSize": 34,
+    "webm": 44.5067,
+    "webpLossy": 26.0433,
+    "webpLossless": 126.21,
+    "apng": 227.95,
+    "gif": 115.145
+  },
+  {
+    "zipFileSize": 35,
+    "webm": 37.61,
+    "webpLossy": 30.23,
+    "webpLossless": 138.735,
+    "apng": 214.52,
+    "gif": 106.755
+  },
+  {
+    "zipFileSize": 36,
+    "webm": 42.74,
+    "webpLossy": 30.475,
+    "webpLossless": 126.72,
+    "apng": 268.925,
+    "gif": 122.395
+  },
+  {
+    "zipFileSize": 37,
+    "webm": 47.76,
+    "webpLossy": 28.9025,
+    "webpLossless": 145.2025,
+    "apng": 281.795,
+    "gif": 103.345
+  },
+  {
+    "zipFileSize": 38,
+    "webm": 35.775,
+    "webpLossy": 31.69,
+    "webpLossless": 139.78,
+    "apng": 185.25,
+    "gif": 113.635
+  },
+  {
+    "zipFileSize": 39,
+    "webm": 63.34,
+    "webpLossy": 28.56,
+    "webpLossless": 147.8,
+    "apng": 317.29,
+    "gif": 90.51
+  },
+  {
+    "zipFileSize": 40,
+    "webm": 42.9075,
+    "webpLossy": 38.2975,
+    "webpLossless": 177.375,
+    "apng": 353.345,
+    "gif": 130.2925
+  },
+  {
+    "zipFileSize": 42,
+    "webm": 32.02,
+    "webpLossy": 28.99,
+    "webpLossless": 145.04,
+    "apng": 102.45,
+    "gif": 56.66
+  },
+  {
+    "zipFileSize": 43,
+    "webm": 43.43,
+    "webpLossy": 27.04,
+    "webpLossless": 182.7,
+    "apng": 396.69,
+    "gif": 108.86
+  },
+  {
+    "zipFileSize": 44,
+    "webm": 31.4,
+    "webpLossy": 37.08,
+    "webpLossless": 210.75,
+    "apng": 434.82,
+    "gif": 101.12
+  },
+  {
+    "zipFileSize": 46,
+    "webm": 30.83,
+    "webpLossy": 34.9,
+    "webpLossless": 180.99,
+    "apng": 279.85,
+    "gif": 89.14
+  },
+  {
+    "zipFileSize": 47,
+    "webm": 44.01,
+    "webpLossy": 52.52,
+    "webpLossless": 205.47,
+    "apng": 452.3,
+    "gif": 149.92
+  }
+]

@@ -11,7 +11,14 @@ export interface SettingsForm extends HTMLFormElement {
   multiImageWorkImageLimit: HTMLInputElement
   downColorImg: HTMLInputElement
   downBlackWhiteImg: HTMLInputElement
-  ugoiraSaveAs: RadioNodeList
+  ugoiraSaveAsWebM: HTMLInputElement
+  ugoiraSaveAsWebP: HTMLInputElement
+  ugoiraSaveAsGIF: HTMLInputElement
+  ugoiraSaveAsAPNG: HTMLInputElement
+  ugoiraSaveAsZIP: HTMLInputElement
+  ugoiraSaveAsUgoira: HTMLInputElement
+  animatedWebPQuality: RadioNodeList
+  saveThumbnailForUgoira: HTMLInputElement
   BMKNumMin: HTMLInputElement
   BMKNumMax: HTMLInputElement
   BMKNumAverageSwitch: HTMLInputElement
@@ -121,8 +128,9 @@ export interface SettingsForm extends HTMLFormElement {
   showOriginImageSize: HTMLInputElement
   replaceSquareThumb: HTMLInputElement
   noFolderSwitch: HTMLInputElement
-  noFolderWhenSingleImageWork: HTMLInputElement
-  noFolderWhenMultiImageWork: HTMLInputElement
+  noFolderWhenUgoira: HTMLInputElement
+  noFolderWhenDownload1Image: HTMLInputElement
+  noFolderWhenDownloadMultipleImages: HTMLInputElement
   noFolderWhenNovel: HTMLInputElement
   noSerialNoForSingleImg: HTMLInputElement
   noSerialNoForMultiImg: HTMLInputElement

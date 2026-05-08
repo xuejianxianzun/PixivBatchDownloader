@@ -28,7 +28,7 @@ class MergeNovelFileName {
         safe: true,
       },
       '{user}': {
-        value: fileName.RemoveAtFromUsername(body.userName),
+        value: fileName.removeAtFromUsername(body.userName),
         safe: false,
       },
       '{user_id}': {

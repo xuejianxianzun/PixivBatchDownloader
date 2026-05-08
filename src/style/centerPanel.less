@@ -239,7 +239,7 @@
       }
 
       // 使选项里的元素在交叉轴上（垂直）对齐到顶部
-      div.option {
+      .option {
         position: relative;
         display: flex;
         flex-wrap: wrap;
@@ -720,6 +720,10 @@
         justify-content: center;
         align-items: center;
         column-gap: 4px;
+
+        button {
+          color: #333;
+        }
       }
 
       .fileNameRule {
@@ -930,6 +934,7 @@
         position: relative;
 
         button {
+          color: #333;
           height: @height;
         }
       }
@@ -1022,9 +1027,10 @@
 
 .centerWrap.theme-white {
   // 对于选项名称，在默认的亮色主题里，设置更深的文字颜色，以和选项的内容做出区分
-  // 目前选项名称是 #333, 选项内容是 #444
-  div.option > .settingNameStyle {
-    color: #333;
+  // 目前选项名称是 #222, 选项内容是 #444
+  .option > .settingNameStyle,
+  .optionName {
+    color: #222;
   }
 }
 
@@ -1086,15 +1092,16 @@
   box-shadow: @darkBoxShadow 0px 0px 15px;
   color: #fff;
 
-  div.option > .settingNameStyle {
+  .option > .settingNameStyle,
+  .optionName {
     color: inherit;
   }
 
-  div.option.new::before {
+  .option.new::before {
     color: #fff !important;
   }
 
-  div.option:hover {
+  .option:hover {
     background-color: rgba(204, 240, 254, 0.3);
   }
 
@@ -1142,7 +1149,7 @@
     color: #fff;
 
     button {
-      color: #fff;
+      color: #fff !important;
     }
 
     .namingRuleList {
@@ -1182,15 +1189,16 @@
   background: #222;
   color: #fff;
 
-  div.option > .settingNameStyle {
+  .option > .settingNameStyle,
+  .optionName {
     color: inherit;
   }
 
-  div.option.new::before {
+  .option.new::before {
     color: #fff !important;
   }
 
-  div.option:hover {
+  .option:hover {
     background-color: rgb(209 239 251 / 20%) !important;
   }
 
@@ -1254,7 +1262,7 @@
     color: #fff;
 
     button {
-      color: #fff;
+      color: #fff !important;
       text-shadow: none;
     }
 
@@ -1267,12 +1275,6 @@
   .centerWrap_btns {
     & button {
       box-shadow: none !important;
-    }
-  }
-
-  &.showBlobKeywords {
-    .key {
-      color: #fff;
     }
   }
 
@@ -1293,22 +1295,59 @@
 }
 
 .showBlobKeywords {
+  // 把设置项的标题加粗
+  .option > a,
+  .optionName {
+    // font-weight: bold;
+
+    // 把关键字高亮并加粗显示
+    .key {
+      color: @themeBlue;
+      font-weight: bold;
+    }
+  }
+}
+
+.theme-white.showBlobKeywords {
+  // 在白色主题下，把设置名称的文字颜色减淡
+  .option > a,
+  .optionName {
+    // color: #777 !important;
+  }
+}
+
+.theme-dark.showBlobKeywords {
+  .option > a,
+  .optionName {
+    color: #fff !important;
+  }
+
   .key {
-    font-weight: bold;
-    color: @themeBlue;
+    color: #42c3ff;
+  }
+}
+
+.xzBG.showBlobKeywords {
+  .option > a,
+  .optionName {
+    color: #fff !important;
+  }
+
+  .key {
+    color: #fff !important;
+  }
+}
+
+.theme-dark,
+.xzBG {
+  .controlBar span,
+  .fileNameRuleBtnsArea button {
+    color: #fff !important;
   }
 }
 
 .downloadError {
   color: rgb(255, 160, 160);
-}
-
-.theme-dark {
-  &.showBlobKeywords {
-    .key {
-      color: #42c3ff;
-    }
-  }
 }
 
 .lang_zh-cn {
@@ -1322,6 +1361,7 @@
     min-width: 340px !important;
   }
 }
+
 .lang_ko {
   button[type='button'] {
     word-break: keep-all;

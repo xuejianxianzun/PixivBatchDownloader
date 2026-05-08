@@ -242,7 +242,7 @@ class PreviewWorkDetailInfo {
     })
 
     wrap.querySelector('#copyURL')!.addEventListener('click', () => {
-      const url = `https://www.pixiv.net/i/${workData.body.id}`
+      const url = `https://www.pixiv.net/artworks/${workData.body.id}`
       this.copy(url)
     })
 
