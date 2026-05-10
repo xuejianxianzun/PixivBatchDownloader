@@ -27,11 +27,11 @@ class ShowDownloadStates {
     })
 
     window.addEventListener(EVT.list.downloadPause, () => {
-      this.setText('_已暂停', Colors.textWarning)
+      this.setText('_下载已暂停', Colors.textWarning)
     })
 
     window.addEventListener(EVT.list.downloadStop, () => {
-      this.setText('_已停止', Colors.textError)
+      this.setText('_下载已停止', Colors.textError)
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {

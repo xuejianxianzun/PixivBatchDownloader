@@ -537,6 +537,16 @@ class Utils {
     })
   }
 
+  static readAsBinaryString(blob: Blob) {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = function (event) {
+        resolve(event!.target!.result)
+      }
+      reader.readAsBinaryString(blob)
+    })
+  }
+
   static async writeClipboardText(text: string) {
     try {
       await window.navigator.clipboard.writeText(text)

@@ -97,15 +97,25 @@ class ConvertUgoira {
 
         const imageBitmapList = await this.getImageBitmapList(file, id)
 
-        if (type === 'gif') {
-          return toGIF.convert(imageBitmapList, info, file.size)
-        } else if (type === 'png') {
-          return toAPNG.convert(imageBitmapList, info)
-        } else if (type === 'webp') {
-          return toWebP.convert(imageBitmapList, info)
-        } else {
-          // 默认使用 webm 格式
-          return toWebM.convert(imageBitmapList, info)
+        try {
+          // await Utils.sleep(1000)
+          // console.count('测试转换错误')
+          // throw new Error('测试转换错误')
+
+          // 为了在这里统一捕获所有格式在转换时的错误，必须使用 await 等待转换过程
+          if (type === 'gif') {
+            return await toGIF.convert(imageBitmapList, info, file.size)
+          } else if (type === 'png') {
+            return await toAPNG.convert(imageBitmapList, info)
+          } else if (type === 'webp') {
+            return await toWebP.convert(imageBitmapList, info)
+          } else {
+            return await toWebM.convert(imageBitmapList, info)
+          }
+        } catch (error) {
+          // 转换出错时把计数 -1，否则这个错误会一直占据一个转换配额，并且在下载完成后重试出错的文件时，这个计数也依然会被占用
+          this.count = this._count - 1
+          throw error
         }
       }
     }

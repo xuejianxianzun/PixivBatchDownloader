@@ -2085,7 +2085,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     '다운로드 완료',
     'Загрузка завершена',
   ],
-  _已暂停: [
+  _下载已暂停: [
     '下载已暂停',
     '下載已暫停',
     'Download is paused',
@@ -2093,7 +2093,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     '다운로드 일시중지',
     'Загрузка приостановлена',
   ],
-  _已停止: [
+  _下载已停止: [
     '下载已停止',
     '下載已停止',
     'Download stopped',
@@ -2108,6 +2108,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     'downloaded',
     '다운로드됨',
     'загруженно',
+  ],
+  _稍后会重试下载失败的文件: [
+    `稍后会重试下载失败的文件`,
+    `稍後會重試下載失敗的檔案`,
+    `Failed files will be retried later`,
+    `ダウンロードに失敗したファイルは後で再試行されます`,
+    `다운로드에 실패한 파일은 나중에 다시 시도합니다`,
+    `Неудачно загруженные файлы будут повторно загружены позже`,
   ],
   _抓取完毕: [
     '抓取完毕！',

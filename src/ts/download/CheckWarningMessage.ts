@@ -37,7 +37,7 @@ class CheckWarningMessage {
       const result = await this.check()
       if (result) {
         msgBox.error(
-          lang.transl('_过度访问警告') + '<br>' + lang.transl('_已暂停')
+          lang.transl('_过度访问警告') + '<br>' + lang.transl('_下载已暂停')
         )
         return EVT.fire('requestPauseDownload')
       }

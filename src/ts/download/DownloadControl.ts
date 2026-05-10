@@ -498,7 +498,7 @@ class DownloadControl {
       // 如果正在下载中
       if (states.busy) {
         this.pause = true
-        log.warning('⏸️' + lang.transl('_已暂停'))
+        log.warning('⏸️' + lang.transl('_下载已暂停'))
         // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
         log.log('')
 
@@ -517,7 +517,7 @@ class DownloadControl {
     }
 
     this.stop = true
-    log.error('🛑' + lang.transl('_已停止'))
+    log.error('🛑' + lang.transl('_下载已停止'))
     // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
     log.log('')
     this.pause = false
@@ -675,6 +675,7 @@ class DownloadControl {
     ) {
       // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
       this.pauseDownload()
+      log.log(lang.transl('_稍后会重试下载失败的文件'))
       await Utils.sleep(2000)
       this.startDownload()
     }

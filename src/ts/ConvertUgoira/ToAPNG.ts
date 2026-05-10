@@ -97,9 +97,17 @@ class ToAPNG {
         this.worker.removeEventListener('message', handler)
         if (ev.data.error) {
           reject(new Error(ev.data.error))
-        } else if (!(ev.data.result instanceof ArrayBuffer)) {
+        } else if (
+          ev.data.result === undefined ||
+          ev.data.result === null ||
+          typeof ev.data.result.byteLength !== 'number'
+        ) {
+          console.error('[ToAPNG] invalid worker response:', ev.data)
           reject(new Error('Invalid APNG worker response'))
         } else {
+          // FUCK Firefox
+          // 在 Firefox 里，由于 worker 里编码后产生的 ArrayBuffer 数据与主线程的 ArrayBuffer 构造函数是不同的对象，导致 instanceof 检测失败始终为 false（跨 realm 问题），所以转换无法完成
+          // 现在改为检查 byteLength 属性来判断是否是有效的 ArrayBuffer
           resolve(ev.data.result)
         }
       }
