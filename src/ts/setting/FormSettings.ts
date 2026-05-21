@@ -121,7 +121,6 @@ class FormSettings {
       'UnknownAI',
       'setFileDownloadOrder',
       'highlightFollowingUsers',
-      'coverImage',
       'exportIDList',
       'displayThumbnailListOnMultiImageWorkPage',
       'PreviewWorkDetailInfo',
@@ -158,6 +157,7 @@ class FormSettings {
       'ugoiraSaveAsZIP',
       'ugoiraSaveAsUgoira',
       'saveThumbnailForUgoira',
+      'imageToGray',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',

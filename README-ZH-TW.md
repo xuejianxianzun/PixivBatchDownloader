@@ -1,12 +1,8 @@
-[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
-
-[简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
-
-[日本語](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-JA.md)
-
-[韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
-
-[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+[English](/README.md) |
+[简体中文](/README-ZH-CN.md) |
+[日本語](/README-JA.md) |
+[韩国语](/README-KO.md) |
+[Russian](/README-RU.md)
 
 [Discord 頻道](https://discord.gg/eW9JtTK)
 

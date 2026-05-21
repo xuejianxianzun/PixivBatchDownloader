@@ -166,7 +166,6 @@ export interface SettingsForm extends HTMLFormElement {
   downloadOrder: HTMLInputElement
   downloadOrderSortBy: HTMLInputElement
   highlightFollowingUsers: HTMLInputElement
-  coverImage: HTMLInputElement
   exportIDList: HTMLInputElement
   displayThumbnailListOnMultiImageWorkPage: HTMLInputElement
   PreviewWorkDetailInfo: HTMLInputElement
@@ -208,4 +207,5 @@ export interface SettingsForm extends HTMLFormElement {
   doNotCrawlFirstImagesCount: HTMLInputElement
   singleEPUBFileSizeLimit: HTMLInputElement
   useTagAliasForTagsNamingRule: HTMLInputElement
+  imageToGray: HTMLInputElement
 }

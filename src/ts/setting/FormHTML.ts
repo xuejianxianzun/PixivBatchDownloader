@@ -1348,11 +1348,13 @@ export const formHtml = `
       <span data-xztext="_增强"></span>
     </div>
     
-    <div class="option" data-no="999">
-    <span class="settingNameStyle1">
-    <span>把图片显示为<span class="key">灰色</span></span>
-    <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch" tabindex="0"></span>
+    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
+    <div class="option" data-no="42">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_把图片显示为灰色"></span>
+      </a>
+      <input type="checkbox" name="imageToGray" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
     </div>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>

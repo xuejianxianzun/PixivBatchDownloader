@@ -1,12 +1,8 @@
-[简体中文](/README.md)
-
-[繁體中文](/README-ZH-TW.md)
-
-[English](/README-EN.md)
-
-[한국어](/README-KO.md)
-
-[Русский](/README-RU.md)
+[English](/README.md) |
+[简体中文](/README-ZH-CN.md) |
+[繁體中文](/README-ZH-TW.md) |
+[한국어](/README-KO.md) |
+[Русский](/README-RU.md) |
 
 [Discord channel](https://discord.gg/eW9JtTK)
 

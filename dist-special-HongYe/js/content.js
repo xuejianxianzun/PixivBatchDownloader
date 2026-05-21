@@ -1266,7 +1266,9 @@ class API {
      *
      * 429、502 错误会自动重试。
      *
-     * 如果状态码异常并且重试失败，会通过 throw 抛出 Error */
+     * 如果请求成功但状态码异常，并且重试失败，会通过 throw 显式抛出 Error。
+     *
+     * 如果请求本身失败了，则由原生 fetch 抛出 TypeError */
     static async fetch(url, init, format = 'json') {
         // 默认发送 get 请求
         init = init || {
@@ -4742,11 +4744,11 @@ class FileName {
                 safe: false,
             },
             '{p_tag}': {
-                value: this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]),
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag ? this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]) : '',
                 safe: false,
             },
             '{page_tag}': {
-                value: this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]),
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag ? this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]) : '',
                 safe: false,
             },
             '{id}': {
@@ -5332,7 +5334,11 @@ class FileName {
                 // 截断文件名，但最少保留 id 的长度
                 const end = Math.max(allPart[i].length - excess, id.length);
                 let subString = allPart[i].substring(0, end).trim();
-                // 如果文件名截断之后没有包含 id（可能是因为 id 被部分或全部截断了），则把它重设为 id
+                // 为了确保文件名截断之后不会产生重复的文件名，需要检查文件名里是否含有 id。如果没有（可能是因为 id 被部分或全部截断了），则视情况把它重设为 id。这个 id 就是 {id} 生成的结果。
+                // 注意：如果用户没有在命名规则里使用 {id}，而是使用了 {pid} + {p} 这样的组合，不会被视为使用了 {id}。此时文件名会被重设为 id。这不是 bug。
+                // 具体原因：要让文件名具有唯一标识，那么 {pid} + {p} 必须都位于截断处之前。但下载器无法检查 {p} 到底是不是被保留了。因为 {p} 是单纯的数字，例如 0。实际上，文件名里可能有很多个 0（例如 user_id、各种 date、bmk 都可能包含 0）。即使截断之后保留的字符串里含有 0, 下载器也很难判断这是不是 {p} 的结果，所以下载器无法确定 {p} 是不是被保留了。因此，当文件名被截断时，如果用户没有使用 {id}，下载器就会把文件名重设为 {id} 的结果。
+                // 虽然有可能进行更准确的检查（例如判断一个 0 是否是 {p} 的结果，或者截断处是否位于 {pid} 和 {p} 这两个标记之后），但实现起来比较麻烦，而且此时传入的文件名也可能不是命名规则直接生成的文件名（而是经过了一些后处理）。所以我没有实现对 {p} 的检查。
+                // 另外，我考虑过只对多图作品强制要求保留 id，单图作品则不强制保留 id（这样它的文件名里能保留更多字符）。因为单图作品只有 1 个文件，不会重名。但实际情况更复杂：如果没有 id 或者 pid 的话，多个单图作品之间的文件名依然可能会重复（例如一些作品含有相同的 title），所以我最终决定无论单图还是多图作品都强制保留 id。
                 if (id && subString.includes(id) === false) {
                     subString = id;
                 }
@@ -5464,7 +5470,7 @@ class FindDeactivatedUsers {
                     }
                 }
                 catch (error) {
-                    if (error?.status === 403) {
+                    if (error?.status === 403 || error?.status === 404) {
                         flag = true;
                     }
                 }
@@ -5983,13 +5989,13 @@ class ImageToGray {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'coverImage') {
+            if (data.name === 'imageToGray') {
                 this.updateStyle();
             }
         });
     }
     updateStyle() {
-        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.coverImage ? this.setStyle() : this.removeStyle();
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.imageToGray ? this.setStyle() : this.removeStyle();
     }
     setStyle() {
         this.removeStyle();
@@ -11888,8 +11894,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '18.9.0';
-    textKey = '_版本更新说明18_9_0';
+    flag = '18.9.3';
+    textKey = '_版本更新说明18_9_3';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -15408,7 +15414,6 @@ class InitPageBase {
             }
         }
         catch (error) {
-            // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
             if (error?.status) {
                 // 请求成功，但状态码不正常
                 // 不重试
@@ -17593,6 +17598,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 0 或者无此参数则不整合
         // 1 按作者整合
         'csw',
+        // 是否显示可能妨碍搜索的作品
+        // 0 或者无此参数则不显示
+        // 1 显示
+        'dgw',
     ];
     resultMeta = []; // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
     worksWrap = null;
@@ -21833,6 +21842,10 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 无此参数则不限制
         // 1  只显示支持单词置换的作品
         'replaceable_only',
+        // 是否显示可能妨碍搜索的作品
+        // 0 或者无此参数则不显示
+        // 1 显示
+        'dgw',
     ];
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页', 'startCrawling').addEventListener('click', () => {
@@ -22879,7 +22892,7 @@ class Download {
             }
         }
         // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'));
         this.error = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
     }
@@ -22903,20 +22916,24 @@ class Download {
         // 用户可以同时选择多种动图的保存格式，需要全部处理
         const needConvertFormats = [];
         // 当用户同时选择了多种格式时，只有最后 push 的那个会保存下载记录，所以在这个作品的下载记录里，文件名的扩展名就是最后保存的格式
-        // 不过这么做没什么实际作用。我把默认格式 webp 放在最后，是考虑到在特定情况下可能会避免一次重复下载：
-        // 如果用户选择了多种格式下载过了一次，之后又改成了只使用 WebP 格式下载；并且去重策略是“严格”（判断文件名），那么可以避免重复下载
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebM)
-            needConvertFormats.push('webm');
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsGIF)
-            needConvertFormats.push('gif');
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsAPNG)
-            needConvertFormats.push('apng');
+        // 把不需要转换、能直接保存的 zip 文件放到最前面，优先保存。这样如果之后转换时出现了错误的话，至少已经保存了源文件
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsZIP)
             needConvertFormats.push('zip');
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsUgoira)
             needConvertFormats.push('ugoira');
+        // 把需要转换的格式放到后面。
+        // 先转换 WebP 格式，因为它现在是默认格式
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebP)
             needConvertFormats.push('webp');
+        // WebM 格式也是我比较推荐的格式，而且转换时占用的内存相对较少
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsWebM)
+            needConvertFormats.push('webm');
+        // GIF 格式我不推荐，所以放到后面
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsGIF)
+            needConvertFormats.push('gif');
+        // APNG 格式转换时占用的内存最多，耗时也比较久。有些用户反馈他们在转换 APNG 文件时总是失败，因此放到最后
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.ugoiraSaveAsAPNG)
+            needConvertFormats.push('apng');
         if (needConvertFormats.length === 0) {
             // 如果用户没有选择任何动图格式，则不进行转换
             // 注意：此时下载器依然会保存原始 zip 文件，而不是跳过这个文件
@@ -22981,7 +22998,11 @@ class Download {
                 catch (error) {
                     const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(result.idNum)) +
                         '<br>' +
-                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它');
+                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_格式') +
+                        ': ' +
+                        format +
+                        '<br>' +
+                        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它');
                     _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
                     this.error = true;
                     // 转换动图出错时，只要出错 1 次就会暂时跳过它，等下载完其他文件再重试它
@@ -24663,7 +24684,7 @@ class DownloadRecordManager {
     }
     // 清空下载记录
     async clearRecords() {
-        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('确定要清除下载记录吗')) === false) {
+        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_确定要清除下载记录吗')) === false) {
             return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_清除下载记录'));
@@ -33166,13 +33187,19 @@ Note: Even if you disable this setting, some quick download methods will always 
         '다운로드 기록 지우기',
         'Очистить запись загрузки',
     ],
-    确定要清除下载记录吗: [
-        '确定要清除下载记录吗？',
-        '確定要清除下載記錄嗎？',
-        'Are you sure you want to clear download record?',
-        'ダウンロード記録を消去してもよろしいですか?',
-        '다운로드 기록을 지우시겠습니까?',
-        'Вы уверены, что хотите очистить запись загрузки?',
+    _确定要清除下载记录吗: [
+        `确定要清除下载器的下载记录吗？\n
+注意：该功能清除的是下载器的下载记录，而非浏览器的下载记录。`,
+        `確定要清除下載器的下載記錄嗎？\n
+注意：此功能清除的是下載器的下載記錄，而非瀏覽器的下載記錄。`,
+        `Are you sure you want to clear the downloader's download record?\n
+Note: This clears the downloader's download record, not the browser's download history.`,
+        `ダウンローダーのダウンロード記録を削除してもよろしいですか？\n
+注意：この機能で削除されるのはダウンローダーのダウンロード記録であり、ブラウザのダウンロード履歴ではありません。`,
+        `다운로더의 다운로드 기록을 삭제하시겠습니까?\n
+주의: 이 기능은 다운로더의 다운로드 기록을 삭제하는 것이며, 브라우저의 다운로드 기록을 삭제하는 것은 아닙니다.`,
+        `Вы уверены, что хотите очистить download record загрузчика?\n
+Внимание: эта функция очищает download record загрузчика, а не download history браузера.`,
     ],
     _下载记录已清除: [
         '下载记录已清除',
@@ -35418,7 +35445,7 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
         '다운로더는 그것을 다시 다운로드하지 않습니다. 필요하다면 나중에 이 작품을 개별적으로 다운로드할 수 있습니다.',
         'Загрузчик не будет пытаться скачать его снова. При необходимости вы можете попробовать скачать эту работу отдельно позже.',
     ],
-    _下载器会暂时跳过它: [
+    _下载器会暂时跳过它并在其他文件下载完毕后重试下载它: [
         '下载器会暂时跳过它，并在其他文件下载完毕后重试下载它。',
         '下載器會暫時跳過它，並在其他檔案下載完畢後重試下載它。',
         'The downloader will temporarily skip it and retry downloading it after other files are downloaded.',
@@ -39444,73 +39471,19 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `파일 이름에 적용되는 {tags} 계열 토큰`,
         `Токены серии {tags}, применяемые в имени файла`,
     ],
-    _版本更新说明18_9_0: [
-        `<strong>⚠️🔧调整了“不创建文件夹”设置的子选项</strong><br>
-该设置的子选项已经重新设计，以提供更细致的控制能力。如果你使用这个设置，需要重新选择你需要的选项。<br>
-<br>
-<strong>✨调整了动图保存格式</strong><br>
-- 新增格式：WebP 图片（有损）、WebP 图片（无损）、Ugoira 文件<br>
-- 多选：之前你只能选择一种格式，现在可以选择多种格式，在一次下载里把动图保存为多种格式。<br>
-- 默认值变化：之前的默认格式是 WebM 视频，现在改为 WebP 图片。这不会改变你之前选择的格式，只会影响下载器的新用户。<br>
-- 略微加快了转换速度。<br>
-- 转换 APNG 图片时不会再冻结页面。<br>
-<br>
-<strong>😊优化了一些帮助信息</strong><br>`,
-        `<strong>⚠️🔧調整了 "不建立資料夾" 設定的子選項</strong><br>
-這個設定的子選項已重新設計，以提供更細緻的控制能力。如果你有使用這個設定，需要重新選擇你需要的選項。<br>
-<br>
-<strong>✨調整了動圖儲存格式</strong><br>
-- 新增格式：WebP 圖片（有損）、WebP 圖片（無損）、Ugoira 檔案<br>
-- 多選：以前你只能選擇一種格式，現在可以同時選擇多種格式，在一次下載裡把動圖儲存成多種格式。<br>
-- 預設值變更：以前的預設格式是 WebM 影片，現在改成 WebP 圖片。這不會改變你之前選擇的格式，只會影響下載器的新使用者。<br>
-- 稍微加快了轉換速度。<br>
-- 轉換 APNG 圖片時不會再讓頁面凍結。<br>
-<br>
-<strong>😊優化了一些幫助資訊</strong><br>`,
-        `<strong>⚠️🔧Adjusted the sub-options of the "Do not create folders" setting</strong><br>
-The sub-options of this setting have been redesigned to provide more detailed control. If you use this setting, you need to select the options you want again.<br>
-<br>
-<strong>✨Adjusted the Ugoira save formats</strong><br>
-- New formats: WebP image (lossy), WebP image (lossless), Ugoira file<br>
-- Multi-select: Previously, you could choose only one format. Now you can choose multiple formats and save Ugoira in multiple formats in a single download.<br>
-- Default value changed: The previous default format was WebM video, and now it has been changed to WebP image. This will not change the format you selected before. It only affects new users of the downloader.<br>
-- Conversion speed has been slightly improved.<br>
-- Converting APNG images will no longer freeze the page.<br>
-<br>
-<strong>😊Improved some help information</strong><br>`,
-        `<strong>⚠️🔧"フォルダを作成しない" 設定のサブオプションを調整しました</strong><br>
-この設定のサブオプションは、より細かく制御できるように再設計されました。この設定を使っている場合は、必要なオプションをもう一度選び直してください。<br>
-<br>
-<strong>✨Ugoira の保存形式を調整しました</strong><br>
-- 追加された形式：WebP 画像（非可逆）、WebP 画像（可逆）、Ugoira ファイル<br>
-- 複数選択：以前は1つの形式しか選べませんでしたが、今は複数の形式を選べるようになり、1回のダウンロードで Ugoira を複数の形式で保存できます。<br>
-- デフォルト値の変更：以前のデフォルト形式は WebM 動画でしたが、現在は WebP 画像に変更されました。これは以前に選択した形式には影響せず、ダウンローダーの新規ユーザーにのみ影響します。<br>
-- 変換速度が少し向上しました。<br>
-- APNG 画像への変換時にページがフリーズしなくなりました。<br>
-<br>
-<strong>😊いくつかのヘルプ情報を改善しました</strong><br>`,
-        `<strong>⚠️🔧"폴더 만들지 않기" 설정의 하위 옵션을 조정했습니다</strong><br>
-이 설정의 하위 옵션을 더 세밀하게 제어할 수 있도록 다시 설계했습니다. 이 설정을 사용하고 있다면 필요한 옵션을 다시 선택해야 합니다.<br>
-<br>
-<strong>✨Ugoira 저장 형식을 조정했습니다</strong><br>
-- 새 형식 추가: WebP 이미지(손실), WebP 이미지(무손실), Ugoira 파일<br>
-- 다중 선택: 이전에는 한 가지 형식만 선택할 수 있었지만, 이제는 여러 형식을 선택해서 한 번의 다운로드로 Ugoira를 여러 형식으로 저장할 수 있습니다.<br>
-- 기본값 변경: 이전 기본 형식은 WebM 비디오였지만, 이제 WebP 이미지로 변경되었습니다. 이 변경은 이전에 선택한 형식에는 영향을 주지 않고, 다운로더의 신규 사용자에게만 영향을 줍니다.<br>
-- 변환 속도가 조금 빨라졌습니다.<br>
-- APNG 이미지로 변환할 때 더 이상 페이지가 멈추지 않습니다.<br>
-<br>
-<strong>😊일부 도움말 정보를 개선했습니다</strong><br>`,
-        `<strong>⚠️🔧Скорректированы подпункты настройки "Не создавать папки"</strong><br>
-Подпункты этой настройки были переработаны, чтобы дать более точный контроль. Если вы используете эту настройку, вам нужно заново выбрать нужные варианты.<br>
-<br>
-<strong>✨Скорректированы форматы сохранения Ugoira</strong><br>
-- Новые форматы: изображение WebP (с потерями), изображение WebP (без потерь), файл Ugoira<br>
-- Множественный выбор: раньше можно было выбрать только один формат, а теперь можно выбрать несколько форматов и сохранять Ugoira сразу в нескольких форматах за одну загрузку.<br>
-- Изменение значения по умолчанию: раньше форматом по умолчанию было видео WebM, а теперь это изображение WebP. Это не изменит формат, который вы выбрали раньше, и повлияет только на новых пользователей загрузчика.<br>
-- Скорость конвертации немного увеличена.<br>
-- При конвертации в изображение APNG страница больше не зависает.<br>
-<br>
-<strong>😊Улучшена некоторая справочная информация</strong><br>`,
+    _版本更新说明18_9_3: [
+        `<strong>✨适配搜索页面的“显示可能妨碍搜索的作品”选项</strong><br><br>
+  <strong>🐞修复问题：标签别名功能在特定情况下可能表现异常</strong><br>`,
+        `<strong>✨適配搜尋頁面的 "顯示可能妨礙搜尋的作品" 選項</strong><br><br>
+  <strong>🐞修復問題：標籤別名功能在特定情況下可能表現異常</strong><br>`,
+        `<strong>✨Adapted to the "Show works that may interfere with search results" option on the search page</strong><br><br>
+  <strong>🐞Fix: The tag alias feature could behave unexpectedly in certain cases</strong><br>`,
+        `<strong>✨検索ページの "検索を妨げる可能性のある作品を表示する" オプションに対応</strong><br><br>
+  <strong>🐞修正：特定の状況でタグ別名機能の動作が不安定になることがある問題を修正</strong><br>`,
+        `<strong>✨검색 페이지의 "검색을 방해할 수 있는 작품 표시" 옵션에 대응했습니다</strong><br><br>
+  <strong>🐞문제 수정: 태그 별칭 기능이 특정 상황에서 비정상적으로 동작할 수 있던 문제를 수정했습니다</strong><br>`,
+        `<strong>✨Добавлена поддержка опции "Показывать работы, которые могут мешать поиску" на странице поиска</strong><br><br>
+  <strong>🐞Исправление: в некоторых случаях функция псевдонимов тегов могла работать некорректно</strong><br>`,
     ],
     _从插画漫画里下载1张图片时: [
         `从插画、漫画里下载 1 张图片时`,
@@ -39527,6 +39500,14 @@ The sub-options of this setting have been redesigned to provide more detailed co
         `イラスト・漫画から複数の画像をダウンロードするとき`,
         `일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때`,
         `При скачивании нескольких изображений из иллюстрации или манги`,
+    ],
+    _把图片显示为灰色: [
+        `把图片显示为<span class="key">灰色</span>`,
+        `把圖片顯示為<span class="key">灰色</span>`,
+        `Display images in <span class="key">grayscale</span>`,
+        `画像を<span class="key">グレースケール</span>で表示する`,
+        `이미지를 <span class="key">회색조</span>로 표시`,
+        `Показывать изображения в <span class="key">оттенках серого</span>`,
     ],
 };
 
@@ -44468,11 +44449,13 @@ const formHtml = `
       <span data-xztext="_增强"></span>
     </div>
     
-    <div class="option" data-no="999">
-    <span class="settingNameStyle1">
-    <span>把图片显示为<span class="key">灰色</span></span>
-    <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch" tabindex="0"></span>
+    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
+    <div class="option" data-no="42">
+      <a href="" target="_blank" class="settingNameStyle">
+        <span data-xztext="_把图片显示为灰色"></span>
+      </a>
+      <input type="checkbox" name="imageToGray" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
     </div>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
@@ -45144,7 +45127,6 @@ class FormSettings {
             'UnknownAI',
             'setFileDownloadOrder',
             'highlightFollowingUsers',
-            'coverImage',
             'exportIDList',
             'displayThumbnailListOnMultiImageWorkPage',
             'PreviewWorkDetailInfo',
@@ -45181,6 +45163,7 @@ class FormSettings {
             'ugoiraSaveAsZIP',
             'ugoiraSaveAsUgoira',
             'saveThumbnailForUgoira',
+            'imageToGray',
         ],
         text: [
             'onlyCrawlFirstFewImagesCount',
@@ -45558,9 +45541,11 @@ class NameRuleManager {
         }
         else {
             // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
-            // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p}
+            // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p} 或者 {id_num}{p_num}
             check =
-                str.includes('{id}') || (str.includes('{pid}') && str.includes('{p}'));
+                str.includes('{id}') ||
+                    (str.includes('{pid}') && str.includes('{p}')) ||
+                    (str.includes('{id_num}') && str.includes('{p_num}'));
         }
         if (!check) {
             window.setTimeout(() => {
@@ -45811,7 +45796,7 @@ class Options {
     }
     allOption;
     /** 定制的设置项，不在公开版本里显示 */
-    // private customOptions = [15, 79, 80, 92]
+    // private customOptions = [15, 42, 79, 80, 92]
     // 在红叶版本里不会隐藏这些设置
     customOptions = [];
     /** 一些设置在移动端不会生效，所以隐藏它们 */
@@ -45820,10 +45805,10 @@ class Options {
     /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
     hideOnPixivision = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
-        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
-        48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
-        69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
-        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
+        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 43, 44, 46, 47, 48,
+        49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+        70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+        90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
@@ -46272,6 +46257,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -46449,6 +46436,11 @@ class SetTagAlias {
             _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
             return false;
         }
+        // 如果标签列表以逗号 , 结尾，会导致把它分割为数组时，在末尾产生一个空字符串项 ''
+        // 所以需要去掉末尾的逗号
+        if (tagsInput.endsWith(',')) {
+            tagsInput = tagsInput.slice(0, -1);
+        }
         return {
             aliasInput,
             tagsInput,
@@ -46460,7 +46452,7 @@ class SetTagAlias {
         if (!check) {
             return;
         }
-        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = tags;
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = check.tagsInput;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
         this.addWrapShow = false;
         _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加成功'));
@@ -46474,7 +46466,7 @@ class SetTagAlias {
         }
         delete _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[oldAlias];
         alias = alias.trim();
-        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = tags;
+        _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList[alias] = check.tagsInput;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('setTagAliasList', _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setTagAliasList);
         this.addWrapShow = false;
         if (tip) {
@@ -46506,6 +46498,9 @@ class SetTagAlias {
     }
     /** 传入一个标签，查找用户是否为它设置了别名 */
     findAlias(tag) {
+        if (tag === '') {
+            return null;
+        }
         for (const [alias, tags] of Object.entries(this.cache)) {
             // 把传入的标签转换成小写，并移除收藏数量标记
             // 标签后面可能有数字+users入り的收藏数量标记，例如：原神10000users入り
@@ -46513,7 +46508,13 @@ class SetTagAlias {
                 .toLowerCase()
                 .replace(/\d+users入り$/, '')
                 .trim();
-            if (tags.includes(cleanTag)) {
+            // 为传入的 tag 生成一个全角版本的副本。这是因为目前存在一个隐蔽的 bug：
+            // 用户在标签别名里设置的标签列表（即 tags）可能意外变成全角版本，例如用户设置的 勝利の女神:NIKKE 可能变成 勝利の女神：NIKKE（冒号变成了全角冒号）。
+            // 在代码层面没有找到这个 bug 的原因。可能是其他原因导致 input 元素里的值变成了全角版本，之后被下载器保存了。由于下载器无法判断这个全角版本是预期之外的，还是预期之内的（即某些标签里可能确实含有全角符号），所以下载器只能照常保存这个全角的版本。
+            // 这个 bug 是有害的：如果传入的标签是半角版本（即正常的标签）时，就无法匹配到这个别名了。也就是说如果作品里含有 勝利の女神:NIKKE 的标签，但 tags 里是全角的 勝利の女神：NIKKE，就无法匹配到对应的别名。
+            // 为了处理这种情况，我为传入的标签生成了一个全角版本的副本，这样不管是否出现了这个 bug，都可以正确匹配到这个别名。
+            const cleanTagFullWidth = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(cleanTag);
+            if (tags.includes(cleanTag) || tags.includes(cleanTagFullWidth)) {
                 return alias;
             }
         }
@@ -46526,6 +46527,9 @@ class SetTagAlias {
         }
         const set = new Set();
         for (const tag of tags) {
+            if (tag === '') {
+                continue;
+            }
             const alias = this.findAlias(tag);
             if (alias) {
                 set.add(alias);
@@ -47370,7 +47374,6 @@ class Settings {
         tipAltQToQuickDownload: true,
         tipBookmarkButton: true,
         highlightFollowingUsers: true,
-        coverImage: false,
         exportIDList: false,
         displayThumbnailListOnMultiImageWorkPage: true,
         tipBookmarkManage: true,
@@ -47426,6 +47429,7 @@ class Settings {
         pinnedOptions: [],
         debugForWiki: false,
         singleEPUBFileSizeLimit: 200,
+        imageToGray: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -48540,10 +48544,14 @@ class CacheWorkData {
         }
         this.pendingIds.add(id);
         const func = type === 'artwork' ? 'getArtworkData' : 'getNovelData';
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[func](id, unlisted);
-        this.set(data);
-        this.pendingIds.delete(id);
-        return data;
+        try {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[func](id, unlisted);
+            this.set(data);
+            return data;
+        }
+        finally {
+            this.pendingIds.delete(id);
+        }
     }
     has(id) {
         return this.cache.some((val) => val.body.id === id);
@@ -63746,6 +63754,58 @@ const illustsData = [
     [144500000, 1778166000000],
     [144510000, 1778193420000],
     [144520000, 1778225160000],
+    [144530000, 1778241780000],
+    [144540000, 1778254200000],
+    [144550000, 1778284620000],
+    [144560000, 1778308560000],
+    [144570000, 1778325480000],
+    [144580000, 1778337780000],
+    [144590000, 1778359920000],
+    [144600000, 1778384640000],
+    [144610000, 1778403540000],
+    [144620001, 1778415660000],
+    [144630000, 1778425740000],
+    [144640000, 1778452980000],
+    [144650000, 1778484840000],
+    [144660000, 1778501700000],
+    [144670000, 1778514540000],
+    [144680001, 1778548080000],
+    [144690000, 1778577120000],
+    [144700001, 1778592000000],
+    [144710000, 1778608800000],
+    [144720000, 1778644380000],
+    [144730000, 1778668860000],
+    [144740000, 1778682120000],
+    [144750000, 1778707260000],
+    [144760000, 1778739960000],
+    [144770000, 1778759520000],
+    [144780000, 1778772060000],
+    [144790000, 1778803980000],
+    [144800000, 1778835000000],
+    [144810000, 1778849160000],
+    [144820000, 1778862360000],
+    [144830000, 1778894820000],
+    [144840000, 1778917980000],
+    [144850000, 1778932920000],
+    [144860000, 1778945100000],
+    [144870000, 1778974020000],
+    [144880000, 1778996160000],
+    [144890001, 1779013260000],
+    [144900000, 1779024960000],
+    [144910000, 1779040440000],
+    [144920000, 1779075480000],
+    [144930000, 1779100380000],
+    [144940001, 1779113880000],
+    [144950000, 1779138000000],
+    [144960000, 1779172500000],
+    [144970000, 1779192000000],
+    [144980000, 1779204180000],
+    [144990000, 1779234780000],
+    [145000000, 1779265920000],
+    [145010000, 1779281340000],
+    [145020000, 1779295920000],
+    [145030001, 1779332700000],
+    [145040000, 1779358320000],
 ];
 
 
@@ -66565,6 +66625,18 @@ const novelsData = [
     [27990001, 1777967493000],
     [28000000, 1778055996000],
     [28010000, 1778148940000],
+    [28020001, 1778245956000],
+    [28030000, 1778334314000],
+    [28040001, 1778419099000],
+    [28050000, 1778511643000],
+    [28060002, 1778628350000],
+    [28070000, 1778740589000],
+    [28080000, 1778843715000],
+    [28090002, 1778931990000],
+    [28100000, 1779014936000],
+    [28110000, 1779107366000],
+    [28120000, 1779203440000],
+    [28130000, 1779316415000],
 ];
 
 
@@ -67180,28 +67252,31 @@ __webpack_require__.r(__webpack_exports__);
 class Utils {
     // 不安全的字符，这里多数是控制字符，需要替换掉
     static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
-    // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-    static fullWidthDict = [
-        ['\\\\', '＼'],
+    // 一些半角字符与全角字符的对照表
+    static fullWidthDict = new Map([
+        ['\\', '＼'],
         ['/', '／'],
         [':', '：'],
-        ['\\?', '？'],
+        ['?', '？'],
         ['"', '＂'],
         ['<', '＜'],
         ['>', '＞'],
-        ['\\*', '＊'],
-        ['\\|', '｜'],
+        ['*', '＊'],
+        ['|', '｜'],
         ['~', '～'],
-    ];
-    // reg 预先创建，而不是运行时创建，因为运行时重复创建太多次了
-    // 用正则去掉不安全的字符
+    ]);
+    /** 替换一些控制字符，并把一些半角字符替换成全角版本 */
     static replaceUnsafeStr(str) {
         str = str.replace(this.unsafeStr, '');
-        // 把一些特殊字符替换成全角字符
-        for (let index = 0; index < this.fullWidthDict.length; index++) {
-            const rule = this.fullWidthDict[index];
-            const reg = new RegExp(rule[0], 'g');
-            str = str.replace(reg, rule[1]);
+        for (const [halfWidth, fullWidth] of this.fullWidthDict) {
+            str = str.replaceAll(halfWidth, fullWidth);
+        }
+        return str;
+    }
+    /** 把全角字符替换成半角版本 */
+    static replaceFullWidthStr(str) {
+        for (const [halfWidth, fullWidth] of this.fullWidthDict) {
+            str = str.replaceAll(fullWidth, halfWidth);
         }
         return str;
     }
@@ -68077,6 +68152,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 

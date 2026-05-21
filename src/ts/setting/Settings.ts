@@ -320,7 +320,6 @@ interface XzSetting {
   tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
-  coverImage: boolean
   exportIDList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
@@ -379,6 +378,7 @@ interface XzSetting {
   pinnedOptions: number[]
   debugForWiki: boolean
   singleEPUBFileSizeLimit: number
+  imageToGray: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -874,7 +874,6 @@ class Settings {
     tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
-    coverImage: false,
     exportIDList: false,
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
@@ -931,6 +930,7 @@ class Settings {
     pinnedOptions: [],
     debugForWiki: false,
     singleEPUBFileSizeLimit: 200,
+    imageToGray: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -5,6 +5,7 @@ import { settings, setSetting } from './Settings'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
+import { Utils } from '../utils/Utils'
 
 // 设置标签别名
 // 这个类是从 setUserName 复制过来修改的，复用了一些样式名
@@ -214,6 +215,12 @@ class SetTagAlias {
       return false
     }
 
+    // 如果标签列表以逗号 , 结尾，会导致把它分割为数组时，在末尾产生一个空字符串项 ''
+    // 所以需要去掉末尾的逗号
+    if (tagsInput.endsWith(',')) {
+      tagsInput = tagsInput.slice(0, -1)
+    }
+
     return {
       aliasInput,
       tagsInput,
@@ -227,7 +234,7 @@ class SetTagAlias {
       return
     }
 
-    settings.setTagAliasList[alias] = tags
+    settings.setTagAliasList[alias] = check.tagsInput
     setSetting('setTagAliasList', settings.setTagAliasList)
 
     this.addWrapShow = false
@@ -250,7 +257,7 @@ class SetTagAlias {
 
     delete settings.setTagAliasList[oldAlias]
     alias = alias.trim()
-    settings.setTagAliasList[alias] = tags
+    settings.setTagAliasList[alias] = check.tagsInput
     setSetting('setTagAliasList', settings.setTagAliasList)
 
     this.addWrapShow = false
@@ -292,6 +299,10 @@ class SetTagAlias {
 
   /** 传入一个标签，查找用户是否为它设置了别名 */
   public findAlias(tag: string): string | null {
+    if (tag === '') {
+      return null
+    }
+
     for (const [alias, tags] of Object.entries(this.cache)) {
       // 把传入的标签转换成小写，并移除收藏数量标记
       // 标签后面可能有数字+users入り的收藏数量标记，例如：原神10000users入り
@@ -299,10 +310,19 @@ class SetTagAlias {
         .toLowerCase()
         .replace(/\d+users入り$/, '')
         .trim()
-      if (tags.includes(cleanTag)) {
+
+      // 为传入的 tag 生成一个全角版本的副本。这是因为目前存在一个隐蔽的 bug：
+      // 用户在标签别名里设置的标签列表（即 tags）可能意外变成全角版本，例如用户设置的 勝利の女神:NIKKE 可能变成 勝利の女神：NIKKE（冒号变成了全角冒号）。
+      // 在代码层面没有找到这个 bug 的原因。可能是其他原因导致 input 元素里的值变成了全角版本，之后被下载器保存了。由于下载器无法判断这个全角版本是预期之外的，还是预期之内的（即某些标签里可能确实含有全角符号），所以下载器只能照常保存这个全角的版本。
+      // 这个 bug 是有害的：如果传入的标签是半角版本（即正常的标签）时，就无法匹配到这个别名了。也就是说如果作品里含有 勝利の女神:NIKKE 的标签，但 tags 里是全角的 勝利の女神：NIKKE，就无法匹配到对应的别名。
+      // 为了处理这种情况，我为传入的标签生成了一个全角版本的副本，这样不管是否出现了这个 bug，都可以正确匹配到这个别名。
+      const cleanTagFullWidth = Utils.replaceUnsafeStr(cleanTag)
+
+      if (tags.includes(cleanTag) || tags.includes(cleanTagFullWidth)) {
         return alias
       }
     }
+
     return null
   }
 
@@ -314,6 +334,10 @@ class SetTagAlias {
 
     const set: Set<string> = new Set()
     for (const tag of tags) {
+      if (tag === '') {
+        continue
+      }
+
       const alias = this.findAlias(tag)
       if (alias) {
         set.add(alias)

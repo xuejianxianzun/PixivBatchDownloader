@@ -18,14 +18,14 @@ class ImageToGray {
 
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (data.name === 'coverImage') {
+      if (data.name === 'imageToGray') {
         this.updateStyle()
       }
     })
   }
 
   private updateStyle() {
-    settings.coverImage ? this.setStyle() : this.removeStyle()
+    settings.imageToGray ? this.setStyle() : this.removeStyle()
   }
 
   private setStyle() {

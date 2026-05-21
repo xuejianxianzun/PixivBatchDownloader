@@ -93,9 +93,11 @@ class NameRuleManager {
       check = true
     } else {
       // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
-      // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p}
+      // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p} 或者 {id_num}{p_num}
       check =
-        str.includes('{id}') || (str.includes('{pid}') && str.includes('{p}'))
+        str.includes('{id}') ||
+        (str.includes('{pid}') && str.includes('{p}')) ||
+        (str.includes('{id_num}') && str.includes('{p_num}'))
     }
 
     if (!check) {

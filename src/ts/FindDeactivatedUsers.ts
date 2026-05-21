@@ -74,7 +74,7 @@ class FindDeactivatedUsers {
             log.log(lang.transl('_该用户未注销'))
           }
         } catch (error: Error | any) {
-          if (error?.status === 403) {
+          if (error?.status === 403 || error?.status === 404) {
             flag = true
           }
         }

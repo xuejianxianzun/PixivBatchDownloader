@@ -73,7 +73,7 @@ class DownloadRecordManager {
 
   // 清空下载记录
   private async clearRecords() {
-    if (window.confirm(lang.transl('确定要清除下载记录吗')) === false) {
+    if (window.confirm(lang.transl('_确定要清除下载记录吗')) === false) {
       return
     }
 

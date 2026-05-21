@@ -101,10 +101,13 @@ class CacheWorkData {
 
     const func =
       type === 'artwork' ? 'getArtworkData' : ('getNovelData' as const)
-    const data = await API[func](id, unlisted)
-    this.set(data)
-    this.pendingIds.delete(id)
-    return data
+    try {
+      const data = await API[func](id, unlisted)
+      this.set(data)
+      return data
+    } finally {
+      this.pendingIds.delete(id)
+    }
   }
 
   public has(id: string) {

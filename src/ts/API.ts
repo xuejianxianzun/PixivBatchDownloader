@@ -71,7 +71,9 @@ class API {
    *
    * 429、502 错误会自动重试。
    *
-   * 如果状态码异常并且重试失败，会通过 throw 抛出 Error */
+   * 如果请求成功但状态码异常，并且重试失败，会通过 throw 显式抛出 Error。
+   *
+   * 如果请求本身失败了，则由原生 fetch 抛出 TypeError */
   static async fetch<T>(
     url: string,
     init?: RequestInit,

@@ -1,12 +1,8 @@
-[중국어 간체](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
-
-[중국어 번체](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
-
-[日本語](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-JA.md)
-
-[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
-
-[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+[English](/README.md) |
+[중국어 간체](/README-ZH-CN.md) |
+[중국어 번체](/README-ZH-TW.md) |
+[日本語](/README-JA.md) |
+[Russian](/README-RU.md)
 
 [Discord](https://discord.gg/eW9JtTK)
 

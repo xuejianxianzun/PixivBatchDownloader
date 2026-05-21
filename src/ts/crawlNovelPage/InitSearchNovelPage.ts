@@ -96,6 +96,11 @@ class InitSearchNovelPage extends InitPageBase {
     // 无此参数则不限制
     // 1  只显示支持单词置换的作品
     'replaceable_only',
+
+    // 是否显示可能妨碍搜索的作品
+    // 0 或者无此参数则不显示
+    // 1 显示
+    'dgw',
   ]
 
   protected addCrawlBtns() {

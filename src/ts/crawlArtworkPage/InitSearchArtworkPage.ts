@@ -134,6 +134,11 @@ class InitSearchArtworkPage extends InitPageBase {
     // 0 或者无此参数则不整合
     // 1 按作者整合
     'csw',
+
+    // 是否显示可能妨碍搜索的作品
+    // 0 或者无此参数则不显示
+    // 1 显示
+    'dgw',
   ]
 
   private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用

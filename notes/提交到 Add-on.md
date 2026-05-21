@@ -68,7 +68,7 @@ It is developed using Node.js + TypeScript + webpack. My development environment
 https://github.com/xuejianxianzun/PixivBatchDownloader
 
 **Development Notes:**
-https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md#development
+/README.md#development
 
 **Development Steps:**
 
@@ -101,7 +101,7 @@ If you want to use it on other pages of pixiv.net (e.g., homepage, search page, 
 https://github.com/xuejianxianzun/PixivBatchDownloader
 
 **开发说明：**
-https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md#development
+/README.md#development
 
 **开发步骤：**
 
