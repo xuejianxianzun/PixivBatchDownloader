@@ -9426,6 +9426,14 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때`,
     `При скачивании нескольких изображений из иллюстрации или манги`,
   ],
+  _把图片显示为灰色: [
+    `把图片显示为<span class="key">灰色</span>`,
+    `把圖片顯示為<span class="key">灰色</span>`,
+    `Display images in <span class="key">grayscale</span>`,
+    `画像を<span class="key">グレースケール</span>で表示する`,
+    `이미지를 <span class="key">회색조</span>로 표시`,
+    `Показывать изображения в <span class="key">оттенках серого</span>`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

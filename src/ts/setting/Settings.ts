@@ -378,6 +378,7 @@ interface XzSetting {
   pinnedOptions: number[]
   debugForWiki: boolean
   singleEPUBFileSizeLimit: number
+  imageToGray: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -930,6 +931,7 @@ class Settings {
     pinnedOptions: [],
     debugForWiki: false,
     singleEPUBFileSizeLimit: 200,
+    imageToGray: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -5308,6 +5308,73 @@ new HighlightFollowingUsers();
 
 /***/ }),
 
+/***/ "./src/ts/ImageToGray.ts":
+/*!*******************************!*\
+  !*** ./src/ts/ImageToGray.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+// 把图片变成灰色，不显示图片内容避免被别人发现在看 H
+class ImageToGray {
+    constructor() {
+        this.bindEvents();
+    }
+    style;
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.getPageTheme, (ev) => {
+            if (ev.detail.data) {
+                this.updateStyle();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'imageToGray') {
+                this.updateStyle();
+            }
+        });
+    }
+    updateStyle() {
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.imageToGray ? this.setStyle() : this.removeStyle();
+    }
+    setStyle() {
+        this.removeStyle();
+        this.style = document.createElement('style');
+        // 本来想使用 img::before 在图片上覆盖一层元素，但是 img 不能有子元素，所以 ::before 无效
+        // 之后改为使用滤镜，还更简单了
+        // https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter
+        // brightness 滤镜为 0 可以把图片变成纯黑；值为 100 大致是全白的，但是一些颜色还是会显示出来，不完美
+        // brightness() 函数将线性乘法器应用于输入图像，使其看起来或多或少地变得明亮。值为 0% 将创建全黑图像。值为 100% 会使输入保持不变。其他值是效果的线性乘数。如果值大于 100% 提供更明亮的结果。
+        // 另一种方案是用 contrast(0) 滤镜把图片都显示灰色
+        // contrast() 函数可调整输入图像的对比度。值是 0% 的话，图像会全黑。值是 100%，图像不变。值可以超过 100%，意味着会运用更低的对比。若没有设置值，默认是 1。
+        this.style.innerHTML = `
+      /* 让图片还有一些背景图片变成灰色 */
+      img, .sc-x1dm5r-0, .jSwXpE, .gLVttt, .hmCglJ, .sc-mfqjj-5, .fpdtUH, .gOATqM, .sc-k3uf3r-2{
+        filter: contrast(0);
+      }
+      /* 让作品缩略图左上角的 R-18 角标里的文字不显示 */
+      .sc-1ovn4zb-0, .efxZOo, .bfWaOT{
+        color: rgb(255, 64, 96);
+      }
+      .xxxxx{
+        background: transparent;
+      }`;
+        document.body.append(this.style);
+    }
+    removeStyle() {
+        this.style && this.style.remove();
+    }
+}
+new ImageToGray();
+
+
+/***/ }),
+
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -38421,6 +38488,14 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때`,
         `При скачивании нескольких изображений из иллюстрации или манги`,
     ],
+    _把图片显示为灰色: [
+        `把图片显示为<span class="key">灰色</span>`,
+        `把圖片顯示為<span class="key">灰色</span>`,
+        `Display images in <span class="key">grayscale</span>`,
+        `画像を<span class="key">グレースケール</span>で表示する`,
+        `이미지를 <span class="key">회색조</span>로 표시`,
+        `Показывать изображения в <span class="key">оттенках серого</span>`,
+    ],
 };
 
 
@@ -43008,6 +43083,14 @@ const formHtml = `
     <div class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </div>
+    
+    <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
+    <div class="option" data-no="42">
+      <span class="settingNameStyle1">
+      <span data-xztext="_把图片显示为灰色"></span>
+      <input type="checkbox" name="imageToGray" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+    </div>
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
     <div class="option" data-no="84">
@@ -43714,6 +43797,7 @@ class FormSettings {
             'ugoiraSaveAsZIP',
             'ugoiraSaveAsUgoira',
             'saveThumbnailForUgoira',
+            'imageToGray',
         ],
         text: [
             'onlyCrawlFirstFewImagesCount',
@@ -44346,17 +44430,17 @@ class Options {
     }
     allOption;
     /** 定制的设置项，不在公开版本里显示 */
-    customOptions = [15, 79, 80, 92];
+    customOptions = [15, 42, 79, 80, 92];
     /** 一些设置在移动端不会生效，所以隐藏它们 */
     // 主要是和作品缩略图相关的一些设置、增强功能
     hideOnMobile = [18, 68, 55, 62, 40];
     /** 大部分设置在 pixivision 里都不适用，所以需要隐藏它们 */
     hideOnPixivision = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23,
-        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47,
-        48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
-        69, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
-        89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
+        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 43, 44, 46, 47, 48,
+        49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+        70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+        90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
@@ -45977,6 +46061,7 @@ class Settings {
         pinnedOptions: [],
         debugForWiki: false,
         singleEPUBFileSizeLimit: 200,
+        imageToGray: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -66682,10 +66767,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
 /* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
 /* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -66696,6 +66782,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 

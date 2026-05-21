@@ -3,6 +3,12 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync
 
+## next
+
+### ♻️把 hongye 分支的“把图片显示为灰色”设置合并到了主分支里
+
+之前“把图片显示为灰色”的代码只存在于 hongye 分支里，主分支里没有。但是这样修改主分支时（例如对设置面板进行重构）就无法覆盖到这个设置。现在合并到主分支以便于维护。
+
 ## 18.9.3 2026-05-21
 
 ### ✨适配搜索页面的“显示可能妨碍搜索的作品”选项

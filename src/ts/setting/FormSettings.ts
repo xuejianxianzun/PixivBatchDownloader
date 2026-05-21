@@ -157,6 +157,7 @@ class FormSettings {
       'ugoiraSaveAsZIP',
       'ugoiraSaveAsUgoira',
       'saveThumbnailForUgoira',
+      'imageToGray',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
