@@ -63,25 +63,25 @@ class UseDifferentNameRuleIfWorkHasTag {
       <div class="settingItem addInputWrap" >
         <div class="inputItem tags">
           <span class="label uidLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
+          <input type="text" class="setinput_style blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="inputItem rule">
           <span class="label nameLabel" data-xztext="_命名规则"></span>
-          <input type="text" class="setinput_style1 blue addRuleInput" />
+          <input type="text" class="setinput_style blue addRuleInput" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-yes_submit"></use>
+              <use xlink:href="#yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-close"></use>
+              <use xlink:href="#close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -176,23 +176,23 @@ class UseDifferentNameRuleIfWorkHasTag {
       </div>
 
       <div class="inputItem tags">
-        <input type="text" class="setinput_style1 blue" data-tagsInput="${id}" value="${tags}" />
+        <input type="text" class="setinput_style blue" data-tagsInput="${id}" value="${tags}" />
       </div>
 
       <div class="inputItem rule">
-        <input type="text" class="has_tip setinput_style1 blue" data-ruleInput="${id}" value="${rule}" />
+        <input type="text" class="has_tip setinput_style blue" data-ruleInput="${id}" value="${rule}" />
       </div>
 
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${id}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-refresh"></use>
+            <use xlink:href="#refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${id}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-delete"></use>
+            <use xlink:href="#delete"></use>
           </svg>
         </button>
     </div>`

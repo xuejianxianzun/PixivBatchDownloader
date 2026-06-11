@@ -1,43 +1,83 @@
-@import './var.less';
-
 .outputWrap {
-  font-family: @pixivFontFamily;
-  padding: 20px 30px;
-  width: 520px;
-  background: #fff;
+  background: var(--settings-panel-bg);
+  font-family: var(--pixiv-font-family);
+  box-sizing: border-box;
+  padding: 24px 30px;
+  width: 50vw;
+  max-width: 700px;
   border-radius: 15px;
   z-index: 9999;
-  box-shadow: 0 0 15px @boxShadowBlue;
+  box-shadow: 0 0 15px var(--box-shadow-blue);
   display: none;
   position: fixed;
   top: 15%;
-  margin-left: -300px;
   left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  &::selection {
+    background: var(--theme-blue);
+    color: #fff;
+  }
+
+  .outputHeader {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 28px;
+    column-gap: 12px;
+  }
 
   .outputTitle {
-    height: 20px;
-    line-height: 20px;
+    grid-column: 2;
     text-align: center;
-    font-size: 18px;
-    color: @themeBlue;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.3;
+    color: var(--blue-buttons-bg);
+  }
+
+  .outputClose {
+    grid-column: 3;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    height: 28px;
+    width: 28px;
+    z-index: 9999;
+    text-align: center;
+    color: #888;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      color: var(--theme-blue);
+      background: #eef7ff;
+    }
+
+    svg {
+      font-size: 22px;
+    }
   }
 
   .outputContent {
-    border: 1px solid #ccc;
     transition: 0.3s;
-    font-size: 14px;
+    font-size: 15px;
     margin-top: 20px;
     padding: 5px 10px;
     overflow: auto;
     max-height: 350px;
-    line-height: 20px;
+    line-height: 26px;
     min-height: 100px;
     word-break: break-all;
-
-    &::selection {
-      background: @themeBlue;
-      color: #fff;
-    }
+    color: var(--settings-panel-text);
 
     p.result {
       margin-bottom: 10px;
@@ -48,30 +88,11 @@
     }
 
     .colorFolder {
-      color: @themeBlue;
+      color: var(--blue-buttons-bg);
     }
 
     .color666 {
       color: #666;
-    }
-
-    .color000 {
-      color: #000;
-    }
-  }
-
-  .outputClose {
-    cursor: pointer;
-    position: absolute;
-    font-size: 24px;
-    top: 16px;
-    right: 30px;
-    z-index: 9999;
-    text-align: center;
-    color: #666;
-
-    &:hover {
-      color: @themeBlue;
     }
   }
 
@@ -82,76 +103,81 @@
   }
 
   .outputCopy {
+    padding: 7px 20px;
+    line-height: unset;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 34px;
     min-width: 100px;
-    padding: 2px 25px;
-    margin-top: 15px;
-    background: @themeBlue;
+    margin-top: 20px;
+    background: var(--blue-buttons-bg);
     color: #fff;
-    font-size: 14px;
+    font-size: 15px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
   }
 }
 
-.theme-dark {
-  &.outputWrap {
-    background: #222;
-    box-shadow: @darkBoxShadow 0px 0px 15px;
+.theme-dark.outputWrap {
+  background: var(--settings-panel-bg-dark);
+  box-shadow: var(--dark-box-shadow);
 
-    .outputContent {
-      color: #fff !important;
+  .outputClose {
+    &:hover {
+      background: #193e5b;
+    }
+  }
 
-      & * {
-        color: #fff !important;
-      }
+  .outputContent {
+    color: #fff;
+
+    & * {
+      color: #fff;
+    }
+  }
+}
+
+.xzBG.outputWrap {
+  background: var(--settings-panel-bg-dark);
+  box-shadow: var(--dark-box-shadow);
+
+  .outputClose {
+    color: #eee;
+
+    &:hover {
+      color: #fff;
+      background: var(--white-30);
+    }
+  }
+
+  .outputTitle {
+    color: #fff;
+  }
+
+  .outputContent {
+    color: #fff;
+
+    p {
+      color: #fff;
+    }
+
+    .color999 {
+      color: #eee;
+    }
+
+    .colorFolder {
+      color: #d7efff;
+    }
+
+    .color000 {
+      color: #fff;
     }
   }
 }
 
 .outputWrap.mobile {
-  box-sizing: border-box;
-  padding: 20px 30px;
+  padding: 20px;
   width: 92vw;
-  top: 15%;
-  left: 50%;
-  margin-left: -45vw;
-  border-radius: 15px;
-  font-family: @MobileFontFamily;
-
-  .outputContent {
-    border: 1px solid #ccc;
-    transition: 0.3s;
-    font-size: 14px;
-    margin-top: 20px;
-    padding: 5px 10px;
-    overflow: auto;
-    max-height: 350px;
-    line-height: 20px;
-    min-height: 100px;
-    word-break: break-all;
-  }
-
-  .outputClose {
-    width: 40px;
-    height: 40px;
-    top: 10px;
-    right: 30px;
-    z-index: 9999;
-    font-size: 40px;
-  }
-
-  .outputCopy {
-    height: 40px;
-    line-height: 30px;
-    min-width: 100px;
-    padding: 4px 25px;
-    margin-top: 15px;
-    font-size: 16px;
-    border-radius: 8px;
-  }
+  font-family: var(--mobile-font-family);
 }

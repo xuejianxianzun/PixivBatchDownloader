@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { settings } from '../setting/Settings'
 import { UgoiraInfo } from '../crawl/CrawlResult'
-import { toWebM } from './ToWebM'
+import { toWebM } from './ToWebMUseWhammy'
 import { toWebP } from './ToWebP'
 import { toGIF } from './ToGIF'
 import { toAPNG } from './ToAPNG'

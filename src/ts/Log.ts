@@ -7,6 +7,7 @@ import { Config } from './Config'
 import { exportLog } from './ExportLog'
 import { logButton } from './LogButton'
 import { ppdTask } from './PPDTask'
+import { bg } from './BG'
 
 class Log {
   constructor() {
@@ -195,6 +196,9 @@ class Log {
       const logWrap = document.createElement('div')
       logWrap.id = this.activeLogWrapID
       logWrap.classList.add(this.logWrapClassName, this.logWrapFlag)
+      const xzbgMask = document.createElement('div')
+      xzbgMask.classList.add('xzbgMask')
+      logWrap.append(xzbgMask)
       const logContent = document.createElement('div')
       logContent.classList.add(this.logContentClassName, 'beautify_scrollbar')
       if (Config.mobile) {
@@ -203,6 +207,7 @@ class Log {
       logWrap.append(logContent)
       this.logWrap = logWrap
       this.logContent = logContent
+      bg.useBG(this.logWrap)
 
       // 点击日志区域两侧的空白处，可以隐藏日志区域
       logWrap.addEventListener('click', (ev) => {

@@ -8,7 +8,7 @@ class Loading {
   <div id="xzLoadingWrap">
     <div class="iconWrap">
     <svg class="icon" aria-hidden="true">
-      <use xlink:href="#icon-loading"></use>
+      <use xlink:href="#loading"></use>
     </svg>
     </div>
   </div>`

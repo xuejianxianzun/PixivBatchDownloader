@@ -95,7 +95,7 @@ class HighlightFollowingUsers {
       return
     }
 
-    // 这里不需要检查 this.followingList.length === 0 的情况
+    // 这里不需要检查 followingList.length === 0 的情况
     // 因为可能之前的数量是 1，之后用户取消关注，变成了 0，那么下面的代码依然需要执行
     // 以把之前高亮过的元素取消高亮
 

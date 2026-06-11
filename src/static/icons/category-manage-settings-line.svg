@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   id="svg3"
+   sodipodi:docname="category-manage-settings-line.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3" />
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.78513715"
+     inkscape:cx="419.03507"
+     inkscape:cy="511.37563"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="64"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g3"
+     style="stroke-width:46;stroke-dasharray:none">
+    <rect
+       x="160"
+       y="192"
+       width="704"
+       height="640"
+       rx="56"
+       id="rect1"
+       style="stroke-width:46;stroke-dasharray:none" />
+    <path
+       d="m 283.49693,317.77661 h 448 m -448,192 h 448 m -448,192 h 448"
+       id="path1"
+       style="stroke-width:36;stroke-dasharray:none"
+       sodipodi:nodetypes="cccccc" />
+    <circle
+       cx="416.9006"
+       cy="315.07477"
+       r="56"
+       id="circle1"
+       style="stroke-width:30;stroke-dasharray:none" />
+    <circle
+       cx="608.90063"
+       cy="507.47232"
+       r="56"
+       id="circle2"
+       style="stroke-width:30;stroke-dasharray:none" />
+    <circle
+       cx="512.90063"
+       cy="699.47235"
+       r="56"
+       id="circle3"
+       style="stroke-width:30;stroke-dasharray:none" />
+  </g>
+</svg>

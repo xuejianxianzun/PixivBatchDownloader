@@ -1,0 +1,395 @@
+.centerWrap.theme-white {
+  --settings-panel-text: #444;
+  --settings-panel-border: #9dd4f9;
+  --settings-panel-shadow: 0 0 25px #b4e0f5;
+  --settings-panel-con-bg: #eee;
+  --settings-panel-head-bg: #fff;
+  --settings-panel-head-border: #edf3f8;
+  --settings-panel-brand-color: var(--theme-blue);
+  --settings-panel-top-btn-color: #888;
+  --settings-panel-top-btn-hover-color: var(--theme-blue);
+  --settings-panel-top-btn-hover-bg: #eef7ff;
+  --settings-panel-top-btn-close-hover-color: #f33939;
+  --settings-panel-top-btn-close-hover-bg: #fcdddd;
+  --settings-panel-sponsor-hover-color: #e448a3;
+  --settings-panel-sponsor-hover-bg: #fff0f7;
+  --settings-panel-search-bg: #fff;
+  --settings-panel-search-border: #bbb;
+  --settings-panel-search-border-focus: var(--theme-blue);
+  --settings-panel-search-text: #444;
+  --settings-panel-search-placeholder: #aaa;
+  --settings-panel-search-icon: #aaa;
+  --settings-panel-card-radius: 10px;
+  --settings-panel-card-shadow: 0 1px 4px rgba(15, 53, 86, 0.04);
+  --settings-panel-card-border: #e8edf2;
+  --settings-panel-control-radius: 8px;
+  --settings-panel-input-radius: 8px;
+  --settings-panel-input-bg: #fff;
+  --settings-panel-input-border: #d5e1e8;
+  --settings-panel-input-focus-shadow: 0 0 0 3px rgba(25, 157, 245, 0.08);
+  --settings-panel-clear-color: #999;
+  --settings-panel-clear-visible-color: #666;
+  --settings-panel-clear-hover-color: var(--theme-blue);
+  --settings-panel-clear-hover-bg: #eef7ff;
+  --settings-panel-sidebar-bg: #f8f8f8;
+  // 导航栏的阴影。因为我只在亮色主题上设置了这个变量，所以在其他主题里不会显示阴影。
+  --settings-panel-sidebar-box-shadow: 0 2px 15px #e9e9e9;
+  --settings-panel-nav-text: #111;
+  --settings-panel-nav-hover-bg: #e8f1f8;
+  --settings-panel-nav-active-bg: #edf6ff;
+  --settings-panel-nav-active-text: var(--theme-blue);
+  --settings-panel-nav-active-accent: var(--theme-blue);
+  --settings-panel-nav-active-shadow: 0 4px 12px rgba(9, 160, 244, 0.08);
+  --settings-panel-btn-brand: var(--theme-blue);
+  --settings-panel-btn-success: #14ad27;
+  --settings-panel-btn-warning: #e49d00;
+  --settings-panel-btn-danger: #f33939;
+  --settings-panel-btn-primary-text: #fff;
+  --settings-panel-btn-primary-shadow: 0 2px 6px rgba(15, 53, 86, 0.1);
+  --settings-panel-btn-primary-shadow-hover: 0 4px 10px rgba(15, 53, 86, 0.14);
+  --settings-panel-btn-secondary-bg: #fff;
+  --settings-panel-btn-secondary-border: #199df5;
+  --settings-panel-btn-secondary-hover-bg: #edf7ff;
+  --settings-panel-btn-secondary-shadow: 0 1px 3px rgba(15, 53, 86, 0.04);
+  --settings-panel-btn-secondary-brand-text: var(--theme-blue);
+  --settings-panel-btn-secondary-success-text: #0f9f23;
+  --settings-panel-btn-secondary-warning-text: #96815a;
+  --settings-panel-btn-secondary-danger-text: #bb7878;
+  --settings-panel-btn-secondary-warning-hover-bg: #fff8ec;
+  --settings-panel-btn-secondary-warning-hover-border: #e4c992;
+  --settings-panel-btn-secondary-warning-hover-text: #9d6e00;
+  --settings-panel-btn-secondary-danger-hover-bg: #fff4f4;
+  --settings-panel-btn-secondary-danger-hover-border: #efc0c0;
+  --settings-panel-btn-secondary-danger-hover-text: #d15f5f;
+  --settings-panel-download-summary-border: #eee;
+  --settings-panel-download-summary-status: #666;
+  --settings-panel-download-summary-btn-color: #666;
+  --settings-panel-download-summary-btn-hover-color: var(--theme-blue);
+  --settings-panel-download-summary-btn-hover-bg: transparent;
+  --settings-panel-download-state-start: var(--theme-blue);
+  --settings-panel-download-state-loading: var(--theme-blue);
+  --settings-panel-download-state-pause: #96815a;
+  --settings-panel-download-state-stop: #bb7878;
+  --settings-panel-download-state-complete-text: #697784;
+  --settings-panel-download-state-complete-dot: #17aa2d;
+  --settings-panel-progress-total-track: #ebf4fa;
+  --settings-panel-progress-total-border: #d8e8f2;
+  --settings-panel-progress-total-fill: linear-gradient(
+    90deg,
+    #84d4fb 0%,
+    #5dc0f4 100%
+  );
+  --settings-panel-progress-total-text: #32586d;
+  --settings-panel-progress-item-track: #fff;
+  --settings-panel-progress-item-border: #d8e8f2;
+  --settings-panel-progress-item-fill: linear-gradient(
+    90deg,
+    #eef8ff 0%,
+    #dcefff 100%
+  );
+  --settings-panel-progress-label: #647987;
+  --settings-panel-progress-name: #355468;
+  --settings-panel-progress-meta: #83919c;
+  --settings-panel-surface-bg: #fff;
+  // 黏性滚动的标题卡片的背景颜色
+  --settings-panel-sticky-bg: #fff;
+  --settings-panel-surface-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-surface-text: #444;
+  --settings-panel-surface-border: #ececec;
+  --settings-panel-section-title-text: #222;
+  --settings-panel-section-hover-color: var(--theme-blue);
+  --settings-panel-section-icon-bg: #eef7fd;
+  --settings-panel-section-icon-color: var(--theme-blue);
+  --settings-panel-section-arrow-color: #555;
+  --settings-panel-option-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-option-card-pinned-border: #bde2ff;
+  --settings-panel-new-badge-color: #3ab8f2;
+  --settings-panel-tip-card-bg: #f7fbff;
+  --settings-panel-tip-card-border: rgba(9, 160, 244, 0.14);
+  --settings-panel-tip-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-tip-card-text: #5f6d7b;
+  --settings-panel-tip-icon-bg: rgba(9, 160, 244, 0.1);
+  --settings-panel-tip-icon-color: #666;
+  --settings-panel-tip-confirm-color: var(--theme-blue);
+  --settings-panel-tip-confirm-hover-bg: #e5f2ff;
+  --settings-panel-help-action-bg: #fff;
+  --settings-panel-help-action-text: #444;
+  --settings-panel-help-action-icon: #666;
+  --settings-panel-help-action-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-help-action-hover-bg: #26b1ff;
+  --settings-panel-help-action-hover-text: #fff;
+  --settings-panel-help-action-update-dot: #ff4060;
+  --settings-panel-naming-list-bg: #fff;
+  --settings-panel-naming-list-border: #d8e8f2;
+  --settings-panel-naming-list-shadow: 0 8px 24px rgba(15, 53, 86, 0.12);
+  --settings-panel-naming-list-text: #556571;
+  --settings-panel-naming-list-rule: #4c5f6d;
+  --settings-panel-naming-list-hover-bg: #eef7ff;
+  --settings-panel-naming-list-divider: #edf2f6;
+  --settings-panel-naming-list-delete: #9aa9b5;
+  --settings-panel-naming-list-delete-hover-bg: rgba(243, 57, 57, 0.1);
+  --settings-panel-naming-list-delete-hover-color: #f33939;
+  --settings-panel-naming-list-empty: #93a1ac;
+  --settings-panel-search-summary: #444;
+  --settings-panel-search-mark-bg: #ffe74b;
+}
+
+.centerWrap.theme-dark {
+  --settings-panel-text: #dfe7ef;
+  --settings-panel-border: rgba(94, 172, 230, 0.45);
+  --settings-panel-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+  --settings-panel-con-bg: rgba(18, 24, 33, 0.98);
+  --settings-panel-head-bg: rgba(25, 32, 42, 0.96);
+  --settings-panel-head-border: rgba(255, 255, 255, 0.08);
+  --settings-panel-brand-color: #edf1f5;
+  --settings-panel-top-btn-color: #dfe7ef;
+  --settings-panel-top-btn-hover-color: #42c3ff;
+  --settings-panel-top-btn-hover-bg: rgba(25, 157, 245, 0.24);
+  --settings-panel-search-bg: rgba(255, 255, 255, 0.06);
+  --settings-panel-search-border: rgba(255, 255, 255, 0.2);
+  --settings-panel-search-border-focus: var(--beautify-blue);
+  --settings-panel-search-text: #f1f5f8;
+  --settings-panel-search-placeholder: rgba(255, 255, 255, 0.5);
+  --settings-panel-search-icon: rgba(255, 255, 255, 0.5);
+  --settings-panel-card-radius: 10px;
+  --settings-panel-card-shadow: 0 1px 6px rgba(0, 0, 0, 0.14);
+  --settings-panel-card-border: rgba(255, 255, 255, 0.08);
+  --settings-panel-control-radius: 8px;
+  --settings-panel-input-radius: 8px;
+  --settings-panel-input-bg: rgba(255, 255, 255, 0.06);
+  --settings-panel-input-border: rgba(255, 255, 255, 0.14);
+  --settings-panel-input-focus-shadow: 0 0 0 3px rgba(66, 195, 255, 0.1);
+  --settings-panel-clear-color: rgba(255, 255, 255, 0.6);
+  --settings-panel-clear-visible-color: #dfe7ef;
+  --settings-panel-clear-hover-color: #42c3ff;
+  --settings-panel-clear-hover-bg: rgba(25, 157, 245, 0.24);
+  --settings-panel-sidebar-bg: rgba(255, 255, 255, 0.05);
+  --settings-panel-nav-text: #f1f5f8;
+  --settings-panel-nav-hover-bg: rgba(255, 255, 255, 0.08);
+  --settings-panel-nav-active-bg: rgba(66, 195, 255, 0.2);
+  --settings-panel-nav-active-text: #f1f5f8;
+  --settings-panel-nav-active-accent: #42c3ff;
+  --settings-panel-nav-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --settings-panel-btn-brand: #0ea8ef;
+  --settings-panel-btn-success: #14ad27;
+  --settings-panel-btn-warning: #e49d00;
+  --settings-panel-btn-danger: #f33939;
+  --settings-panel-btn-primary-text: #fff;
+  --settings-panel-btn-primary-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  --settings-panel-btn-primary-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.24);
+  --settings-panel-btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --settings-panel-btn-secondary-border: #0eb3f3;
+  --settings-panel-btn-secondary-brand-text: #42c3ff;
+  --settings-panel-btn-secondary-hover-bg: rgba(255, 255, 255, 0.12);
+  --settings-panel-btn-secondary-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  --settings-panel-btn-secondary-success-text: #57d66a;
+  --settings-panel-btn-secondary-warning-text: #d4bb87;
+  --settings-panel-btn-secondary-danger-text: #df9d9d;
+  --settings-panel-btn-secondary-warning-hover-bg: rgba(255, 197, 91, 0.12);
+  --settings-panel-btn-secondary-warning-hover-border: rgba(255, 197, 91, 0.34);
+  --settings-panel-btn-secondary-warning-hover-text: #ffd38a;
+  --settings-panel-btn-secondary-danger-hover-bg: rgba(255, 123, 123, 0.12);
+  --settings-panel-btn-secondary-danger-hover-border: rgba(255, 123, 123, 0.34);
+  --settings-panel-btn-secondary-danger-hover-text: #ffaeae;
+  --settings-panel-download-summary-border: rgba(255, 255, 255, 0.1);
+  --settings-panel-download-summary-status: #dfe7ef;
+  --settings-panel-download-summary-btn-color: #dfe7ef;
+  --settings-panel-download-summary-btn-hover-color: #42c3ff;
+  --settings-panel-download-summary-btn-hover-bg: transparent;
+  --settings-panel-download-state-start: #42c3ff;
+  --settings-panel-download-state-loading: #42c3ff;
+  --settings-panel-download-state-pause: #d4bb87;
+  --settings-panel-download-state-stop: #df9d9d;
+  --settings-panel-download-state-complete-text: rgba(223, 231, 239, 0.84);
+  --settings-panel-download-state-complete-dot: #57d66a;
+  --settings-panel-progress-total-track: rgba(255, 255, 255, 0.08);
+  --settings-panel-progress-total-border: rgba(255, 255, 255, 0.12);
+  --settings-panel-progress-total-fill: linear-gradient(
+    90deg,
+    rgba(66, 195, 255, 0.56) 0%,
+    rgba(66, 195, 255, 0.72) 100%
+  );
+  --settings-panel-progress-total-text: #e9f4fb;
+  --settings-panel-progress-item-track: rgba(255, 255, 255, 0.04);
+  --settings-panel-progress-item-border: rgba(255, 255, 255, 0.12);
+  --settings-panel-progress-item-fill: linear-gradient(
+    90deg,
+    rgba(66, 195, 255, 0.08) 0%,
+    rgba(66, 195, 255, 0.2) 100%
+  );
+  --settings-panel-progress-label: rgba(223, 231, 239, 0.82);
+  --settings-panel-progress-name: #f1f5f8;
+  --settings-panel-progress-meta: rgba(223, 231, 239, 0.72);
+  --settings-panel-surface-bg: rgba(255, 255, 255, 0.08);
+  // 这个颜色是取色后获取的颜色，避免黏性滚动卡片的背景颜色是半透明的，从而导致会与下方内容重叠。
+  --settings-panel-sticky-bg: #252b32;
+  --settings-panel-surface-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-surface-text: #f1f5f8;
+  --settings-panel-surface-border: rgba(255, 255, 255, 0.08);
+  --settings-panel-section-title-text: #f1f5f8;
+  --settings-panel-section-hover-color: var(--beautify-blue);
+  --settings-panel-section-icon-bg: rgba(66, 195, 255, 0.1);
+  --settings-panel-section-icon-color: #3eb5ec;
+  --settings-panel-section-arrow-color: #dfe7ef;
+  --settings-panel-option-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-option-card-pinned-border: #7a9cb8;
+  --settings-panel-tip-card-bg: rgba(66, 195, 255, 0.08);
+  --settings-panel-tip-card-border: rgba(66, 195, 255, 0.16);
+  --settings-panel-tip-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-tip-card-text: #dfe7ef;
+  --settings-panel-tip-icon-bg: rgba(66, 195, 255, 0.16);
+  --settings-panel-tip-icon-color: #dfe7ef;
+  --settings-panel-tip-confirm-color: var(--beautify-blue);
+  --settings-panel-tip-confirm-hover-bg: rgba(25, 157, 245, 0.24);
+  --settings-panel-help-action-bg: rgba(255, 255, 255, 0.08);
+  --settings-panel-help-action-text: #f1f5f8;
+  --settings-panel-help-action-icon: #f1f5f8;
+  --settings-panel-help-action-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-help-action-hover-bg: #1a85cc;
+  --settings-panel-help-action-hover-text: #fff;
+  --settings-panel-naming-list-bg: rgba(24, 31, 41, 0.98);
+  --settings-panel-naming-list-border: rgba(255, 255, 255, 0.1);
+  --settings-panel-naming-list-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  --settings-panel-naming-list-text: #d5dee6;
+  --settings-panel-naming-list-rule: #f1f5f8;
+  --settings-panel-naming-list-hover-bg: rgba(66, 195, 255, 0.12);
+  --settings-panel-naming-list-divider: rgba(255, 255, 255, 0.08);
+  --settings-panel-naming-list-delete: rgba(223, 231, 239, 0.6);
+  --settings-panel-naming-list-delete-hover-bg: rgba(243, 57, 57, 0.18);
+  --settings-panel-naming-list-delete-hover-color: #ff8d8d;
+  --settings-panel-naming-list-empty: rgba(223, 231, 239, 0.6);
+  --settings-panel-search-summary: #dfe7ef;
+  --settings-panel-search-mark-bg: #ae9a14;
+}
+
+.centerWrap.xzBG {
+  --settings-panel-text: #fff;
+  // 当用户启用“背景图片”之后，把标题栏和内容区域的背景颜色设置为半透明的黑色遮罩，降低背景图片的亮度，使得文字更清晰易读。
+  --settings-panel-head-bg: rgba(10, 18, 28, 0.2);
+  --settings-panel-con-bg: rgba(10, 18, 28, 0.1);
+  --settings-panel-head-border: rgba(255, 255, 255, 0.08);
+  --settings-panel-brand-color: #fff;
+  --settings-panel-top-btn-color: #fff;
+  --settings-panel-top-btn-hover-color: #fff;
+  --settings-panel-top-btn-hover-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-search-bg: rgba(255, 255, 255, 0.1);
+  --settings-panel-search-border: rgba(255, 255, 255, 0.25);
+  --settings-panel-search-border-focus: #fff;
+  --settings-panel-search-text: #fff;
+  --settings-panel-search-placeholder: rgba(255, 255, 255, 0.7);
+  --settings-panel-search-icon: rgba(255, 255, 255, 0.7);
+  --settings-panel-card-radius: 10px;
+  --settings-panel-card-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  --settings-panel-card-border: rgba(255, 255, 255, 0.14);
+  --settings-panel-control-radius: 8px;
+  --settings-panel-input-radius: 8px;
+  --settings-panel-input-bg: rgba(255, 255, 255, 0.12);
+  --settings-panel-input-border: rgba(255, 255, 255, 0.18);
+  --settings-panel-input-focus-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+  --settings-panel-clear-color: rgba(255, 255, 255, 0.75);
+  --settings-panel-clear-visible-color: #fff;
+  --settings-panel-clear-hover-color: #fff;
+  --settings-panel-clear-hover-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-sidebar-bg: rgba(255, 255, 255, 0.1);
+  --settings-panel-nav-text: #fff;
+  --settings-panel-nav-hover-bg: rgba(255, 255, 255, 0.1);
+  --settings-panel-nav-active-bg: rgba(255, 255, 255, 0.16);
+  --settings-panel-nav-active-text: #fff;
+  --settings-panel-nav-active-accent: #fff;
+  --settings-panel-nav-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --settings-panel-btn-brand: rgba(255, 255, 255, 0.3);
+  --settings-panel-btn-success: rgba(255, 255, 255, 0.3);
+  --settings-panel-btn-warning: rgba(255, 255, 255, 0.3);
+  --settings-panel-btn-danger: rgba(255, 255, 255, 0.3);
+  --settings-panel-btn-primary-text: #fff;
+  --settings-panel-btn-primary-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --settings-panel-btn-primary-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.16);
+  --settings-panel-btn-secondary-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-btn-secondary-border: transparent;
+  --settings-panel-btn-secondary-hover-bg: rgba(255, 255, 255, 0.18);
+  --settings-panel-btn-secondary-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  --settings-panel-btn-secondary-brand-text: #fff;
+  // --settings-panel-btn-secondary-success-text: #dcffe3;
+  --settings-panel-btn-secondary-success-text: #fff;
+  --settings-panel-btn-secondary-warning-text: rgba(255, 255, 255, 0.84);
+  --settings-panel-btn-secondary-danger-text: rgba(255, 255, 255, 0.84);
+  --settings-panel-btn-secondary-warning-hover-bg: rgba(255, 239, 191, 0.24);
+  --settings-panel-btn-secondary-warning-hover-border: rgba(
+    255,
+    255,
+    255,
+    0.18
+  );
+  --settings-panel-btn-secondary-warning-hover-text: #fff;
+  --settings-panel-btn-secondary-danger-hover-bg: rgba(255, 214, 214, 0.22);
+  --settings-panel-btn-secondary-danger-hover-border: rgba(255, 255, 255, 0.18);
+  --settings-panel-btn-secondary-danger-hover-text: #fff;
+  --settings-panel-download-summary-border: rgba(255, 255, 255, 0.1);
+  --settings-panel-download-summary-status: #fff;
+  --settings-panel-download-summary-btn-color: #fff;
+  --settings-panel-download-summary-btn-hover-color: #fff;
+  --settings-panel-download-summary-btn-hover-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-download-state-start: #fff;
+  --settings-panel-download-state-loading: #fff;
+  --settings-panel-download-state-pause: rgba(255, 255, 255, 0.88);
+  --settings-panel-download-state-stop: rgba(255, 255, 255, 0.88);
+  --settings-panel-download-state-complete-text: rgba(255, 255, 255, 0.84);
+  --settings-panel-download-state-complete-dot: rgba(168, 255, 183, 0.96);
+  --settings-panel-progress-total-track: rgba(255, 255, 255, 0.12);
+  --settings-panel-progress-total-border: rgba(255, 255, 255, 0.14);
+  --settings-panel-progress-total-fill: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.42) 100%
+  );
+  --settings-panel-progress-total-text: #fff;
+  --settings-panel-progress-item-track: rgba(255, 255, 255, 0.08);
+  --settings-panel-progress-item-border: rgba(255, 255, 255, 0.14);
+  --settings-panel-progress-item-fill: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.24) 100%
+  );
+  --settings-panel-progress-label: rgba(255, 255, 255, 0.86);
+  --settings-panel-progress-name: #fff;
+  --settings-panel-progress-meta: rgba(255, 255, 255, 0.76);
+  --settings-panel-surface-bg: rgba(255, 255, 255, 0.1);
+  --settings-panel-sticky-bg: rgba(255, 255, 255, 0.4);
+  --settings-panel-surface-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-surface-text: #fff;
+  --settings-panel-surface-border: rgba(255, 255, 255, 0.08);
+  --settings-panel-section-title-text: #fff;
+  --settings-panel-section-hover-color: #fff;
+  --settings-panel-section-icon-bg: rgba(255, 255, 255, 0.16);
+  --settings-panel-section-icon-color: #fff;
+  --settings-panel-section-arrow-color: #fff;
+  --settings-panel-option-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-option-card-pinned-border: rgba(255, 255, 255, 0.4);
+  --settings-panel-tip-card-bg: rgba(255, 255, 255, 0.12);
+  --settings-panel-tip-card-border: rgba(255, 255, 255, 0.16);
+  --settings-panel-tip-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-tip-card-text: #fff;
+  --settings-panel-tip-icon-bg: rgba(255, 255, 255, 0.16);
+  --settings-panel-tip-icon-color: #fff;
+  --settings-panel-tip-confirm-color: #fff;
+  --settings-panel-tip-confirm-hover-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-help-action-bg: rgba(255, 255, 255, 0.1);
+  --settings-panel-help-action-text: #fff;
+  --settings-panel-help-action-icon: #fff;
+  --settings-panel-help-action-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-help-action-hover-bg: rgba(255, 255, 255, 0.3);
+  --settings-panel-help-action-hover-text: #fff;
+  --settings-panel-naming-list-bg: rgba(18, 27, 38, 0.92);
+  --settings-panel-naming-list-border: rgba(255, 255, 255, 0.14);
+  --settings-panel-naming-list-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  --settings-panel-naming-list-text: rgba(255, 255, 255, 0.86);
+  --settings-panel-naming-list-rule: #fff;
+  --settings-panel-naming-list-hover-bg: rgba(255, 255, 255, 0.12);
+  --settings-panel-naming-list-divider: rgba(255, 255, 255, 0.1);
+  --settings-panel-naming-list-delete: rgba(255, 255, 255, 0.68);
+  --settings-panel-naming-list-delete-hover-bg: rgba(255, 255, 255, 0.16);
+  --settings-panel-naming-list-delete-hover-color: #fff;
+  --settings-panel-naming-list-empty: rgba(255, 255, 255, 0.68);
+  --settings-panel-search-summary: #fff;
+  --settings-panel-search-mark-bg: #c1b504;
+}

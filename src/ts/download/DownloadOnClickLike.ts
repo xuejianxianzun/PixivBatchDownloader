@@ -1,11 +1,7 @@
-import { Colors } from '../Colors'
 import { EVT } from '../EVT'
-import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
-import { states } from '../store/States'
 import { WorkTypeString } from '../store/StoreType'
-import { toast } from '../Toast'
 import { Tools } from '../Tools'
 import { workToolBar } from '../WorkToolBar'
 

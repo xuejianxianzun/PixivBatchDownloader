@@ -15,7 +15,6 @@ class InvisibleSettings {
 
   // ppdss: Powerful Pixiv Downloader Secret Settings
   private readonly cfg: Cfg = {
-    downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
     filterSearchResults: ['ppdss3'],
   }
 

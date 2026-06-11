@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="category-thumbnail-buttons-line.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.1103516"
+     inkscape:cx="511.54967"
+     inkscape:cy="511.99998"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="64"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g4"
+     style="stroke-width:46;stroke-dasharray:none">
+    <rect
+       x="160"
+       y="224"
+       width="704"
+       height="576"
+       rx="56"
+       id="rect1"
+       style="stroke-width:46;stroke-dasharray:none" />
+    <path
+       d="M 253.3538,687.11928 372.6769,552.88079 484.54231,664.7462 588.95002,575.25387 730.6462,687.11928"
+       id="path1"
+       style="stroke-width:42.8817;stroke-dasharray:none" />
+    <rect
+       x="605.73444"
+       y="313.44238"
+       width="162.19524"
+       height="162.19524"
+       rx="40.548809"
+       id="rect2"
+       style="stroke-width:46.065;stroke-dasharray:none" />
+  </g>
+</svg>

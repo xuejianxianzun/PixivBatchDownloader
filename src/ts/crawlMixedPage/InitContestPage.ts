@@ -1,6 +1,5 @@
 // 初始化比赛页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { store } from '../store/Store'
 import { lang } from '../Language'
@@ -41,23 +40,23 @@ class InitContestPage extends InitPageBase {
   private readonly matchNovelId = /id="novel:(\d+)"/g
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取应募作品',
       '',
-      'crawlApplicationWork'
+      'crawlApplicationWork',
+      'brand'
     ).addEventListener('click', () => {
       this.scope = 'applications'
       this.readyCrawl()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取获奖作品',
       '',
-      'crawlWinningWork'
+      'crawlWinningWork',
+      'brand'
     ).addEventListener('click', () => {
       this.scope = 'winning'
       this.readyCrawl()

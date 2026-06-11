@@ -1,11 +1,9 @@
 // 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
-import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
@@ -54,63 +52,63 @@ class InitFollowingPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_开始抓取',
       '_默认下载多页',
-      'startCrawlingInFollowingPage'
+      'startCrawlingInFollowingPage',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgGreen,
       '_导出关注列表CSV',
       '',
-      'exportFollowingListCSV'
+      'exportFollowingListCSV',
+      'brand'
     ).addEventListener('click', () => {
       exportFollowingList.start('csv')
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgGreen,
       '_导出关注列表JSON',
       '',
-      'exportFollowingListJSON'
+      'exportFollowingListJSON',
+      'brand'
     ).addEventListener('click', () => {
       exportFollowingList.start('json')
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgGreen,
       '_批量关注用户',
       '',
-      'batchFollowUser'
+      'batchFollowUser',
+      'brand'
     ).addEventListener('click', async () => {
       batchFollowUser.start()
     })
 
     // 在红叶版本里启用此功能
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgWarning,
       '_筛选不活跃的用户',
       '',
-      'filterInactiveUsers'
+      'filterInactiveUsers',
+      'brand'
     ).addEventListener('click', async () => {
       filterInactiveUsers.start()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgGreen,
       '_查找已注销的用户',
       '',
-      'findDeactivatedUsers'
+      'findDeactivatedUsers',
+      'brand'
     ).addEventListener('click', async () => {
       findDeactivatedUsers.check()
     })

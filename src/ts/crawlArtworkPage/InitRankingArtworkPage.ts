@@ -1,6 +1,5 @@
 // 初始化 artwork 排行榜页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
@@ -24,22 +23,22 @@ class InitRankingArtworkPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取本排行榜作品',
       '_抓取本排行榜作品Title',
-      'crawlRankingWork'
+      'crawlRankingWork',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取首次登场的作品',
       '_抓取首次登场的作品Title',
-      'crawlDebutWork'
+      'crawlDebutWork',
+      'brand'
     ).addEventListener('click', () => {
       states.debut = true
       log.warning(lang.transl('_抓取首次登场的作品'))

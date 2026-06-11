@@ -32,7 +32,7 @@ class CrawlCurrent {
     this.btn.classList.add('rightButton')
     this.btn.id = 'crawlCurrentBtn'
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-C_square"></use>
+  <use xlink:href="#C_square"></use>
 </svg>`
     document.body.append(this.btn)
   }

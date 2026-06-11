@@ -1,6 +1,5 @@
 //初始化 Unlisted 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { IDData } from '../store/StoreType'
@@ -13,12 +12,12 @@ class InitUnlistedPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取此作品',
       '',
-      'crawlCurrentWork'
+      'crawlCurrentWork',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   t="1779629546184"
+   class="icon"
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   p-id="16181"
+   width="128"
+   height="128"
+   id="svg1"
+   sodipodi:docname="arrow-down-2.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1"
+     inkscape:cx="64"
+     inkscape:cy="63.5"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     id="path1"
+     style="fill:#111111;fill-opacity:1;stroke-width:1.24;stroke-dasharray:none"
+     d="m 173.42969,305.96289 c -12.03739,0.28833 -23.65673,6.96305 -30.09832,17.1145 -5.26343,8.20135 -7.04608,18.5302 -4.86262,28.02613 1.55909,7.01324 5.25191,13.45952 10.36925,18.48708 16.38453,16.32945 32.71783,32.71143 49.08252,49.06121 96.78584,96.79163 193.56791,193.58582 290.37831,290.3521 4.54343,3.78661 9.9171,6.59334 15.67578,7.98047 9.37834,2.35353 19.64187,0.73033 27.87541,-4.32423 3.46217,-2.04986 6.43969,-4.78721 9.22216,-7.66847 8.73508,-8.79793 17.53239,-17.53435 26.28814,-26.31196 103.33497,-103.33985 206.66991,-206.67974 310.00491,-310.01956 4.02251,-4.79006 6.91998,-10.53161 8.23702,-16.65418 2.20233,-9.8755 0.0325,-20.60475 -5.79276,-28.87201 -4.78031,-6.9391 -12.01662,-12.11831 -20.11808,-14.42889 -9.74088,-2.84652 -20.62133,-1.41339 -29.30173,3.84161 -3.34535,1.97165 -6.25303,4.59041 -8.94241,7.37128 0.0912,-0.10099 -0.79593,0.79043 -1.08976,1.08002 -17.64932,17.58852 -35.23822,35.23758 -52.86691,52.84679 C 682.54321,458.79691 597.59583,543.74904 512.64844,628.70117 408.11655,524.18358 303.58455,419.6661 199.05273,315.14844 c -5.95303,-5.05222 -13.4258,-8.35625 -21.22395,-9.04538 -1.46024,-0.14975 -2.93242,-0.17578 -4.39909,-0.14017 z" />
+</svg>

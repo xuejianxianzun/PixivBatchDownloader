@@ -1,5 +1,3 @@
-@import './var.less';
-
 #viewerWarpper {
   position: relative;
   margin: 0;
@@ -74,7 +72,7 @@
       width: 100px;
       overflow: hidden;
       &:hover {
-        background-color: @beautifyBlue !important;
+        background-color: var(--blue-buttons-bg) !important;
       }
     }
 
@@ -119,7 +117,7 @@
 
       &:hover {
         color: #fff;
-        background-color: @beautifyBlue;
+        background-color: var(--blue-buttons-bg);
       }
 
       &::marker {

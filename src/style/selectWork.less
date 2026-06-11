@@ -1,5 +1,3 @@
-@import './var.less';
-
 @keyframes moveRight {
   from {
     left: -100vw;
@@ -27,10 +25,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: @beautifyBlue;
+  background: var(--beautify-blue);
   display: none;
   pointer-events: none;
 
+  // 手动选择按钮的横线伪元素
   &::before {
     content: '';
     display: block;
@@ -41,8 +40,8 @@
     height: 1px;
     background-image: linear-gradient(
       to right,
-      @themeBlue 0%,
-      @themeBlue 50%,
+      var(--beautify-blue) 0%,
+      var(--beautify-blue) 50%,
       transparent 50%
     );
     background-size: 8px 1px;
@@ -50,6 +49,7 @@
     animation: moveRight 2s linear infinite;
   }
 
+  // 手动选择按钮的竖线伪元素
   &::after {
     content: '';
     display: block;
@@ -60,8 +60,8 @@
     width: 1px;
     background-image: linear-gradient(
       to bottom,
-      @themeBlue 0%,
-      @themeBlue 50%,
+      var(--beautify-blue) 0%,
+      var(--beautify-blue) 50%,
       transparent 50%
     );
     background-size: 1px 8px;
@@ -84,7 +84,7 @@
   border-radius: 50%;
   text-align: center;
   .icon {
-    color: @beautifyBlue;
+    color: var(--beautify-blue);
     vertical-align: baseline;
     border-radius: 50%;
     background-color: yellow;

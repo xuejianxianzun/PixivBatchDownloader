@@ -1,6 +1,7 @@
 [English](/README.md) |
 [简体中文](/README-ZH-CN.md) |
 [繁體中文](/README-ZH-TW.md) |
+日本語|
 [한국어](/README-KO.md) |
 [Русский](/README-RU.md) |
 
@@ -50,9 +51,7 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 - ビルトインの画像ビューアで複数画像の作品を閲覧；
 - フォローしているユーザーをハイライト；
 
-![PixivBatchDownloader screenshot](./notes/images/ui-ja-0.png)
-
-![PixivBatchDownloader screenshot](./notes/images/ui-ja-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ja-white.png)
 
 # オンラインインストール
 

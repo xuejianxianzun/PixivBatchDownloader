@@ -1,6 +1,6 @@
 // 初始化 关注的用户的新作品页面 和 好P友的新作品页面
+// Premium 会员可以看到第 84 页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
@@ -40,12 +40,12 @@ class InitBookmarkNewPage extends InitPageBase {
   protected firstWorkId = ''
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_开始抓取',
       '_默认下载多页',
-      'startCrawling'
+      'startCrawling',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

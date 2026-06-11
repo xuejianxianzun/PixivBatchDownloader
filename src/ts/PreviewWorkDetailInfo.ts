@@ -225,7 +225,7 @@ class PreviewWorkDetailInfo {
             <button class="textButton" id="copyURL">Copy URL</button>
             <button class="textButton" id="copyBtn">
               <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-copy"></use>
+                <use xlink:href="#copy"></use>
               </svg>
             </button>
           </p>

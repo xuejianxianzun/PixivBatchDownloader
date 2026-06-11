@@ -66,25 +66,25 @@ class BlockTagsForSpecificUser {
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
           <span class="label uidLabel" data-xztext="_用户id"></span>
-          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+          <input type="text" class="setinput_style blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
+          <input type="text" class="setinput_style blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-yes_submit"></use>
+              <use xlink:href="#yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-close"></use>
+              <use xlink:href="#close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -193,25 +193,25 @@ class BlockTagsForSpecificUser {
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
         <span class="label uidLabel" data-xztext="_用户id"></span>
-        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+        <input type="text" class="setinput_style blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
       <div class="inputItem tags">
         <span class="label tagsLabel">Tags</span>
-        <input type="text" class="setinput_style1 blue" data-tagsInput="${uid}" value="${tags.toString()}" />
+        <input type="text" class="setinput_style blue" data-tagsInput="${uid}" value="${tags.toString()}" />
       </div>
 
       <div class="btns">
 
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-refresh"></use>
+            <use xlink:href="#refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-delete"></use>
+            <use xlink:href="#delete"></use>
           </svg>
         </button>
       </div>

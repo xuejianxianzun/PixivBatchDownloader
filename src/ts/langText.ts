@@ -1,8 +1,9 @@
 import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
-// 在属性名前面添加下划线
-// 目前每条语句有 6 种翻译，按顺序排列，依次是：简体中文、繁体中文、英语、日语、韩语、俄语
+// 目前每个 key 有 6 条文本，按照固定的顺序排列，依次是：简体中文、繁体中文、英语、日语、韩语、俄语
+// 备注：
+// 属性名前面需要添加下划线
 // {} 是占位符
 // <br> 和 \n 是换行
 
@@ -30,6 +31,14 @@ export const langText = {
     '作品の<span class="key">種類</span>',
     '작품 <span class="key">유형</span>',
     'Тип <span class="key">работы</span>',
+  ],
+  _作品类型带冒号: [
+    `作品类型：`,
+    `作品類型：`,
+    `Work type: `,
+    `作品タイプ：`,
+    `작품 유형: `,
+    `Тип работы: `,
   ],
   _不能含有tag: [
     '<span class="key">不能</span>含有标签',
@@ -694,6 +703,14 @@ And so on.
     '움직이는 일러스트',
     'Ugoira(гиф)',
   ],
+  _动图_动态图像: [
+    '动图',
+    '動圖',
+    'Animated image',
+    'アニメーション画像',
+    '움직이는 이미지',
+    'Анимированное изображение',
+  ],
   _小说: ['小说', '小說', 'Novels', '小説', '소설', 'Новеллы'],
   _动图保存格式: [
     '<span class="key">动图</span>保存格式',
@@ -1323,14 +1340,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     '설정 축소/확장',
     'Свернуть/развернуть настройки',
   ],
-  _github: [
-    'Github 页面，欢迎 star',
-    'Github 頁面，歡迎 star',
-    'Github page, if you like, please star it',
-    'Github のページ、star をクリックしてください',
-    'Github, 유용하셨다면 Star를 주세요.',
-    'Страница на Github, если вам нравится, пожалуйста, поставьте звезду',
-  ],
+  _github: ['Github', 'Github', 'Github', 'Github', 'Github', 'Github'],
   _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
   _快捷键ALTX显示隐藏控制面板: [
     '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">X</span> 显示或隐藏控制面板。',
@@ -1732,7 +1742,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     '파일명 미리보기',
     'Имя файла предварительного просмотра',
   ],
-  _下载线程: [
+  _同时下载数量: [
     '同时下载<span class="key">数量</span>',
     '同時下載<span class="key">數量</span>',
     'Download <span class="key">thread</span>',
@@ -1796,6 +1806,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     '아직 다운로드를 시작하지 않았습니다.',
     'Загрузка еще не началась',
   ],
+  _目前没有可用的抓取结果提示: [
+    '目前没有可用的抓取结果。你可以在多种页面里点击“开始抓取”按钮来建立下载任务。',
+    '目前沒有可用的抓取結果。你可以在多種頁面裡點擊「開始擷取」按鈕來建立下載任務。',
+    'There are currently no crawl results available. You can click the "Start crawl" button on supported pages to create download tasks.',
+    '現在利用可能なクロール結果はありません。対応ページで「クロールを開始する」ボタンをクリックすると、ダウンロードタスクを作成できます。',
+    '현재 사용 가능한 크롤링 결과가 없습니다. 지원되는 페이지에서 "긁어오기 시작" 버튼을 클릭하여 다운로드 작업을 만들 수 있습니다.',
+    'Сейчас нет доступных результатов краулинга. На поддерживаемых страницах нажмите кнопку "Начать вытаскивание", чтобы создать задачи загрузки.',
+  ],
   _下载进度: [
     '下载进度',
     '下載進度',
@@ -1832,7 +1850,6 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `你可以通过以下方式来交流、求助和反馈问题：<br>
 - <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
 - <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
-- 中文用户可以加下载器的 QQ 群：674991373<br>
 <br>
 提示：请不要在 Chrome Web Store 的评价里反馈问题，因为有些评价会被 Google 过滤掉，所以我可能无法回复你。`,
     `你可以通过以下方式來交流、求助和反饋問題：<br>
@@ -1992,16 +2009,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
     <br>
     <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常见问题</a>
-    <br><br>
-    梯子推荐：
-    <br>
-    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" title="魔法喵" target="_blank">https://mofacgb.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且下载速度很快（下载速率上限是 800 Mbps）。下载 Pixiv、Fanbox 的文件建议使用“日本 2”节点。
-    <br>
-    如果上面的网址打不开，可以访问地址发布页：<a href="https://mofmiao.com" title="魔法喵" target="_blank">https://mofmiao.com</a>
-    <br>
-    你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
-    <br>
-    我的邀请码：GYjQWDob
     <br><br>`,
 
     `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
@@ -2100,14 +2107,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     'ダウンロードが停止しました',
     '다운로드 정지',
     'Загрузка остановлена',
-  ],
-  _已下载: [
-    '已下载',
-    '已下載',
-    'downloaded',
-    'downloaded',
-    '다운로드됨',
-    'загруженно',
   ],
   _稍后会重试下载失败的文件: [
     `稍后会重试下载失败的文件`,
@@ -2719,6 +2718,106 @@ Note: Even if you disable this setting, some quick download methods will always 
   _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
   _其他: ['其他', '其他', 'Others', 'その他', '그 외', 'Другие настройки'],
   _更多: ['更多', '更多', 'More', 'その他', '더보기', 'Больше'],
+  _首页: ['首页', '首頁', 'HomePage', 'ホーム', '홈', 'Главная'],
+  _作品页面: [
+    '作品页面',
+    '作品頁面',
+    'WorkPage',
+    '作品ページ',
+    '작품 페이지',
+    'Страница работы',
+  ],
+  _系列小说页面: [
+    '系列小说页面',
+    '系列小說頁面',
+    'Novel series page',
+    'シリーズ小説ページ',
+    '시리즈 소설 페이지',
+    'Страница серии романов',
+  ],
+  _搜索页面: [
+    '搜索页面',
+    '搜尋頁面',
+    'SearchPage',
+    '検索ページ',
+    '검색 페이지',
+    'Страница поиска',
+  ],
+  _排行榜: ['排行榜', '排行榜', 'Ranking', 'ランキング', '랭킹', 'Рейтинг'],
+  _发现: ['发现', '發現', 'Discover', '発見', '발견', 'Обнаружить'],
+  _关注页面: [
+    '关注页面',
+    '關注頁面',
+    'Following page',
+    'フォロー中ページ',
+    '팔로잉 페이지',
+    'Страница подписок',
+  ],
+  _比赛页面: [
+    '比赛页面',
+    '比賽頁面',
+    'Contest page',
+    'コンテストページ',
+    '콘테스트 페이지',
+    'Страница конкурса',
+  ],
+  _仪表盘: [
+    '仪表盘',
+    '儀表板',
+    'Dashboard',
+    'ダッシュボード',
+    '대시보드',
+    'Панель управления',
+  ],
+  _书签详情: [
+    '书签详情',
+    '書籤詳細',
+    'Bookmark details',
+    'ブックマークの詳細',
+    '북마크 세부 정보',
+    'Подробности закладки',
+  ],
+  _pixivision: [
+    'pixivision',
+    'pixivision',
+    'pixivision',
+    'pixivision',
+    'pixivision',
+    'pixivision',
+  ],
+  _抓取结果: [
+    '抓取结果',
+    '擷取結果',
+    'Crawl results',
+    'クロール結果',
+    '크롤링 결과',
+    'Результаты сканирования',
+  ],
+  _下载控制: [
+    '下载控制',
+    '下載控制',
+    'Download control',
+    'ダウンロードコントロール',
+    '다운로드 제어',
+    'Управление загрузкой',
+  ],
+  _设置: ['设置', '設定', 'Settings', '設定', '설정', 'Настройки'],
+  _用户页面: [
+    '用户页面',
+    '使用者頁面',
+    'User page',
+    'ユーザーページ',
+    '사용자 페이지',
+    'Страница пользователя',
+  ],
+  _书签页面: [
+    '书签页面',
+    '書籤頁面',
+    'Bookmark page',
+    'ブックマークページ',
+    '북마크 페이지',
+    'Страница закладок',
+  ],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
     '第一張圖片不包含<span class="key">序號</span>',
@@ -3374,13 +3473,13 @@ Note: This clears the downloader's download record, not the browser's download h
     '내보내기 성공',
     'Импорт успешен',
   ],
-  _图片尺寸: [
-    '图片<span class="key">尺寸</span>',
-    '圖片<span class="key">尺寸</span>',
-    'Image <span class="key">size</span>',
-    '画像<span class="key">サイズ</span>',
-    '이미지 <span class="key">크기</span>',
-    '<span class="key">Размер</span> изображения',
+  _下载图片时的尺寸: [
+    '下载图片时的<span class="key">尺寸</span>',
+    '下載圖片時的<span class="key">尺寸</span>',
+    'Image <span class="key">dimensions</span> when downloading',
+    '画像をダウンロードする際の<span class="key">サイズ</span>',
+    '이미지를 다운로드할 때의 <span class="key">크기</span>',
+    'Размер <span class="key">изображения</span> при загрузке',
   ],
   _图片尺寸2: [
     '图片尺寸',
@@ -3487,6 +3586,14 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
   ],
   _导出: ['导出', '匯出', 'Export', 'エクスポート', '내보내기', 'Экспорт'],
   _导入: ['导入', '匯入', 'Import', 'インポート', '불러오기', 'Импорт'],
+  _导入txt: [
+    '导入 (TXT）',
+    '匯入 (TXT）',
+    'Import (TXT)',
+    'インポート (TXT)',
+    '불러오기 (TXT)',
+    'Импорт (TXT)',
+  ],
   _清除: ['清除', '清除', 'Clear', 'クリア', '비우기', 'Очистить'],
   _导入下载记录: [
     '导入下载记录',
@@ -3544,6 +3651,14 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     '自動検出',
     '자동',
     'Авто детект',
+  ],
+  _是否公开: [
+    '是否公开',
+    '是否公開',
+    'Public',
+    '公開するか',
+    '공개 여부',
+    'Публичный',
   ],
   _公开: ['公开', '公開', 'Public', '公開', '공개', 'Публичный'],
   _不公开: ['不公开', '非公開', 'Private', '非公開', '비공개', 'Приватный'],
@@ -3632,6 +3747,23 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '<span class="blue">✩</span> 버튼을 클릭하면 다운로더는 이 작품을 북마크하고 태그를 붙입니다.',
     'При нажатии кнопки <span class="blue">✩</span> загрузчик добавляет эту работу в закладки и прикрепляет свой тег.',
   ],
+  _是否添加标签: [
+    '是否添加标签',
+    '是否添加標籤',
+    'Whether to add tags',
+    'タグを追加するかどうか',
+    '태그 추가 여부',
+    'Добавлять теги или нет',
+  ],
+  _添加: ['添加', '添加', 'Add', '追加', '추가', 'Добавить'],
+  _不添加: [
+    '不添加',
+    '不添加',
+    'Do not add',
+    '追加しない',
+    '추가하지 않음',
+    'Не добавлять',
+  ],
   _添加tag: [
     '添加标签',
     '加入標籤',
@@ -3680,6 +3812,14 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '<span class="key">테마</span>',
     'Цветовая <span class="key">тема</span>',
   ],
+  _深色模式: [
+    '深色模式',
+    '深色模式',
+    'Dark mode',
+    'ダークモード',
+    '다크 모드',
+    'Темный режим',
+  ],
   _管理设置: [
     '管理<span class="key">设置</span>',
     '管理<span class="key">設定</span>',
@@ -3720,6 +3860,38 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '설정 초기화',
     'Сброс настроек',
   ],
+  _已重置设置: [
+    '已重置设置',
+    '已重置設定',
+    'Settings have been reset',
+    '設定がリセットされました',
+    '설정이 초기화되었습니다',
+    'Настройки были сброшены',
+  ],
+  _清除下载器保存的关注数据: [
+    '清除下载器保存的关注数据',
+    '清除下載器保存的關注資料',
+    'Clear the following data saved by the Downloader',
+    'ダウンローダーが保存したフォローのデータをクリア',
+    '다운로더가 저장한 팔로우 데이터 초기화',
+    'Сброс данных подписки, сохраненных загрузчиком',
+  ],
+  _是否清除下载器保存的关注数据: [
+    `下载器会在本地缓存你关注的用户，用于高亮显示关注的用户名等功能。\n如果有需要，你可以清除缓存的数据，下载器会在一段时间后重新获取最新数据。\n确定要执行此操作吗？`,
+    `下載器會在本地快取你關注的使用者，用於高亮顯示關注的使用者名稱等功能。\n如果有需要，你可以清除快取的資料，下載器會在一段時間後重新獲取最新資料。\n確定要執行此操作嗎？`,
+    `The Downloader caches the users you follow locally for features like highlighting followed usernames. \nIf needed, you can clear the cached data, and the Downloader will retrieve the latest data after a while. \nAre you sure you want to perform this action?`,
+    `ダウンローダーは、フォローしているユーザーをローカルにキャッシュして、フォローしているユーザー名のハイライトなどの機能に使用します。\n必要に応じて、キャッシュされたデータをクリアできます。ダウンローダーはしばらくして最新のデータを取得します。\nこの操作を実行してもよろしいですか？`,
+    `다운로더는 팔로우하는 사용자를 로컬에 캐시하여 팔로우하는 사용자 이름을 강조 표시하는 등의 기능에 사용합니다.\n필요한 경우 캐시된 데이터를 지울 수 있으며 다운로더는 잠시 후 최신 데이터를 가져옵니다.\n이 작업을 수행하시겠습니까?`,
+    `Загрузчик кэширует пользователей, на которых вы подписаны, локально для таких функций, как выделение имен пользователей, на которых вы подписаны. \nПри необходимости вы можете очистить кэшированные данные, и загрузчик получит последние данные через некоторое время. \nВы уверены, что хотите выполнить это действие?`,
+  ],
+  _已清除: [
+    '已清除',
+    '已清除',
+    'Cleared',
+    'クリアされました',
+    '초기화됨',
+    'Очистить',
+  ],
   _日均收藏数量: [
     '日均收藏数量',
     '日均收藏數量',
@@ -3727,6 +3899,14 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '1 日の平均ブックマーク数',
     '일일 평균 북마크 수',
     'Среднее количество ежедневных закладок',
+  ],
+  _满足日均收藏数量条件: [
+    '满足日均收藏数量条件',
+    '滿足日均收藏數量條件',
+    'Meet the average daily bookmarks number condition',
+    '日均收藏数量条件を満たす',
+    '일일 평균 북마크 수 조건을 충족',
+    'Удовлетворяют условию среднего количества ежедневных закладок',
   ],
   _日均收藏数量的提示: [
     '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
@@ -3880,7 +4060,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
     `<span class="key">다중 이미지</span> 작품에 한 층의 폴더 추가`,
     `Добавить слой папки для <span class="key">многоизображных</span> работ`,
   ],
-  为多图作品添加一层文件夹的帮助: [
+  _为多图作品添加一层文件夹的帮助: [
     `如果你想仅为多图作品额外创建一层文件夹（并且不为单图作品创建该文件夹），可以启用此设置。<br>
 <br>
 使用方法：<br>
@@ -3889,7 +4069,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
 默认值 <span class="blue">{pid}</span> 会使用作品 ID 创建这层文件夹。如果你想使用作品标题来创建这层文件夹，就填写 <span class="blue">{title}</span>。
 <br>
 <br>
-然后你需要修改“下载”选项卡里的“图像作品的命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+然后你需要修改“命名 / 文件夹和文件的名字”设置里的“图像作品的命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
 <br>
 修改后的“图像作品的命名规则”的示例：<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3902,7 +4082,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
 設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
 預設值 <span class="blue">{pid}</span> 會使用作品 ID 建立這層資料夾。如果你想使用作品標題來建立這層資料夾，就填寫 <span class="blue">{title}</span>。<br>
 <br>
-然後你需要修改 "下載" 分頁裡的 "圖像作品的命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
+然後你需要修改「命名 / 資料夾和檔案的名字」設定裡的「圖像作品的命名規則」設定，在你想添加這層資料夾的位置插入<span class="blue">/{multi_image_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
 <br>
 修改後的 "圖像作品的命名規則" 範例：<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3915,7 +4095,7 @@ First, set the rule for this folder layer here. Note: In this setting, you only 
 When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
 The default value <span class="blue">{pid}</span> will create this folder layer using the work ID. If you want to create this folder layer using the work title, enter <span class="blue">{title}</span>.<br>
 <br>
-Then you need to edit the "Naming rule for image works" setting in the "Download" tab, and insert <span class="blue">/{multi_image_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
+Then you need to edit the "Naming rule for image works" setting in "Naming / Folder and file names", and insert <span class="blue">/{multi_image_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
 <br>
 Example of the modified "Naming rule for image works":<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3928,7 +4108,7 @@ How it works: When the downloader generates file names for multi-image works, it
 フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
 デフォルト値の <span class="blue">{pid}</span> は、作品 ID を使ってこのフォルダ階層を作成します。作品タイトルを使ってこのフォルダ階層を作成したい場合は、<span class="blue">{title}</span> を入力してください。<br>
 <br>
-そのあと、"ダウンロード" タブにある "画像作品の命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{multi_image_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
+そのあと、「命名 / フォルダーとファイルの名前」設定にある「画像作品の命名規則」を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{multi_image_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
 <br>
 変更後の "画像作品の命名規則" の例：<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3941,7 +4121,7 @@ How it works: When the downloader generates file names for multi-image works, it
 폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
 기본값 <span class="blue">{pid}</span> 는 작품 ID를 사용해 이 폴더 단계를 만듭니다. 작품 제목으로 이 폴더 단계를 만들고 싶다면 <span class="blue">{title}</span> 를 입력하세요.<br>
 <br>
-그다음 "다운로드" 탭에 있는 "이미지 작품의 명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
+그다음 "명명 / 폴더와 파일 이름" 설정의 "이미지 작품의 명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{multi_image_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
 <br>
 수정한 "이미지 작품의 명명 규칙" 예시:<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3954,7 +4134,7 @@ How it works: When the downloader generates file names for multi-image works, it
 При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
 Значение по умолчанию <span class="blue">{pid}</span> создаст этот уровень папки с использованием ID work. Если вы хотите создавать этот уровень папки по названию work, укажите <span class="blue">{title}</span>.<br>
 <br>
-Затем вам нужно изменить настройку "Правила названий для графических работ" на вкладке "Скачать" и вставить <span class="blue">/{multi_image_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
+Затем вам нужно изменить настройку "Правила названий для графических работ" в разделе «Именование / Имена папок и файлов» и вставить <span class="blue">/{multi_image_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
 <br>
 Пример измененного "Правила названий для графических работ":<br>
 <span class="blue">pixiv/{user}-{user_id}/{multi_image_folder}/{id}-{title}</span><br>
@@ -3970,12 +4150,12 @@ How it works: When the downloader generates file names for multi-image works, it
     `Правило папки`,
   ],
   _要添加的这层文件夹的规则: [
-    `要添加的这层文件夹的规则`,
-    `要添加的這層資料夾的規則`,
-    `Rule for the folder layer to add`,
-    `追加するこのフォルダ階層の規則`,
-    `추가할 이 폴더 단계의 규칙`,
-    `Правило для этого добавляемого уровня папки`,
+    `要添加的这层文件夹的规则：`,
+    `要添加的這層資料夾的規則：`,
+    `Rule for the folder layer to add: `,
+    `追加するこのフォルダ階層の規則：`,
+    `추가할 이 폴더 단계의 규칙: `,
+    `Правило для этого добавляемого уровня папки: `,
   ],
   _文件数量大于: [
     '文件数量 >',
@@ -4025,7 +4205,7 @@ How it works: When the downloader generates file names for multi-image works, it
     '최대 페이지 번호 초과:',
     'Превышен максимальный номер страницы:',
   ],
-  _针对特定用户屏蔽tag: [
+  _针对特定用户屏蔽标签: [
     '针对特定用户屏蔽<span class="key">标签</span>',
     '針對特定使用者排除<span class="key">標籤</span>',
     'Block <span class="key">tags</span> for specific users',
@@ -4066,7 +4246,7 @@ How it works: When the downloader generates file names for multi-image works, it
 先在这里设置这层文件夹的规则。注意：在这个设置里，你只需要设置你想额外添加的这层文件夹。不要在这里填写完整的命名规则。<br>
 在设置文件夹规则时，你可以使用命名规则中的标记，也可以加入自定义字符。<br>
 <br>
-然后你需要修改“下载”选项卡里的“命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
+然后你需要修改“命名 / 文件夹和文件的名字”里的“命名规则”设置，在你想添加这层文件夹的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表了你在这里设置的文件夹规则。<br>
 <br>
 修改后的命名规则的示例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4080,7 +4260,7 @@ How it works: When the downloader generates file names for multi-image works, it
 先在這裡設定這層資料夾的規則。注意：在這個設定裡，你只需要設定你想額外添加的這層資料夾。不要在這裡填寫完整的命名規則。<br>
 設定資料夾規則時，你可以使用命名規則中的標記，也可以加入自訂字元。<br>
 <br>
-然後你需要修改 "下載" 分頁裡的 "命名規則" 設定，在你想添加這層資料夾的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
+然後你需要修改「命名 / 資料夾和檔案的名字」裡的「命名規則」設定，在你想添加這層資料夾的位置插入<span class="blue">/{r18_g_folder}/</span>，它代表你在這裡設定的資料夾規則。<br>
 <br>
 修改後的命名規則範例：<br>
 示例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4094,7 +4274,7 @@ How to use:<br>
 First, set the rule for this folder layer here. Note: In this setting, you only need to set the extra folder layer you want to add. Do not enter the full Naming rule here.<br>
 When setting the folder rule, you can use markers from the Naming rule, or add your own custom characters.<br>
 <br>
-Then you need to edit the "Naming rule" setting in the "Download" tab, and insert <span class="blue">/{r18_g_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
+Then you need to edit the "Naming rule" setting in "Naming / Folder and file names", and insert <span class="blue">/{r18_g_folder}/</span> where you want to add this folder layer. It represents the folder rule you set here.<br>
 <br>
 Example of the modified Naming rule:<br>
 Example: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4108,7 +4288,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
 まず、ここでこのフォルダ階層の規則を設定します。注意：この設定では、追加したいこのフォルダ階層だけを設定してください。ここに完全な命名規則を入力しないでください。<br>
 フォルダ規則を設定するときは、命名規則内のマーカーを使うことも、任意の文字を追加することもできます。<br>
 <br>
-そのあと、"ダウンロード" タブにある "命名規則" を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{r18_g_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
+そのあと、「命名 / フォルダーとファイルの名前」にある「命名規則」を変更し、このフォルダ階層を追加したい位置に <span class="blue">/{r18_g_folder}/</span> を挿入してください。これは、ここで設定したフォルダ規則を表します。<br>
 <br>
 変更後の命名規則の例：<br>
 例：<span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4122,7 +4302,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
 먼저 여기에서 이 폴더 단계의 규칙을 설정하세요. 주의: 이 설정에서는 추가하고 싶은 이 폴더 단계만 설정하면 됩니다. 여기에 전체 명명 규칙을 입력하면 안 됩니다.<br>
 폴더 규칙을 설정할 때는 명명 규칙의 마커를 사용할 수도 있고, 원하는 문자를 직접 추가할 수도 있습니다.<br>
 <br>
-그다음 "다운로드" 탭에 있는 "명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
+그다음 "명명 / 폴더와 파일 이름" 설정의 "명명 규칙" 설정을 수정해서, 이 폴더 단계를 추가하고 싶은 위치에 <span class="blue">/{r18_g_folder}/</span> 를 넣어야 합니다. 이것은 여기에서 설정한 폴더 규칙을 뜻합니다.<br>
 <br>
 수정한 명명 규칙 예시:<br>
 예시: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4136,7 +4316,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
 Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только тот дополнительный уровень папки, который вы хотите добавить. Не вводите здесь полное правило названий.<br>
 При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
 <br>
-Затем вам нужно изменить настройку "Правила названий" на вкладке "Скачать" и вставить <span class="blue">/{r18_g_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
+Затем вам нужно изменить настройку "Правила названий" в разделе «Именование / Имена папок и файлов» и вставить <span class="blue">/{r18_g_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
 <br>
 Пример измененного правила названий:<br>
 Пример: <span class="blue">pixiv/{user}-{user_id}/{r18_g_folder}/{id}-{title}</span><br>
@@ -4177,7 +4357,6 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     '여러 태그는 쉼표(,)로 구분합니다.',
     'Для нескольких тегов используется разделение запятой (,)',
   ],
-  _添加: ['添加', '新增', 'Add', '追加', '추가', 'Добавить'],
   _取消: ['取消', '取消', 'Cancel', 'キャンセル', '취소', 'Отмена'],
   _更新: ['更新', '更新', 'Update', '更新', '업데이트', 'Обновить'],
   _删除: ['删除', '刪除', 'Delete', '削除', '제거', 'Удалить'],
@@ -4205,6 +4384,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     '썸네일에 <span class="key">확대</span> 버튼 표시',
     'Показать кнопку <span class="key">увеличить</span> на миниатюре',
   ],
+  _放大镜: ['放大镜', '放大鏡', 'Magnifying glass', '拡大鏡', '돋보기', 'Лупа'],
   _在作品缩略图上显示下载按钮: [
     '在作品缩略图上显示<span class="key">下载</span>按钮',
     '在作品縮圖上顯示<span class="key">下載</span>按鈕',
@@ -4236,7 +4416,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。</strong>
     <br><br>
-    下载器默认启用了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页里启用或关闭这些功能。
+    下载器默认启用了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“增强”设置里启用或关闭这些功能。
     <br><br>
     下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4247,7 +4427,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。</strong>
     <br><br>
-    下載器默認開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。您可以在下載器的“更多”標籤頁中啟用或關閉這些功能。
+    下載器默認開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。您可以在下載器的「增強」設定中啟用或關閉這些功能。
     <br><br>
     下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4258,7 +4438,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.</strong>
     <br><br>
-    The downloader enables some enhanced features by default, which may cause changes to the style of some Pixiv pages. You can enable or disable these features in the "More" tab of the downloader.
+    The downloader enables some enhanced features by default, which may cause changes to the style of some Pixiv pages. You can enable or disable these features in the downloader's "Enhance" settings.
     <br><br>
     Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4269,7 +4449,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。</strong>
     <br><br>
-    ダウンローダーはデフォルトでいくつかの拡張機能を有効にしており、これによりPixivの一部のページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「その他」タブで有効または無効にできます。
+    ダウンローダーはデフォルトでいくつかの拡張機能を有効にしており、これによりPixivの一部のページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「強化機能」設定で有効または無効にできます。
     <br><br>
     ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4280,7 +4460,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.</strong>
     <br><br>
-    다운로더는 기본적으로 몇 가지 향상된 기능을 활성화하며, 이로 인해 Pixiv의 일부 페이지 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "더보기" 탭에서 활성화하거나 비활성화할 수 있습니다.
+    다운로더는 기본적으로 몇 가지 향상된 기능을 활성화하며, 이로 인해 Pixiv의 일부 페이지 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "향상" 설정에서 활성화하거나 비활성화할 수 있습니다.
     <br><br>
     다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4291,7 +4471,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br><br>
     <strong>Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".</strong>
     <br><br>
-    Загрузчик по умолчанию включает некоторые расширенные функции, которые могут привести к изменению стиля некоторых страниц Pixiv. Вы можете включать или отключать эти функции на вкладке "Ещё" в загрузчике.
+    Загрузчик по умолчанию включает некоторые расширенные функции, которые могут привести к изменению стиля некоторых страниц Pixiv. Вы можете включать или отключать эти функции в разделе «Улучшение» загрузчика.
     <br><br>
     Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -4355,7 +4535,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
 你可以设置 2 个标签列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。这是为了处理一个常见的需求：如果一个角色属于某个作品，就建立两层文件夹：第一层是作品名字，第二层是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 里设置作品名字 <span class="blue">GenshinImpact</span>，并在 <span class="blue">{match_tag_folder2}</span> 里设置角色名字 <span class="blue">フリーナ</span>。如果一个作品同时含有这两个标签，下载器就可以为这个作品添加两层文件夹：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 当然，如果你没有这个需求的话，可以只使用第一个标签列表。<br>
 <br>
-在你设置标签列表之后，还需要修改"下载"选项卡里的"命名规则"设置，在需要的地方插入特定标记和斜线来添加一层文件夹。<span class="blue">/{match_tag_folder1}/</span>代表第一个标签列表的匹配结果，<span class="blue">/{match_tag_folder2}/</span>代表第二个标签列表的匹配结果。<br>
+在你设置标签列表之后，还需要修改“命名 / 文件夹和文件的名字”里的“命名规则”设置，在需要的地方插入特定标记和斜线来添加一层文件夹。<span class="blue">/{match_tag_folder1}/</span>代表第一个标签列表的匹配结果，<span class="blue">/{match_tag_folder2}/</span>代表第二个标签列表的匹配结果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 使用标签别名来统一文件夹名字：<br>
@@ -4374,7 +4554,7 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
 你可以設定 2 個標籤列表：<span class="blue">{match_tag_folder1}</span> 和 <span class="blue">{match_tag_folder2}</span>。這是為了處理一個常見的需求：如果一個角色屬於某個作品，就建立兩層資料夾：第一層是作品名字，第二層是角色名字。例如我在 <span class="blue">{match_tag_folder1}</span> 裡設定作品名字 <span class="blue">GenshinImpact</span>，並在 <span class="blue">{match_tag_folder2}</span> 裡設定角色名字 <span class="blue">フリーナ</span>。如果一個作品同時含有這兩個標籤，下載器就可以為這個作品添加兩層資料夾：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 當然，如果你沒有這個需求的話，可以只使用第一個標籤列表。<br>
 <br>
-在你設定標籤列表之後，還需要修改「下載」選項卡裡的「命名規則」設定，在需要的地方插入特定標記和斜線來添加一層資料夾。<span class="blue">/{match_tag_folder1}/</span>代表第一個標籤列表的匹配結果，<span class="blue">/{match_tag_folder2}/</span>代表第二個標籤列表的匹配結果。<br>
+在你設定標籤列表之後，還需要修改「命名 / 資料夾和檔案的名字」裡的「命名規則」設定，在需要的地方插入特定標記和斜線來添加一層資料夾。<span class="blue">/{match_tag_folder1}/</span>代表第一個標籤列表的匹配結果，<span class="blue">/{match_tag_folder2}/</span>代表第二個標籤列表的匹配結果。<br>
 示例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 使用標籤別名來統一資料夾名字：<br>
@@ -4393,7 +4573,7 @@ First, enter the target tags in this setting. If there are multiple tags, separa
 You can set up 2 tag lists: <span class="blue">{match_tag_folder1}</span> and <span class="blue">{match_tag_folder2}</span>. This is designed for a common use case: if a character belongs to a certain work, create two levels of folders — the first for the work name and the second for the character name. For example, set the work name <span class="blue">GenshinImpact</span> in <span class="blue">{match_tag_folder1}</span> and the character name <span class="blue">フリーナ</span> in <span class="blue">{match_tag_folder2}</span>. If a work contains both tags, the downloader will add two folder levels for it: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
 Of course, if you don't need this, you can just use the first tag list.<br>
 <br>
-After setting up your tag lists, you also need to update the "Naming rule" in the "Download" tab. Insert the specific tokens and slashes where needed to add a folder level. <span class="blue">/{match_tag_folder1}/</span> represents the match result of the first tag list, and <span class="blue">/{match_tag_folder2}/</span> represents the match result of the second tag list.<br>
+After setting up your tag lists, you also need to update the "Naming rule" setting in "Naming / Folder and file names". Insert the specific tokens and slashes where needed to add a folder level. <span class="blue">/{match_tag_folder1}/</span> represents the match result of the first tag list, and <span class="blue">/{match_tag_folder2}/</span> represents the match result of the second tag list.<br>
 Example: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 Using tag aliases to unify folder names:<br>
@@ -4412,7 +4592,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 タグリストは 2 つ設定できます：<span class="blue">{match_tag_folder1}</span> と <span class="blue">{match_tag_folder2}</span>。これはよくある使い方に対応しています。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。例えば <span class="blue">{match_tag_folder1}</span> に作品名 <span class="blue">GenshinImpact</span> を設定し、<span class="blue">{match_tag_folder2}</span> にキャラクター名 <span class="blue">フリーナ</span> を設定します。work に両方のタグが含まれている場合、ダウンローダーはその work に 2 階層のフォルダーを追加します：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 もちろん、この用途が不要であれば最初のタグリストだけを使えばかまいません。<br>
 <br>
-タグリストを設定したら、「ダウンロード」タブの「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
+タグリストを設定したら、「命名 / フォルダーとファイルの名前」にある「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
 例：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 タグの別名を使ってフォルダー名を統一する：<br>
@@ -4431,7 +4611,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 태그 목록을 2개 설정할 수 있습니다：<span class="blue">{match_tag_folder1}</span> 과 <span class="blue">{match_tag_folder2}</span>. 이것은 흔한 요구사항을 처리하기 위한 것입니다. 어떤 캐릭터가 특정 작품에 속할 경우 폴더를 두 단계로 만듭니다. 첫 번째 단계는 작품 이름, 두 번째 단계는 캐릭터 이름입니다. 예를 들어 <span class="blue">{match_tag_folder1}</span> 에 작품 이름 <span class="blue">GenshinImpact</span> 를 설정하고, <span class="blue">{match_tag_folder2}</span> 에 캐릭터 이름 <span class="blue">フリーナ</span> 를 설정합니다. 작품에 두 태그가 모두 포함되어 있으면 다운로더가 해당 작품에 두 단계 폴더를 추가합니다：<span class="blue">GenshinImpact/フリーナ/</span>.<br>
 물론 이런 요구사항이 없다면 첫 번째 태그 목록만 사용해도 됩니다.<br>
 <br>
-태그 목록을 설정한 후에는 "다운로드" 탭의 "명명 규칙" 설정도 수정해야 합니다. 폴더를 추가하고 싶은 위치에 특정 토큰과 슬래시를 삽입하세요. <span class="blue">/{match_tag_folder1}/</span> 는 첫 번째 태그 목록의 매칭 결과를 나타내고, <span class="blue">/{match_tag_folder2}/</span> 는 두 번째 태그 목록의 매칭 결과를 나타냅니다.<br>
+태그 목록을 설정한 후에는 "명명 / 폴더와 파일 이름"의 "명명 규칙" 설정도 수정해야 합니다. 폴더를 추가하고 싶은 위치에 특정 토큰과 슬래시를 삽입하세요. <span class="blue">/{match_tag_folder1}/</span> 는 첫 번째 태그 목록의 매칭 결과를 나타내고, <span class="blue">/{match_tag_folder2}/</span> 는 두 번째 태그 목록의 매칭 결과를 나타냅니다.<br>
 예시：<span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 태그 별칭으로 폴더 이름 통일하기：<br>
@@ -4450,7 +4630,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 Можно задать 2 списка тегов: <span class="blue">{match_tag_folder1}</span> и <span class="blue">{match_tag_folder2}</span>. Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создайте два уровня папок — первый для названия произведения, второй для имени персонажа. Например, задайте название произведения <span class="blue">GenshinImpact</span> в <span class="blue">{match_tag_folder1}</span>, а имя персонажа <span class="blue">フリーナ</span> — в <span class="blue">{match_tag_folder2}</span>. Если work содержит оба тега, загрузчик добавит для неё два уровня папок: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
 Конечно, если такой необходимости нет, можно использовать только первый список тегов.<br>
 <br>
-После настройки списков тегов нужно также изменить "Правило именования" на вкладке "Загрузка": вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
+После настройки списков тегов нужно также изменить "Правило именования" в разделе «Именование / Имена папок и файлов»: вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
 Пример: <span class="blue">pixiv/{match_tag_folder1}/{match_tag_folder2}/{id}</span><br>
 <br>
 Использование псевдонимов тегов для единообразия имён папок:<br>
@@ -4537,12 +4717,12 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     'Как переключать <span class="key">вкладки</span>',
   ],
   _选项卡切换方式的说明: [
-    `设置如何切换下载器顶部的三个选项卡。`,
-    `設定如何切換下載器頂部的三個選項卡。`,
-    `Sets how to switch between the three tabs at the top of the Downloader.`,
-    `ダウンローダーの上部にある 3 つのタブを切り替える方法を設定します。`,
-    `다운로더 상단의 세 개 탭 사이를 전환하는 방법을 설정합니다.`,
-    `Устанавливает способ переключения между тремя вкладками в верхней части Загрузчика.`,
+    `设置如何切换下载器的一级分类导航。`,
+    `設定如何切換下載器的頂部分類導航。`,
+    `Sets how to switch the primary category navigation of the Downloader.`,
+    `ダウンローダーの主要カテゴリナビゲーションを切り替える方法を設定します。`,
+    `다운로더의 주요 카테고리 내비게이션을 전환하는 방법을 설정합니다.`,
+    `Устанавливает способ переключения основной навигации по категориям в Загрузчике.`,
   ],
   _鼠标经过: [
     '鼠标经过',
@@ -4703,22 +4883,6 @@ Note: After enabling this setting, the downloader will overwrite your current na
 <br>
 Обратите внимание: после включения этой настройки загрузчик перезапишет ваше текущее правило именования предустановленными правилами. После этого вы можете изменить их по своему усмотрению, например задать разные правила для страницы поиска и страницы профиля автора.`,
   ],
-  _显示高级设置: [
-    '显示<span class="key">高级</span>设置',
-    '顯示<span class="key">進階</span>設定',
-    'Show <span class="key">advanced</span> settings',
-    '<span class="key">詳細</span>設定を表示する',
-    '<span class="key">고급</span> 설정 보기',
-    'Показать <span class="key">расширенные</span> настройки',
-  ],
-  _显示高级设置说明: [
-    `下载器默认隐藏了一些设置。点击以显示所有设置。<br>被隐藏的设置依然会生效。`,
-    `下載器預設隱藏了一些設定。點選以顯示所有設定。<br>被隱藏的設定依然會生效。`,
-    `The Downloader hides some settings by default. Click to show all settings. <br>Hidden settings will still work.`,
-    `ダウンローダーはデフォルトで一部の設定を非表示にしています。クリックするとすべての設定が表示されます。<br>非表示の設定も引き続き機能します。`,
-    `다운로더는 기본적으로 일부 설정을 숨깁니다. 모든 설정을 표시하려면 클릭하세요. <br>숨겨진 설정도 계속 작동합니다.`,
-    `Загрузчик скрывает некоторые настройки по умолчанию. Щелкните, чтобы показать все настройки. <br>Скрытые настройки будут работать.`,
-  ],
   _状态码为0的错误提示: [
     '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。<br><br>3. 可以尝试重启浏览器，或者禁用此扩展然后重新启用，并刷新这个标签页。',
     '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。<br><br>3. 可以嘗試重啟瀏覽器，或者禁用此擴充套件然後重新啟用，並重新整理這個標籤頁。',
@@ -4831,21 +4995,13 @@ Note: After enabling this setting, the downloader will overwrite your current na
     '크롤링이 완료되면 크롤링 결과가 자동으로 내보내집니다. <br>두 가지 형식을 사용할 수 있습니다. 읽기 쉬운 CSV 형식과 크롤링 결과를 가져오는 JSON 형식입니다.',
     'После завершения сканирования результаты сканирования автоматически экспортируются. <br>Доступны два формата: CSV для удобного чтения и JSON для импорта результатов сканирования.',
   ],
-  _抓取结果: [
-    '抓取结果',
-    '擷取結果',
-    'Crawl results',
-    'クロール結果',
-    '긁어오기 결과',
-    'Сканировать результаты',
-  ],
   _文件格式: [
-    '文件格式',
-    '檔案格式',
-    'File format',
-    'ファイル形式',
-    '파일 형식',
-    'Формат файла',
+    '文件格式：',
+    '檔案格式：',
+    'File format: ',
+    'ファイル形式：',
+    '파일 형식: ',
+    'Формат файла: ',
   ],
   _格式: ['格式', '格式', 'Format', '形式', '형식', 'Формат'],
   _预览作品: [
@@ -5037,8 +5193,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
 <br>
 提示：<br>
 如果你启用了所有子选项，那么所有作品都不会创建文件夹。<br>
-此设置不适用于合并系列小说后生成的合集文件。如果你想让合集文件不创建文件夹，可以在"更多"-"命名"里修改"
-合并系列小说时的命名规则"。`,
+此设置不适用于合并系列小说后生成的合集文件。如果你想让合集文件不创建文件夹，可以在“命名 / 文件夹和文件的名字”里修改“合并系列小说时的命名规则”。`,
     `啟用此設定後，符合條件的檔案不會建立資料夾，而是直接儲存到瀏覽器的下載目錄裡。<br>
 <br>
 子選項：<br>
@@ -5049,8 +5204,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
 <br>
 提示：<br>
 如果你啟用了所有子選項，那麼所有作品都不會建立資料夾。<br>
-此設定不適用於合併系列小說後產生的合集檔案。如果你想讓合集檔案不建立資料夾，可以在"更多"-"命名"裡修改"
-合併系列小說時的命名規則"。`,
+此設定不適用於合併系列小說後產生的合集檔案。如果你想讓合集檔案不建立資料夾，可以在「命名 / 資料夾和檔案的名字」裡修改「合併系列小說時的命名規則」。`,
     `After enabling this setting, files that meet the conditions will not have a folder created for them, and will instead be saved directly to the browser's download directory.<br>
 <br>
 Sub-options:<br>
@@ -5061,8 +5215,7 @@ Sub-options:<br>
 <br>
 Tip:<br>
 If you enable all sub-options, then no folders will be created for any works.<br>
-This setting does not apply to collection files generated after merging a novel series. If you want collection files to be saved without creating folders, you can change the "
-Naming rule when merging a novel series" in "More"-"Naming".`,
+This setting does not apply to collection files generated after merging a novel series. If you want collection files to be saved without creating folders, you can change the "Naming rule when merging a novel series" in "Naming / Folder and file names".`,
     `この設定を有効にすると、条件に合うファイルはフォルダを作成せず、ブラウザのダウンロードフォルダに直接保存されます。<br>
 <br>
 子オプション：<br>
@@ -5073,8 +5226,8 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
 <br>
 ヒント：<br>
 すべての子オプションを有効にすると、どの作品でもフォルダは作成されなくなります。<br>
-この設定は、シリーズ小説を結合したあとに生成される合集ファイルには適用されません。合集ファイルでフォルダを作成しないようにしたい場合は、"その他"-"命名" で "
-シリーズ小説を結合するときの命名規則" を変更してください。`,
+この設定は、シリーズ小説を結合したあとに生成される合集ファイルには適用されません。合集ファイルでフォルダを作成しないようにしたい場合は、「命名 / フォルダーとファイルの名前」で「
+シリーズ小説を結合するときの命名規則」を変更してください。`,
     `이 설정을 켜면 조건에 맞는 파일은 폴더를 만들지 않고, 브라우저의 다운로드 폴더에 바로 저장됩니다.<br>
 <br>
 하위 옵션:<br>
@@ -5085,7 +5238,7 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
 <br>
 안내:<br>
 모든 하위 옵션을 켜면 어떤 work도 폴더를 만들지 않습니다.<br>
-이 설정은 시리즈 novel을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "더보기"-"명명" 에서 "
+이 설정은 시리즈 novel을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "명명 / 폴더와 파일 이름" 에서 "
 시리즈 novel 병합 시 명명 규칙" 을 수정하면 됩니다。`,
     `После включения этой настройки для подходящих файлов папки создаваться не будут, и они будут сохраняться прямо в папку загрузок браузера.<br>
 <br>
@@ -5098,7 +5251,7 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
 Подсказка:<br>
 Если вы включите все подпункты, папки не будут создаваться ни для каких работ.<br>
 Эта настройка не применяется к файлам-сборникам, созданным после объединения серии novel. Если вы хотите, чтобы для файлов-сборников тоже не создавались папки, можно изменить "
-Правила названий при объединении серии novel" в разделе "Ещё"-"Именование".`,
+Правила названий при объединении серии novel" в разделе «Именование / Имена папок и файлов».`,
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -5251,12 +5404,12 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
     `{} не сохранено, код: {}.`,
   ],
   _FILE_FAILED_tip: [
-    '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
-    '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
-    'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
-    'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
-    '파일명이 너무 길거나 다른 이유로 저장에 실패한 것 같습니다. 고급 설정에서 "파일명 길이 제한"을 사용하도록 설정할 수 있습니다.',
-    'Возможно, имя файла слишком длинное, или по другим причинам файл не удается сохранить. Вы можете попробовать включить "Ограничение длины имени файла". в расширенных настройках.',
+    '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用“命名”设置里的“文件名长度限制”。',
+    '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用“命名”設定裡的“檔案名稱長度限制”。',
+    'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in the "Naming" settings.',
+    'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 「命名」設定で「ファイル名の長さ制限」を有効にしてみてください。',
+    '파일명이 너무 길거나 다른 이유로 저장에 실패한 것 같습니다. "명명" 설정에서 "파일명 길이 제한"을 사용하도록 설정할 수 있습니다.',
+    'Возможно, имя файла слишком длинное, или по другим причинам файл не удается сохранить. Вы можете попробовать включить "Ограничение длины имени файла" в настройках "Именование".',
   ],
   _显示摘要信息: [
     '显示摘要信息',
@@ -5298,29 +5451,13 @@ Naming rule when merging a novel series" in "More"-"Naming".`,
     '기본값이 비활성화되어 있습니다.',
     'По умолчанию не работает.',
   ],
-  _你可以在更多选项卡的xx分类里找到它: [
-    '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
-    '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
-    'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
-    '[もっと]タブ→[{}]カテゴリにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
-    '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
-    'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
-  ],
-  _你可以在xx选项卡里找到它: [
-    '你可以在“{}”选项卡里找到它。',
-    '你可以在“{}”選項卡裡找到它。',
-    'You can find it in the "{}" tab.',
-    '「{}」タブにあります。',
-    '"{}" 탭에서 찾을 수 있습니다.',
-    'Вы можете найти его на вкладке "{}".',
-  ],
-  _你可以在xx选项卡里找到它并需要启用高级设置: [
-    '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
-    '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
-    'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
-    '「{}」タブにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
-    '"{}" 탭에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
-    'Вы можете найти его на вкладке "{}". ("Показать расширенные настройки" необходимо сначала включить)',
+  _你可以在xx设置里找到它: [
+    '你可以在“{}”设置里找到它。',
+    '你可以在「{}」設定裡找到它。',
+    'You can find it in the "{}" settings.',
+    '「{}」設定にあります。',
+    '"{}" 설정에서 찾을 수 있습니다.',
+    'Вы можете найти это в настройках «{}».',
   ],
   _使用鼠标滚轮切换作品里的图片: [
     '使用鼠标滚轮切换多图作品里的图片',
@@ -5480,14 +5617,6 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '소설에서 <span class="key">인라인</span> 이미지 다운로드',
     'Загрузка <span class="key">вложенных</span> изображений в новеллах',
   ],
-  _其他优化: [
-    '其他优化。',
-    '其他最佳化。',
-    'Other optimizations.',
-    'その他の最適化。',
-    '기타 최적화.',
-    'Другие оптимизации.',
-  ],
   _没有可用的抓取结果: [
     '没有可用的抓取结果',
     '沒有可用的抓取結果',
@@ -5565,12 +5694,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     'На некоторых страницах есть кнопка «Сканирование по таймеру», которая автоматически запускает сканирование и загрузку с определенным интервалом. <br>Здесь вы можете установить интервал времени для каждого сканирования.',
   ],
   _定时抓取已启动的提示: [
-    '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“更多”选项卡里修改设置：定时抓取的间隔时间。',
-    '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在“更多”選項卡里修改設定：定時抓取的間隔時間。',
-    'Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can modify the settings in the "More" tab: The interval time of timed crawl.',
-    '時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、[詳細] タブの設定 (時間指定クロールの間隔時間) を変更できます。',
-    '시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "자세히" 탭에서 예약된 크롤링 간격 설정을 수정할 수 있습니다.',
-    'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
+    '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“抓取 / 执行策略”设置里修改“定时抓取的间隔时间”。',
+    '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在「擷取 / 執行策略」設定裡修改「定時抓取的間隔時間」。',
+    'Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can change "The interval time of timed crawl" in "Crawl / Execution strategy".',
+    '時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、「クロール / 実行戦略」設定で「時間指定クロールの間隔時間」を変更できます。',
+    '시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "긁어오기 / 실행 전략" 설정에서 "시간 제한 크롤링의 간격 시간"을 수정할 수 있습니다.',
+    'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройку «Интервальное время сканирования с таймером» в разделе «Сканирование / Стратегия выполнения».',
   ],
   _定时抓取的推荐用法: [
     `推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，或者搜索页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不抓取下载过的作品”和“不下载重复文件”功能，以提高效率。`,
@@ -5733,21 +5862,37 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '작품 수',
     'Количество работ',
   ],
-  _当作品数量大于: [
+  _当作品数量超过指定数量时启用: [
     '当作品数量超过指定数量时启用：',
     '當作品數量超過指定數量时啟用：',
-    'Enabled when the number of works exceeds the specified number:',
+    'Enabled when the number of works exceeds the specified number: ',
     '作品数が規定数を超えた場合に有効：',
-    '작품 수가 지정된 수를 초과하면 활성화됩니다.',
-    'Включается, когда количество работ превышает указанное количество:',
+    '작품 수가 지정된 수를 초과하면 활성화됩니다: ',
+    'Включается, когда количество работ превышает указанное количество: ',
+  ],
+  _当抓取结果大于指定数量时启用: [
+    '当抓取结果大于指定数量时启用：',
+    '當抓取結果大於指定數量時啟用：',
+    'Enable when the crawl results exceed the specified number: ',
+    'クロール結果が指定された数を超えたときに有効にする：',
+    '크롤링 결과가 지정된 수를 초과할 때 활성화: ',
+    'Включить, когда результаты сканирования превышают указанное количество: ',
+  ],
+  _当作品里的图片大于指定数量时启用: [
+    '当作品里的图片数量超过指定数量时启用：',
+    '當作品裡的圖片數量超過指定數量時啟用：',
+    'Enable when the number of images in the work exceeds the specified number: ',
+    '作品内の画像数が指定された数を超えたときに有効にする：',
+    '작품 내 이미지 수가 지정된 수를 초과할 때 활성화: ',
+    'Включить, когда количество изображений в работе превышает указанное количество: ',
   ],
   _当文件数量大于: [
     `当文件数量超过指定数量时启用：`,
     `當檔案數量超過指定數量時啟用：`,
-    `Enable when the number of files exceeds the specified number:`,
+    `Enable when the number of files exceeds the specified number: `,
     `ファイル数が指定数を超えたときに有効にする：`,
-    `파일 수가 지정된 수를 초과할 때 활성화:`,
-    `Включить, когда количество файлов превышает указанное:`,
+    `파일 수가 지정된 수를 초과할 때 활성화: `,
+    `Включить, когда количество файлов превышает указанное: `,
   ],
   _慢速抓取: [
     '慢速抓取，以避免触发 429 限制',
@@ -5869,6 +6014,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '이 페이지의 모든 작품에 대한 북마크 해제',
     'Удалить из избранного все работы на этой странице',
   ],
+  _查找所有已被删除的作品: [
+    '查找所有已被删除的作品',
+    '查找所有已被刪除的作品',
+    'Find all deleted works',
+    'すべての削除された作品を見つける',
+    '모든 삭제된 작품 찾기',
+    'Найдите все удаленные работы',
+  ],
   _取消收藏所有已被删除的作品: [
     '取消收藏所有已被删除的作品',
     '取消收藏所有已被刪除的作品',
@@ -5876,14 +6029,6 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '削除した作品をすべてブックマーク解除する',
     '삭제된 모든 작품 북마크 해제',
     'Снять закладку со всех удаленных работ',
-  ],
-  _取消收藏所有已被删除的作品的使用说明: [
-    '在你的收藏页面里，切换到下载器的“更多”标签页可以看到该功能按钮。',
-    '在你的收藏頁面裡，切換到下載器的“更多”標籤頁可以看到該功能按鈕。',
-    'In your bookmark page, switch to the "More" tab of the downloader to see this function button.',
-    'ブックマーク ページで、ダウンローダーの「その他」タブに切り替えると、この機能ボタンが表示されます。',
-    '북마크 페이지에서 다운로더의 "더보기" 탭으로 전환하면 이 기능 버튼을 볼 수 있습니다.',
-    'На странице закладок перейдите на вкладку «Дополнительно» загрузчика, чтобы увидеть эту функциональную кнопку.',
   ],
   _取消收藏作品: [
     '取消收藏作品',
@@ -5902,12 +6047,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     `Закладка отменена`,
   ],
   _收藏页面里的按钮: [
-    '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
-    '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
-    `You can see this button in the "More" tab when you're on your bookmarks page.`,
-    'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
-    '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
-    'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
+    '当你在自己的收藏页面时，可以在“首页”里看到这个按钮。',
+    '當你在自己的收藏頁面時，可以在「首頁」裡看到這個按鈕。',
+    `You can see this button on the "Home" page when you're on your bookmarks page.`,
+    'このボタンは、ブックマーク ページの「ホーム」に表示されます。',
+    '북마크 페이지에 있을 때 "홈"에서 이 버튼을 볼 수 있습니다.',
+    'Когда вы находитесь на странице закладок, эту кнопку можно увидеть в разделе «Главная».',
   ],
   _收藏任务尚未完成请等待: [
     '收藏作品的任务尚未全部完成，请等待',
@@ -6018,6 +6163,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '<span class="key">ログ</span>のエクスポート',
     '<span class="key">로그</span> 내보내기',
     'Экспорт <span class="key">журнала</span>',
+  ],
+  _保存日志: [
+    '保存日志',
+    '保存日誌',
+    'Save log',
+    'ログを保存',
+    '로그 저장',
+    'Сохранить журнал',
   ],
   _导出日志成功: [
     '导出日志',
@@ -6181,6 +6334,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '정렬 기준',
     'Сортировать по',
   ],
+  _排序方式: [
+    '排序方式',
+    '排序方式',
+    'Sorting order',
+    'ソート方法',
+    '정렬 방법',
+    'Способ сортировки',
+  ],
   _作品ID: [
     '作品 ID',
     '作品 ID',
@@ -6212,6 +6373,22 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     'ヘルプを再表示',
     '도움말 다시 표시',
     'Повторно отобразить справку',
+  ],
+  _重新显示帮助的说明: [
+    '下载器的一些帮助信息是一次性的，显示一次之后就不会再显示了。<br>点击这个按钮之后，下载器会再次显示这些帮助信息。',
+    '下載器的一些幫助資訊是一次性的，顯示一次之後就不會再顯示了。<br>點擊這個按鈕之後，下載器會再次顯示這些幫助資訊。',
+    'Some help information of the downloader is one-time, and will not be displayed again after being displayed once. <br>After clicking this button, the downloader will display these help information again.',
+    'ダウンローダーのいくつかのヘルプ情報は一度きりで、1回表示された後は再び表示されません。<br>このボタンをクリックすると、ダウンローダーはこれらのヘルプ情報を再び表示します。',
+    '다운로더의 일부 도움말 정보는 일회성이며 한 번 표시된 후에는 다시 표시되지 않습니다. <br>이 버튼을 클릭하면 다운로더가 이러한 도움말 정보를 다시 표시합니다.',
+    'Некоторая справочная информация загрузчика является одноразовой и не будет отображаться снова после однократного отображения. <br>После нажатия этой кнопки загрузчик снова отобразит эту справочную информацию.',
+  ],
+  _已重置帮助信息: [
+    '已重置帮助信息',
+    '已重置幫助資訊',
+    'Help information reset',
+    'ヘルプ情報がリセットされました',
+    '도움말 정보가 재설정되었습니다.',
+    'Справочная информация сброшена',
   ],
   _自定义标签分隔符号的提示: [
     '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
@@ -6610,12 +6787,12 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     'Список идентификаторов удаленных работ экспортирован',
   ],
   _在收藏页面里提示有辅助功能可用: [
-    '在你的收藏页面里，下载器的“更多”标签页里有一些功能可以帮助管理你的收藏。',
-    '在你的收藏頁面裡，下載器的“更多”標籤頁裡有一些功能可以幫助管理你的收藏。',
-    `On your bookmarks page, the Downloader's "More" tab has some features to help you manage your bookmarks.`,
-    'ブックマーク ページのダウンローダーの [その他] タブには、ブックマークの管理に役立つ機能がいくつかあります。',
-    '북마크 페이지에서 다운로더의 "더보기" 탭에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
-    'На странице закладок на вкладке «Дополнительно» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
+    '在你的收藏页面里，下载器的“首页 / 附加功能”区域里有一些功能可以帮助管理你的收藏。',
+    '在你的收藏頁面裡，下載器的「首頁 / 附加功能」區域裡有一些功能可以幫助管理你的收藏。',
+    `On your bookmarks page, the Downloader's "Home / Additional Features" area has some features to help you manage your bookmarks.`,
+    'ブックマーク ページのダウンローダーの「ホーム / 追加機能」エリアには、ブックマークの管理に役立つ機能がいくつかあります。',
+    '북마크 페이지에서 다운로더의 "홈 / 추가 기능" 영역에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
+    'На странице закладок в разделе «Главная / Дополнительные функции» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
   ],
   _预览作品的详细信息: [
     '预览作品的<span class="key">详细</span>信息',
@@ -6807,6 +6984,7 @@ When viewing the preview image, you can use the following shortcut keys:<br>
     '작품 <span class="key">설명</span> 저장',
     'Сохранить <span class="key">описание</span> работы',
   ],
+  _介绍: ['介绍', '介紹', 'Introduction', '紹介', '소개', 'Введение'],
   _保存作品的简介2: [
     '保存作品简介',
     '儲存作品說明',
@@ -6867,10 +7045,10 @@ When viewing the preview image, you can use the following shortcut keys:<br>
   _间隔时间: [
     '间隔时间：',
     '間隔時間：',
-    'Interval time:',
+    'Interval time: ',
     'インターバル時間：',
-    '간격 시간:',
-    'Интервал времени:',
+    '간격 시간: ',
+    'Интервал времени: ',
   ],
   _已有抓取结果时进行提醒: [
     '这个标签页里已经有抓取结果了，重新开始抓取会清空这些抓取结果。\n请确认是否要重新开始抓取？',
@@ -6969,14 +7147,6 @@ P.S. Работы заблокированных пользователей не
     '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>https://www.pixiv.net/mypixiv_new_illust.php',
     'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
   ],
-  _为下载器的设置项添加了更多提示: [
-    `为下载器的设置项添加了更详细的提示`,
-    `為下載器的設定項添加了更詳細的提示`,
-    `Added more detailed tips for the downloader settings`,
-    `ダウンローダー設定に関するより詳細なヒントを追加しました`,
-    `다운로더 설정에 대한 더 자세한 팁을 추가했습니다`,
-    `Добавлены более подробные советы по настройкам загрузчика`,
-  ],
   _移除设置项: [
     '移除设置项：',
     '移除設定項：',
@@ -7050,12 +7220,12 @@ P.S. Работы заблокированных пользователей не
     '🦊Загрузчик уже доступен для использования в Firefox! 🥳<br>Установить из ADD-ONS:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
   ],
   _提示查看wiki页面: [
-    `现在你可以更方便的查看每个功能的 Wiki 页面了，只需要点击设置项的名字，或者在纯色按钮上长按，下载器就会打开对应的 Wiki 页面。`,
-    `現在你可以更方便的查看每個功能的 Wiki 頁面了，只需要點擊設定項的名稱，或者在純色按鈕上長按，下載器就會打開對應的 Wiki 頁面。`,
-    `Now you can view the Wiki page for each feature more conveniently, just click on the setting item's name, or long-press on the solid color button, and the downloader will open the corresponding Wiki page.`,
-    `今、各機能のWikiページをより便利に閲覧できます。設定項目の名前をクリックするか、単色ボタンを長押しするだけで、ダウンロードツールが対応するWikiページを開きます。`,
-    ` 이제 각 기능의 Wiki 페이지를 더 편리하게 볼 수 있습니다. 설정 항목의 이름을 클릭하거나 단색 버튼을 길게 누르면 다운로더가 해당 Wiki 페이지를 엽니다.`,
-    `Теперь вы можете просматривать страницу Wiki для каждой функции более удобно: просто кликните на название элемента настройки или долго нажмите на кнопку сплошного цвета, и загрузчик откроет соответствующую страницу Wiki。`,
+    '点击设置名称，或者长按首页里的按钮，就可以打开对应的 Wiki 链接。',
+    '點擊設定名稱，或者長按首頁裡的按鈕，就可以打開對應的 Wiki 鏈接。',
+    'Click the setting name, or long press the button on the homepage, to open the corresponding Wiki link.',
+    '設定名をクリックするか、ホームページのボタンを長押しすると、対応するWikiリンクが開きます。',
+    '설정 이름을 클릭하거나 홈페이지의 버튼을 길게 눌러 해당 Wiki 링크를 열 수 있습니다.',
+    'Нажмите на название настройки или долго нажмите кнопку на главной странице, чтобы открыть соответствующую ссылку на Wiki.',
   ],
   _提示使用小号下载: [
     `💡本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>`,
@@ -7073,13 +7243,13 @@ P.S. Работы заблокированных пользователей не
     `<span class="key">복사</span> 버튼`,
     `<span class="key">Копировать</span> кнопку`,
   ],
-  _在缩略图上显示: [
-    `在缩略图上显示`,
-    `在縮略圖上顯示`,
-    `Display on thumbnail`,
-    `サムネイルに表示`,
-    `썸네일에 표시`,
-    `Отображать на миниатюре`,
+  _在缩略图上显示复制按钮: [
+    `在作品缩略图上显示<span class="key">复制</span>按钮`,
+    `在作品縮略圖上顯示<span class="key">複製</span>按鈕`,
+    `Display <span class="key">copy</span> button on thumbnail`,
+    `作品のサムネイルに<span class="key">コピー</span>ボタンを表示`,
+    `작품 썸네일에 <span class="key">복사</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">копирования</span> на миниатюре работы`,
   ],
   _显示复制按钮的提示: [
     `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。
@@ -7657,9 +7827,33 @@ QQ, WeChat:
     `최소 한 가지 복사 형식을 선택해야 합니다`,
     `Необходимо выбрать хотя бы один формат копирования`,
   ],
+  _起始时间: [
+    `起始时间`,
+    `起始時間`,
+    `Start time`,
+    `開始時間`,
+    `시작 시간`,
+    `Начальное время`,
+  ],
+  _截止时间: [
+    `截止时间`,
+    `截止時間`,
+    `End time`,
+    `終了時間`,
+    `종료 시간`,
+    `Конечное время`,
+  ],
   _过去: [`过去`, `過去`, `Past`, `過去`, `과거`, `Прошлое`],
   _现在: [`现在`, `現在`, `Now`, `今`, `지금`, `Сейчас`],
   _未来: [`未来`, `未來`, `Future`, `未来`, `미래`, `Будущее`],
+  _匹配模式: [
+    `匹配模式：`,
+    `匹配模式：`,
+    `Match mode: `,
+    `マッチモード：`,
+    `매치 모드: `,
+    `Режим совпадения: `,
+  ],
   _下载这个作品: [
     `下载这个作品`,
     `下載這個作品`,
@@ -8921,13 +9115,21 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `💡팁: 시리즈 소설을 병합할 때 "다운로드된 작품을 크롤링하지 않음"을 활성화한 경우, 다운로더는 다운로드 기록이 있는 소설을 건너뛰고 다운로드 기록이 없는 소설만 병합합니다.<br>18.7.0 버전(2026년 4월)부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 "다운로드된 작품을 크롤링하지 않음"이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.`,
     `💡Подсказка: При объединении серийных новелл, если вы включили «Не краулить загруженные работы», загрузчик пропустит новеллы с записями о загрузке и объединит только новеллы без записей о загрузке.<br>Начиная с версии 18.7.0 (апрель 2026), при объединении серийных новелл загрузчик будет генерировать запись о загрузке для каждой новеллы внутри (как будто вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включено «Не краулить загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые добавленные новеллы.`,
   ],
-  _在已下载的作品上显示边框: [
-    `在已下载的作品上显示<span class="key">边框</span>`,
-    `在已下載的作品上顯示<span class="key">邊框</span>`,
-    `Show <span class="key">border</span> on downloaded works`,
-    `ダウンロード済みの作品に<span class="key">枠</span>を表示`,
-    `다운로드된 작품에 <span class="key">테두리</span> 표시`,
-    `Показывать <span class="key">рамку</span> на загруженных работах`,
+  _在下载过的作品上显示边框: [
+    `在下载过的作品上显示<span class="key">边框</span>`,
+    `在下載過的作品上顯示<span class="key">邊框</span>`,
+    `Display a <span class="key">border</span> on downloaded works`,
+    `ダウンロード済みの作品に<span class="key">枠線</span>を表示する`,
+    `다운로드한 작품에 <span class="key">테두리</span> 표시`,
+    `Показывать <span class="key">рамку</span> на скачанных работах`,
+  ],
+  _已下载: [
+    `已下载`,
+    `已下載`,
+    `Downloaded`,
+    `ダウンロード済み`,
+    `다운로드됨`,
+    `Скачано`,
   ],
   _颜色Hex颜色: [
     `颜色(Hex 颜色）`,
@@ -8947,8 +9149,8 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `Управление записями <span class="key">загрузки</span>`,
   ],
   _管理下载记录的提示: [
-    `这里的下载记录指的是下载器保存的自己的下载记录，而非浏览器的下载记录。每当你使用下载器成功下载一个作品时，就会产生一条下载记录。每条记录会保存该作品的 ID、上传日期、文件名。<br>下载器的一些功能依赖下载记录，例如：不抓取下载过的作品、不下载重复文件、在已下载的作品上显示边框。<br><br>按钮：<br>- 导出：点击该按钮可以导出下载器的下载记录，这样可以备份下载记录，也可以在其他浏览器里导入以同步下载记录。<br>- 导入：点击该按钮可以选择之前导出的下载记录文件，合并到已有的下载记录里。如果有必要，你也可以为硬盘上已下载的文件制作一份下载记录，然后导入。具体方法可以点击该设置的名字，在 Wiki 查看详细说明。<br>- 清除：点击该按钮可以清空下载器的下载记录。<br><br>补充说明：<br>- 下载器的下载记录保存在浏览器的 IndexedDB 里。清除浏览器的下载记录不会影响下载器的下载记录，所以你可以放心清除浏览器的下载记录。<br>- <strong>注意：</strong>当你清除浏览器的数据时，清除“Cookie 及其他网站数据”会导致下载器的下载记录被清空！如果有必要，你可以在清理数据之前导出下载器的下载记录，之后再导入。<br>- 这不是一个可靠的功能。下载器没有权限读取硬盘上的文件，只能依赖自己保存的下载记录。如果你把下载过的文件删除了，下载器是不会知道的，依然会认为文件下载过。在这种情况下，依赖下载记录的功能可能会产生误判，所以你可以视情况关闭这些功能。`,
-    `這裡的下載記錄指的是下載器保存的自己的下載記錄，而非瀏覽器的下載記錄。每當你使用下載器成功下載一個作品時，就會產生一條下載記錄。每條記錄會保存該作品的 ID、上傳日期、檔名。<br>下載器的一些功能依賴下載記錄，例如：不抓取下載過的作品、不下載重複檔案、在已下載的作品上顯示邊框。<br><br>按鈕：<br>- 匯出：點擊該按鈕可以匯出下載器的下載記錄，這樣可以備份下載記錄，也可以在其他瀏覽器裡匯入以同步下載記錄。<br>- 匯入：點擊該按鈕可以選擇之前匯出的下載記錄檔案，合併到已有的下載記錄裡。如果有必要，你也可以為硬碟上已下載的檔案製作一份下載記錄，然後匯入。具體方法可以點擊該設定的名字，在 Wiki 查看詳細說明。<br>- 清除：點擊該按鈕可以清空下載器的下載記錄。<br><br>補充說明：<br>- 下載器的下載記錄保存在瀏覽器的 IndexedDB 裡。清除瀏覽器的下載記錄不會影響下載器的下載記錄，所以你可以放心清除瀏覽器的下載記錄。<br>- <strong>注意：</strong>當你清除瀏覽器的數據時，清除「Cookie 及其他網站數據」會導致下載器的下載記錄被清空！如果有必要，你可以在清理數據之前匯出下載器的下載記錄，之後再匯入。<br>- 這不是一個可靠的功能。下載器沒有權限讀取硬碟上的檔案，只能依賴自己保存的下載記錄。如果你把下載過的檔案刪除了，下載器是不會知道的，依然會認為檔案下載過。在這種情況下，依賴下載記錄的功能可能會產生誤判，所以你可以視情況關閉這些功能。`,
+    `这里的下载记录指的是下载器保存的自己的下载记录，而非浏览器的下载记录。每当你使用下载器成功下载一个作品时，就会产生一条下载记录。每条记录会保存该作品的 ID、上传日期、文件名。<br>下载器的一些功能依赖下载记录，例如：不抓取下载过的作品、不下载重复文件、在下载过的作品上显示边框。<br><br>按钮：<br>- 导出：点击该按钮可以导出下载器的下载记录，这样可以备份下载记录，也可以在其他浏览器里导入以同步下载记录。<br>- 导入：点击该按钮可以选择之前导出的下载记录文件，合并到已有的下载记录里。如果有必要，你也可以为硬盘上已下载的文件制作一份下载记录，然后导入。具体方法可以点击该设置的名字，在 Wiki 查看详细说明。<br>- 清除：点击该按钮可以清空下载器的下载记录。<br><br>补充说明：<br>- 下载器的下载记录保存在浏览器的 IndexedDB 里。清除浏览器的下载记录不会影响下载器的下载记录，所以你可以放心清除浏览器的下载记录。<br>- <strong>注意：</strong>当你清除浏览器的数据时，清除“Cookie 及其他网站数据”会导致下载器的下载记录被清空！如果有必要，你可以在清理数据之前导出下载器的下载记录，之后再导入。<br>- 这不是一个可靠的功能。下载器没有权限读取硬盘上的文件，只能依赖自己保存的下载记录。如果你把下载过的文件删除了，下载器是不会知道的，依然会认为文件下载过。在这种情况下，依赖下载记录的功能可能会产生误判，所以你可以视情况关闭这些功能。`,
+    `這裡的下載記錄指的是下載器保存的自己的下載記錄，而非瀏覽器的下載記錄。每當你使用下載器成功下載一個作品時，就會產生一條下載記錄。每條記錄會保存該作品的 ID、上傳日期、檔名。<br>下載器的一些功能依賴下載記錄，例如：不抓取下載過的作品、不下載重複檔案、在下載過的作品上顯示邊框。<br><br>按鈕：<br>- 匯出：點擊該按鈕可以匯出下載器的下載記錄，這樣可以備份下載記錄，也可以在其他瀏覽器裡匯入以同步下載記錄。<br>- 匯入：點擊該按鈕可以選擇之前匯出的下載記錄檔案，合併到已有的下載記錄裡。如果有必要，你也可以為硬碟上已下載的檔案製作一份下載記錄，然後匯入。具體方法可以點擊該設定的名字，在 Wiki 查看詳細說明。<br>- 清除：點擊該按鈕可以清空下載器的下載記錄。<br><br>補充說明：<br>- 下載器的下載記錄保存在瀏覽器的 IndexedDB 裡。清除瀏覽器的下載記錄不會影響下載器的下載記錄，所以你可以放心清除瀏覽器的下載記錄。<br>- <strong>注意：</strong>當你清除瀏覽器的數據時，清除「Cookie 及其他網站數據」會導致下載器的下載記錄被清空！如果有必要，你可以在清理數據之前匯出下載器的下載記錄，之後再匯入。<br>- 這不是一個可靠的功能。下載器沒有權限讀取硬碟上的檔案，只能依賴自己保存的下載記錄。如果你把下載過的檔案刪除了，下載器是不會知道的，依然會認為檔案下載過。在這種情況下，依賴下載記錄的功能可能會產生誤判，所以你可以視情況關閉這些功能。`,
     `The download records here refer to the downloader's own saved download records, not the browser's download history. Every time you successfully download a work using the downloader, a download record is created. Each record saves the work's ID, upload date, and filename.<br>Some features of the downloader rely on download records, such as: Do not crawl downloaded works, Do not download duplicate files, Show border on downloaded works.<br><br>Buttons:<br>- Export: Click this button to export the downloader's download records. This allows you to back up the records or import them in another browser to sync the download records.<br>- Import: Click this button to select a previously exported download record file and merge it into the existing download records. If necessary, you can also create a download record for files already downloaded on your hard drive and then import it. For the specific method, click the name of this setting and check the detailed instructions in the Wiki.<br>- Clear: Click this button to clear the downloader's download records.<br><br>Additional notes:<br>- The downloader's download records are stored in the browser's IndexedDB. Clearing the browser's download history will not affect the downloader's download records, so you can safely clear the browser's download history.<br>- <strong>Note:</strong> When you clear browser data, clearing "Cookies and other site data" will cause the downloader's download records to be cleared! If necessary, you can export the downloader's download records before cleaning the data and import them afterward.<br>- This is not a reliable feature. The downloader does not have permission to read files on the hard drive and can only rely on its own saved download records. If you delete downloaded files, the downloader will not know and will still consider the files as downloaded. In this case, features that rely on download records may produce false judgments, so you can turn off these features as needed.`,
     `ここでのダウンロード記録とは、ダウンローダーが保存した自身のダウンロード記録を指し、ブラウザのダウンロード履歴ではありません。ダウンローダーを使用して作品を正常にダウンロードするたびに、ダウンロード記録が生成されます。各記録には作品の ID、アップロード日、ファイル名が保存されます。<br>ダウンローダーの一部の機能はダウンロード記録に依存しています。例えば：ダウンロード済みの作品をクロールしない、重複ファイルをダウンロードしない、ダウンロード済みの作品に枠を表示。<br><br>ボタン：<br>- エクスポート：このボタンをクリックすると、ダウンローダーのダウンロード記録をエクスポートできます。これにより記録をバックアップしたり、他のブラウザにインポートしてダウンロード記録を同期したりできます。<br>- インポート：このボタンをクリックすると、以前にエクスポートしたダウンロード記録ファイルを選択し、既存のダウンロード記録にマージできます。必要に応じて、ハードディスク上にすでにダウンロードされているファイル用のダウンロード記録を作成してインポートすることもできます。具体的な方法は、この設定の名前をクリックして Wiki の詳細説明を確認してください。<br>- クリア：このボタンをクリックすると、ダウンローダーのダウンロード記録を消去できます。<br><br>補足説明：<br>- ダウンローダーのダウンロード記録はブラウザの IndexedDB に保存されます。ブラウザのダウンロード履歴を消去してもダウンローダーのダウンロード記録には影響しないので、ブラウザのダウンロード履歴を安心して消去できます。<br>- <strong>注意：</strong>ブラウザのデータを消去する際、「Cookie およびその他のサイトデータ」を消去すると、ダウンローダーのダウンロード記録が消去されます！必要に応じて、データをクリアする前にダウンローダーのダウンロード記録をエクスポートし、後でインポートしてください。<br>- これは信頼できる機能ではありません。ダウンローダーはハードディスク上のファイルを読み取る権限がなく、自分で保存したダウンロード記録にのみ依存します。ダウンロード済みのファイルを削除した場合、ダウンローダーはそれを知らず、依然としてファイルがダウンロードされたとみなします。この場合、ダウンロード記録に依存する機能が誤った判断をする可能性があるため、必要に応じてこれらの機能をオフにしてください。`,
     `여기서의 다운로드 기록은 다운로더가 저장한 자체 다운로드 기록을 의미하며, 브라우저의 다운로드 기록이 아닙니다. 다운로더를 사용하여 작품을 성공적으로 다운로드할 때마다 다운로드 기록이 생성됩니다. 각 기록에는 해당 작품의 ID, 업로드 날짜, 파일명이 저장됩니다.<br>다운로더의 일부 기능은 다운로드 기록에 의존합니다. 예: 다운로드된 작품을 크롤링하지 않음, 중복 파일 다운로드하지 않음, 다운로드된 작품에 테두리 표시.<br><br>버튼:<br>- 내보내기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 내보낼 수 있습니다. 이렇게 하면 기록을 백업하거나 다른 브라우저에서 가져와 다운로드 기록을 동기화할 수 있습니다.<br>- 가져오기: 이 버튼을 클릭하면 이전에 내보낸 다운로드 기록 파일을 선택하여 기존 다운로드 기록에 병합할 수 있습니다. 필요하다면 하드 디스크에 이미 다운로드된 파일에 대한 다운로드 기록을 만들어 가져올 수도 있습니다. 구체적인 방법은 이 설정 이름을 클릭하여 Wiki에서 자세한 설명을 확인하세요.<br>- 지우기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 지울 수 있습니다.<br><br>추가 설명:<br>- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록을 지워도 다운로더의 다운로드 기록에는 영향을 주지 않으므로 브라우저 다운로드 기록을 안심하고 지울 수 있습니다.<br>- <strong>주의:</strong> 브라우저 데이터를 지울 때 "쿠키 및 기타 사이트 데이터"를 지우면 다운로더의 다운로드 기록이 지워집니다! 필요하다면 데이터를 정리하기 전에 다운로더의 다운로드 기록을 내보내고 나중에 가져오세요.<br>- 이는 신뢰할 수 있는 기능이 아닙니다. 다운로더는 하드 디스크의 파일을 읽을 권한이 없으며, 자신이 저장한 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 이를 알지 못하고 여전히 파일이 다운로드된 것으로 간주합니다. 이 경우 다운로드 기록에 의존하는 기능이 오판할 수 있으므로, 필요에 따라 이러한 기능을 끌 수 있습니다.`,
@@ -9105,12 +9307,12 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `Закрепить сверху`,
   ],
   _提示可以置顶选项: [
-    `你可以置顶自己常用的选项，它们会显示在选项卡的顶部，并且即使未启用“显示高级设置”也会始终显示。方法 1: 把鼠标指针放到选项上，然后点击左侧的置顶图标。方法 2: 长按选项名称 0.5 秒。`,
-    `你可以置頂自己常用的選項，它們會顯示在選項卡的頂部，並且即使未啟用「顯示高級設定」也會始終顯示。方法 1: 把滑鼠指標放到選項上，然後點擊左側的置頂圖示。方法 2: 長按選項名稱 0.5 秒。`,
-    `You can pin your frequently used options to the top. They will appear at the top of the options tab and will always be displayed even if "Show advanced settings" is not enabled. Method 1: Hover the mouse pointer over the option, then click the pin icon on the left. Method 2: Long press the option name for 0.5 seconds.`,
-    `よく使うオプションをトップに固定できます。これらは設定タブの最上部に表示され、「高度な設定を表示」が有効になっていなくても常に表示されます。方法 1: マウスカーソルをオプションに合わせ、左側のピンアイコンをクリックします。方法 2: オプション名を0.5秒長押しします。`,
-    `자주 사용하는 옵션을 상단에 고정할 수 있습니다. 이 옵션들은 옵션 탭의 맨 위에 표시되며, "고급 설정 표시"가 활성화되지 않았더라도 항상 표시됩니다. 방법 1: 마우스 포인터를 옵션 위에 올린 후 왼쪽의 고정 아이콘을 클릭하세요. 방법 2: 옵션 이름을 0.5초 동안 길게 누르세요.`,
-    `Вы можете закрепить часто используемые параметры сверху. Они будут отображаться в верхней части вкладки параметров и всегда будут видны, даже если «Показывать расширенные настройки» не включено. Способ 1: Наведите указатель мыши на параметр, затем нажмите на иконку закрепления слева. Способ 2: Долгое нажатие на название параметра в течение 0.5 секунды.`,
+    `你可以置顶自己常用的选项，它们会集中显示在“首页”里。在设置的卡片上长按 0.5 秒即可使其置顶或取消置顶。`,
+    `你可以置頂自己常用的選項，它們會集中顯示在 "首頁" 裡。在設定卡片上長按 0.5 秒即可將其置頂或取消置頂。`,
+    `You can pin the options you use often, and they will be shown together on the "Home" page. Press and hold a setting card for 0.5 seconds to pin or unpin it.`,
+    `よく使うオプションはピン留めできます。ピン留めした項目は "ホーム" にまとめて表示されます。設定カードを 0.5 秒長押しすると、ピン留めまたはピン留め解除できます。`,
+    `자주 사용하는 옵션을 고정할 수 있으며, 고정한 옵션은 "홈" 에 모아서 표시됩니다. 설정 카드에서 0.5초 동안 길게 누르면 고정하거나 고정을 해제할 수 있습니다.`,
+    `Вы можете закрепить часто используемые параметры, и они будут собраны на странице "Главная". Нажмите и удерживайте карточку настройки 0.5 секунды, чтобы закрепить или открепить ее.`,
   ],
   _已置顶: [`已置顶`, `已置頂`, `Pinned`, `固定済み`, `고정됨`, `Закреплено`],
   _取消置顶: [
@@ -9396,19 +9598,97 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `파일 이름에 적용되는 {tags} 계열 토큰`,
     `Токены серии {tags}, применяемые в имени файла`,
   ],
-  _版本更新说明18_9_3: [
-    `<strong>✨适配搜索页面的“显示可能妨碍搜索的作品”选项</strong><br><br>
-  <strong>🐞修复问题：标签别名功能在特定情况下可能表现异常</strong><br>`,
-    `<strong>✨適配搜尋頁面的 "顯示可能妨礙搜尋的作品" 選項</strong><br><br>
-  <strong>🐞修復問題：標籤別名功能在特定情況下可能表現異常</strong><br>`,
-    `<strong>✨Adapted to the "Show works that may interfere with search results" option on the search page</strong><br><br>
-  <strong>🐞Fix: The tag alias feature could behave unexpectedly in certain cases</strong><br>`,
-    `<strong>✨検索ページの "検索を妨げる可能性のある作品を表示する" オプションに対応</strong><br><br>
-  <strong>🐞修正：特定の状況でタグ別名機能の動作が不安定になることがある問題を修正</strong><br>`,
-    `<strong>✨검색 페이지의 "검색을 방해할 수 있는 작품 표시" 옵션에 대응했습니다</strong><br><br>
-  <strong>🐞문제 수정: 태그 별칭 기능이 특정 상황에서 비정상적으로 동작할 수 있던 문제를 수정했습니다</strong><br>`,
-    `<strong>✨Добавлена поддержка опции "Показывать работы, которые могут мешать поиску" на странице поиска</strong><br><br>
-  <strong>🐞Исправление: в некоторых случаях функция псевдонимов тегов могла работать некорректно</strong><br>`,
+  _版本更新说明19_0_0: [
+    `<strong>🎨重新设计了设置面板</strong><br>
+新的设置面板有更详细的分类，设置项更容易区分，外观更优美，新增了搜索功能。<br>
+<strong>⚠️破坏性变更</strong><br>
+- 在本次更新之后，“置顶的设置”会被重置，所以你需要重新置顶你需要的设置。<br>
+- 如果你启用了“图片的宽高”设置，在本次更新之后需要重新进行设置。<br>
+<strong>✨新增设置：点击设置卡片时切换它的开关状态</strong><br>
+<strong>✨新增设置：点击设置名字时打开 Wiki 链接</strong><br>
+<strong>✨在收藏页面里添加了“查找所有已被删除的作品”的按钮</strong><br>
+<strong>✨适配了收藏页面里的新的筛选条件</strong><br>
+<strong>✨新增设置：优先下载动图</strong><br>
+启用这个设置之后，如果抓取结果里有动图，那么下载器会优先下载动图。<br>
+<strong>♻️更换了转换动图为 WebM 视频的库</strong><br>
+当 Chrome、Edge 更新到 149 版本之后，一些用户把动图转换为 WebM 视频时标签页会崩溃。这是浏览器更新导致的问题，现在我把转换 WebM 的库改为了 Whammy，虽然转换速度降低了一些，但不会导致标签页崩溃。<br>
+<strong>🔧在“图片的宽高”设置里，你可以分别设置宽度、高度的比较关系</strong><br>
+<strong>😊其他优化</strong><br>`,
+    `<strong>🎨重新設計了設定面板</strong><br>
+新的設定面板有更詳細的分類，設定項更容易區分，外觀更美觀，也新增了搜尋功能。<br>
+<strong>⚠️破壞性變更</strong><br>
+- 在這次更新之後，「置頂的設定」會被重置，所以你需要重新置頂你需要的設定。<br>
+- 如果你啟用了「圖片的寬高」設定，在這次更新之後需要重新設定。<br>
+<strong>✨新增設定：點擊設定卡片時切換它的開關狀態</strong><br>
+<strong>✨新增設定：點擊設定名稱時開啟 Wiki 連結</strong><br>
+<strong>✨在收藏頁面裡新增了「查找所有已被刪除的作品」按鈕</strong><br>
+<strong>✨適配了收藏頁面裡新的篩選條件</strong><br>
+<strong>✨新增設定：優先下載動圖</strong><br>
+啟用這個設定之後，如果抓取結果裡有動圖，那麼下載器會優先下載動圖。<br>
+<strong>♻️更換了轉換動圖為 WebM 影片的函式庫</strong><br>
+當 Chrome、Edge 更新到 149 版本之後，一些使用者在把動圖轉換為 WebM 影片時會讓分頁崩潰。這是瀏覽器更新造成的問題，現在我把轉換 WebM 的函式庫改為 Whammy，雖然轉換速度降低了一些，但不會導致分頁崩潰。<br>
+<strong>🔧在「圖片的寬高」設定裡，你可以分別設定寬度、高度的比較關係</strong><br>
+<strong>😊其他最佳化</strong><br>`,
+    `<strong>🎨 Redesigned the settings panel</strong><br>
+The new settings panel has more detailed categories, makes settings easier to distinguish, looks better, and adds search. <br>
+<strong>⚠️ Breaking changes</strong><br>
+- After this update, the pinned settings will be reset, so you need to pin the settings you want again.<br>
+- If you enabled the “image width/height” setting, you need to configure it again after this update.<br>
+<strong>✨ New setting: toggle a setting card when clicked</strong><br>
+<strong>✨ New setting: open the Wiki link when clicking a setting name</strong><br>
+<strong>✨ Added a button to “find all deleted works” on the favorites page</strong><br>
+<strong>✨ Adapted to the new filter conditions on the favorites page</strong><br>
+<strong>✨ New setting: prioritize downloading ugoira</strong><br>
+After enabling this, if the crawl result includes ugoira, the downloader will download ugoira first.<br>
+<strong>♻️ Replaced the library used to convert ugoira to WebM</strong><br>
+After Chrome and Edge updated to version 149, some users experienced tab crashes when converting ugoira to WebM. This was caused by the browser update. I switched the WebM conversion library to Whammy; conversion is a bit slower, but it no longer crashes the tab.<br>
+<strong>🔧 In the “image width/height” setting, you can configure the width and height comparison rules separately</strong><br>
+<strong>😊 Other improvements</strong><br>`,
+    `<strong>🎨設定パネルを再設計しました</strong><br>
+新しい設定パネルは分類がより細かくなり、設定項目を区別しやすく、見た目もよくなり、検索機能も追加しました。<br>
+<strong>⚠️破壊的変更</strong><br>
+- 今回の更新後、「固定した設定」はリセットされるため、必要な設定をもう一度固定し直してください。<br>
+- 「画像の幅と高さ」設定を有効にしている場合は、更新後に再設定が必要です。<br>
+<strong>✨新しい設定：設定カードをクリックするとオン/オフを切り替える</strong><br>
+<strong>✨新しい設定：設定名をクリックすると Wiki リンクを開く</strong><br>
+<strong>✨お気に入りページに「削除済みの作品をすべて探す」ボタンを追加しました</strong><br>
+<strong>✨お気に入りページの新しい絞り込み条件に対応しました</strong><br>
+<strong>✨新しい設定：動画像を優先的にダウンロードする</strong><br>
+この設定を有効にすると、取得結果に動画像が含まれている場合、ダウンローダーは動画像を優先してダウンロードします。<br>
+<strong>♻️動画像を WebM 動画に変換するライブラリを変更しました</strong><br>
+Chrome と Edge が 149 版に更新された後、一部のユーザーで動画像を WebM 動画に変換するとタブがクラッシュする問題がありました。これはブラウザ更新による問題なので、WebM 変換ライブラリを Whammy に変更しました。変換速度は少し遅くなりますが、タブがクラッシュしなくなります。<br>
+<strong>🔧「画像の幅と高さ」設定で、幅と高さの比較関係をそれぞれ設定できるようになりました</strong><br>
+<strong>😊その他の改善</strong><br>`,
+    `<strong>🎨설정 패널을 다시 디자인했습니다</strong><br>
+새 설정 패널은 분류가 더 세분화되어 설정 항목을 구분하기 쉬워졌고, 외형도 더 보기 좋아졌으며 검색 기능도 추가했습니다.<br>
+<strong>⚠️파괴적인 변경</strong><br>
+- 이번 업데이트 이후 “고정한 설정”이 초기화되므로 필요한 설정을 다시 고정해야 합니다.<br>
+- “이미지의 너비와 높이” 설정을 사용 중이라면 이번 업데이트 이후 다시 설정해야 합니다.<br>
+<strong>✨새 설정: 설정 카드를 클릭하면 켜기/끄기를 전환</strong><br>
+<strong>✨새 설정: 설정 이름을 클릭하면 Wiki 링크 열기</strong><br>
+<strong>✨즐겨찾기 페이지에 “삭제된 모든 작품 찾기” 버튼 추가</strong><br>
+<strong>✨즐겨찾기 페이지의 새로운 필터 조건에 대응</strong><br>
+<strong>✨새 설정: 동영상을 우선 다운로드</strong><br>
+이 설정을 켜면 가져온 결과에 동영상이 있을 경우 다운로드기가 동영상을 우선해서 다운로드합니다.<br>
+<strong>♻️동영상을 WebM 비디오로 변환하는 라이브러리를 변경</strong><br>
+Chrome과 Edge가 149 버전으로 업데이트된 이후 일부 사용자는 동영상을 WebM 비디오로 변환할 때 탭이 충돌했습니다. 이는 브라우저 업데이트로 인한 문제라서, WebM 변환 라이브러리를 Whammy로 바꿨습니다. 변환 속도는 조금 느려졌지만 탭이 충돌하지 않습니다.<br>
+<strong>🔧 “이미지의 너비와 높이” 설정에서 너비와 높이의 비교 관계를 각각 설정할 수 있습니다</strong><br>
+<strong>😊기타 개선</strong><br>`,
+    `<strong>🎨 Переработана панель настроек</strong><br>
+Новая панель настроек получила более подробные категории, благодаря чему параметры легче различать; внешний вид стал лучше, а также появилась функция поиска.<br>
+<strong>⚠️ Ломающие изменения</strong><br>
+- После этого обновления «закреплённые настройки» будут сброшены, поэтому нужные параметры придётся закрепить заново.<br>
+- Если у вас включена настройка «ширина и высота изображения», после обновления её нужно будет настроить заново.<br>
+<strong>✨ Новая настройка: переключать состояние карточки настройки по клику</strong><br>
+<strong>✨ Новая настройка: открывать ссылку Wiki по клику на название настройки</strong><br>
+<strong>✨ На странице избранного добавлена кнопка «найти все удалённые работы»</strong><br>
+<strong>✨ Поддержаны новые фильтры на странице избранного</strong><br>
+<strong>✨ Новая настройка: сначала скачивать анимированные изображения</strong><br>
+Если включить эту настройку, то при наличии анимированных изображений в результате поиска загрузчик будет скачивать их в первую очередь.<br>
+<strong>♻️ Заменена библиотека для преобразования анимации в WebM</strong><br>
+После обновления Chrome и Edge до версии 149 у некоторых пользователей при конвертации анимации в WebM вкладка могла аварийно закрываться. Это проблема, вызванная обновлением браузера, поэтому я заменил библиотеку WebM на Whammy. Скорость конвертации стала немного ниже, но вкладка больше не падает.<br>
+<strong>🔧 В настройке «ширина и высота изображения» теперь можно отдельно задавать правила сравнения для ширины и высоты</strong><br>
+<strong>😊 Прочие улучшения</strong><br>`,
   ],
   _从插画漫画里下载1张图片时: [
     `从插画、漫画里下载 1 张图片时`,
@@ -9433,6 +9713,794 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `画像を<span class="key">グレースケール</span>で表示する`,
     `이미지를 <span class="key">회색조</span>로 표시`,
     `Показывать изображения в <span class="key">оттенках серого</span>`,
+  ],
+  _书签: [`书签`, `書籤`, `Bookmark`, `ブックマーク`, `북마크`, `Закладка`],
+  _分辨率: [`分辨率`, `解析度`, `Resolution`, `解像度`, `해상도`, `Разрешение`],
+  _纵横比: [
+    `纵横比`,
+    `縱橫比`,
+    `Aspect ratio`,
+    `縦横比`,
+    `가로세로 비율`,
+    `Соотношение сторон`,
+  ],
+  _发布时间: [
+    `发布时间`,
+    `發佈時間`,
+    `Publish time`,
+    `投稿日`,
+    `게시 시간`,
+    `Время публикации`,
+  ],
+  _黑名单: [
+    `黑名单`,
+    `黑名單`,
+    `Blacklist`,
+    `ブラックリスト`,
+    `블랙리스트`,
+    `Черный список`,
+  ],
+  _文件名: [
+    `文件名`,
+    `檔名`,
+    `File name`,
+    `ファイル名`,
+    `파일 이름`,
+    `Имя файла`,
+  ],
+  _文件夹: [`文件夹`, `資料夾`, `Folder`, `フォルダー`, `폴더`, `Папка`],
+  _路径: [`路径`, `路徑`, `Path`, `パス`, `경로`, `Путь`],
+  _路径长度: [
+    `路径长度`,
+    `路徑長度`,
+    `Path length`,
+    `パスの長さ`,
+    `경로 길이`,
+    `Длина пути`,
+  ],
+  _表情符号: [`表情符号`, `表情符號`, `Emoji`, `絵文字`, `이모지`, `Эмодзи`],
+  _并发: [`并发`, `並發`, `Concurrency`, `並列`, `동시 실행`, `Параллелизм`],
+  _下载记录: [
+    `下载记录`,
+    `下載記錄`,
+    `Download records`,
+    `ダウンロード履歴`,
+    `다운로드 기록`,
+    `История загрузок`,
+  ],
+  _去重: [
+    `去重`,
+    `去重`,
+    `Deduplication`,
+    `重複排除`,
+    `중복 제거`,
+    `Удаление дубликатов`,
+  ],
+  _连载: [`连载`, `連載`, `Serial`, `連載`, `연재`, `Сериал`],
+  _插图: [`插图`, `插圖`, `Illustration`, `挿絵`, `삽화`, `Иллюстрация`],
+  _元信息: [
+    `元信息`,
+    `元資訊`,
+    `Metadata`,
+    `メタデータ`,
+    `메타데이터`,
+    `Метаданные`,
+  ],
+  _排序: [`排序`, `排序`, `Sort order`, `並び順`, `정렬`, `Сортировка`],
+  _提醒: [`提醒`, `提醒`, `Reminder`, `リマインダー`, `알림`, `Напоминание`],
+  _灰度: [
+    `灰度`,
+    `灰階`,
+    `Grayscale`,
+    `グレースケール`,
+    `회색조`,
+    `Оттенки серого`,
+  ],
+  _快速搜索: [
+    `快速搜索`,
+    `快速搜尋`,
+    `Quick search`,
+    `クイック検索`,
+    `빠른 검색`,
+    `Быстрый поиск`,
+  ],
+  _皮肤: [`皮肤`, `皮膚`, `Skin`, `スキン`, `스킨`, `Скин`],
+  _壁纸: [`壁纸`, `桌布`, `Wallpaper`, `壁紙`, `배경화면`, `Обои`],
+  _关键词: [
+    `关键词`,
+    `關鍵詞`,
+    `Keyword`,
+    `キーワード`,
+    `키워드`,
+    `Ключевое слово`,
+  ],
+  _分组_抓取范围: [
+    `抓取范围`,
+    `抓取範圍`,
+    `Crawl scope`,
+    `クロール範囲`,
+    `수집 범위`,
+    `Область сбора`,
+  ],
+  _分组_作品类型: [
+    `作品类型`,
+    `作品類型`,
+    `Work type`,
+    `作品タイプ`,
+    `작품 유형`,
+    `Тип работы`,
+  ],
+  _分组_作品数据: [
+    `作品数据`,
+    `作品數據`,
+    `Work data`,
+    `作品データ`,
+    `작품 데이터`,
+    `Данные работы`,
+  ],
+  _分组_标签与标题: [
+    `标签与标题`,
+    `標籤與標題`,
+    `Tags and title`,
+    `タグとタイトル`,
+    `태그 및 제목`,
+    `Теги и заголовок`,
+  ],
+  _分组_多图作品: [
+    `多图作品`,
+    `多圖作品`,
+    `Multi-image works`,
+    `複数画像作品`,
+    `다중 이미지 작품`,
+    `Многостраничные работы`,
+  ],
+  _分组_屏蔽用户: [
+    `屏蔽用户`,
+    `封鎖使用者`,
+    `Block user`,
+    `ユーザーをブロック`,
+    `사용자 차단`,
+    `Заблокировать пользователя`,
+  ],
+  _分组_执行策略: [
+    `执行策略`,
+    `執行策略`,
+    `Execution strategy`,
+    `実行戦略`,
+    `실행 전략`,
+    `Стратегия выполнения`,
+  ],
+  _分组_命名规则: [
+    `命名规则`,
+    `命名規則`,
+    `Naming rules`,
+    `命名ルール`,
+    `이름 규칙`,
+    `Правила именования`,
+  ],
+  _分组_文件夹和文件的名字: [
+    `文件夹和文件的名字`,
+    `資料夾和檔案的名字`,
+    `Folder and file names`,
+    `フォルダーとファイルの名前`,
+    `폴더와 파일 이름`,
+    `Имена папок и файлов`,
+  ],
+  _分组_文件夹规则: [
+    `文件夹规则`,
+    `資料夾規則`,
+    `Folder rules`,
+    `フォルダールール`,
+    `폴더 규칙`,
+    `Правила папок`,
+  ],
+  _分组_调整文件夹: [
+    `调整文件夹`,
+    `調整資料夾`,
+    `Adjust folders`,
+    `フォルダー調整`,
+    `폴더 조정`,
+    `Настройка папок`,
+  ],
+  _分组_标签规则: [
+    `标签规则`,
+    `標籤規則`,
+    `Tag rules`,
+    `タグルール`,
+    `태그 규칙`,
+    `Правила тегов`,
+  ],
+  _分组_序号: [`序号`, `序號`, `Serial`, `連番`, `일련번호`, `Нумерация`],
+  _分组_序号规则: [
+    `序号规则`,
+    `序號規則`,
+    `Serial number rules`,
+    `連番ルール`,
+    `일련번호 규칙`,
+    `Правила нумерации`,
+  ],
+  _分组_别名: [`别名`, `別名`, `Aliases`, `別名`, `별칭`, `Псевдонимы`],
+  _分组_命名细节: [
+    `命名细节`,
+    `命名細節`,
+    `Naming details`,
+    `命名の詳細`,
+    `이름 세부사항`,
+    `Детали именования`,
+  ],
+  _分组_移除特殊字符: [
+    `移除特殊字符`,
+    `移除特殊字元`,
+    `Remove special characters`,
+    `特殊文字を削除`,
+    `특수 문자 제거`,
+    `Удаление специальных символов`,
+  ],
+  _分组_下载行为: [
+    `下载行为`,
+    `下載行為`,
+    `Download behavior`,
+    `ダウンロード動作`,
+    `다운로드 동작`,
+    `Поведение загрузки`,
+  ],
+  _分组_下载记录: [
+    `下载记录`,
+    `下載記錄`,
+    `Download records`,
+    `ダウンロード履歴`,
+    `다운로드 기록`,
+    `История загрузок`,
+  ],
+  _分组_图片尺寸: [
+    `图片尺寸`,
+    `圖片尺寸`,
+    `Image size`,
+    `画像サイズ`,
+    `이미지 크기`,
+    `Размер изображения`,
+  ],
+  _分组_动图: [`动图`, `動圖`, `Ugoira`, `うごイラ`, `움짤`, `Угоира`],
+  _分组_小说: [`小说`, `小說`, `Novels`, `小説`, `소설`, `Новеллы`],
+  _分组_元数据: [
+    `元数据`,
+    `元數據`,
+    `Metadata`,
+    `メタデータ`,
+    `메타데이터`,
+    `Метаданные`,
+  ],
+  _分组_文件格式: [
+    `文件格式`,
+    `檔案格式`,
+    `File format`,
+    `ファイル形式`,
+    `파일 형식`,
+    `Формат файлов`,
+  ],
+  _分组_小说下载: [
+    `小说下载`,
+    `小說下載`,
+    `Novel download`,
+    `小説ダウンロード`,
+    `소설 다운로드`,
+    `Загрузка новелл`,
+  ],
+  _分组_附加保存: [
+    `附加保存`,
+    `附加保存`,
+    `Additional saving`,
+    `追加保存`,
+    `추가 저장`,
+    `Дополнительное сохранение`,
+  ],
+  _分组_页面增强: [
+    `页面增强`,
+    `頁面增強`,
+    `Page enhancements`,
+    `ページ強化`,
+    `페이지 강화`,
+    `Улучшение страницы`,
+  ],
+  _分组_预览: [
+    `预览`,
+    `預覽`,
+    `Preview`,
+    `プレビュー`,
+    `미리보기`,
+    `Предпросмотр`,
+  ],
+  _分组_缩略图: [
+    `缩略图`,
+    `縮圖`,
+    `Thumbnails`,
+    `サムネイル`,
+    `썸네일`,
+    `Миниатюры`,
+  ],
+  _分组_缩略图上的按钮: [
+    `缩略图上的按钮`,
+    `縮圖上的按鈕`,
+    `Thumbnail buttons`,
+    `サムネイル上のボタン`,
+    `썸네일 위 버튼`,
+    `Кнопки на миниатюре`,
+  ],
+  _分组_预览与查看: [
+    `预览与查看`,
+    `預覽與查看`,
+    `Preview and viewing`,
+    `プレビューと閲覧`,
+    `미리보기 및 보기`,
+    `Предпросмотр и просмотр`,
+  ],
+  _分组_其他: [`其他`, `其他`, `Other`, `その他`, `기타`, `Другое`],
+  _分组_按钮与操作: [
+    `按钮与操作`,
+    `按鈕與操作`,
+    `Buttons and actions`,
+    `ボタンと操作`,
+    `버튼 및 작업`,
+    `Кнопки и действия`,
+  ],
+  _按钮_复数: [`按钮`, `按鈕`, `Buttons`, `ボタン`, `버튼`, `Кнопки`],
+  _设置_复数: [`设置`, `設定`, `Settings`, `設定`, `설정`, `Настройки`],
+  _分组_搜索页面: [
+    `搜索页面`,
+    `搜尋頁面`,
+    `Search page`,
+    `検索ページ`,
+    `검색 페이지`,
+    `Страница поиска`,
+  ],
+  _分组_外观: [`外观`, `外觀`, `Appearance`, `外観`, `외관`, `Внешний вид`],
+  _分组_语言: [`语言`, `語言`, `Language`, `言語`, `언어`, `Язык`],
+  _分组_日志: [`日志`, `日誌`, `Logs`, `ログ`, `로그`, `Журнал`],
+  _分组_管理设置: [
+    `管理设置`,
+    `管理設定`,
+    `Manage settings`,
+    `設定を管理`,
+    `설정 관리`,
+    `Управление настройками`,
+  ],
+  _占位符: [
+    `占位符`,
+    `占位符`,
+    `Placeholder`,
+    `プレースホルダー`,
+    `자리 표시자`,
+    `Заполнитель`,
+  ],
+  _通用: [`通用`, `通用`, `General`, `一般的な`, `일반적인`, `Общий`],
+  _预览图片: [
+    `预览图片`,
+    `預覽圖片`,
+    `Preview image`,
+    `プレビュー画像`,
+    `미리보기 이미지`,
+    `Предпросмотр изображения`,
+  ],
+  _Language: [
+    'Language',
+    'Language',
+    'Language',
+    'Language',
+    'Language',
+    'Language',
+  ],
+  _语言: [`语言`, `語言`, `Language`, `言語`, `언어`, `Язык`],
+  _中文_简体和繁体_搜索用: [`中文`, `中文`, `中文`, `中文`, `中文`, `中文`],
+  _简体中文_搜索用: [
+    `简体中文`,
+    `简体中文`,
+    `简体中文`,
+    `简体中文`,
+    `简体中文`,
+    `简体中文`,
+  ],
+  _正體中文_搜索用: [
+    `正體中文`,
+    `正體中文`,
+    `正體中文`,
+    `正體中文`,
+    `正體中文`,
+    `正體中文`,
+  ],
+  _英语_搜索用: [
+    `English`,
+    `English`,
+    `English`,
+    `English`,
+    `English`,
+    `English`,
+  ],
+  _日语_搜索用: [`日本語`, `日本語`, `日本語`, `日本語`, `日本語`, `日本語`],
+  _韩语_搜索用: [`한국어`, `한국어`, `한국어`, `한국어`, `한국어`, `한국어`],
+  _俄语_搜索用: [
+    `Русский`,
+    `Русский`,
+    `Русский`,
+    `Русский`,
+    `Русский`,
+    `Русский`,
+  ],
+  _首页_Home: [`首页`, `首頁`, `Home`, `ホーム`, `홈`, `Главная`],
+  _搜索: [`搜索`, `搜尋`, `Search`, `検索`, `검색`, `Поиск`],
+  _搜索设置: [
+    `搜索设置`,
+    `搜尋設定`,
+    `Search settings`,
+    `設定を検索`,
+    `설정 검색`,
+    `Поиск настроек`,
+  ],
+  '_展开/折叠所有区域': [
+    `展开/折叠所有区域`,
+    `展開/摺疊所有區域`,
+    `Expand/collapse all sections`,
+    `すべてのエリアを展開/折りたたむ`,
+    `모든 영역 펼치기/접기`,
+    `Развернуть/свернуть все разделы`,
+  ],
+  _置顶的设置: [
+    `置顶的设置`,
+    `置頂的設定`,
+    `Pinned settings`,
+    `固定した設定`,
+    `고정한 설정`,
+    `Закрепленные настройки`,
+  ],
+  _附加功能: [
+    `附加功能`,
+    `附加功能`,
+    `Extra features`,
+    `追加機能`,
+    `부가 기능`,
+    `Дополнительные функции`,
+  ],
+  _下载区域: [
+    `下载区域`,
+    `下載區域`,
+    `Download area`,
+    `ダウンロードエリア`,
+    `다운로드 영역`,
+    `Область загрузки`,
+  ],
+  _已确认: [
+    `已确认`,
+    `已確認`,
+    `Confirmed`,
+    `確認済み`,
+    `확인함`,
+    `Подтверждено`,
+  ],
+  _使用手册: [
+    `使用手册`,
+    `使用手冊`,
+    `Manual`,
+    `マニュアル`,
+    `사용 설명서`,
+    `Руководство`,
+  ],
+  _使用手册说明: [
+    `你可以在 Wiki 查看完整的使用说明：<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+    `你可以在 Wiki 查看完整的使用說明：<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+    `You can read the full manual on the Wiki:<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+    `Wiki で完全な使い方を確認できます：<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+    `위키에서 전체 사용 설명서를 볼 수 있습니다.<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+    `Полное руководство доступно в Wiki:<br><a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>`,
+  ],
+  _GitHub说明: [
+    `本项目的 GitHub 网址，欢迎 Star：<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+    `本專案的 GitHub 網址，歡迎 Star：<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+    `The GitHub URL of this project. Star is welcome:<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+    `このプロジェクトの GitHub URL です。Star していただけると嬉しいです。<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+    `이 프로젝트의 GitHub 주소입니다. Star 환영합니다:<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+    `GitHub-адрес этого проекта, буду рад Star:<br><a href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">https://github.com/xuejianxianzun/PixivBatchDownloader</a>`,
+  ],
+  _第三方库: [
+    `第三方库`,
+    `第三方庫`,
+    `Third-party libraries`,
+    `サードパーティーライブラリ`,
+    `서드파티 라이브러리`,
+    `Сторонние библиотеки`,
+  ],
+  _第三方库说明: [
+    `本项目使用了这些开源 JavaScript 库：<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  用于显示图片查看器<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  用于把动图转换为 WebM 视频<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  用于把动图转换为 WebM 视频<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  用于把动图转换为 GIF 图片<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  用于把动图转换为 APNG 图片<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  用于为小说生成 EPUB 文件<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  用于读写 ZIP 文件<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  JavaScript zlib 库<br>
+  <br>
+  另外，当前设置面板的布局和样式受 <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a> 启发。`,
+    `本專案使用了這些開源 JavaScript 函式庫：<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  用於顯示圖片檢視器<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  用於把動圖轉換為 WebM 影片<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  用於把動圖轉換為 WebM 影片<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  用於把動圖轉換為 GIF 圖片<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  用於把動圖轉換為 APNG 圖片<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  用於為小說產生 EPUB 檔案<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  用於讀寫 ZIP 檔案<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  JavaScript zlib 函式庫<br>
+  <br>
+  另外，目前設定面板的版面配置和樣式受到 <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a> 啟發。`,
+    `This project uses these open-source JavaScript libraries:<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  Used to display the image viewer<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  Used to convert Ugoira into WebM videos<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  Used to convert Ugoira into WebM videos<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  Used to convert Ugoira into GIF images<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  Used to convert Ugoira into APNG images<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  Used to generate EPUB files for novels<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  Used to read and write ZIP files<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  A JavaScript zlib library<br>
+  <br>
+  In addition, the layout and style of the current settings panel were inspired by <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a>.`,
+    `このプロジェクトでは、以下のオープンソース JavaScript ライブラリを使用しています。<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  画像ビューアーの表示に使用<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  Ugoira を WebM 動画に変換するために使用<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  Ugoira を WebM 動画に変換するために使用<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  Ugoira を GIF 画像に変換するために使用<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  Ugoira を APNG 画像に変換するために使用<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  小説の EPUB ファイル生成に使用<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  ZIP ファイルの読み書きに使用<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  JavaScript の zlib ライブラリ<br>
+  <br>
+  また、現在の設定パネルのレイアウトとスタイルは <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a> に着想を得ています。`,
+    `이 프로젝트는 다음 오픈소스 JavaScript 라이브러리를 사용합니다:<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  이미지 뷰어를 표시하는 데 사용<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  Ugoira를 WebM 비디오로 변환하는 데 사용<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  Ugoira를 WebM 비디오로 변환하는 데 사용<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  Ugoira를 GIF 이미지로 변환하는 데 사용<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  Ugoira를 APNG 이미지로 변환하는 데 사용<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  novel용 EPUB 파일을 생성하는 데 사용<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  ZIP 파일을 읽고 쓰는 데 사용<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  JavaScript zlib 라이브러리<br>
+  <br>
+  그리고 현재 설정 패널의 레이아웃과 스타일은 <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a> 에서 영감을 받았습니다。`,
+    `В этом проекте используются следующие JavaScript-библиотеки с открытым исходным кодом:<br>
+  <br>
+  <a href="https://github.com/fengyuanchen/viewerjs" target="_blank">Viewer.js</a><br>
+  Используется для отображения просмотрщика изображений<br>
+  <br>
+  <a href="https://github.com/antimatter15/whammy" target="_blank">Whammy</a><br>
+  Используется для преобразования Ugoira в видео WebM<br>
+  <br>
+  <a href="https://github.com/Vanilagy/mediabunny" target="_blank">Mediabunny</a><br>
+  Используется для преобразования Ugoira в видео WebM<br>
+  <br>
+  <a href="https://github.com/jnordberg/gif.js" target="_blank">gif.js</a><br>
+  Используется для преобразования Ugoira в изображения GIF<br>
+  <br>
+  <a href="https://github.com/photopea/UPNG.js" target="_blank">UPNG.js</a><br>
+  Используется для преобразования Ugoira в изображения APNG<br>
+  <br>
+  <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
+  Используется для создания EPUB-файлов для novel<br>
+  <br>
+  <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
+  Используется для чтения и записи ZIP-файлов<br>
+  <br>
+  <a href="https://github.com/nodeca/pako/" target="_blank">pako</a><br>
+  JavaScript-библиотека zlib<br>
+  <br>
+  Кроме того, макет и стиль текущей панели настроек вдохновлены <a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">Clash Verge</a>.`,
+  ],
+  _机场推荐: [
+    `机场推荐`,
+    `機場推薦`,
+    `Proxy recommendation`,
+    `プロキシのおすすめ`,
+    `프록시 추천`,
+    `Рекомендация прокси`,
+  ],
+  _机场推荐说明: [
+    `如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a>。如果上面的地址打不开，可以访问发布页：<a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a><br><br>下载 Pixiv、Fanbox 的文件建议使用“日本 2”节点。我的邀请码：GYjQWDob`,
+    `如果你需要一個機場（梯子）的話，可以試試我現在用的機場：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a>。如果上面的地址打不開，可以訪問發布頁：<a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a><br><br>下載 Pixiv、Fanbox 的檔案建議使用「日本 2」節點。我的邀請碼：GYjQWDob`,
+    `If you need a proxy service, you can try Mofa Miao: <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a>. If that address is unavailable, you can open the release page: <a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a><br><br>For Pixiv and Fanbox downloads, the "Japan 2" node is recommended. Invitation code: GYjQWDob`,
+    `プロキシサービスが必要なら、魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a> を試せます。上の URL が開けない場合は公開ページ <a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a> を利用してください。<br><br>Pixiv と Fanbox のダウンロードには「日本 2」ノードがおすすめです。招待コード：GYjQWDob`,
+    `프록시 서비스가 필요하다면 마법喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a> 를 사용할 수 있습니다. 위 주소가 열리지 않으면 안내 페이지 <a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a> 를 이용하세요.<br><br>Pixiv, Fanbox 다운로드에는 "Japan 2" 노드를 권장합니다. 초대 코드: GYjQWDob`,
+    `Если вам нужен прокси-сервис, можно попробовать Mofa Miao: <a href="https://mofacgb.cc/register?code=GYjQWDob" target="_blank">https://mofacgb.cc</a>. Если этот адрес недоступен, откройте страницу публикации: <a href="https://mofmiao.com" target="_blank">https://mofmiao.com</a><br><br>Для загрузки Pixiv и Fanbox рекомендуется узел "Japan 2". Код приглашения: GYjQWDob`,
+  ],
+  _找到x条与搜索词有关的设置: [
+    `找到 {} 条与“{}”有关的设置`,
+    `找到 {} 條與「{}」有關的設定`,
+    `Found {} settings related to "{}"`,
+    `「{}」に関連する設定が {} 件見つかりました`,
+    `"{}" 와 관련된 설정 {}개를 찾았습니다`,
+    `Найдено {} настроек, связанных с "{}"`,
+  ],
+  _没有找到符合条件的设置的提示: [
+    `没有找到符合条件的设置。你可以尝试换一个搜索词。`,
+    `沒有找到符合條件的設定。你可以嘗試換一個搜尋詞。`,
+    `No matching settings were found. Try a different keyword.`,
+    `条件に合う設定が見つかりませんでした。別のキーワードで試してください。`,
+    `일치하는 설정을 찾지 못했습니다. 다른 키워드로 다시 시도해 보세요.`,
+    `Подходящие настройки не найдены. Попробуйте ввести другой ключевой слово.`,
+  ],
+  _Discord: ['Discord', 'Discord', 'Discord', 'Discord', 'Discord'],
+  _Discord说明: [
+    `本项目的 Discord 服务器：<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+    `本專案的 Discord 伺服器：<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+    `The Discord server for this project:<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+    `このプロジェクトの Discord サーバー：<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+    `이 프로젝트의 Discord 서버:<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+    `Discord-сервер этого проекта:<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
+  ],
+  _QQ群: [`QQ 群`, `QQ 群`, `QQ group`, `QQグループ`, `QQ 그룹`, `Группа QQ`],
+  _QQ群说明: [
+    `下载器的 QQ 群：1060138801`,
+    `下載器的 QQ 群：1060138801`,
+    `The downloader's QQ group: 1060138801`,
+    `ダウンローダーの QQ グループ: 1060138801`,
+    `다운로더의 QQ 그룹: 1060138801`,
+    `QQ-группа загрузчика: 1060138801`,
+  ],
+  _点击设置卡片时切换它的开关状态: [
+    '点击设置卡片时切换它的<span class="key">开关</span>状态',
+    '點擊設定卡片時切換它的<span class="key">開關</span>狀態',
+    'Click the setting card to toggle its <span class="key">switch</span> status',
+    '設定カードをクリックして、その<span class="key">スイッチ</span>状態を切り替えます',
+    '설정 카드를 클릭하여 <span class="key">스위치</span> 상태를 전환합니다',
+    'Нажмите на карточку настройки, чтобы переключить ее <span class="key">переключатель</span> состояние',
+  ],
+  _点击设置卡片时切换它的开关状态的说明: [
+    `如果你启用了这个功能，那么当你点击任意一个设置卡片时，如果点击的位置是空白区域（而非内部元素），并且该设置有开关按钮，那么下载器就会自动切换这个开关，从而启用/禁用这个设置。<br>
+这样，当你想启用/禁用一个设置时，不需要准确点击开关按钮，只要点击卡片上的空白区域即可，非常方便。<br>
+<br>
+如果你担心误操作，可以关闭此功能。`,
+    `如果你啟用了這個功能，那麼當你點擊任意一個設定卡片時，如果點擊的位置是空白區域（而非內部元素），並且該設定有開關按鈕，那麼下載器就會自動切換這個開關，從而啟用/禁用這個設定。<br>
+這樣，當你想啟用/禁用一個設定時，不需要準確點擊開關按鈕，只要點擊卡片上的空白區域即可，非常方便。<br>
+<br>
+如果你擔心誤操作，可以關閉此功能。`,
+    `If you enable this feature, when you click on any setting card, if the click position is a blank area (not an internal element) and the setting has a switch button, the downloader will automatically toggle the switch to enable/disable the setting. <br>
+This way, when you want to enable/disable a setting, you don't need to click the switch button accurately, just click the blank area on the card, which is very convenient. <br>
+<br>
+If you're worried about misoperation, you can turn off this feature.`,
+    `この機能を有効にすると、任意の設定カードをクリックしたときに、クリック位置が空白の領域（内部要素ではない）で、その設定にスイッチボタンがある場合、ダウンローダーは自動的にそのスイッチを切り替えて、その設定を有効/無効にします。<br>
+このように、設定を有効/無効にしたいときに、スイッチボタンを正確にクリックする必要はなく、カードの 空白の領域をクリックするだけで非常に便利です。<br>
+<br>
+誤操作が心配な場合は、この機能をオフにすることができます。`,
+    `이 기능을 활성화하면, 설정 카드 중 아무 곳이나 클릭했을 때 클릭 위치가 빈 공간(내부 요소가 아님)이고 해당 설정에 스위치 버튼이 있는 경우, 다운로더가 자동으로 해당 스위치를 전환하여 설정을 활성화/비활성화합니다. <br>
+이렇게 하면 설정을 활성화/비활성화하려고 할 때 스위치 버튼을 정확하게 클릭할 필요 없이 카드의 빈 공간을 클릭하기만 하면 되어 매우 편리합니다. <br>
+<br>
+오작동이 걱정된다면 이 기능을 끌 수 있습니다.`,
+    `Если вы включите эту функцию, когда вы нажимаете на любую карточку настройки, если позиция клика является пустой областью (а не внутренним элементом) и у настройки есть кнопка переключения, загрузчик автоматически переключит эту кнопку, чтобы включить/отключить эту настройку. <br>
+Таким образом, когда вы хотите включить/отключить настройку, вам не нужно точно нажимать кнопку переключения, просто нажмите на пустую область на карточке, что очень удобно. <br>
+<br>Если вы беспокоитесь о неправильной работе, вы можете отключить эту функцию.`,
+  ],
+  _分组_操作方式: [
+    `操作方式`,
+    `操作方式`,
+    `Operation method`,
+    `操作方法`,
+    `조작 방법`,
+    `Способ управления`,
+  ],
+  _优先下载动图: [
+    `优先下载<span class="key">动图</span>`,
+    `優先下載<span class="key">動圖</span>`,
+    `Prioritize downloading <span class="key">Ugoira</span>`,
+    `<span class="key">動圖</span>を優先してダウンロード`,
+    `<span class="key">움짤</span> 다운로드 우선`,
+    `Приоритет загрузки <span class="key">Ugoira</span>`,
+  ],
+  _点击设置名字时打开wiki链接: [
+    `点击设置名字时打开 <span class="key">Wiki</span> 链接`,
+    `點擊設定名字時打開 <span class="key">Wiki</span> 連結`,
+    `Open <span class="key">Wiki</span> link when clicking setting name`,
+    `設定名をクリックすると <span class="key">Wiki</span> リンクを開く`,
+    `설정 이름을 클릭할 때 <span class="key">Wiki</span> 링크 열기`,
+    `Открывать ссылку на <span class="key">Wiki</span> при клике на имя настройки`,
+  ],
+  _下载器目前不支持抓取珍藏册: [
+    `⚠️下载器目前不支持抓取珍藏册。`,
+    `⚠️下載器目前不支援抓取珍藏冊。`,
+    `⚠️The downloader currently does not support fetching collections.`,
+    `⚠️ダウンローダーは現在、コレクションの取得をサポートしていません。`,
+    `⚠️다운로더는 현재 컬렉션 가져오기를 지원하지 않습니다.`,
+    `⚠️Загрузчик в настоящее время не поддерживает получение коллекций.`,
+  ],
+  _获取图片失败: [
+    '❌获取图片失败',
+    '❌獲取圖片失敗',
+    '❌Failed to fetch image',
+    '❌画像の取得に失敗',
+    '❌이미지 가져오기 실패',
+    '❌Не удалось получить изображение',
+  ],
+  _Firefox的跨域策略导致了请求失败: [
+    '最可能的原因：Firefox 浏览器严格的跨域限制导致了这个请求失败。下载器无法解决此问题。',
+    '最可能的原因：Firefox 瀏覽器嚴格的跨域限制導致了這個請求失敗。下載器無法解決此問題。',
+    'Most likely reason: The strict cross-origin restrictions of Firefox browser caused this request to fail. The downloader cannot solve this problem.',
+    '最も可能性の高い理由：Firefoxブラウザの厳格なクロスオリジン制限がこのリクエストの失敗を引き起こしました。ダウンローダーはこの問題を解決できません。',
+    '가장 가능성이 높은 이유: Firefox 브라우저의 엄격한 교차 출처 제한으로 인해 이 요청이 실패했습니다. 다운로더는 이 문제를 해결할 수 없습니다.',
+    'Наиболее вероятная причина: строгие ограничения кросс-доменных запросов в браузере Firefox привели к сбою этого запроса. Загрузчик не может решить эту проблему.',
   ],
 }
 

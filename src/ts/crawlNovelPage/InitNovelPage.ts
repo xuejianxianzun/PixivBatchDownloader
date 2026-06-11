@@ -1,6 +1,5 @@
 //初始化小说作品页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { store } from '../store/Store'
 import { userWorksType } from '../crawl/CrawlArgument'
@@ -27,23 +26,23 @@ class InitNovelPage extends InitPageBase {
   protected initAny() {}
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_从本页开始抓取new',
       '',
-      'startCrawlingFromCurrentPageNew'
+      'startCrawlingFromCurrentPageNew',
+      'brand'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_从本页开始抓取old',
       '',
-      'startCrawlingFromCurrentPageOld'
+      'startCrawlingFromCurrentPageOld',
+      'brand'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()

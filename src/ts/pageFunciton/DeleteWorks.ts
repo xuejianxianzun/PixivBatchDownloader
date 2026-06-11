@@ -1,7 +1,6 @@
 // 删除页面上的作品
 import { log } from '../Log'
 import { lang } from '../Language'
-import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
 import { EVT } from '../EVT'
@@ -96,10 +95,11 @@ class DeleteWorks {
 
     Tools.addBtn(
       'crawlBtns',
-      Colors.bgRed,
       '_清除多图作品',
       '',
-      'clearMultiImageWork'
+      'clearMultiImageWork',
+      'secondary',
+      'danger'
     ).addEventListener(
       'click',
       () => {
@@ -126,10 +126,11 @@ class DeleteWorks {
 
     Tools.addBtn(
       'crawlBtns',
-      Colors.bgRed,
       '_清除动图作品',
       '',
-      'clearUgoiraWork'
+      'clearUgoiraWork',
+      'secondary',
+      'danger'
     ).addEventListener(
       'click',
       () => {
@@ -155,10 +156,11 @@ class DeleteWorks {
     this.deleteWorkCallback = callback
     this.delBtn = Tools.addBtn(
       'crawlBtns',
-      Colors.bgRed,
       '_手动删除作品',
       '_手动删除作品Title',
-      'manuallyDeleteWork'
+      'manuallyDeleteWork',
+      'secondary',
+      'danger'
     )
 
     this.delBtn.addEventListener('click', () => {

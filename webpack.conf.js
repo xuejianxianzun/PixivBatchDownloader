@@ -15,6 +15,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.html$/i,
+        type: 'asset/source',
+      },
+      {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,

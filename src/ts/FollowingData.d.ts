@@ -43,4 +43,5 @@ export type BackgroundMsg =
   | { msg: 'setFollowingData'; data: SetData }
   | { msg: 'getLoggedUserID' }
   | { msg: 'updateFollowingData' }
+  | { msg: 'resetFollowingData' }
   | { msg: 'dispatchFollowingData'; data: AllUserFollowingData }

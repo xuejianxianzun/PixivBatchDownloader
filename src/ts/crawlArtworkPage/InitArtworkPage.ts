@@ -1,6 +1,5 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { store } from '../store/Store'
 import { userWorksType } from '../crawl/CrawlArgument'
@@ -62,34 +61,34 @@ class InitArtworkPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_从本页开始抓取new',
       '',
-      'startCrawlingFromCurrentPageNew'
+      'startCrawlingFromCurrentPageNew',
+      'brand'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_从本页开始抓取old',
       '',
-      'startCrawlingFromCurrentPageOld'
+      'startCrawlingFromCurrentPageOld',
+      'brand'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
     })
 
-    const downRelatedBtn = Tools.addBtn(
+    const downRelatedBtn = this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取相关作品',
       '',
-      'crawlRelatedWork'
+      'crawlRelatedWork',
+      'brand'
     )
     downRelatedBtn.addEventListener(
       'click',

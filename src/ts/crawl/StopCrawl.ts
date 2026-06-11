@@ -1,4 +1,3 @@
-import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
@@ -16,10 +15,11 @@ class StopCrawl {
   private addBtn() {
     this.btn = Tools.addBtn(
       'stopCrawl',
-      Colors.bgRed,
       '_停止抓取',
       '',
-      'stopCrawling'
+      'stopCrawling',
+      'secondary',
+      'danger'
     )
     this.hide()
 

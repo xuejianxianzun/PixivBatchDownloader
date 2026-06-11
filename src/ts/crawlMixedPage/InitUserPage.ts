@@ -1,6 +1,5 @@
 // 初始化用户页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
@@ -42,12 +41,12 @@ class InitUserPage extends InitPageBase {
 
   // 添加中间按钮
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_开始抓取',
       '_默认下载多页',
-      'startCrawling'
+      'startCrawling',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -57,43 +56,43 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_保存用户头像',
       '',
-      'saveUserAvatar'
+      'saveUserAvatar',
+      'brand'
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarImage')
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_保存用户头像为图标',
       '_保存用户头像为图标说明',
-      'saveUserAvatarAsIcon'
+      'saveUserAvatarAsIcon',
+      'brand'
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
 
-    Tools.addBtn(
+    this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_保存用户封面',
       '',
-      'saveUserCoverImage'
+      'saveUserCoverImage',
+      'brand'
     ).addEventListener('click', () => {
       EVT.fire('saveUserCover')
     })
 
     // 添加收藏本页所有作品的功能
-    const bookmarkAllBtn = Tools.addBtn(
+    const bookmarkAllBtn = this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_收藏本页面的所有作品',
       '',
-      'bookmarkAllWorksOnPage'
+      'bookmarkAllWorksOnPage',
+      'brand'
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -225,11 +224,11 @@ class InitUserPage extends InitPageBase {
     }
     let idList = await API.getUserWorksByType(userId, type)
 
-    // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
+    // 判断是否全都是小说，如果是，把每页的作品个数设置为 30 个
     const allWorkIsNovels = idList.every((data) => {
       return data.type === 'novels'
     })
-    allWorkIsNovels && (this.onceNumber = 24)
+    allWorkIsNovels && (this.onceNumber = 30)
 
     // 计算偏移量和需要保留的作品个数
     const offset = this.getOffset()

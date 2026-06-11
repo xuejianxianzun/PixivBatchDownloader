@@ -5,6 +5,7 @@ import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
+import { getImg } from '../utils/GetImage'
 
 // 保存用户头像
 class SaveAvatarImage {
@@ -34,9 +35,11 @@ class SaveAvatarImage {
     const fullSizeImgURL =
       ext === 'gif' ? imageURL : imageURL.replace('_170', '')
 
-    // 加载文件
-    const img = await fetch(fullSizeImgURL)
-    const blob = await img.blob()
+    // 加载图片
+    const blob = await getImg(fullSizeImgURL)
+    if (!blob) {
+      return
+    }
 
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)

@@ -1,8 +1,6 @@
-@import './var.less';
-
 .xz_PreviewWorkDetailPanel {
   background: #fff;
-  box-shadow: 0 0 15px @boxShadowBlue;
+  box-shadow: 0 0 15px var(--box-shadow-blue);
   position: fixed;
   z-index: 100001;
   min-width: 100px;
@@ -39,14 +37,15 @@
       }
 
       .r18 {
-        background: @colorR18;
+        background: var(--color-r18);
       }
 
       .ai {
-        background: @colorAi;
+        background: var(--color-ai);
       }
+
       .origin {
-        background: @beautifyBlue;
+        background: var(--beautify-blue);
       }
     }
 
@@ -134,6 +133,7 @@
 
       &#copyBtn {
         padding: 0 4px;
+
         svg {
           width: 1.4em;
           height: 1.4em;
@@ -143,14 +143,14 @@
   }
 
   a {
-    color: @themeBlue;
+    color: var(--beautify-blue);
   }
 }
 
 .theme-dark {
   &.xz_PreviewWorkDetailPanel {
-    background: #222;
-    box-shadow: @darkBoxShadow 0px 0px 15px;
+    background: var(--settings-panel-bg-dark);
+    box-shadow: var(--dark-box-shadow);
 
     .content {
       color: #eee;

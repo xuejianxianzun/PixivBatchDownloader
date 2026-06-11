@@ -10,13 +10,13 @@
  */
 
 import './Language'
+import './IconHelper'
 import './Theme'
 import './store/States'
 import './setting/Settings'
 import './setting/InvisibleSettings'
 import './ListenPageSwitch'
-import './CenterPanel'
-import './setting/Form'
+import './setting/SettingsPanelBootstrap'
 import './setting/DoNotDownloadLastFewImages'
 import './setting/UseDifferentNameRuleIfWorkHasTag'
 import './ReplaceSquareThumb'

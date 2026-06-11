@@ -1,14 +1,14 @@
-import { SettingsForm } from './SettingsForm'
+import { FormType } from './FormType'
 import { Utils } from '../utils/Utils'
 import { EVT } from '../EVT'
 
 class FormBeautify {
-  constructor(form: SettingsForm) {
+  constructor(form: FormType) {
     this.form = form
     this.bindBeautifyInput()
   }
 
-  private form: SettingsForm
+  private form: FormType
 
   /** 储存表单上所有美化元素 */
   // 每个美化的 input 控件后面必定有一个 span 元素

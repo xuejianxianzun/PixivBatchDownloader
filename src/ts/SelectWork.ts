@@ -109,7 +109,7 @@ class SelectWork {
     this.selectAllBtn.id = 'selectAllBtn'
     this.selectAllBtn.setAttribute('title', '全选')
     this.selectAllBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-selectAll"></use>
+  <use xlink:href="#selectAll"></use>
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.selectAllBtn)
 
@@ -119,12 +119,12 @@ class SelectWork {
     this.exitSelectBtn.id = 'exitSelectBtn'
     this.exitSelectBtn.setAttribute('title', '退出全选')
     this.exitSelectBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-cancel_selectAll"></use>
+  <use xlink:href="#cancel_selectAll"></use>
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
   }
   private readonly svg = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-select"></use>
+  <use xlink:href="#select"></use>
 </svg>`
 
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
@@ -354,20 +354,22 @@ class SelectWork {
   private addBtn() {
     this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
-      Colors.bgGreen,
       '_手动选择作品',
       'Alt + S',
-      'manuallySelectWork'
+      'manuallySelectWork',
+      'secondary',
+      'brand'
     )
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
     this.clearBtn = Tools.addBtn(
       'selectWorkBtns',
-      Colors.bgRed,
       '_清空选择的作品',
       '',
-      'clearSelectedWork'
+      'clearSelectedWork',
+      'secondary',
+      'danger'
     )
     this.clearBtn.style.display = 'none'
     this.clearBtn.addEventListener('click', () => {
@@ -378,10 +380,11 @@ class SelectWork {
 
     this.crawlBtn = Tools.addBtn(
       'selectWorkBtns',
-      Colors.bgBlue,
       '_抓取选择的作品',
       '',
-      'crawlSelectedWork'
+      'crawlSelectedWork',
+      'secondary',
+      'brand'
     )
     this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {

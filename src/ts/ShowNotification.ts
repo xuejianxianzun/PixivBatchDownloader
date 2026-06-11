@@ -8,7 +8,6 @@ import { Tools } from './Tools'
 
 class ShowNotification {
   constructor() {
-    this.iconURL = browser.runtime.getURL('icon/logo128.png')
     this.bindEvents()
   }
 
@@ -42,6 +41,9 @@ class ShowNotification {
 
   public async show(title: string, text: string) {
     await this.requstPremission()
+    if (!this.iconURL) {
+      this.iconURL = browser.runtime.getURL('icons/logo128.png')
+    }
     new Notification(title, {
       body: text,
       // 不设置 tag。如果设置了相同的 tag，那么新的通知会覆盖旧的通知，导致如果有多个页面下载完毕，用户只能看到最后一个页面的通知

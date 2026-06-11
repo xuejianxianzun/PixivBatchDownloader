@@ -47,10 +47,11 @@ class CrawlTagList {
   private addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取标签列表',
       '',
-      'crawlTagList'
+      'crawlTagList',
+      'secondary',
+      'brand'
     ).addEventListener('click', () => {
       EVT.fire('closeCenterPanel')
       this.toggleWrap(true)

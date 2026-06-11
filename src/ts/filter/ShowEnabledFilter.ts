@@ -316,9 +316,9 @@ class ShowEnabledFilter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+      const text = `${lang.transl('_宽度')} ${settings.widthComparison} ${
         settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+      } ${andOr} ${lang.transl('_高度')} ${settings.heightComparison} ${
         settings.setHeight
       }`
       log.warning('🛸' + text)

@@ -4,6 +4,7 @@ import { msgBox } from '../MsgBox'
 import { setSetting, settings } from './Settings'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
+import { hideOptions } from './HideOptions'
 
 /**储存每个设置项里的一些元素 */
 interface OptionElement {
@@ -37,7 +38,7 @@ class CrawlNumber {
   /** 抓取多少作品的设置  */
   private work: OptionElement = {
     name: 'work',
-    selector: 'div.option[data-no="0"]',
+    selector: '.option[data-no="0"]',
     self: null!,
     input: null!,
     minBtn: null!,
@@ -48,7 +49,7 @@ class CrawlNumber {
   /** 抓取多少页面的设置  */
   private page: OptionElement = {
     name: 'page',
-    selector: 'div.option[data-no="1"]',
+    selector: '.option[data-no="1"]',
     self: null!,
     input: null!,
     minBtn: null!,
@@ -127,11 +128,13 @@ class CrawlNumber {
   }
 
   /**显示或隐藏设置，并设置内部一些元素的值 */
+  // 执行时机：初始化时、页面切换后、重置设置后
   private setOption() {
     const cfg = this.getCfg()
     ;[this.work, this.page].forEach((item) => {
+      const no = Number.parseInt(item.self.dataset.no!)
       if (cfg[item.name]) {
-        item.self.style.display = 'flex'
+        hideOptions.showOption([no])
 
         // 在搜索页面里，页数的最大值有两种情况：
         // 如果用户不是 Pixiv 会员（高级用户），最大值是 1000。如果是会员，则最大值是 5000。
@@ -190,17 +193,13 @@ class CrawlNumber {
           item.tip.textContent = tip
         }
       } else {
-        item.self.style.display = 'none'
+        hideOptions.hideOption([no])
       }
     })
   }
 
   private bindEvents() {
-    // 页面初始化时、导入或重置设置时，重置抓取数量的选项
-    const resetEvents = [
-      EVT.list.pageSwitchedTypeChange,
-      EVT.list.resetSettingsEnd,
-    ]
+    const resetEvents = [EVT.list.pageSwitch, EVT.list.resetSettingsEnd]
     resetEvents.forEach((event) => {
       window.addEventListener(event, () => {
         setTimeout(() => {
@@ -211,4 +210,4 @@ class CrawlNumber {
   }
 }
 
-new CrawlNumber()
+export { CrawlNumber }

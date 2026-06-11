@@ -41,6 +41,7 @@ class DownloadInterval {
     window.addEventListener(EVT.list.downloadStart, () => {
       // 在开始下载时，如果应用了间隔时间，则显示一条日志提醒
       if (
+        settings.downloadIntervalSwitch &&
         store.result.length > settings.downloadIntervalOnWorksNumber &&
         settings.downloadInterval > 0
       ) {
@@ -65,6 +66,7 @@ class DownloadInterval {
     while (true) {
       // 首先检查此设置不应该生效的情况
       if (
+        settings.downloadIntervalSwitch === false ||
         settings.downloadInterval === 0 ||
         store.result.length <= settings.downloadIntervalOnWorksNumber
       ) {

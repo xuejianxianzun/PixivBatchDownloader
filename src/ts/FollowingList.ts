@@ -8,6 +8,7 @@ import { toast } from './Toast'
 import { Utils } from './utils/Utils'
 import { BackgroundMsg, UserInfo, AllUserFollowingData } from './FollowingData'
 import { log } from './Log'
+import { pageType } from './PageType'
 
 // 更新关注列表
 class FollowingList {
@@ -204,9 +205,16 @@ class FollowingList {
       this.total = data.total
     } else {
       // 恢复的数据里没有当前用户的数据，需要获取
+      // 发生这种情况时，list 是空数组。可能是扩展安装后还没有获取关注数据，或者是用户主动清除了下载器保存的关注数据
+      // 重置数据
+      this.following = []
+      this.followedUsersInfo = []
+      this.total = 0
+      // 重新获取关注数据。注意这个方法会检查数量是否发生变化，如果发生变化才会更新数据，所以不会导致死循环
       this.checkNeedUpdate()
     }
 
+    // console.log('receiveData', list, this.following)
     EVT.fire('followingUsersChange')
   }
 
@@ -239,6 +247,11 @@ class FollowingList {
       !settings.highlightFollowingUsers &&
       !settings.removeWorksOfFollowedUsersOnSearchPage
     ) {
+      return
+    }
+
+    // 不在比赛页面里启用，因为该页面里无法获取 token，会导致获取关注列表失败
+    if (pageType.type === pageType.list.Contest) {
       return
     }
 

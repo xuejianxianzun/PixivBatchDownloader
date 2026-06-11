@@ -1,4 +1,5 @@
-[English](/README.md) | 
+[English](/README.md) |
+简体中文 | 
 [繁體中文](/README-ZH-TW.md) |
 [日本語](/README-JA.md) |
 [韩国语](/README-KO.md) | 
@@ -51,13 +52,11 @@
 - 内置图片查看器，查看多图作品；
 - 高亮关注的用户；
 
-![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
-
-![PixivBatchDownloader screenshot](./notes/images/ui-zh-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-cn-white.png)
 
 [访问官网](https://pixiv.download/)
 
-[在 YouTube 查看视频教程](https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d)
+[在 YouTube 查看视频教程](https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d)（部分内容可能已经过时）
 
 # 在线安装
 

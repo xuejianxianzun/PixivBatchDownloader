@@ -36,6 +36,9 @@ type novelDataTagsItem = {
   userName: string
 }
 
+type BtnEmphasis = 'primary' | 'secondary'
+type BtnIntent = 'brand' | 'success' | 'warning' | 'danger'
+
 class Tools {
   // 把结果中的动图排列到最前面
   static sortUgoiraFirst(a: Result, b: Result) {
@@ -60,7 +63,7 @@ class Tools {
     )
   }
 
-  // 在不同的页面类型里，尝试从 url 中获取 tag
+  /** 在不同的页面类型里，尝试从 url 中获取 tag。如果没有找到 tag，则返回空字符串 */
   static getTagFromURL(url: string = location.href) {
     const nowURL = new URL(url)
 
@@ -400,21 +403,45 @@ class Tools {
     this.findSlot(name).innerHTML = ''
   }
 
-  // 创建下载面板上的通用按钮
-  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性
-  // 也就是以下划线 _ 开头
+  /** 调试用，保存所有已添加的按钮的 HTML */
+  // 每个页面都只会添加部分按钮（addInitPageBtn），所以要获取所有按钮的话，需要进入多个页面里
+  static buttonsHtml: {
+    id: string
+    nameKey: string
+    name: string
+    html: string
+  }[] = []
+
+  static saveButtonsHtml(id: string, nameKey: string, btn: HTMLButtonElement) {
+    const exsiting = this.buttonsHtml.find((item) => item.id === id)
+    if (exsiting) {
+      exsiting.html = btn.outerHTML
+    } else {
+      this.buttonsHtml.push({ id, nameKey, name: '', html: btn.outerHTML })
+    }
+    this.outputButtonsHtml()
+  }
+
+  static outputButtonsHtml = Utils.debounce(() => {
+    console.log('Buttons HTML:', this.buttonsHtml)
+  }, 200)
+
+  /** 创建下载面板上的通用按钮 */
+  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
   static addBtn(
     slot: string,
-    bg: string,
     text: string,
     title: string,
-    id: string
+    id: string,
+    emphasis: BtnEmphasis,
+    intent: BtnIntent
   ) {
     const btn = document.createElement('button')
     id && btn.setAttribute('id', id)
     btn.type = 'button'
-    btn.style.backgroundColor = bg
-    btn.classList.add('hasRippleAnimation')
+    btn.classList.add('hasRippleAnimation', 'settingsPanelActionBtn')
+    btn.dataset.btnEmphasis = emphasis
+    btn.dataset.btnIntent = intent
 
     // 把文本添加到内部的 span 里
     if (text) {
@@ -444,12 +471,15 @@ class Tools {
     btn.append(ripple)
 
     // 生成的 btn 代码例如：
-    // <button id="${id}" type="button" class="hasRippleAnimation" data-xztitle="${title}" style="background-color: ${bg};"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
+    // <button id="${id}" type="button" class="hasRippleAnimation settingsPanelActionBtn" data-btn-emphasis="${emphasis}" data-btn-intent="${intent}" data-xztitle="${title}"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
 
     // 添加这个按钮并注册事件
     this.useSlot(slot, btn)
     lang.register(btn)
     wiki.registerBtn(btn)
+
+    // 调试用，保存按钮的 HTML 以便在 wiki 里使用
+    // this.saveButtonsHtml(id, text, btn)
 
     return btn
   }
@@ -1247,7 +1277,7 @@ class Tools {
     }
 
     // 有可能找不到指定的选项，原因：
-    // 用户可能在置顶选项 settings.pinnedOptions 里保存着一些选项 id，但我可能会在之后的更新里移除对应的设置，这样就找不到该选项对应的元素了
+    // 用户可能在置顶选项 settings.pinnedOptionsV2 里保存着一些选项 id，但我可能会在之后的更新里移除对应的设置，这样就找不到该选项对应的元素了
     return null
   }
 

@@ -216,9 +216,12 @@ class Filter {
     }
 
     // 检查针对特定用户屏蔽的 tags
-    if (
-      !this.checkBlockTagsForSpecificUser(option.userId, option.tags, option.id)
-    ) {
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_针对特定用户屏蔽标签'),
+        'excludeWorkByBlockTagsForSpecificUser'
+      )
       return false
     }
 
@@ -732,27 +735,39 @@ class Filter {
       return true
     }
 
-    if (settings.widthHeightLimit === '>=') {
-      // 大于等于
-      if (settings.setWidthAndOr === '&') {
-        return width >= setWidth && height >= setHeight
-      } else {
-        return width >= setWidth || height >= setHeight
-      }
-    } else if (settings.widthHeightLimit === '<=') {
-      // 小于等于
-      if (settings.setWidthAndOr === '&') {
-        return width <= setWidth && height <= setHeight
-      } else {
-        return width <= setWidth || height <= setHeight
-      }
-    } else {
-      // 精确等于
-      if (settings.setWidthAndOr === '&') {
-        return width === setWidth && height === setHeight
-      } else {
-        return width === setWidth || height === setHeight
-      }
+    const widthMatched = this.compareNumberBySetting(
+      width,
+      setWidth,
+      settings.widthComparison
+    )
+    const heightMatched = this.compareNumberBySetting(
+      height,
+      setHeight,
+      settings.heightComparison
+    )
+
+    return settings.setWidthAndOr === '&'
+      ? widthMatched && heightMatched
+      : widthMatched || heightMatched
+  }
+
+  private compareNumberBySetting(
+    value: number,
+    settingValue: number,
+    comparison: '>=' | '=' | '<='
+  ) {
+    // 宽高设置里的 0 表示未填写，这一项应当视为不参与过滤。
+    if (settingValue === 0) {
+      return true
+    }
+
+    switch (comparison) {
+      case '>=':
+        return value >= settingValue
+      case '=':
+        return value === settingValue
+      case '<=':
+        return value <= settingValue
     }
   }
 

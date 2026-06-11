@@ -115,6 +115,8 @@ class EVENT {
     exportDownloadRecord: 'exportDownloadRecord',
     /** 当需要导入下载记录时触发 */
     importDownloadRecord: 'importDownloadRecord',
+    // 导入含有 id 列表的 TXT 文件
+    importDownloadRecordTXT: 'importDownloadRecordTXT',
     /** 当需要清空断点续传的数据时触发 */
     clearSavedCrawl: 'clearSavedCrawl',
     /** 当从断点续传数据恢复了下载时触发 */
@@ -182,6 +184,8 @@ class EVENT {
     exportLog: 'exportLog',
     /** 显示最近更新 */
     showRecentUpdates: 'showRecentUpdates',
+    /** 重置下载器保存的关注数据 */
+    resetFollowingData: 'resetFollowingData',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -222,6 +226,7 @@ class EVENT {
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
       | 'importDownloadRecord'
+      | 'importDownloadRecordTXT'
       | 'clearSavedCrawl'
       | 'resume'
       | 'exportCSV'
@@ -250,6 +255,7 @@ class EVENT {
       | 'followingUsersChange'
       | 'exportLog'
       | 'showRecentUpdates'
+      | 'resetFollowingData'
   ): void
 
   // 对于需要携带数据的事件进行重载

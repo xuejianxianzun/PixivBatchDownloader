@@ -67,7 +67,7 @@ class DownloadBtnOnThumbOnMobile {
     btn.classList.add('btnOnThumb')
     btn.innerHTML = `
     <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
+  <use xlink:href="#download"></use>
 </svg>`
 
     btn.style.left = 'auto'

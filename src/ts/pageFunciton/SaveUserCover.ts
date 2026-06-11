@@ -5,6 +5,7 @@ import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
+import { getImg } from '../utils/GetImage'
 
 // 保存用户封面图片
 class SaveUserCover {
@@ -33,9 +34,11 @@ class SaveUserCover {
       return toast.error(lang.transl('_没有数据可供使用'))
     }
 
-    // 加载文件
-    const img = await fetch(bgUrl)
-    const blob = await img.blob()
+    // 加载图片
+    const blob = await getImg(bgUrl)
+    if (!blob) {
+      return
+    }
 
     // 提取后缀名
     const arr = bgUrl.split('.')

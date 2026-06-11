@@ -1,3 +1,4 @@
+English |
 [简体中文](/README-ZH-CN.md) |
 [繁體中文](/README-ZH-TW.md) |
 [日本語](/README-JA.md) |
@@ -50,9 +51,7 @@ This is a browser extension that lets you download images and novels from Pixiv 
 - Built-in image viewer to view multi-image works;
 - Highlight followed users;
 
-![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
-
-![PixivBatchDownloader screenshot](./notes/images/ui-en-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-en-white.png)
 
 # Online Installation
 

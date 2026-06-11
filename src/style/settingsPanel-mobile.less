@@ -1,0 +1,217 @@
+.centerWrap.mobile {
+  width: calc(100vw - 32px);
+  left: 50%;
+  top: 5vh;
+  max-height: calc(80vh);
+  transform: translateX(-50%);
+  font-size: 15px;
+  font-family: var(--mobile-font-family);
+  overflow: auto;
+
+  p {
+    line-height: 32px;
+  }
+
+  .centerPanelTextArea {
+    min-width: unset !important;
+  }
+
+  input[name='dateFormat'] {
+    min-width: unset !important;
+    flex-basis: 100%;
+  }
+
+  .centerWrap_head {
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+
+    .settingsPanel_headerMain,
+    .settingsPanel_headerActions {
+      min-height: 32px;
+      justify-content: space-between;
+    }
+
+    .settingsPanel_headerActions {
+      padding-top: 10px;
+    }
+
+    .settingsPanel_headerSearch {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .settingsPanel_searchBar {
+    width: 100%;
+    max-width: none;
+  }
+
+  .settingsPanel_headerMinor,
+  .centerWrap_close_pc {
+    display: none;
+  }
+
+  .centerWrap_close_mobile {
+    display: inline-flex;
+  }
+
+  .centerWrap_con {
+    padding: 0;
+    flex-direction: column;
+    max-height: calc(80vh - 120px);
+
+    .settingsPanel_sidebar {
+      width: 100%;
+      overflow: visible;
+      padding: 0 1vw;
+
+      .settingsPanel_nav {
+        margin: 6px 0;
+        gap: 6px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .settingsPanel_navItem {
+        flex: 0 1 auto;
+        width: auto;
+        max-width: 100%;
+        min-height: 42px;
+        padding: 8px 12px;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .settingsPanel_navText {
+        flex: none;
+        min-width: 0;
+        font-size: 17px;
+        min-height: 26px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      &.lang_zh-cn .settingsPanel_navText,
+      &.lang_zh-tw .settingsPanel_navText {
+        letter-spacing: 2px;
+        text-indent: 2px;
+      }
+    }
+
+    .settingsPanel_main {
+      width: 100%;
+      padding: 0 1vw;
+    }
+
+    .settingForm {
+      .settingsPanel_panelContent {
+        padding: 10px 12px;
+      }
+
+      .centerWrap_btns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .setinput_style {
+        font-size: 15px !important;
+      }
+
+      .centerWrap_btns button {
+        font-size: 15px;
+        line-height: 24px;
+        padding: 7px 10px;
+      }
+
+      // 在移动端里，“必须包含标签”的 input 输入框独占一行，否则其宽度太小了
+      input[name='needTag'] {
+        flex-basis: 100% !important;
+      }
+
+      // 其他一些 flex 布局的元素也进行调整，避免太多元素挤在一行
+      .fileNameRuleLine1,
+      .fileNameRuleBtnsArea {
+        flex-wrap: wrap !important;
+      }
+
+      .namingRuleList {
+        left: 20px;
+        top: 66px;
+        right: auto;
+        width: 100vw;
+        max-width: min(80%, calc(100vw - 64px)) !important;
+        min-width: unset !important;
+
+        li {
+          min-width: unset !important;
+          max-width: none !important;
+
+          .rule {
+            padding-left: 12px;
+          }
+
+          .delete {
+            margin-right: 2px;
+          }
+        }
+      }
+    }
+
+    .settingsPanel_sidebar {
+      align-items: center;
+    }
+
+    .settingsPanel_downloadSummary {
+      margin-top: 0px;
+      margin-bottom: 10px;
+      padding: 12px 12px;
+      width: 98%;
+      border-top: none;
+      background: var(--settings-panel-surface-bg);
+      border-radius: 12px;
+      box-shadow: var(--settings-panel-surface-shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      button,
+      svg {
+        font-size: 26px;
+      }
+    }
+
+    .settingsPanel_downloadSummaryStatus,
+    .settingsPanel_downloadSummaryActions {
+      gap: 16px;
+      // 在移动端使这两个区域可以并排显示
+      flex-basis: auto;
+    }
+
+    .settingsPanel_downloadSummaryStatus {
+      margin-bottom: 0px;
+      gap: 6px;
+
+      .settingsPanel_downloadSummaryStateIcon {
+        top: 0;
+      }
+    }
+
+    .settingsPanel_helpActions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 414px) {
+  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+    padding: 10px 6px;
+  }
+}
+
+@media (max-width: 388px) {
+  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+    padding: 12px 6px;
+  }
+}

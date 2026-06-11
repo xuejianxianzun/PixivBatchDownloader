@@ -1,6 +1,7 @@
-import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
+
+type DownloadStateStatus = 'start' | 'loading' | 'pause' | 'stop' | 'complete'
 
 // 显示下载状态
 class ShowDownloadStates {
@@ -23,25 +24,26 @@ class ShowDownloadStates {
     }
 
     window.addEventListener(EVT.list.downloadStart, () => {
-      this.setText('_正在下载中')
+      this.setText('_正在下载中', 'loading')
     })
 
     window.addEventListener(EVT.list.downloadPause, () => {
-      this.setText('_下载已暂停', Colors.textWarning)
+      this.setText('_下载已暂停', 'pause')
     })
 
     window.addEventListener(EVT.list.downloadStop, () => {
-      this.setText('_下载已停止', Colors.textError)
+      this.setText('_下载已停止', 'stop')
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
-      this.setText('_下载完毕', Colors.textSuccess)
+      this.setText('_下载完毕', 'complete')
     })
   }
 
-  private setText(textFlag: string, color: string = Colors.bgBlue) {
+  private setText(textFlag: string, state: DownloadStateStatus = 'start') {
     lang.updateText(this.el, textFlag)
-    this.el.style.color = color
+    this.el.dataset.state = state
+    this.el.style.removeProperty('color')
   }
 }
 

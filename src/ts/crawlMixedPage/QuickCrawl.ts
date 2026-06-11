@@ -32,7 +32,7 @@ class QuickCrawl {
     this.btn.id = 'quickCrawlBtn'
     this.btn.setAttribute('data-xztitle', '_快速下载本页')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
+  <use xlink:href="#download"></use>
 </svg>`
     document.body.append(this.btn)
     lang.register(this.btn)

@@ -1,7 +1,5 @@
-@import './var.less';
-
 .logWrap {
-  font-family: @pixivFontFamily;
+  font-family: var(--pixiv-font-family);
   position: relative;
   z-index: 0;
   width: 100%;
@@ -24,7 +22,7 @@
   padding: 10px 30px;
 
   .blue {
-    color: @themeBlue;
+    color: var(--beautify-blue);
   }
 
   span {
@@ -37,12 +35,12 @@
   }
 
   a {
-    color: @themeBlue;
+    color: var(--beautify-blue);
   }
 }
 
 .logBtn {
-  font-family: @pixivFontFamily;
+  font-family: var(--pixiv-font-family);
   position: fixed;
   top: 0px;
   left: 50%;
@@ -51,7 +49,7 @@
   opacity: 0;
   pointer-events: none;
   cursor: pointer;
-  background-color: @beautifyBlue;
+  background-color: var(--beautify-blue);
   color: white;
   padding: 8px 10px;
   border-bottom-left-radius: 10px;
@@ -72,6 +70,7 @@
   .logWrap {
     z-index: 1000;
   }
+
   .logBtn {
     z-index: 1001;
   }
@@ -88,20 +87,21 @@
   &.logWrap {
     background: #222;
     color: #fff;
-    text-shadow: #003247 0px 0px 2px;
+    text-shadow: var(--text-shadow-on-xzbg);
 
     .logContent * {
       color: #fff !important;
-    }
-
-    .xzBGLayer {
-      filter: blur(2px);
     }
   }
 }
 
 .logWrap.mobile {
   font-size: 16px;
-  font-family: @MobileFontFamily;
+  font-family: var(--mobile-font-family);
   padding: 10px 10px;
+
+  .logContent {
+    max-width: 100%;
+    padding: 0;
+  }
 }

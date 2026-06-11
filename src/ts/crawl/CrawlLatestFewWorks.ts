@@ -2,9 +2,9 @@ import { log } from '../Log'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { pageType } from '../PageType'
-import { options } from '../setting/Options'
 import { settings } from '../setting/Settings'
 import { IDData } from '../store/StoreType'
+import { hideOptions } from '../setting/HideOptions'
 
 /**抓取每个用户最新的几个作品 */
 class CrawlLatestFewWorks {
@@ -39,7 +39,7 @@ class CrawlLatestFewWorks {
   private hideOption() {
     if (!this.enable) {
       window.setTimeout(() => {
-        options.hideOption([15])
+        hideOptions.hideOption([15])
       }, 0)
     }
   }

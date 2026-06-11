@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader HongYe",
-  "version": "18.9.3",
+  "version": "19.0.0",
   "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "browser_specific_settings": {
@@ -9,17 +9,17 @@
     }
   },
   "icons": {
-    "16": "icon/logo16.png",
-    "32": "icon/logo32.png",
-    "48": "icon/logo48.png",
-    "128": "icon/logo128.png"
+    "16": "icons/logo16.png",
+    "32": "icons/logo32.png",
+    "48": "icons/logo48.png",
+    "128": "icons/logo128.png"
   },
   "action": {
     "default_icon": {
-      "16": "icon/logo16.png",
-      "32": "icon/logo32.png",
-      "48": "icon/logo48.png",
-      "128": "icon/logo128.png"
+      "16": "icons/logo16.png",
+      "32": "icons/logo32.png",
+      "48": "icons/logo48.png",
+      "128": "icons/logo128.png"
     },
     "default_title": "Powerful Pixiv Downloader"
   },
@@ -38,14 +38,13 @@
       "css": ["style/viewer.min.css", "style/style.css"],
       "js": [
         "lib/viewer.min.js",
-        "lib/mediabunny.min.js",
         "lib/gif.js",
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
         "lib/jepub.js",
         "lib/pako.min.js",
         "lib/ppd-webp.js",
-        "lib/iconfont.js",
+        "lib/icon-sprite.js",
         "js/content.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
@@ -58,7 +57,7 @@
     },
     {
       "css": ["style/style.css"],
-      "js": ["js/content.js", "lib/iconfont.js"],
+      "js": ["lib/icon-sprite.js", "js/content.js"],
       "matches": ["*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
@@ -92,6 +91,8 @@
     {
       "resources": [
         "lib/ppd-webp.worker.js",
+        "lib/whammy.js",
+        "lib/whammy.worker.js",
         "lib/pako.min.js",
         "lib/UPNG.js",
         "lib/apng.worker.js",
@@ -99,7 +100,7 @@
         "lib/listen_history_change.js",
         "lib/api_interceptor.js",
         "manifest.json",
-        "icon/logo128.png",
+        "icons/logo128.png",
         "style/showLargerThumbnails.css"
       ],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"]

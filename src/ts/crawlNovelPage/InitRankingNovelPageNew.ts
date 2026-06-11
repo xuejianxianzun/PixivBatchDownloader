@@ -1,5 +1,4 @@
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
@@ -22,12 +21,12 @@ class InitRankingNovelPageNew extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取本排行榜作品',
       '_抓取本排行榜作品Title',
-      'crawlRankingWork'
+      'crawlRankingWork',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

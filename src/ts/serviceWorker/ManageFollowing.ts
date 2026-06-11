@@ -34,6 +34,10 @@ class ManageFollowing {
           this.dispatchFollowingList(sender?.tab)
         }
 
+        if (msg.msg === 'resetFollowingData') {
+          this.clearData()
+        }
+
         if (msg.msg === 'needUpdateFollowingData') {
           if (this.uploadStatus === 'locked') {
             // 查询上次执行更新任务的标签页还是否存在，如果不存在，
@@ -391,6 +395,12 @@ class ManageFollowing {
         this.storage()
       }
     }, 3600000)
+  }
+
+  private clearData() {
+    this.data = []
+    this.dispatchFollowingList()
+    this.storage()
   }
 }
 

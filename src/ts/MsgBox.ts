@@ -116,6 +116,7 @@ class MsgBox {
     }
 
     wrap.innerHTML = `
+        <div class="xzbgMask"></div>
         <div class="title">${data.title || Config.appName}</div>
         <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
         ${
@@ -126,6 +127,7 @@ class MsgBox {
               <span class="ripple"></span>
               </button>`
         }
+      
       `
 
     theme.register(wrap)

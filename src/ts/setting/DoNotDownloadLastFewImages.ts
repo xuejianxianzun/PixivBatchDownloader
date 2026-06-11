@@ -64,25 +64,25 @@ class DoNotDownloadLastFewImages {
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
           <span class="label uidLabel" data-xztext="_用户id"></span>
-          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+          <input type="text" class="setinput_style blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem value">
           <span class="label nameLabel" data-xztext="_不下载最后几张图片"></span>
-          <input type="text" class="has_tip setinput_style1 blue addValueInput" data-xztip="_提示0表示不生效" />
+          <input type="text" class="has_tip setinput_style blue addValueInput" data-xztip="_提示0表示不生效" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-yes_submit"></use>
+              <use xlink:href="#yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-close"></use>
+              <use xlink:href="#close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -177,23 +177,23 @@ class DoNotDownloadLastFewImages {
       </div>
 
       <div class="inputItem uid">
-        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+        <input type="text" class="setinput_style blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
       <div class="inputItem value">
-        <input type="text" class="has_tip setinput_style1 blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
+        <input type="text" class="has_tip setinput_style blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
       </div>
 
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-refresh"></use>
+            <use xlink:href="#refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-delete"></use>
+            <use xlink:href="#delete"></use>
           </svg>
         </button>
     </div>`

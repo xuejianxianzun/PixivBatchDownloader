@@ -17,7 +17,7 @@ class ButtonsConfig {
     {
       name: 'zoomBtnOnThumb',
       order: 1,
-      icon: 'icon-zoom',
+      icon: 'zoom',
       btn: document.createElement('button'),
       title: '_图片查看器',
       show: () => settings.magnifier,
@@ -25,7 +25,7 @@ class ButtonsConfig {
     {
       name: 'copyBtnOnThumb',
       order: 2,
-      icon: 'icon-copy',
+      icon: 'copy',
       btn: document.createElement('button'),
       title: '_复制图片和摘要',
       show: () => settings.showCopyBtnOnThumb,
@@ -33,7 +33,7 @@ class ButtonsConfig {
     {
       name: 'downloadBtnOnThumb',
       order: 3,
-      icon: 'icon-download',
+      icon: 'download',
       btn: document.createElement('button'),
       title: '_下载',
       show: () => settings.showDownloadBtnOnThumb,

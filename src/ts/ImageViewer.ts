@@ -486,7 +486,7 @@ class ImageViewer {
     li.id = 'imageViewerCopyWorkLinkBtn'
     li.innerHTML = `
     <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-link"></use>
+  <use xlink:href="#link"></use>
 </svg>`
     this.addBtn(li)
 
@@ -509,7 +509,7 @@ class ImageViewer {
     li.id = 'imageViewerCopyBtn'
     li.innerHTML = `
     <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-copy"></use>
+  <use xlink:href="#copy"></use>
 </svg>`
     this.addBtn(li)
 

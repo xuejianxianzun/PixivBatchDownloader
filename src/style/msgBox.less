@@ -1,8 +1,6 @@
-@import './var.less';
-
 .xz_msg_box {
-  background: #fff;
-  box-shadow: 0 0 15px @boxShadowBlue;
+  background: var(--settings-panel-bg);
+  box-shadow: 0 0 15px var(--box-shadow-blue);
   position: fixed;
   z-index: 9999;
   min-width: 500px;
@@ -13,7 +11,13 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
-  font-family: @pixivFontFamily;
+  font-family: var(--pixiv-font-family);
+  overflow: hidden;
+
+  &::selection {
+    background: var(--theme-blue);
+    color: #fff;
+  }
 
   p {
     margin: 0;
@@ -22,11 +26,11 @@
   .title {
     font-size: 17px;
     font-weight: bold;
-    color: @themeBlue;
+    color: var(--blue-buttons-bg);
   }
 
   .blue {
-    color: @themeBlue;
+    color: var(--blue-buttons-bg);
   }
 
   .content {
@@ -34,16 +38,23 @@
     margin: 20px 0;
     max-height: 60vh;
     overflow: auto;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.7;
     color: #474747;
     text-align: left;
+
+    // 内容区域里的按钮是由调用方直接操作内容区域的 innerHTML 添加上去的，在这里使用 revert 使按钮保持默认的样式
+    // 如果不设置 revert 规则，或者使用 unset 规则，都会导致按钮的背景颜色被其父级的 .xz_msg_box 的背景颜色覆盖，导致看不出来按钮的背景颜色了。
+    button {
+      border: revert;
+      background-color: revert;
+    }
   }
 
   .btn {
     cursor: pointer;
-    background: @themeBlue;
-    // box-shadow: @boxShadowBlue 1px 1px 1px;
+    background: var(--blue-buttons-bg);
+    // box-shadow: var(--box-shadow-blue) 1px 1px 1px;
     color: #fff;
     border: none;
     text-align: center;
@@ -52,32 +63,34 @@
   }
 
   a {
-    color: @themeBlue;
+    color: var(--blue-buttons-bg);
   }
 }
 
 .theme-dark {
   &.xz_msg_box {
-    background: #222;
-    box-shadow: @darkBoxShadow 0px 0px 15px;
+    background: var(--settings-panel-bg-dark);
+    box-shadow: var(--dark-box-shadow);
+    text-shadow: var(--text-shadow-on-xzbg);
 
     .title {
       color: #fff;
     }
 
     .content {
-      color: #eee;
-      text-shadow: 1px 1px black;
+      color: #fff;
+      text-shadow: var(--text-shadow-on-xzbg);
     }
   }
 }
 
 .xzBG {
   &.xz_msg_box {
-    background: #222;
-    box-shadow: @darkBoxShadow 0px 0px 15px;
+    background: var(--settings-panel-bg-xzbg);
+    box-shadow: var(--dark-box-shadow);
     color: #fff;
     transition: none;
+    text-shadow: var(--text-shadow-on-xzbg);
 
     * {
       color: #fff;
@@ -92,11 +105,17 @@
     }
 
     .content {
-      text-shadow: #003247 1px 1px 1px;
+      color: #fff;
+      text-shadow: var(--text-shadow-on-xzbg);
+
+      // 在背景图片模式下，内容区域里的按钮只显示为白色的文字，没有背景颜色和边框。
+      button {
+        border: unset !important;
+        background-color: unset !important;
+      }
     }
 
     .xzBGLayer {
-      filter: blur(1px);
       border-radius: 12px;
     }
   }
@@ -109,11 +128,13 @@
   width: 86vw;
   top: 6vh;
   max-height: 90vh;
-  font-size: 16px;
-  font-family: @MobileFontFamily;
-  padding: 4vh 2vw;
+  font-size: 15px;
+  font-family: var(--mobile-font-family);
+  padding: 2vh 4vw;
   margin: 3vh 0;
+
   .content {
     max-height: 60vh;
+    margin: 10px 0 16px;
   }
 }

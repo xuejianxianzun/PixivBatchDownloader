@@ -5,6 +5,7 @@ import { theme } from '../Theme'
 import { settings, setSetting } from './Settings'
 import { toast } from '../Toast'
 import { nameRuleManager } from './NameRuleManager'
+import { Utils } from '../utils/Utils'
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
@@ -72,6 +73,27 @@ class SaveNamingRule {
     this.listWrap.addEventListener('mouseleave', () => {
       this.show = false
     })
+
+    // 当列表显示出来之后，点击列表以外的区域会隐藏列表
+    // 这在移动端尤其有用，因为在移动端没有鼠标可以触发上面的 mouseleave 事件
+    const form = document.querySelector(
+      '.centerWrap form'
+    ) as HTMLFormElement | null
+    if (form) {
+      Utils.click(
+        form,
+        (ev) => {
+          if (!this.show || !(ev.target instanceof HTMLElement)) {
+            return
+          }
+          const target = ev.target
+          if (!target.closest('.namingRuleList')) {
+            this.show = false
+          }
+        },
+        200
+      )
+    }
 
     // 设置发生变化时重新创建列表
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {

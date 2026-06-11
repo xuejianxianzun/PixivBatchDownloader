@@ -6,6 +6,7 @@ import { EVT } from '../EVT'
 import { img2ico } from '../utils/imageToIcon'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
+import { getImg } from '../utils/GetImage'
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
@@ -26,11 +27,18 @@ class SaveAvatarIcon {
     const bigImg = userProfile.body.imageBig // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
     const fullSizeImg = bigImg.replace('_170', '') // 去掉 170 标记，获取头像图片的原图
 
+    // 加载图片
+    const imageBlob = await getImg(fullSizeImg)
+    if (!imageBlob) {
+      return
+    }
+    const imageURL = URL.createObjectURL(imageBlob)
+
     // 生成 ico 文件
     // 尺寸固定为 256，因为尺寸更小的图标如 128，在 windows 资源管理器里会被缩小到 48 显示
     const blob = await img2ico.convert({
       size: [256],
-      source: fullSizeImg,
+      source: imageURL,
       shape: 'fillet',
       bleed: true,
     })

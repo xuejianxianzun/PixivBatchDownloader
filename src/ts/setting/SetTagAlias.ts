@@ -64,24 +64,24 @@ class SetTagAlias {
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
           <span class="label uidLabel" data-xztext="_别名"></span>
-          <input type="text" class="setinput_style1 blue addUidInput" />
+          <input type="text" class="setinput_style blue addUidInput" />
         </div>
 
         <div class="inputItem name">
           <span class="label nameLabel" data-xztext="_标签列表"></span>
-          <input type="text" class="setinput_style1 blue addNameInput" placeholder="tag1,tag2,tag3" />
+          <input type="text" class="setinput_style blue addNameInput" placeholder="tag1,tag2,tag3" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-yes_submit"></use>
+              <use xlink:href="#yes_submit"></use>
             </svg>
           </button>
 
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-close_cancel"></use>
+              <use xlink:href="#close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -166,11 +166,11 @@ class SetTagAlias {
   // 创建规则对应的元素，并绑定事件
   private createOneList(alias: string, tags: string) {
     const html = `
-        <input type="text" class="setinput_style1 blue alias" data-uidInput="${alias}" value="${alias}" />
-        <input type="text" class="setinput_style1 blue tags" data-nameInput="${alias}" value="${tags}" />
+        <input type="text" class="setinput_style blue alias" data-uidInput="${alias}" value="${alias}" />
+        <input type="text" class="setinput_style blue tags" data-nameInput="${alias}" value="${tags}" />
         <button type="button" class="textButton delete" data-deleteRule="${alias}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-delete"></use>
+            <use xlink:href="#delete"></use>
           </svg>
         </button>`
 

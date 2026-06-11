@@ -1,5 +1,6 @@
 [English](/README.md) |
 [简体中文](/README-ZH-CN.md) |
+繁體中文 |
 [日本語](/README-JA.md) |
 [韩国语](/README-KO.md) |
 [Russian](/README-RU.md)
@@ -50,9 +51,7 @@
 - 內建圖片檢視器，查看多圖作品；
 - 高亮關注的使用者；
 
-![PixivBatchDownloader screenshot](./notes/images/ui-tw-0.png)
-
-![PixivBatchDownloader screenshot](./notes/images/ui-tw-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-tw-white.png)
 
 [瀏覽官網](https://pixiv.download/)
 

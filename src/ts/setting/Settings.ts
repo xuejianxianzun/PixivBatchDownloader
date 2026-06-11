@@ -21,7 +21,7 @@
 // 示例：
 // window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
 //   const data = ev.detail.data as any
-//   if (data.name === 'showAdvancedSettings') { }
+//   if (data.name === 'abc') { }
 //   if (data.value) { }
 // })
 
@@ -57,6 +57,23 @@ import { toast } from '../Toast'
 import { lang } from '../Language'
 import { PageName } from '../PageType'
 import { ppdTask } from '../PPDTask'
+
+export type OptionCategoryLevel1 =
+  | 'crawl'
+  | 'naming'
+  | 'download'
+  | 'enhance'
+  | 'general'
+
+/** 保存每个可折叠区域的展开/折叠状态 */
+type ExpandedCards = {
+  // 一级导航分类的名称：home（主页是个单独的分类）、crawl、naming、download、enhance、general（这些是设置项的分类）。
+  // 备注：不需要保存 search 里的状态。
+  [key in OptionCategoryLevel1 | 'home']?: {
+    // 二级分类的展开/折叠状态。true 为展开，false 为折叠
+    [key: string]: boolean
+  }
+}
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -151,7 +168,8 @@ interface XzSetting {
   BMKNumAverageSwitch: boolean
   BMKNumAverage: number
   setWHSwitch: boolean
-  widthHeightLimit: '>=' | '=' | '<='
+  widthComparison: '>=' | '=' | '<='
+  heightComparison: '>=' | '=' | '<='
   setWidthAndOr: '&' | '|'
   setWidth: number
   setHeight: number
@@ -234,7 +252,6 @@ interface XzSetting {
   // 这里应该使用 Map 结构，但是 JSON.stringify 不能处理 Map 类型，所以简化成了 Object
   nameRuleForEachPageType: { [key in PageName]: string }
   nameRuleForEachPageTypeForNovel: { [key in PageName]: string }
-  showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
   boldKeywords: boolean
   autoExportResult: boolean
@@ -375,10 +392,14 @@ interface XzSetting {
   onlyCrawlLastFewImagesCount: number
   doNotCrawlFirstImagesSwitch: boolean
   doNotCrawlFirstImagesCount: number
-  pinnedOptions: number[]
+  pinnedOptionsV2: number[]
   debugForWiki: boolean
   singleEPUBFileSizeLimit: number
   imageToGray: boolean
+  expandedCards: ExpandedCards
+  clickOptionCardToToggleSwitch: boolean
+  clickSettingNameOpenWiki: boolean
+  downloadIntervalSwitch: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -669,7 +690,8 @@ class Settings {
     BMKNumAverageSwitch: false,
     BMKNumAverage: 600,
     setWHSwitch: false,
-    widthHeightLimit: '>=',
+    widthComparison: '>=',
+    heightComparison: '>=',
     setWidthAndOr: '&',
     setWidth: 0,
     setHeight: 0,
@@ -721,8 +743,8 @@ class Settings {
     magnifierSize: 'original',
     magnifierPosition: 'right',
     bgDisplay: false,
-    bgOpacity: 60,
-    bgPositionY: 'center',
+    bgOpacity: 75,
+    bgPositionY: 'top',
     createFolderByTag: false,
     createFolderTagList: [],
     createFolderTagList2: [],
@@ -803,7 +825,6 @@ class Settings {
       [PageName.Contest]: Config.defaultNameRuleForNovel,
       [PageName.SearchUsers]: Config.defaultNameRuleForNovel,
     },
-    showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
     boldKeywords: true,
     autoExportResult: false,
@@ -927,10 +948,66 @@ class Settings {
     onlyCrawlLastFewImagesCount: 1,
     doNotCrawlFirstImagesSwitch: false,
     doNotCrawlFirstImagesCount: 1,
-    pinnedOptions: [],
+    pinnedOptionsV2: [0, 1],
     debugForWiki: false,
     singleEPUBFileSizeLimit: 200,
     imageToGray: false,
+    clickOptionCardToToggleSwitch: true,
+    /** 保存每个可折叠区域的展开/折叠状态 */
+    // home 里的二级分类名称是直接在这里指定的。其他导航分类里的二级分类名称来自 OptionConfigs.ts 里的 categorySchema 对象里，对应的一级分类的 level2.id。
+    // 每个一级分类里的首个二级分类是默认展开的，这样用户至少可以看到第一个二级分类的内容，不需要手动点击来展开它。
+    expandedCards: {
+      home: {
+        /** 置顶的设置区域 */
+        pinnedOptions: true,
+        /** “开始抓取”区域 */
+        crawlBtns: true,
+        /** “附加功能”区域 */
+        otherBtns: false,
+        /** 下载区域 */
+        downloadArea: false,
+      },
+      crawl: {
+        scope: true,
+        workType: false,
+        workData: false,
+        tagAndTitle: false,
+        multiImage: false,
+        blockUsers: false,
+        strategy: false,
+      },
+      naming: {
+        names: true,
+        adjustFolders: false,
+        serial: false,
+        alias: false,
+        removeSpecialChars: false,
+      },
+      download: {
+        behavior: true,
+        record: false,
+        imageSize: false,
+        ugoira: false,
+        novel: false,
+        metadata: false,
+      },
+      enhance: {
+        preview: true,
+        thumbnail: false,
+        thumbnailButtons: false,
+        other: false,
+        searchPage: false,
+      },
+      general: {
+        language: true,
+        appearance: false,
+        operation: false,
+        log: false,
+        manageSettings: false,
+      },
+    },
+    clickSettingNameOpenWiki: true,
+    downloadIntervalSwitch: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -946,7 +1023,7 @@ class Settings {
   // 值为整数的设置不必单独列出
 
   // 值为 number[] 的设置
-  private numberArrayKeys = ['pinnedOptions']
+  private numberArrayKeys = ['pinnedOptionsV2']
 
   // 值为字符串数组的设置
   private stringArrayKeys = [
@@ -972,7 +1049,22 @@ class Settings {
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
-      this.reset()
+      const result = window.confirm(lang.transl('_是否重置设置'))
+      if (result) {
+        this.reset()
+      }
+    })
+
+    window.addEventListener(EVT.list.resetFollowingData, () => {
+      const result = window.confirm(
+        lang.transl('_是否清除下载器保存的关注数据')
+      )
+      if (result) {
+        browser.runtime.sendMessage({
+          msg: 'resetFollowingData',
+        })
+        toast.success(lang.transl('_已清除'))
+      }
     })
 
     window.addEventListener(EVT.list.exportSettings, () => {
@@ -1127,7 +1219,10 @@ class Settings {
     this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
 
-    toast.success(lang.transl('_重新显示帮助'))
+    msgBox.show(lang.transl('_重新显示帮助的说明'), {
+      title: lang.transl('_重新显示帮助'),
+    })
+    toast.success(lang.transl('_已重置帮助信息'))
   }
 
   // 重置设置 或者 导入设置
@@ -1135,11 +1230,15 @@ class Settings {
   private reset(data?: XzSetting) {
     this.assignSettings(data ? data : this.defaultSettings)
     EVT.fire('resetSettingsEnd')
+    toast.success(lang.transl('_已重置设置'))
   }
 
-  // 更改设置项
-  // 其他模块应该通过这个方法更改设置
-  // 这里面有一些类型转换的代码，主要目的：
+  /** 更新设置项的值 */
+  // 其他模块应该通过这个方法更改设置，这样才能够：
+  // 1. 触发 settingChange 事件，让其他模块能够监听到该设置的变化
+  // 2. 让下载器持久保存修改后的设置
+  // 3. 进行类型转换，以及兼容一些旧设置
+  // 这里面有一些处理兼容性和类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(key: SettingKeys, value: SettingValue) {

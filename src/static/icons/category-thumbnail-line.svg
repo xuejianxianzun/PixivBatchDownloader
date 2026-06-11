@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="category-thumbnail-line.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.1103516"
+     inkscape:cx="511.54969"
+     inkscape:cy="512"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="64"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g1"
+     style="stroke-width:48;stroke-dasharray:none">
+    <rect
+       x="160"
+       y="192"
+       width="704"
+       height="640"
+       rx="56"
+       id="rect1"
+       style="stroke-width:48;stroke-dasharray:none" />
+    <circle
+       cx="352"
+       cy="384"
+       r="72"
+       id="circle1"
+       style="stroke-width:48;stroke-dasharray:none" />
+    <path
+       d="M256 704 400 544 528 672 640 576 768 704"
+       id="path1"
+       style="stroke-width:48;stroke-dasharray:none" />
+  </g>
+</svg>

@@ -1,9 +1,45 @@
-@import './var.less';
+:root {
+  // 主题色，主要用于标题栏、导航栏、按钮的高亮颜色。它不会在内容区域里大量使用，以免造成视觉疲劳。
+  --theme-blue: #199df5;
+  // 蓝色按钮的背景颜色
+  --blue-buttons-bg: #0ea8ef;
+  // 比主题色浅一些的蓝色，主要用于蓝色文字
+  --beautify-blue: #1dacf5;
+  // 美化的复选框、单选框的蓝色
+  --bg-checkbox-blue: #1fb2fd;
+  // 下载进度条的蓝色
+  --bg-progress-blue: #0eb3f3;
+  --box-shadow-blue: #2ca6df;
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
+  --pixiv-font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --mobile-font-family: sans-serif;
+  // 表单里每个选项的行高都是 26 px。
+  // PS：有些内部元素（特别是按钮）的高度不到 26px，我会使用 margin 将其占据的高度增加到 26px，以使它们在视觉上垂直居中对齐。
+  --line-height: 26px;
+  --color-r18: rgb(246, 61, 91);
+  --color-ai: rgb(176 54 246);
+  // 设置面板的背景颜色
+  --settings-panel-bg: #fff;
+  --settings-panel-bg-white: #fff;
+  --settings-panel-bg-dark: #161a1f;
+  // 启用背景图片之后，面板的背景颜色
+  --settings-panel-bg-xzbg: rgb(10, 18, 28);
+  // 启用背景图片之后，背景图片层会显示在面板和内容区域中间
+  // 启用背景图片之后，把整个内容区域的背景颜色设置为半透明的黑色遮罩，降低背景图片的亮度，使得文字更清晰易读。
+  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
+  --white-30: rgba(255, 255, 255, 0.3);
+  --text-shadow-on-xzbg: #003247 0px 0px 2px;
+  --settings-panel-text: #444;
+}
+
 @import './deleteWorks.less';
 @import './selectWork.less';
 @import './search.less';
 @import './rightButtons.less';
-@import './centerPanel.less';
+@import './settingsPanel.less';
 @import './outputWrap.less';
 @import './log.less';
 @import './msgBox.less';
@@ -19,13 +55,6 @@
 @import './input.less';
 @import './previewWorkDetailPanel.less';
 // @import './showLargerThumbnails.less';
-
-:root {
-  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
-}
-
-// less 里不支持将属性值直接设置为 var(--var) 形式，需要用 less 的变量做一层包装
-@boxShadow: var(--box-shadow);
 
 // 储存通用规则和一些零散的元素的规则
 .warn {
@@ -44,12 +73,16 @@
   flex-basis: 100%;
 }
 
-.icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: initial;
-  fill: currentColor;
-  overflow: hidden;
+.nowrap {
+  flex-wrap: nowrap;
+}
+
+.shrink0 {
+  flex-shrink: 0;
+}
+
+.shrink1 {
+  flex-shrink: 1;
 }
 
 .mr0 {
@@ -58,6 +91,79 @@
 
 .mr4 {
   margin-right: 4px !important;
+}
+
+.p0 {
+  padding: 0 !important;
+}
+
+.pr4 {
+  padding-right: 4px !important;
+}
+.w20 {
+  width: 20px !important;
+  min-width: 20px !important;
+}
+
+.w30 {
+  width: 30px !important;
+  min-width: 30px !important;
+}
+
+.w40 {
+  width: 40px !important;
+  min-width: 40px !important;
+}
+
+.w50 {
+  width: 50px !important;
+  min-width: 50px !important;
+}
+
+.w60 {
+  width: 60px !important;
+}
+
+.w70 {
+  width: 70px !important;
+}
+
+.w80 {
+  width: 80px !important;
+}
+
+.w90 {
+  width: 90px !important;
+}
+
+.w100 {
+  width: 100px !important;
+}
+
+.w150 {
+  width: 150px !important;
+}
+
+.w200 {
+  width: 200px !important;
+}
+
+.w250 {
+  width: 250px !important;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: initial;
+  fill: currentColor;
+  overflow: hidden;
+
+  use {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(var(--icon-scale, 1));
+  }
 }
 
 .beautify_scrollbar {
@@ -79,13 +185,13 @@
 
   // 垂直滚动条的滑块部分
   // &::-webkit-scrollbar-thumb:vertical {
-  //   background-color: @beautifyBlue;
+  //   background-color: var(--beautify-blue);
   //   border-radius: 10px;
   // }
 
   // 水平滚动条的滑块部分
   // &::-webkit-scrollbar-thumb:horizontal {
-  //   background-color: @beautifyBlue;
+  //   background-color: var(--beautify-blue);
   //   border-radius: 10px;
   // }
 }
@@ -130,10 +236,11 @@ main section nav[style] {
   cursor: pointer;
   background: none;
   border: none;
+  font-size: 16px;
 
   &:hover,
   &:active {
-    color: @themeBlue;
+    color: var(--beautify-blue);
   }
 
   svg {
@@ -152,7 +259,7 @@ body.mobile {
 
     &:hover,
     &:active {
-      color: @themeBlue;
+      color: var(--beautify-blue);
     }
 
     svg {
@@ -176,8 +283,8 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 
 #tip {
   color: #fff;
-  font-size: 14px;
-  font-family: @pixivFontFamily;
+  font-size: 15px;
+  font-family: var(--pixiv-font-family);
   position: fixed;
   z-index: 5001;
   max-width: 500px;
@@ -189,30 +296,6 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   line-height: 20px;
   word-break: break-word;
   display: none;
-}
-
-#down_id_input {
-  margin: 6px auto;
-  background: #fff;
-  width: 600px;
-  height: 80px;
-  font-size: 12px;
-  padding: 7px;
-  display: none;
-  position: relative;
-  z-index: 99;
-  border: 1px solid @themeBlue;
-}
-
-// 如果一些元素在切换颜色主题时背景颜色会变化，就给它们加上渐变效果
-#logWrap,
-.centerWrap,
-.centerWrap_head,
-.outputWrap,
-.settingForm,
-.tabsTitle,
-.xz_msg_box {
-  transition: background 0.5s;
 }
 
 #xzMaskWrap {
@@ -233,22 +316,22 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   position: fixed;
   z-index: 2147483647;
   margin: auto;
-  font-size: 14px;
+  font-size: 15px;
   pointer-events: none;
   display: inline-block;
   max-width: 500px;
   color: #fff;
-  background-color: @beautifyBlue;
-  box-shadow: @boxShadow;
-  padding: 8px 10px;
-  border-radius: 4px;
+  background-color: var(--beautify-blue);
+  box-shadow: var(--box-shadow);
+  padding: 9px 13px;
+  border-radius: 6px;
 }
 
 .xzToast.mobile {
   font-size: 16px;
   padding: 10px 15px;
   border-radius: 6px;
-  font-family: @MobileFontFamily;
+  font-family: var(--mobile-font-family);
 }
 
 #previewWorkWrap {
@@ -261,9 +344,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   top: 500px;
   padding: 0;
   overflow: hidden;
-  border: 2px solid @beautifyBlue;
+  border: 2px solid var(--beautify-blue);
   background-color: rgba(41, 179, 243, 0.1);
-  box-shadow: @boxShadow;
+  box-shadow: var(--box-shadow);
 
   img {
     width: 100%;
@@ -272,7 +355,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 }
 
 #previewWorkTip {
-  background-color: @beautifyBlue;
+  background-color: var(--beautify-blue);
   color: #fff;
   height: 23px;
   line-height: 20px;
@@ -282,7 +365,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: @pixivFontFamily;
+  font-family: var(--pixiv-font-family);
 
   span {
     display: inline-flex;
@@ -316,11 +399,11 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
     }
 
     &.r18 {
-      background: @colorR18;
+      background: var(--color-r18);
     }
 
     &.ai {
-      background: @colorAi;
+      background: var(--color-ai);
     }
 
     &.index {
@@ -347,9 +430,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   width: 1200px;
   height: 1200px;
-  border: 2px solid @beautifyBlue;
+  border: 2px solid var(--beautify-blue);
   background-color: rgba(41, 179, 243, 0.2);
-  box-shadow: @boxShadow;
+  box-shadow: var(--box-shadow);
 
   img {
     width: 100%;
@@ -369,7 +452,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   border: none;
   padding: 0;
   text-align: center;
-  background-color: @beautifyBlue;
+  background-color: var(--beautify-blue);
   border-radius: 4px;
   color: #fff;
   display: none;
@@ -401,7 +484,18 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   background-position-x: center;
   background-position-y: center;
   opacity: 0.4;
-  // filter: blur(1px);
+}
+
+.xzBG .xzbgMask {
+  background-color: var(--mask-on-xzbg);
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .id_range_tip {

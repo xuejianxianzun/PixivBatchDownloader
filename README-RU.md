@@ -2,7 +2,8 @@
 [简体中文](/README-ZH-CN.md) |
 [繁體中文](/README-ZH-TW.md) |
 [日本語](/README-JA.md) |
-[韩国语](/README-KO.md)
+[韩国语](/README-KO.md)|
+Russian
 
 [Discord channel](https://discord.gg/eW9JtTK)
 
@@ -49,9 +50,7 @@
 - Встроенный просмотрщик изображений для просмотра работ с несколькими изображениями;
 - Подсветка пользователей, на которых вы подписаны;
 
-![PixivBatchDownloader скриншот](./notes/images/ui-ru-0.png)
-
-![PixivBatchDownloader скриншот](./notes/images/ui-ru-1.png)
+![PixivBatchDownloader скриншот](./notes/images/ui-ru-white.png)
 
 # Онлайн-установка
 

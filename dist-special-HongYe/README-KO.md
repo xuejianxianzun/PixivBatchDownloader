@@ -2,6 +2,7 @@
 [중국어 간체](/README-ZH-CN.md) |
 [중국어 번체](/README-ZH-TW.md) |
 [日本語](/README-JA.md) |
+韩国语 |
 [Russian](/README-RU.md)
 
 [Discord](https://discord.gg/eW9JtTK)
@@ -50,9 +51,7 @@
 - 내장된 이미지 뷰어로 다중 이미지 작품을 확인;
 - 팔로우한 사용자를 강조 표시;
 
-![PixivBatchDownloader screenshot](./notes/images/ui-ko-0.png)
-
-![PixivBatchDownloader screenshot](./notes/images/ui-ko-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ko-white.png)
 
 # 온라인 설치
 

@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { settings, setSetting, SettingKeys } from './Settings'
-import { SettingsForm } from './SettingsForm'
+import { FormType } from './FormType'
 import { DateFormat } from '../utils/DateFormat'
 import { nameRuleManager } from './NameRuleManager'
 import { Tools } from '../Tools'
@@ -18,7 +18,7 @@ interface InputFileds {
 }
 
 class FormSettings {
-  constructor(form: SettingsForm) {
+  constructor(form: FormType) {
     this.form = form
 
     this.bindEvents()
@@ -26,7 +26,7 @@ class FormSettings {
     this.ListenChange()
   }
 
-  private form!: SettingsForm
+  private form!: FormType
 
   // 没有填写 userSetName 和 userSetNameForNovel 字段，因为它们由 nameRuleManager 管理
   private readonly inputFileds: InputFileds = {
@@ -79,7 +79,6 @@ class FormSettings {
       'saveMetaFormatTXT',
       'saveMetaFormatJSON',
       'setNameRuleForEachPageType',
-      'showAdvancedSettings',
       'showNotificationAfterDownloadComplete',
       'boldKeywords',
       'autoExportResult',
@@ -158,6 +157,10 @@ class FormSettings {
       'ugoiraSaveAsUgoira',
       'saveThumbnailForUgoira',
       'imageToGray',
+      'clickOptionCardToToggleSwitch',
+      'downloadUgoiraFirst',
+      'clickSettingNameOpenWiki',
+      'downloadIntervalSwitch',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -172,7 +175,6 @@ class FormSettings {
       'idRangeValueForImageWorks',
       'idRangeValueForNovelWorks',
       'idRangeValueForNovelSeries',
-      'needTag',
       'r18FolderName',
       'sizeMin',
       'sizeMax',
@@ -193,7 +195,6 @@ class FormSettings {
       'slowCrawlDealy',
       'downloadInterval',
       'downloadIntervalOnWorksNumber',
-      'copyWorkInfoFormat',
       'crawlLatestFewWorksNumber',
       'fullNameLengthLimit',
       'borderColor',
@@ -205,7 +206,8 @@ class FormSettings {
     ],
     radio: [
       'novelSaveAs',
-      'widthHeightLimit',
+      'widthComparison',
+      'heightComparison',
       'userRatioLimit',
       'setWidthAndOr',
       'ratio',
@@ -242,6 +244,8 @@ class FormSettings {
       'seriesNovelNameRule',
       'titleIncludeList',
       'titleExcludeList',
+      'copyWorkInfoFormat',
+      'needTag',
     ],
     datetime: ['postDateStart', 'postDateEnd'],
   }
@@ -320,8 +324,6 @@ class FormSettings {
 
   // 处理复选框： click 时保存 checked
   private saveCheckBox(name: SettingKeys) {
-    // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
-    // 其他设置只有一个，是 HTMLInputElement
     const el = this.form[name] as
       | HTMLInputElement
       | NodeListOf<HTMLInputElement>
@@ -351,11 +353,16 @@ class FormSettings {
   // 恢复值为 Boolean 的设置项
   private restoreBoolean(name: SettingKeys) {
     if (settings[name] !== undefined) {
-      // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
-      // 其他设置只有一个，是 HTMLInputElement
       const el = this.form[name] as
         | HTMLInputElement
         | NodeListOf<HTMLInputElement>
+
+      if (!el) {
+        // 找不到该设置对应的 input 元素
+        console.error('Element not found for setting:', name)
+        return
+      }
+
       let elArray: HTMLInputElement[] = []
       if ((el as NodeListOf<HTMLInputElement>).length !== undefined) {
         elArray = Array.from(el as NodeListOf<HTMLInputElement>)

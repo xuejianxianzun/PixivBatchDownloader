@@ -1,6 +1,5 @@
 // 初始化首页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
@@ -37,34 +36,34 @@ class InitHomePage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    this.downIdButton = Tools.addBtn(
+    this.downIdButton = this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_输入id进行抓取',
       '',
-      'crawlById'
+      'crawlById',
+      'brand'
     )
     this.downIdButton.addEventListener('click', () => {
       this.inputIDList()
     })
 
-    const crawlIdRange = Tools.addBtn(
+    const crawlIdRange = this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_抓取id区间',
       '',
-      'crawlIdRange'
+      'crawlIdRange',
+      'brand'
     )
     crawlIdRange.addEventListener('click', () => {
       this.crawlIdRange()
     })
 
-    this.importIDListButton = Tools.addBtn(
+    this.importIDListButton = this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgGreen,
       '_导入ID列表',
       '',
-      'importIDList'
+      'importIDList',
+      'brand'
     )
     this.importIDListButton.addEventListener('click', () => {
       this.importIDList()
@@ -72,12 +71,12 @@ class InitHomePage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_清空已保存的抓取结果',
       '',
-      'clearSavedCrawlResult'
+      'clearSavedCrawlResult',
+      'brand'
     ).addEventListener('click', () => {
       EVT.fire('clearSavedCrawl')
     })
@@ -245,7 +244,6 @@ class InitHomePage extends InitPageBase {
       // 添加一个按钮并等待点击
       const btn = document.createElement('button')
       btn.textContent = lang.transl('_选择文件')
-      btn.setAttribute('style', `border: revert; background-color: revert;`)
       content.append(btn)
 
       btn.addEventListener('click', () => {

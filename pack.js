@@ -17,6 +17,10 @@ async function copys () {
     // 复制 static 文件夹的内容
     await copy('./src/static', distPath, {
       overwrite: true,
+      filter: function (filePath) {
+        // 如果文件以 .svg 结尾，则返回 false 予以排除
+        return !filePath.endsWith('.svg')
+      }
     }).catch(function (error) {
       console.error('Copy failed: ' + error)
       reject()
@@ -65,7 +69,7 @@ function pack () {
       '_metadata/**', // 排除 _metadata 文件夹
     ],
     dot: false, // 忽略隐藏文件
-  });
+  })
 
   archive.finalize()
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   t="1779709113413"
+   class="icon"
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   p-id="124581"
+   width="128"
+   height="128"
+   id="svg1"
+   sodipodi:docname="paper-airplane.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.8828125"
+     inkscape:cx="63.943712"
+     inkscape:cy="64"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     d="m 955.87005,182.2411 c -9.52432,-14.37631 -22.6427,-9.5243 -23.72091,-9.3446 L 81.251207,384.58769 c -7.906965,1.97673 -14.0169,8.08667 -16.173346,15.81394 -2.156447,7.90696 0,16.17335 5.750528,21.92387 L 231.30395,581.90255 277.30816,833.488 c 0,0.53911 1.79703,14.91542 16.89216,17.79069 12.57927,2.33615 18.86891,-3.95348 19.22831,-4.13319 l 102.61092,-81.58558 80.32765,79.96824 c 4.85201,4.6723 11.32135,7.18816 17.9704,6.46934 6.64902,-0.71881 12.57926,-4.13318 16.53275,-9.88372 L 956.22946,207.39964 c 0.5391,-0.89851 7.72727,-12.75897 -0.35941,-25.15854 z M 130.84947,418.55171 775.08793,258.43555 256.10309,543.08651 Z M 304.08403,729.61915 277.30816,582.80108 643.90409,381.71242 345.23622,599.87294 c 0,0 -3.95348,3.23468 -5.57082,5.39113 -1.43763,1.97673 -2.87526,6.64903 -2.87526,6.64903 z m 59.30229,-45.10568 32.52641,39.71457 -56.06762,44.56656 z M 509.84499,792.69521 378.12204,631.50083 v 0 L 848.04771,288.08669 Z"
+     p-id="124582"
+     fill="#111111"
+     id="path1"
+     style="stroke-width:1.05295" />
+</svg>

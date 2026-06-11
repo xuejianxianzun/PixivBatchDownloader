@@ -6,7 +6,6 @@ import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
 import { DownloadRecordType } from './DownloadRecord'
 import { EVT } from '../EVT'
-import { secretSignal } from '../utils/SecretSignal'
 
 /** 导入、导出、清空下载记录 */
 class DownloadRecordManager {
@@ -20,50 +19,20 @@ class DownloadRecordManager {
   private storeNameList: string[]
 
   private bindEvents() {
-    // 导入含有 id 列表的 txt 文件
-    secretSignal.register('recordtxt', () => {
-      this.importRecordFromTxt()
+    // 监听导出下载记录的事件
+    window.addEventListener(EVT.list.exportDownloadRecord, () => {
+      this.exportRecord()
     })
-
-    // 导入下载记录的按钮
-    {
-      const btn = document.querySelector('#importDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('importDownloadRecord')
-        })
-      }
-    }
 
     // 监听导入下载记录的事件
     window.addEventListener(EVT.list.importDownloadRecord, () => {
       this.importRecordFromJSON()
     })
 
-    // 导出下载记录的按钮
-    {
-      const btn = document.querySelector('#exportDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('exportDownloadRecord')
-        })
-      }
-    }
-
-    // 监听导出下载记录的事件
-    window.addEventListener(EVT.list.exportDownloadRecord, () => {
-      this.exportRecord()
+    // 导入含有 id 列表的 TXT 文件
+    window.addEventListener(EVT.list.importDownloadRecordTXT, () => {
+      this.importRecordFromTxt()
     })
-
-    // 清空下载记录的按钮
-    {
-      const btn = document.querySelector('#clearDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('clearDownloadRecord')
-        })
-      }
-    }
 
     // 监听清空下载记录的事件
     window.addEventListener(EVT.list.clearDownloadRecord, () => {

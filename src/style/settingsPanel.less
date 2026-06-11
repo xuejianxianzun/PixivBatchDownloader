@@ -1,0 +1,2260 @@
+@import 'settingsPanel-theme.less';
+@import 'settingsPanel-mobile.less';
+
+.centerWrap {
+  --settings-panel-bg: #fff;
+  --settings-panel-text: #444;
+  --settings-panel-border: #9dd4f9;
+  --settings-panel-shadow: 0 0 25px #b4e0f5;
+  --settings-panel-con-bg: #eee;
+  --settings-panel-head-bg: #fff;
+  --settings-panel-head-border: #edf3f8;
+  --settings-panel-brand-color: var(--theme-blue);
+  --settings-panel-top-btn-color: #888;
+  --settings-panel-top-btn-hover-color: var(--theme-blue);
+  --settings-panel-top-btn-hover-bg: #eef7ff;
+  --settings-panel-top-btn-close-hover-color: #f33939;
+  --settings-panel-top-btn-close-hover-bg: #fcdddd;
+  --settings-panel-sponsor-hover-color: #e448a3;
+  --settings-panel-sponsor-hover-bg: #fff0f7;
+  --settings-panel-search-bg: #fff;
+  --settings-panel-search-border: #999;
+  --settings-panel-search-border-focus: var(--theme-blue);
+  --settings-panel-search-text: #444;
+  --settings-panel-search-placeholder: #aaa;
+  --settings-panel-search-icon: #aaa;
+  --settings-panel-card-radius: 10px;
+  --settings-panel-card-shadow: 0 1px 4px rgba(15, 53, 86, 0.04);
+  --settings-panel-card-border: #e8edf2;
+  --settings-panel-control-radius: 8px;
+  --settings-panel-input-radius: 8px;
+  --settings-panel-input-bg: #fff;
+  --settings-panel-input-border: #d5e1e8;
+  --settings-panel-input-focus-shadow: 0 0 0 3px rgba(25, 157, 245, 0.08);
+  --settings-panel-clear-color: #999;
+  --settings-panel-clear-visible-color: #666;
+  --settings-panel-clear-hover-color: var(--theme-blue);
+  --settings-panel-clear-hover-bg: #eef7ff;
+  --settings-panel-sidebar-bg: #f5f5f5;
+  --settings-panel-nav-text: #111;
+  --settings-panel-nav-hover-bg: #e5eef7;
+  --settings-panel-nav-active-bg: #eef7ff;
+  --settings-panel-nav-active-text: var(--theme-blue);
+  --settings-panel-nav-active-accent: var(--theme-blue);
+  --settings-panel-nav-active-shadow: 0 4px 12px rgba(9, 160, 244, 0.08);
+  --settings-panel-btn-brand: var(--theme-blue);
+  --settings-panel-btn-success: #14ad27;
+  --settings-panel-btn-warning: #e49d00;
+  --settings-panel-btn-danger: #f33939;
+  --settings-panel-btn-primary-text: #fff;
+  --settings-panel-btn-primary-shadow: 0 2px 6px rgba(15, 53, 86, 0.1);
+  --settings-panel-btn-primary-shadow-hover: 0 4px 10px rgba(15, 53, 86, 0.14);
+  --settings-panel-btn-secondary-bg: #fff;
+  --settings-panel-btn-secondary-hover-bg: #edf7ff;
+  --settings-panel-btn-secondary-shadow: 0 1px 3px rgba(15, 53, 86, 0.04);
+  --settings-panel-btn-secondary-brand-text: var(--theme-blue);
+  --settings-panel-btn-secondary-success-text: #0f9f23;
+  --settings-panel-btn-secondary-warning-text: #96815a;
+  --settings-panel-btn-secondary-danger-text: #bb7878;
+  --settings-panel-btn-secondary-warning-hover-bg: #fff8ec;
+  --settings-panel-btn-secondary-warning-hover-border: #e4c992;
+  --settings-panel-btn-secondary-warning-hover-text: #9d6e00;
+  --settings-panel-btn-secondary-danger-hover-bg: #fff4f4;
+  --settings-panel-btn-secondary-danger-hover-border: #efc0c0;
+  --settings-panel-btn-secondary-danger-hover-text: #d15f5f;
+  --settings-panel-download-summary-border: #ccc;
+  --settings-panel-download-summary-status: #666;
+  --settings-panel-download-summary-btn-color: #666;
+  --settings-panel-download-summary-btn-hover-color: var(--theme-blue);
+  --settings-panel-download-summary-btn-hover-bg: transparent;
+  --settings-panel-download-state-start: var(--theme-blue);
+  --settings-panel-download-state-loading: var(--theme-blue);
+  --settings-panel-download-state-pause: #96815a;
+  --settings-panel-download-state-stop: #bb7878;
+  --settings-panel-download-state-complete-text: #697784;
+  --settings-panel-download-state-complete-dot: #17aa2d;
+  --settings-panel-progress-total-track: #ebf4fa;
+  --settings-panel-progress-total-border: #d8e8f2;
+  --settings-panel-progress-total-fill: linear-gradient(
+    90deg,
+    #84d4fb 0%,
+    #5dc0f4 100%
+  );
+  --settings-panel-progress-total-text: #32586d;
+  --settings-panel-progress-item-track: #fff;
+  --settings-panel-progress-item-border: #d8e8f2;
+  --settings-panel-progress-item-fill: linear-gradient(
+    90deg,
+    #eef8ff 0%,
+    #dcefff 100%
+  );
+  --settings-panel-progress-label: #647987;
+  --settings-panel-progress-name: #355468;
+  --settings-panel-progress-meta: #83919c;
+  --settings-panel-surface-bg: #fff;
+  --settings-panel-sticky-bg: #fff;
+  --settings-panel-surface-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-surface-text: #444;
+  --settings-panel-surface-border: #ececec;
+  --settings-panel-section-title-text: #222;
+  --settings-panel-section-hover-color: var(--theme-blue);
+  --settings-panel-section-icon-bg: #eef7fd;
+  --settings-panel-section-icon-color: var(--theme-blue);
+  --settings-panel-section-arrow-color: #555;
+  --settings-panel-option-card-shadow: 0 0 10px #ddd;
+  --settings-panel-option-card-pinned-border: #bde2ff;
+  --settings-panel-new-badge-color: #3ab8f2;
+  --settings-panel-tip-card-bg: #f7fbff;
+  --settings-panel-tip-card-border: rgba(9, 160, 244, 0.12);
+  --settings-panel-tip-card-shadow: var(--settings-panel-card-shadow);
+  --settings-panel-tip-card-text: #5f6d7b;
+  --settings-panel-tip-icon-bg: rgba(9, 160, 244, 0.1);
+  --settings-panel-tip-icon-color: #666;
+  --settings-panel-tip-confirm-color: var(--theme-blue);
+  --settings-panel-tip-confirm-hover-bg: #e5f2ff;
+  --settings-panel-help-action-bg: #fff;
+  --settings-panel-help-action-text: #444;
+  --settings-panel-help-action-icon: #666;
+  --settings-panel-help-action-shadow: 0 0 15px #ddd;
+  --settings-panel-help-action-hover-bg: #09a0f4;
+  --settings-panel-help-action-hover-text: #fff;
+  --settings-panel-help-action-update-dot: #ff4060;
+  --settings-panel-naming-list-bg: #fff;
+  --settings-panel-naming-list-border: #d8e8f2;
+  --settings-panel-naming-list-shadow: 0 8px 24px rgba(15, 53, 86, 0.12);
+  --settings-panel-naming-list-text: #556571;
+  --settings-panel-naming-list-rule: #4c5f6d;
+  --settings-panel-naming-list-hover-bg: #eef7ff;
+  --settings-panel-naming-list-divider: #edf2f6;
+  --settings-panel-naming-list-delete: #9aa9b5;
+  --settings-panel-naming-list-delete-hover-bg: rgba(243, 57, 57, 0.1);
+  --settings-panel-naming-list-delete-hover-color: #f33939;
+  --settings-panel-naming-list-empty: #93a1ac;
+  --settings-panel-search-summary: #444;
+  --settings-panel-search-mark-bg: #ffe74b;
+
+  display: none;
+  box-sizing: border-box;
+  width: 925px;
+  max-width: calc(100vw - 24px);
+  max-height: 84vh;
+  left: 50%;
+  top: 10vh;
+  margin-left: 0;
+  // 在 PC 端页面上，把设置面板靠左一些显示。这是因为设置面板是左右两列布局：左侧是导航区域，右侧是内容区域。 靠左一些的话，可以让内容区域更接近居中（而不是被挤到右边），这样用户体验更好。
+  transform: translateX(-54%);
+  padding: 0;
+  border-radius: 16px;
+  border: 1px solid var(--settings-panel-border);
+  box-shadow: var(--settings-panel-shadow);
+  background: var(--settings-panel-bg);
+  position: fixed;
+  z-index: 5000;
+  font-size: 15px;
+  color: var(--settings-panel-text);
+  overflow: hidden;
+  font-family: var(--pixiv-font-family);
+
+  ::selection {
+    background: var(--theme-blue);
+    color: #fff;
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: none;
+    margin: 5px 0;
+  }
+
+  p,
+  div,
+  span,
+  ul,
+  li,
+  input {
+    padding: 0;
+    margin: 0;
+  }
+
+  p,
+  div,
+  span,
+  button,
+  .centerWrap_head,
+  .centerWrap_con,
+  .settingForm,
+  .settingsPanel_page,
+  .settingsPanel_pageInner,
+  .settingsPanel_sidebar,
+  .settingsPanel_main,
+  .settingsPanel_navItem,
+  .settingsPanel_tipCard,
+  .settingsPanel_helpAction,
+  .settingsPanel_sectionHeader,
+  .settingsPanel_downloadSummaryBtn {
+    box-sizing: border-box;
+  }
+
+  button {
+    color: #444;
+  }
+
+  p {
+    line-height: var(--line-height);
+    min-height: var(--line-height);
+    height: auto;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .tip {
+    display: none;
+    color: #888;
+  }
+
+  .blue {
+    color: var(--beautify-blue) !important;
+  }
+
+  .fwb {
+    font-weight: 700;
+  }
+
+  .gray1 {
+    color: #777;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    padding: 0px 6px;
+    cursor: pointer;
+
+    // 会触发事件的按钮，不同于显示帮助的按钮，需要为它们添加轻量级的按钮样式，方便用户识别
+    &.fireEvent {
+      border: 1px solid var(--settings-panel-btn-secondary-border);
+      border-radius: 6px;
+      margin-right: 3px;
+    }
+  }
+
+  .grayButton {
+    background: #eee;
+    color: #333;
+    border-radius: 4px;
+    padding: 0px 6px;
+    margin: 0 4px;
+
+    &:hover {
+      background: var(--beautify-blue);
+      color: #fff !important;
+    }
+  }
+
+  .centerWrap_head {
+    padding: 10px 10px 10px 20px;
+    background: var(--settings-panel-head-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0px;
+    border-bottom: 1px solid var(--settings-panel-head-border);
+
+    .centerWrap_title {
+      line-height: 30px;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .btns {
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      .centerWrap_top_btn {
+        font-size: 20px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        user-select: none;
+        display: inline-block;
+        vertical-align: baseline;
+        background: none;
+        border: none;
+
+        .icon {
+          vertical-align: initial;
+          padding-top: 5px;
+        }
+      }
+    }
+  }
+
+  .settingsPanel_headerMain,
+  .settingsPanel_headerActions,
+  .settingsPanel_headerSearch,
+  .settingsPanel_brand {
+    display: flex;
+    align-items: center;
+  }
+
+  .settingsPanel_headerActions {
+    gap: 0px;
+  }
+
+  .settingsPanel_headerSearch {
+    gap: 5px;
+  }
+
+  .settingsPanel_brand {
+    gap: 6px;
+    min-width: 0;
+    color: var(--settings-panel-brand-color);
+  }
+
+  .settingsPanel_logo {
+    width: 28px;
+    height: 28px;
+    flex: none;
+  }
+
+  .settingsPanel_brandName {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .centerWrap_top_btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--settings-panel-top-btn-color);
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+    background: none;
+    border: none;
+
+    &:hover {
+      color: var(--settings-panel-top-btn-hover-color);
+      background: var(--settings-panel-top-btn-hover-bg);
+    }
+
+    // 关闭按钮的特殊样式，使用红色背景以表示危险操作
+    &.centerWrap_close_pc:hover,
+    &.centerWrap_close_pc:active {
+      color: var(--settings-panel-top-btn-close-hover-color);
+      background: var(--settings-panel-top-btn-close-hover-bg);
+    }
+
+    .icon {
+      font-size: 20px;
+    }
+  }
+
+  .settingsPanel_sponsorBtn:hover {
+    color: var(--settings-panel-sponsor-hover-color);
+    background: var(--settings-panel-sponsor-hover-bg);
+  }
+
+  .centerWrap_close_mobile {
+    display: none;
+  }
+
+  .settingsPanel_searchBar {
+    width: 210px;
+    max-width: 80vw;
+    height: 32px;
+    border: 1px solid var(--settings-panel-input-border);
+    border-radius: var(--settings-panel-input-radius);
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--settings-panel-input-bg);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+
+    &:focus-within {
+      border-color: var(--settings-panel-search-border-focus);
+      box-shadow: var(--settings-panel-input-focus-shadow);
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      height: 100%;
+      background: transparent;
+      color: var(--settings-panel-search-text);
+      font-size: 15px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: var(--settings-panel-search-placeholder);
+    }
+
+    button {
+      background: none;
+      border: none;
+    }
+  }
+
+  .settingsPanel_searchIcon {
+    color: var(--settings-panel-search-icon);
+    font-size: 20px;
+    flex: none;
+  }
+
+  .settingsPanel_clearSearch {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    border-radius: 50%;
+    color: var(--settings-panel-clear-color);
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    &.visible {
+      display: inline-flex;
+      color: var(--settings-panel-clear-visible-color);
+    }
+
+    &:hover {
+      color: var(--settings-panel-clear-hover-color);
+      background: var(--settings-panel-clear-hover-bg);
+    }
+  }
+
+  .settingsPanel_expandAll {
+    position: relative;
+    transition:
+      transform 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+
+    svg {
+      transform: rotate(180deg);
+      transition: transform 0.2s;
+    }
+
+    &.partial {
+      svg {
+        transform: rotate(90deg);
+      }
+    }
+
+    &.expanded {
+      svg {
+        transform: rotate(0deg);
+      }
+    }
+  }
+
+  .centerWrap_con {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    background: var(--settings-panel-con-bg);
+    overflow: auto;
+    max-height: 76vh;
+    min-height: 600px;
+
+    slot[data-name='namingBtns'] button,
+    slot[data-name='exportResult'] button {
+      display: none;
+    }
+
+    .showFileNameTip {
+      height: var(--line-height);
+    }
+
+    a.settingNameStyle:hover,
+    .has_tip:hover,
+    label:hover,
+    .showFileNameTip:hover,
+    .showFileNameTip:focus,
+    .textButton:hover,
+    .textButton:focus,
+    .help_bar > *:hover,
+    .updateActiveClass {
+      color: var(--beautify-blue) !important;
+    }
+
+    .grayButton:hover,
+    .grayButton:focus {
+      background: var(--beautify-blue);
+      color: #fff !important;
+    }
+
+    .settingForm {
+      position: relative;
+      width: 100%;
+
+      .optionAnchor {
+        display: none;
+      }
+
+      // 使选项里的元素在交叉轴上（垂直）对齐到顶部
+      .option {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        column-gap: 4px;
+
+        &:hover {
+          outline: 2px solid #f5c519;
+          outline-offset: -2px;
+        }
+
+        // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
+        & > * {
+          line-height: var(--line-height);
+          flex-shrink: 0;
+        }
+
+        // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 var(--line-height)
+        .beautify_switch,
+        .beautify_checkbox {
+          margin: 6px 0;
+          flex-shrink: 0;
+        }
+
+        .beautify_radio {
+          margin: 7px 0;
+          flex-shrink: 0;
+        }
+
+        .subOptionWrap {
+          max-width: 100%;
+          min-height: var(--line-height);
+          line-height: var(--line-height);
+          display: inline-flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          flex-grow: 1;
+          column-gap: 4px;
+
+          & > * {
+            line-height: var(--line-height);
+          }
+
+          &.noGrow {
+            flex-grow: 0;
+          }
+        }
+
+        // 在选项卡内部独立占据一行的子区域。当选项卡里的子选项非常多时，可以把它们分成多个子区域，每个子区域占据一行，这样容易区分和使用。
+        // 默认不换行，内部的元素不会缩小尺寸
+        .optionLine {
+          position: relative;
+          display: flex;
+          flex-basis: 100%;
+          flex-wrap: wrap;
+          flex-shrink: 0;
+          align-items: flex-start;
+          gap: 4px;
+          line-height: var(--line-height);
+
+          * {
+            line-height: var(--line-height);
+          }
+        }
+
+        // 默认样式下，选项的文字占据左侧空间，subOptionWrap 占据右侧空间
+        // 但是有些 subOptionWrap 需要占满整行宽度。通常有两种情况：
+        // 1. 让 textarea 占满宽度。如果 textarea 只占据右侧空间，宽度比较窄，有时会影响使用体验
+        // 2. 元素数量比较多，空间太小的话很拥挤。例如“针对特定用户屏蔽标签”有显示列表的需求
+        .setUserNameWrap,
+        .DoNotDownloadLastFewImagesWarp {
+          flex-basis: 100%;
+        }
+
+        .grow {
+          flex-grow: 1;
+        }
+
+        .setinput_style {
+          width: 60px;
+          min-width: 60px;
+          height: 24px;
+          line-height: 22px;
+          margin: 1px 0;
+          text-indent: 0;
+          box-sizing: border-box;
+          border: 1px solid var(--settings-panel-input-border) !important;
+          border-radius: var(--settings-panel-input-radius);
+          outline: 0;
+          padding: 0 8px !important;
+          background: var(--settings-panel-input-bg) !important;
+          transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+
+          &:focus,
+          &:hover {
+            border-color: var(--settings-panel-search-border-focus) !important;
+          }
+
+          &:focus {
+            box-shadow: var(--settings-panel-input-focus-shadow);
+          }
+
+          &.postDate {
+            width: 170px;
+          }
+
+          &.bmkNum {
+            width: 76px;
+          }
+        }
+
+        button[role='setMin'],
+        button[role='setMax'] {
+          // height: 22px;
+          // line-height: 22px;
+          margin: 0 4px;
+        }
+      }
+
+      // 对于内部有横向排列的操作按钮的行，加大行之间的间距
+      .option[data-no='62'] .optionLine,
+      .option[data-no='99'] .optionLine,
+      .option[data-no='103'] .optionLine {
+        margin: 3px 0 !important;
+      }
+
+      select {
+        width: auto;
+        height: 24px;
+        margin: 2px 0;
+        vertical-align: middle;
+        border-radius: var(--settings-panel-input-radius);
+        border: 1px solid var(--settings-panel-input-border);
+        background: var(--settings-panel-input-bg);
+        padding: 0 8px;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+
+      select:hover,
+      select:focus {
+        border-color: var(--settings-panel-search-border-focus);
+      }
+
+      select:focus {
+        box-shadow: var(--settings-panel-input-focus-shadow);
+      }
+
+      option {
+        line-height: 24px;
+      }
+
+      p * {
+        line-height: 1;
+      }
+
+      p strong,
+      p .key {
+        vertical-align: baseline !important;
+      }
+
+      p button,
+      .controlBar span {
+        line-height: var(--line-height);
+      }
+
+      .centerPanelTextArea {
+        box-sizing: border-box;
+        font-family: var(--pixiv-font-family);
+        color: var(--beautify-blue);
+        font-size: 15px;
+        background: var(--settings-panel-input-bg);
+        margin: 4px 0;
+        padding: 4px 8px;
+        flex-basis: 100%;
+        flex-grow: 1;
+        min-height: var(--line-height);
+        line-height: 1.7;
+        // 在排行榜页面，Pixiv 设置了 textarea 的高度为 20 px，
+        // 需要解除限制，否则下载器的输入区域无法撑开高度
+        height: auto;
+        max-height: 200px;
+        resize: none;
+        border: 1px solid var(--settings-panel-input-border);
+        border-radius: var(--settings-panel-input-radius);
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .centerPanelTextArea:hover,
+      .centerPanelTextArea:focus {
+        border-color: var(--settings-panel-search-border-focus);
+      }
+
+      .centerPanelTextArea:focus {
+        box-shadow: var(--settings-panel-input-focus-shadow);
+      }
+
+      .flexTip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .right {
+          flex-grow: 0;
+          flex-shrink: 0;
+          flex-basis: auto;
+        }
+      }
+
+      .tipWithBtn {
+        .left {
+          display: inline-block;
+        }
+
+        .right {
+          display: inline-block;
+          margin-left: 20px;
+        }
+      }
+
+      .need_beautify {
+        // position: absolute;
+        // width: 0;
+        // height: 0;
+        // opacity: 0;
+        display: none;
+      }
+
+      label {
+        cursor: pointer;
+        padding-right: 5px;
+      }
+
+      .tabsContent {
+        position: relative;
+        display: none;
+
+        &:first-child {
+          display: block;
+        }
+      }
+
+      /*--------美化作为开关的复选框------------*/
+      .beautify_switch {
+        display: inline-flex;
+        align-items: center;
+        width: 24px;
+        height: 14px;
+        position: relative;
+        border-radius: 7px;
+        background: #ccc;
+        transition: all 0.3s;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .beautify_switch::before {
+        content: '';
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        background: #fff;
+        margin-left: 0px;
+        transition: all 0.3s;
+      }
+
+      .checkbox_switch:checked + .beautify_switch {
+        background: var(--bg-checkbox-blue);
+      }
+
+      .checkbox_switch:checked + .beautify_switch::before {
+        margin-left: 11px;
+      }
+
+      /*--------美化普通的复选框------------*/
+      .beautify_checkbox {
+        display: inline-block;
+        position: relative;
+        border: 1px solid #dcdfe6;
+        border-radius: 2px;
+        box-sizing: border-box;
+        width: 14px;
+        height: 14px;
+        margin: 6px 0;
+        background-color: #fff;
+        z-index: 1;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .beautify_checkbox::after {
+        box-sizing: content-box;
+        content: '';
+        border: 2px solid #fff;
+        border-left: 0;
+        border-top: 0;
+        height: 7px;
+        left: 4px;
+        position: absolute;
+        top: 1px;
+        transform: rotate(45deg) scaleY(0);
+        width: 3px;
+        transition: all 0.2s;
+        transform-origin: center;
+      }
+
+      .checkbox_common:checked + .beautify_checkbox {
+        background: var(--bg-checkbox-blue);
+        border: 1px solid var(--bg-checkbox-blue);
+      }
+
+      .beautify_checkbox:hover {
+        border: 1px solid var(--bg-checkbox-blue);
+      }
+
+      .checkbox_common:checked + .beautify_checkbox::after {
+        transform: rotate(45deg) scaleY(1);
+      }
+
+      .checkbox_common:focus + .beautify_checkbox {
+        border: 1px solid var(--bg-checkbox-blue);
+      }
+
+      /*--------美化单选框------------*/
+      .beautify_radio {
+        border: 1px solid #dcdfe6;
+        border-radius: 100%;
+        width: 12px;
+        height: 12px;
+        background-color: #fff;
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        box-sizing: border-box;
+      }
+
+      .beautify_radio::after {
+        width: 6px;
+        height: 6px;
+        border-radius: 100%;
+        background-color: #fff;
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.15s ease-in;
+      }
+
+      .radio:checked + .beautify_radio {
+        background: var(--bg-checkbox-blue);
+        border: 1px solid var(--bg-checkbox-blue);
+      }
+
+      .beautify_radio:hover {
+        border: 1px solid var(--bg-checkbox-blue);
+      }
+
+      .radio:checked + .beautify_radio::after {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      li {
+        list-style: none;
+      }
+
+      .download_progress1,
+      .right1 {
+        position: relative;
+      }
+
+      .progressBar1,
+      .right1 {
+        width: 100%;
+      }
+
+      .fileNameRuleLine1 {
+        display: flex;
+        flex-basis: 100%;
+        justify-content: space-between;
+        align-items: center;
+        column-gap: 4px;
+      }
+
+      .fileNameRuleBtnsArea {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 4px;
+
+        button {
+          color: #333;
+        }
+      }
+
+      input[name='dateFormat'] {
+        min-width: 250px;
+      }
+
+      .fileNameRule {
+        display: flex;
+        flex-grow: 1;
+        min-width: 310px;
+      }
+
+      .setinput_tag {
+        min-width: 300px;
+        flex-grow: 1;
+      }
+
+      .showFileNameTip {
+        cursor: pointer;
+      }
+
+      .fileNameTip {
+        display: none;
+        padding-top: 5px;
+      }
+
+      .namingTipArea {
+        .name {
+          cursor: pointer;
+        }
+      }
+
+      .settingsPanel_downloadEmptyHint {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 15px;
+        padding: 9px 12px;
+        border: 1px solid var(--settings-panel-tip-card-border);
+        border-radius: var(--settings-panel-control-radius);
+        background: var(--settings-panel-tip-card-bg);
+        color: var(--settings-panel-tip-card-text);
+        box-shadow: none;
+        font-size: 14px;
+        line-height: 1.6;
+
+        &.is-hidden {
+          display: none;
+        }
+      }
+
+      .centerWrap_btns {
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+
+        & button {
+          box-sizing: border-box;
+          border: 1px solid currentColor;
+          width: 100%;
+          min-width: 0;
+          padding: 8px 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          line-height: 20px;
+          border-radius: var(--settings-panel-control-radius);
+          cursor: pointer;
+          vertical-align: top;
+          background: var(--settings-panel-btn-secondary-bg);
+          border: 1px solid var(--settings-panel-btn-secondary-border);
+          color: var(--settings-panel-btn-secondary-brand-text);
+          box-shadow: var(--settings-panel-btn-secondary-shadow);
+          transition:
+            background-color 0.2s,
+            color 0.2s,
+            border-color 0.2s,
+            box-shadow 0.2s,
+            transform 0.2s;
+        }
+
+        & button[data-btn-intent='success'] {
+          color: var(--settings-panel-btn-secondary-success-text);
+        }
+
+        & button[data-btn-intent='warning'] {
+          color: var(--settings-panel-btn-secondary-warning-text);
+        }
+
+        & button[data-btn-intent='danger'] {
+          color: var(--settings-panel-btn-secondary-danger-text);
+        }
+
+        & button[data-btn-emphasis='secondary']:hover,
+        & button[data-btn-emphasis='secondary']:focus {
+          background: var(--settings-panel-btn-secondary-hover-bg);
+        }
+
+        &
+          button[data-btn-emphasis='secondary'][data-btn-intent='warning']:hover,
+        &
+          button[data-btn-emphasis='secondary'][data-btn-intent='warning']:focus {
+          background: var(--settings-panel-btn-secondary-warning-hover-bg);
+          border-color: var(
+            --settings-panel-btn-secondary-warning-hover-border
+          );
+          color: var(--settings-panel-btn-secondary-warning-hover-text);
+        }
+
+        & button[data-btn-emphasis='secondary'][data-btn-intent='danger']:hover,
+        &
+          button[data-btn-emphasis='secondary'][data-btn-intent='danger']:focus {
+          background: var(--settings-panel-btn-secondary-danger-hover-bg);
+          border-color: var(--settings-panel-btn-secondary-danger-hover-border);
+          color: var(--settings-panel-btn-secondary-danger-hover-text);
+        }
+
+        & button[data-btn-emphasis='primary'] {
+          color: var(--settings-panel-btn-primary-text);
+          border-color: transparent;
+          box-shadow: var(--settings-panel-btn-primary-shadow);
+          font-weight: 600;
+        }
+
+        & button[data-btn-emphasis='primary']:hover,
+        & button[data-btn-emphasis='primary']:focus {
+          transform: translateY(-1px);
+          box-shadow: var(--settings-panel-btn-primary-shadow-hover);
+        }
+
+        & button[data-btn-emphasis='primary'][data-btn-intent='brand'] {
+          background: var(--settings-panel-btn-brand);
+        }
+
+        & button[data-btn-emphasis='primary'][data-btn-intent='success'] {
+          background: var(--settings-panel-btn-success);
+        }
+
+        & button[data-btn-emphasis='primary'][data-btn-intent='warning'] {
+          background: var(--settings-panel-btn-warning);
+        }
+
+        & button[data-btn-emphasis='primary'][data-btn-intent='danger'] {
+          background: var(--settings-panel-btn-danger);
+        }
+      }
+
+      .progressTip {
+        font-size: 15px;
+      }
+
+      .progressBarWrap {
+        display: none;
+        margin-top: 12px;
+
+        .total {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          .text {
+            flex: none;
+            line-height: 24px;
+            color: var(--settings-panel-progress-label);
+          }
+
+          .right1 {
+            flex: 1;
+            min-width: 0;
+          }
+        }
+
+        .progress,
+        .progressBar {
+          border-radius: 999px;
+          height: 28px;
+          overflow: hidden;
+        }
+
+        .right1 {
+          display: block;
+          height: 28px;
+          position: relative;
+        }
+
+        .progressBar {
+          position: absolute;
+          inset: 0;
+          border: 1px solid var(--settings-panel-progress-item-border);
+          background: var(--settings-panel-progress-item-track);
+          box-shadow:
+            inset 0 1px 2px rgba(15, 53, 86, 0.04),
+            0 1px 3px rgba(15, 53, 86, 0.04);
+        }
+
+        .progress {
+          transition: width 0.15s ease;
+        }
+
+        .progressTip {
+          position: absolute;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .progress1 {
+          width: 0;
+          background: var(--settings-panel-progress-total-fill);
+        }
+
+        .progressBar1 {
+          background: var(--settings-panel-progress-total-track);
+          border-color: var(--settings-panel-progress-total-border);
+        }
+
+        .progressTip1 {
+          width: 100%;
+          text-align: center;
+        }
+
+        .totalNumberWrap {
+          position: absolute;
+          width: 100%;
+          height: 28px;
+          line-height: 28px;
+          color: var(--settings-panel-progress-total-text);
+          text-align: center;
+          font-weight: 600;
+          letter-spacing: 0.2px;
+
+          span {
+            position: initial;
+          }
+        }
+
+        .progressBarList {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding-top: 8px;
+          margin: 0;
+          padding-left: 0;
+
+          .downloadBar {
+            list-style: none;
+            position: relative;
+            width: 100%;
+            padding: 0;
+            height: 30px;
+            box-sizing: content-box;
+          }
+
+          .progressBar2 {
+            width: 100%;
+            background: var(--settings-panel-progress-item-track);
+            border-color: var(--settings-panel-progress-item-border);
+          }
+
+          .progress2 {
+            width: 0;
+            background: var(--settings-panel-progress-item-fill);
+          }
+
+          .progressTip2 {
+            width: 100%;
+            height: 30px;
+          }
+
+          .fileName {
+            line-height: 30px;
+            height: 30px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            vertical-align: top;
+            padding: 0 12px;
+            flex: 1;
+            color: var(--settings-panel-progress-name);
+            font-weight: 500;
+          }
+
+          .loadedWrap {
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: var(--settings-panel-progress-meta);
+            font-size: 13px;
+            font-family: inherit;
+            letter-spacing: 0.1px;
+          }
+        }
+      }
+
+      .download_area {
+        display: none;
+
+        .download_status_text_wrap {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          column-gap: 5px;
+          row-gap: 4px;
+          line-height: var(--line-height);
+          margin-top: 10px;
+
+          & > * {
+            padding-right: 0;
+          }
+
+          .down_status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--settings-panel-download-state-start);
+            font-weight: 500;
+
+            &::before {
+              content: '';
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: currentColor;
+              flex: none;
+            }
+
+            &[data-state='loading'] {
+              color: var(--settings-panel-download-state-loading);
+            }
+
+            &[data-state='pause'] {
+              color: var(--settings-panel-download-state-pause);
+            }
+
+            &[data-state='stop'] {
+              color: var(--settings-panel-download-state-stop);
+            }
+
+            &[data-state='complete'] {
+              color: var(--settings-panel-download-state-complete-text);
+
+              &::before {
+                background: var(--settings-panel-download-state-complete-dot);
+              }
+            }
+          }
+        }
+      }
+
+      // 选项名称，设置最大宽度。不设置的话，由于俄语文本的一些选项名特别长，会导致出现横向滚动条
+      .settingNameStyle {
+        cursor: pointer;
+        margin-right: 4px;
+        max-width: 100%;
+      }
+
+      .verticalSplit {
+        display: inline-block;
+        width: 0px;
+        height: 16px;
+        // 使其占据的高度达到 26 px
+        margin: 5px 4px;
+        border-right: 1px solid #ccc;
+      }
+
+      .saveNamingRuleWrap {
+        display: inline-block;
+        position: relative;
+
+        button {
+          color: #333;
+          height: var(--line-height);
+        }
+      }
+
+      .namingRuleList {
+        position: absolute;
+        right: 0;
+        top: 36px;
+        z-index: 1002;
+        min-width: 380px;
+        max-width: min(560px, calc(100vw - 80px));
+        max-height: 260px;
+        padding: 6px;
+        margin: 0;
+        border: 1px solid var(--settings-panel-naming-list-border);
+        border-radius: var(--settings-panel-card-radius);
+        background: var(--settings-panel-naming-list-bg);
+        overflow: auto;
+        box-shadow: var(--settings-panel-naming-list-shadow);
+        display: none;
+        list-style: none;
+
+        --li-height: 38px;
+
+        li {
+          padding: 0;
+          color: var(--settings-panel-naming-list-text);
+          cursor: pointer;
+          transition:
+            background-color 0.2s,
+            color 0.2s;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          min-width: 0;
+          border-radius: calc(var(--settings-panel-control-radius) - 2px);
+
+          & > * {
+            min-height: var(--li-height);
+            line-height: var(--li-height);
+          }
+        }
+
+        li + li {
+          border-top: 1px solid var(--settings-panel-naming-list-divider);
+        }
+
+        .rule {
+          flex: 1;
+          line-height: var(--li-height) !important;
+          min-width: 0;
+          padding: 0 14px;
+          color: var(--settings-panel-naming-list-rule);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        li:hover {
+          background: var(--settings-panel-naming-list-hover-bg);
+        }
+
+        li:first-child {
+          margin-top: 0;
+        }
+
+        li:last-child {
+          margin-bottom: 0;
+        }
+
+        .delete {
+          width: 28px;
+          min-width: 28px;
+          margin-right: 6px;
+          padding: 0;
+          border-radius: 999px;
+          font-size: 20px;
+          color: var(--settings-panel-naming-list-delete);
+          font-weight: 300;
+          transition:
+            background-color 0.2s,
+            color 0.2s;
+        }
+
+        .delete:hover,
+        .delete:focus {
+          background: var(--settings-panel-naming-list-delete-hover-bg);
+          color: var(
+            --settings-panel-naming-list-delete-hover-color
+          ) !important;
+        }
+
+        i {
+          display: block;
+          padding: 8px 14px;
+          color: var(--settings-panel-naming-list-empty);
+          font-style: normal;
+        }
+      }
+
+      .setinput_style,
+      .setinput_style:focus,
+      .setinput_style:hover {
+        background: var(--settings-panel-input-bg) !important;
+      }
+    }
+
+    .settingsPanel_sidebar {
+      width: 190px;
+      flex: none;
+      padding: 15px 10px;
+      background: var(--settings-panel-sidebar-bg);
+      box-shadow: var(--settings-panel-sidebar-box-shadow);
+      overflow-y: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settingsPanel_nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .settingsPanel_navItem {
+      min-height: 50px;
+      padding: 0 15px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--settings-panel-nav-text);
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0px;
+      text-align: left;
+      cursor: pointer;
+      overflow: hidden;
+      transition:
+        color 0.2s,
+        background-color 0.2s,
+        box-shadow 0.2s;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 10px;
+        bottom: 10px;
+        width: 4px;
+        border-radius: 0 999px 999px 0;
+        background: transparent;
+        transition: background-color 0.2s;
+      }
+
+      &[hidden] {
+        display: none;
+      }
+
+      &:hover {
+        background: var(--settings-panel-nav-hover-bg);
+      }
+
+      &.active {
+        background: var(--settings-panel-nav-active-bg);
+        color: var(--settings-panel-nav-active-text);
+        font-weight: 600;
+        box-shadow: var(--settings-panel-nav-active-shadow);
+
+        &::before {
+          background: var(--settings-panel-nav-active-accent);
+        }
+      }
+
+      &.active:hover,
+      &.active:focus {
+        background: var(--settings-panel-nav-active-bg);
+      }
+
+      &:hover .ripple,
+      &:focus .ripple {
+        animation: none;
+      }
+
+      &.ripple-active .ripple {
+        animation: ripple-effect 0.6s linear;
+      }
+    }
+
+    .settingsPanel_navIconWrap {
+      width: 26px;
+      height: 26px;
+      flex: none;
+      position: relative;
+    }
+
+    .settingsPanel_navIcon {
+      font-size: 26px;
+      position: absolute;
+      inset: 0;
+    }
+
+    .settingsPanel_navIconFill {
+      display: none;
+    }
+
+    .settingsPanel_navText {
+      flex: 1;
+      min-width: 0;
+      font-size: 18px;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .settingsPanel_downloadSummary {
+      // 它是 flex 布局，默认隐藏
+      // display: flex;
+      display: none;
+      flex-wrap: wrap;
+      margin-top: auto;
+      padding: 14px 0 0px 2px;
+      border-top: 1px solid var(--settings-panel-download-summary-border);
+    }
+
+    .settingsPanel_downloadSummaryStatus,
+    .settingsPanel_downloadSummaryActions {
+      display: flex;
+      // 在 PC 端使这两个区域分为上下两行显示
+      flex-basis: 100%;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .settingsPanel_downloadSummaryStatus {
+      gap: 10px;
+      color: var(--settings-panel-download-summary-status);
+      margin-bottom: 12px;
+
+      .settingsPanel_downloadSummaryStateIcon {
+        position: relative;
+        top: 2px;
+        font-size: 24px;
+        transform-origin: center;
+        // 因为这个按钮只显示状态，不可点击，为了与下面可点击的按钮区分开，所以让它看起来更灰一些。
+        opacity: 0.4;
+
+        &.is-loading {
+          animation: settingsPanelSummarySpin 1s linear infinite;
+        }
+      }
+    }
+
+    .settingsPanel_downloadSummaryActions {
+      gap: 12px;
+    }
+
+    .settingsPanel_downloadSummaryBtn {
+      width: 1em;
+      height: 1em;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 24px;
+      color: var(--settings-panel-download-summary-btn-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        color 0.2s,
+        background-color 0.2s;
+      background: none;
+      border: none;
+
+      &:hover {
+        color: var(--settings-panel-download-summary-btn-hover-color);
+        background: var(--settings-panel-download-summary-btn-hover-bg);
+      }
+    }
+
+    .settingsPanel_main {
+      flex: 1;
+      min-width: 0;
+      width: 735px;
+      overflow-y: auto;
+      padding: 0px 15px 15px 15px;
+    }
+
+    .settingsPanel_form,
+    .settingsPanel_pages {
+      display: block;
+    }
+
+    .settingsPanel_page {
+      width: 100%;
+      display: none;
+
+      &.active {
+        display: block;
+      }
+
+      &[data-page='home'] {
+        .settingsPanel_optionCard.option {
+          margin-top: 10px;
+        }
+      }
+    }
+
+    .settingsPanel_pageInner {
+      padding-bottom: 5px;
+    }
+
+    .settingsPanel_stickyHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: var(--settings-panel-card-radius);
+      border: 1px solid var(--settings-panel-card-border);
+      background: var(--settings-panel-sticky-bg);
+      // 黏性定位的标题不一定是当前鼠标所在区域的标题，可能是更上方的区域的标题，所以不把它高亮显示。
+      color: var(--settings-panel-surface-text);
+      box-shadow: var(--settings-panel-card-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 4;
+
+      &[hidden] {
+        display: none;
+      }
+    }
+
+    .settingsPanel_titleSection,
+    .settingsPanel_panelSection {
+      margin-top: 15px;
+    }
+
+    .settingsPanel_sectionHeader {
+      width: 100%;
+      padding: 8px 15px;
+      border: 1px solid var(--settings-panel-card-border);
+      border-radius: var(--settings-panel-card-radius);
+      background: var(--settings-panel-surface-bg);
+      color: var(--settings-panel-section-title-text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: var(--settings-panel-card-shadow);
+      text-align: left;
+
+      // 鼠标经过时，让右侧的箭头图标变色
+      &:hover svg {
+        color: var(--settings-panel-section-hover-color);
+      }
+    }
+
+    .settingsPanel_panelSection {
+      border: 1px solid var(--settings-panel-card-border);
+      border-radius: var(--settings-panel-card-radius);
+      background: var(--settings-panel-surface-bg);
+      box-shadow: var(--settings-panel-card-shadow);
+      overflow: hidden;
+
+      .settingsPanel_sectionHeader {
+        margin-top: 0;
+        border: none;
+        box-shadow: none;
+        border-bottom: 1px solid var(--settings-panel-surface-border);
+        border-radius: 0;
+      }
+    }
+
+    .settingsPanel_sectionHeadMain {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .settingsPanel_sectionIconWrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--settings-panel-section-icon-bg);
+      color: var(--settings-panel-section-icon-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+
+      &.hidden {
+        display: none;
+      }
+
+      .icon {
+        font-size: 22px;
+      }
+    }
+
+    .settingsPanel_sectionTitle {
+      // 添加上下 padding，这是为了在没有左侧图标的情况下能撑起高度。
+      // 有图标的时候，图标会撑起高度；没有图标的时候，让标题也能 padding 撑起高度。
+      padding: 5px 0;
+      min-width: 0;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .settingsPanel_sectionArrow {
+      font-size: 18px;
+      color: var(--settings-panel-section-arrow-color);
+      transition: transform 0.2s;
+      flex: none;
+    }
+
+    .settingsPanel_panelSection.expanded,
+    .settingsPanel_titleSection.expanded {
+      .settingsPanel_sectionArrow {
+        transform: rotate(180deg);
+      }
+    }
+
+    // 鼠标进入设置卡片的标题时，把标题高亮显示作为反馈
+    .settingsPanel_sectionHeader:hover {
+      .settingsPanel_sectionTitle,
+      .settingsPanel_sectionArrow {
+        color: var(--settings-panel-section-hover-color);
+      }
+    }
+
+    .settingsPanel_titleContent,
+    .settingsPanel_panelContent {
+      min-height: 0;
+      overflow: hidden;
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.16s ease,
+        transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .settingsPanel_panelContent {
+      padding: 15px 20px;
+    }
+
+    .settingsPanel_titleContent {
+      padding-top: 0;
+    }
+
+    .settingsPanel_sectionContentShell {
+      display: grid;
+      grid-template-rows: 1fr;
+      min-height: 0;
+      transition: grid-template-rows 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .settingsPanel_sectionContentWrap {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .settingsPanel_titleSection.collapsed,
+    .settingsPanel_panelSection.collapsed {
+      .settingsPanel_sectionContentShell {
+        grid-template-rows: 0fr;
+      }
+
+      .settingsPanel_titleContent,
+      .settingsPanel_panelContent {
+        opacity: 0;
+        transform: translateY(-6px);
+        transition-delay: 0s;
+        pointer-events: none;
+      }
+    }
+
+    .settingsPanel_titleSection.expanded,
+    .settingsPanel_panelSection.expanded {
+      .settingsPanel_titleContent,
+      .settingsPanel_panelContent {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.08s;
+      }
+    }
+
+    .settingsPanel_optionCard.option {
+      width: calc(100% - 20px);
+      margin: 10px auto 0;
+      padding: 8px 15px;
+      background: var(--settings-panel-surface-bg);
+      border: 1px solid var(--settings-panel-card-border);
+      border-radius: var(--settings-panel-card-radius);
+      box-shadow: var(--settings-panel-card-shadow);
+      line-height: 26px;
+
+      &.pinned {
+        border: 2px solid var(--settings-panel-option-card-pinned-border);
+      }
+
+      &.new {
+        position: relative;
+
+        &::before {
+          content: none !important;
+          display: none !important;
+        }
+
+        .settingsPanel_newBadge {
+          width: 30px;
+          position: absolute;
+          top: -15px;
+          right: -5px;
+          pointer-events: none;
+          line-height: 0;
+          color: var(--settings-panel-new-badge-color);
+        }
+
+        .settingsPanel_newBadgeIcon.icon {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    }
+
+    .settingsPanel_downloadContentWrap {
+      .progressBarWrap {
+        margin-top: 8px;
+      }
+    }
+
+    .settingsPanel_helpTips {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settingsPanel_tipCard {
+      width: 100%;
+      margin-top: 15px;
+      min-height: 42px;
+      padding: 9px 12px;
+      border-radius: var(--settings-panel-card-radius);
+      border: 1px solid var(--settings-panel-tip-card-border);
+      background: var(--settings-panel-tip-card-bg);
+      box-shadow: var(--settings-panel-card-shadow);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .settingsPanel_tipIcon {
+      width: 26px;
+      height: 26px;
+      padding: 5px;
+      border-radius: 50%;
+      background: var(--settings-panel-tip-icon-bg);
+      font-size: 16px;
+      color: var(--settings-panel-tip-icon-color);
+      flex: none;
+    }
+
+    .settingsPanel_tipText {
+      flex: 1;
+      min-width: 0;
+      padding-top: 1px;
+      line-height: 22px;
+      font-size: 14px;
+      color: var(--settings-panel-tip-card-text);
+    }
+
+    .settingsPanel_tipConfirm {
+      margin-left: 4px;
+      width: 1.7em;
+      height: 1.7em;
+      font-size: 18px;
+      padding: 0 2px;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--settings-panel-tip-confirm-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      transform: translateY(-1px);
+
+      &:hover {
+        background: var(--settings-panel-tip-confirm-hover-bg);
+      }
+    }
+
+    .settingsPanel_helpActions {
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .settingsPanel_helpAction {
+      width: 100%;
+      min-width: 0;
+      min-height: 46px;
+      padding: 12px 14px;
+      border: 1px solid var(--settings-panel-card-border);
+      border-radius: var(--settings-panel-card-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--settings-panel-help-action-text);
+      background: var(--settings-panel-help-action-bg);
+      box-shadow: var(--settings-panel-card-shadow);
+      cursor: pointer;
+      position: relative;
+
+      &:hover {
+        background: var(--settings-panel-btn-secondary-hover-bg);
+        border: 1px solid var(--settings-panel-btn-secondary-border);
+        color: var(--settings-panel-btn-secondary-brand-text);
+      }
+
+      &:hover .settingsPanel_helpActionIcon {
+        color: var(--settings-panel-btn-secondary-brand-text);
+      }
+
+      &:hover::before,
+      &:focus::before {
+        // 这条注释和下面的注释如果启用的话，会让波纹效果在 hover 时不触发，只在点击时触发。现在注释掉了，让波纹效果在 hover 时都能触发。
+        // background: transparent;
+      }
+
+      &:hover .ripple,
+      &:focus .ripple {
+        animation: ripple-effect 0.6s linear;
+        // animation: none;
+      }
+
+      &.ripple-active .ripple {
+        // animation: ripple-effect 0.6s linear;
+      }
+
+      &.hasUpdate::after {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--settings-panel-help-action-update-dot);
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+    }
+
+    .settingsPanel_helpActionIcon {
+      font-size: 20px;
+      flex: none;
+      position: relative;
+      top: 1px;
+      color: var(--settings-panel-help-action-icon);
+    }
+
+    .settingsPanel_searchSummary {
+      margin: 15px 0 0 5px;
+      color: var(--settings-panel-search-summary);
+      line-height: 26px;
+    }
+
+    // 匹配到搜索词时的高亮效果
+    .settingsPanel_searchMark {
+      background: var(--settings-panel-search-mark-bg);
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 4px;
+    }
+
+    .download_area {
+      margin-top: 13px;
+    }
+
+    .progressBarWrap {
+      margin-top: 10px;
+    }
+
+    .help_bar {
+      line-height: 24px;
+
+      & > * {
+        padding: 0 3px;
+      }
+    }
+
+    // 导出日志时，排除的关键字的输入框
+    // 允许其增加宽度，否则它的宽度很窄
+    input[name='exportLogExclude'] {
+      width: auto !important;
+    }
+
+    // 背景图片的不透明度滑动条，调整其占据的高度为 var(--line-height)
+    input[name='bgOpacity'] {
+      margin: 5px 0;
+    }
+  }
+
+  &.lang_zh-cn .settingsPanel_navText,
+  &.lang_zh-tw .settingsPanel_navText {
+    letter-spacing: 6px;
+    text-indent: 6px;
+  }
+}
+
+.centerWrap.theme-white {
+  .option > .settingNameStyle,
+  .optionName {
+    color: #333;
+  }
+}
+
+.centerWrap.theme-dark {
+  background: var(--settings-panel-bg-dark);
+  border-color: rgba(94, 172, 230, 0.45);
+  color: #fff;
+
+  .settingsPanel_sidebar {
+    box-shadow: none !important;
+  }
+
+  .option > .settingNameStyle,
+  .optionName {
+    color: inherit;
+  }
+
+  .option.new::before {
+    color: #fff !important;
+  }
+
+  button,
+  .tip {
+    color: #fff;
+  }
+
+  .gray1 {
+    color: #bbb;
+  }
+
+  .blue,
+  a.settingNameStyle:hover,
+  .has_tip:hover,
+  label:hover,
+  .title.active,
+  .title:hover,
+  .showFileNameTip:hover,
+  .showFileNameTip:focus,
+  .textButton:hover,
+  .textButton:focus,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: var(--beautify-blue) !important;
+  }
+
+  // 重新设置右上角按钮的 hover 样式，覆盖在默认样式里为赞助按钮、关闭按钮设置的特殊颜色
+  .centerWrap_top_btn:hover,
+  .centerWrap_top_btn:focus {
+    color: var(--settings-panel-top-btn-hover-color) !important;
+    background: var(--settings-panel-top-btn-hover-bg) !important;
+  }
+
+  .grayButton {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .grayButton:hover,
+  .grayButton:focus {
+    background: var(--beautify-blue);
+    color: #fff !important;
+  }
+
+  .saveNamingRuleWrap {
+    color: #fff;
+
+    button {
+      color: #fff !important;
+    }
+
+    .namingRuleList {
+      text-shadow: none;
+    }
+  }
+}
+
+.centerWrap.xzBG {
+  background: var(--settings-panel-bg-xzbg);
+  color: #fff;
+
+  .settingsPanel_sidebar {
+    box-shadow: none !important;
+  }
+
+  button[data-btn-emphasis='primary'] {
+    font-weight: normal !important;
+  }
+
+  .option > .settingNameStyle,
+  .optionName {
+    color: inherit;
+  }
+
+  .option.new::before {
+    color: #fff !important;
+  }
+
+  button,
+  .tip {
+    color: #fff;
+  }
+
+  .gray1,
+  .centerWrap_top_btn {
+    color: #eee !important;
+  }
+
+  .blue,
+  a.settingNameStyle:hover,
+  .has_tip:hover,
+  label,
+  label:hover,
+  .title.active,
+  .title:hover,
+  .centerPanelTextArea,
+  .download_status_text_wrap > span:not(.down_status) {
+    color: #fff !important;
+  }
+
+  .showFileNameTip:hover,
+  .showFileNameTip:focus,
+  .textButton:hover,
+  .textButton:focus,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: #fff !important;
+  }
+
+  // 重新设置右上角按钮的 hover 样式，覆盖在默认样式里为赞助按钮、关闭按钮设置的特殊颜色
+  .centerWrap_top_btn:hover,
+  .centerWrap_top_btn:focus {
+    color: var(--settings-panel-top-btn-hover-color) !important;
+    background: var(--settings-panel-top-btn-hover-bg) !important;
+  }
+
+  .centerWrap_con {
+    .settingForm {
+      .grayButton {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .grayButton:hover,
+      .grayButton:focus {
+        background: var(--beautify-blue);
+        color: #fff !important;
+      }
+
+      select {
+        background: var(--settings-panel-input-bg);
+      }
+    }
+  }
+
+  .saveNamingRuleWrap {
+    color: #fff;
+
+    button {
+      color: #fff !important;
+      text-shadow: none;
+    }
+
+    .namingRuleList {
+      text-shadow: none;
+    }
+  }
+}
+
+.showBlobKeywords {
+  // 把设置项的标题加粗
+  .option > a,
+  .optionName {
+    // 把关键字高亮并加粗显示
+    .key {
+      color: var(--beautify-blue);
+      font-weight: bold;
+    }
+  }
+}
+
+.theme-dark.showBlobKeywords {
+  .option > a,
+  .optionName {
+    color: #fff !important;
+  }
+
+  .key {
+    color: #42c3ff;
+  }
+}
+
+.xzBG.showBlobKeywords {
+  .option > a,
+  .optionName {
+    color: #fff !important;
+  }
+
+  .key {
+    color: #fff !important;
+  }
+}
+
+.theme-dark,
+.xzBG {
+  .controlBar span,
+  .fileNameRuleBtnsArea button {
+    color: #fff !important;
+  }
+}
+
+.downloadError {
+  color: rgb(255, 160, 160);
+}
+
+.lang_zh-cn {
+  .fileNameRule {
+    min-width: 340px !important;
+  }
+}
+
+.lang_zh-tw {
+  .fileNameRule {
+    min-width: 340px !important;
+  }
+}
+
+.lang_ko {
+  button[type='button'] {
+    word-break: keep-all;
+  }
+}
+
+.lang_ru {
+  .namingRuleList {
+    right: auto !important;
+    left: 0px !important;
+  }
+
+  * {
+    font-family: var(--pixiv-font-family);
+  }
+}
+
+@keyframes settingsPanelSummarySpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

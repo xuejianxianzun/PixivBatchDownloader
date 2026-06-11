@@ -1,7 +1,6 @@
 // 初始化新版收藏页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { API } from '../API'
-import { Colors } from '../Colors'
 import { lang } from '../Language'
 import { IDData } from '../store/StoreType'
 import {
@@ -34,35 +33,54 @@ class InitBookmarkPage extends InitPageBase {
     this.init()
   }
 
-  private idList: IDData[] = [] // 储存从列表页获取到的 id
+  /** 储存从列表页获取到的作品 id */
+  private idList: IDData[] = []
 
+  /** 保存一些作品的收藏数据，供某些功能使用。
+   *
+   * 注意：它的作用与 idList 不同。 */
   private bookmarkDataList: WorkBookmarkData[] = []
 
   private exportList: BookmarkResult[] = []
 
-  private type: 'illusts' | 'novels' = 'illusts' // 页面是图片还是小说
+  /** 当前页面显示的是图片还是小说 */
+  private type: 'illusts' | 'novels' = 'illusts'
+  // tag 由 store.tag 提供，表示当前查询的收藏标签，可能为空
+  /** 每次请求的偏移量 */
+  private offset: number = 0
+  /** 当前页面是否显示的是非公开收藏 */
+  private isHide = false
+  /** 最新或最旧排序。desc 是按最新排序，asc 是按最早排序 */
+  private order: 'desc' | 'asc' = 'desc'
+  /** 年龄限制模式。可能是 all、safe、r18（含 R-18G） */
+  private mode: 'all' | 'safe' | 'r18' = 'all'
+  /** 当前查询的作品标签，可能为空 */
+  private work_tag = ''
+  /** 当前查询的收藏时间，可能为空 */
+  private bm = ''
 
-  private isHide = false // 当前页面是否显示的是非公开收藏
-
-  private requsetNumber: number = 0 // 根据页数，计算要抓取的作品个数
-
-  private filteredNumber = 0 // 记录检查了多少作品（不论结果是否通过都计入）
-
-  private readonly onceRequest: number = 100 // 每次请求多少个数量
-
-  private offset: number = 0 // 每次请求的偏移量
+  /** 根据页数，计算要抓取的作品个数 */
+  private requsetNumber: number = 0
+  /** 每次请求多少个数量，是 100 个。同时 API 里也是每次请求 100 个 */
+  private readonly onceRequest: number = 100
+  /** 记录检查了多少作品（不论结果是否通过都计入） */
+  private filteredNumber = 0
 
   // 点击不同的功能按钮时，设定抓取模式
-  private crawlMode: 'normal' | 'removeTags' | 'unBookmark' | 'unBookmark404' =
-    'normal'
+  private crawlMode:
+    | 'normal'
+    | 'removeTags'
+    | 'unBookmark'
+    | 'findBookmark404'
+    | 'unBookmark404' = 'normal'
 
   protected addCrawlBtns() {
-    Tools.addBtn(
+    this.addInitPageBtn(
       'crawlBtns',
-      Colors.bgBlue,
       '_开始抓取',
       '_默认下载多页',
-      'startCrawling'
+      'startCrawling',
+      'brand'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -101,64 +119,74 @@ class InitBookmarkPage extends InitPageBase {
     const URLUserID = Utils.getURLPathField(window.location.pathname, 'users')
     const ownPage = URLUserID && URLUserID === store.loggedUserID
     if (ownPage) {
-      const btn = Tools.addBtn(
+      const btn = this.addInitPageBtn(
         'otherBtns',
-        Colors.bgGreen,
         '_给未分类作品添加添加tag',
         '',
-        'addTagToUnmarkedWork'
+        'addTagToUnmarkedWork',
+        'brand'
       )
       new BookmarksAddTag(btn)
 
-      Tools.addBtn(
+      this.addInitPageBtn(
         'otherBtns',
-        Colors.bgYellow,
         '_移除本页面中所有作品的标签',
         '',
-        'removeTagsFromAllWorksOnPage'
+        'removeTagsFromAllWorksOnPage',
+        'warning'
       ).addEventListener('click', () => {
         this.removeWorksTagsOnThisPage()
       })
 
-      Tools.addBtn(
+      this.addInitPageBtn(
         'otherBtns',
-        Colors.bgRed,
         '_取消收藏本页面的所有作品',
         '',
-        'unBookmarkAllWorksOnPage'
+        'unBookmarkAllWorksOnPage',
+        'danger'
       ).addEventListener('click', () => {
         this.unBookmarkAllWorksOnThisPage()
       })
 
-      Tools.addBtn(
+      this.addInitPageBtn(
         'otherBtns',
-        Colors.bgRed,
+        '_查找所有已被删除的作品',
+        '',
+        'findBookmark404Works',
+        'brand'
+      ).addEventListener('click', () => {
+        this.findBookmark404Works()
+      })
+
+      this.addInitPageBtn(
+        'otherBtns',
         '_取消收藏所有已被删除的作品',
         '',
-        'unBookmarkAll404Works'
+        'unBookmarkAll404Works',
+        'danger'
       ).addEventListener('click', () => {
         this.unBookmarkAll404Works()
       })
     }
 
     // 下面的功能按钮在所有人的收藏页面里都可以使用
-    const btnExport = Tools.addBtn(
+    const btnExport = this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_导出收藏列表',
       '',
-      'exportBookmarkList'
+      'exportBookmarkList',
+      'brand'
     )
     btnExport.addEventListener('click', () => {
       this.exportBookmarkList()
     })
 
-    const btnImport = Tools.addBtn(
+    const btnImport = this.addInitPageBtn(
       'otherBtns',
-      Colors.bgGreen,
       '_导入收藏列表',
       '',
-      'importBookmarkList'
+      'importBookmarkList',
+      'brand'
     )
     btnImport.addEventListener('click', () => {
       this.importBookmarkIDList()
@@ -203,6 +231,28 @@ class InitBookmarkPage extends InitPageBase {
     // 设置抓取页数为 1
     this.crawlNumber = 1
     this.readyGetIdList()
+    this.getIdList()
+  }
+
+  private findBookmark404Works() {
+    if (states.busy || this.crawlMode !== 'normal') {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    // 走一遍简化的抓取流程
+    this.crawlMode = 'findBookmark404'
+    log.log(lang.transl('_查找所有已被删除的作品'))
+    toast.show(lang.transl('_查找所有已被删除的作品'), {
+      position: 'topCenter',
+    })
+    EVT.fire('closeCenterPanel')
+    // 设置抓取页数为 -1
+    this.crawlNumber = -1
+    this.setSlowCrawl()
+    this.readyGetIdList()
+    // 抓取全部收藏
+    this.offset = 0
     this.getIdList()
   }
 
@@ -383,11 +433,18 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   protected readyGetIdList() {
+    if (window.location.pathname.includes('/collections')) {
+      const msg = lang.transl('_下载器目前不支持抓取珍藏册')
+      msgBox.warning(msg)
+      log.warning(msg)
+      EVT.fire('stopCrawl')
+      return
+    }
+
+    // 初始化查询参数
     if (window.location.pathname.includes('/novel')) {
       this.type = 'novels'
     }
-
-    store.tag = Tools.getTagFromURL()
 
     // 每页个作品数，插画 48 个，小说 30 个
     const onceNumber = window.location.pathname.includes('/novels') ? 30 : 48
@@ -408,9 +465,16 @@ class InitBookmarkPage extends InitPageBase {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
 
-    // 判断是公开收藏还是非公开收藏
-    // 在新旧版 url 里，rest 都是在查询字符串里的
+    store.tag = Tools.getTagFromURL()
     this.isHide = Utils.getURLSearchField(location.href, 'rest') === 'hide'
+    this.order = (Utils.getURLSearchField(location.href, 'order') ||
+      'desc') as 'desc'
+    this.mode = (Utils.getURLSearchField(location.href, 'mode') ||
+      'all') as 'all'
+    this.work_tag = Utils.getURLSearchField(location.href, 'work_tag') || ''
+    // URL 里的 bm 参数是带有横线的，如 bm=2022-05，需要去掉横线
+    this.bm =
+      Utils.getURLSearchField(location.href, 'bm').replaceAll('-', '') || ''
 
     log.log(lang.transl('_正在抓取'))
 
@@ -432,7 +496,11 @@ class InitBookmarkPage extends InitPageBase {
         this.type,
         store.tag,
         this.offset,
-        this.isHide
+        this.isHide,
+        this.order,
+        this.mode,
+        this.work_tag,
+        this.bm
       )
     } catch (error) {
       // 一种特殊的错误情况：
@@ -475,12 +543,27 @@ One possible reason: You have been banned from Pixiv.`)
         }
 
         if (workData.bookmarkData) {
+          // 判断是否要把这个作品的数据保存到 bookmarkDataList 里
+          let pushData = false
+
+          // 需要操作本页所有作品的情况，需要添加这个作品的数据
           if (
             this.crawlMode === 'unBookmark' ||
-            this.crawlMode === 'removeTags' ||
-            (this.crawlMode === 'unBookmark404' &&
-              Number.parseInt(workData.userId) == 0)
+            this.crawlMode === 'removeTags'
           ) {
+            pushData = true
+          }
+          // 如果这个作品已经不存在（userId 为 0），并且当前的抓取模式是查找已被删除的作品或者取消收藏已被删除的作品，那么也需要添加这个作品的数据
+          if (Number.parseInt(workData.userId) == 0) {
+            if (
+              this.crawlMode === 'findBookmark404' ||
+              this.crawlMode === 'unBookmark404'
+            ) {
+              pushData = true
+            }
+          }
+
+          if (pushData) {
             this.bookmarkDataList.push({
               workID: Number.parseInt(workData.id),
               type:
@@ -580,27 +663,17 @@ One possible reason: You have been banned from Pixiv.`)
       // 正常抓取
       store.idList = store.idList.concat(this.idList)
       this.getIdListFinished()
-    } else if (
-      this.crawlMode === 'unBookmark' ||
-      this.crawlMode === 'unBookmark404'
-    ) {
+    } else if (this.crawlMode === 'findBookmark404') {
+      this.exportBookmark404Ids()
+      this.resetGetIdListStatus()
+    } else if (this.crawlMode === 'unBookmark404') {
+      this.exportBookmark404Ids()
+      // 取消收藏已被删除的作品
+      const bookmarkDataList = Array.from(this.bookmarkDataList)
+      this.resetGetIdListStatus()
+      unBookmarkWorks.start(bookmarkDataList)
+    } else if (this.crawlMode === 'unBookmark') {
       // 取消收藏
-
-      // 导出已被删除的收藏的 ID 列表
-      if (
-        this.crawlMode === 'unBookmark404' &&
-        this.bookmarkDataList.length > 0
-      ) {
-        const IDList = []
-        for (const item of this.bookmarkDataList) {
-          IDList.push(item.workID)
-        }
-        const blob = Utils.json2Blob(IDList)
-        const url = URL.createObjectURL(blob)
-        Utils.downloadFile(url, '404 bookmark ID list.json')
-        log.success(lang.transl('_已导出被删除的作品的ID列表'))
-      }
-
       const bookmarkDataList = Array.from(this.bookmarkDataList)
       this.resetGetIdListStatus()
       unBookmarkWorks.start(bookmarkDataList)
@@ -610,6 +683,22 @@ One possible reason: You have been banned from Pixiv.`)
       this.resetGetIdListStatus()
       removeWorksTagsInBookmarks.start(bookmarkDataList)
     }
+  }
+
+  /** 导出已被删除的收藏的 ID 列表 */
+  private exportBookmark404Ids() {
+    if (this.bookmarkDataList.length === 0) {
+      return
+    }
+
+    const IDList = []
+    for (const item of this.bookmarkDataList) {
+      IDList.push(item.workID)
+    }
+    const blob = Utils.json2Blob(IDList)
+    const url = URL.createObjectURL(blob)
+    Utils.downloadFile(url, '404 bookmark ID list.json')
+    log.success(lang.transl('_已导出被删除的作品的ID列表'))
   }
 
   protected resetGetIdListStatus() {
