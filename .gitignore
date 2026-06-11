@@ -15,6 +15,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+*.psd
 
 # lock
 yarn.lock
