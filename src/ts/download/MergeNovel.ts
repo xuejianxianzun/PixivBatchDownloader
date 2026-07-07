@@ -330,8 +330,11 @@ class MergeNovel {
       }
       // 添加正文
       // 替换换行标签，移除 html 标签
+      const content = settings.downloadNovelEmbeddedImage
+        ? data.content
+        : Tools.removeNovelImageFlags(data.content)
       text.push(
-        data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
+        content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
       )
       // 在正文结尾添加换行标记，使得不同章节之间区分开来
       text.push(this.CRLF.repeat(4))

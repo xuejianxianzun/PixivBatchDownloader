@@ -65,7 +65,9 @@ class MakeNovelFile {
 
     this.busy = false
 
-    let content = data.content
+    let content = settings.downloadNovelEmbeddedImage
+      ? data.content
+      : Tools.removeNovelImageFlags(data.content)
 
     // 添加元数据
     if (settings.saveNovelMeta) {

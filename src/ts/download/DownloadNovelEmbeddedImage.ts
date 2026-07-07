@@ -106,6 +106,13 @@ class DownloadNovelEmbeddedImage {
     size: number
     content: string
   }> {
+    if (!settings.downloadNovelEmbeddedImage) {
+      return {
+        size: 0,
+        content: Tools.removeNovelImageFlags(content),
+      }
+    }
+
     const imageList = await this.getImageList(novelId, content, embeddedImages)
 
     let size = 0

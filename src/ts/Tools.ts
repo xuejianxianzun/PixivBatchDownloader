@@ -780,6 +780,13 @@ class Tools {
     return str
   }
 
+  /** 移除小说正文里的图片占位符 */
+  static removeNovelImageFlags(str: string) {
+    return str
+      .replace(/\[uploadedimage:\d+\]/g, '')
+      .replace(/\[pixivimage:\d+(?:-\d+)?\]/g, '')
+  }
+
   // '[[jumpuri:予約ページ>https://www.amazon.co.jp/dp/4758092486]]'
   // 替换成
   // '予約ページ（https://www.amazon.co.jp/dp/4758092486）'
