@@ -133,6 +133,7 @@ export type Result = Required<
 
 export interface NovelMeta {
   id: string
+  seriesId: string | null
   title: string
   content: string
   description: string

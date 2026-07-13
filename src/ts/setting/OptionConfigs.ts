@@ -1086,6 +1086,18 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 104,
+      nameKey:
+        '_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'novel',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: [],
+      searchWords: [],
+    },
+    {
       no: 72,
       nameKey: '_合并系列小说时的分割阈值',
       name: '',

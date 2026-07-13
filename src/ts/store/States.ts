@@ -61,7 +61,7 @@ class States {
   public crawlCompleteTime = 1
   public downloadCompleteTime = 0
 
-  /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
+  /** 调试用，指示是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
   public quickMergeNovel = false
 
   /** 是否在定时抓取模式下 */

@@ -14,6 +14,7 @@ export interface WorkBookmarkData {
   type: 'illusts' | 'novels'
   bookmarkID: string
   private: boolean
+  bookmarkTags: string[]
 }
 
 // 对 API.addBookmark 进行封装

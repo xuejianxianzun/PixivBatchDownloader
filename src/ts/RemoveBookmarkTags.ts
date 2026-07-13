@@ -5,9 +5,11 @@ import { states } from './store/States'
 import { bookmark, WorkBookmarkData } from './Bookmark'
 import { msgBox } from './MsgBox'
 import { Tools } from './Tools'
+import { settings } from './setting/Settings'
+import { Utils } from './utils/Utils'
 
-// 移除本页面中所有作品的标签
-class RemoveWorksTagsInBookmarks {
+// 移除已收藏的作品的标签
+class RemoveBookmarkTags {
   public async start(list: WorkBookmarkData[]) {
     if (list.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
@@ -19,6 +21,14 @@ class RemoveWorksTagsInBookmarks {
 
     const total = list.length.toString()
     log.log(lang.transl('_当前有x个作品', total))
+
+    let slowMode = false
+
+    // 如果作品数量超过 1 页，就启用慢速模式
+    if (list.length > 48) {
+      slowMode = true
+      log.warning(lang.transl('_慢速抓取'))
+    }
 
     let number = 0
     for (const item of list) {
@@ -43,17 +53,19 @@ class RemoveWorksTagsInBookmarks {
       }
       number++
       log.log(`${number} / ${total}`, 'removeWorksTagsProgress')
+
+      if (slowMode) {
+        await Utils.sleep(settings.slowCrawlDealy)
+      }
     }
 
     const msg =
       lang.transl('_移除本页面中所有作品的标签') + ' ' + lang.transl('_完成')
     log.success(msg)
-    toast.success(msg, {
-      position: 'topCenter',
-    })
+    toast.success(msg)
     states.busy = false
   }
 }
 
-const removeWorksTagsInBookmarks = new RemoveWorksTagsInBookmarks()
-export { removeWorksTagsInBookmarks }
+const removeBookmarkTags = new RemoveBookmarkTags()
+export { removeBookmarkTags }

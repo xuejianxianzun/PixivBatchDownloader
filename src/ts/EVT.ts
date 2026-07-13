@@ -3,7 +3,6 @@ import { IDData, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
-import { ArtworkData } from './crawl/CrawlResult'
 
 type eventNames = keyof typeof EVT.list
 

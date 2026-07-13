@@ -1,4 +1,4 @@
-<!-- 设置项的编号是递增的，现在最大值是 103
+<!-- 设置项的编号是递增的，现在最大值是 104
 帮助按钮上的文字有两种：
 - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 - 如果帮助文字直接在设置面板里显示，则使用“_提示” -->
@@ -1567,7 +1567,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <input
     type="text"
     name="dateFormat"
-    class="setinput_style blue"
+    class="setinput_style blue w200"
     value="YYYY-MM-DD"
   />
   <button
@@ -1726,7 +1726,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztext="_帮助"
   ></button>
   <div
-    class="subOptionWrap flexBasis100"
+    class="subOptionWrap flexBasis100 namingTipArea"
     data-show="folderForMultiImageWorksSwitch"
   >
     <div class="optionLine">
@@ -1759,6 +1759,12 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
         style="min-width: 100px"
       />
     </div>
+
+    <div class="secondary_hint">
+      <span
+        data-xztext="_提示还需要添加特定命名规则才能创建文件夹_multi_image_folder"
+      ></span>
+    </div>
   </div>
 </div>
 
@@ -1782,7 +1788,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-msg="_为r18作品添加一层文件夹的帮助"
     data-xztext="_帮助"
   ></button>
-  <div class="subOptionWrap flexBasis100" data-show="r18Folder">
+  <div class="subOptionWrap flexBasis100 namingTipArea" data-show="r18Folder">
     <label
       for="r18FolderName"
       class="pr0"
@@ -1796,6 +1802,12 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       value="[R-18&R-18G]"
       style="min-width: 100px"
     />
+
+    <div class="secondary_hint">
+      <span
+        data-xztext="_提示还需要添加特定命名规则才能创建文件夹_r18_g_folder"
+      ></span>
+    </div>
   </div>
 </div>
 
@@ -1834,6 +1846,11 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       rows="1"
       placeholder="tag1,tag2,tag3"
     ></textarea>
+    <div class="secondary_hint">
+      <span
+        data-xztext="_提示还需要添加特定命名规则才能创建文件夹_match_tag_folder"
+      ></span>
+    </div>
   </div>
 </div>
 
@@ -2648,6 +2665,64 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     checked
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <div
+    class="subOptionWrap flexBasis100"
+    data-show="downloadNovelEmbeddedImage"
+  >
+    <span class="mr4" data-xztext="_图片尺寸"></span>
+
+    <input
+      type="radio"
+      name="novelEmbeddedImageSize"
+      id="novelEmbeddedImageSizeOriginal"
+      class="need_beautify radio"
+      value="original"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelEmbeddedImageSizeOriginal" data-xztext="_原图"></label>
+
+    <input
+      type="radio"
+      name="novelEmbeddedImageSize"
+      id="novelEmbeddedImageSize1200"
+      class="need_beautify radio"
+      value="1200"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelEmbeddedImageSize1200">1200px</label>
+
+    <input
+      type="radio"
+      name="novelEmbeddedImageSize"
+      id="novelEmbeddedImageSize480"
+      class="need_beautify radio"
+      value="480"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelEmbeddedImageSize480">480px</label>
+
+    <input
+      type="radio"
+      name="novelEmbeddedImageSize"
+      id="novelEmbeddedImageSize240"
+      class="need_beautify radio"
+      value="240"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelEmbeddedImageSize240">240px</label>
+
+    <input
+      type="radio"
+      name="novelEmbeddedImageSize"
+      id="novelEmbeddedImageSize128"
+      class="need_beautify radio"
+      value="128"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelEmbeddedImageSize128">128px</label>
+  </div>
 </div>
 
 <div class="option" data-no="71">
@@ -2683,6 +2758,28 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_switch" tabindex="0"></span>
   </div>
+</div>
+
+<div class="option" data-no="104">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span
+      data-xztext="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说"
+    ></span>
+  </a>
+  <input
+    type="checkbox"
+    name="saveAllSeriesNovelsIfOneMatches"
+    class="need_beautify checkbox_switch"
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="textButton gray1 showMsgBtn"
+    data-title="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说"
+    data-msg="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="72">
@@ -3412,7 +3509,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   </div>
 
   <div class="optionLine nowrap">
-    <span class="mr4" data-xztext="_图片尺寸2"></span>
+    <span class="mr4" data-xztext="_图片尺寸"></span>
     <input
       type="radio"
       name="copyImageSize"

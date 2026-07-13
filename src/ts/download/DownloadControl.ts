@@ -179,10 +179,23 @@ class DownloadControl {
         return
       }
 
-      // UUID 的情况
+      // 提示文件名变成了UUID 的情况
+      // 注意：有些文件是不会返回消息的，所以它们不会触发这个提示
       if (msg.data?.uuid) {
         log.log(lang.transl('_uuid'), 'filenameUUID')
+        // 显示作品 id 和异常的文件名，方便用户重新下载这些文件
+        // 由于此时不确定这个 id 的类型，所以不显示作品链接，只显示 id
+        const tip = lang.transl(
+          '_显示作品id和异常的文件名',
+          msg.data.id,
+          msg.data.browserSetFilename || ''
+        )
+        // 一个 id 可能产生多个文件，所以可能显示多条提示，这是正常的。不需要给 log 语句添加 key
+        log.warning(tip)
+
         msgBox.once(this.uuidTip, lang.transl('_uuid'), 'show')
+
+        // 一旦检测到文件名异常，就会暂停下载
         this.pauseDownload()
       }
 

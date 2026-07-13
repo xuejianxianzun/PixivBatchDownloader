@@ -14,6 +14,7 @@ English |
 - [Introduction](#introduction)
 - [Online Installation](#online-installation)
 - [Offline Installation](#offline-installation)
+- [How to use](#how-to-use)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
 - [Thanks](#thanks)
@@ -39,7 +40,7 @@ This is a browser extension that lets you download images and novels from Pixiv 
 - One-click download any work you see;
 - Manually select (multi-select) the works you want to download;
 - Scheduled crawling and downloading;
-- Convert Ugoira to WebM, GIF, APNG formats;
+- Convert Ugoira to WebP, WebM, GIF, APNG formats;
 - Save novels in TXT, EPUB formats;
 - Save user avatars and cover images;
 - Save download progress and resume incomplete downloads;
@@ -50,6 +51,8 @@ This is a browser extension that lets you download images and novels from Pixiv 
 - Preview works and view original images without entering the work page;
 - Built-in image viewer to view multi-image works;
 - Highlight followed users;
+
+Screenshot:
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-en-white.png)
 
@@ -62,10 +65,14 @@ Firefox browsers can install this extension from **[Add-Ons](https://addons.mozi
 # Offline Installation
 
 Please check the Wiki page:
-[Offline Installation](https://xuejianxianzun.github.io/PBDWiki/#/en/OfflineInstallation)
+[Offline Installation](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
 If you want to use this extension on Android, please check the Wiki page:
-[Install on Microsoft Edge Canary Browser](https://xuejianxianzun.github.io/PBDWiki/#/en/MicrosoftEdgeCanary)
+[Install on Microsoft Edge Canary Browser](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+
+# How to use
+
+This downloader runs on Pixiv.net pages. When you browse Pixiv, you can open the downloader panel at any time to batch download the works on the current page.
 
 # Wiki
 

@@ -14,6 +14,8 @@ async function build () {
 // 复制必须的文件到发布目录
 async function copys () {
   return new Promise(async (resolve, reject) => {
+    const localesDistPath = path.join(distPath, '_locales')
+
     // 复制 static 文件夹的内容
     await copy('./src/static', distPath, {
       overwrite: true,
@@ -30,6 +32,10 @@ async function copys () {
     await copy('./src', distPath, {
       overwrite: true,
       filter: ['manifest.json', 'declarative_net_request_rules.json'],
+    })
+
+    await copy('./src/_locales', localesDistPath, {
+      overwrite: true,
     })
 
     // 复制根目录的一些文件

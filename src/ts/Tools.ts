@@ -1317,6 +1317,89 @@ class Tools {
       .replace(/\/c\/\d+x\d+_\d+_\w+\/img-master\//, '/img-original/')
       .replace(/_square1200\.jpg$/, '_ugoira0.jpg')
   }
+
+  /** 把小说里的插画的 original URL 转换为指定尺寸的 URL */
+  // 输入例如：
+  // "https://i.pximg.net/novel-cover-original/img/2024/05/02/23/31/06/tei728907501054_9405d2878eadd47484458a55b471b809.jpg"
+  // 输出：
+  // "https://i.pximg.net/c/1200x1200/novel-cover-master/img/2024/05/02/23/31/06/tei728907501054_9405d2878eadd47484458a55b471b809_master1200.jpg"
+  static converNovelEmbeddedImagetUrl(
+    originalUrl: string,
+    size: '128' | '240' | '480' | '1200' | 'original'
+  ) {
+    if (size === 'original') {
+      return originalUrl
+    }
+
+    // 定义每种尺寸的路径前缀
+    const sizeMap = {
+      '128': 'c/128x128/novel-cover-master/',
+      '240': 'c/240x480_80/novel-cover-master/',
+      '480': 'c/480x960/novel-cover-master/',
+      '1200': 'c/1200x1200/novel-cover-master/',
+    }
+
+    // 定义裁剪标记
+    const cropMap = {
+      '128': '_square1200',
+      '240': '_master1200',
+      '480': '_master1200',
+      '1200': '_master1200',
+    }
+
+    // 检查传入的尺寸是否有效
+    if (!sizeMap[size]) {
+      throw new Error(`Invalid size: ${size}`)
+    }
+
+    // 替换路径
+    let result = originalUrl.replace('novel-cover-original/', sizeMap[size])
+    // 提取文件名，在其后添加对应的裁剪标记
+    const fileName = Utils.getFileNameFromUrl(result)
+    result = result.replace(fileName, fileName + cropMap[size])
+    // 把原图的扩展名（通常是 .jpg、.png) 替换为 .jpg，因为非原图的尺寸都是 jpg 格式
+    const array = result.split('.')
+    if (array.length > 1) {
+      array[array.length - 1] = 'jpg'
+      result = array.join('.')
+    } else {
+      result = result.replace('.png', '.jpg')
+    }
+
+    return result
+  }
+
+  /** 根据小说的文件名，生成小说里内嵌的图片的文件名 */
+  // 之前是在文件名的末尾添加图片 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
+  // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
+  // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
+  static createNovelImageName(
+    novelName: string,
+    imageUrl: string,
+    novelId: string,
+    imageId: string
+  ) {
+    let imageName = Utils.replaceExtension(novelName, imageUrl)
+    const array = imageName.split('/')
+    const fileName = array.at(-1)!
+    const index = fileName.indexOf(novelId)
+    // 如果最后的文件名部分里有 novelId，就在它后面添加图片 id
+    if (index !== -1) {
+      array[array.length - 1] = fileName.replaceAll(novelId, imageId)
+    } else {
+      // 如果没有找到 novelId，就在文件名末尾添加图片 id
+      const array2 = fileName.split('.')
+      array2[0] = array2[0] + '-' + imageId
+      array[array.length - 1] = array2.join('.')
+    }
+    imageName = array.join('/')
+    return imageName
+  }
+
+  /** 为设定资料里的图片生成唯一的标记，如 [glossaryImage-24974873] */
+  static createGlossaryImageFlag(imageId: string) {
+    return `[glossaryImage-${imageId}]`
+  }
 }
 
 export { Tools }

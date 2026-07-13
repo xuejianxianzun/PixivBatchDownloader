@@ -443,7 +443,7 @@ class SettingsPanelLayout {
 
   private createDownloadEmptyHint() {
     const hint = document.createElement('div')
-    hint.className = 'settingsPanel_downloadEmptyHint'
+    hint.classList.add('secondary_hint', 'settingsPanel_downloadEmptyHint')
 
     const text = document.createElement('span')
     text.dataset.xztext = '_目前没有可用的抓取结果提示'

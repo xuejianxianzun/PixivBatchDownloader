@@ -9,11 +9,12 @@ import { DateFormat } from '../utils/DateFormat'
 import { Config } from '../Config'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { replaceNovelWords } from './ReplaceNovelWords'
 
 declare const jEpub: any
 
-/** 保存单篇小说为 EPUB 文件 */
-class MakeNovelFile {
+/** 为单篇小说生成文件 */
+class MakeSingleNovelFile {
   /** 下载小说的封面图片 */
   private async downloadCover(
     id: string,
@@ -54,18 +55,19 @@ class MakeNovelFile {
 
     await this.downloadCover(data.id, data.title, data.coverUrl, filename)
 
+    let content = await replaceNovelWords.replace(data.seriesId, data.content)
+
     // 下载小说里的内嵌图片
     await downloadNovelEmbeddedImage.TXT(
       data.id,
       data.title,
-      data.content,
+      content,
       data.embeddedImages,
-      filename
+      filename,
+      'single novel'
     )
 
     this.busy = false
-
-    let content = data.content
 
     // 添加元数据
     if (settings.saveNovelMeta) {
@@ -89,7 +91,7 @@ class MakeNovelFile {
 
     await this.downloadCover(data.id, data.title, data.coverUrl, filename)
 
-    let content = data.content
+    let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
     // 添加元数据
     if (settings.saveNovelMeta) {
@@ -154,7 +156,8 @@ class MakeNovelFile {
       data.title,
       content,
       data.embeddedImages,
-      jepub
+      jepub,
+      'single novel'
     )
 
     this.busy = false
@@ -194,5 +197,5 @@ class MakeNovelFile {
   }
 }
 
-const makeNovelFile = new MakeNovelFile()
-export { makeNovelFile }
+const makeSingleNovelFile = new MakeSingleNovelFile()
+export { makeSingleNovelFile }

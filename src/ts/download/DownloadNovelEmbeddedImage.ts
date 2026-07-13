@@ -7,6 +7,7 @@ import { Utils } from '../utils/Utils'
 import { downloadInterval } from './DownloadInterval'
 import { Tools } from '../Tools'
 import { SendDownload } from './SendDownload'
+import { EVT } from '../EVT'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -33,6 +34,57 @@ type NovelImageData = {
 
 /**下载小说里的内嵌图片 */
 class DownloadNovelEmbeddedImage {
+  constructor() {
+    this.bindEvents()
+  }
+
+  private bindEvents() {
+    const enableDownload = [EVT.list.crawlStart, EVT.list.downloadStart]
+    for (const ev of enableDownload) {
+      window.addEventListener(ev, () => {
+        this.stop = false
+      })
+    }
+
+    const stopDownload = [EVT.list.downloadPause, EVT.list.downloadStop]
+    for (const ev of stopDownload) {
+      window.addEventListener(ev, () => {
+        this.stop = true
+      })
+    }
+  }
+
+  /** 指示是否应该停止下载后续图片。当用户点击“停止下载”按钮时把该属性设置为 true */
+  public stop = false
+  // 注意：这里不应该使用 states.downloading，因为它是由多个事件触发的，本模块不需要使用其中的某些事件。
+  // 而且在合并单个系列小说时，始终没有“开始下载”、“停止下载”的事件，所以无法使用该状态
+
+  /** 下载文件时的间隔时间，最低为 2000 ms */
+  private get downloadInterval() {
+    return Math.max(2000, settings.downloadInterval)
+  }
+
+  /** 在每张图片之间添加间隔时间 */
+  private async waitDownloadInterval(
+    mode: 'single novel' | 'merge novel',
+    total: number
+  ) {
+    // 如果未启用下载间隔，则根据需要决定是否添加间隔时间
+    if (downloadInterval.checkDisable()) {
+      // 如果是下载单个小说，那么当小说里的图片大于指定数量时，就添加间隔时间
+      // 如果是合并系列小说，那么始终添加间隔时间。这是因为合并系列小说时，是遍历每篇小说并下载内嵌图片的，无法提前知道所有小说里一共有多少张图片。如果不添加间隔时间，可能会在短时间内下载大量图片。因此需要强制设置间隔时间
+      if ((mode === 'single novel' && total > 40) || mode === 'merge novel') {
+        await Utils.sleep(this.downloadInterval)
+      } else {
+        // 如果是下载单个小说，且小说里的图片数量小于指定数量，则不添加间隔时间
+        return
+      }
+    } else {
+      // 如果启用了下载间隔，则等待下载间隔模块放行
+      await downloadInterval.wait()
+    }
+  }
+
   /**小说保存为 txt 时，直接下载小说里的内嵌图片。因为 txt 无法存储图像，只能单独保存
    *
    * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
@@ -43,14 +95,22 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages,
     novelName: string,
-    interval = 0
+    mode: 'single novel' | 'merge novel'
   ) {
     const imageList = await this.getImageList(novelId, content, embeddedImages)
 
     let current = 1
     const total = imageList.length
+
     // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
     for (let image of imageList) {
+      if (this.stop) {
+        log.warning(
+          lang.transl('_由于下载已暂停或停止所以不再下载小说里剩余的图片')
+        )
+        break
+      }
+
       this.logProgress(novelId, novelTitle, current, total)
       current++
       if (image.url === '') {
@@ -58,40 +118,25 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      if (interval) {
-        await Utils.sleep(interval)
-      } else {
-        await downloadInterval.wait()
-      }
+      await this.waitDownloadInterval(mode, total)
 
-      const blob = await this.getImage(image.url, 'blob')
+      const blob = await this.getImage(image.url, 'blob', novelId, novelTitle)
       if (blob === null) {
         continue
       }
 
-      // 之前是在文件名的末尾添加图片 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
-      // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
-      // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
-      let imageName = Utils.replaceExtension(novelName, image.url!)
-      const array = imageName.split('/')
-      const fileName = array.at(-1)!
       const imageId = novelId + '-' + image.flag_id_part
-
-      // 如果 fileName 里有 novelId，就在它后面添加图片 id
-      const index = fileName.indexOf(novelId)
-      if (index !== -1) {
-        array[array.length - 1] = fileName.replaceAll(novelId, imageId)
-      } else {
-        // 如果没有找到 novelId，就在文件名末尾添加图片 id
-        const array2 = fileName.split('.')
-        array2[0] = array2[0] + imageId
-        array[array.length - 1] = array2.join('.')
-      }
-      imageName = array.join('/')
+      const imageName = Tools.createNovelImageName(
+        novelName,
+        image.url,
+        novelId,
+        imageId
+      )
 
       await SendDownload.noReply(blob, imageName)
-      log.persistentRefresh('downloadNovelImage' + novelId)
     }
+
+    log.persistentRefresh('downloadNovelImage' + novelId)
   }
 
   /**小说保存为 epub 时，内嵌到 Epub 对象里。返回值是个对象：size 是图片体积总数，content 是替换后的正文内容 */
@@ -101,7 +146,7 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages,
     jepub: any,
-    interval = 0
+    mode: 'single novel' | 'merge novel'
   ): Promise<{
     size: number
     content: string
@@ -111,7 +156,15 @@ class DownloadNovelEmbeddedImage {
     let size = 0
     let current = 1
     const total = imageList.length
+
     for (const image of imageList) {
+      if (this.stop) {
+        log.warning(
+          lang.transl('_由于下载已暂停或停止所以不再下载小说里剩余的图片')
+        )
+        break
+      }
+
       this.logProgress(novelId, novelTitle, current, total)
       current++
 
@@ -122,14 +175,14 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      // 加载图片
-      if (interval) {
-        await Utils.sleep(interval)
-      } else {
-        await downloadInterval.wait()
-      }
+      await this.waitDownloadInterval(mode, total)
 
-      const buffer = await this.getImage(image.url, 'arrayBuffer')
+      const buffer = await this.getImage(
+        image.url,
+        'arrayBuffer',
+        novelId,
+        novelTitle
+      )
       // 如果图片获取失败，将正文里它对应的标记替换为提示文字
       if (buffer === null) {
         content = content.replaceAll(image.flag, `fetch ${image.url} failed`)
@@ -180,11 +233,15 @@ class DownloadNovelEmbeddedImage {
     // 此时可以直接获取到图片 URL
     if (embeddedImages) {
       for (const [id, url] of Object.entries(embeddedImages)) {
+        const sizeUrl = Tools.converNovelEmbeddedImagetUrl(
+          url,
+          settings.novelEmbeddedImageSize
+        )
         idList.push({
           id: id,
           p: '',
           type: 'upload',
-          url,
+          url: sizeUrl,
           flag: `[uploadedimage:${id}]`,
           flag_id_part: id,
         })
@@ -251,7 +308,16 @@ class DownloadNovelEmbeddedImage {
             if (illustData.illust === null) {
               idData.url = ''
             } else {
-              idData.url = illustData.illust.images.original
+              // 根据 novelEmbeddedImageSize 选择对应尺寸的 URL
+              // novelEmbeddedImageSize 的尺寸是针对的小说里内嵌（上传）的图片，而非引用的图片，它们的尺寸并不对应
+              // 内嵌图片有 5 种尺寸：128、240、480、1200、original
+              // 引用的图片有 3 种尺寸：small 48、medium 1200、original
+              // 把 novelEmbeddedImageSize 里除了 original 的尺寸都映射到  128、240、480 都映射到 medium 1200。不使用  small 48，因为它太小了，无法看清图片内容
+              let size: 'original' | 'medium' | 'small' = 'original'
+              if (settings.novelEmbeddedImageSize !== 'original') {
+                size = 'medium'
+              }
+              idData.url = illustData.illust.images[size]
             }
           }
         }
@@ -299,22 +365,31 @@ class DownloadNovelEmbeddedImage {
   private async getImage(
     url: string,
     type: 'blob',
+    id: string | number,
+    title: string,
     retry?: number
   ): Promise<Blob | null>
   private async getImage(
     url: string,
     type: 'arrayBuffer',
+    id: string | number,
+    title: string,
     retry?: number
   ): Promise<ArrayBuffer | null>
   private async getImage(
     url: string,
     type: 'blob' | 'arrayBuffer',
+    id: string | number,
+    title: string,
     retry = 0
   ): Promise<Blob | ArrayBuffer | null> {
     try {
       const res = await fetch(url)
       if (!res.ok) {
-        throw new Error(`${res.status} ${res.statusText}`)
+        const error = new Error(`${res.status} ${res.statusText}`)
+        ;(error as any).status = res.status
+        ;(error as any).statusText = res.statusText
+        throw error
       }
       const data = await res[type]()
       return data
@@ -323,7 +398,8 @@ class DownloadNovelEmbeddedImage {
       retry++
       // console.log(retry, url)
       if (retry > this.retryMax) {
-        let msg = `${lang.transl('_下载小说里的图片失败')}: ${url}`
+        const link = Tools.createWorkLink(id, title, 'novel')
+        let msg = `${lang.transl('_下载小说里的图片失败')}: ${link}<br>${url}`
         const status = error.status
         if (status !== undefined) {
           msg += `<br> ${lang.transl('_状态码')}: ${status}`
@@ -332,7 +408,7 @@ class DownloadNovelEmbeddedImage {
         return null
       }
       // 重试下载
-      return this.getImage(url, type as any, retry)
+      return this.getImage(url, type as any, id, title, retry)
     }
   }
 }

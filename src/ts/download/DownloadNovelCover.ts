@@ -40,7 +40,10 @@ class DownloadNovelCover {
         credentials: 'same-origin',
       })
       if (!res.ok) {
-        throw new Error(`${res.status} ${res.statusText}`)
+        const error = new Error(`${res.status} ${res.statusText}`)
+        ;(error as any).status = res.status
+        ;(error as any).statusText = res.statusText
+        throw error
       }
       const data = await res[type]()
       return data

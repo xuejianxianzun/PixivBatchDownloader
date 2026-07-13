@@ -14,6 +14,7 @@
 - [소개](#소개)
 - [온라인 설치](#온라인-설치)
 - [오프라인 설치](#오프라인-설치)
+- [사용 방법](#사용-방법)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
 - [도움을 주신 분들](#도움을-주신-분들)
@@ -39,7 +40,7 @@
 - 보는 작품을 원클릭으로 다운로드;
 - 다운로드하려는 작품을 수동으로 선택(다중 선택);
 - 정기적인 크롤링 및 다운로드;
-- 우고이라를 WebM, GIF, APNG 형식으로 변환;
+- 우고이라를 WebP, WebM, GIF, APNG 형식으로 변환;
 - 소설을 TXT, EPUB 형식으로 저장;
 - 사용자의 아바타와 커버 이미지를 저장;
 - 다운로드 진행 상황을 저장하고 미완료 다운로드를 재개;
@@ -50,6 +51,8 @@
 - 작품 페이지에 들어가지 않고 작품을 미리 보거나 원본 이미지를 확인;
 - 내장된 이미지 뷰어로 다중 이미지 작품을 확인;
 - 팔로우한 사용자를 강조 표시;
+
+스크린샷:
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-ko-white.png)
 
@@ -62,10 +65,14 @@ Firefox 브라우저는 **[Add-Ons](https://addons.mozilla.org/firefox/addon/pow
 # 오프라인 설치
 
 Wiki 페이지를 확인하세요:
-[오프라인 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/OfflineInstallation)
+[오프라인 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
 Android에서 이 확장 프로그램을 사용하려면 Wiki 페이지를 확인하세요:
-[Microsoft Edge Canary 브라우저에 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/MicrosoftEdgeCanary)
+[Microsoft Edge Canary 브라우저에 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+
+# 사용 방법
+
+이 다운로드기는 Pixiv.net 페이지에서 동작합니다. Pixiv를 둘러보는 동안 언제든지 다운로드기 패널을 열어 현재 페이지의 작품을 일괄 다운로드할 수 있습니다.
 
 # Wiki
 

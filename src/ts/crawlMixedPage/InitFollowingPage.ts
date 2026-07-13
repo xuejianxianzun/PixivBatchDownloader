@@ -63,7 +63,7 @@ class InitFollowingPage extends InitPageBase {
     })
 
     this.addInitPageBtn(
-      'crawlBtns',
+      'otherBtns',
       '_导出关注列表CSV',
       '',
       'exportFollowingListCSV',
@@ -73,7 +73,7 @@ class InitFollowingPage extends InitPageBase {
     })
 
     this.addInitPageBtn(
-      'crawlBtns',
+      'otherBtns',
       '_导出关注列表JSON',
       '',
       'exportFollowingListJSON',
@@ -83,7 +83,7 @@ class InitFollowingPage extends InitPageBase {
     })
 
     this.addInitPageBtn(
-      'crawlBtns',
+      'otherBtns',
       '_批量关注用户',
       '',
       'batchFollowUser',
@@ -104,7 +104,7 @@ class InitFollowingPage extends InitPageBase {
     })
 
     this.addInitPageBtn(
-      'crawlBtns',
+      'otherBtns',
       '_查找已注销的用户',
       '',
       'findDeactivatedUsers',

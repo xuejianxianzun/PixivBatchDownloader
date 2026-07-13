@@ -12,7 +12,7 @@ class FormHelpManager {
   constructor(form: FormType) {
     this.form = form
     this.downloadEmptyHint = this.form.querySelector(
-      '.settingsPanel_downloadEmptyHint'
+      '.secondary_hint'
     ) as HTMLDivElement | null
 
     this.displayTipArea()

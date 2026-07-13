@@ -15,6 +15,8 @@ import { pageType } from './PageType'
 import { store } from './store/Store'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
+import { DateFormat } from './utils/DateFormat'
+import { settings } from './setting/Settings'
 
 interface InitConfig {
   /** 作品 id，如果为空从会 url 中获取作品 id */
@@ -52,8 +54,10 @@ class ImageViewer {
   private show = false // 当前查看器实例是否处于显示状态
   private isOriginalSize = false // 是否原尺寸显示图片
 
-  // 图片查看器初始化时，会获取作品数据，保存到这个成员
+  // 图片查看器初始化时会获取作品数据
   private workData: ArtworkData | undefined
+
+  // 图片查看器的一些状态
   private pageCount = 1
   private firstImageURL = '' // 第一张图片的 url
   private index = 0 // 当前查看的图片索引
@@ -277,6 +281,12 @@ class ImageViewer {
     }
 
     // 配置新的看图组件
+    const date = this.workData?.body.uploadDate
+    let dateString = ''
+    if (date) {
+      dateString = DateFormat.format(date, settings.dateFormat)
+    }
+
     const handleToTop = this.moveToTop.bind(this)
     const pageCount = this.pageCount
     const firstImageURL = this.firstImageURL
@@ -323,8 +333,11 @@ class ImageViewer {
       // 取消一些动画，比如切换图片时，图片从小变大出现的动画
       transition: false,
       keyboard: true,
-      // 显示 title（图片名和宽高信息）
-      title: true,
+      // 显示 title（图片名、宽高、日期）
+      title: (image: HTMLImageElement, imageData: any) => {
+        // console.log(image, imageData)
+        return `${dateString} ${image.alt} (${imageData.naturalWidth} × ${imageData.naturalHeight})`
+      },
       // 不显示缩放比例
       tooltip: false,
     }
@@ -536,6 +549,13 @@ class ImageViewer {
     li.style.fontSize = '20px'
     li.textContent = '✩'
     li.id = 'imageViewerBookmarkBtn'
+
+    // 显示这个作品的收藏状态
+    const bookmarked = this.workData!.body.bookmarkData !== null
+    if (bookmarked) {
+      li.classList.add('bookmarked')
+    }
+
     this.addBtn(li)
 
     li.addEventListener('click', async () => {
@@ -561,6 +581,11 @@ class ImageViewer {
 
     if (status === 200) {
       toast.success(lang.transl('_已收藏'))
+      // 收藏成功后，更新按钮的样式
+      const btn = document.querySelector('#imageViewerBookmarkBtn')
+      if (btn) {
+        btn.classList.add('bookmarked')
+      }
     }
   }
 }

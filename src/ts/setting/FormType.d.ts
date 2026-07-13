@@ -143,6 +143,7 @@ export interface FormType extends HTMLFormElement {
   doNotCrawlLastImagesCount: HTMLInputElement
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
+  novelEmbeddedImageSize: HTMLInputElement
   previewUgoira: HTMLInputElement
   previewSingleImageWork: HTMLInputElement
   previewMultiImageWork: HTMLInputElement
@@ -213,4 +214,5 @@ export interface FormType extends HTMLFormElement {
   downloadUgoiraFirst: HTMLInputElement
   clickSettingNameOpenWiki: HTMLInputElement
   downloadIntervalSwitch: HTMLInputElement
+  saveAllSeriesNovelsIfOneMatches: HTMLInputElement
 }

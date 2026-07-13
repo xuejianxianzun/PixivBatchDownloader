@@ -44,7 +44,7 @@ class BookmarksAddTag {
       this.addIndex = 0
 
       this.btn.setAttribute('disabled', 'disabled')
-      this.textSpan.textContent = `Checking`
+      this.textSpan.textContent = `Checking...`
 
       if (window.location.pathname.includes('/novel')) {
         this.type = 'novels'

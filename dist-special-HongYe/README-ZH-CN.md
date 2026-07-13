@@ -14,6 +14,7 @@
 - [简介](#简介)
 - [在线安装](#在线安装)
 - [离线安装](#离线安装)
+- [如何使用](#如何使用)
 - [Wiki](#wiki)
 - [鸣谢](#鸣谢)
 - [支持和捐助](#支持和捐助)
@@ -40,7 +41,7 @@
 - 一键下载你看到的任何作品；
 - 手动选择（多选）你想下载的作品；
 - 定时抓取和下载；
-- 转换动图为 WebM、GIF、APNG 格式；
+- 转换动图为WebP、WebM、GIF、APNG 格式；
 - 保存小说为 TXT、EPUB 格式；
 - 保存用户的头像、封面图；
 - 保存下载进度，恢复未完成的下载；
@@ -51,6 +52,8 @@
 - 无需进入作品页面即可预览作品、查看原图；
 - 内置图片查看器，查看多图作品；
 - 高亮关注的用户；
+
+截图：
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-zh-cn-white.png)
 
@@ -67,10 +70,14 @@ Firefox 浏览器可以从 **[Add-Ons](https://addons.mozilla.org/firefox/addon/
 # 离线安装
 
 请查看 Wiki 页面：
-[离线安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
+[离线安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
 如果你想在 Android 上使用这个扩展，请查看 Wiki 页面：
-[在 Microsoft Edge Canary 浏览器上安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/MicrosoftEdgeCanary)
+[在 Microsoft Edge Canary 浏览器上安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/MicrosoftEdgeCanary)
+
+# 如何使用
+
+这个下载器运行在 Pixiv.net 的网页上。当你浏览 Pixiv 时，可以随时打开下载器的面板来批量下载该页面里的作品。
 
 # Wiki
 

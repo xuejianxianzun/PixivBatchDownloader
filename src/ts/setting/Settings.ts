@@ -297,6 +297,7 @@ interface XzSetting {
   doNotCrawlLastImagesCount: number
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
+  novelEmbeddedImageSize: 'original' | '1200' | '480' | '240' | '128'
   previewSingleImageWork: boolean
   previewMultiImageWork: boolean
   previewUgoira: boolean
@@ -400,6 +401,8 @@ interface XzSetting {
   clickOptionCardToToggleSwitch: boolean
   clickSettingNameOpenWiki: boolean
   downloadIntervalSwitch: boolean
+  /** 在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说 */
+  saveAllSeriesNovelsIfOneMatches: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -864,6 +867,7 @@ class Settings {
     doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
+    novelEmbeddedImageSize: 'original',
     previewSingleImageWork: true,
     previewMultiImageWork: true,
     previewUgoira: true,
@@ -905,7 +909,7 @@ class Settings {
     saveWorkDescription: false,
     saveEachDescription: true,
     summarizeDescription: false,
-    slowCrawlDealy: 1600,
+    slowCrawlDealy: 1800,
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
@@ -1008,6 +1012,7 @@ class Settings {
     },
     clickSettingNameOpenWiki: true,
     downloadIntervalSwitch: true,
+    saveAllSeriesNovelsIfOneMatches: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

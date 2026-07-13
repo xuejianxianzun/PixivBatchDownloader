@@ -88,7 +88,12 @@ class SelectWork {
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
 
-  private idList: IDData[] = []
+  private _idList: IDData[] = []
+
+  /** 当前已手动选择的作品 id 列表。其他模块可读取这个列表。 */
+  public get idList() {
+    return this._idList
+  }
 
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
@@ -323,7 +328,7 @@ class SelectWork {
   private clearIdList() {
     // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
     this.removeAllSelectedFlag()
-    this.idList = []
+    this._idList.length = 0
     this.updateCrawlBtn()
   }
 
@@ -674,4 +679,5 @@ class SelectWork {
   }
 }
 
-new SelectWork()
+const selectWork = new SelectWork()
+export { selectWork }

@@ -62,14 +62,19 @@ class DownloadInterval {
     this.allowDownloadTime = Date.now() + settings.downloadInterval * 1000
   }
 
+  /** 检查是否不符合启用“添加下载间隔”的条件。返回值 true 表示不启用，false 表示启用 */
+  public checkDisable() {
+    return (
+      settings.downloadIntervalSwitch === false ||
+      settings.downloadInterval === 0 ||
+      store.result.length <= settings.downloadIntervalOnWorksNumber
+    )
+  }
+
   public async wait() {
     while (true) {
       // 首先检查此设置不应该生效的情况
-      if (
-        settings.downloadIntervalSwitch === false ||
-        settings.downloadInterval === 0 ||
-        store.result.length <= settings.downloadIntervalOnWorksNumber
-      ) {
+      if (this.checkDisable()) {
         // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
         // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
         if (settings.rememberTheLastSaveLocation) {

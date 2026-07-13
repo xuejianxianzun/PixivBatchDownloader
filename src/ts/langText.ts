@@ -1002,6 +1002,15 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     '현재 {}개의 작품이 있습니다',
     'В настоящее время существует {} работ',
   ],
+  _当前有x个已被删除的作品: [
+    '当前有 {} 个已被删除的作品',
+    '目前有 {} 個已被刪除的作品',
+    'There are now {} deleted works',
+    '今は　{}　枚の削除された作品があります',
+    '현재 {}개의 삭제된 작품이 있습니다',
+    'В настоящее время существует {} удалённых работ',
+    'В настоящее время существует {} работ',
+  ],
   _当前有x个用户: [
     '当前有 {} 个用户',
     '目前有 {} 個使用者',
@@ -1947,6 +1956,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 Предположим, этот загрузчик задаёт пользовательское имя для файла: user/image.jpg. <br>
 Если другое расширение обрабатывают событие onDeterminingFilename, браузер запросит у него варианты имени файла (что даёт ему возможность изменить имя файла). Проблема в том, что браузер передал имя файла по умолчанию (последний путь в URL), а не имя файла, заданное загрузчиком. <br>
 Поэтому имя файла, заданное загрузчиком, теряется, и имя файла становится последним путем в URL. <br>`,
+  ],
+  _显示作品id和异常的文件名: [
+    `⚠️作品 ID: {}, 异常文件名: {}`,
+    `⚠️作品 ID: {}, 異常檔名: {}`,
+    `⚠️Work ID: {}, Abnormal file name: {}`,
+    `⚠️作品 ID: {}, 異常なファイル名: {}`,
+    `⚠️작품 ID: {}, 비정상적인 파일 이름: {}`,
+    `⚠️ID работы: {}, ненормальное имя файла: {}`,
   ],
   _账户可能被封禁的警告: [
     `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。
@@ -3008,6 +3025,22 @@ Note: Even if you disable this setting, some quick download methods will always 
     `소설 표지 다운로드 실패`,
     `Не удалось скачать обложку романа`,
   ],
+  _下载设定资料x里的图片: [
+    `下载设定资料 {} 里的图片`,
+    `下載設定資料 {} 裡的圖片`,
+    `Download images in glossary {}`,
+    `設定資料 {} 内の画像をダウンロード`,
+    `설정 자료 {} 내 이미지 다운로드`,
+    `Скачать изображения в глоссарии {}`,
+  ],
+  _下载设定资料里的图片失败: [
+    `下载设定资料里的图片失败`,
+    `下載設定資料裡的圖片失敗`,
+    `Failed to download images in glossary`,
+    `設定資料内の画像のダウンロードに失敗しました`,
+    `설정 자료 내 이미지 다운로드 실패`,
+    `Не удалось скачать изображения в глоссарии`,
+  ],
   _下载小说里的图片失败: [
     `下载小说里的图片失败`,
     `下載小說裡的圖片失敗`,
@@ -3017,6 +3050,14 @@ Note: Even if you disable this setting, some quick download methods will always 
     `Не удалось скачать изображения в романе`,
   ],
   _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
+  _本次合并包含的章节: [
+    `本次合并包含的章节`,
+    `本次合併包含的章節`,
+    `Chapters included in this merge`,
+    `今回のマージに含まれる章`,
+    `이번 병합에 포함된 장`,
+    `Главы, включенные в это слияние`,
+  ],
   _设定资料: [
     `设定资料`,
     `設定資料`,
@@ -3057,6 +3098,14 @@ Note: Even if you disable this setting, some quick download methods will always 
     `시리즈 소설의 메타데이터 부분 종료`,
     `Конец раздела метаданных серии романов`,
   ],
+  _提示只合并选择的小说: [
+    `注意：由于你选择了部分小说，所以本次合并只会合并你选择的小说，而非系列里的所有小说。`,
+    `注意：由於你選擇了部分小說，所以本次合併只會合併你選擇的小說，而非系列裡的所有小說。`,
+    `Note: Since you have selected some novels, this merge will only merge the novels you have selected, not all the novels in the series.`,
+    `注意：選択した小説の一部を選択したため、今回のマージでは選択した小説のみがマージされ、シリーズ内のすべての小説がマージされるわけではありません。`,
+    `주의: 일부 소설을 선택했기 때문에 이번 병합에서는 선택한 소설만 병합되고 시리즈의 모든 소설이 병합되는 것은 아닙니다.`,
+    `Внимание: Поскольку вы выбрали некоторые романы, это слияние объединит только выбранные романы, а не все романы в серии.`,
+  ],
   _更新日期: [
     `更新日期`,
     `更新日期`,
@@ -3090,14 +3139,22 @@ Note: Even if you disable this setting, some quick download methods will always 
     'Сохранить <span class="key">метаданные</span> новеллы',
   ],
   _在小说里保存元数据提示: [
-    '把小说的标题、作者、标签等信息保存到小说开头。',
-    '把小說的標題、作者、標籤等資訊儲存到小說開頭。',
-    `Save the novel's title, author, tags and other information to the beginning of the novel.`,
-    '小説のタイトル、著者、タグなどの情報を小説の冒頭に保存します。',
-    '소설의 제목, 저자, 태그 및 기타 정보를 소설의 시작 부분에 저장합니다.',
-    'Сохраните название романа, автора, теги и другую информацию в начале романа.',
+    '把小说的标题、作者、标签等信息保存到小说开头。<br>在合并系列小说时，如果你需要保存设定资料，也需要启用这个设置。',
+    '把小說的標題、作者、標籤等資訊儲存到小說開頭。<br>在合併系列小說時，如果你需要保存設定資料，也需要啟用這個設定。',
+    `Save the novel's title, author, tags and other information to the beginning of the novel. <br>When merging series novels, if you need to save the glossary, you also need to enable this setting.`,
+    '小説のタイトル、著者、タグなどの情報を小説の冒頭に保存します。<br>シリーズ小説をマージする場合、設定資料も保存する必要があるときは、この設定も有効にする必要があります。',
+    '소설의 제목, 저자, 태그 및 기타 정보를 소설의 시작 부분에 저장합니다. <br>시리즈 소설을 병합할 때 용어집도 저장하려면 이 설정도 활성화해야 합니다.',
+    'Сохраните название романа, автора, теги и другую информацию в начале романа. <br>При объединении серии романов, если вы хотите сохранить глоссарий, также необходимо включить эту настройку.',
   ],
   _作者: [`作者`, `作者`, `Author`, `作者`, `작가`, `Автор`],
+  _由于下载已暂停或停止所以不再下载小说里剩余的图片: [
+    '由于下载已暂停或停止，所以下载器不会再下载小说里剩余的图片',
+    '由於下載已暫停或停止，所以下載器不會再下載小說裡剩餘的圖片',
+    `Since the download has been paused or stopped, the downloader will no longer download the remaining images in the novel`,
+    'ダウンロードが一時停止または停止されているため、ダウンローダーは小説内の残りの画像をダウンロードしません',
+    '다운로드가 일시 중지되거나 중지되었으므로 다운로더는 소설의 나머지 이미지를 더 이상 다운로드하지 않습니다.',
+    'Поскольку загрузка была приостановлена или остановлена, загрузчик больше не будет загружать оставшиеся изображения в романе',
+  ],
   _正在下载小说x中的插画x: [
     `下载小说 {} 中的插画 {}`,
     `下載小說 {} 中的插畫 {}`,
@@ -3474,14 +3531,14 @@ Note: This clears the downloader's download record, not the browser's download h
     'Импорт успешен',
   ],
   _下载图片时的尺寸: [
-    '下载图片时的<span class="key">尺寸</span>',
-    '下載圖片時的<span class="key">尺寸</span>',
-    'Image <span class="key">dimensions</span> when downloading',
-    '画像をダウンロードする際の<span class="key">サイズ</span>',
-    '이미지를 다운로드할 때의 <span class="key">크기</span>',
-    'Размер <span class="key">изображения</span> при загрузке',
+    '下载插画、漫画、动图时的<span class="key">尺寸</span>',
+    '下載插畫、漫畫、動圖時的<span class="key">尺寸</span>',
+    'Image <span class="key">dimensions</span> when downloading illustrations, manga, and Ugoira',
+    'イラスト、漫画、アニメーションをダウンロードする際の<span class="key">サイズ</span>',
+    '일러스트, 만화, 애니메이션을 다운로드할 때의 <span class="key">크기</span>',
+    'Размер <span class="key">изображения</span> при загрузке иллюстраций, манги и анимаций',
   ],
-  _图片尺寸2: [
+  _图片尺寸: [
     '图片尺寸',
     '圖片尺寸',
     'Image size',
@@ -5998,6 +6055,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     '이 페이지의 모든 작품에서 태그 제거',
     'Удалить теги со всех работ на этой странице',
   ],
+  _移除所有作品的标签: [
+    '移除所有作品的标签',
+    '移除所有作品的標籤',
+    'Remove tags from all works',
+    'すべての作品からタグを削除します',
+    '모든 작품에서 태그 제거',
+    'Удалить теги со всех работ',
+  ],
   _它们会变成未分类状态: [
     '它们会变成未分类状态',
     '它們會變成未分類狀態',
@@ -6013,6 +6078,14 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     'このページのすべての作品のブックマークを解除',
     '이 페이지의 모든 작품에 대한 북마크 해제',
     'Удалить из избранного все работы на этой странице',
+  ],
+  _取消收藏所有作品: [
+    '取消收藏所有作品',
+    '取消收藏所有作品',
+    'Unbookmark all works',
+    'すべての作品のブックマークを解除します',
+    '모든 작품에 대한 북마크 해제',
+    'Удалить из избранного все работы',
   ],
   _查找所有已被删除的作品: [
     '查找所有已被删除的作品',
@@ -8185,12 +8258,12 @@ If you want to use this feature, please note:
     `Начинается автоматическое объединение серий романов<br>Поскольку каждая серия может содержать несколько романов и изображений, загрузчик может отправить много запросов. Чтобы избежать срабатывания предупреждений Pixiv, загрузчик всегда добавляет интервалы времени во время объединения, чтобы снизить частоту отправки запросов`,
   ],
   _合并小说时提示用户使用EPUB格式: [
-    `💡你当前选择的保存格式是 TXT，但是一些阅读器可能无法识别 TXT 里的章节标记，所以我推荐你在合并小说时选择 EPUB 格式`,
-    `💡你目前選擇的保存格式是 TXT，但是一些閱讀器可能無法識別 TXT 裡的章節標記，所以我推薦你在合併小說時選擇 EPUB 格式`,
-    `💡Your current selected save format is TXT, but some readers may not recognize the chapter markers in TXT, so I recommend choosing EPUB format when merging novels`,
-    `💡現在の保存形式は TXT ですが、一部のリーダーは TXT 内の章セクションマーカーを認識できない可能性があるため、小説をマージする際は EPUB 形式を選択することをおすすめします`,
-    `💡현재 선택한 저장 형식은 TXT이지만, 일부 독자는 TXT의 장 마커를 인식하지 못할 수 있으므로 소설을 병합할 때 EPUB 형식을 선택하는 것을 추천합니다`,
-    `💡Текущий выбранный формат сохранения — TXT, но некоторые читалки могут не распознавать маркеры глав в TXT, поэтому я рекомендую выбирать формат EPUB при объединении романов`,
+    `💡你当前选择的保存格式是 TXT，但是一些阅读器可能无法识别 TXT 里的章节标记。建议你在合并小说时选择 EPUB 格式`,
+    `💡你當前選擇的保存格式是 TXT，但是一些閱讀器可能無法識別 TXT 裡的章節標記。建議你在合併小說時選擇 EPUB 格式`,
+    `💡The save format you currently selected is TXT, but some readers may not recognize the chapter markers in TXT. It is recommended to choose EPUB format when merging novels`,
+    `💡現在選択している保存形式は TXT ですが、一部のリーダーは TXT 内の章マーカーを認識できない場合があります。小説をマージする際には EPUB 形式を選択することをお勧めします`,
+    `💡현재 선택한 저장 형식은 TXT이지만 일부 리더는 TXT 내의 장 마커를 인식하지 못할 수 있습니다. 소설을 병합할 때 EPUB 형식을 선택하는 것이 좋습니다`,
+    `💡Выбранный вами формат сохранения в настоящее время TXT, но некоторые ридеры могут не распознавать маркеры глав в TXT. Рекомендуется выбрать формат EPUB при объединении романов`,
   ],
   _本次抓取一共合并了x个系列小说: [
     `本次抓取一共合并了 {} 个系列小说`,
@@ -9115,6 +9188,14 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `💡팁: 시리즈 소설을 병합할 때 "다운로드된 작품을 크롤링하지 않음"을 활성화한 경우, 다운로더는 다운로드 기록이 있는 소설을 건너뛰고 다운로드 기록이 없는 소설만 병합합니다.<br>18.7.0 버전(2026년 4월)부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 "다운로드된 작품을 크롤링하지 않음"이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.`,
     `💡Подсказка: При объединении серийных новелл, если вы включили «Не краулить загруженные работы», загрузчик пропустит новеллы с записями о загрузке и объединит только новеллы без записей о загрузке.<br>Начиная с версии 18.7.0 (апрель 2026), при объединении серийных новелл загрузчик будет генерировать запись о загрузке для каждой новеллы внутри (как будто вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включено «Не краулить загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые добавленные новеллы.`,
   ],
+  _提示可以只合并部分小说: [
+    `💡提示：在系列小说页面里，你可以只合并部分小说。方法是先使用“手动选择作品”功能选择部分小说，然后点击“合并系列小说”按钮。`,
+    `💡提示：在系列小說頁面裡，你可以只合併部分小說。方法是先使用「手動選擇作品」功能選擇部分小說，然後點擊「合併系列小說」按鈕。`,
+    `💡Tip: On the series novel page, you can merge only some novels, not all of them. First, use the "Manually select" feature to select some novels, then click the "Merge Series Novels" button.`,
+    `💡ヒント: シリーズ小説のページでは、すべての小説ではなく、一部の小説のみをマージすることができます。まず、「手動選択」機能を使用して一部の小説を選択し、「シリーズ小説をマージ」ボタンをクリックします。`,
+    `💡팁: 시리즈 소설 페이지에서 모든 소설이 아닌 일부 소설만 병합할 수 있습니다. 먼저 "수동 선택" 기능을 사용하여 일부 소설을 선택한 다음 "시리즈 소설 병합" 버튼을 클릭합니다.`,
+    `💡Подсказка: На странице серийных новелл вы можете выбрать для объединения только некоторые новеллы, а не все. Сначала используйте функцию "Ручной выбор", чтобы выбрать некоторые новеллы, затем нажмите кнопку "Объединить серийные новеллы".`,
+  ],
   _在下载过的作品上显示边框: [
     `在下载过的作品上显示<span class="key">边框</span>`,
     `在下載過的作品上顯示<span class="key">邊框</span>`,
@@ -9597,98 +9678,6 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `ファイル名に適用される {tags} 系のトークン`,
     `파일 이름에 적용되는 {tags} 계열 토큰`,
     `Токены серии {tags}, применяемые в имени файла`,
-  ],
-  _版本更新说明19_0_0: [
-    `<strong>🎨重新设计了设置面板</strong><br>
-新的设置面板有更详细的分类，设置项更容易区分，外观更优美，新增了搜索功能。<br>
-<strong>⚠️破坏性变更</strong><br>
-- 在本次更新之后，“置顶的设置”会被重置，所以你需要重新置顶你需要的设置。<br>
-- 如果你启用了“图片的宽高”设置，在本次更新之后需要重新进行设置。<br>
-<strong>✨新增设置：点击设置卡片时切换它的开关状态</strong><br>
-<strong>✨新增设置：点击设置名字时打开 Wiki 链接</strong><br>
-<strong>✨在收藏页面里添加了“查找所有已被删除的作品”的按钮</strong><br>
-<strong>✨适配了收藏页面里的新的筛选条件</strong><br>
-<strong>✨新增设置：优先下载动图</strong><br>
-启用这个设置之后，如果抓取结果里有动图，那么下载器会优先下载动图。<br>
-<strong>♻️更换了转换动图为 WebM 视频的库</strong><br>
-当 Chrome、Edge 更新到 149 版本之后，一些用户把动图转换为 WebM 视频时标签页会崩溃。这是浏览器更新导致的问题，现在我把转换 WebM 的库改为了 Whammy，虽然转换速度降低了一些，但不会导致标签页崩溃。<br>
-<strong>🔧在“图片的宽高”设置里，你可以分别设置宽度、高度的比较关系</strong><br>
-<strong>😊其他优化</strong><br>`,
-    `<strong>🎨重新設計了設定面板</strong><br>
-新的設定面板有更詳細的分類，設定項更容易區分，外觀更美觀，也新增了搜尋功能。<br>
-<strong>⚠️破壞性變更</strong><br>
-- 在這次更新之後，「置頂的設定」會被重置，所以你需要重新置頂你需要的設定。<br>
-- 如果你啟用了「圖片的寬高」設定，在這次更新之後需要重新設定。<br>
-<strong>✨新增設定：點擊設定卡片時切換它的開關狀態</strong><br>
-<strong>✨新增設定：點擊設定名稱時開啟 Wiki 連結</strong><br>
-<strong>✨在收藏頁面裡新增了「查找所有已被刪除的作品」按鈕</strong><br>
-<strong>✨適配了收藏頁面裡新的篩選條件</strong><br>
-<strong>✨新增設定：優先下載動圖</strong><br>
-啟用這個設定之後，如果抓取結果裡有動圖，那麼下載器會優先下載動圖。<br>
-<strong>♻️更換了轉換動圖為 WebM 影片的函式庫</strong><br>
-當 Chrome、Edge 更新到 149 版本之後，一些使用者在把動圖轉換為 WebM 影片時會讓分頁崩潰。這是瀏覽器更新造成的問題，現在我把轉換 WebM 的函式庫改為 Whammy，雖然轉換速度降低了一些，但不會導致分頁崩潰。<br>
-<strong>🔧在「圖片的寬高」設定裡，你可以分別設定寬度、高度的比較關係</strong><br>
-<strong>😊其他最佳化</strong><br>`,
-    `<strong>🎨 Redesigned the settings panel</strong><br>
-The new settings panel has more detailed categories, makes settings easier to distinguish, looks better, and adds search. <br>
-<strong>⚠️ Breaking changes</strong><br>
-- After this update, the pinned settings will be reset, so you need to pin the settings you want again.<br>
-- If you enabled the “image width/height” setting, you need to configure it again after this update.<br>
-<strong>✨ New setting: toggle a setting card when clicked</strong><br>
-<strong>✨ New setting: open the Wiki link when clicking a setting name</strong><br>
-<strong>✨ Added a button to “find all deleted works” on the favorites page</strong><br>
-<strong>✨ Adapted to the new filter conditions on the favorites page</strong><br>
-<strong>✨ New setting: prioritize downloading ugoira</strong><br>
-After enabling this, if the crawl result includes ugoira, the downloader will download ugoira first.<br>
-<strong>♻️ Replaced the library used to convert ugoira to WebM</strong><br>
-After Chrome and Edge updated to version 149, some users experienced tab crashes when converting ugoira to WebM. This was caused by the browser update. I switched the WebM conversion library to Whammy; conversion is a bit slower, but it no longer crashes the tab.<br>
-<strong>🔧 In the “image width/height” setting, you can configure the width and height comparison rules separately</strong><br>
-<strong>😊 Other improvements</strong><br>`,
-    `<strong>🎨設定パネルを再設計しました</strong><br>
-新しい設定パネルは分類がより細かくなり、設定項目を区別しやすく、見た目もよくなり、検索機能も追加しました。<br>
-<strong>⚠️破壊的変更</strong><br>
-- 今回の更新後、「固定した設定」はリセットされるため、必要な設定をもう一度固定し直してください。<br>
-- 「画像の幅と高さ」設定を有効にしている場合は、更新後に再設定が必要です。<br>
-<strong>✨新しい設定：設定カードをクリックするとオン/オフを切り替える</strong><br>
-<strong>✨新しい設定：設定名をクリックすると Wiki リンクを開く</strong><br>
-<strong>✨お気に入りページに「削除済みの作品をすべて探す」ボタンを追加しました</strong><br>
-<strong>✨お気に入りページの新しい絞り込み条件に対応しました</strong><br>
-<strong>✨新しい設定：動画像を優先的にダウンロードする</strong><br>
-この設定を有効にすると、取得結果に動画像が含まれている場合、ダウンローダーは動画像を優先してダウンロードします。<br>
-<strong>♻️動画像を WebM 動画に変換するライブラリを変更しました</strong><br>
-Chrome と Edge が 149 版に更新された後、一部のユーザーで動画像を WebM 動画に変換するとタブがクラッシュする問題がありました。これはブラウザ更新による問題なので、WebM 変換ライブラリを Whammy に変更しました。変換速度は少し遅くなりますが、タブがクラッシュしなくなります。<br>
-<strong>🔧「画像の幅と高さ」設定で、幅と高さの比較関係をそれぞれ設定できるようになりました</strong><br>
-<strong>😊その他の改善</strong><br>`,
-    `<strong>🎨설정 패널을 다시 디자인했습니다</strong><br>
-새 설정 패널은 분류가 더 세분화되어 설정 항목을 구분하기 쉬워졌고, 외형도 더 보기 좋아졌으며 검색 기능도 추가했습니다.<br>
-<strong>⚠️파괴적인 변경</strong><br>
-- 이번 업데이트 이후 “고정한 설정”이 초기화되므로 필요한 설정을 다시 고정해야 합니다.<br>
-- “이미지의 너비와 높이” 설정을 사용 중이라면 이번 업데이트 이후 다시 설정해야 합니다.<br>
-<strong>✨새 설정: 설정 카드를 클릭하면 켜기/끄기를 전환</strong><br>
-<strong>✨새 설정: 설정 이름을 클릭하면 Wiki 링크 열기</strong><br>
-<strong>✨즐겨찾기 페이지에 “삭제된 모든 작품 찾기” 버튼 추가</strong><br>
-<strong>✨즐겨찾기 페이지의 새로운 필터 조건에 대응</strong><br>
-<strong>✨새 설정: 동영상을 우선 다운로드</strong><br>
-이 설정을 켜면 가져온 결과에 동영상이 있을 경우 다운로드기가 동영상을 우선해서 다운로드합니다.<br>
-<strong>♻️동영상을 WebM 비디오로 변환하는 라이브러리를 변경</strong><br>
-Chrome과 Edge가 149 버전으로 업데이트된 이후 일부 사용자는 동영상을 WebM 비디오로 변환할 때 탭이 충돌했습니다. 이는 브라우저 업데이트로 인한 문제라서, WebM 변환 라이브러리를 Whammy로 바꿨습니다. 변환 속도는 조금 느려졌지만 탭이 충돌하지 않습니다.<br>
-<strong>🔧 “이미지의 너비와 높이” 설정에서 너비와 높이의 비교 관계를 각각 설정할 수 있습니다</strong><br>
-<strong>😊기타 개선</strong><br>`,
-    `<strong>🎨 Переработана панель настроек</strong><br>
-Новая панель настроек получила более подробные категории, благодаря чему параметры легче различать; внешний вид стал лучше, а также появилась функция поиска.<br>
-<strong>⚠️ Ломающие изменения</strong><br>
-- После этого обновления «закреплённые настройки» будут сброшены, поэтому нужные параметры придётся закрепить заново.<br>
-- Если у вас включена настройка «ширина и высота изображения», после обновления её нужно будет настроить заново.<br>
-<strong>✨ Новая настройка: переключать состояние карточки настройки по клику</strong><br>
-<strong>✨ Новая настройка: открывать ссылку Wiki по клику на название настройки</strong><br>
-<strong>✨ На странице избранного добавлена кнопка «найти все удалённые работы»</strong><br>
-<strong>✨ Поддержаны новые фильтры на странице избранного</strong><br>
-<strong>✨ Новая настройка: сначала скачивать анимированные изображения</strong><br>
-Если включить эту настройку, то при наличии анимированных изображений в результате поиска загрузчик будет скачивать их в первую очередь.<br>
-<strong>♻️ Заменена библиотека для преобразования анимации в WebM</strong><br>
-После обновления Chrome и Edge до версии 149 у некоторых пользователей при конвертации анимации в WebM вкладка могла аварийно закрываться. Это проблема, вызванная обновлением браузера, поэтому я заменил библиотеку WebM на Whammy. Скорость конвертации стала немного ниже, но вкладка больше не падает.<br>
-<strong>🔧 В настройке «ширина и высота изображения» теперь можно отдельно задавать правила сравнения для ширины и высоты</strong><br>
-<strong>😊 Прочие улучшения</strong><br>`,
   ],
   _从插画漫画里下载1张图片时: [
     `从插画、漫画里下载 1 张图片时`,
@@ -10501,6 +10490,224 @@ If you're worried about misoperation, you can turn off this feature.`,
     '最も可能性の高い理由：Firefoxブラウザの厳格なクロスオリジン制限がこのリクエストの失敗を引き起こしました。ダウンローダーはこの問題を解決できません。',
     '가장 가능성이 높은 이유: Firefox 브라우저의 엄격한 교차 출처 제한으로 인해 이 요청이 실패했습니다. 다운로더는 이 문제를 해결할 수 없습니다.',
     'Наиболее вероятная причина: строгие ограничения кросс-доменных запросов в браузере Firefox привели к сбою этого запроса. Загрузчик не может решить эту проблему.',
+  ],
+  _宣传语: [
+    `Pixiv.net<br>批量下载 <br>一键搞定！`,
+    `Pixiv.net<br>批量下載 <br>一鍵搞定！`,
+    `Pixiv.net<br>Batch Download <br>One-click Solution!`,
+    `Pixiv.net<br>バッチダウンロード <br>ワンクリックで解決！`,
+    `Pixiv.net<br>배치 다운로드 <br>원클릭 솔루션!`,
+    `Pixiv.net<br>Пакетная загрузка <br>Решение в один клик!`,
+  ],
+  _没有找到已被删除的作品: [
+    '没有找到已被删除的作品',
+    '沒有找到已被刪除的作品',
+    'No deleted works found',
+    '削除された作品は見つかりませんでした',
+    '삭제된 작품을 찾을 수 없습니다',
+    'Не найдено удаленных работ',
+  ],
+  _已置换单词: [
+    `已置换单词:{} ➡️ {}`,
+    `已置換單詞:{} ➡️ {}`,
+    `Replaced word:{} ➡️ {}`,
+    `置換された単語:{} ➡️ {}`,
+    `교체된 단어:{} ➡️ {}`,
+    `Замененное слово:{} ➡️ {}`,
+  ],
+  _在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说: [
+    `在合并系列小说时，只要有一篇小说符合<span class="key">过滤条件</span>，就保存该系列里的所有小说`,
+    `在合併系列小說時，只要有一篇小說符合<span class="key">過濾條件</span>，就保存該系列裡的所有小說`,
+    `When merging series novels, as long as one novel meets the <span class="key">filtering criteria</span>, all novels in the series will be saved`,
+    `シリーズ小説をマージする際、1つの小説が<span class="key">フィルタリング条件</span>を満たす場合、シリーズ内のすべての小説が保存されます`,
+    `시리즈 소설을 병합할 때, 하나의 소설이 <span class="key">필터링 조건</span>을 충족하면 시리즈의 모든 소설이 저장됩니다`,
+    `При объединении серийных романов, если хотя бы один роман соответствует <span class="key">критериям фильтрации</span>, все романы в серии будут сохранены`,
+  ],
+  _在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示: [
+    `举例说明：<br>
+假如你设置了收藏数量 > 100；<br>
+某个系列里有 10 篇小说，其中只有 1 篇小说符合条件。<br>
+在默认情况下（未启用此设置），下载器只会合并这 1 篇小说。<br>
+如果你启用了这个设置，那么下载器会合并所有小说。`,
+    `舉例說明：<br>
+假如你設定了收藏數量 > 100；<br>
+某個系列裡有 10 篇小說，其中只有 1 篇小說符合條件。<br>
+在預設情況下（未啟用此設定），下載器只會合併這 1 篇小說。<br>
+如果你啟用了這個設定，那麼下載器會合併所有小說。`,
+    `Example:<br>
+Suppose you set the number of bookmarks > 100;<br>
+There are 10 novels in a series, and only 1 novel meets the criteria.<br>
+By default (without enabling this setting), the downloader will only merge this 1 novel.<br>
+If you enable this setting, the downloader will merge all novels.`,
+    `例：<br>
+ブックマークの数を100より多く設定したとします。<br>
+あるシリーズには 10 冊の小説があり、そのうち 1 冊だけが条件を満たしています。<br>
+デフォルトでは（この設定を有効にしていない場合）、ダウンローダーはこの 1 冊の小説のみをマージします。<br>
+この設定を有効にすると、ダウンローダーはシリーズ内のすべての小説をマージします。`,
+    `예:<br>
+북마크 개수를 100개 넘게 설정한다고 가정해 봅시다.<br>
+시리즈에는 10개의 소설이 있으며, 그 중 1개의 소설만 기준을 충족합니다.<br>
+기본적으로(이 설정을 활성화하지 않은 경우), 다운로더는 이 1개의 소설만 병합합니다.<br>
+이 설정을 활성화하면 다운로더는 시리즈의 모든 소설을 병합합니다.`,
+    `Пример:<br>
+Допустим, вы установили количество закладок более 100;<br>
+В серии есть 10 романов, и только 1 роман соответствует критериям.<br>
+По умолчанию (без включения этой настройки) загрузчик объединит только этот 1 роман.<br>
+Если вы включите эту настройку, загрузчик объединит все романы.`,
+  ],
+  _提示会合并所有小说: [
+    `注意：虽然这个系列里有一些小说不符合过滤条件，但由于用户设置，下载器会合并所有小说。`,
+    `注意：雖然這個系列裡有一些小說不符合過濾條件，但由於使用者設定，下載器會合併所有小說。`,
+    `Note: Although some novels in this series do not meet the filtering criteria, the downloader will merge all novels due to user settings.`,
+    `注意：このシリーズの中にはフィルタリング条件を満たさない小説もありますが、ユーザー設定により、ダウンローダーはすべての小説をマージします。`,
+    `참고: 이 시리즈의 일부 소설은 필터링 기준을 충족하지 않지만, 사용자 설정으로 인해 다운로더는 모든 소설을 병합합니다.`,
+    `Примечание: хотя некоторые романы в этой серии не соответствуют критериям фильтрации, загрузчик объединит все романы из-за настроек пользователя.`,
+  ],
+  _提示还需要添加特定命名规则才能创建文件夹_multi_image_folder: [
+    `你还需要在“文件夹和文件的名字”-“图像作品的命名规则”里添加 <span class="blue name">/{multi_image_folder}/</span> 才能实现这个效果。你可以点击“帮助”按钮查看详细说明。`,
+    `你還需要在「資料夾和檔案的名稱」-「圖像作品的命名規則」裡添加 <span class="blue name">/{multi_image_folder}/</span> 才能實現這個效果。你可以點擊「幫助」按鈕查看詳細說明。`,
+    `You also need to add <span class="blue name">/{multi_image_folder}/</span> in "Folder and file names" - "Naming rules for image works" to achieve this effect. You can click the "Help" button to see detailed instructions.`,
+    `この効果を実現するには、「フォルダーとファイルの名前」-「画像作品の命名規則」に <span class="blue name">/{multi_image_folder}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
+    `이 효과를 구현하려면 "폴더 및 파일 이름" - "이미지 작품의 명명 규칙"에 <span class="blue name">/{multi_image_folder}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
+    `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{multi_image_folder}/</span> в "Имена папок и файлов" - "Правила именования для изображений". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
+  ],
+  _提示还需要添加特定命名规则才能创建文件夹_r18_g_folder: [
+    `你还需要在“文件夹和文件的名字”-“命名规则”里添加 <span class="blue name">/{r18_g_folder}/</span> 才能实现这个效果。你可以点击“帮助”按钮查看详细说明。`,
+    `你還需要在「資料夾和檔案的名稱」-「命名規則」裡添加 <span class="blue name">/{r18_g_folder}/</span> 才能實現這個效果。你可以點擊「幫助」按鈕查看詳細說明。`,
+    `You also need to add <span class="blue name">/{r18_g_folder}/</span> in "Folder and file names" - "Naming rules" to achieve this effect. You can click the "Help" button to see detailed instructions.`,
+    `この効果を実現するには、「フォルダーとファイルの名前」-「命名規則」に <span class="blue name">/{r18_g_folder}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
+    `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{r18_g_folder}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
+    `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{r18_g_folder}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
+  ],
+  _提示还需要添加特定命名规则才能创建文件夹_match_tag_folder: [
+    `你还需要在“文件夹和文件的名字”-“命名规则”里添加 <span class="blue name">/{match_tag_folder1}/</span> 才能实现这个效果。你可以点击“帮助”按钮查看详细说明。`,
+    `你還需要在「資料夾和檔案的名稱」-「命名規則」裡添加 <span class="blue name">/{match_tag_folder1}/</span> 才能實現這個效果。你可以點擊「幫助」按鈕查看詳細說明。`,
+    `You also need to add <span class="blue name">/{match_tag_folder1}/</span> in "Folder and file names" - "Naming rules" to achieve this effect. You can click the "Help" button to see detailed instructions.`,
+    `この効果を実現するには、「フォルダーとファイルの名前」-「命名規則」に <span class="blue name">/{match_tag_folder1}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
+    `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
+    `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
+  ],
+  _版本更新说明19_1_0: [
+    `本次更新添加了一些新功能，主要优化了下载小说时的体验。<br>
+<strong>✨在系列小说页面里，可以选择部分小说进行合并</strong><br>
+之前下载器总是会合并所有小说，现在可以只合并部分小说了。<br>
+操作方法：先使用“手动选择作品”功能选择部分小说，然后点击“合并系列小说”按钮来合并它们。<br>
+<strong>✨在下载小说时，下载器会应用“置换单词”设置</strong><br>
+如果用户设置了替换的单词，那么下载器在保存小说时也会进行相应的替换。<br>
+<strong>✨新增设置：在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说</strong><br>
+举例说明：<br>
+假如你设置了收藏数量 > 100；某个系列里有 10 篇小说，其中只有 1 篇小说符合条件。<br>
+在默认情况下（未启用此设置），下载器只会合并这 1 篇小说。如果你启用了这个设置，那么下载器会合并所有小说。<br>
+<strong>✨在“下载小说里的内嵌图片”设置里添加了图片尺寸的选择</strong><br>
+有些小说里的图片体积很大，所以一些用户希望可以保存尺寸较小的图片。现在我添加了图片尺寸的设置。<br>
+<strong>✨在合并系列小说时，下载器会保存设定资料里的图片</strong><br>
+有些系列小说的设定资料里有图片，现在下载器可以保存这些图片了。<br>
+<strong>✨在收藏页面里新增了两个附加功能按钮</strong><br>
+- 移除所有作品的标签<br>
+- 取消收藏所有作品<br>
+<strong>🔄把关注页面里的一些按钮从“开始抓取”区域移动到了“附加功能”区域里</strong><br>
+<strong>🐞修复问题：在高 DPI 缩放里，设置面板的底部可能显示不完整</strong><br>
+<strong>😊优化了一些提示</strong><br>`,
+    `本次更新新增了一些新功能，主要優化了下載小說時的體驗。<br>
+<strong>✨在系列小說頁面裡，可以選擇部分小說進行合併</strong><br>
+之前下載器總是會合併所有小說，現在可以只合併部分小說了。<br>
+操作方法：先使用「手動選擇作品」功能選擇部分小說，然後點擊「合併系列小說」按鈕來合併它們。<br>
+<strong>✨在下載小說時，下載器會套用「置換單詞」設定</strong><br>
+如果使用者設定了要替換的單詞，那麼下載器在儲存小說時也會進行相應的替換。<br>
+<strong>✨新增設定：在合併系列小說時，只要有一篇小說符合過濾條件，就儲存該系列裡的所有小說</strong><br>
+舉例說明：<br>
+假如你設定了收藏數量 > 100；某個系列裡有 10 篇小說，其中只有 1 篇小說符合條件。<br>
+在預設情況下（未啟用此設定），下載器只會合併這 1 篇小說。如果你啟用了這個設定，那麼下載器會合併所有小說。<br>
+<strong>✨在「下載小說裡的內嵌圖片」設定裡新增了圖片尺寸的選擇</strong><br>
+有些小說裡的圖片體積很大，所以有些使用者希望可以儲存尺寸較小的圖片。現在我新增了圖片尺寸的設定。<br>
+<strong>✨在合併系列小說時，下載器會儲存 glossary 裡的圖片</strong><br>
+有些系列小說的 glossary 裡有圖片，現在下載器可以儲存這些圖片了。<br>
+<strong>✨在收藏頁面裡新增了兩個附加功能按鈕</strong><br>
+- 移除所有作品的標籤<br>
+- 取消收藏所有作品<br>
+<strong>🔄把關注頁面裡的一些按鈕從「開始抓取」區域移動到了「附加功能」區域裡</strong><br>
+<strong>🐞修正問題：在高 DPI 縮放裡，設定面板的底部可能顯示不完整</strong><br>
+<strong>😊優化了一些提示</strong><br>`,
+    `This update adds several new features, mainly improving the experience of downloading novels.<br>
+<strong>✨On series novel pages, you can now choose only some novels to merge</strong><br>
+Previously, the downloader always merged all novels. Now you can merge only part of them.<br>
+How to use it: first use the "Manually select works" feature to choose some novels, then click the "Merge series novels" button to merge them.<br>
+<strong>✨The downloader now applies the "Replace words" setting when downloading novels</strong><br>
+If you have set words to be replaced, the downloader will apply those replacements when saving the novel as well.<br>
+<strong>✨New setting: When merging series novels, as long as one novel meets the filtering criteria, all novels in the series will be saved</strong><br>
+Example:<br>
+Suppose you set the number of bookmarks > 100; there are 10 novels in a series, and only 1 novel meets the criteria.<br>
+By default (without enabling this setting), the downloader will only merge that 1 novel. If you enable this setting, it will merge all novels.<br>
+<strong>✨The "Download embedded images in novels" setting now includes image size options</strong><br>
+Some images in novels are very large, so some users wanted a way to save smaller versions. Now I have added image size settings.<br>
+<strong>✨When merging series novels, the downloader now saves images in the glossary</strong><br>
+Some series novels have images in their glossary, and now the downloader can save those images too.<br>
+<strong>✨Two new extra feature buttons have been added to the bookmark page</strong><br>
+- Remove tags from all works<br>
+- Unbookmark all works<br>
+<strong>🔄Some buttons on the following page have been moved from the "Start crawl" area to the "Extra features" area</strong><br>
+<strong>🐞Bug fix: On high-DPI scaling, the bottom of the settings panel could be displayed incompletely</strong><br>
+<strong>😊Improved some tips</strong><br>`,
+    `今回のアップデートではいくつかの新機能を追加し、主に小説ダウンロード時の使い勝手を改善しました。<br>
+<strong>✨シリーズ小説ページで、マージする小説を一部だけ選べるようになりました</strong><br>
+これまではダウンローダーが常にすべての小説をマージしていましたが、今は一部だけをマージできます。<br>
+操作方法：まず「手動選択作品」機能で一部の小説を選び、その後「シリーズ小説をマージ」ボタンをクリックしてマージしてください。<br>
+<strong>✨小説をダウンロードするとき、ダウンローダーが「置換単語」設定を適用するようになりました</strong><br>
+置換する単語を設定している場合、ダウンローダーは小説を保存するときにもその置換を適用します。<br>
+<strong>✨新しい設定を追加：シリーズ小説をマージするとき、1つの小説がフィルタリング条件を満たしていれば、シリーズ内のすべての小説を保存します</strong><br>
+例：<br>
+ブックマーク数 > 100 を設定したとします。あるシリーズに小説が 10 本あり、そのうち条件を満たすのは 1 本だけです。<br>
+デフォルトでは（この設定を有効にしていない場合）、ダウンローダーはその 1 本だけをマージします。この設定を有効にすると、すべての小説をマージします。<br>
+<strong>✨「小説内の埋め込み画像をダウンロード」設定に画像サイズの選択肢を追加しました</strong><br>
+小説内の画像の中にはサイズがかなり大きいものもあるため、もっと小さい画像を保存したいというユーザーがいました。そこで画像サイズ設定を追加しました。<br>
+<strong>✨シリーズ小説をマージするとき、ダウンローダーが glossary 内の画像も保存するようになりました</strong><br>
+シリーズ小説の glossary に画像が含まれていることがありますが、今はそれらの画像も保存できます。<br>
+<strong>✨ブックマークページに 2 つの追加機能ボタンを追加しました</strong><br>
+- すべての作品のタグを削除<br>
+- すべての作品のブックマークを解除<br>
+<strong>🔄フォローページの一部のボタンを「クロール開始」エリアから「追加機能」エリアへ移動しました</strong><br>
+<strong>🐞不具合修正：高 DPI スケーリング時に、設定パネル下部が完全に表示されないことがある問題を修正しました</strong><br>
+<strong>😊いくつかのヒントを改善しました</strong><br>`,
+    `이번 업데이트에서는 몇 가지 새 기능이 추가되었고, 특히 소설 다운로드 경험이 개선되었습니다.<br>
+<strong>✨시리즈 소설 페이지에서 일부 소설만 선택해서 병합할 수 있게 되었습니다</strong><br>
+이전에는 다운로더가 항상 모든 소설을 병합했지만, 이제는 일부만 병합할 수 있습니다.<br>
+사용 방법: 먼저 "수동으로 작품 선택" 기능으로 일부 소설을 선택한 다음, "시리즈 소설 병합" 버튼을 클릭해 병합하면 됩니다.<br>
+<strong>✨소설을 다운로드할 때 다운로더가 "단어 치환" 설정을 적용합니다</strong><br>
+치환할 단어를 설정해 두었다면, 다운로더가 소설을 저장할 때도 그 치환을 적용합니다.<br>
+<strong>✨새 설정 추가: 시리즈 소설을 병합할 때 하나의 소설만 필터링 조건을 충족해도 시리즈의 모든 소설을 저장합니다</strong><br>
+예:<br>
+북마크 수 > 100 으로 설정했다고 가정해 보겠습니다. 어떤 시리즈에 소설이 10편 있고, 그중 조건을 충족하는 것은 1편뿐입니다.<br>
+기본적으로(이 설정을 활성화하지 않은 경우) 다운로더는 그 1편만 병합합니다. 이 설정을 활성화하면 모든 소설을 병합합니다.<br>
+<strong>✨"소설 속 내장 이미지 다운로드" 설정에 이미지 크기 선택이 추가되었습니다</strong><br>
+일부 소설 속 이미지는 크기가 매우 커서, 더 작은 이미지를 저장하고 싶어 하는 사용자가 있었습니다. 그래서 이미지 크기 설정을 추가했습니다.<br>
+<strong>✨시리즈 소설을 병합할 때 다운로더가 glossary 안의 이미지도 저장합니다</strong><br>
+일부 시리즈 소설의 glossary 안에는 이미지가 있는데, 이제 다운로더가 그 이미지들도 저장할 수 있습니다.<br>
+<strong>✨북마크 페이지에 추가 기능 버튼 2개가 새로 추가되었습니다</strong><br>
+- 모든 작품의 태그 제거<br>
+- 모든 작품의 북마크 해제<br>
+<strong>🔄팔로잉 페이지의 일부 버튼을 "크롤링 시작" 영역에서 "추가 기능" 영역으로 옮겼습니다</strong><br>
+<strong>🐞버그 수정: 고 DPI 배율에서 설정 패널 하단이 완전히 표시되지 않을 수 있던 문제를 수정했습니다</strong><br>
+<strong>😊일부 안내를 개선했습니다</strong><br>`,
+    `Это обновление добавляет несколько новых функций и в основном улучшает работу при скачивании романов.<br>
+<strong>✨На странице серии романов теперь можно выбирать только часть романов для объединения</strong><br>
+Раньше загрузчик всегда объединял все романы, а теперь можно объединять только часть из них.<br>
+Как использовать: сначала выберите нужные романы с помощью функции "Ручной выбор работ", а затем нажмите кнопку "Объединить серии романов".<br>
+<strong>✨Теперь при скачивании романов загрузчик применяет настройку "Заменять слова"</strong><br>
+Если вы задали слова для замены, загрузчик применит эти замены и при сохранении романа.<br>
+<strong>✨Новая настройка: при объединении серийных романов, если хотя бы один роман соответствует критериям фильтрации, будут сохранены все романы серии</strong><br>
+Пример:<br>
+Допустим, вы установили количество закладок > 100; в серии есть 10 романов, и только 1 роман соответствует условиям.<br>
+По умолчанию (если эта настройка не включена) загрузчик объединит только этот 1 роман. Если включить эту настройку, он объединит все романы.<br>
+<strong>✨В настройку "Скачивать встроенные изображения в романах" добавлен выбор размера изображения</strong><br>
+Некоторые изображения в романах очень большие, поэтому некоторые пользователи хотели сохранять изображения меньшего размера. Теперь я добавил настройку размера изображения.<br>
+<strong>✨При объединении серийных романов загрузчик теперь сохраняет и изображения из glossary</strong><br>
+В glossary некоторых серийных романов есть изображения, и теперь загрузчик может сохранять и их.<br>
+<strong>✨На странице закладок добавлены две новые кнопки дополнительных функций</strong><br>
+- Удалить теги у всех работ<br>
+- Убрать все работы из закладок<br>
+<strong>🔄Некоторые кнопки на странице подписок были перенесены из области "Начать crawl" в область "Дополнительные функции"</strong><br>
+<strong>🐞Исправление: при высоком DPI-масштабировании нижняя часть панели настроек могла отображаться не полностью</strong><br>
+<strong>😊Улучшены некоторые подсказки</strong><br>`,
   ],
 }
 

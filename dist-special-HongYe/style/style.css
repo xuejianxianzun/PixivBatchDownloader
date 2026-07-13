@@ -1586,6 +1586,7 @@ body.mobile #quickCrawlBtn {
   background: var(--settings-panel-input-bg);
   padding: 0 8px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  color-scheme: light;
 }
 .centerWrap .centerWrap_con .settingForm select:hover,
 .centerWrap .centerWrap_con .settingForm select:focus {
@@ -1815,7 +1816,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .namingTipArea .name {
   cursor: pointer;
 }
-.centerWrap .centerWrap_con .settingForm .settingsPanel_downloadEmptyHint {
+.centerWrap .centerWrap_con .settingForm .secondary_hint {
   grid-column: 1 / -1;
   display: flex;
   align-items: flex-start;
@@ -1830,8 +1831,11 @@ body.mobile #quickCrawlBtn {
   font-size: 14px;
   line-height: 1.6;
 }
-.centerWrap .centerWrap_con .settingForm .settingsPanel_downloadEmptyHint.is-hidden {
+.centerWrap .centerWrap_con .settingForm .secondary_hint.is-hidden {
   display: none;
+}
+.centerWrap .centerWrap_con .settingForm .option .secondary_hint {
+  margin-top: 4px;
 }
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns {
   padding: 0;
@@ -2181,6 +2185,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingsPanel_sidebar {
   width: 190px;
   flex: none;
+  min-height: 0;
   padding: 15px 10px;
   background: var(--settings-panel-sidebar-bg);
   box-shadow: var(--settings-panel-sidebar-box-shadow);
@@ -2323,6 +2328,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingsPanel_main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   width: 735px;
   overflow-y: auto;
   padding: 0px 15px 15px 15px;
@@ -3329,6 +3335,9 @@ iframe[name='expandedFooter'] {
 .viewer-backdrop .viewer-toolbar .viewer-add-btn svg {
   width: 16px;
   height: 16px;
+}
+.viewer-backdrop .viewer-toolbar .bookmarked {
+  color: var(--beautify-blue);
 }
 .viewer-backdrop .viewer-toolbar #imageViewerCopyBtn,
 .viewer-backdrop .viewer-toolbar #imageViewerCopyWorkLinkBtn {

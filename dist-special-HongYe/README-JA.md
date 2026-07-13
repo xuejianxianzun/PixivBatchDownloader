@@ -14,6 +14,7 @@
 - [はじめに](#はじめに)
 - [オンラインインストール](#オンラインインストール)
 - [オフラインインストール](#オフラインインストール)
+- [使い方](#使い方)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
 - [謝辞](#謝辞)
@@ -39,7 +40,7 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 - 見ている作品をワンクリックでダウンロード；
 - ダウンロードしたい作品を手動で選択（複数選択）；
 - 定期的なクロールとダウンロード；
-- うごイラをWebM、GIF、APNG形式に変換；
+- うごイラをWebP、WebM、GIF、APNG形式に変換；
 - 小説をTXT、EPUB形式で保存；
 - ユーザーのアバターやカバー画像を保存；
 - ダウンロードの進捗を保存し、未完了のダウンロードを再開；
@@ -50,6 +51,8 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 - 作品ページに入らずに作品をプレビューしたり、原画を閲覧；
 - ビルトインの画像ビューアで複数画像の作品を閲覧；
 - フォローしているユーザーをハイライト；
+
+スクリーンショット：
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-ja-white.png)
 
@@ -62,10 +65,14 @@ Firefoxブラウザは、**[Add-Ons](https://addons.mozilla.org/firefox/addon/po
 # オフラインインストール
 
 Wikiページをご覧ください：
-[オフラインインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/OfflineInstallation)
+[オフラインインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
 Androidでこの拡張機能を使用したい場合は、Wikiページをご覧ください：
-[Microsoft Edge Canaryブラウザでのインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/MicrosoftEdgeCanary)
+[Microsoft Edge Canaryブラウザでのインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+
+# 使い方
+
+このダウンローダーは Pixiv.net のページ上で動作します。Pixiv を閲覧しているとき、いつでもダウンローダーのパネルを開いて、そのページの作品を一括ダウンロードできます。
 
 # Wiki
 

@@ -354,6 +354,7 @@ abstract class InitPageBase {
     // 2. 检查 id 的发布时间是否符合时间范围条件
     // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
     // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+    // 4. 检查是否已经下载过
     const filteredIDList: IDData[] = []
     for (const idData of store.idList) {
       let check = true

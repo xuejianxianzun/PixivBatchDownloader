@@ -598,6 +598,15 @@ export interface BookmarkData {
   error: boolean
   message: string
   body: {
+    /** 保存了这一页里所有作品的收藏标签。key 是作品的 bookmarkData.id，value 是标签列表。
+     *
+     * 注意：这不是作品原本的标签，而是用户为该收藏所添加的标签。并且只有添加了收藏标签的作品才会存在于这个对象里。没有收藏标签的作品没有对应的记录。
+     *
+     * 例如：一页的 48 个作品里只有 30 个添加了收藏标签，那么 bookmarkTags 对象里只会有 30 个键值对。
+     *
+     * 仅当获取自己的收藏数据时有这个属性，获取别人的收藏数据时没有这个属性。
+     */
+    bookmarkTags?: Record<string, string[]>
     works: ArtworkCommonData[] | NovelCommonData[]
     total: number
     zoneConfig: {
@@ -1449,11 +1458,14 @@ export interface NovelInsertIllusts {
         // 这个 API 会根据序号返回对应图片的 URL，而非总是返回第一张图片的 URL
         // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
         images: {
-          /**小尺寸的图片网址 square1200 */
+          /**小尺寸的图片网址，最大尺寸 48px */
+          // https://i.pximg.net/img-master/img/2018/09/05/10/30/00/70551567_p0_master1200.jpg
           small: string
-          /**中等尺寸的图片网址 master1200 */
+          /**中等尺寸的图片网址，最大尺寸 1200px*/
+          // https://i.pximg.net/img-master/img/2018/09/05/10/30/00/70551567_p0_master1200.jpg
           medium: string
           /**原图网址 */
+          // https://i.pximg.net/img-original/img/2018/09/05/10/30/00/70551567_p0.jpg
           original: string
         }
       } | null
@@ -1666,7 +1678,7 @@ export interface muteData {
   }
 }
 
-type GlossaryCover = null | {
+export type GlossaryCover = null | {
   novelImageId: string
   sl: string
   urls: {
@@ -1678,14 +1690,17 @@ type GlossaryCover = null | {
   }
 }
 
+// 有图片和详情的设定资料示例：
+// https://www.pixiv.net/novel/series/9114820/glossary/154698
+// https://www.pixiv.net/ajax/novel/series/9114820/glossary/item/154698?lang=zh
 export interface GlossaryItem {
   id: string
   seriesId: string
   categoryId: string
   name: string
   overview: string
-  coverImage: GlossaryCover
-  /**这条设定的详细说明，如果未设置，则为空字符串 */
+  coverImage: GlossaryCover | null
+  /**这条设定资料的详情文字。如果未设置，则为空字符串 */
   detail: string | ''
 }
 
@@ -1693,24 +1708,43 @@ export interface GlossaryCategorie {
   id: string
   seriesId: string
   name: string
+  /** 所有设定资料的元数据 */
   items: {
+    /** 这条设定资料的 id */
     id: string
+    /** 所属的系列 id */
     seriesId: string
+    /** 所属的分类 id。在添加一条设定资料时，需要为其指定分类（类别），这就是这个分类的 id */
     categoryId: string
+    /** 这条设定资料的名称（标题）。对于可置换的单词，这个名称就是单词 */
+    // 例如：如果作者设置了允许用户把 "◯" 替换成自定义单词，那么就会生成一条 name 为 "◯" 的设定资料
     name: string
+    /** 这条设定资料的概述（说明） */
     overview: string
-    coverImage: GlossaryCover
-    /**这里并没有包含设定的详细说明，即始终为 null */
+    /** 这条设定资料的图片。大部分时候都没有，所以经常是 null
+     * 每条设定资料最多只有一张图片。在显示设定资料时，排版从上到下依次是 name、overview、coverImage、detail
+     */
+    coverImage: GlossaryCover | null
+    /** 这条设定资料的详情文字。注意：即使有详情，这里也始终为 null。要获取详情，必须获取这条设定资料的详细数据，在 GlossaryItem 类型里获取 */
     detail: null
   }[]
 }
 
+/** 系列小说的设定资料 */
+// 有可置换单词的系列小说：
+// https://www.pixiv.net/novel/series/9114820
+// https://www.pixiv.net/ajax/novel/series/9114820/glossary
 export interface NovelSeriesGlossary {
   error: boolean
   message: string
   body: {
+    /** 保存设定资料的分类。每个分类里可以包含多条设定资料（items） */
     categories: GlossaryCategorie[]
-    replaceeItemIds: []
+    /** 这个系列小说里所有可置换的单词的 id 的列表。如果没有可置换的单词，则为空数组。
+     *
+     * 如果有可置换的单词，那么数组项是 id。每个 id 对应着 GlossaryCategorie.items 里某一项的 id
+     */
+    replaceeItemIds: string[]
     extraData: {
       meta: {
         title: string

@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 
-// 定义一些常量
-// 用户不可以修改这里的配置
+// 定义一些预设配置和运行时的常量
+// 用户无法通过设置面板修改这里的配置
 class Config {
   /**程序名 */
   static readonly appName = 'Powerful Pixiv Downloader HongYe'

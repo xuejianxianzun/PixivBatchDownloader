@@ -15,7 +15,7 @@ import { progressBar } from './ProgressBar'
 import { filter } from '../filter/Filter'
 import { downloadRecord } from './DownloadRecord'
 import { SettingKeys, settings } from '../setting/Settings'
-import { makeNovelFile } from './MakeNovelFile'
+import { makeSingleNovelFile } from './MakeSingleNovelFile'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { msgBox } from '../MsgBox'
@@ -339,7 +339,7 @@ class Download {
       throw new Error('Not found novelMeta')
     }
 
-    const blob = await makeNovelFile[
+    const blob = await makeSingleNovelFile[
       settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'
     ](novelMeta, filename)
     return blob

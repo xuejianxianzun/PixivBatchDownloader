@@ -25,7 +25,9 @@ class AutoMergeNovel {
   private workingId = ''
   /* *保存系列 id 和它对应的标题，用于在日志里显示**/
   private idTitleMap: { [key: string]: string } = {}
-  /** 指示是否可以工作。当抓取完毕、抓取停止时，不再处理等待队列里的任务，但当前进行中的这个合并任务会正常执行完。 */
+  /** 指示是否可以工作。如果为 true 则不进行合并；为 false 时允许合并。
+   *
+   * 当抓取完毕、抓取停止时，不再处理等待队列里的任务，但当前进行中的这个合并任务会正常执行完。 */
   private stop = true
 
   /** 在本次抓取任务里，自动合并的系列里一共包含多少篇小说 */
@@ -66,7 +68,7 @@ class AutoMergeNovel {
     }
   }
 
-  // 参数 forceStart: 如果为 true，则使 this.stop = false，以便可以执行合并操作
+  // 参数 forceStart: 如果为 true，则使 this.stop = false，以允许执行合并操作
   public async merge(
     seriesId: string,
     seriesTitle?: string,
@@ -88,7 +90,7 @@ class AutoMergeNovel {
       // 这个等待机制是为了解决这个问题：
       // getWorksData 抓取小说数据时，可能有连续多个小说作品都属于同一个系列（特别是在小说系列页面里抓取时）
       // 当第一个小说调用这个 merge 方法时，会在下面等待合并完成
-      // 但当后续作品调用这个 merge 方法时，由于 absent 为 false，不会实际合成
+      // 但当后续作品调用这个 merge 方法时，由于 absent 为 false，不会实际合并
       // 如果在这里立刻返回，getWorksData 会继续抓取下一个小说，导致它和 MergeNovel.merge 同时发送请求
       // 尤其是当作品数量不满足“减慢抓取速度”的条件时，getWorksData 的抓取速度很快
       // 这样两个模块会同时发送请求，会增加用户被 Pixiv 警告的风险
