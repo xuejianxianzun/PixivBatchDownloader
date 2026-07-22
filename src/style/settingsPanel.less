@@ -1741,7 +1741,8 @@
     .settingsPanel_titleContent,
     .settingsPanel_panelContent {
       min-height: 0;
-      overflow: hidden;
+      // 允许滚动以查看超出高度的内容。主要是为了处理这个情况：当“置顶的设置”区域里有“命名规则”设置时，点击它的“加载”按钮，会显示命名规则列表。当命名规则列表的高度大于内容区域的高度时，如果内容区域设置了超出隐藏，就会导致命名规则列表的下半部分被隐藏，无法查看和点击。
+      overflow: auto;
       opacity: 1;
       transform: translateY(0);
       transition:

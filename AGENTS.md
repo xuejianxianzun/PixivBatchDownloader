@@ -19,16 +19,48 @@
 - `src/ts/PageType.ts`：区分不同类型的页面。很多功能都会根据页面类型进行分别处理。
 - `src/ts/crawl*/`：初始化每种页面里的抓取逻辑。其中，`crawlArtworkPage` 文件夹里的模块用于抓取只有图像作品的页面；`crawlNovelPage` 文件夹里的模块用于抓取只有小说作品的页面；`crawlMixedPage` 抓取同时具有图像作品和小说作品的页面。
 - `src/ts/store/`：保存运行时数据、储存抓取结果、类型定义。
+- `src/ts/store/States.ts`：保存了该程序运行时的一些状态。
 - `src/ts/download/`：下载相关逻辑。
 - `src/ts/setting/Settings.ts`：保存下载器的设置、当设置发生变化时派发事件进行通知。
+- `src/ts/filter/Filter.ts`：过滤器系统。用户可以设置一些过滤条件，以排除不符合条件的作品（抓取结果），只保留符合条件的作品。
 - `src/ts/API.ts`：封装了对 Pixiv.net 的一些 API 的请求。
 - `src/ts/EVT.ts`：事件系统。有许多模块会触发事件；监听事件有助于解耦。
 - `src/ts/Tools.ts`：与本项目耦合的工具类。
 - `src/ts/utils/`：该文件夹里的模块是通用的工具类，与本项目没有耦合关系。其中 `src/ts/utils/Utils.ts` 是最常用的。
-- `src/ts/Language.ts`：自制的 i18n 系统，它会从 i18n 语句（保存在 `src\ts\langText.ts`）里获取目标语言的文本内容。
+- `src/ts/Language.ts`：自制的 i18n 系统，它会从 i18n 语句（保存在 `src/ts/langText.ts`）里获取目标语言的文本内容。
+- `src/ts/Log.ts`：日志系统，它会在网页顶部添加日志区域并输出日志。
 - `src/style/`：Less 样式源码。
 - `dist/`：编译产物目录。
 - `notes/`：设计说明、调研记录、截图等。修改复杂功能前，先检查这里是否已有说明。
+
+## 主要工作流程
+
+这个下载器用于从 Pixiv.net 爬取作品数据，并进行下载。因此它的核心工作流程分为“抓取”和“下载”两个部分。
+
+### 抓取
+
+每种页面类型有对应的模块来初始化和启动抓取流程，例如在用户主页里使用的模块是 `src/ts/crawlMixedPage/InitUserPage.ts`。这些模块都在 `src/ts/crawl*/` 目录里，每个模块都继承自抽象类 `src/ts/crawl/InitPageBase.ts`。`InitPageBase.ts` 定义了每个页面里通用的初始化流程和抓取流程，其中一些方法有具体的实现，是在所有页面类型里通用的方法；有些方法则由继承它的类自行实现或覆写，以便在不同页面里处理该页面特有的逻辑。
+
+当用户点击抓取按钮后，典型的执行流程如下（可能有一些例外情况）：
+- 执行 `readyCrawl` 方法来决定是否可以执行抓取流程；
+- 如果可以抓取，就会执行 `nextStep` 方法
+- `nextStep` 方法在多数页面里都会执行 `getIdList` 方法，目的是获取作品 ID 列表，并把作品 ID 列表保存到 `store.idList` 里储存。
+- 获取完 ID 列表之后，会执行 `getIdListFinished` 方法。如果作品 ID 列表的数量大于 0，就继续执行 `startGetWorksData` 方法来获取每个作品的详细数据，并生成下载器内部的抓取结果，保存到 `store.result` 里。
+- 获取完作品详细数据之后，执行 `crawlFinished` 方法，并触发抓取完成的事件 `EVT.fire('crawlComplete')`。
+
+在获取作品 ID 列表和详细数据时，都有可能使用 `Filter` 模块的 `filter.check` 方法对数据进行过滤。
+
+### 下载
+
+抓取完毕后，`src/ts/download/DownloadControl.ts` 会执行 `readyDownload` 方法来准备下载。它负责掌控整个下载流程，本身不下载文件。
+
+主要的下载流程：
+- `DownloadControl` 模块把单个抓取结果发送给 `src/ts/download/Download.ts` 进行下载。
+- `Download` 模块可能会使用抓取结果直接生成文件，也可能使用 `Fetch` API 从网络下载文件，然后使用 `browser.runtime.sendMessage` 发送消息给后台脚本 `src/ts/serviceWorker/background.ts`。
+- 后台脚本 `background` 收到消息后会调用浏览器的 downloads API 保存文件，并把文件保存成功或失败后的消息通过 `browser.tabs.sendMessage` 发送给建立下载任务的标签页。
+- 对应标签页里的 `DownloadControl` 模块接收到保存成功或失败的消息，更新下载进度，并开始下载下一个抓取结果。
+
+在 `Download` 模块里，会使用 `Filter` 模块的 `filter.check` 方法对抓取结果或文件属性进行过滤。
 
 ## 代码风格
 
@@ -81,9 +113,21 @@
 - 确认 TypeScript 编译通过。
 - 不要提交无关的临时文件或调试残留。
 
-## 给后续 agent 的建议
+## 执行一些操作时的注意事项
 
 - 先搜索再改：本仓库功能多、历史久，重复实现的风险高。
 - 遇到修改抓取流程、下载流程、合并小说、命名规则等需求时，优先检查相邻模块。
+- 翻译 i18n 语句时（即修改 `src/ts/langText.ts` 里的文本时），需要遵守翻译规则：`notes/翻译多语言文本的 prompt.md`
 - review 时忽略编译产物，即 `dist/` 目录里的文件。 
-- 翻译 i18n 语句时（即修改 `src\ts\langText.ts` 里的文本时），需要遵守翻译规则：`notes\翻译多语言文本的 prompt.md`
+
+## Windows 约束
+
+当你运行的终端环境是 Windows NT 时，如果需要执行 shell 脚本内容，优先使用 PowerShell 7 而不是 Windows 内置的 PowerShell 5.1。
+
+下面是一些附加约束：
+- 默认禁止使用 Bash 语法，除非确定此 shell 处在 Linux 环境。
+- 不要使用 Bash 引号/转义习惯，在 PowerShell 命令里，复杂正则优先用单引号包裹。
+- 如果正则本身同时包含单引号和双引号，优先拆成多个简单 `rg` 命令。
+- 在 PowerShell 里，语句块表达式（如 `foreach`、`if`）不能直接作为管道输入。 需要先使用 `$()` / `@()` 包裹，或先赋值给变量。 普通命令输出可直接进入管道，无需额外包裹。
+- PowerShell 使用 `rg` 时，遇到 PowerShell 解析异常或路径包含通配符时，先展开为真实路径。
+- 执行多行 Python 禁止使用 Bash heredoc ；改用 PowerShell here-string | python -

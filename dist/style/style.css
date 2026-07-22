@@ -2442,7 +2442,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingsPanel_titleContent,
 .centerWrap .centerWrap_con .settingsPanel_panelContent {
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.16s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);

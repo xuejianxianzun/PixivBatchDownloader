@@ -3,6 +3,12 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
+## next
+
+### 🐞修复问题：当“置顶的设置”区域高度不足时，会导致命名规则的列表被截断
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/659
+
 ## 19.1.1 2026-07-18
 
 ### 🐞修复问题：在收藏页面里，“取消收藏所有已被删除的作品”功能会错误的取消收藏正常的作品
