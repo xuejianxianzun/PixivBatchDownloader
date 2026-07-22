@@ -97,6 +97,7 @@ class ShowOriginSizeImage {
         this.previewUgoira = new PreviewUgoira(
           this.workData.body.id,
           this.wrap,
+          this.img,
           settings.showOriginImageSize
         )
       }

@@ -1441,9 +1441,13 @@ class API {
         return this.fetch(url);
     }
     /** 获取动图的元数据 */
-    static getUgoiraMeta(id) {
+    static getUgoiraMeta(id, signal) {
         const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`;
-        return this.fetch(url);
+        return this.fetch(url, {
+            method: 'get',
+            credentials: 'same-origin',
+            signal,
+        });
     }
     /** 获取小说的详细信息
      * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
@@ -7576,9 +7580,10 @@ __webpack_require__.r(__webpack_exports__);
 
 // 预览动图
 class PreviewUgoira {
-    constructor(id, canvasWrap, prevSize, wrapWidth, wrapHeight) {
+    constructor(id, canvasWrap, img, prevSize, wrapWidth, wrapHeight) {
         this.id = id;
         this.canvasWrap = canvasWrap;
+        this.img = img;
         this.prevSize = prevSize;
         wrapWidth && (this.wrapWidth = wrapWidth);
         wrapHeight && (this.wrapHeight = wrapHeight);
@@ -7594,9 +7599,9 @@ class PreviewUgoira {
     /**完整的 zip 文件的字节数 */
     zipLength = 0;
     /** 用固定的字节数分割出多个文件片段 */
-    rangeSize = 500000;
+    rangeSize = 2048000;
     /**保存每个文件片段的请求头的值
-     * 字符串格式如 'bytes=0-499999'
+     * 字符串格式如 'bytes=0-2047999'
      */
     rangeList = [];
     /**把分段加载的 zip 文件合并，保存到这个容器 */
@@ -7607,9 +7612,12 @@ class PreviewUgoira {
     jpgContentIndexList = [];
     /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
     jpgFileList = [];
+    /**extractJPGData 创建的 Blob URL */
+    blobURLList = [];
     // jpg 文件名的长度固定为 10 个字节 000000.jpg
     jpgNameLength = 10;
     canvasWrap;
+    img;
     wrapWidth = 0;
     wrapHeight = 0;
     canvas = document.createElement('canvas');
@@ -7618,9 +7626,23 @@ class PreviewUgoira {
     width = 0;
     height = 0;
     destroyed = false;
+    abortController = new AbortController();
     async start() {
+        try {
+            await this.startInternal();
+        }
+        catch (error) {
+            if (!this.destroyed) {
+                throw error;
+            }
+        }
+    }
+    async startInternal() {
         // 获取这个动图的 meta 数据
         this.meta = await this.getMeta(this.id);
+        if (this.destroyed) {
+            return;
+        }
         // 目前只支持提取 jpg 图片
         if (this.meta.mime_type !== 'image/jpeg') {
             const msg = 'Preview ugoira error: mime type unsupport: ' + this.meta.mime_type;
@@ -7637,6 +7659,9 @@ class PreviewUgoira {
         }
         // 获取动图体积
         this.zipLength = await this.getFileLength();
+        if (this.destroyed) {
+            return;
+        }
         // 生成区间
         this.rangeList = this.setRangeList(this.zipLength, this.rangeSize);
         for (const range of this.rangeList) {
@@ -7691,7 +7716,7 @@ class PreviewUgoira {
     }
     /**获取该作品的 meta 数据 */
     async getMeta(id) {
-        const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id);
+        const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id, this.abortController.signal);
         if (meta.error) {
             throw new Error(meta.message);
         }
@@ -7702,6 +7727,7 @@ class PreviewUgoira {
         const response = await fetch(this.zipURL, {
             method: 'head',
             credentials: 'same-origin',
+            signal: this.abortController.signal,
         });
         const length = response.headers.get('content-length');
         if (!length) {
@@ -7736,6 +7762,7 @@ class PreviewUgoira {
             headers: {
                 range: range,
             },
+            signal: this.abortController.signal,
         });
         const buff = await res.arrayBuffer();
         return buff;
@@ -7778,6 +7805,7 @@ class PreviewUgoira {
                     type: 'image/jpeg',
                 });
                 const url = URL.createObjectURL(blob);
+                this.blobURLList.push(url);
                 // 下载这张图片（debug 用）
                 // Utils.downloadFile(url, `${index}.jpg`)
                 const img = new Image(this.width, this.height);
@@ -7790,17 +7818,15 @@ class PreviewUgoira {
         });
     }
     startPlay() {
-        if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
+        if (!this.destroyed &&
+            this.jpgFileList.length > 0 &&
+            !this.canvasIsAppend) {
             this.addCanvas();
             this.canvasIsAppend = true;
             this.animationID = window.requestAnimationFrame(this.play);
         }
     }
     addCanvas() {
-        const oldCanvas = this.canvasWrap.querySelector('canvas');
-        if (oldCanvas) {
-            oldCanvas.remove();
-        }
         this.canvas.style.display = 'none';
         this.canvasWrap.append(this.canvas);
         this.canvas.width = this.width;
@@ -7811,6 +7837,9 @@ class PreviewUgoira {
     lastPlayTime = 0;
     animationID = 0;
     play = (timestamp) => {
+        if (this.destroyed) {
+            return;
+        }
         if (this.lastPlayTime === 0) {
             this.lastPlayTime = timestamp;
         }
@@ -7826,10 +7855,7 @@ class PreviewUgoira {
             // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
             if (this.playIndex === 0) {
                 this.canvas.style.display = 'inline-block';
-                const img = this.canvasWrap.querySelector('img');
-                if (img) {
-                    img.style.display = 'none';
-                }
+                this.img.style.display = 'none';
             }
             this.playDelay = this.jpgFileList[this.playIndex].delay;
             this.playIndex++;
@@ -7854,8 +7880,13 @@ class PreviewUgoira {
     }
     destroy() {
         this.destroyed = true;
+        this.abortController.abort();
         window.cancelAnimationFrame(this.animationID);
         this.canvas.remove();
+        this.blobURLList.forEach((url) => {
+            URL.revokeObjectURL(url);
+        });
+        this.blobURLList = [];
         this.zipContent = new ArrayBuffer(0);
         this.jpgFileList = [];
         this.jpgContentIndexList = [];
@@ -7964,6 +7995,8 @@ class PreviewWork {
     // 当前预览图是否遮挡了作品缩略图
     overThumb = false;
     previewUgoira;
+    /**预览请求的版本号，用于使过期的异步请求失效 */
+    previewVersion = 0;
     _show = false;
     /**是否处于准备显示预览图的阶段。当准备显示时为 true，已显示、以及隐藏预览图时为 fasle */
     isReadyShow = false;
@@ -7975,11 +8008,17 @@ class PreviewWork {
         this.setShow(val);
     }
     async setShow(val) {
+        const version = ++this.previewVersion;
         if (val) {
-            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_3__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
+            const workId = this.workId;
+            const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_3__.cacheWorkData.getWorkDataAsync(workId, 'artwork');
             // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
             // 如果 id 不同，说明现在的作品已经不是前面请求的那个作品了
-            if (!this.workData || this.workData.body.id !== this.workId) {
+            if (version !== this.previewVersion || this.workId !== workId) {
+                return;
+            }
+            this.workData = workData;
+            if (!workData || workData.body.id !== workId) {
                 this.readyShow();
             }
             else {
@@ -7997,6 +8036,9 @@ class PreviewWork {
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.checkBlockTagsForPreviewWork) {
                     const tags = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'origin');
                     const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_19__.filter.checkExcludeAndMuteTags(tags);
+                    if (version !== this.previewVersion) {
+                        return;
+                    }
                     if (!checkTag) {
                         this.show = false;
                         const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_不预览这个作品因为它含有你排除的标签');
@@ -8009,7 +8051,7 @@ class PreviewWork {
                 }
                 this.isReadyShow = false;
                 this._show = true;
-                this.showWrap();
+                this.showWrap(version);
                 window.clearTimeout(this.delayHiddenTimer);
                 if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
                     _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品'));
@@ -8029,10 +8071,7 @@ class PreviewWork {
             // 这样图片会停止加载，避免浪费网络资源
             this.img.src = '';
             // 销毁预览动图的模块
-            if (this.previewUgoira) {
-                this.previewUgoira.destroy();
-                this.previewUgoira = null;
-            }
+            this.destroyPreviewUgoira();
         }
     }
     createElements() {
@@ -8286,7 +8325,7 @@ class PreviewWork {
             }
         }
         _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[this.workId] = this.index;
-        this.showWrap();
+        this.showWrap(++this.previewVersion);
     }
     onWheelScroll = (ev) => {
         if (this.show &&
@@ -8304,13 +8343,21 @@ class PreviewWork {
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewWorkWait);
     }
     // 显示预览 wrap
-    async showWrap() {
+    async showWrap(version = ++this.previewVersion) {
         if (!this.workEL || !this.workData) {
             return;
         }
-        const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${this.index}`);
+        const workId = this.workId;
+        const index = this.index;
+        const workData = this.workData;
+        const url = workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${index}`);
         const size = await this.getImageSize(url);
-        if (!size.available || !this.show) {
+        if (!size.available ||
+            !this.show ||
+            version !== this.previewVersion ||
+            this.workId !== workId ||
+            this.index !== index ||
+            this.workData !== workData) {
             return;
         }
         const w = size.width;
@@ -8327,6 +8374,7 @@ class PreviewWork {
         // 1. 在新图片的加载过程中，用户无法看到加载进度。只能等到图片加载完成后瞬间完全显示出来。
         // 2. 在新图片的加载过程中，图片的宽高是新图片的宽高，但是显示的内容还是旧的图片。如果这两张图片的尺寸不一致，此时显示的（旧）图片看上去是变形的
         // 只有生成新的 img 元素，才能解决上面的问题
+        this.destroyPreviewUgoira();
         this.img.src = '';
         this.img.remove();
         this.img = document.createElement('img');
@@ -8427,7 +8475,7 @@ class PreviewWork {
         // 3. 设置顶部提示区域的内容
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showPreviewWorkTip) {
             const text = [];
-            const body = this.workData.body;
+            const body = workData.body;
             if (body.pageCount > 1) {
                 text.push(`<span class="index flag">
           <svg viewBox="0 0 10 10" width="12" height="12"><path fill="currentColor" d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
@@ -8438,7 +8486,7 @@ class PreviewWork {
     </span>`);
             }
             // 判断是不是 AI 生成的作品
-            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'both');
+            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(workData, 'both');
             let aiType = body.aiType;
             if (aiType !== 2) {
                 if (_Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.checkAIFromTags(tagsWithTransl)) {
@@ -8503,10 +8551,22 @@ class PreviewWork {
         }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 预览动图
-        if (this.workData.body.illustType === 2) {
-            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
-            // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+        if (this.show &&
+            version === this.previewVersion &&
+            this.workId === workId &&
+            this.index === index) {
+            if (workData.body.illustType === 2) {
+                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__.PreviewUgoira(workData.body.id, this.wrap, this.img, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
+                // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+            }
         }
+    }
+    destroyPreviewUgoira() {
+        if (!this.previewUgoira) {
+            return;
+        }
+        this.previewUgoira.destroy();
+        this.previewUgoira = undefined;
     }
     // 通过 img 元素加载图片，获取图片的原始尺寸
     async getImageSize(url) {
@@ -10689,7 +10749,7 @@ class ShowOriginSizeImage {
             }
             // 预览动图
             if (this.workData?.body.illustType === 2) {
-                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
+                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, this.img, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
             }
         }
         else {
@@ -14338,7 +14398,9 @@ class InitPageBase {
                 // 如果该作品 id 不存在则添加它
                 _idList.push({
                     ...i,
-                    downloadIndexes: i.downloadIndexes ? [...i.downloadIndexes] : undefined,
+                    downloadIndexes: i.downloadIndexes
+                        ? [...i.downloadIndexes]
+                        : undefined,
                 });
             }
             else if (existing.downloadIndexes && i.downloadIndexes) {

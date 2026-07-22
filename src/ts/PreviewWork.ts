@@ -82,6 +82,8 @@ class PreviewWork {
   private overThumb = false
 
   private previewUgoira?: PreviewUgoira
+  /**预览请求的版本号，用于使过期的异步请求失效 */
+  private previewVersion = 0
 
   private _show = false
 
@@ -98,14 +100,18 @@ class PreviewWork {
   }
 
   private async setShow(val: boolean) {
+    const version = ++this.previewVersion
+
     if (val) {
-      this.workData = await cacheWorkData.getWorkDataAsync(
-        this.workId,
-        'artwork'
-      )
+      const workId = this.workId
+      const workData = await cacheWorkData.getWorkDataAsync(workId, 'artwork')
       // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
       // 如果 id 不同，说明现在的作品已经不是前面请求的那个作品了
-      if (!this.workData || this.workData.body.id !== this.workId) {
+      if (version !== this.previewVersion || this.workId !== workId) {
+        return
+      }
+      this.workData = workData
+      if (!workData || workData.body.id !== workId) {
         this.readyShow()
       } else {
         // 准备显示预览
@@ -124,6 +130,9 @@ class PreviewWork {
         if (settings.checkBlockTagsForPreviewWork) {
           const tags = Tools.extractTags(this.workData, 'origin')
           const checkTag = await filter.checkExcludeAndMuteTags(tags)
+          if (version !== this.previewVersion) {
+            return
+          }
           if (!checkTag) {
             this.show = false
             const msg = lang.transl('_不预览这个作品因为它含有你排除的标签')
@@ -137,7 +146,7 @@ class PreviewWork {
 
         this.isReadyShow = false
         this._show = true
-        this.showWrap()
+        this.showWrap(version)
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
           showOneTimeMsg.show(
@@ -159,12 +168,8 @@ class PreviewWork {
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
       this.img.src = ''
-
       // 销毁预览动图的模块
-      if (this.previewUgoira) {
-        this.previewUgoira.destroy()
-        this.previewUgoira = null as unknown as PreviewUgoira
-      }
+      this.destroyPreviewUgoira()
     }
   }
 
@@ -299,7 +304,7 @@ class PreviewWork {
         // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
         const activeEl = document.activeElement
         if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
-          ; (activeEl as HTMLElement).blur()
+          ;(activeEl as HTMLElement).blur()
         }
 
         // 预览作品时，可以使用快捷键 D 下载这个作品
@@ -470,7 +475,7 @@ class PreviewWork {
 
     states.indexRecord[this.workId] = this.index
 
-    this.showWrap()
+    this.showWrap(++this.previewVersion)
   }
 
   private onWheelScroll = (ev: Event) => {
@@ -493,18 +498,28 @@ class PreviewWork {
   }
 
   // 显示预览 wrap
-  private async showWrap() {
+  private async showWrap(version = ++this.previewVersion) {
     if (!this.workEL || !this.workData) {
       return
     }
 
-    const url = this.workData!.body.urls[settings.prevWorkSize].replace(
+    const workId = this.workId
+    const index = this.index
+    const workData = this.workData
+    const url = workData.body.urls[settings.prevWorkSize].replace(
       'p0',
-      `p${this.index}`
+      `p${index}`
     )
     const size = await this.getImageSize(url)
 
-    if (!size.available || !this.show) {
+    if (
+      !size.available ||
+      !this.show ||
+      version !== this.previewVersion ||
+      this.workId !== workId ||
+      this.index !== index ||
+      this.workData !== workData
+    ) {
       return
     }
 
@@ -523,6 +538,7 @@ class PreviewWork {
     // 1. 在新图片的加载过程中，用户无法看到加载进度。只能等到图片加载完成后瞬间完全显示出来。
     // 2. 在新图片的加载过程中，图片的宽高是新图片的宽高，但是显示的内容还是旧的图片。如果这两张图片的尺寸不一致，此时显示的（旧）图片看上去是变形的
     // 只有生成新的 img 元素，才能解决上面的问题
+    this.destroyPreviewUgoira()
     this.img.src = ''
     this.img.remove()
     this.img = document.createElement('img')
@@ -633,7 +649,7 @@ class PreviewWork {
     // 3. 设置顶部提示区域的内容
     if (settings.showPreviewWorkTip) {
       const text: string[] = []
-      const body = this.workData.body
+      const body = workData.body
 
       if (body.pageCount > 1) {
         text.push(`<span class="index flag">
@@ -646,7 +662,7 @@ class PreviewWork {
       }
 
       // 判断是不是 AI 生成的作品
-      const tagsWithTransl: string[] = Tools.extractTags(this.workData, 'both')
+      const tagsWithTransl: string[] = Tools.extractTags(workData, 'both')
       let aiType = body.aiType
       if (aiType !== 2) {
         if (Tools.checkAIFromTags(tagsWithTransl)) {
@@ -717,16 +733,33 @@ class PreviewWork {
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 预览动图
-    if (this.workData.body.illustType === 2) {
-      this.previewUgoira = new PreviewUgoira(
-        this.workData.body.id,
-        this.wrap,
-        settings.prevWorkSize,
-        cfg.width,
-        cfg.height - tipHeight
-      )
-      // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+    if (
+      this.show &&
+      version === this.previewVersion &&
+      this.workId === workId &&
+      this.index === index
+    ) {
+      if (workData.body.illustType === 2) {
+        this.previewUgoira = new PreviewUgoira(
+          workData.body.id,
+          this.wrap,
+          this.img,
+          settings.prevWorkSize,
+          cfg.width,
+          cfg.height - tipHeight
+        )
+        // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+      }
     }
+  }
+
+  private destroyPreviewUgoira() {
+    if (!this.previewUgoira) {
+      return
+    }
+
+    this.previewUgoira.destroy()
+    this.previewUgoira = undefined
   }
 
   // 通过 img 元素加载图片，获取图片的原始尺寸

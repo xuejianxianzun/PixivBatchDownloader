@@ -319,9 +319,16 @@ class API {
   }
 
   /** 获取动图的元数据 */
-  static getUgoiraMeta(id: string): Promise<UgoiraMetaData> {
+  static getUgoiraMeta(
+    id: string,
+    signal?: AbortSignal
+  ): Promise<UgoiraMetaData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
-    return this.fetch(url)
+    return this.fetch(url, {
+      method: 'get',
+      credentials: 'same-origin',
+      signal,
+    })
   }
 
   /** 获取小说的详细信息
