@@ -28,6 +28,10 @@ export interface IDData {
   type: IDTypeString
   /** 作品或系列的标题，目前只有当 id 是系列 id 时，才可能有值。如果 id 是作品 id，则是 '' 或 undefined，因为我没有保存作品的标题 */
   title?: string
+  /** 仅对图像作品有效。这个索引列表用于指定只下载其中一张或多张指定的图片。索引从 0 开始。
+   *
+   * 默认值是 undefined，即下载作品里的所有图片。只有当用户通过某些方式操作时才会设置具体的值 */
+  downloadIndexes?: number[]
 }
 
 /**添加 result 时的数据，所有属性都是可选的，并且没有 index 属性 */

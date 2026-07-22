@@ -4,7 +4,6 @@ import { artworkThumbnail } from '../ArtworkThumbnail'
 import { Config } from '../Config'
 import { ImageViewer } from '../ImageViewer'
 import { IDData } from '../store/StoreType'
-import { store } from '../store/Store'
 import { copyWorkInfo } from '../CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { lang } from '../Language'
@@ -122,7 +121,7 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
     } else if (config.name === 'downloadBtnOnThumb') {
       // 在多图作品的缩略图列表上点击下载按钮时，只下载这一张图片
       if (onThumbList) {
-        store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [index])
+        idData.downloadIndexes = [index]
       }
 
       EVT.fire('crawlIdList', [idData])

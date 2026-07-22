@@ -5,6 +5,14 @@
 
 ## next
 
+### 🐞修复问题：在特定情况下，当用户在预览作品时按下 C 键之后，只应该下载一张图片，但实际上下载了多张图片
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/661
+
+之前下载器使用一个单独的对象 `downloadOnlyPart` 保存每个作品里只下载哪张图片的状态，但存在局限性，例如每个作品 ID 只有一份此状态，并且消费一次之后就会被重置。在一些偶然的边界情况里可能会出现问题，导致有时会下载作品里的所有图片。
+
+这次修改把“只下载哪些图片”的索引附加到了 `IDData` 里，在逻辑上更合理，而且在对同一个作品进行多次设置索引、多次抓取时都能应用正确的索引。
+
 ### 🐞修复问题：当“置顶的设置”区域高度不足时，会导致命名规则的列表被截断
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/659

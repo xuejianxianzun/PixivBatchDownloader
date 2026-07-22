@@ -11,7 +11,6 @@ import { lang } from './Language'
 import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
-import { store } from './store/Store'
 import { Config } from './Config'
 import { Tools } from './Tools'
 import { bookmark } from './Bookmark'
@@ -300,7 +299,7 @@ class PreviewWork {
         // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
         const activeEl = document.activeElement
         if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
-          ;(activeEl as HTMLElement).blur()
+          ; (activeEl as HTMLElement).blur()
         }
 
         // 预览作品时，可以使用快捷键 D 下载这个作品
@@ -321,16 +320,12 @@ class PreviewWork {
           ev.preventDefault()
           ev.stopPropagation()
 
-          if (this.workData!.body.pageCount > 1) {
-            store.setDownloadOnlyPart(Number.parseInt(this.workData!.body.id), [
-              this.index,
-            ])
-          }
-
           EVT.fire('crawlIdList', [
             {
               type: 'illusts',
               id: this.workData!.body.id,
+              downloadIndexes:
+                this.workData!.body.pageCount > 1 ? [this.index] : undefined,
             },
           ])
         }

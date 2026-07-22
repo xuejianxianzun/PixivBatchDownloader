@@ -5217,14 +5217,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 // https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
-
 
 
 
@@ -5451,7 +5449,7 @@ class ImageViewer {
         const date = this.workData?.body.uploadDate;
         let dateString = '';
         if (date) {
-            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.dateFormat);
+            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.dateFormat);
         }
         const handleToTop = this.moveToTop.bind(this);
         const pageCount = this.pageCount;
@@ -5511,7 +5509,7 @@ class ImageViewer {
         img.src = firstImageURL;
         if (this.cfg.autoStart) {
             // 启动图片查看器
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的帮助'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的帮助'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
             this.myViewer.show();
         }
     }
@@ -5615,17 +5613,13 @@ class ImageViewer {
     /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
     download(p) {
         if (this.workData && this.workData.body.id === this.cfg.workId) {
-            if (p !== undefined) {
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
-                        this.index,
-                    ]);
-                }
-            }
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
                 {
                     id: this.cfg.workId,
                     type: 'illusts',
+                    downloadIndexes: p !== undefined && this.workData.body.pageCount > 1
+                        ? [this.index]
+                        : undefined,
                 },
             ]);
         }
@@ -5665,7 +5659,7 @@ class ImageViewer {
         li.addEventListener('click', this.copy.bind(this));
     }
     copy() {
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__.copyWorkInfo.receive({
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_11__.copyWorkInfo.receive({
             id: this.cfg.workId,
             type: 'illusts',
         }, this.index);
@@ -7892,16 +7886,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
 
 
 
@@ -7925,7 +7917,7 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
     constructor() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_13__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
             return;
         }
         setTimeout(() => {
@@ -8003,8 +7995,8 @@ class PreviewWork {
                 }
                 // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.checkBlockTagsForPreviewWork) {
-                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData, 'origin');
-                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__.filter.checkExcludeAndMuteTags(tags);
+                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'origin');
+                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_19__.filter.checkExcludeAndMuteTags(tags);
                     if (!checkTag) {
                         this.show = false;
                         const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_不预览这个作品因为它含有你排除的标签');
@@ -8019,7 +8011,7 @@ class PreviewWork {
                 this._show = true;
                 this.showWrap();
                 window.clearTimeout(this.delayHiddenTimer);
-                if (!_Config__WEBPACK_IMPORTED_MODULE_13__.Config.mobile) {
+                if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
                     _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品'));
                 }
             }
@@ -8064,7 +8056,7 @@ class PreviewWork {
                 this.index = _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[id] || 0;
             }
             // 在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_18__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 const _index = Number.parseInt(el.dataset.index);
                 this.index = _index;
             }
@@ -8124,7 +8116,7 @@ class PreviewWork {
                         //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
                         ev.stopPropagation();
                         ev.preventDefault();
-                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_17__.copyWorkInfo.receive({
+                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__.copyWorkInfo.receive({
                             type: 'illusts',
                             id: this.workData.body.id,
                         }, this.index);
@@ -8177,15 +8169,11 @@ class PreviewWork {
                 // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
                 ev.preventDefault();
                 ev.stopPropagation();
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_12__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
-                        this.index,
-                    ]);
-                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
                     {
                         type: 'illusts',
                         id: this.workData.body.id,
+                        downloadIndexes: this.workData.body.pageCount > 1 ? [this.index] : undefined,
                     },
                 ]);
             }
@@ -8231,7 +8219,7 @@ class PreviewWork {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
             this.dontShowAfterPageSwitch = false;
         });
-        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_19__.logErrorStatus.listen((status, url) => {
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__.logErrorStatus.listen((status, url) => {
             if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_状态码429的提示'), {
                     position: 'mouse',
@@ -8450,10 +8438,10 @@ class PreviewWork {
     </span>`);
             }
             // 判断是不是 AI 生成的作品
-            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData, 'both');
+            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'both');
             let aiType = body.aiType;
             if (aiType !== 2) {
-                if (_Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.checkAIFromTags(tagsWithTransl)) {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.checkAIFromTags(tagsWithTransl)) {
                     aiType = 2;
                 }
             }
@@ -8588,7 +8576,7 @@ class PreviewWork {
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
         });
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_15__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData));
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_14__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData));
         if (status === 200) {
             _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已收藏'));
             // 将作品缩略图上的收藏按钮变成红色
@@ -8597,7 +8585,7 @@ class PreviewWork {
                 // 如果有多个 svg，一般最后一个是收藏按钮
                 let useSVG = allSVG[allSVG.length - 1];
                 // 但有些特殊情况是第一个
-                if (_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.list.Request) {
+                if (_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.list.Request) {
                     useSVG = allSVG[0];
                 }
                 // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
@@ -10625,13 +10613,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 
 
 
@@ -10646,7 +10632,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowOriginSizeImage {
     constructor() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
             return;
         }
         setTimeout(() => {
@@ -10658,7 +10644,7 @@ class ShowOriginSizeImage {
     workData;
     /** 显示这个作品里的第几张图片。如果该作品被“预览作品”功能查看过，可以获取用户最后查看的是第几张图片。否则使用第 1 张 */
     get index() {
-        return _store_States__WEBPACK_IMPORTED_MODULE_12__.states.indexRecord[this.workId] || 0;
+        return _store_States__WEBPACK_IMPORTED_MODULE_11__.states.indexRecord[this.workId] || 0;
     }
     // 原比例查看图片的容器的元素
     wrapId = 'originSizeWrap';
@@ -10698,7 +10684,7 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
-            if (!_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
+            if (!_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
                 _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__.showOneTimeMsg.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
@@ -10830,10 +10816,10 @@ class ShowOriginSizeImage {
     // 初次显示一个图片时，初始化 wrap 的样式
     async initWrap(ev) {
         try {
-            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
+            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
         }
         catch (error) {
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_获取作品数据失败'));
+            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_获取作品数据失败'));
             return;
         }
         const url = this.workData?.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize].replace('p0', `p${this.index}`);
@@ -11005,14 +10991,12 @@ class ShowOriginSizeImage {
     }
     /** 使用快捷键 C 下载当前显示的这张图片 */
     async downloadImage(id) {
-        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(id, 'artwork');
+        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(id, 'artwork');
         const idData = {
             type: 'illusts',
             id,
+            downloadIndexes: data.body.pageCount > 1 ? [this.index] : undefined,
         };
-        if (data.body.pageCount > 1) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setDownloadOnlyPart(Number.parseInt(idData.id), [this.index]);
-        }
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
     /** 使用快捷键 Alt + C 调用复制功能 */
@@ -11021,7 +11005,7 @@ class ShowOriginSizeImage {
             type: 'illusts',
             id,
         };
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__.copyWorkInfo.receive(idData, this.index);
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_8__.copyWorkInfo.receive(idData, this.index);
     }
 }
 new ShowOriginSizeImage();
@@ -13363,14 +13347,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 
 
 
@@ -13385,7 +13367,7 @@ __webpack_require__.r(__webpack_exports__);
 // 对于单图作品，下载器会直接显示按钮
 // 对于多图作品，当用户点击“查看全部”按钮显示所有图片时，下载器才会显示按钮
 // 对于动图作品，不会显示这些按钮
-class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.ButtonsConfig {
+class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__.ButtonsConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
@@ -13460,7 +13442,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
         btn.style.display = 'flex';
         // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierPosition === 'left') {
             btn.style.left = `-${this.btnSize}px`;
             btn.style.right = 'unset';
         }
@@ -13476,7 +13458,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
   <use xlink:href="#${config.icon}"></use>
 </svg>`;
         btn.dataset.xztitle = config.title;
-        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
+        _Language__WEBPACK_IMPORTED_MODULE_7__.lang.register(btn);
         return btn;
     }
     clickBtn(config, a) {
@@ -13493,26 +13475,26 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
             id,
         };
         if (config.name === 'zoomBtnOnThumb') {
-            new _ImageViewer__WEBPACK_IMPORTED_MODULE_9__.ImageViewer({
+            new _ImageViewer__WEBPACK_IMPORTED_MODULE_8__.ImageViewer({
                 workId: id,
                 initialViewIndex: index,
-                imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierSize,
+                imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierSize,
                 autoStart: true,
                 showLoading: true,
             });
         }
         else if (config.name === 'copyBtnOnThumb') {
-            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_10__.copyWorkInfo.receive(idData, index);
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__.copyWorkInfo.receive(idData, index);
         }
         else if (config.name === 'downloadBtnOnThumb') {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.setDownloadOnlyPart(Number.parseInt(id), [index]);
+            idData.downloadIndexes = [index];
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
     }
     /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
     // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
     async addBtnOffset() {
-        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.getWorkDataAsync(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), 'artwork');
+        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_4__.cacheWorkData.getWorkDataAsync(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), 'artwork');
         // 单图作品不需要处理。PS：有些漫画也是单图的
         if (!data || data.body.pageCount === 1) {
             return 0;
@@ -13522,7 +13504,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         if (data.body.illustType === 0) {
             // 对于插画作品，如果按钮显示在左上角就不需要加 top
             // 因为图片编号是显示在图片右上角的，左上角没什么元素会被遮挡
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierPosition === 'left') {
                 return 0;
             }
             return 34;
@@ -13550,12 +13532,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
-
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
 
 
 
@@ -13567,7 +13547,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 在图片作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_9__.ButtonsConfig {
+class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__.ButtonsConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
@@ -13632,13 +13612,13 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
   <use xlink:href="#${config.icon}"></use>
 </svg>`;
         btn.dataset.xztitle = config.title;
-        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
+        _Language__WEBPACK_IMPORTED_MODULE_7__.lang.register(btn);
         document.body.appendChild(btn);
         return btn;
     }
     clickBtn(config) {
         let index = 0;
-        const onThumbList = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
+        const onThumbList = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         // 在多图作品的缩略图列表上触发时，通过 data-index 属性获取序号
         if (onThumbList) {
             index = Number.parseInt(this.workEL.dataset.index);
@@ -13656,12 +13636,12 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             });
         }
         else if (config.name === 'copyBtnOnThumb') {
-            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData, index);
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_5__.copyWorkInfo.receive(idData, index);
         }
         else if (config.name === 'downloadBtnOnThumb') {
             // 在多图作品的缩略图列表上点击下载按钮时，只下载这一张图片
             if (onThumbList) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [index]);
+                idData.downloadIndexes = [index];
             }
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
@@ -13674,7 +13654,7 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
         // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
         let order = 0;
         const rect = this.workEL.getBoundingClientRect();
-        const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
+        const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         for (const config of this.btnsConfig) {
             // 在多图作品页面里的缩略图列表上触发时，不显示放大按钮，因为点击图片即可放大
             if (imageViewerLI && config.name === 'zoomBtnOnThumb') {
@@ -13925,9 +13905,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 
 
 
@@ -13966,9 +13944,9 @@ class DownloadBtnOnThumbOnMobile {
                     id: id,
                 };
                 // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-                if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_5__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                     const _index = Number.parseInt(el.dataset.index);
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(id), [_index]);
+                    IDData.downloadIndexes = [_index];
                 }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
             });
@@ -14353,12 +14331,19 @@ class InitPageBase {
     async crawlIdList(idList) {
         // 对 idList 进行去重
         // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
-        const ids = [];
         const _idList = [];
         for (const i of idList) {
-            if (ids.includes(i.id) === false) {
-                ids.push(i.id);
-                _idList.push(i);
+            const existing = _idList.find((item) => item.id === i.id);
+            if (!existing) {
+                // 如果该作品 id 不存在则添加它
+                _idList.push({
+                    ...i,
+                    downloadIndexes: i.downloadIndexes ? [...i.downloadIndexes] : undefined,
+                });
+            }
+            else if (existing.downloadIndexes && i.downloadIndexes) {
+                // 如果该作品 id 已存在，并且之前已经设置了只下载某些 index，则把本次的 index 和之前的 index 进行合并，以便可以下载所有指定的图片
+                existing.downloadIndexes = Array.from(new Set(existing.downloadIndexes.concat(i.downloadIndexes)));
             }
         }
         // 如果下载器正忙则把 id 列表添加到等待队列中
@@ -14487,10 +14472,11 @@ class InitPageBase {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.quickCrawl &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
             ['illusts', 'manga', 'ugoira'].includes(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type)) {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_25__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, 'artwork');
+            const idData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_25__.cacheWorkData.get(idData.id, 'artwork');
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data, idData.downloadIndexes);
                 return this.crawlFinished();
             }
         }
@@ -14570,7 +14556,7 @@ class InitPageBase {
             else {
                 // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data, idData.downloadIndexes);
                 this.afterGetWorksData(data);
             }
         }
@@ -51060,7 +51046,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存图片作品的数据
 class SaveArtworkData {
-    async save(data) {
+    async save(data, downloadIndexes) {
         // 获取需要检查的信息
         const body = data.body;
         const fullWidth = body.width; // 原图宽度
@@ -51178,7 +51164,7 @@ class SaveArtworkData {
                     commentCount: body.commentCount,
                     xRestrict: body.xRestrict,
                     sl: body.sl,
-                });
+                }, downloadIndexes);
             }
             else if (body.illustType === 2) {
                 // 动图
@@ -51602,16 +51588,6 @@ class Store {
     URLWhenCrawlStart = '';
     /** 抓取完成的时间 */
     crawlCompleteTime = new Date();
-    /** 只下载作品里的一部分图片 */
-    downloadOnlyPart = {};
-    setDownloadOnlyPart(workID, indexList) {
-        if (this.downloadOnlyPart[workID]) {
-            this.downloadOnlyPart[workID] = Array.from(new Set(this.downloadOnlyPart[workID].concat(indexList)));
-        }
-        else {
-            this.downloadOnlyPart[workID] = indexList;
-        }
-    }
     resultDefault = {
         aiType: 0,
         idNum: 0,
@@ -51651,9 +51627,11 @@ class Store {
         xRestrict: 0,
         sl: null,
     };
-    // 添加每个作品的数据。只需要传递有值的属性
-    // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
-    addResult(data) {
+    /** 添加每个作品的数据。只需要传递有值的属性
+     *
+     * 如果一个作品有多张图片，只需要传递第一张图片的数据。后续图片的数据会根据设置自动生成
+     */
+    addResult(data, requestedIndexList) {
         // 检查该作品 id 是否已存在，已存在则不添加
         if (data.idNum !== undefined) {
             const useList = data.type === 3 ? this.novelIDList : this.artworkIDList;
@@ -51683,9 +51661,8 @@ class Store {
             // 储存需要下载的图片的索引
             let indexList = [];
             // 如果已经指定了只下载部分图片
-            if (this.downloadOnlyPart[meta.idNum]) {
-                indexList = this.downloadOnlyPart[meta.idNum];
-                delete this.downloadOnlyPart[meta.idNum];
+            if (requestedIndexList) {
+                indexList = requestedIndexList;
             }
             else {
                 // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分

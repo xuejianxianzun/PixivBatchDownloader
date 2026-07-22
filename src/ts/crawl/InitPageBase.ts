@@ -159,12 +159,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void {}
+  protected addAnyElement(): void { }
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() {}
+  protected initAny() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -173,7 +173,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   /**在日志上显示任意提示 */
   protected showTip() {
@@ -271,12 +271,20 @@ abstract class InitPageBase {
   protected async crawlIdList(idList: IDData[]) {
     // 对 idList 进行去重
     // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
-    const ids: string[] = []
     const _idList: IDData[] = []
     for (const i of idList) {
-      if (ids.includes(i.id) === false) {
-        ids.push(i.id)
-        _idList.push(i)
+      const existing = _idList.find((item) => item.id === i.id)
+      if (!existing) {
+        // 如果该作品 id 不存在则添加它
+        _idList.push({
+          ...i,
+          downloadIndexes: i.downloadIndexes ? [...i.downloadIndexes] : undefined,
+        })
+      } else if (existing.downloadIndexes && i.downloadIndexes) {
+        // 如果该作品 id 已存在，并且之前已经设置了只下载某些 index，则把本次的 index 和之前的 index 进行合并，以便可以下载所有指定的图片
+        existing.downloadIndexes = Array.from(
+          new Set(existing.downloadIndexes.concat(i.downloadIndexes))
+        )
       }
     }
 
@@ -333,7 +341,7 @@ abstract class InitPageBase {
   }
 
   // 获取 id 列表，由各个子类具体定义
-  protected getIdList() {}
+  protected getIdList() { }
 
   /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
   protected async checkUserId(userId: string) {
@@ -395,8 +403,7 @@ abstract class InitPageBase {
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,
-            `ID list-total ${
-              result.total
+            `ID list-total ${result.total
             }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
               new Date().toLocaleString()
             )}.json`
@@ -448,10 +455,11 @@ abstract class InitPageBase {
       store.idList.length === 1 &&
       ['illusts', 'manga', 'ugoira'].includes(store.idList[0].type)
     ) {
-      const data = cacheWorkData.get(store.idList[0].id, 'artwork')
+      const idData = store.idList[0]
+      const data = cacheWorkData.get(idData.id, 'artwork')
       if (data) {
         store.idList = []
-        await saveArtworkData.save(data)
+        await saveArtworkData.save(data, idData.downloadIndexes)
         return this.crawlFinished()
       }
     }
@@ -479,7 +487,7 @@ abstract class InitPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData): Promise<void> {
@@ -538,7 +546,7 @@ abstract class InitPageBase {
       } else {
         // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
         const data = await API.getArtworkData(id, unlisted)
-        await saveArtworkData.save(data)
+        await saveArtworkData.save(data, idData.downloadIndexes)
         this.afterGetWorksData(data)
       }
     } catch (error: Error | any) {
@@ -743,7 +751,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 
   /**定时抓取的按钮 */
   protected addStartTimedCrawlBtn(cb: Function) {

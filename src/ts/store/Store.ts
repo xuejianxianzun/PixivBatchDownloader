@@ -61,21 +61,6 @@ class Store {
   /** 抓取完成的时间 */
   public crawlCompleteTime: Date = new Date()
 
-  /** 只下载作品里的一部分图片 */
-  private downloadOnlyPart: {
-    [workID: string]: number[]
-  } = {}
-
-  public setDownloadOnlyPart(workID: number, indexList: number[]) {
-    if (this.downloadOnlyPart[workID]) {
-      this.downloadOnlyPart[workID] = Array.from(
-        new Set(this.downloadOnlyPart[workID].concat(indexList))
-      )
-    } else {
-      this.downloadOnlyPart[workID] = indexList
-    }
-  }
-
   private readonly resultDefault: Result = {
     aiType: 0,
     idNum: 0,
@@ -116,9 +101,11 @@ class Store {
     sl: null,
   }
 
-  // 添加每个作品的数据。只需要传递有值的属性
-  // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
-  public addResult(data: ResultOptional) {
+  /** 添加每个作品的数据。只需要传递有值的属性
+   *
+   * 如果一个作品有多张图片，只需要传递第一张图片的数据。后续图片的数据会根据设置自动生成
+   */
+  public addResult(data: ResultOptional, requestedIndexList?: number[]) {
     // 检查该作品 id 是否已存在，已存在则不添加
     if (data.idNum !== undefined) {
       const useList = data.type === 3 ? this.novelIDList : this.artworkIDList
@@ -148,9 +135,8 @@ class Store {
       // 储存需要下载的图片的索引
       let indexList: number[] = []
       // 如果已经指定了只下载部分图片
-      if (this.downloadOnlyPart[meta.idNum]) {
-        indexList = this.downloadOnlyPart[meta.idNum]
-        delete this.downloadOnlyPart[meta.idNum]
+      if (requestedIndexList) {
+        indexList = requestedIndexList
       } else {
         // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分
         const pageCount = meta.pageCount

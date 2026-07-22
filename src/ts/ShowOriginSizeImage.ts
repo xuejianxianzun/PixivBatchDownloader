@@ -6,7 +6,6 @@ import { PreviewUgoira } from './PreviewUgoira'
 import { ArtworkData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
-import { store } from './store/Store'
 import { Config } from './Config'
 import { IDData } from './store/StoreType'
 import { copyWorkInfo } from './CopyWorkInfo'
@@ -467,9 +466,7 @@ class ShowOriginSizeImage {
     const idData: IDData = {
       type: 'illusts',
       id,
-    }
-    if (data.body.pageCount > 1) {
-      store.setDownloadOnlyPart(Number.parseInt(idData.id), [this.index])
+      downloadIndexes: data.body.pageCount > 1 ? [this.index] : undefined,
     }
     EVT.fire('crawlIdList', [idData])
   }
