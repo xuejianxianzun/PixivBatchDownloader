@@ -504,7 +504,7 @@ class Settings {
         value: 100,
         tip: '1 - 1000',
       },
-      [PageName.NewArtworkBookmark]: {
+      [PageName.NewArtworkFromFollowing]: {
         work: false,
         page: true,
         min: 1,
@@ -520,7 +520,7 @@ class Settings {
         value: 0,
         tip: '',
       },
-      [PageName.NewArtwork]: {
+      [PageName.NewArtworkFromAllUsers]: {
         work: true,
         page: false,
         min: 1,
@@ -560,7 +560,7 @@ class Settings {
         value: 100,
         tip: '1 - 100',
       },
-      [PageName.NewNovelBookmark]: {
+      [PageName.NewNovelFromFollowing]: {
         work: false,
         page: true,
         min: 1,
@@ -568,7 +568,7 @@ class Settings {
         value: 100,
         tip: '1 - 100',
       },
-      [PageName.NewNovel]: {
+      [PageName.NewNovelFromAllUsers]: {
         work: true,
         page: false,
         min: 1,
@@ -778,16 +778,16 @@ class Settings {
       [PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
       [PageName.Pixivision]: 'pixivision/{page_title}/{id}',
       [PageName.BookmarkDetail]: Config.defaultNameRuleForArtwork,
-      [PageName.NewArtworkBookmark]: Config.defaultNameRuleForArtwork,
+      [PageName.NewArtworkFromFollowing]: Config.defaultNameRuleForArtwork,
       [PageName.Discover]: Config.defaultNameRuleForArtwork,
-      [PageName.NewArtwork]: Config.defaultNameRuleForArtwork,
+      [PageName.NewArtworkFromAllUsers]: Config.defaultNameRuleForArtwork,
       [PageName.Novel]: Config.defaultNameRuleForArtwork,
       [PageName.NovelSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
       [PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-      [PageName.NewNovelBookmark]: Config.defaultNameRuleForArtwork,
-      [PageName.NewNovel]: Config.defaultNameRuleForArtwork,
+      [PageName.NewNovelFromFollowing]: Config.defaultNameRuleForArtwork,
+      [PageName.NewNovelFromAllUsers]: Config.defaultNameRuleForArtwork,
       [PageName.ArtworkSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
       [PageName.Following]: Config.defaultNameRuleForArtwork,
@@ -810,15 +810,15 @@ class Settings {
       [PageName.ArtworkRanking]: Config.defaultNameRuleForNovel,
       [PageName.Pixivision]: Config.defaultNameRuleForNovel,
       [PageName.BookmarkDetail]: Config.defaultNameRuleForNovel,
-      [PageName.NewArtworkBookmark]: Config.defaultNameRuleForNovel,
+      [PageName.NewArtworkFromFollowing]: Config.defaultNameRuleForNovel,
       [PageName.Discover]: Config.defaultNameRuleForNovel,
-      [PageName.NewArtwork]: Config.defaultNameRuleForNovel,
+      [PageName.NewArtworkFromAllUsers]: Config.defaultNameRuleForNovel,
       [PageName.Novel]: Config.defaultNameRuleForNovel,
       [PageName.NovelSeries]: Config.defaultNameRuleForNovel,
       [PageName.NovelSearch]: Config.defaultNameRuleForNovel,
       [PageName.NovelRanking]: Config.defaultNameRuleForNovel,
-      [PageName.NewNovelBookmark]: Config.defaultNameRuleForNovel,
-      [PageName.NewNovel]: Config.defaultNameRuleForNovel,
+      [PageName.NewNovelFromFollowing]: Config.defaultNameRuleForNovel,
+      [PageName.NewNovelFromAllUsers]: Config.defaultNameRuleForNovel,
       [PageName.ArtworkSeries]: Config.defaultNameRuleForNovel,
       [PageName.Following]: Config.defaultNameRuleForNovel,
       [PageName.Request]: Config.defaultNameRuleForNovel,
@@ -1421,7 +1421,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

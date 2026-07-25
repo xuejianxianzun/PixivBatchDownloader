@@ -1,6 +1,7 @@
 # base
 .DS_Store
 node_modules
+.workbuddy
 
 # Log files
 npm-debug.log*

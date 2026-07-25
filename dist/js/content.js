@@ -1775,7 +1775,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             }
             // 只在 大家的新作 页面里使用
             if (selector === 'li>div>div:first-child' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork) {
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers) {
                 continue;
             }
             // 只在 约稿 页面里使用
@@ -1805,7 +1805,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             if (selector === 'li[size="1"]' &&
                 (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork ||
-                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Bookmark)) {
                 continue;
             }
@@ -5736,15 +5736,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlArtworkPage_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./crawlArtworkPage/InitRankingArtworkPage */ "./src/ts/crawlArtworkPage/InitRankingArtworkPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./crawlArtworkPage/InitPixivisionPage */ "./src/ts/crawlArtworkPage/InitPixivisionPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./crawlArtworkPage/InitBookmarkDetailPage */ "./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts");
-/* harmony import */ var _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/InitBookmarkNewPage */ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts");
+/* harmony import */ var _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/InitNewWorksFromFollowingPage */ "./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlArtworkPage/InitDiscoverPage */ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts");
-/* harmony import */ var _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/InitNewArtworkPage */ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts");
+/* harmony import */ var _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/InitNewArtworkFromAllUsersPage */ "./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelPage */ "./src/ts/crawlNovelPage/InitNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
 /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./crawlNovelPage/InitSearchNovelPage */ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageOld */ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageNew */ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts");
-/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
+/* harmony import */ var _crawlNovelPage_InitNewNovelFromAllUsersPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelFromAllUsersPage */ "./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
 /* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
@@ -5810,12 +5810,12 @@ class InitPage {
                 return new _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_9__.InitPixivisionPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.BookmarkDetail:
                 return new _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_10__.InitBookmarkDetailPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark:
-                return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing:
+                return new _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__.InitNewWorksFromFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover:
                 return new _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__.InitDiscoverPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork:
-                return new _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
+                return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Novel:
                 return new _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__.InitNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSeries:
@@ -5828,10 +5828,10 @@ class InitPage {
                 return old
                     ? new _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPageOld()
                     : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelBookmark:
-                return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovel:
-                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelFromFollowing:
+                return new _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__.InitNewWorksFromFollowingPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelFromAllUsers:
+                return new _crawlNovelPage_InitNewNovelFromAllUsersPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSeries:
                 return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__.InitArtworkSeriesPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Following:
@@ -7246,11 +7246,11 @@ var PageName;
     /** 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
     /** 已关注用户的新作品 - 插画 */
-    PageName[PageName["NewArtworkBookmark"] = 10] = "NewArtworkBookmark";
+    PageName[PageName["NewArtworkFromFollowing"] = 10] = "NewArtworkFromFollowing";
     /** 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
     /** 大家的新作 - 插画 */
-    PageName[PageName["NewArtwork"] = 12] = "NewArtwork";
+    PageName[PageName["NewArtworkFromAllUsers"] = 12] = "NewArtworkFromAllUsers";
     /** 小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
     /** 小说系列作品目录页 */
@@ -7260,9 +7260,9 @@ var PageName;
     /** 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
     /** 已关注用户的新作品 - 小说 */
-    PageName[PageName["NewNovelBookmark"] = 17] = "NewNovelBookmark";
+    PageName[PageName["NewNovelFromFollowing"] = 17] = "NewNovelFromFollowing";
     /** 大家的新作 - 小说 */
-    PageName[PageName["NewNovel"] = 18] = "NewNovel";
+    PageName[PageName["NewNovelFromAllUsers"] = 18] = "NewNovelFromAllUsers";
     /** 插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
     /** 关注的用户 */
@@ -7353,7 +7353,7 @@ class PageType {
         else if (url.includes('/bookmark_new_illust.php') ||
             url.includes('/bookmark_new_illust_r18.php') ||
             url.includes('/mypixiv_new_illust.php')) {
-            return PageName.NewArtworkBookmark;
+            return PageName.NewArtworkFromFollowing;
         }
         else if (path === '/discovery' || path.startsWith('/novel/discovery')) {
             return PageName.Discover;
@@ -7363,7 +7363,7 @@ class PageType {
         }
         else if (url.includes('/new_illust.php') ||
             url.includes('/new_illust_r18.php')) {
-            return PageName.NewArtwork;
+            return PageName.NewArtworkFromAllUsers;
         }
         else if (path === '/novel/show.php') {
             return PageName.Novel;
@@ -7376,10 +7376,10 @@ class PageType {
         }
         else if (path.startsWith('/novel/bookmark_new') ||
             path.startsWith('/novel/mypixiv_new.php')) {
-            return PageName.NewNovelBookmark;
+            return PageName.NewNovelFromFollowing;
         }
         else if (path.startsWith('/novel/new')) {
-            return PageName.NewNovel;
+            return PageName.NewNovelFromAllUsers;
         }
         else if (path.startsWith('/user/') && path.includes('/series/')) {
             return PageName.ArtworkSeries;
@@ -7482,7 +7482,7 @@ class PageType {
                 url: 'https://www.pixiv.net/bookmark_detail.php?illust_id=63148723',
             },
             {
-                type: PageName.NewArtworkBookmark,
+                type: PageName.NewArtworkFromFollowing,
                 url: 'https://www.pixiv.net/bookmark_new_illust.php',
             },
             {
@@ -7490,7 +7490,7 @@ class PageType {
                 url: 'https://www.pixiv.net/discovery',
             },
             {
-                type: PageName.NewArtwork,
+                type: PageName.NewArtworkFromAllUsers,
                 url: 'https://www.pixiv.net/new_illust.php',
             },
             {
@@ -7518,11 +7518,11 @@ class PageType {
                 url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
             },
             {
-                type: PageName.NewNovelBookmark,
+                type: PageName.NewNovelFromFollowing,
                 url: 'https://www.pixiv.net/novel/bookmark_new.php',
             },
             {
-                type: PageName.NewNovel,
+                type: PageName.NewNovelFromAllUsers,
                 url: 'https://www.pixiv.net/novel/new.php',
             },
             {
@@ -10409,7 +10409,7 @@ class ShowLargerThumbnails {
             }
         }
         // 已关注用户的新作品
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromFollowing) {
             if (window.location.pathname.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
@@ -10431,7 +10431,7 @@ class ShowLargerThumbnails {
         }
         // 大家的新作
         // https://www.pixiv.net/new_illust.php
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromAllUsers) {
             if (window.location.pathname.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
@@ -11845,14 +11845,19 @@ class Tools {
     }
     /**从 url 里获取系列小说的 id。如果查找不到会返回空字符串 */
     // https://www.pixiv.net/novel/series/11721618
-    static getNovelSeriesId(url) {
-        const str = url || window.location.href;
+    static getNovelSeriesId(url = location.href) {
         let result = '';
-        const test = str.match(/novel\/series\/(\d*)?/);
+        const test = url.match(/novel\/series\/(\d*)?/);
         if (test && test.length > 1) {
             result = test[1];
         }
         return result;
+    }
+    /**从 pathname 里获取系列 id。如果查找不到会返回空字符串 */
+    // https://www.pixiv.net/novel/series/11721618
+    // https://www.pixiv.net/user/3698796/series/61267
+    static getSeriesId(path = location.pathname) {
+        return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(path, 'series');
     }
     /**从 DOM 元素中获取作品的 id
      *
@@ -12141,14 +12146,20 @@ class Tools {
         return result;
     }
     static getPageIdFromURL(url = location.href) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.BookmarkLegacy || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome ||
+            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.BookmarkLegacy ||
+            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark) {
             return this.getCurrentPageUserID();
         }
-        else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork) {
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork ||
+            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.BookmarkDetail) {
             return this.getIllustId(url);
         }
         else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel) {
             return this.getNovelId(url);
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.NovelSeries || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.ArtworkSeries) {
+            return this.getSeriesId(location.pathname);
         }
         return '';
     }
@@ -15827,14 +15838,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化插画/漫画的系列作品页面
+
 
 
 
@@ -15859,25 +15872,25 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     initAny() { }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type].value;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
     }
     nextStep() {
         // 设置起始页码
-        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLSearchField(location.href, 'p');
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 获取系列 id
-        this.seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'series');
+        this.seriesId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getSeriesId();
         this.getIdList();
     }
     async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         let p = this.startpageNo + this.listPageFinished;
         const data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getSeriesData(this.seriesId, p);
         this.listPageFinished++;
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         // 保存本页面的作品的 id 列表
@@ -15910,8 +15923,8 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 xRestrict: work.xRestrict,
             };
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
                     type: 'illusts',
                     id: work.id,
                 });
@@ -15923,12 +15936,12 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (endFlag ||
             p >= this.maxCount ||
             this.listPageFinished === this.crawlNumber) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
             this.getIdListFinished();
         }
         else {
             // 继续抓取
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
             this.getIdList();
         }
     }
@@ -16066,16 +16079,16 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
 
 /***/ }),
 
-/***/ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts":
-/*!*******************************************************!*\
-  !*** ./src/ts/crawlArtworkPage/InitNewArtworkPage.ts ***!
-  \*******************************************************/
+/***/ "./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts":
+/*!*******************************************************************!*\
+  !*** ./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts ***!
+  \*******************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitNewArtworkPage: () => (/* binding */ InitNewArtworkPage)
+/* harmony export */   InitNewArtworkFromAllUsersPage: () => (/* binding */ InitNewArtworkFromAllUsersPage)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
@@ -16100,7 +16113,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+class InitNewArtworkFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -17744,204 +17757,6 @@ const crawlTagList = new CrawlTagList();
 
 /***/ }),
 
-/***/ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts":
-/*!******************************************************!*\
-  !*** ./src/ts/crawlMixedPage/InitBookmarkNewPage.ts ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitBookmarkNewPage: () => (/* binding */ InitBookmarkNewPage)
-/* harmony export */ });
-/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
-// Premium 会员可以看到第 84 页
-
-
-
-
-
-
-
-
-
-
-
-class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    getIdListLogKey = 'crawlBookmarkNewPageProgress';
-    workType = 'illust';
-    /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
-    pageType = 'bookmark';
-    tag = '';
-    r18 = false;
-    // 这次抓取任务最多可以抓取到多少个作品
-    crawlWorksMaxNumber = 0;
-    // 裁剪 API 返回的作品数据时的偏移量
-    firstOffset = 0;
-    // 总计抓取了多少个作品（被裁剪掉的不算）
-    crawledWorksNumber = 0;
-    // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
-    // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
-    firstWorkId = '';
-    addCrawlBtns() {
-        this.addInitPageBtn('crawlBtns', '_开始抓取', '_默认下载多页', 'startCrawling', 'brand').addEventListener('click', () => {
-            this.readyCrawl();
-        });
-        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
-        this.addCancelTimedCrawlBtn();
-    }
-    initAny() { }
-    getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
-    }
-    nextStep() {
-        this.setSlowCrawl();
-        this.workType = window.location.pathname.includes('/novel')
-            ? 'novel'
-            : 'illust';
-        this.pageType = window.location.pathname.includes('/mypixiv')
-            ? 'mypixiv'
-            : 'bookmark';
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(window.location.href, 'tag');
-        this.r18 = location.pathname.includes('r18');
-        // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
-        this.crawlWorksMaxNumber = this.crawlNumber * 60;
-        // 设置 API 里发起请求的页数
-        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
-        const pageNo = parseInt(p) || 1;
-        this.startpageNo = pageNo;
-        this.getIdList();
-    }
-    async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
-            return this.getIdListFinished();
-        }
-        let p = this.startpageNo + this.listPageFinished;
-        let data;
-        try {
-            if (this.pageType === 'bookmark') {
-                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getBookmarkNewWorkData(this.workType, p, this.tag, this.r18);
-            }
-            else {
-                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivNewWorkData(this.workType, p);
-            }
-        }
-        catch (error) {
-            this.getIdList();
-            return;
-        }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
-            return this.getIdListFinished();
-        }
-        let worksData = data.body.thumbnails[this.workType];
-        // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
-        if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
-            return this.getIdListFinished();
-        }
-        else {
-            // 如果数据没有重复，则保存第一个作品的 id
-            this.firstWorkId = worksData[0].id;
-        }
-        this.crawledWorksNumber += worksData.length;
-        // 过滤作品
-        // 过滤插画·漫画
-        if (this.workType === 'illust') {
-            for (const data of worksData) {
-                if (data.isAdContainer) {
-                    continue;
-                }
-                const filterOpt = {
-                    aiType: data.aiType,
-                    id: data.id,
-                    isOriginal: data.isOriginal,
-                    width: data.pageCount === 1 ? data.width : 0,
-                    height: data.pageCount === 1 ? data.height : 0,
-                    pageCount: data.pageCount,
-                    bookmarkData: data.bookmarkData,
-                    workType: data.illustType,
-                    tags: data.tags,
-                    title: data.title,
-                    userId: data.userId,
-                    xRestrict: data.xRestrict,
-                };
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                        type: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeString(data.illustType),
-                        id: data.id,
-                    });
-                }
-            }
-        }
-        else {
-            // 过滤小说
-            for (const data of worksData) {
-                const filterOpt = {
-                    aiType: data.aiType,
-                    id: data.id,
-                    isOriginal: data.isOriginal,
-                    workType: 3,
-                    tags: data.tags,
-                    title: data.title,
-                    bookmarkCount: data.bookmarkCount,
-                    bookmarkData: data.bookmarkData,
-                    userId: data.userId,
-                };
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                        type: 'novels',
-                        id: data.id,
-                    });
-                }
-            }
-        }
-        this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
-        // 判断任务状态
-        // 如果抓取到了指定数量的作品，或者抓取到了最后一页，或者抓取完了指定的页面数量
-        if (this.crawledWorksNumber >= this.crawlWorksMaxNumber ||
-            p >= this.maxCount ||
-            this.listPageFinished === this.crawlNumber) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
-            this.getIdListFinished();
-        }
-        else {
-            // 继续抓取
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
-            }
-            this.getIdList();
-        }
-    }
-    resetGetIdListStatus() {
-        this.listPageFinished = 0;
-        this.firstOffset = 0;
-        this.crawledWorksNumber = 0;
-        this.firstWorkId = '';
-    }
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/crawlMixedPage/InitBookmarkPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitBookmarkPage.ts ***!
@@ -19279,6 +19094,204 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 
 /***/ }),
 
+/***/ "./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts":
+/*!****************************************************************!*\
+  !*** ./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitNewWorksFromFollowingPage: () => (/* binding */ InitNewWorksFromFollowingPage)
+/* harmony export */ });
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
+// Premium 会员可以看到第 84 页
+
+
+
+
+
+
+
+
+
+
+
+class InitNewWorksFromFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    getIdListLogKey = 'crawlBookmarkNewPageProgress';
+    workType = 'illust';
+    /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
+    pageType = 'bookmark';
+    tag = '';
+    r18 = false;
+    // 这次抓取任务最多可以抓取到多少个作品
+    crawlWorksMaxNumber = 0;
+    // 裁剪 API 返回的作品数据时的偏移量
+    firstOffset = 0;
+    // 总计抓取了多少个作品（被裁剪掉的不算）
+    crawledWorksNumber = 0;
+    // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
+    // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
+    firstWorkId = '';
+    addCrawlBtns() {
+        this.addInitPageBtn('crawlBtns', '_开始抓取', '_默认下载多页', 'startCrawling', 'brand').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
+    }
+    initAny() { }
+    getWantPage() {
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type].value;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
+    }
+    nextStep() {
+        this.setSlowCrawl();
+        this.workType = window.location.pathname.includes('/novel')
+            ? 'novel'
+            : 'illust';
+        this.pageType = window.location.pathname.includes('/mypixiv')
+            ? 'mypixiv'
+            : 'bookmark';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(window.location.href, 'tag');
+        this.r18 = location.pathname.includes('r18');
+        // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
+        this.crawlWorksMaxNumber = this.crawlNumber * 60;
+        // 设置 API 里发起请求的页数
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
+        const pageNo = parseInt(p) || 1;
+        this.startpageNo = pageNo;
+        this.getIdList();
+    }
+    async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        let p = this.startpageNo + this.listPageFinished;
+        let data;
+        try {
+            if (this.pageType === 'bookmark') {
+                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getBookmarkNewWorkData(this.workType, p, this.tag, this.r18);
+            }
+            else {
+                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivNewWorkData(this.workType, p);
+            }
+        }
+        catch (error) {
+            this.getIdList();
+            return;
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        let worksData = data.body.thumbnails[this.workType];
+        // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
+        if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
+            return this.getIdListFinished();
+        }
+        else {
+            // 如果数据没有重复，则保存第一个作品的 id
+            this.firstWorkId = worksData[0].id;
+        }
+        this.crawledWorksNumber += worksData.length;
+        // 过滤作品
+        // 过滤插画·漫画
+        if (this.workType === 'illust') {
+            for (const data of worksData) {
+                if (data.isAdContainer) {
+                    continue;
+                }
+                const filterOpt = {
+                    aiType: data.aiType,
+                    id: data.id,
+                    isOriginal: data.isOriginal,
+                    width: data.pageCount === 1 ? data.width : 0,
+                    height: data.pageCount === 1 ? data.height : 0,
+                    pageCount: data.pageCount,
+                    bookmarkData: data.bookmarkData,
+                    workType: data.illustType,
+                    tags: data.tags,
+                    title: data.title,
+                    userId: data.userId,
+                    xRestrict: data.xRestrict,
+                };
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeString(data.illustType),
+                        id: data.id,
+                    });
+                }
+            }
+        }
+        else {
+            // 过滤小说
+            for (const data of worksData) {
+                const filterOpt = {
+                    aiType: data.aiType,
+                    id: data.id,
+                    isOriginal: data.isOriginal,
+                    workType: 3,
+                    tags: data.tags,
+                    title: data.title,
+                    bookmarkCount: data.bookmarkCount,
+                    bookmarkData: data.bookmarkData,
+                    userId: data.userId,
+                };
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: 'novels',
+                        id: data.id,
+                    });
+                }
+            }
+        }
+        this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+        // 判断任务状态
+        // 如果抓取到了指定数量的作品，或者抓取到了最后一页，或者抓取完了指定的页面数量
+        if (this.crawledWorksNumber >= this.crawlWorksMaxNumber ||
+            p >= this.maxCount ||
+            this.listPageFinished === this.crawlNumber) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
+            this.getIdListFinished();
+        }
+        else {
+            // 继续抓取
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
+            }
+            this.getIdList();
+        }
+    }
+    resetGetIdListStatus() {
+        this.listPageFinished = 0;
+        this.firstOffset = 0;
+        this.crawledWorksNumber = 0;
+        this.firstWorkId = '';
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlMixedPage/InitUnlistedPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitUnlistedPage.ts ***!
@@ -20452,16 +20465,16 @@ const getNovelGlossarys = new GetNovelGlossarys();
 
 /***/ }),
 
-/***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts":
-/*!***************************************************!*\
-  !*** ./src/ts/crawlNovelPage/InitNewNovelPage.ts ***!
-  \***************************************************/
+/***/ "./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts":
+/*!***************************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts ***!
+  \***************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitNewNovelPage: () => (/* binding */ InitNewNovelPage)
+/* harmony export */   InitNewNovelFromAllUsersPage: () => (/* binding */ InitNewNovelFromAllUsersPage)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
@@ -20484,7 +20497,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+class InitNewNovelFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -20718,8 +20731,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 //初始化小说系列作品页面
@@ -20744,7 +20757,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     addAnyElement() {
         this.addInitPageBtn('crawlBtns', '_合并系列小说', '', 'mergeSeriesNovel', 'brand').addEventListener('click', async () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-            const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'series');
+            const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
             let seriseTitle = '';
             // 尝试获取系列标题
             const meta = document.querySelector('meta[property="twitter:title"]');
@@ -20759,8 +20772,8 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.getIdList();
     }
     async getIdList() {
-        const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'series');
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
+        const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.idList.push({
@@ -31851,12 +31864,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         'Заголовок страницы при начале сбора данных',
     ],
     _命名标记page_id: [
-        `开始抓取时的页面 ID。目前有两种输出：在用户主页和收藏页面里抓取时，输出该页面的用户 ID；在作品页面里抓取时，输出该页面的作品 ID。它的设计目的是用一个 ID 来归纳多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（唯一），而非每个作品自己的 ID。`,
-        `開始抓取時的頁面 ID。目前有兩種輸出：在用戶主頁和收藏頁面裡抓取時，輸出該頁面的用戶 ID；在作品頁面裡抓取時，輸出該頁面的作品 ID。它的設計目的是用一個 ID 來歸納多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（唯一），而非每個作品自己的 ID。`,
-        `The page ID when starting the scrape. There are currently two outputs: when scraping on the user homepage and bookmark page, it outputs the user ID of that page; when scraping on the work page, it outputs the work ID of that page. Its design purpose is to summarize multiple works with one ID. For example, when scraping related works on the work page, this marker will output the work ID of that page (unique), rather than each work's own ID.`,
-        `スクレイピング開始時のページ ID。現在、2つの出力があります：ユーザーのホームページとブックマークページでスクレイピングする場合、そのページのユーザー ID を出力します。作品ページでスクレイピングする場合、そのページの作品 ID を出力します。その設計目的は、1つの ID で複数の作品を要約することです。例えば、作品ページで関連作品をスクレイピングする場合、このマーカーはそのページの作品 ID（ユニーク）を出力し、各作品の ID ではありません。`,
-        `스크래핑 시작 시의 페이지 ID. 현재 두 가지 출력이 있습니다: 사용자 홈페이지와 북마크 페이지에서 스크래핑할 때 해당 페이지의 사용자 ID를 출력합니다. 작품 페이지에서 스크래핑할 때 해당 페이지의 작품 ID를 출력합니다. 설계 목적은 하나의 ID로 여러 작품을 요약하는 것입니다. 예를 들어, 작품 페이지에서 관련 작품을 스크래핑할 때 이 마커는 해당 페이지의 작품 ID(고유)를 출력하며, 각 작품의 ID는 출력하지 않습니다.`,
-        `ID страницы при начале сбора данных. В настоящее время есть два вывода: при сканировании на домашней странице пользователя и на странице закладок выводится идентификатор пользователя этой страницы; при сканировании на странице работы выводится идентификатор работы этой страницы. Его цель заключается в том, чтобы суммировать несколько работ с помощью одного идентификатора. Например, при сканировании связанных работ на странице работы этот маркер выведет идентификатор работы этой страницы (уникальный), а не идентификатор каждой работы.`,
+        `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里抓取时，输出该页面的作品 ID。2. 在用户主页和收藏页面里抓取时，输出该页面的用户 ID。3. 在系列页面里抓取时，输出系列 ID。`,
+        `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面抓取時，輸出該頁面的作品 ID。2. 在用戶主頁和收藏頁面抓取時，輸出該頁面的用戶 ID。3. 在系列頁面抓取時，輸出系列 ID。`,
+        `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. When crawling a work page, it outputs the work ID of that page. 2. When crawling a user's page or bookmark page, it outputs the user ID of that page. 3. When crawling a series page, it outputs the series ID.`,
+        `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページをクロールする場合、そのページの作品 ID を出力します。2. ユーザーページやブックマークページをクロールする場合、そのページのユーザー ID を出力します。3. シリーズページをクロールする場合、シリーズ ID を出力します。`,
+        `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지를 크롤링할 때 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지나 북마크 페이지를 크롤링할 때 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지를 크롤링할 때 시리즈 ID를 출력합니다.`,
+        `Идентификатор страницы при начале сбора данных. Он предназначен для объединения нескольких работ на странице с помощью идентификатора страницы. Например, при сборе связанных работ на странице работы этот токен выводит идентификатор работы на этой странице (он только один), а не идентификаторы отдельных работ (их несколько). Он имеет значение только в следующих случаях: 1. При сборе данных со страницы работы выводится идентификатор работы на этой странице. 2. При сборе данных со страницы пользователя или страницы закладок выводится идентификатор пользователя этой страницы. 3. При сборе данных со страницы серии выводится идентификатор серии.`,
     ],
     _预览文件名: [
         '预览文件名',
@@ -44724,6 +44737,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   namingRuleConfig: () => (/* binding */ namingRuleConfig)
 /* harmony export */ });
+/** 保存“图像作品的命名规则”的命名标记列表和说明文字，用于在提示区域里输出内容 */
 class NamingRuleConfig {
     namingConfig = [
         { name: '{id}', mayEmpty: false, help: '_命名标记id' },
@@ -47321,7 +47335,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 1000',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: {
                 work: false,
                 page: true,
                 min: 1,
@@ -47337,7 +47351,7 @@ class Settings {
                 value: 0,
                 tip: '',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: {
                 work: true,
                 page: false,
                 min: 1,
@@ -47377,7 +47391,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 100',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: {
                 work: false,
                 page: true,
                 min: 1,
@@ -47385,7 +47399,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 100',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: {
                 work: true,
                 page: false,
                 min: 1,
@@ -47593,15 +47607,15 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: 'pixivision/{page_title}/{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
@@ -47623,15 +47637,15 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
@@ -51709,7 +51723,7 @@ class Store {
     tag = '';
     /** 开始抓取时，储存页面此时的 title */
     title = '';
-    /** 开始抓取时，储存页面此时的 id（只有用户页面、收藏页面、作品页面里会有这个值） */
+    /** 开始抓取时，储存页面此时的 id（只有部分页面类型会有这个值） */
     pageId = '';
     /** 开始抓取时，储存页面此时的 URL */
     URLWhenCrawlStart = '';

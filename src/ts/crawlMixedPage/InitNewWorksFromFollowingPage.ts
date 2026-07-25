@@ -16,7 +16,7 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
-class InitBookmarkNewPage extends InitPageBase {
+class InitNewWorksFromFollowingPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -54,7 +54,7 @@ class InitBookmarkNewPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
@@ -210,4 +210,4 @@ class InitBookmarkNewPage extends InitPageBase {
     this.firstWorkId = ''
   }
 }
-export { InitBookmarkNewPage }
+export { InitNewWorksFromFollowingPage }

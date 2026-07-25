@@ -11,15 +11,15 @@ import { InitAreaRankingPage } from './crawlArtworkPage/InitAreaRankingPage'
 import { InitRankingArtworkPage } from './crawlArtworkPage/InitRankingArtworkPage'
 import { InitPixivisionPage } from './crawlArtworkPage/InitPixivisionPage'
 import { InitBookmarkDetailPage } from './crawlArtworkPage/InitBookmarkDetailPage'
-import { InitBookmarkNewPage } from './crawlMixedPage/InitBookmarkNewPage'
+import { InitNewWorksFromFollowingPage } from './crawlMixedPage/InitNewWorksFromFollowingPage'
 import { InitDiscoverPage } from './crawlArtworkPage/InitDiscoverPage'
-import { InitNewArtworkPage } from './crawlArtworkPage/InitNewArtworkPage'
+import { InitNewArtworkFromAllUsersPage } from './crawlArtworkPage/InitNewArtworkFromAllUsersPage'
 import { InitNovelPage } from './crawlNovelPage/InitNovelPage'
 import { InitNovelSeriesPage } from './crawlNovelPage/InitNovelSeriesPage'
 import { InitSearchNovelPage } from './crawlNovelPage/InitSearchNovelPage'
 import { InitRankingNovelPageOld } from './crawlNovelPage/InitRankingNovelPageOld'
 import { InitRankingNovelPageNew } from './crawlNovelPage/InitRankingNovelPageNew'
-import { InitNewNovelPage } from './crawlNovelPage/InitNewNovelPage'
+import { InitNewNovelFromAllUsersPage } from './crawlNovelPage/InitNewNovelFromAllUsersPage'
 import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
 import { InitUnsupportedPage } from './crawl/InitUnsupportedPage'
@@ -60,12 +60,12 @@ class InitPage {
         return new InitPixivisionPage()
       case pageType.list.BookmarkDetail:
         return new InitBookmarkDetailPage()
-      case pageType.list.NewArtworkBookmark:
-        return new InitBookmarkNewPage()
+      case pageType.list.NewArtworkFromFollowing:
+        return new InitNewWorksFromFollowingPage()
       case pageType.list.Discover:
         return new InitDiscoverPage()
-      case pageType.list.NewArtwork:
-        return new InitNewArtworkPage()
+      case pageType.list.NewArtworkFromAllUsers:
+        return new InitNewArtworkFromAllUsersPage()
       case pageType.list.Novel:
         return new InitNovelPage()
       case pageType.list.NovelSeries:
@@ -78,10 +78,10 @@ class InitPage {
         return old
           ? new InitRankingNovelPageOld()
           : new InitRankingNovelPageNew()
-      case pageType.list.NewNovelBookmark:
-        return new InitBookmarkNewPage()
-      case pageType.list.NewNovel:
-        return new InitNewNovelPage()
+      case pageType.list.NewNovelFromFollowing:
+        return new InitNewWorksFromFollowingPage()
+      case pageType.list.NewNovelFromAllUsers:
+        return new InitNewNovelFromAllUsersPage()
       case pageType.list.ArtworkSeries:
         return new InitArtworkSeriesPage()
       case pageType.list.Following:

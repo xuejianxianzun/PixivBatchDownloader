@@ -33,11 +33,11 @@ enum PageName {
   /** 收藏后的详情页面，现在基本不会用到 */
   BookmarkDetail,
   /** 已关注用户的新作品 - 插画 */
-  NewArtworkBookmark,
+  NewArtworkFromFollowing,
   /** 发现页面 */
   Discover,
   /** 大家的新作 - 插画 */
-  NewArtwork,
+  NewArtworkFromAllUsers,
   /** 小说详情页面 */
   Novel,
   /** 小说系列作品目录页 */
@@ -47,9 +47,9 @@ enum PageName {
   /** 小说排行榜 */
   NovelRanking,
   /** 已关注用户的新作品 - 小说 */
-  NewNovelBookmark,
+  NewNovelFromFollowing,
   /** 大家的新作 - 小说 */
-  NewNovel,
+  NewNovelFromAllUsers,
   /** 插画系列作品目录页 */
   ArtworkSeries,
   /** 关注的用户 */
@@ -147,7 +147,7 @@ class PageType {
       url.includes('/bookmark_new_illust_r18.php') ||
       url.includes('/mypixiv_new_illust.php')
     ) {
-      return PageName.NewArtworkBookmark
+      return PageName.NewArtworkFromFollowing
     } else if (path === '/discovery' || path.startsWith('/novel/discovery')) {
       return PageName.Discover
     } else if (path === '/discovery/users') {
@@ -156,7 +156,7 @@ class PageType {
       url.includes('/new_illust.php') ||
       url.includes('/new_illust_r18.php')
     ) {
-      return PageName.NewArtwork
+      return PageName.NewArtworkFromAllUsers
     } else if (path === '/novel/show.php') {
       return PageName.Novel
     } else if (path.startsWith('/novel/series/')) {
@@ -167,9 +167,9 @@ class PageType {
       path.startsWith('/novel/bookmark_new') ||
       path.startsWith('/novel/mypixiv_new.php')
     ) {
-      return PageName.NewNovelBookmark
+      return PageName.NewNovelFromFollowing
     } else if (path.startsWith('/novel/new')) {
-      return PageName.NewNovel
+      return PageName.NewNovelFromAllUsers
     } else if (path.startsWith('/user/') && path.includes('/series/')) {
       return PageName.ArtworkSeries
     } else if (path.startsWith('/request')) {
@@ -269,7 +269,7 @@ class PageType {
         url: 'https://www.pixiv.net/bookmark_detail.php?illust_id=63148723',
       },
       {
-        type: PageName.NewArtworkBookmark,
+        type: PageName.NewArtworkFromFollowing,
         url: 'https://www.pixiv.net/bookmark_new_illust.php',
       },
       {
@@ -277,7 +277,7 @@ class PageType {
         url: 'https://www.pixiv.net/discovery',
       },
       {
-        type: PageName.NewArtwork,
+        type: PageName.NewArtworkFromAllUsers,
         url: 'https://www.pixiv.net/new_illust.php',
       },
       {
@@ -305,11 +305,11 @@ class PageType {
         url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
       },
       {
-        type: PageName.NewNovelBookmark,
+        type: PageName.NewNovelFromFollowing,
         url: 'https://www.pixiv.net/novel/bookmark_new.php',
       },
       {
-        type: PageName.NewNovel,
+        type: PageName.NewNovelFromAllUsers,
         url: 'https://www.pixiv.net/novel/new.php',
       },
       {

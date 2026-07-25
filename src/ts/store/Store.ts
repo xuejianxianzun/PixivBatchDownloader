@@ -56,7 +56,7 @@ class Store {
   public tag = ''
   /** 开始抓取时，储存页面此时的 title */
   public title = ''
-  /** 开始抓取时，储存页面此时的 id（只有用户页面、收藏页面、作品页面里会有这个值） */
+  /** 开始抓取时，储存页面此时的 id（只有部分页面类型会有这个值） */
   public pageId = ''
   /** 开始抓取时，储存页面此时的 URL */
   public URLWhenCrawlStart = ''

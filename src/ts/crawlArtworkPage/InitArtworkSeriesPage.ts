@@ -46,7 +46,7 @@ class InitArtworkSeriesPage extends InitPageBase {
     this.startpageNo = parseInt(p) || 1
 
     // 获取系列 id
-    this.seriesId = Utils.getURLPathField(window.location.pathname, 'series')
+    this.seriesId = Tools.getSeriesId()
 
     this.getIdList()
   }

@@ -1,19 +1,19 @@
-// 初始化 本站的最新作品 小说页面
+// 初始化 本站的最新作品 artwork 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
-import { NewIllustOption } from '../crawl/CrawlArgument.d'
-import { NewNovelData } from '../crawl/CrawlResult.d'
+import { NewIllustOption } from '../crawl/CrawlArgument'
+import { NewIllustData } from '../crawl/CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
-import { Utils } from '../utils/Utils'
 
-class InitNewNovelPage extends InitPageBase {
+class InitNewArtworkFromAllUsersPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -40,7 +40,7 @@ class InitNewNovelPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
@@ -72,6 +72,9 @@ class InitNewNovelPage extends InitPageBase {
       this.option.limit = this.limitMax.toString()
     }
 
+    // 当前页面的作品类型，默认是 illust
+    this.option.type =
+      Utils.getURLSearchField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }
@@ -81,9 +84,9 @@ class InitNewNovelPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    let data: NewNovelData
+    let data: NewIllustData
     try {
-      data = await API.getNewNovelData(this.option)
+      data = await API.getNewIllustData(this.option)
     } catch (error) {
       this.getIdList()
       return
@@ -93,7 +96,7 @@ class InitNewNovelPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    let useData = data.body.novels
+    let useData = data.body.illusts
 
     for (const nowData of useData) {
       // 抓取够了指定的数量
@@ -103,13 +106,20 @@ class InitNewNovelPage extends InitPageBase {
         this.fetchCount++
       }
 
+      // 排除广告信息
+      if (nowData.isAdContainer) {
+        continue
+      }
+
       const filterOpt: FilterOption = {
         aiType: nowData.aiType,
         id: nowData.id,
         isOriginal: nowData.isOriginal,
+        width: nowData.pageCount === 1 ? nowData.width : 0,
+        height: nowData.pageCount === 1 ? nowData.height : 0,
+        pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
-        bookmarkCount: nowData.bookmarkCount,
-        workType: 3,
+        workType: nowData.illustType,
         tags: nowData.tags,
         title: nowData.title,
         userId: nowData.userId,
@@ -119,7 +129,7 @@ class InitNewNovelPage extends InitPageBase {
 
       if (await filter.check(filterOpt)) {
         store.idList.push({
-          type: 'novels',
+          type: Tools.getWorkTypeString(nowData.illustType),
           id: nowData.id,
         })
       }
@@ -127,7 +137,7 @@ class InitNewNovelPage extends InitPageBase {
 
     log.log(
       lang.transl('_新作品进度', this.fetchCount.toString()),
-      'initNewNovelPageFetchProgress'
+      'initNewArtworkPageFetchProgress'
     )
 
     // 抓取完毕
@@ -152,4 +162,4 @@ class InitNewNovelPage extends InitPageBase {
     this.fetchCount = 0
   }
 }
-export { InitNewNovelPage }
+export { InitNewArtworkFromAllUsersPage }
