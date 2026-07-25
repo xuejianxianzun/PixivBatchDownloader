@@ -4382,7 +4382,7 @@ class FileName {
             parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.handleWindowsReservedName(parts[i], this.addStr);
         }
         // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
-        string = parts.filter(part => part !== '').join('/');
+        string = parts.filter((part) => part !== '').join('/');
         return string;
     }
     // 文件名超长的一种测试情况：
@@ -10089,6 +10089,10 @@ class ShowBorderOnDownloadedWorks {
       border-radius: 8px;           /* 有些元素本来就有 8px 的圆角，有些没有。这里统一设置为 8px */
       overflow: visible !important; /* 尽量让伪元素可见 */
       z-index: 1;
+    }
+    /* 在书签页面里，把层级设置为 0, 否则会遮挡住作品缩略图左下角的铅笔（编辑）图标，使其无法点击 */
+    body[data-page-type='4'] .${this.className} {
+      z-index: 0;
     }
 
     .${this.className}::after {

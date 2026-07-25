@@ -203,6 +203,10 @@ class ShowBorderOnDownloadedWorks {
       overflow: visible !important; /* 尽量让伪元素可见 */
       z-index: 1;
     }
+    /* 在书签页面里，把层级设置为 0, 否则会遮挡住作品缩略图左下角的铅笔（编辑）图标，使其无法点击 */
+    body[data-page-type='4'] .${this.className} {
+      z-index: 0;
+    }
 
     .${this.className}::after {
       content: '';

@@ -35,6 +35,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/659
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/661
 
+### 🐞修复问题：在书签页面里，当启用了“在下载过的作品上显示边框”时，会遮挡住作品左下角的铅笔（编辑）图标
+
+为了让边框不会被其他元素遮挡，我给它设置了 `z-index: 1;`，但这导致了在书签页面里，会遮挡住铅笔图标，导致用户无法点击这个图标。
+
+在此页面里把边框的层级设置为 `0` 解决了这个问题。
+
 ## 19.1.1 2026-07-18
 
 ### 🐞修复问题：在收藏页面里，“取消收藏所有已被删除的作品”功能会错误的取消收藏正常的作品
