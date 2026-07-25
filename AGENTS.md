@@ -52,11 +52,11 @@
 
 ### 下载
 
-抓取完毕后，`src/ts/download/DownloadControl.ts` 会执行 `readyDownload` 方法来准备下载。它负责掌控整个下载流程，本身不下载文件。
+抓取完成后，`src/ts/download/DownloadControl.ts` 会执行 `readyDownload` 方法来准备下载。这个模块负责掌控整个下载流程，本身不下载文件。
 
 主要的下载流程：
 - `DownloadControl` 模块把单个抓取结果发送给 `src/ts/download/Download.ts` 进行下载。
-- `Download` 模块可能会使用抓取结果直接生成文件，也可能使用 `Fetch` API 从网络下载文件，然后使用 `browser.runtime.sendMessage` 发送消息给后台脚本 `src/ts/serviceWorker/background.ts`。
+- `Download` 模块可能会使用抓取结果直接生成文件，也可能使用 `Fetch` API 从网络下载文件。当文件内容准备好之后，使用 `browser.runtime.sendMessage` 发送消息给后台脚本 `src/ts/serviceWorker/background.ts`。
 - 后台脚本 `background` 收到消息后会调用浏览器的 downloads API 保存文件，并把文件保存成功或失败后的消息通过 `browser.tabs.sendMessage` 发送给建立下载任务的标签页。
 - 对应标签页里的 `DownloadControl` 模块接收到保存成功或失败的消息，更新下载进度，并开始下载下一个抓取结果。
 
@@ -118,6 +118,7 @@
 - 先搜索再改：本仓库功能多、历史久，重复实现的风险高。
 - 遇到修改抓取流程、下载流程、合并小说、命名规则等需求时，优先检查相邻模块。
 - 翻译 i18n 语句时（即修改 `src/ts/langText.ts` 里的文本时），需要遵守翻译规则：`notes/翻译多语言文本的 prompt.md`
+- 每轮对话结束后，如果这轮对话修改了 *.ts 文件，就执行 `npm run ts` 进行编译。
 - review 时忽略编译产物，即 `dist/` 目录里的文件。 
 
 ## Windows 约束

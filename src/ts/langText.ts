@@ -6946,60 +6946,66 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息<br>
-<span class="blue">Esc</span> 关闭预览图<br>
+<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>
 <span class="blue">← ↑</span> 上一张图片<br>
 <span class="blue">→ ↓</span> 下一张图片<br>
-<span class="blue">空格键</span> 下一张图片`,
+<span class="blue">空格键</span> 下一张图片<br>
+你可以随时在“预览作品”设置里查看这个快捷键列表`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
 當你查看預覽圖時，可以使用如下快捷鍵：<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊<br>
-<span class="blue">Esc</span> 關閉預覽圖<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點選滑鼠左鍵也可以關閉預覽圖<br>
 <span class="blue">← ↑</span> 上一張圖片<br>
 <span class="blue">→ ↓</span> 下一張圖片<br>
-<span class="blue">空格鍵</span> 下一張圖片`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> Toggle preview work function on/off<br>
-When viewing the preview image, you can use the following shortcut keys:<br>
+<span class="blue">空格鍵</span> 下一張圖片<br>
+你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
+When you view the preview image, you can use the following keyboard shortcuts:<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
-<span class="blue">C</span>(urrent) Download the currently previewed image (if the work has multiple images, only the current one will be downloaded)<br>
-<span class="blue">D</span>(ownload) Download the currently previewed work (if the work has multiple images, all will be downloaded by default)<br>
+<span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information<br>
-<span class="blue">Esc</span> Close the preview image<br>
+<span class="blue">Esc</span> Close the preview image. You can also close it by left-clicking the preview image<br>
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
-<span class="blue">Spacebar</span> Next image`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能のオン/オフ<br>
-プレビュー画像を表示しているときに、以下のショートカットキーを使用できます：<br>
+<span class="blue">Spacebar</span> Next image<br>
+You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
+プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
-<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（作品に複数の画像がある場合、現在表示中のものだけがダウンロードされます）<br>
-<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードされます）<br>
+<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
+<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー<br>
-<span class="blue">Esc</span> プレビュー画像を閉じる<br>
+<span class="blue">Esc</span> プレビュー画像を閉じる。また、プレビュー画像を左クリックしても閉じられます<br>
 <span class="blue">← ↑</span> 前の画像<br>
 <span class="blue">→ ↓</span> 次の画像<br>
-<span class="blue">スペースキー</span> 次の画像`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 끄기/켜기<br>
-미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다:<br>
-<span class="blue">B</span>(ookmark) 미리보기 중인 작품을 북마크<br>
-<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지를 다운로드 (작품에 여러 이미지가 있으면 현재 이 하나만 다운로드)<br>
-<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품을 다운로드 (작품에 여러 이미지가 있으면 기본적으로 모두 다운로드)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기<br>
+<span class="blue">スペースバー</span> 次の画像<br>
+「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
+미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
+<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
+<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫을 수 있습니다<br>
 <span class="blue">← ↑</span> 이전 이미지<br>
 <span class="blue">→ ↓</span> 다음 이미지<br>
-<span class="blue">스페이스바</span> 다음 이미지`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> Включить/выключить функцию предпросмотра работы<br>
-При просмотре изображения предпросмотра вы можете использовать следующие комбинации клавиш:<br>
-<span class="blue">B</span>(ookmark) Добавить предпросматриваемую работу в закладки<br>
-<span class="blue">C</span>(urrent) Скачать изображение текущего предпросмотра (если в работе несколько изображений, будет скачано только текущее)<br>
-<span class="blue">D</span>(ownload) Скачать работу текущего предпросмотра (если в работе несколько изображений, по умолчанию все будут скачаны)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе<br>
-<span class="blue">Esc</span> Закрыть изображение предпросмотра<br>
+<span class="blue">스페이스바</span> 다음 이미지<br>
+「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
+Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+<span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее просматриваемое изображение и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть предварительный просмотр. Кроме того, закрыть его можно также нажав левую кнопку мыши на изображении<br>
 <span class="blue">← ↑</span> Предыдущее изображение<br>
 <span class="blue">→ ↓</span> Следующее изображение<br>
-<span class="blue">Пробел</span> Следующее изображение`,
+<span class="blue">Пробел</span> Следующее изображение<br>
+Вы можете в любой момент просмотреть этот список сочетаний клавиш в настройках «Предварительный просмотр работы»`,
   ],
   _导出收藏列表: [
     '导出收藏列表（JSON）',
@@ -8080,6 +8086,14 @@ If you want to use this feature, please note:
 <br>
 - Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
 <br>`,
+  ],
+  _提示如果你启用了这个设置下载器不会创建文件夹: [
+    `如果你启用了这个设置，下载器不会创建文件夹。`,
+    `如果你啟用了這個設置，下載器不會創建文件夾。`,
+    `If you enable this setting, the downloader will not create folders.`,
+    `この設定を有効にすると、ダウンロードツールはフォルダを作成しません。`,
+    `이 설정을 활성화하면 다운로더는 폴더를 생성하지 않습니다.`,
+    `Если вы включите эту настройку, загрузчик не будет создавать папки.`,
   ],
   _下载器排除了一些作品原因: [
     `🚫下载器排除了一些作品，原因: `,

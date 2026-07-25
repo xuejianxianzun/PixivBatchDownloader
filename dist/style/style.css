@@ -1809,6 +1809,7 @@ body.mobile #quickCrawlBtn {
   grid-column: 1 / -1;
   display: flex;
   align-items: flex-start;
+  flex-grow: 1;
   gap: 8px;
   margin-top: 15px;
   padding: 9px 12px;
@@ -4053,6 +4054,7 @@ iframe[name='expandedFooter'] {
 }
 .flexBasis100 {
   flex-basis: 100%;
+  flex-grow: 1;
 }
 .nowrap {
   flex-wrap: nowrap;
