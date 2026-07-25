@@ -671,7 +671,8 @@ class FileName {
       parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
     }
 
-    string = parts.join('/')
+    // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
+    string = parts.filter(part => part !== '').join('/')
     return string
   }
 

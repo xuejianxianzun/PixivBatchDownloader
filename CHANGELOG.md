@@ -27,6 +27,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/661
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/659
 
+### 🐞修复问题：在某个特定的文件名非法的情况里，没有把文件名处理为合法文件名，导致文件保存失败
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/661
+
 ## 19.1.1 2026-07-18
 
 ### 🐞修复问题：在收藏页面里，“取消收藏所有已被删除的作品”功能会错误的取消收藏正常的作品
