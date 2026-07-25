@@ -43,6 +43,10 @@ class FileName {
         value: store.title,
         safe: false,
       },
+      '{page_id}': {
+        value: store.pageId,
+        safe: true,
+      },
       '{p_tag}': {
         value: store.tag ? this.handleTagsRule([store.tag]) : '',
         safe: false,

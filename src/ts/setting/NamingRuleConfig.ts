@@ -4,6 +4,7 @@ type ConfigItem = {
   help: string
 }
 
+/** 保存“图像作品的命名规则”的命名标记列表和说明文字，用于在提示区域里输出内容 */
 class NamingRuleConfig {
   private readonly namingConfig: ConfigItem[] = [
     { name: '{id}', mayEmpty: false, help: '_命名标记id' },
@@ -13,6 +14,7 @@ class NamingRuleConfig {
     { name: '{user_id}', mayEmpty: false, help: '_用户id' },
     { name: '{title}', mayEmpty: false, help: '_命名标记title' },
     { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+    { name: '{page_id}', mayEmpty: true, help: '_命名标记page_id' },
     { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
     { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },
     {

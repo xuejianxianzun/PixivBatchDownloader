@@ -46,7 +46,7 @@ enum PageName {
   NovelSearch,
   /** 小说排行榜 */
   NovelRanking,
-  /** 已关注用户的心作品 - 小说 */
+  /** 已关注用户的新作品 - 小说 */
   NewNovelBookmark,
   /** 大家的新作 - 小说 */
   NewNovel,

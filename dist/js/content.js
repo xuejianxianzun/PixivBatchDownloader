@@ -3829,6 +3829,10 @@ class FileName {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
             },
+            '{page_id}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.pageId,
+                safe: true,
+            },
             '{p_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag ? this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]) : '',
                 safe: false,
@@ -7255,7 +7259,7 @@ var PageName;
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
     /** 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
-    /** 已关注用户的心作品 - 小说 */
+    /** 已关注用户的新作品 - 小说 */
     PageName[PageName["NewNovelBookmark"] = 17] = "NewNovelBookmark";
     /** 大家的新作 - 小说 */
     PageName[PageName["NewNovel"] = 18] = "NewNovel";
@@ -12135,6 +12139,18 @@ class Tools {
             .replace(/\[pixiv\] \d+ /, '[pixiv] ')
             .replace(/\d+ \[pixiv\]/, '[pixiv]');
         return result;
+    }
+    static getPageIdFromURL(url = location.href) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.BookmarkLegacy || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark) {
+            return this.getCurrentPageUserID();
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork) {
+            return this.getIllustId(url);
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel) {
+            return this.getNovelId(url);
+        }
+        return '';
     }
     // 自定义的类型保护
     /**判断 Tags 类型 */
@@ -31834,6 +31850,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         '페이지 스크래핑 시작 시의 페이지 제목',
         'Заголовок страницы при начале сбора данных',
     ],
+    _命名标记page_id: [
+        `开始抓取时的页面 ID。目前有两种输出：在用户主页和收藏页面里抓取时，输出该页面的用户 ID；在作品页面里抓取时，输出该页面的作品 ID。它的设计目的是用一个 ID 来归纳多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（唯一），而非每个作品自己的 ID。`,
+        `開始抓取時的頁面 ID。目前有兩種輸出：在用戶主頁和收藏頁面裡抓取時，輸出該頁面的用戶 ID；在作品頁面裡抓取時，輸出該頁面的作品 ID。它的設計目的是用一個 ID 來歸納多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（唯一），而非每個作品自己的 ID。`,
+        `The page ID when starting the scrape. There are currently two outputs: when scraping on the user homepage and bookmark page, it outputs the user ID of that page; when scraping on the work page, it outputs the work ID of that page. Its design purpose is to summarize multiple works with one ID. For example, when scraping related works on the work page, this marker will output the work ID of that page (unique), rather than each work's own ID.`,
+        `スクレイピング開始時のページ ID。現在、2つの出力があります：ユーザーのホームページとブックマークページでスクレイピングする場合、そのページのユーザー ID を出力します。作品ページでスクレイピングする場合、そのページの作品 ID を出力します。その設計目的は、1つの ID で複数の作品を要約することです。例えば、作品ページで関連作品をスクレイピングする場合、このマーカーはそのページの作品 ID（ユニーク）を出力し、各作品の ID ではありません。`,
+        `스크래핑 시작 시의 페이지 ID. 현재 두 가지 출력이 있습니다: 사용자 홈페이지와 북마크 페이지에서 스크래핑할 때 해당 페이지의 사용자 ID를 출력합니다. 작품 페이지에서 스크래핑할 때 해당 페이지의 작품 ID를 출력합니다. 설계 목적은 하나의 ID로 여러 작품을 요약하는 것입니다. 예를 들어, 작품 페이지에서 관련 작품을 스크래핑할 때 이 마커는 해당 페이지의 작품 ID(고유)를 출력하며, 각 작품의 ID는 출력하지 않습니다.`,
+        `ID страницы при начале сбора данных. В настоящее время есть два вывода: при сканировании на домашней странице пользователя и на странице закладок выводится идентификатор пользователя этой страницы; при сканировании на странице работы выводится идентификатор работы этой страницы. Его цель заключается в том, чтобы суммировать несколько работ с помощью одного идентификатора. Например, при сканировании связанных работ на странице работы этот маркер выведет идентификатор работы этой страницы (уникальный), а не идентификатор каждой работы.`,
+    ],
     _预览文件名: [
         '预览文件名',
         '預覽檔案名稱',
@@ -44709,6 +44733,7 @@ class NamingRuleConfig {
         { name: '{user_id}', mayEmpty: false, help: '_用户id' },
         { name: '{title}', mayEmpty: false, help: '_命名标记title' },
         { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+        { name: '{page_id}', mayEmpty: true, help: '_命名标记page_id' },
         { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
         { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },
         {
@@ -51684,6 +51709,8 @@ class Store {
     tag = '';
     /** 开始抓取时，储存页面此时的 title */
     title = '';
+    /** 开始抓取时，储存页面此时的 id（只有用户页面、收藏页面、作品页面里会有这个值） */
+    pageId = '';
     /** 开始抓取时，储存页面此时的 URL */
     URLWhenCrawlStart = '';
     /** 抓取完成的时间 */
@@ -51815,6 +51842,7 @@ class Store {
         this.remainingDownload = 0;
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
+        this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageIdFromURL();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
@@ -51828,6 +51856,7 @@ class Store {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resume, () => {
             this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
             this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
+            this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageIdFromURL();
         });
     }
 }

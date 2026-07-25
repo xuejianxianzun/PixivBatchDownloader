@@ -507,6 +507,22 @@ class Tools {
     return result
   }
 
+  static getPageIdFromURL(url: string = location.href) {
+    if (
+      pageType.type === pageType.list.UserHome ||
+      pageType.type === pageType.list.BookmarkLegacy ||
+      pageType.type === pageType.list.Bookmark
+    ) {
+      return this.getCurrentPageUserID()
+    } else if (pageType.type === pageType.list.Artwork) {
+      return this.getIllustId(url)
+    } else if (pageType.type === pageType.list.Novel) {
+      return this.getNovelId(url)
+    }
+
+    return ''
+  }
+
   // 自定义的类型保护
   /**判断 Tags 类型 */
   static isArtworkTags(
