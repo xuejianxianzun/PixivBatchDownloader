@@ -6,8 +6,8 @@
 
 - 项目名称：Powerful Pixiv Downloader
 - 类型：浏览器扩展
-- 主要功能：批量下载 Pixiv 的插画、漫画、动图、小说，并提供筛选、命名、预览、断点续传、导出等功能
-- 主要技术栈：TypeScript、Webpack、Less、WebExtension API
+- 主要功能：批量抓取然后下载 Pixiv 的插画、漫画、动图、小说，并提供在抓取时筛选作品、下载文件时重命名、断点续传、导出抓取结果、增强浏览 Pixiv.net 时的体验等功能
+- 主要技术栈：TypeScript、WebExtension API、Less、Webpack
 - GitHub 主页：https://github.com/xuejianxianzun/PixivBatchDownloader
 
 ## 目录与入口

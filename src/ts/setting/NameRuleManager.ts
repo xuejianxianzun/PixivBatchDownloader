@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
+import { toast } from '../Toast'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting } from './Settings'
@@ -102,7 +103,9 @@ class NameRuleManager {
 
     if (!check) {
       window.setTimeout(() => {
-        msgBox.error(lang.transl('_命名规则一定要包含id'))
+        toast.warning(lang.transl('_命名规则一定要包含id'), {
+          stay: 3000,
+        })
       }, 300)
     } else {
       // 检查通过，替换特殊字符

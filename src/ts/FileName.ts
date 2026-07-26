@@ -43,6 +43,10 @@ class FileName {
         value: store.title,
         safe: false,
       },
+      '{page_type}': {
+        value: store.pageType,
+        safe: true,
+      },
       '{page_id}': {
         value: store.pageId,
         safe: true,

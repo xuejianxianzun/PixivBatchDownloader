@@ -54,7 +54,7 @@ class InitNewWorksFromFollowingPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

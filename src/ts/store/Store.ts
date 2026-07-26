@@ -1,5 +1,6 @@
 import { EVT } from '../EVT'
 import { checkIndexForMultiImageWork } from '../filter/CheckIndexForMultiImageWork'
+import { pageType } from '../PageType'
 import { Tools } from '../Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
@@ -58,6 +59,8 @@ class Store {
   public title = ''
   /** 开始抓取时，储存页面此时的 id（只有部分页面类型会有这个值） */
   public pageId = ''
+  /** 开始抓取时，储存页面此时的类型的字面量，如 Artwork、UserHome */
+  public pageType = ''
   /** 开始抓取时，储存页面此时的 URL */
   public URLWhenCrawlStart = ''
   /** 抓取完成的时间 */
@@ -197,6 +200,7 @@ class Store {
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
     this.pageId = Tools.getPageIdFromURL()
+    this.pageType = pageType.list[pageType.type]
   }
 
   private bindEvents() {
@@ -214,6 +218,7 @@ class Store {
       this.tag = Tools.getTagFromURL()
       this.title = Tools.getPageTitle()
       this.pageId = Tools.getPageIdFromURL()
+      this.pageType = pageType.list[pageType.type]
     })
   }
 }

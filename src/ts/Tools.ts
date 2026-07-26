@@ -517,15 +517,21 @@ class Tools {
     if (
       pageType.type === pageType.list.UserHome ||
       pageType.type === pageType.list.BookmarkLegacy ||
-      pageType.type === pageType.list.Bookmark
+      pageType.type === pageType.list.Bookmark ||
+      pageType.type === pageType.list.Following
     ) {
       return this.getCurrentPageUserID()
-    } else if (pageType.type === pageType.list.Artwork ||
-      pageType.type === pageType.list.BookmarkDetail) {
+    } else if (
+      pageType.type === pageType.list.Artwork ||
+      pageType.type === pageType.list.BookmarkDetail
+    ) {
       return this.getIllustId(url)
     } else if (pageType.type === pageType.list.Novel) {
       return this.getNovelId(url)
-    } else if (pageType.type === pageType.list.NovelSeries || pageType.type === pageType.list.ArtworkSeries) {
+    } else if (
+      pageType.type === pageType.list.NovelSeries ||
+      pageType.type === pageType.list.ArtworkSeries
+    ) {
       return this.getSeriesId(location.pathname)
     }
 

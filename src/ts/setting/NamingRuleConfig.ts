@@ -14,6 +14,7 @@ class NamingRuleConfig {
     { name: '{user_id}', mayEmpty: false, help: '_用户id' },
     { name: '{title}', mayEmpty: false, help: '_命名标记title' },
     { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+    { name: '{page_type}', mayEmpty: false, help: '_命名标记page_type' },
     { name: '{page_id}', mayEmpty: true, help: '_命名标记page_id' },
     { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
     { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },

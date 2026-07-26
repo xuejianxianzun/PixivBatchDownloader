@@ -3829,6 +3829,10 @@ class FileName {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
             },
+            '{page_type}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.pageType,
+                safe: true,
+            },
             '{page_id}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.pageId,
                 safe: true,
@@ -7217,7 +7221,7 @@ __webpack_require__.r(__webpack_exports__);
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
-// 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
+// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
 var PageName;
 (function (PageName) {
     /** 不支持的页面 */
@@ -12148,7 +12152,8 @@ class Tools {
     static getPageIdFromURL(url = location.href) {
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome ||
             _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.BookmarkLegacy ||
-            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark) {
+            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark ||
+            _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Following) {
             return this.getCurrentPageUserID();
         }
         else if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork ||
@@ -31858,18 +31863,26 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     _命名标记page_title: [
         '开始抓取时的页面标题',
         '開始抓取時的頁面標題',
-        'Page title when starting the scrape',
-        'スクレイピング開始時のページタイトル',
-        '페이지 스크래핑 시작 시의 페이지 제목',
+        'Page title when starting the crawl',
+        'クロール開始時のページタイトル',
+        '크롤링 시작 시 페이지 제목',
         'Заголовок страницы при начале сбора данных',
     ],
+    _命名标记page_type: [
+        `开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但类型名称都是 <span class="blue">Home</span>。`,
+        `開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，共有二十多種。有時分類比較籠統，例如首頁有插畫、漫畫、小說等子分類，但類型名稱都是 <span class="blue">Home</span>。`,
+        `Page type name when starting the crawl, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, and <span class="blue">Bookmark</span>. These are page types categorized internally by the downloader, and there are more than twenty of them. Sometimes the categories are broad; for example, the home page has subcategories such as illustrations, manga, and novels, but the type name for all of them is <span class="blue">Home</span>.`,
+        `クロール開始時のページの種類の名前。例：<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。ダウンローダーが内部で分類しているページの種類で、20種類以上あります。分類が比較的大まかな場合もあります。例えば、ホームページにはイラスト、漫画、小説などのサブカテゴリがありますが、種類の名前はすべて <span class="blue">Home</span> です。`,
+        `크롤링 시작 시 페이지 유형 이름입니다. 예: <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. 다운로더가 내부적으로 분류한 페이지 유형이며, 20가지가 넘습니다. 분류가 다소 포괄적인 경우도 있습니다. 예를 들어 홈페이지에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 유형 이름은 모두 <span class="blue">Home</span>입니다.`,
+        `Название типа страницы при начале сбора данных, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span> и <span class="blue">Bookmark</span>. Это типы страниц, классифицированные загрузчиком внутри программы; всего их более двадцати. Иногда классификация довольно общая. Например, на главной странице есть подкатегории иллюстраций, манги и новелл, но название типа для всех них — <span class="blue">Home</span>.`,
+    ],
     _命名标记page_id: [
-        `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里抓取时，输出该页面的作品 ID。2. 在用户主页和收藏页面里抓取时，输出该页面的用户 ID。3. 在系列页面里抓取时，输出系列 ID。`,
-        `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面抓取時，輸出該頁面的作品 ID。2. 在用戶主頁和收藏頁面抓取時，輸出該頁面的用戶 ID。3. 在系列頁面抓取時，輸出系列 ID。`,
-        `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. When crawling a work page, it outputs the work ID of that page. 2. When crawling a user's page or bookmark page, it outputs the user ID of that page. 3. When crawling a series page, it outputs the series ID.`,
-        `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページをクロールする場合、そのページの作品 ID を出力します。2. ユーザーページやブックマークページをクロールする場合、そのページのユーザー ID を出力します。3. シリーズページをクロールする場合、シリーズ ID を出力します。`,
-        `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지를 크롤링할 때 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지나 북마크 페이지를 크롤링할 때 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지를 크롤링할 때 시리즈 ID를 출력합니다.`,
-        `Идентификатор страницы при начале сбора данных. Он предназначен для объединения нескольких работ на странице с помощью идентификатора страницы. Например, при сборе связанных работ на странице работы этот токен выводит идентификатор работы на этой странице (он только один), а не идентификаторы отдельных работ (их несколько). Он имеет значение только в следующих случаях: 1. При сборе данных со страницы работы выводится идентификатор работы на этой странице. 2. При сборе данных со страницы пользователя или страницы закладок выводится идентификатор пользователя этой страницы. 3. При сборе данных со страницы серии выводится идентификатор серии.`,
+        `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。`,
+        `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面，輸出該頁面的作品 ID。2. 在用戶主頁、收藏頁面、關注頁面，輸出該頁面的用戶 ID。3. 在系列頁面，輸出系列 ID。`,
+        `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. On a work page, it outputs the work ID of that page. 2. On a user's page, bookmark page, or following page, it outputs the user ID of that page. 3. On a series page, it outputs the series ID.`,
+        `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページでは、そのページの作品 ID を出力します。2. ユーザーページ、ブックマークページ、フォローページでは、そのページのユーザー ID を出力します。3. シリーズページでは、シリーズ ID を出力します。`,
+        `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지, 북마크 페이지, 팔로잉 페이지에서는 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지에서는 시리즈 ID를 출력합니다.`,
+        `Идентификатор страницы при начале сбора данных. Он предназначен для объединения нескольких работ на странице с помощью идентификатора страницы. Например, при сборе связанных работ на странице работы этот токен выводит идентификатор работы на этой странице (он только один), а не идентификаторы отдельных работ (их несколько). Он имеет значение только в следующих случаях: 1. На странице работы выводится идентификатор работы на этой странице. 2. На странице пользователя, странице закладок или странице подписок выводится идентификатор пользователя этой страницы. 3. На странице серии выводится идентификатор серии.`,
     ],
     _预览文件名: [
         '预览文件名',
@@ -44512,9 +44525,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
@@ -44561,7 +44574,7 @@ class NameRuleManager {
             const data = ev.detail.data;
             // 当用户开启这个开关时，设置当前页面类型的命名规则
             if (data.name === 'setNameRuleForEachPageType' && data.value) {
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
                     this.setInputValue();
                 }
             }
@@ -44574,11 +44587,11 @@ class NameRuleManager {
     textarea = null;
     get rule() {
         // 在 Pixivision 页面里，总是使用预设的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
+            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
         }
         if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setNameRuleForEachPageType) {
-            let rule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+            let rule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             if (rule === undefined) {
                 rule = this.defauleRule;
                 this.saveCurrentPageRule(rule);
@@ -44590,7 +44603,7 @@ class NameRuleManager {
         }
     }
     set rule(str) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
             return;
         }
         // 检查传递的命名规则的合法性
@@ -44609,7 +44622,9 @@ class NameRuleManager {
         }
         if (!check) {
             window.setTimeout(() => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_命名规则一定要包含id'));
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_命名规则一定要包含id'), {
+                    stay: 3000,
+                });
             }, 300);
         }
         else {
@@ -44624,7 +44639,7 @@ class NameRuleManager {
         }
     }
     async bindInputEvent() {
-        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         const name = this.type === 'artwork' ? 'userSetName' : 'userSetNameForNovel';
         this.textarea = document.querySelector(`textarea[name="${name}"]`);
         this.setInputValue();
@@ -44646,7 +44661,7 @@ class NameRuleManager {
                     return;
                 }
                 lastValue = input.value;
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== input.value) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
                     this.rule = input.value;
                 }
             });
@@ -44657,11 +44672,11 @@ class NameRuleManager {
         if (!this.textarea) {
             return;
         }
-        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
         // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
-            this.textarea.value = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
+            this.textarea.value = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             return;
         }
         // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
@@ -44673,7 +44688,7 @@ class NameRuleManager {
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.setRows(this.textarea);
     }
     saveCurrentPageRule(rule) {
-        _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] = rule;
+        _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleList, _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList]);
     }
     // 处理命名规则的非法字符和非法规则
@@ -44747,6 +44762,7 @@ class NamingRuleConfig {
         { name: '{user_id}', mayEmpty: false, help: '_用户id' },
         { name: '{title}', mayEmpty: false, help: '_命名标记title' },
         { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+        { name: '{page_type}', mayEmpty: false, help: '_命名标记page_type' },
         { name: '{page_id}', mayEmpty: true, help: '_命名标记page_id' },
         { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
         { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },
@@ -51677,14 +51693,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../filter/CheckIndexForMultiImageWork */ "./src/ts/filter/CheckIndexForMultiImageWork.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
 /** 保存抓取结果和一些公用数据 */
 class Store {
     constructor() {
-        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getLoggedUserID();
+        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getLoggedUserID();
         this.bindEvents();
     }
     /** 保存当前登录的用户的 ID。在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
@@ -51725,6 +51743,8 @@ class Store {
     title = '';
     /** 开始抓取时，储存页面此时的 id（只有部分页面类型会有这个值） */
     pageId = '';
+    /** 开始抓取时，储存页面此时的类型的字面量，如 Artwork、UserHome */
+    pageType = '';
     /** 开始抓取时，储存页面此时的 URL */
     URLWhenCrawlStart = '';
     /** 抓取完成的时间 */
@@ -51854,9 +51874,10 @@ class Store {
         this.waitingIdList = [];
         this.rankList = {};
         this.remainingDownload = 0;
-        this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
-        this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
-        this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageIdFromURL();
+        this.tag = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getTagFromURL();
+        this.title = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageTitle();
+        this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageIdFromURL();
+        this.pageType = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type];
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
@@ -51868,9 +51889,10 @@ class Store {
             this.waitingIdList = [];
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resume, () => {
-            this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
-            this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
-            this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageIdFromURL();
+            this.tag = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getTagFromURL();
+            this.title = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageTitle();
+            this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageIdFromURL();
+            this.pageType = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type];
         });
     }
 }

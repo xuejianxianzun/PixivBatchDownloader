@@ -221,20 +221,20 @@ class ShowLargerThumbnails {
       // 查找精选作品
       const allFeaturedArtwork = document.querySelectorAll('div[width="288"]')
       const allFeaturedNovel = document.querySelectorAll('div[width="206"]')
-        ;[allFeaturedArtwork, allFeaturedNovel].forEach((list) => {
-          for (const div of list) {
-            // 每个精选作品的内容分为左右两部分，左侧是缩略图，右侧是作品信息
-            // 区分左右，并查找其父元素 li
-            div.parentElement!.classList.add('featuredLeft')
-            div.parentElement!.nextElementSibling!.classList.add('featuredRight')
-            const li = div.closest('li')
-            if (li) {
-              li.classList.add('featuredLI')
-              // 查找有很大 padding 的父元素
-              li.closest('div')!.classList.add('featuredPadding')
-            }
+      ;[allFeaturedArtwork, allFeaturedNovel].forEach((list) => {
+        for (const div of list) {
+          // 每个精选作品的内容分为左右两部分，左侧是缩略图，右侧是作品信息
+          // 区分左右，并查找其父元素 li
+          div.parentElement!.classList.add('featuredLeft')
+          div.parentElement!.nextElementSibling!.classList.add('featuredRight')
+          const li = div.closest('li')
+          if (li) {
+            li.classList.add('featuredLI')
+            // 查找有很大 padding 的父元素
+            li.closest('div')!.classList.add('featuredPadding')
           }
-        })
+        }
+      })
 
       // 查找作品列表上方的 tag 列表
       const a = document.querySelector('a[status="normal"]')
