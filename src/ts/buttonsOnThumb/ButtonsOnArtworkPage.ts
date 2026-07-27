@@ -2,7 +2,6 @@ import { EVT } from '../EVT'
 import { Config } from '../Config'
 import { Tools } from '../Tools'
 import { pageType } from '../PageType'
-import { store } from '../store/Store'
 import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { settings } from '../setting/Settings'
@@ -154,7 +153,7 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     } else if (config.name === 'copyBtnOnThumb') {
       copyWorkInfo.receive(idData, index)
     } else if (config.name === 'downloadBtnOnThumb') {
-      store.setDownloadOnlyPart(Number.parseInt(id), [index])
+      idData.downloadIndexes = [index]
       EVT.fire('crawlIdList', [idData])
     }
   }

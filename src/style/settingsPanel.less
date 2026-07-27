@@ -135,9 +135,11 @@
 
   display: none;
   box-sizing: border-box;
+  flex-direction: column;
   width: 925px;
   max-width: calc(100vw - 24px);
   max-height: 84vh;
+  min-height: 60vh;
   left: 50%;
   top: 10vh;
   margin-left: 0;
@@ -257,6 +259,7 @@
   }
 
   .centerWrap_head {
+    flex: none;
     padding: 10px 10px 10px 20px;
     background: var(--settings-panel-head-bg);
     display: flex;
@@ -470,12 +473,12 @@
 
   .centerWrap_con {
     display: flex;
+    flex: 1;
     align-items: stretch;
     width: 100%;
     background: var(--settings-panel-con-bg);
     overflow: auto;
-    max-height: 76vh;
-    min-height: 600px;
+    min-height: 0;
 
     slot[data-name='namingBtns'] button,
     slot[data-name='exportResult'] button {
@@ -496,6 +499,28 @@
     .help_bar > *:hover,
     .updateActiveClass {
       color: var(--beautify-blue) !important;
+    }
+
+    .longTextButton {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: var(--settings-panel-input-radius);
+
+      &::before {
+        content: 'ⓘ';
+        color: var(--settings-panel-section-icon-color);
+      }
+
+      &:hover,
+      &:focus-visible {
+        background: var(--settings-panel-section-icon-bg);
+      }
+
+      &:focus-visible {
+        outline: 1px solid var(--settings-panel-section-icon-color);
+        outline-offset: 1px;
+      }
     }
 
     .grayButton:hover,
@@ -952,6 +977,7 @@
         grid-column: 1 / -1;
         display: flex;
         align-items: flex-start;
+        flex-grow: 1;
         gap: 8px;
         margin-top: 15px;
         padding: 9px 12px;
@@ -1738,7 +1764,8 @@
     .settingsPanel_titleContent,
     .settingsPanel_panelContent {
       min-height: 0;
-      overflow: hidden;
+      // 允许滚动以查看超出高度的内容。主要是为了处理这个情况：当“置顶的设置”区域里有“命名规则”设置时，点击它的“加载”按钮，会显示命名规则列表。当命名规则列表的高度大于内容区域的高度时，如果内容区域设置了超出隐藏，就会导致命名规则列表的下半部分被隐藏，无法查看和点击。
+      overflow: auto;
       opacity: 1;
       transform: translateY(0);
       transition:

@@ -310,7 +310,7 @@ class ShowLargerThumbnails {
     }
 
     // 已关注用户的新作品
-    if (pageType.type === pageType.list.NewArtworkBookmark) {
+    if (pageType.type === pageType.list.NewArtworkFromFollowing) {
       if (window.location.pathname.includes('/novel') === false) {
         // 查找每个作品列表区域的共同父元素
         // 也就是 div>section 的 div，然后给它添加自定义 className
@@ -335,7 +335,7 @@ class ShowLargerThumbnails {
 
     // 大家的新作
     // https://www.pixiv.net/new_illust.php
-    if (pageType.type === pageType.list.NewArtwork) {
+    if (pageType.type === pageType.list.NewArtworkFromAllUsers) {
       if (window.location.pathname.includes('/novel') === false) {
         // 查找每个作品列表区域的共同父元素
         // 也就是 div>section 的 div，然后给它添加自定义 className

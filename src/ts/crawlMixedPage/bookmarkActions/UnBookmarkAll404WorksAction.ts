@@ -3,6 +3,7 @@ import { lang } from '../../Language'
 import { log } from '../../Log'
 import { toast } from '../../Toast'
 import { unBookmarkWorks } from '../../UnBookmarkWorks'
+import { Utils } from '../../utils/Utils'
 import { Bookmark404ActionBase } from './Bookmark404ActionBase'
 
 class UnBookmarkAll404WorksAction extends Bookmark404ActionBase {
@@ -24,12 +25,16 @@ class UnBookmarkAll404WorksAction extends Bookmark404ActionBase {
         collectWork: (workData, bookmarkTags) => {
           this.get404IdList(workData)
 
-          // 同时正常保存收藏数据，在取消收藏时使用
+          // 保存所有收藏的作品的数据
           return this.createBookmarkData(workData, bookmarkTags)
         },
         onCollected: async (bookmarkDataList) => {
           this.exportBookmark404Ids()
-          await unBookmarkWorks.start(bookmarkDataList)
+          // 过滤出 404 作品的数据，并取消收藏
+          const bookmarkData404 = bookmarkDataList.filter((data) =>
+            this.idList404.includes(data.workID)
+          )
+          await unBookmarkWorks.start(bookmarkData404)
         },
       })
     })

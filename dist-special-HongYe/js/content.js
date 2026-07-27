@@ -1441,9 +1441,13 @@ class API {
         return this.fetch(url);
     }
     /** 获取动图的元数据 */
-    static getUgoiraMeta(id) {
+    static getUgoiraMeta(id, signal) {
         const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`;
-        return this.fetch(url);
+        return this.fetch(url, {
+            method: 'get',
+            credentials: 'same-origin',
+            signal,
+        });
     }
     /** 获取小说的详细信息
      * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
@@ -1771,7 +1775,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             }
             // 只在 大家的新作 页面里使用
             if (selector === 'li>div>div:first-child' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork) {
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers) {
                 continue;
             }
             // 只在 约稿 页面里使用
@@ -1801,7 +1805,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             if (selector === 'li[size="1"]' &&
                 (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork ||
-                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing ||
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Bookmark)) {
                 continue;
             }
@@ -2212,8 +2216,13 @@ class Bookmark {
             // 如果这个作品已经被收藏过，就不会重复收藏它（这里没有检查 tag 列表）
             const find = oldList.find((old) => old.id === data.id && old.type === data.type);
             if (!find) {
+                // 决定添加收藏时使用的 tag 列表。如果有 bookmarkTags 就优先使用它，否则就使用作品本身的 tags
+                let useTags = data.tags;
+                if (data.bookmarkTags && data.bookmarkTags.length > 0) {
+                    useTags = data.bookmarkTags;
+                }
                 // 慢速收藏（添加等待时间）
-                await this.add(data.id, data.type, data.tags, undefined, undefined, true);
+                await this.add(data.id, data.type, useTags, undefined, undefined, true);
             }
             else {
                 skip++;
@@ -2693,7 +2702,7 @@ class CheckUser {
         _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
         _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Home,
         _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
-        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromFollowing,
     ];
     findA(el, loop = 3) {
         if (el === null || loop === 0) {
@@ -4453,20 +4462,34 @@ __webpack_require__.r(__webpack_exports__);
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
+    /** 临时保护嵌套可选片段外层方括号的标记 */
+    // 用于处理如 [[{p}]] 这样嵌套 [] 的情况，使外层的 [] 可以保留
+    optionalSegmentOpenBracketPlaceholder = '\uE000optional-segment-open\uE001';
+    /** 临时保护嵌套可选片段外层方括号的标记 */
+    optionalSegmentCloseBracketPlaceholder = '\uE000optional-segment-close\uE001';
     /**传入一个抓取结果，生成其文件名 */
     createFileName(data) {
         let rule = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork');
-        // 1 把特定标记替换成它所代表的设置的值
-        for (const item of this.flagToSettingValue) {
-            const value = item.func(rule, item.flag, data);
-            rule = rule.replaceAll(item.flag, value);
-        }
         rule = this.handleCustomFeature(rule, data);
-        // 2 生成所有命名标记的值
+        // 1 生成所有命名标记的值
+        const schema = {};
+        // 这是一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
+        // 该变量只在生成 schema 时使用，作用是判断展开后的完整规则里是否包含某些标记
+        let ruleWithExpandedSpecialTags = rule;
+        for (const item of this.specialTagConfigs) {
+            // 把特殊标记的配置添加到 schema 里，这样在处理可选片段时可以判断它们是否为空
+            schema[item.flag] = {
+                // {multi_image_folder} 和 {r18_g_folder} 标记里允许使用 / 用来建立文件夹，所以这里不要替换斜线
+                value: _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(item.func(rule, item.flag, data), true),
+                safe: true,
+            };
+            // 展开这个特殊标记
+            ruleWithExpandedSpecialTags = ruleWithExpandedSpecialTags.replaceAll(item.flag, schema[item.flag].value);
+        }
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
         const pid = (data.idNum || parseInt(data.id)).toString();
         const p = this.createPNum(data);
-        const schema = {
+        Object.assign(schema, {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
@@ -4474,6 +4497,14 @@ class FileName {
             '{page_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.title,
                 safe: false,
+            },
+            '{page_type}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.pageType,
+                safe: true,
+            },
+            '{page_id}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.pageId,
+                safe: true,
             },
             '{p_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag ? this.handleTagsRule([_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag]) : '',
@@ -4504,7 +4535,9 @@ class FileName {
                 safe: true,
             },
             '{rank}': {
-                value: !rule.includes('{rank}') ? '' : this.createRank(data.rank),
+                value: !ruleWithExpandedSpecialTags.includes('{rank}')
+                    ? ''
+                    : this.createRank(data.rank),
                 safe: true,
             },
             '{title}': {
@@ -4524,7 +4557,7 @@ class FileName {
                 safe: true,
             },
             '{px}': {
-                value: !rule.includes('{px}')
+                value: !ruleWithExpandedSpecialTags.includes('{px}')
                     ? ''
                     : data.fullWidth
                         ? data.fullWidth + 'x' + data.fullHeight
@@ -4532,21 +4565,25 @@ class FileName {
                 safe: true,
             },
             '{char_count}': {
-                value: !rule.includes('{char_count}') ? '' : this.getCharCount(data),
+                value: !ruleWithExpandedSpecialTags.includes('{char_count}')
+                    ? ''
+                    : this.getCharCount(data),
                 safe: true,
             },
             '{tags}': {
-                value: !rule.includes('{tags}') ? '' : this.handleTagsRule(data.tags),
+                value: !ruleWithExpandedSpecialTags.includes('{tags}')
+                    ? ''
+                    : this.handleTagsRule(data.tags),
                 safe: false,
             },
             '{tags_translate}': {
-                value: !rule.includes('{tags_translate}')
+                value: !ruleWithExpandedSpecialTags.includes('{tags_translate}')
                     ? ''
                     : this.handleTagsRule(data.tagsWithTransl),
                 safe: false,
             },
             '{tags_transl_only}': {
-                value: !rule.includes('{tags_transl_only}')
+                value: !ruleWithExpandedSpecialTags.includes('{tags_transl_only}')
                     ? ''
                     : this.handleTagsRule(data.tagsTranslOnly),
                 safe: false,
@@ -4580,19 +4617,19 @@ class FileName {
                 safe: true,
             },
             '{date}': {
-                value: !rule.includes('{date}')
+                value: !ruleWithExpandedSpecialTags.includes('{date}')
                     ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{upload_date}': {
-                value: !rule.includes('{upload_date}')
+                value: !ruleWithExpandedSpecialTags.includes('{upload_date}')
                     ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{task_date}': {
-                value: !rule.includes('{task_date}')
+                value: !ruleWithExpandedSpecialTags.includes('{task_date}')
                     ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
@@ -4637,7 +4674,7 @@ class FileName {
                 value: (data.sl ?? '').toString(),
                 safe: true,
             },
-        };
+        });
         // 3 生成文件名
         let result = this.generateFileName(rule, schema);
         // 5 生成扩展名
@@ -4661,20 +4698,28 @@ class FileName {
     }
     /** 传入命名规则和所有标记的配置，生成文件名 */
     generateFileName(rule, schema) {
-        let result = rule;
+        const normalizedSchema = this.normalizeNamingSchema(schema);
+        // 第一次处理可选片段。此时，对于特殊标记，处理的是它们自身而不是展开后的标记。
+        // 例如，如果 rule 里有 [{multi_image_folder}]，并且 {multi_image_folder} 的值为空，就会移除 [{multi_image_folder}]
+        let result = this.handleOptionalSegments(rule, normalizedSchema, true);
+        // 展开特殊标记，把它们替换成实际值
+        for (const item of this.specialTagConfigs) {
+            const itemSchema = normalizedSchema[item.flag];
+            if (itemSchema) {
+                // {match_tag_folder*} 标记的 func 函数会调用 generateFileName 方法，并且只传入 {match_tag_folder*} 这个标记的 schema。此时 schema 里没有其他特殊标记的配置，所以需要进行存在性判断
+                result = result.replaceAll(item.flag, itemSchema.value);
+            }
+        }
+        // 因为特殊标记的值里可能含有命名标记，所以需要再次处理可选片段
+        // 例如，如果 rule 里有 [{multi_image_folder}]，并且它展开后变成了 [{pid}]，那么现在会处理 {pid} 的值为空的情况。PS：{pid} 实际上不会为空，这里只是举例说明
+        result = this.handleOptionalSegments(result, normalizedSchema);
+        result = result
+            .replaceAll(this.optionalSegmentOpenBracketPlaceholder, '[')
+            .replaceAll(this.optionalSegmentCloseBracketPlaceholder, ']');
         // 把命名规则里的标记替换成实际值
-        for (const [tag, obj] of Object.entries(schema)) {
-            if (rule.includes(tag)) {
-                // 把空值替换成空字符串
-                let temp = obj.value ?? '';
-                // 替换不可以作为文件名的特殊字符
-                if (!obj.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(temp);
-                }
-                // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.removeEmojis(temp);
-                }
+        for (const [tag, obj] of Object.entries(normalizedSchema)) {
+            if (result.includes(tag)) {
+                const temp = obj.value ?? '';
                 // 有些标记可能是空字符串，移除它们前面的分割符号
                 if (temp === '') {
                     result = this.removeEmptyTag(result, tag);
@@ -4698,8 +4743,102 @@ class FileName {
         result = this.handleEdgeCases(result);
         return result;
     }
-    /** 特定标记与其对应的处理函数的映射 */
-    flagToSettingValue = [
+    /** 预处理命名标记的值，使后续步骤使用相同的最终值 */
+    normalizeNamingSchema(schema) {
+        const result = {};
+        for (const [tag, obj] of Object.entries(schema)) {
+            let value = obj.value ?? '';
+            // 替换不可以作为文件名的特殊字符
+            if (!obj.safe) {
+                value = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(value);
+            }
+            // 移除 Emoji。这可能会导致一些标记的值变成空字符串，所以需要放在前面执行，以便后续处理空字符串的情况
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
+                value = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.removeEmojis(value);
+            }
+            result[tag] = {
+                ...obj,
+                value,
+            };
+        }
+        return result;
+    }
+    /**
+     * 处理命名规则中的可选片段，即使用 [] 把标记和其前后的自定义字符包裹起来的情况，如 [{p}-]。当标记的值为空时，整个 [] 片段里的内容都会被移除，以去掉多余的自定义字符。
+     * @param protectNestedOuterBrackets 是否临时保护嵌套片段的外层方括号
+     */
+    handleOptionalSegments(rule, schema, protectNestedOuterBrackets = false) {
+        const matchedBrackets = new Map();
+        const openBrackets = [];
+        // 记录每一对闭合的方括号。未闭合的方括号不会出现在映射中，会被原样保留。
+        for (let index = 0; index < rule.length; index++) {
+            if (rule[index] === '[') {
+                openBrackets.push(index);
+            }
+            else if (rule[index] === ']' && openBrackets.length > 0) {
+                matchedBrackets.set(openBrackets.pop(), index);
+            }
+        }
+        const tagNames = Object.keys(schema);
+        if (tagNames.length === 0) {
+            return rule;
+        }
+        const tagRegExp = new RegExp(tagNames
+            .map((tag) => tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|'), 'g');
+        /** 处理指定范围内的字符，并优先处理内层的方括号 */
+        const processRange = (start, end) => {
+            let result = '';
+            let index = start;
+            while (index < end) {
+                const closeIndex = matchedBrackets.get(index);
+                if (closeIndex !== undefined && closeIndex < end) {
+                    const content = processRange(index + 1, closeIndex);
+                    let hasNestedSegment = false;
+                    for (let childIndex = index + 1; childIndex < closeIndex; childIndex++) {
+                        if (matchedBrackets.has(childIndex)) {
+                            hasNestedSegment = true;
+                            break;
+                        }
+                    }
+                    // 外层方括号视为普通字符，但其中已经处理完成的内层片段仍然生效。
+                    if (hasNestedSegment) {
+                        if (protectNestedOuterBrackets) {
+                            result += `${this.optionalSegmentOpenBracketPlaceholder}${content}${this.optionalSegmentCloseBracketPlaceholder}`;
+                        }
+                        else {
+                            result += `[${content}]`;
+                        }
+                    }
+                    else {
+                        const tags = rule.slice(index + 1, closeIndex).match(tagRegExp) ?? [];
+                        if (tags.length === 0) {
+                            // 没有命名标记时，方括号就是普通字符。
+                            result += `[${content}]`;
+                        }
+                        else if (tags.length === 1 &&
+                            (schema[tags[0]].value ?? '') === '') {
+                            // 单个空标记会使整个可选片段失效。
+                        }
+                        else {
+                            // 有标记的片段去掉方括号；多个标记时不根据其值删除内容。
+                            result += content;
+                        }
+                    }
+                    index = closeIndex + 1;
+                    continue;
+                }
+                result += rule[index];
+                index++;
+            }
+            return result;
+        };
+        return processRange(0, rule.length);
+    }
+    /** 特殊标记与其对应的处理函数的映射。
+     *
+     * {multi_image_folder} 和 {r18_g_folder} 的值可能是普通的字符串，也可能是合法的命名标记片段，例如 `xxx/{pid}` */
+    specialTagConfigs = [
         {
             flag: '{multi_image_folder}',
             func: this.getMultiImageFolder.bind(this),
@@ -5027,7 +5166,8 @@ class FileName {
             // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
             parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.handleWindowsReservedName(parts[i], this.addStr);
         }
-        string = parts.join('/');
+        // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
+        string = parts.filter((part) => part !== '').join('/');
         return string;
     }
     // 文件名超长的一种测试情况：
@@ -5867,14 +6007,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 // https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
-
 
 
 
@@ -6101,7 +6239,7 @@ class ImageViewer {
         const date = this.workData?.body.uploadDate;
         let dateString = '';
         if (date) {
-            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.dateFormat);
+            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.dateFormat);
         }
         const handleToTop = this.moveToTop.bind(this);
         const pageCount = this.pageCount;
@@ -6161,7 +6299,7 @@ class ImageViewer {
         img.src = firstImageURL;
         if (this.cfg.autoStart) {
             // 启动图片查看器
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的帮助'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的帮助'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
             this.myViewer.show();
         }
     }
@@ -6265,17 +6403,13 @@ class ImageViewer {
     /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
     download(p) {
         if (this.workData && this.workData.body.id === this.cfg.workId) {
-            if (p !== undefined) {
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
-                        this.index,
-                    ]);
-                }
-            }
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
                 {
                     id: this.cfg.workId,
                     type: 'illusts',
+                    downloadIndexes: p !== undefined && this.workData.body.pageCount > 1
+                        ? [this.index]
+                        : undefined,
                 },
             ]);
         }
@@ -6315,7 +6449,7 @@ class ImageViewer {
         li.addEventListener('click', this.copy.bind(this));
     }
     copy() {
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__.copyWorkInfo.receive({
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_11__.copyWorkInfo.receive({
             id: this.cfg.workId,
             type: 'illusts',
         }, this.index);
@@ -6383,15 +6517,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlArtworkPage_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./crawlArtworkPage/InitRankingArtworkPage */ "./src/ts/crawlArtworkPage/InitRankingArtworkPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./crawlArtworkPage/InitPixivisionPage */ "./src/ts/crawlArtworkPage/InitPixivisionPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./crawlArtworkPage/InitBookmarkDetailPage */ "./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts");
-/* harmony import */ var _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/InitBookmarkNewPage */ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts");
+/* harmony import */ var _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/InitNewWorksFromFollowingPage */ "./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlArtworkPage/InitDiscoverPage */ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts");
-/* harmony import */ var _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/InitNewArtworkPage */ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts");
+/* harmony import */ var _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/InitNewArtworkFromAllUsersPage */ "./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelPage */ "./src/ts/crawlNovelPage/InitNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
 /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./crawlNovelPage/InitSearchNovelPage */ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageOld */ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageNew */ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts");
-/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
+/* harmony import */ var _crawlNovelPage_InitNewNovelFromAllUsersPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelFromAllUsersPage */ "./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
 /* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
@@ -6457,12 +6591,12 @@ class InitPage {
                 return new _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_9__.InitPixivisionPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.BookmarkDetail:
                 return new _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_10__.InitBookmarkDetailPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark:
-                return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing:
+                return new _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__.InitNewWorksFromFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover:
                 return new _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__.InitDiscoverPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork:
-                return new _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
+                return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Novel:
                 return new _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__.InitNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSeries:
@@ -6475,10 +6609,10 @@ class InitPage {
                 return old
                     ? new _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPageOld()
                     : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelBookmark:
-                return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovel:
-                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelFromFollowing:
+                return new _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__.InitNewWorksFromFollowingPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelFromAllUsers:
+                return new _crawlNovelPage_InitNewNovelFromAllUsersPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSeries:
                 return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__.InitArtworkSeriesPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Following:
@@ -7864,7 +7998,7 @@ __webpack_require__.r(__webpack_exports__);
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
-// 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
+// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
 var PageName;
 (function (PageName) {
     /** 不支持的页面 */
@@ -7893,11 +8027,11 @@ var PageName;
     /** 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
     /** 已关注用户的新作品 - 插画 */
-    PageName[PageName["NewArtworkBookmark"] = 10] = "NewArtworkBookmark";
+    PageName[PageName["NewArtworkFromFollowing"] = 10] = "NewArtworkFromFollowing";
     /** 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
     /** 大家的新作 - 插画 */
-    PageName[PageName["NewArtwork"] = 12] = "NewArtwork";
+    PageName[PageName["NewArtworkFromAllUsers"] = 12] = "NewArtworkFromAllUsers";
     /** 小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
     /** 小说系列作品目录页 */
@@ -7906,10 +8040,10 @@ var PageName;
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
     /** 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
-    /** 已关注用户的心作品 - 小说 */
-    PageName[PageName["NewNovelBookmark"] = 17] = "NewNovelBookmark";
+    /** 已关注用户的新作品 - 小说 */
+    PageName[PageName["NewNovelFromFollowing"] = 17] = "NewNovelFromFollowing";
     /** 大家的新作 - 小说 */
-    PageName[PageName["NewNovel"] = 18] = "NewNovel";
+    PageName[PageName["NewNovelFromAllUsers"] = 18] = "NewNovelFromAllUsers";
     /** 插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
     /** 关注的用户 */
@@ -8000,7 +8134,7 @@ class PageType {
         else if (url.includes('/bookmark_new_illust.php') ||
             url.includes('/bookmark_new_illust_r18.php') ||
             url.includes('/mypixiv_new_illust.php')) {
-            return PageName.NewArtworkBookmark;
+            return PageName.NewArtworkFromFollowing;
         }
         else if (path === '/discovery' || path.startsWith('/novel/discovery')) {
             return PageName.Discover;
@@ -8010,7 +8144,7 @@ class PageType {
         }
         else if (url.includes('/new_illust.php') ||
             url.includes('/new_illust_r18.php')) {
-            return PageName.NewArtwork;
+            return PageName.NewArtworkFromAllUsers;
         }
         else if (path === '/novel/show.php') {
             return PageName.Novel;
@@ -8023,10 +8157,10 @@ class PageType {
         }
         else if (path.startsWith('/novel/bookmark_new') ||
             path.startsWith('/novel/mypixiv_new.php')) {
-            return PageName.NewNovelBookmark;
+            return PageName.NewNovelFromFollowing;
         }
         else if (path.startsWith('/novel/new')) {
-            return PageName.NewNovel;
+            return PageName.NewNovelFromAllUsers;
         }
         else if (path.startsWith('/user/') && path.includes('/series/')) {
             return PageName.ArtworkSeries;
@@ -8129,7 +8263,7 @@ class PageType {
                 url: 'https://www.pixiv.net/bookmark_detail.php?illust_id=63148723',
             },
             {
-                type: PageName.NewArtworkBookmark,
+                type: PageName.NewArtworkFromFollowing,
                 url: 'https://www.pixiv.net/bookmark_new_illust.php',
             },
             {
@@ -8137,7 +8271,7 @@ class PageType {
                 url: 'https://www.pixiv.net/discovery',
             },
             {
-                type: PageName.NewArtwork,
+                type: PageName.NewArtworkFromAllUsers,
                 url: 'https://www.pixiv.net/new_illust.php',
             },
             {
@@ -8165,11 +8299,11 @@ class PageType {
                 url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
             },
             {
-                type: PageName.NewNovelBookmark,
+                type: PageName.NewNovelFromFollowing,
                 url: 'https://www.pixiv.net/novel/bookmark_new.php',
             },
             {
-                type: PageName.NewNovel,
+                type: PageName.NewNovelFromAllUsers,
                 url: 'https://www.pixiv.net/novel/new.php',
             },
             {
@@ -8232,9 +8366,10 @@ __webpack_require__.r(__webpack_exports__);
 
 // 预览动图
 class PreviewUgoira {
-    constructor(id, canvasWrap, prevSize, wrapWidth, wrapHeight) {
+    constructor(id, canvasWrap, img, prevSize, wrapWidth, wrapHeight) {
         this.id = id;
         this.canvasWrap = canvasWrap;
+        this.img = img;
         this.prevSize = prevSize;
         wrapWidth && (this.wrapWidth = wrapWidth);
         wrapHeight && (this.wrapHeight = wrapHeight);
@@ -8250,9 +8385,9 @@ class PreviewUgoira {
     /**完整的 zip 文件的字节数 */
     zipLength = 0;
     /** 用固定的字节数分割出多个文件片段 */
-    rangeSize = 500000;
+    rangeSize = 2048000;
     /**保存每个文件片段的请求头的值
-     * 字符串格式如 'bytes=0-499999'
+     * 字符串格式如 'bytes=0-2047999'
      */
     rangeList = [];
     /**把分段加载的 zip 文件合并，保存到这个容器 */
@@ -8263,9 +8398,12 @@ class PreviewUgoira {
     jpgContentIndexList = [];
     /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
     jpgFileList = [];
+    /** 保存 extractJPGData 创建的 Blob URL */
+    blobURLList = [];
     // jpg 文件名的长度固定为 10 个字节 000000.jpg
     jpgNameLength = 10;
     canvasWrap;
+    img;
     wrapWidth = 0;
     wrapHeight = 0;
     canvas = document.createElement('canvas');
@@ -8274,9 +8412,23 @@ class PreviewUgoira {
     width = 0;
     height = 0;
     destroyed = false;
+    abortController = new AbortController();
     async start() {
+        try {
+            await this.startInternal();
+        }
+        catch (error) {
+            if (!this.destroyed) {
+                throw error;
+            }
+        }
+    }
+    async startInternal() {
         // 获取这个动图的 meta 数据
         this.meta = await this.getMeta(this.id);
+        if (this.destroyed) {
+            return;
+        }
         // 目前只支持提取 jpg 图片
         if (this.meta.mime_type !== 'image/jpeg') {
             const msg = 'Preview ugoira error: mime type unsupport: ' + this.meta.mime_type;
@@ -8293,6 +8445,9 @@ class PreviewUgoira {
         }
         // 获取动图体积
         this.zipLength = await this.getFileLength();
+        if (this.destroyed) {
+            return;
+        }
         // 生成区间
         this.rangeList = this.setRangeList(this.zipLength, this.rangeSize);
         for (const range of this.rangeList) {
@@ -8347,7 +8502,7 @@ class PreviewUgoira {
     }
     /**获取该作品的 meta 数据 */
     async getMeta(id) {
-        const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id);
+        const meta = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUgoiraMeta(id, this.abortController.signal);
         if (meta.error) {
             throw new Error(meta.message);
         }
@@ -8358,6 +8513,7 @@ class PreviewUgoira {
         const response = await fetch(this.zipURL, {
             method: 'head',
             credentials: 'same-origin',
+            signal: this.abortController.signal,
         });
         const length = response.headers.get('content-length');
         if (!length) {
@@ -8392,6 +8548,7 @@ class PreviewUgoira {
             headers: {
                 range: range,
             },
+            signal: this.abortController.signal,
         });
         const buff = await res.arrayBuffer();
         return buff;
@@ -8434,6 +8591,7 @@ class PreviewUgoira {
                     type: 'image/jpeg',
                 });
                 const url = URL.createObjectURL(blob);
+                this.blobURLList.push(url);
                 // 下载这张图片（debug 用）
                 // Utils.downloadFile(url, `${index}.jpg`)
                 const img = new Image(this.width, this.height);
@@ -8446,17 +8604,15 @@ class PreviewUgoira {
         });
     }
     startPlay() {
-        if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
+        if (!this.destroyed &&
+            this.jpgFileList.length > 0 &&
+            !this.canvasIsAppend) {
             this.addCanvas();
             this.canvasIsAppend = true;
             this.animationID = window.requestAnimationFrame(this.play);
         }
     }
     addCanvas() {
-        const oldCanvas = this.canvasWrap.querySelector('canvas');
-        if (oldCanvas) {
-            oldCanvas.remove();
-        }
         this.canvas.style.display = 'none';
         this.canvasWrap.append(this.canvas);
         this.canvas.width = this.width;
@@ -8467,6 +8623,9 @@ class PreviewUgoira {
     lastPlayTime = 0;
     animationID = 0;
     play = (timestamp) => {
+        if (this.destroyed) {
+            return;
+        }
         if (this.lastPlayTime === 0) {
             this.lastPlayTime = timestamp;
         }
@@ -8482,10 +8641,7 @@ class PreviewUgoira {
             // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
             if (this.playIndex === 0) {
                 this.canvas.style.display = 'inline-block';
-                const img = this.canvasWrap.querySelector('img');
-                if (img) {
-                    img.style.display = 'none';
-                }
+                this.img.style.display = 'none';
             }
             this.playDelay = this.jpgFileList[this.playIndex].delay;
             this.playIndex++;
@@ -8510,8 +8666,13 @@ class PreviewUgoira {
     }
     destroy() {
         this.destroyed = true;
+        this.abortController.abort();
         window.cancelAnimationFrame(this.animationID);
         this.canvas.remove();
+        this.blobURLList.forEach((url) => {
+            URL.revokeObjectURL(url);
+        });
+        this.blobURLList = [];
         this.zipContent = new ArrayBuffer(0);
         this.jpgFileList = [];
         this.jpgContentIndexList = [];
@@ -8542,16 +8703,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
 
 
 
@@ -8575,7 +8734,7 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
     constructor() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_13__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
             return;
         }
         setTimeout(() => {
@@ -8622,6 +8781,8 @@ class PreviewWork {
     // 当前预览图是否遮挡了作品缩略图
     overThumb = false;
     previewUgoira;
+    /**预览请求的版本号，用于使过期的异步请求失效 */
+    previewVersion = 0;
     _show = false;
     /**是否处于准备显示预览图的阶段。当准备显示时为 true，已显示、以及隐藏预览图时为 fasle */
     isReadyShow = false;
@@ -8633,11 +8794,17 @@ class PreviewWork {
         this.setShow(val);
     }
     async setShow(val) {
+        const version = ++this.previewVersion;
         if (val) {
-            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_3__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
+            const workId = this.workId;
+            const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_3__.cacheWorkData.getWorkDataAsync(workId, 'artwork');
             // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
             // 如果 id 不同，说明现在的作品已经不是前面请求的那个作品了
-            if (!this.workData || this.workData.body.id !== this.workId) {
+            if (version !== this.previewVersion || this.workId !== workId) {
+                return;
+            }
+            this.workData = workData;
+            if (!workData || workData.body.id !== workId) {
                 this.readyShow();
             }
             else {
@@ -8653,8 +8820,11 @@ class PreviewWork {
                 }
                 // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.checkBlockTagsForPreviewWork) {
-                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData, 'origin');
-                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__.filter.checkExcludeAndMuteTags(tags);
+                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'origin');
+                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_19__.filter.checkExcludeAndMuteTags(tags);
+                    if (version !== this.previewVersion) {
+                        return;
+                    }
                     if (!checkTag) {
                         this.show = false;
                         const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_不预览这个作品因为它含有你排除的标签');
@@ -8667,9 +8837,9 @@ class PreviewWork {
                 }
                 this.isReadyShow = false;
                 this._show = true;
-                this.showWrap();
+                this.showWrap(version);
                 window.clearTimeout(this.delayHiddenTimer);
-                if (!_Config__WEBPACK_IMPORTED_MODULE_13__.Config.mobile) {
+                if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
                     _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品'));
                 }
             }
@@ -8687,10 +8857,7 @@ class PreviewWork {
             // 这样图片会停止加载，避免浪费网络资源
             this.img.src = '';
             // 销毁预览动图的模块
-            if (this.previewUgoira) {
-                this.previewUgoira.destroy();
-                this.previewUgoira = null;
-            }
+            this.destroyPreviewUgoira();
         }
     }
     createElements() {
@@ -8714,7 +8881,7 @@ class PreviewWork {
                 this.index = _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[id] || 0;
             }
             // 在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_18__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 const _index = Number.parseInt(el.dataset.index);
                 this.index = _index;
             }
@@ -8774,7 +8941,7 @@ class PreviewWork {
                         //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
                         ev.stopPropagation();
                         ev.preventDefault();
-                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_17__.copyWorkInfo.receive({
+                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__.copyWorkInfo.receive({
                             type: 'illusts',
                             id: this.workData.body.id,
                         }, this.index);
@@ -8827,15 +8994,11 @@ class PreviewWork {
                 // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
                 ev.preventDefault();
                 ev.stopPropagation();
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_12__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
-                        this.index,
-                    ]);
-                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
                     {
                         type: 'illusts',
                         id: this.workData.body.id,
+                        downloadIndexes: this.workData.body.pageCount > 1 ? [this.index] : undefined,
                     },
                 ]);
             }
@@ -8881,7 +9044,7 @@ class PreviewWork {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
             this.dontShowAfterPageSwitch = false;
         });
-        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_19__.logErrorStatus.listen((status, url) => {
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__.logErrorStatus.listen((status, url) => {
             if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_状态码429的提示'), {
                     position: 'mouse',
@@ -8948,7 +9111,7 @@ class PreviewWork {
             }
         }
         _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[this.workId] = this.index;
-        this.showWrap();
+        this.showWrap(++this.previewVersion);
     }
     onWheelScroll = (ev) => {
         if (this.show &&
@@ -8966,13 +9129,21 @@ class PreviewWork {
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewWorkWait);
     }
     // 显示预览 wrap
-    async showWrap() {
+    async showWrap(version = ++this.previewVersion) {
         if (!this.workEL || !this.workData) {
             return;
         }
-        const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${this.index}`);
+        const workId = this.workId;
+        const index = this.index;
+        const workData = this.workData;
+        const url = workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${index}`);
         const size = await this.getImageSize(url);
-        if (!size.available || !this.show) {
+        if (!size.available ||
+            !this.show ||
+            version !== this.previewVersion ||
+            this.workId !== workId ||
+            this.index !== index ||
+            this.workData !== workData) {
             return;
         }
         const w = size.width;
@@ -8989,6 +9160,7 @@ class PreviewWork {
         // 1. 在新图片的加载过程中，用户无法看到加载进度。只能等到图片加载完成后瞬间完全显示出来。
         // 2. 在新图片的加载过程中，图片的宽高是新图片的宽高，但是显示的内容还是旧的图片。如果这两张图片的尺寸不一致，此时显示的（旧）图片看上去是变形的
         // 只有生成新的 img 元素，才能解决上面的问题
+        this.destroyPreviewUgoira();
         this.img.src = '';
         this.img.remove();
         this.img = document.createElement('img');
@@ -9089,7 +9261,7 @@ class PreviewWork {
         // 3. 设置顶部提示区域的内容
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showPreviewWorkTip) {
             const text = [];
-            const body = this.workData.body;
+            const body = workData.body;
             if (body.pageCount > 1) {
                 text.push(`<span class="index flag">
           <svg viewBox="0 0 10 10" width="12" height="12"><path fill="currentColor" d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
@@ -9100,10 +9272,10 @@ class PreviewWork {
     </span>`);
             }
             // 判断是不是 AI 生成的作品
-            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData, 'both');
+            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(workData, 'both');
             let aiType = body.aiType;
             if (aiType !== 2) {
-                if (_Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.checkAIFromTags(tagsWithTransl)) {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.checkAIFromTags(tagsWithTransl)) {
                     aiType = 2;
                 }
             }
@@ -9165,10 +9337,22 @@ class PreviewWork {
         }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 预览动图
-        if (this.workData.body.illustType === 2) {
-            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
-            // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+        if (this.show &&
+            version === this.previewVersion &&
+            this.workId === workId &&
+            this.index === index) {
+            if (workData.body.illustType === 2) {
+                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__.PreviewUgoira(workData.body.id, this.wrap, this.img, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
+                // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
+            }
         }
+    }
+    destroyPreviewUgoira() {
+        if (!this.previewUgoira) {
+            return;
+        }
+        this.previewUgoira.destroy();
+        this.previewUgoira = undefined;
     }
     // 通过 img 元素加载图片，获取图片的原始尺寸
     async getImageSize(url) {
@@ -9238,7 +9422,7 @@ class PreviewWork {
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
         });
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_15__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.extractTags(this.workData));
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_14__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData));
         if (status === 200) {
             _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已收藏'));
             // 将作品缩略图上的收藏按钮变成红色
@@ -9247,7 +9431,7 @@ class PreviewWork {
                 // 如果有多个 svg，一般最后一个是收藏按钮
                 let useSVG = allSVG[allSVG.length - 1];
                 // 但有些特殊情况是第一个
-                if (_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.list.Request) {
+                if (_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.list.Request) {
                     useSVG = allSVG[0];
                 }
                 // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
@@ -10100,8 +10284,8 @@ class SelectWork {
     // 定制：在一些页面类型上启用“全选”、“退出选择”功能
     selectAllPageType = [
         _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.UserHome,
-        _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewNovelBookmark,
-        _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewArtworkBookmark,
+        _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewNovelFromFollowing,
+        _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewArtworkFromFollowing,
     ];
     selectAllBtn;
     exitSelectBtn;
@@ -10230,7 +10414,7 @@ class SelectWork {
             works = document.querySelectorAll('li[size="1"]');
         }
         // 在已关注用户的最新作品-插画里
-        if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewArtworkBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewArtworkFromFollowing) {
             const newPage = !document.querySelector('h1');
             const selector = newPage
                 ? 'li[size="1"]'
@@ -10238,7 +10422,7 @@ class SelectWork {
             works = document.querySelectorAll(selector);
         }
         // 在已关注用户的最新作品-小说里
-        if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewNovelBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.NewNovelFromFollowing) {
             const newPage = !document.querySelector('h1');
             const selector = newPage
                 ? 'li[size="1"]'
@@ -10427,23 +10611,44 @@ class SelectWork {
         if (!this.canSelect()) {
             return;
         }
-        if (!el || el.nodeName !== 'A') {
+        if (!el) {
             return;
         }
-        const href = el.href;
+        // 添加已选择的标记的目标元素，通常是点击的元素的父元素
+        let addFlagTarget = el.parentElement;
+        // 查找 A 标签，获取作品 id
+        let a = null;
+        if (el.nodeName === 'A') {
+            a = el;
+        }
+        else {
+            // 处理点击在动图的播放图标上的情况
+            // 如果不针对性处理，就会导致选择无效，并正常进入这个动图的作品页面，打断选择操作
+            if (el.nodeName === 'svg' ||
+                el.nodeName === 'path' ||
+                el.nodeName === 'circle') {
+                a = el.closest('a');
+                // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
+                addFlagTarget = a.parentElement;
+            }
+        }
+        if (!a || !a.href) {
+            return;
+        }
+        const href = a.href;
         const artworkId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getIllustId(href);
         if (artworkId) {
             ev.preventDefault();
             // 如果查找到了作品 id，必须阻止冒泡，否则会执行 clickThumbnail
             ev.stopPropagation();
-            this.addId(el.parentElement, artworkId, 'illusts');
+            this.addId(addFlagTarget, artworkId, 'illusts');
             return;
         }
         const novelId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelId(href);
         if (novelId) {
             ev.preventDefault();
             ev.stopPropagation();
-            this.addId(el.parentElement, novelId, 'novels');
+            this.addId(addFlagTarget, novelId, 'novels');
             return;
         }
         // 如果没有查找到小说 id，可能是系列小说，此时尝试查找系列 id
@@ -10451,7 +10656,7 @@ class SelectWork {
         if (seriesId) {
             ev.preventDefault();
             ev.stopPropagation();
-            this.addId(el.parentElement, seriesId, 'novelSeries');
+            this.addId(addFlagTarget, seriesId, 'novelSeries');
             return;
         }
     }
@@ -10738,6 +10943,10 @@ class ShowBorderOnDownloadedWorks {
       border-radius: 8px;           /* 有些元素本来就有 8px 的圆角，有些没有。这里统一设置为 8px */
       overflow: visible !important; /* 尽量让伪元素可见 */
       z-index: 1;
+    }
+    /* 在书签页面里，把层级设置为 0, 否则会遮挡住作品缩略图左下角的铅笔（编辑）图标，使其无法点击 */
+    body[data-page-type='4'] .${this.className} {
+      z-index: 0;
     }
 
     .${this.className}::after {
@@ -11050,7 +11259,7 @@ class ShowLargerThumbnails {
             }
         }
         // 已关注用户的新作品
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromFollowing) {
             if (window.location.pathname.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
@@ -11072,7 +11281,7 @@ class ShowLargerThumbnails {
         }
         // 大家的新作
         // https://www.pixiv.net/new_illust.php
-        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromAllUsers) {
             if (window.location.pathname.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
@@ -11323,13 +11532,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 
 
 
@@ -11344,7 +11551,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowOriginSizeImage {
     constructor() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
             return;
         }
         setTimeout(() => {
@@ -11356,7 +11563,7 @@ class ShowOriginSizeImage {
     workData;
     /** 显示这个作品里的第几张图片。如果该作品被“预览作品”功能查看过，可以获取用户最后查看的是第几张图片。否则使用第 1 张 */
     get index() {
-        return _store_States__WEBPACK_IMPORTED_MODULE_12__.states.indexRecord[this.workId] || 0;
+        return _store_States__WEBPACK_IMPORTED_MODULE_11__.states.indexRecord[this.workId] || 0;
     }
     // 原比例查看图片的容器的元素
     wrapId = 'originSizeWrap';
@@ -11396,12 +11603,12 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
-            if (!_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
+            if (!_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
                 _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__.showOneTimeMsg.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
             if (this.workData?.body.illustType === 2) {
-                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
+                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, this.img, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
             }
         }
         else {
@@ -11528,10 +11735,10 @@ class ShowOriginSizeImage {
     // 初次显示一个图片时，初始化 wrap 的样式
     async initWrap(ev) {
         try {
-            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
+            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
         }
         catch (error) {
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_获取作品数据失败'));
+            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_获取作品数据失败'));
             return;
         }
         const url = this.workData?.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize].replace('p0', `p${this.index}`);
@@ -11703,14 +11910,12 @@ class ShowOriginSizeImage {
     }
     /** 使用快捷键 C 下载当前显示的这张图片 */
     async downloadImage(id) {
-        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(id, 'artwork');
+        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(id, 'artwork');
         const idData = {
             type: 'illusts',
             id,
+            downloadIndexes: data.body.pageCount > 1 ? [this.index] : undefined,
         };
-        if (data.body.pageCount > 1) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setDownloadOnlyPart(Number.parseInt(idData.id), [this.index]);
-        }
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
     /** 使用快捷键 Alt + C 调用复制功能 */
@@ -11719,7 +11924,7 @@ class ShowOriginSizeImage {
             type: 'illusts',
             id,
         };
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__.copyWorkInfo.receive(idData, this.index);
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_8__.copyWorkInfo.receive(idData, this.index);
     }
 }
 new ShowOriginSizeImage();
@@ -11759,8 +11964,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '19.1.0';
-    textKey = '_版本更新说明19_1_0';
+    flag = '19.2.0';
+    textKey = '_版本更新说明19_2_0';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -12492,14 +12697,19 @@ class Tools {
     }
     /**从 url 里获取系列小说的 id。如果查找不到会返回空字符串 */
     // https://www.pixiv.net/novel/series/11721618
-    static getNovelSeriesId(url) {
-        const str = url || window.location.href;
+    static getNovelSeriesId(url = location.href) {
         let result = '';
-        const test = str.match(/novel\/series\/(\d*)?/);
+        const test = url.match(/novel\/series\/(\d*)?/);
         if (test && test.length > 1) {
             result = test[1];
         }
         return result;
+    }
+    /**从 pathname 里获取系列 id。如果查找不到会返回空字符串 */
+    // https://www.pixiv.net/novel/series/11721618
+    // https://www.pixiv.net/user/3698796/series/61267
+    static getSeriesId(path = location.pathname) {
+        return _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(path, 'series');
     }
     /**从 DOM 元素中获取作品的 id
      *
@@ -12786,6 +12996,26 @@ class Tools {
             .replace(/\[pixiv\] \d+ /, '[pixiv] ')
             .replace(/\d+ \[pixiv\]/, '[pixiv]');
         return result;
+    }
+    static getPageIdFromURL(url = location.href) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome ||
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.BookmarkLegacy ||
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark ||
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following) {
+            return this.getCurrentPageUserID();
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork ||
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.BookmarkDetail) {
+            return this.getIllustId(url);
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel) {
+            return this.getNovelId(url);
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelSeries ||
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSeries) {
+            return this.getSeriesId(location.pathname);
+        }
+        return '';
     }
     // 自定义的类型保护
     /**判断 Tags 类型 */
@@ -14192,14 +14422,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 
 
 
@@ -14214,7 +14442,7 @@ __webpack_require__.r(__webpack_exports__);
 // 对于单图作品，下载器会直接显示按钮
 // 对于多图作品，当用户点击“查看全部”按钮显示所有图片时，下载器才会显示按钮
 // 对于动图作品，不会显示这些按钮
-class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.ButtonsConfig {
+class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__.ButtonsConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
@@ -14289,7 +14517,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
         btn.style.display = 'flex';
         // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierPosition === 'left') {
             btn.style.left = `-${this.btnSize}px`;
             btn.style.right = 'unset';
         }
@@ -14305,7 +14533,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
   <use xlink:href="#${config.icon}"></use>
 </svg>`;
         btn.dataset.xztitle = config.title;
-        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
+        _Language__WEBPACK_IMPORTED_MODULE_7__.lang.register(btn);
         return btn;
     }
     clickBtn(config, a) {
@@ -14322,26 +14550,26 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
             id,
         };
         if (config.name === 'zoomBtnOnThumb') {
-            new _ImageViewer__WEBPACK_IMPORTED_MODULE_9__.ImageViewer({
+            new _ImageViewer__WEBPACK_IMPORTED_MODULE_8__.ImageViewer({
                 workId: id,
                 initialViewIndex: index,
-                imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierSize,
+                imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierSize,
                 autoStart: true,
                 showLoading: true,
             });
         }
         else if (config.name === 'copyBtnOnThumb') {
-            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_10__.copyWorkInfo.receive(idData, index);
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__.copyWorkInfo.receive(idData, index);
         }
         else if (config.name === 'downloadBtnOnThumb') {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.setDownloadOnlyPart(Number.parseInt(id), [index]);
+            idData.downloadIndexes = [index];
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
     }
     /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
     // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
     async addBtnOffset() {
-        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.getWorkDataAsync(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), 'artwork');
+        const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_4__.cacheWorkData.getWorkDataAsync(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), 'artwork');
         // 单图作品不需要处理。PS：有些漫画也是单图的
         if (!data || data.body.pageCount === 1) {
             return 0;
@@ -14351,7 +14579,7 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         if (data.body.illustType === 0) {
             // 对于插画作品，如果按钮显示在左上角就不需要加 top
             // 因为图片编号是显示在图片右上角的，左上角没什么元素会被遮挡
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.magnifierPosition === 'left') {
                 return 0;
             }
             return 34;
@@ -14379,12 +14607,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
-
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
 
 
 
@@ -14396,7 +14622,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 在图片作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_9__.ButtonsConfig {
+class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__.ButtonsConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
@@ -14461,13 +14687,13 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
   <use xlink:href="#${config.icon}"></use>
 </svg>`;
         btn.dataset.xztitle = config.title;
-        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
+        _Language__WEBPACK_IMPORTED_MODULE_7__.lang.register(btn);
         document.body.appendChild(btn);
         return btn;
     }
     clickBtn(config) {
         let index = 0;
-        const onThumbList = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
+        const onThumbList = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         // 在多图作品的缩略图列表上触发时，通过 data-index 属性获取序号
         if (onThumbList) {
             index = Number.parseInt(this.workEL.dataset.index);
@@ -14485,12 +14711,12 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             });
         }
         else if (config.name === 'copyBtnOnThumb') {
-            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData, index);
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_5__.copyWorkInfo.receive(idData, index);
         }
         else if (config.name === 'downloadBtnOnThumb') {
             // 在多图作品的缩略图列表上点击下载按钮时，只下载这一张图片
             if (onThumbList) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [index]);
+                idData.downloadIndexes = [index];
             }
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
@@ -14503,7 +14729,7 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
         // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
         let order = 0;
         const rect = this.workEL.getBoundingClientRect();
-        const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
+        const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         for (const config of this.btnsConfig) {
             // 在多图作品页面里的缩略图列表上触发时，不显示放大按钮，因为点击图片即可放大
             if (imageViewerLI && config.name === 'zoomBtnOnThumb') {
@@ -14754,9 +14980,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 
 
 
@@ -14795,9 +15019,9 @@ class DownloadBtnOnThumbOnMobile {
                     id: id,
                 };
                 // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-                if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_5__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                     const _index = Number.parseInt(el.dataset.index);
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(id), [_index]);
+                    IDData.downloadIndexes = [_index];
                 }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
             });
@@ -15182,12 +15406,21 @@ class InitPageBase {
     async crawlIdList(idList) {
         // 对 idList 进行去重
         // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
-        const ids = [];
         const _idList = [];
         for (const i of idList) {
-            if (ids.includes(i.id) === false) {
-                ids.push(i.id);
-                _idList.push(i);
+            const existing = _idList.find((item) => item.id === i.id);
+            if (!existing) {
+                // 如果该作品 id 不存在则添加它
+                _idList.push({
+                    ...i,
+                    downloadIndexes: i.downloadIndexes
+                        ? [...i.downloadIndexes]
+                        : undefined,
+                });
+            }
+            else if (existing.downloadIndexes && i.downloadIndexes) {
+                // 如果该作品 id 已存在，并且之前已经设置了只下载某些 index，则把本次的 index 和之前的 index 进行合并，以便可以下载所有指定的图片
+                existing.downloadIndexes = Array.from(new Set(existing.downloadIndexes.concat(i.downloadIndexes)));
             }
         }
         // 如果下载器正忙则把 id 列表添加到等待队列中
@@ -15316,10 +15549,11 @@ class InitPageBase {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.quickCrawl &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
             ['illusts', 'manga', 'ugoira'].includes(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type)) {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_25__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, 'artwork');
+            const idData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_25__.cacheWorkData.get(idData.id, 'artwork');
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data, idData.downloadIndexes);
                 return this.crawlFinished();
             }
         }
@@ -15399,7 +15633,7 @@ class InitPageBase {
             else {
                 // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data, idData.downloadIndexes);
                 this.afterGetWorksData(data);
             }
         }
@@ -16177,10 +16411,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -16262,7 +16494,7 @@ class CrawlCurrent {
             // 如果没有打开图片查看器，则下载当前页面所显示的图片
             if (this.show) {
                 // 获取 id
-                id = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getIllustId(window.location.href));
+                id = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getIllustId(window.location.href));
                 // 获取页码
                 const span = document.querySelector('div[role="presentation"] span');
                 if (!span) {
@@ -16289,13 +16521,13 @@ class CrawlCurrent {
             }
         }
         _store_States__WEBPACK_IMPORTED_MODULE_4__.states.quickCrawl = true;
-        _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(id, [no]);
         let idData = {
             type: 'illusts',
             id: id.toString(),
+            downloadIndexes: [no],
         };
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [idData]);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBlue,
         });
     }
@@ -16732,14 +16964,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化插画/漫画的系列作品页面
+
 
 
 
@@ -16764,25 +16998,25 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     initAny() { }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type].value;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
     }
     nextStep() {
         // 设置起始页码
-        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLSearchField(location.href, 'p');
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 获取系列 id
-        this.seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'series');
+        this.seriesId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getSeriesId();
         this.getIdList();
     }
     async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         let p = this.startpageNo + this.listPageFinished;
         const data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getSeriesData(this.seriesId, p);
         this.listPageFinished++;
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         // 保存本页面的作品的 id 列表
@@ -16815,8 +17049,8 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 xRestrict: work.xRestrict,
             };
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
                     type: 'illusts',
                     id: work.id,
                 });
@@ -16828,12 +17062,12 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (endFlag ||
             p >= this.maxCount ||
             this.listPageFinished === this.crawlNumber) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
             this.getIdListFinished();
         }
         else {
             // 继续抓取
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
             this.getIdList();
         }
     }
@@ -16971,16 +17205,16 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
 
 /***/ }),
 
-/***/ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts":
-/*!*******************************************************!*\
-  !*** ./src/ts/crawlArtworkPage/InitNewArtworkPage.ts ***!
-  \*******************************************************/
+/***/ "./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts":
+/*!*******************************************************************!*\
+  !*** ./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts ***!
+  \*******************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitNewArtworkPage: () => (/* binding */ InitNewArtworkPage)
+/* harmony export */   InitNewArtworkFromAllUsersPage: () => (/* binding */ InitNewArtworkFromAllUsersPage)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
@@ -17005,7 +17239,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+class InitNewArtworkFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -18649,204 +18883,6 @@ const crawlTagList = new CrawlTagList();
 
 /***/ }),
 
-/***/ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts":
-/*!******************************************************!*\
-  !*** ./src/ts/crawlMixedPage/InitBookmarkNewPage.ts ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitBookmarkNewPage: () => (/* binding */ InitBookmarkNewPage)
-/* harmony export */ });
-/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
-// Premium 会员可以看到第 84 页
-
-
-
-
-
-
-
-
-
-
-
-class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    getIdListLogKey = 'crawlBookmarkNewPageProgress';
-    workType = 'illust';
-    /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
-    pageType = 'bookmark';
-    tag = '';
-    r18 = false;
-    // 这次抓取任务最多可以抓取到多少个作品
-    crawlWorksMaxNumber = 0;
-    // 裁剪 API 返回的作品数据时的偏移量
-    firstOffset = 0;
-    // 总计抓取了多少个作品（被裁剪掉的不算）
-    crawledWorksNumber = 0;
-    // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
-    // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
-    firstWorkId = '';
-    addCrawlBtns() {
-        this.addInitPageBtn('crawlBtns', '_开始抓取', '_默认下载多页', 'startCrawling', 'brand').addEventListener('click', () => {
-            this.readyCrawl();
-        });
-        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
-        this.addCancelTimedCrawlBtn();
-    }
-    initAny() { }
-    getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
-    }
-    nextStep() {
-        this.setSlowCrawl();
-        this.workType = window.location.pathname.includes('/novel')
-            ? 'novel'
-            : 'illust';
-        this.pageType = window.location.pathname.includes('/mypixiv')
-            ? 'mypixiv'
-            : 'bookmark';
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(window.location.href, 'tag');
-        this.r18 = location.pathname.includes('r18');
-        // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
-        this.crawlWorksMaxNumber = this.crawlNumber * 60;
-        // 设置 API 里发起请求的页数
-        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
-        const pageNo = parseInt(p) || 1;
-        this.startpageNo = pageNo;
-        this.getIdList();
-    }
-    async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
-            return this.getIdListFinished();
-        }
-        let p = this.startpageNo + this.listPageFinished;
-        let data;
-        try {
-            if (this.pageType === 'bookmark') {
-                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getBookmarkNewWorkData(this.workType, p, this.tag, this.r18);
-            }
-            else {
-                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivNewWorkData(this.workType, p);
-            }
-        }
-        catch (error) {
-            this.getIdList();
-            return;
-        }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
-            return this.getIdListFinished();
-        }
-        let worksData = data.body.thumbnails[this.workType];
-        // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
-        if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
-            return this.getIdListFinished();
-        }
-        else {
-            // 如果数据没有重复，则保存第一个作品的 id
-            this.firstWorkId = worksData[0].id;
-        }
-        this.crawledWorksNumber += worksData.length;
-        // 过滤作品
-        // 过滤插画·漫画
-        if (this.workType === 'illust') {
-            for (const data of worksData) {
-                if (data.isAdContainer) {
-                    continue;
-                }
-                const filterOpt = {
-                    aiType: data.aiType,
-                    id: data.id,
-                    isOriginal: data.isOriginal,
-                    width: data.pageCount === 1 ? data.width : 0,
-                    height: data.pageCount === 1 ? data.height : 0,
-                    pageCount: data.pageCount,
-                    bookmarkData: data.bookmarkData,
-                    workType: data.illustType,
-                    tags: data.tags,
-                    title: data.title,
-                    userId: data.userId,
-                    xRestrict: data.xRestrict,
-                };
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                        type: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeString(data.illustType),
-                        id: data.id,
-                    });
-                }
-            }
-        }
-        else {
-            // 过滤小说
-            for (const data of worksData) {
-                const filterOpt = {
-                    aiType: data.aiType,
-                    id: data.id,
-                    isOriginal: data.isOriginal,
-                    workType: 3,
-                    tags: data.tags,
-                    title: data.title,
-                    bookmarkCount: data.bookmarkCount,
-                    bookmarkData: data.bookmarkData,
-                    userId: data.userId,
-                };
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                        type: 'novels',
-                        id: data.id,
-                    });
-                }
-            }
-        }
-        this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
-        // 判断任务状态
-        // 如果抓取到了指定数量的作品，或者抓取到了最后一页，或者抓取完了指定的页面数量
-        if (this.crawledWorksNumber >= this.crawlWorksMaxNumber ||
-            p >= this.maxCount ||
-            this.listPageFinished === this.crawlNumber) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
-            this.getIdListFinished();
-        }
-        else {
-            // 继续抓取
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
-            }
-            this.getIdList();
-        }
-    }
-    resetGetIdListStatus() {
-        this.listPageFinished = 0;
-        this.firstOffset = 0;
-        this.crawledWorksNumber = 0;
-        this.firstWorkId = '';
-    }
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/crawlMixedPage/InitBookmarkPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitBookmarkPage.ts ***!
@@ -20180,6 +20216,204 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 
 /***/ }),
 
+/***/ "./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts":
+/*!****************************************************************!*\
+  !*** ./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitNewWorksFromFollowingPage: () => (/* binding */ InitNewWorksFromFollowingPage)
+/* harmony export */ });
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
+// Premium 会员可以看到第 84 页
+
+
+
+
+
+
+
+
+
+
+
+class InitNewWorksFromFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    getIdListLogKey = 'crawlBookmarkNewPageProgress';
+    workType = 'illust';
+    /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
+    pageType = 'bookmark';
+    tag = '';
+    r18 = false;
+    // 这次抓取任务最多可以抓取到多少个作品
+    crawlWorksMaxNumber = 0;
+    // 裁剪 API 返回的作品数据时的偏移量
+    firstOffset = 0;
+    // 总计抓取了多少个作品（被裁剪掉的不算）
+    crawledWorksNumber = 0;
+    // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
+    // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
+    firstWorkId = '';
+    addCrawlBtns() {
+        this.addInitPageBtn('crawlBtns', '_开始抓取', '_默认下载多页', 'startCrawling', 'brand').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
+    }
+    initAny() { }
+    getWantPage() {
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type].value;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
+    }
+    nextStep() {
+        this.setSlowCrawl();
+        this.workType = window.location.pathname.includes('/novel')
+            ? 'novel'
+            : 'illust';
+        this.pageType = window.location.pathname.includes('/mypixiv')
+            ? 'mypixiv'
+            : 'bookmark';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(window.location.href, 'tag');
+        this.r18 = location.pathname.includes('r18');
+        // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
+        this.crawlWorksMaxNumber = this.crawlNumber * 60;
+        // 设置 API 里发起请求的页数
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
+        const pageNo = parseInt(p) || 1;
+        this.startpageNo = pageNo;
+        this.getIdList();
+    }
+    async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        let p = this.startpageNo + this.listPageFinished;
+        let data;
+        try {
+            if (this.pageType === 'bookmark') {
+                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getBookmarkNewWorkData(this.workType, p, this.tag, this.r18);
+            }
+            else {
+                data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivNewWorkData(this.workType, p);
+            }
+        }
+        catch (error) {
+            this.getIdList();
+            return;
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        let worksData = data.body.thumbnails[this.workType];
+        // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
+        if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
+            return this.getIdListFinished();
+        }
+        else {
+            // 如果数据没有重复，则保存第一个作品的 id
+            this.firstWorkId = worksData[0].id;
+        }
+        this.crawledWorksNumber += worksData.length;
+        // 过滤作品
+        // 过滤插画·漫画
+        if (this.workType === 'illust') {
+            for (const data of worksData) {
+                if (data.isAdContainer) {
+                    continue;
+                }
+                const filterOpt = {
+                    aiType: data.aiType,
+                    id: data.id,
+                    isOriginal: data.isOriginal,
+                    width: data.pageCount === 1 ? data.width : 0,
+                    height: data.pageCount === 1 ? data.height : 0,
+                    pageCount: data.pageCount,
+                    bookmarkData: data.bookmarkData,
+                    workType: data.illustType,
+                    tags: data.tags,
+                    title: data.title,
+                    userId: data.userId,
+                    xRestrict: data.xRestrict,
+                };
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeString(data.illustType),
+                        id: data.id,
+                    });
+                }
+            }
+        }
+        else {
+            // 过滤小说
+            for (const data of worksData) {
+                const filterOpt = {
+                    aiType: data.aiType,
+                    id: data.id,
+                    isOriginal: data.isOriginal,
+                    workType: 3,
+                    tags: data.tags,
+                    title: data.title,
+                    bookmarkCount: data.bookmarkCount,
+                    bookmarkData: data.bookmarkData,
+                    userId: data.userId,
+                };
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: 'novels',
+                        id: data.id,
+                    });
+                }
+            }
+        }
+        this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+        // 判断任务状态
+        // 如果抓取到了指定数量的作品，或者抓取到了最后一页，或者抓取完了指定的页面数量
+        if (this.crawledWorksNumber >= this.crawlWorksMaxNumber ||
+            p >= this.maxCount ||
+            this.listPageFinished === this.crawlNumber) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_列表页抓取完成'));
+            this.getIdListFinished();
+        }
+        else {
+            // 继续抓取
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy);
+            }
+            this.getIdList();
+        }
+    }
+    resetGetIdListStatus() {
+        this.listPageFinished = 0;
+        this.firstOffset = 0;
+        this.crawledWorksNumber = 0;
+        this.firstWorkId = '';
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlMixedPage/InitUnlistedPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitUnlistedPage.ts ***!
@@ -20661,7 +20895,7 @@ class Bookmark404ActionBase extends _BookmarkPageBatchActionBase__WEBPACK_IMPORT
     // 获取被删除的作品列表
     get404IdList(workData) {
         if (Number.parseInt(workData.userId) === 0) {
-            this.idList404.push(workData.id);
+            this.idList404.push(Number.parseInt(workData.id));
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个已被删除的作品', this.idList404.length.toString()), 'Bookmark404IdListCount');
         }
     }
@@ -20902,7 +21136,6 @@ __webpack_require__.r(__webpack_exports__);
 
 // 导出收藏的作品列表。会包含已被删除的作品
 class ExportBookmarkListAction extends _BookmarkPageBatchActionBase__WEBPACK_IMPORTED_MODULE_8__.BookmarkPageBatchActionBase {
-    exportList = [];
     constructor(btn) {
         super();
         btn.addEventListener('click', () => {
@@ -20914,7 +21147,6 @@ class ExportBookmarkListAction extends _BookmarkPageBatchActionBase__WEBPACK_IMP
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             return;
         }
-        this.exportList = [];
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('closeCenterPanel');
         const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出收藏列表');
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(msg);
@@ -20925,7 +21157,7 @@ class ExportBookmarkListAction extends _BookmarkPageBatchActionBase__WEBPACK_IMP
         await this.run({
             crawlNumber: crawlNumber,
             slowCrawl: true,
-            collectWork: async (workData) => {
+            collectWork: async (workData, bookmarkTags) => {
                 const filterOpt = {
                     aiType: workData.aiType,
                     id: workData.id,
@@ -20945,16 +21177,16 @@ class ExportBookmarkListAction extends _BookmarkPageBatchActionBase__WEBPACK_IMP
                     type: workData.illustType === undefined
                         ? 'novels'
                         : 'illusts',
-                    tags: workData.tags,
                     restrict: workData.bookmarkData?.private || false,
+                    tags: workData.tags,
+                    bookmarkTags: bookmarkTags || [],
                 };
             },
             onCollected: async (bookmarkDataList) => {
-                this.exportList = bookmarkDataList;
-                if (this.exportList.length === 0) {
+                if (bookmarkDataList.length === 0) {
                     return;
                 }
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(this.exportList);
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(bookmarkDataList);
                 for (const result of resultList) {
                     _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(result.url, `Bookmark list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle()}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
                 }
@@ -21203,12 +21435,14 @@ class UnBookmarkAll404WorksAction extends _Bookmark404ActionBase__WEBPACK_IMPORT
                 slowCrawl: true,
                 collectWork: (workData, bookmarkTags) => {
                     this.get404IdList(workData);
-                    // 同时正常保存收藏数据，在取消收藏时使用
+                    // 保存所有收藏的作品的数据
                     return this.createBookmarkData(workData, bookmarkTags);
                 },
                 onCollected: async (bookmarkDataList) => {
                     this.exportBookmark404Ids();
-                    await _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_4__.unBookmarkWorks.start(bookmarkDataList);
+                    // 过滤出 404 作品的数据，并取消收藏
+                    const bookmarkData404 = bookmarkDataList.filter((data) => this.idList404.includes(data.workID));
+                    await _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_4__.unBookmarkWorks.start(bookmarkData404);
                 },
             });
         });
@@ -21353,16 +21587,16 @@ const getNovelGlossarys = new GetNovelGlossarys();
 
 /***/ }),
 
-/***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts":
-/*!***************************************************!*\
-  !*** ./src/ts/crawlNovelPage/InitNewNovelPage.ts ***!
-  \***************************************************/
+/***/ "./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts":
+/*!***************************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitNewNovelFromAllUsersPage.ts ***!
+  \***************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitNewNovelPage: () => (/* binding */ InitNewNovelPage)
+/* harmony export */   InitNewNovelFromAllUsersPage: () => (/* binding */ InitNewNovelFromAllUsersPage)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
@@ -21385,7 +21619,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+class InitNewNovelFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -21619,8 +21853,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 //初始化小说系列作品页面
@@ -21645,7 +21879,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     addAnyElement() {
         this.addInitPageBtn('crawlBtns', '_合并系列小说', '', 'mergeSeriesNovel', 'brand').addEventListener('click', async () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-            const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'series');
+            const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
             let seriseTitle = '';
             // 尝试获取系列标题
             const meta = document.querySelector('meta[property="twitter:title"]');
@@ -21660,8 +21894,8 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.getIdList();
     }
     async getIdList() {
-        const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'series');
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
+        const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.idList.push({
@@ -26021,6 +26255,8 @@ class MergeNovel {
     seriesId = '';
     seriesTitle = '';
     seriesUpdateDate = '';
+    /** 系列小说的收藏数，是系列里所有小说的收藏数量之和 */
+    seriesBookmarkCount = 0;
     seriesCaption = '';
     seriesGlossaryText = '';
     glossaryImages = [];
@@ -26082,7 +26318,7 @@ class MergeNovel {
         await this.getAllNovelData();
         await this.loadGlossaryData(seriesId);
         const body = await this.loadSeriesData();
-        this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData);
+        this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData, this.seriesBookmarkCount);
         await this.mergeByFormat(body);
         await this.downloadSeriesCoverFile(body.cover.urls.original);
         this.logMergeFinished(link);
@@ -26635,6 +26871,11 @@ class MergeNovel {
         const seriesContents = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         let list = seriesContents.body.page.seriesContents;
         const thisPageIdNumber = list.length;
+        // 累加所有作品的收藏数量，作为系列的收藏数量
+        list.forEach((item) => {
+            this.seriesBookmarkCount += item.bookmarkCount;
+        });
+        let useList = list;
         // 如果当前页面是系列页面，并且用户手动选择了部分小说，那么在合并时，只合并用户选择的小说，而不是整个系列里的所有小说
         if (_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.list.NovelSeries &&
             _SelectWork__WEBPACK_IMPORTED_MODULE_22__.selectWork.idList.length > 0) {
@@ -26643,10 +26884,10 @@ class MergeNovel {
                 .map((item) => item.id);
             if (selectedNovelIds.length > 0) {
                 _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示只合并选择的小说'), 'tipOnlyMergeSelectedNovels');
-                list = list.filter((item) => selectedNovelIds.includes(item.id));
+                useList = list.filter((item) => selectedNovelIds.includes(item.id));
             }
         }
-        for (const item of list) {
+        for (const item of useList) {
             // 先保存小说 id（不进行过滤）
             this.novelIdListUnfiltered.push(item.id);
             // 然后保存通过了过滤器检查的小说 id
@@ -26858,7 +27099,7 @@ class MergeNovel {
                 part = current.part;
             }
             // 为这个分割的文件生成新的文件名（添加了 part 编号）
-            name = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData, part + 1);
+            name = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData, this.seriesBookmarkCount, part + 1);
         }
         // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
         // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
@@ -26935,6 +27176,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -26943,8 +27186,8 @@ __webpack_require__.r(__webpack_exports__);
 [];
 class MergeNovelFileName {
     /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
-    getName(seriesData, part = 0) {
-        let rule = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.seriesNovelNameRule;
+    getName(seriesData, seriesBookmarkCount, part = 0) {
+        let rule = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.seriesNovelNameRule, true);
         // 所有标记：
         // {series_title}-{series_id}-{user}-{user_id}-{part}-{age}-{age_r}-{AI}-{lang}-{total}-{char_count}-{create_date}-{last_date}-{task_date}-{first_id}-{latest_id}-{tags}-{page_tag}-{page_title}.{ext}
         const body = seriesData.body;
@@ -26973,6 +27216,10 @@ class MergeNovelFileName {
             },
             '{ext}': {
                 value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs,
+                safe: true,
+            },
+            '{bmk}': {
+                value: seriesBookmarkCount.toString(),
                 safe: true,
             },
             '{age}': {
@@ -32754,10 +33001,26 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     _命名标记page_title: [
         '开始抓取时的页面标题',
         '開始抓取時的頁面標題',
-        'Page title when starting the scrape',
-        'スクレイピング開始時のページタイトル',
-        '페이지 스크래핑 시작 시의 페이지 제목',
+        'Page title when starting the crawl',
+        'クロール開始時のページタイトル',
+        '크롤링 시작 시 페이지 제목',
         'Заголовок страницы при начале сбора данных',
+    ],
+    _命名标记page_type: [
+        `开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但类型名称都是 <span class="blue">Home</span>。`,
+        `開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，共有二十多種。有時分類比較籠統，例如首頁有插畫、漫畫、小說等子分類，但類型名稱都是 <span class="blue">Home</span>。`,
+        `Page type name when starting the crawl, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, and <span class="blue">Bookmark</span>. These are page types categorized internally by the downloader, and there are more than twenty of them. Sometimes the categories are broad; for example, the home page has subcategories such as illustrations, manga, and novels, but the type name for all of them is <span class="blue">Home</span>.`,
+        `クロール開始時のページの種類の名前。例：<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。ダウンローダーが内部で分類しているページの種類で、20種類以上あります。分類が比較的大まかな場合もあります。例えば、ホームページにはイラスト、漫画、小説などのサブカテゴリがありますが、種類の名前はすべて <span class="blue">Home</span> です。`,
+        `크롤링 시작 시 페이지 유형 이름입니다. 예: <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. 다운로더가 내부적으로 분류한 페이지 유형이며, 20가지가 넘습니다. 분류가 다소 포괄적인 경우도 있습니다. 예를 들어 홈페이지에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 유형 이름은 모두 <span class="blue">Home</span>입니다.`,
+        `Название типа страницы при начале сбора данных, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span> и <span class="blue">Bookmark</span>. Это типы страниц, классифицированные загрузчиком внутри программы; всего их более двадцати. Иногда классификация довольно общая. Например, на главной странице есть подкатегории иллюстраций, манги и новелл, но название типа для всех них — <span class="blue">Home</span>.`,
+    ],
+    _命名标记page_id: [
+        `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。`,
+        `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面，輸出該頁面的作品 ID。2. 在用戶主頁、收藏頁面、關注頁面，輸出該頁面的用戶 ID。3. 在系列頁面，輸出系列 ID。`,
+        `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. On a work page, it outputs the work ID of that page. 2. On a user's page, bookmark page, or following page, it outputs the user ID of that page. 3. On a series page, it outputs the series ID.`,
+        `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページでは、そのページの作品 ID を出力します。2. ユーザーページ、ブックマークページ、フォローページでは、そのページのユーザー ID を出力します。3. シリーズページでは、シリーズ ID を出力します。`,
+        `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지, 북마크 페이지, 팔로잉 페이지에서는 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지에서는 시리즈 ID를 출력합니다.`,
+        `Идентификатор страницы при начале сбора данных. Он предназначен для объединения нескольких работ на странице с помощью идентификатора страницы. Например, при сборе связанных работ на странице работы этот токен выводит идентификатор работы на этой странице (он только один), а не идентификаторы отдельных работ (их несколько). Он имеет значение только в следующих случаях: 1. На странице работы выводится идентификатор работы на этой странице. 2. На странице пользователя, странице закладок или странице подписок выводится идентификатор пользователя этой страницы. 3. На странице серии выводится идентификатор серии.`,
     ],
     _预览文件名: [
         '预览文件名',
@@ -37489,12 +37752,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
     ],
     _正在加载关注用户列表: [
-        '正在加载关注用户列表',
-        '正在載入關注使用者列表',
-        'Loading list of followed users',
-        'フォローしているユーザーのリストを読み込み中',
-        '팔로우한 사용자 목록 로드 중',
-        'Загрузка списка отслеживаемых пользователей',
+        '正在加载关注用户列表。该数据会保存在本地，供一些附加功能使用',
+        '正在載入關注使用者列表。該資料會保存在本地，供一些附加功能使用',
+        'Loading the list of following users. The data will be saved locally for some additional features.',
+        'フォローしているユーザーのリストを読み込んでいます。データは一部の追加機能のためにローカルに保存されます。',
+        '팔로우하는 사용자 목록을 로드하고 있습니다. 데이터는 일부 추가 기능을 위해 로컬에 저장됩니다.',
+        'Загрузка списка следующих пользователей. Данные будут сохранены локально для некоторых дополнительных функций.',
     ],
     _已更新关注用户列表: [
         '已更新关注用户列表',
@@ -37947,60 +38210,66 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息<br>
-<span class="blue">Esc</span> 关闭预览图<br>
+<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>
 <span class="blue">← ↑</span> 上一张图片<br>
 <span class="blue">→ ↓</span> 下一张图片<br>
-<span class="blue">空格键</span> 下一张图片`,
+<span class="blue">空格键</span> 下一张图片<br>
+你可以随时在“预览作品”设置里查看这个快捷键列表`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
 當你查看預覽圖時，可以使用如下快捷鍵：<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊<br>
-<span class="blue">Esc</span> 關閉預覽圖<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點選滑鼠左鍵也可以關閉預覽圖<br>
 <span class="blue">← ↑</span> 上一張圖片<br>
 <span class="blue">→ ↓</span> 下一張圖片<br>
-<span class="blue">空格鍵</span> 下一張圖片`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Toggle preview work function on/off<br>
-When viewing the preview image, you can use the following shortcut keys:<br>
+<span class="blue">空格鍵</span> 下一張圖片<br>
+你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
+When you view the preview image, you can use the following keyboard shortcuts:<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
-<span class="blue">C</span>(urrent) Download the currently previewed image (if the work has multiple images, only the current one will be downloaded)<br>
-<span class="blue">D</span>(ownload) Download the currently previewed work (if the work has multiple images, all will be downloaded by default)<br>
+<span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information<br>
-<span class="blue">Esc</span> Close the preview image<br>
+<span class="blue">Esc</span> Close the preview image. You can also close it by left-clicking the preview image<br>
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
-<span class="blue">Spacebar</span> Next image`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能のオン/オフ<br>
-プレビュー画像を表示しているときに、以下のショートカットキーを使用できます：<br>
+<span class="blue">Spacebar</span> Next image<br>
+You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
+プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
-<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（作品に複数の画像がある場合、現在表示中のものだけがダウンロードされます）<br>
-<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードされます）<br>
+<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
+<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー<br>
-<span class="blue">Esc</span> プレビュー画像を閉じる<br>
+<span class="blue">Esc</span> プレビュー画像を閉じる。また、プレビュー画像を左クリックしても閉じられます<br>
 <span class="blue">← ↑</span> 前の画像<br>
 <span class="blue">→ ↓</span> 次の画像<br>
-<span class="blue">スペースキー</span> 次の画像`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 끄기/켜기<br>
-미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다:<br>
-<span class="blue">B</span>(ookmark) 미리보기 중인 작품을 북마크<br>
-<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지를 다운로드 (작품에 여러 이미지가 있으면 현재 이 하나만 다운로드)<br>
-<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품을 다운로드 (작품에 여러 이미지가 있으면 기본적으로 모두 다운로드)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기<br>
+<span class="blue">スペースバー</span> 次の画像<br>
+「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
+미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
+<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
+<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫을 수 있습니다<br>
 <span class="blue">← ↑</span> 이전 이미지<br>
 <span class="blue">→ ↓</span> 다음 이미지<br>
-<span class="blue">스페이스바</span> 다음 이미지`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Включить/выключить функцию предпросмотра работы<br>
-При просмотре изображения предпросмотра вы можете использовать следующие комбинации клавиш:<br>
-<span class="blue">B</span>(ookmark) Добавить предпросматриваемую работу в закладки<br>
-<span class="blue">C</span>(urrent) Скачать изображение текущего предпросмотра (если в работе несколько изображений, будет скачано только текущее)<br>
-<span class="blue">D</span>(ownload) Скачать работу текущего предпросмотра (если в работе несколько изображений, по умолчанию все будут скачаны)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе<br>
-<span class="blue">Esc</span> Закрыть изображение предпросмотра<br>
+<span class="blue">스페이스바</span> 다음 이미지<br>
+「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
+Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+<span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее просматриваемое изображение и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть предварительный просмотр. Кроме того, закрыть его можно также нажав левую кнопку мыши на изображении<br>
 <span class="blue">← ↑</span> Предыдущее изображение<br>
 <span class="blue">→ ↓</span> Следующее изображение<br>
-<span class="blue">Пробел</span> Следующее изображение`,
+<span class="blue">Пробел</span> Следующее изображение<br>
+Вы можете в любой момент просмотреть этот список сочетаний клавиш в настройках «Предварительный просмотр работы»`,
     ],
     _导出收藏列表: [
         '导出收藏列表（JSON）',
@@ -39082,6 +39351,14 @@ If you want to use this feature, please note:
 - Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
 <br>`,
     ],
+    _提示如果你启用了这个设置下载器不会创建文件夹: [
+        `如果你启用了这个设置，下载器不会创建文件夹。`,
+        `如果你啟用了這個設置，下載器不會創建文件夾。`,
+        `If you enable this setting, the downloader will not create folders.`,
+        `この設定を有効にすると、ダウンロードツールはフォルダを作成しません。`,
+        `이 설정을 활성화하면 다운로더는 폴더를 생성하지 않습니다.`,
+        `Если вы включите эту настройку, загрузчик не будет создавать папки.`,
+    ],
     _下载器排除了一些作品原因: [
         `🚫下载器排除了一些作品，原因: `,
         `🚫下載器排除了一些作品，原因: `,
@@ -39411,6 +39688,14 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
         `このシリーズの言語コード、例：<span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> など。注意：これは常に正確ではなく、一部の作者が正しい言語を設定していないためです。`,
         `이 시리즈의 언어 코드, 예: <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 등. 주의: 이는 항상 정확하지 않으며, 일부 작가가 올바른 언어를 설정하지 않았기 때문입니다.`,
         `Код языка этой серии, например <span class="blue">zh-cn</span>, <span class="blue">ja</span>, <span class="blue">en</span> и т.д. Примечание: Это не всегда точно, поскольку некоторые авторы не установили правильный язык.`,
+    ],
+    _系列小说的命名标记_bmk: [
+        `这个系列里所有小说的收藏数量之和，是数字。`,
+        `這個系列裡所有小說的收藏數量之和，是數字。`,
+        `The total number of bookmarks for all novels in this series, it is a number.`,
+        `このシリーズ内のすべての小説のブックマーク数の合計、数値です。`,
+        `이 시리즈의 모든 소설의 북마크 수의 합계, 숫자입니다。`,
+        `Общее количество закладок для всех романов в этой серии, это число。`,
     ],
     _系列小说的命名标记_total: [
         `这个系列里一共含有多少篇小说，是数字。`,
@@ -41588,127 +41873,255 @@ If you enable this setting, the downloader will merge all novels.`,
         `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
         `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
     ],
-    _版本更新说明19_1_0: [
-        `本次更新添加了一些新功能，主要优化了下载小说时的体验。<br>
-<strong>✨在系列小说页面里，可以选择部分小说进行合并</strong><br>
-之前下载器总是会合并所有小说，现在可以只合并部分小说了。<br>
-操作方法：先使用“手动选择作品”功能选择部分小说，然后点击“合并系列小说”按钮来合并它们。<br>
-<strong>✨在下载小说时，下载器会应用“置换单词”设置</strong><br>
-如果用户设置了替换的单词，那么下载器在保存小说时也会进行相应的替换。<br>
-<strong>✨新增设置：在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说</strong><br>
-举例说明：<br>
-假如你设置了收藏数量 > 100；某个系列里有 10 篇小说，其中只有 1 篇小说符合条件。<br>
-在默认情况下（未启用此设置），下载器只会合并这 1 篇小说。如果你启用了这个设置，那么下载器会合并所有小说。<br>
-<strong>✨在“下载小说里的内嵌图片”设置里添加了图片尺寸的选择</strong><br>
-有些小说里的图片体积很大，所以一些用户希望可以保存尺寸较小的图片。现在我添加了图片尺寸的设置。<br>
-<strong>✨在合并系列小说时，下载器会保存设定资料里的图片</strong><br>
-有些系列小说的设定资料里有图片，现在下载器可以保存这些图片了。<br>
-<strong>✨在收藏页面里新增了两个附加功能按钮</strong><br>
-- 移除所有作品的标签<br>
-- 取消收藏所有作品<br>
-<strong>🔄把关注页面里的一些按钮从“开始抓取”区域移动到了“附加功能”区域里</strong><br>
-<strong>🐞修复问题：在高 DPI 缩放里，设置面板的底部可能显示不完整</strong><br>
-<strong>😊优化了一些提示</strong><br>`,
-        `本次更新新增了一些新功能，主要優化了下載小說時的體驗。<br>
-<strong>✨在系列小說頁面裡，可以選擇部分小說進行合併</strong><br>
-之前下載器總是會合併所有小說，現在可以只合併部分小說了。<br>
-操作方法：先使用「手動選擇作品」功能選擇部分小說，然後點擊「合併系列小說」按鈕來合併它們。<br>
-<strong>✨在下載小說時，下載器會套用「置換單詞」設定</strong><br>
-如果使用者設定了要替換的單詞，那麼下載器在儲存小說時也會進行相應的替換。<br>
-<strong>✨新增設定：在合併系列小說時，只要有一篇小說符合過濾條件，就儲存該系列裡的所有小說</strong><br>
-舉例說明：<br>
-假如你設定了收藏數量 > 100；某個系列裡有 10 篇小說，其中只有 1 篇小說符合條件。<br>
-在預設情況下（未啟用此設定），下載器只會合併這 1 篇小說。如果你啟用了這個設定，那麼下載器會合併所有小說。<br>
-<strong>✨在「下載小說裡的內嵌圖片」設定裡新增了圖片尺寸的選擇</strong><br>
-有些小說裡的圖片體積很大，所以有些使用者希望可以儲存尺寸較小的圖片。現在我新增了圖片尺寸的設定。<br>
-<strong>✨在合併系列小說時，下載器會儲存 glossary 裡的圖片</strong><br>
-有些系列小說的 glossary 裡有圖片，現在下載器可以儲存這些圖片了。<br>
-<strong>✨在收藏頁面裡新增了兩個附加功能按鈕</strong><br>
-- 移除所有作品的標籤<br>
-- 取消收藏所有作品<br>
-<strong>🔄把關注頁面裡的一些按鈕從「開始抓取」區域移動到了「附加功能」區域裡</strong><br>
-<strong>🐞修正問題：在高 DPI 縮放裡，設定面板的底部可能顯示不完整</strong><br>
-<strong>😊優化了一些提示</strong><br>`,
-        `This update adds several new features, mainly improving the experience of downloading novels.<br>
-<strong>✨On series novel pages, you can now choose only some novels to merge</strong><br>
-Previously, the downloader always merged all novels. Now you can merge only part of them.<br>
-How to use it: first use the "Manually select works" feature to choose some novels, then click the "Merge series novels" button to merge them.<br>
-<strong>✨The downloader now applies the "Replace words" setting when downloading novels</strong><br>
-If you have set words to be replaced, the downloader will apply those replacements when saving the novel as well.<br>
-<strong>✨New setting: When merging series novels, as long as one novel meets the filtering criteria, all novels in the series will be saved</strong><br>
-Example:<br>
-Suppose you set the number of bookmarks > 100; there are 10 novels in a series, and only 1 novel meets the criteria.<br>
-By default (without enabling this setting), the downloader will only merge that 1 novel. If you enable this setting, it will merge all novels.<br>
-<strong>✨The "Download embedded images in novels" setting now includes image size options</strong><br>
-Some images in novels are very large, so some users wanted a way to save smaller versions. Now I have added image size settings.<br>
-<strong>✨When merging series novels, the downloader now saves images in the glossary</strong><br>
-Some series novels have images in their glossary, and now the downloader can save those images too.<br>
-<strong>✨Two new extra feature buttons have been added to the bookmark page</strong><br>
-- Remove tags from all works<br>
-- Unbookmark all works<br>
-<strong>🔄Some buttons on the following page have been moved from the "Start crawl" area to the "Extra features" area</strong><br>
-<strong>🐞Bug fix: On high-DPI scaling, the bottom of the settings panel could be displayed incompletely</strong><br>
-<strong>😊Improved some tips</strong><br>`,
-        `今回のアップデートではいくつかの新機能を追加し、主に小説ダウンロード時の使い勝手を改善しました。<br>
-<strong>✨シリーズ小説ページで、マージする小説を一部だけ選べるようになりました</strong><br>
-これまではダウンローダーが常にすべての小説をマージしていましたが、今は一部だけをマージできます。<br>
-操作方法：まず「手動選択作品」機能で一部の小説を選び、その後「シリーズ小説をマージ」ボタンをクリックしてマージしてください。<br>
-<strong>✨小説をダウンロードするとき、ダウンローダーが「置換単語」設定を適用するようになりました</strong><br>
-置換する単語を設定している場合、ダウンローダーは小説を保存するときにもその置換を適用します。<br>
-<strong>✨新しい設定を追加：シリーズ小説をマージするとき、1つの小説がフィルタリング条件を満たしていれば、シリーズ内のすべての小説を保存します</strong><br>
-例：<br>
-ブックマーク数 > 100 を設定したとします。あるシリーズに小説が 10 本あり、そのうち条件を満たすのは 1 本だけです。<br>
-デフォルトでは（この設定を有効にしていない場合）、ダウンローダーはその 1 本だけをマージします。この設定を有効にすると、すべての小説をマージします。<br>
-<strong>✨「小説内の埋め込み画像をダウンロード」設定に画像サイズの選択肢を追加しました</strong><br>
-小説内の画像の中にはサイズがかなり大きいものもあるため、もっと小さい画像を保存したいというユーザーがいました。そこで画像サイズ設定を追加しました。<br>
-<strong>✨シリーズ小説をマージするとき、ダウンローダーが glossary 内の画像も保存するようになりました</strong><br>
-シリーズ小説の glossary に画像が含まれていることがありますが、今はそれらの画像も保存できます。<br>
-<strong>✨ブックマークページに 2 つの追加機能ボタンを追加しました</strong><br>
-- すべての作品のタグを削除<br>
-- すべての作品のブックマークを解除<br>
-<strong>🔄フォローページの一部のボタンを「クロール開始」エリアから「追加機能」エリアへ移動しました</strong><br>
-<strong>🐞不具合修正：高 DPI スケーリング時に、設定パネル下部が完全に表示されないことがある問題を修正しました</strong><br>
-<strong>😊いくつかのヒントを改善しました</strong><br>`,
-        `이번 업데이트에서는 몇 가지 새 기능이 추가되었고, 특히 소설 다운로드 경험이 개선되었습니다.<br>
-<strong>✨시리즈 소설 페이지에서 일부 소설만 선택해서 병합할 수 있게 되었습니다</strong><br>
-이전에는 다운로더가 항상 모든 소설을 병합했지만, 이제는 일부만 병합할 수 있습니다.<br>
-사용 방법: 먼저 "수동으로 작품 선택" 기능으로 일부 소설을 선택한 다음, "시리즈 소설 병합" 버튼을 클릭해 병합하면 됩니다.<br>
-<strong>✨소설을 다운로드할 때 다운로더가 "단어 치환" 설정을 적용합니다</strong><br>
-치환할 단어를 설정해 두었다면, 다운로더가 소설을 저장할 때도 그 치환을 적용합니다.<br>
-<strong>✨새 설정 추가: 시리즈 소설을 병합할 때 하나의 소설만 필터링 조건을 충족해도 시리즈의 모든 소설을 저장합니다</strong><br>
-예:<br>
-북마크 수 > 100 으로 설정했다고 가정해 보겠습니다. 어떤 시리즈에 소설이 10편 있고, 그중 조건을 충족하는 것은 1편뿐입니다.<br>
-기본적으로(이 설정을 활성화하지 않은 경우) 다운로더는 그 1편만 병합합니다. 이 설정을 활성화하면 모든 소설을 병합합니다.<br>
-<strong>✨"소설 속 내장 이미지 다운로드" 설정에 이미지 크기 선택이 추가되었습니다</strong><br>
-일부 소설 속 이미지는 크기가 매우 커서, 더 작은 이미지를 저장하고 싶어 하는 사용자가 있었습니다. 그래서 이미지 크기 설정을 추가했습니다.<br>
-<strong>✨시리즈 소설을 병합할 때 다운로더가 glossary 안의 이미지도 저장합니다</strong><br>
-일부 시리즈 소설의 glossary 안에는 이미지가 있는데, 이제 다운로더가 그 이미지들도 저장할 수 있습니다.<br>
-<strong>✨북마크 페이지에 추가 기능 버튼 2개가 새로 추가되었습니다</strong><br>
-- 모든 작품의 태그 제거<br>
-- 모든 작품의 북마크 해제<br>
-<strong>🔄팔로잉 페이지의 일부 버튼을 "크롤링 시작" 영역에서 "추가 기능" 영역으로 옮겼습니다</strong><br>
-<strong>🐞버그 수정: 고 DPI 배율에서 설정 패널 하단이 완전히 표시되지 않을 수 있던 문제를 수정했습니다</strong><br>
-<strong>😊일부 안내를 개선했습니다</strong><br>`,
-        `Это обновление добавляет несколько новых функций и в основном улучшает работу при скачивании романов.<br>
-<strong>✨На странице серии романов теперь можно выбирать только часть романов для объединения</strong><br>
-Раньше загрузчик всегда объединял все романы, а теперь можно объединять только часть из них.<br>
-Как использовать: сначала выберите нужные романы с помощью функции "Ручной выбор работ", а затем нажмите кнопку "Объединить серии романов".<br>
-<strong>✨Теперь при скачивании романов загрузчик применяет настройку "Заменять слова"</strong><br>
-Если вы задали слова для замены, загрузчик применит эти замены и при сохранении романа.<br>
-<strong>✨Новая настройка: при объединении серийных романов, если хотя бы один роман соответствует критериям фильтрации, будут сохранены все романы серии</strong><br>
-Пример:<br>
-Допустим, вы установили количество закладок > 100; в серии есть 10 романов, и только 1 роман соответствует условиям.<br>
-По умолчанию (если эта настройка не включена) загрузчик объединит только этот 1 роман. Если включить эту настройку, он объединит все романы.<br>
-<strong>✨В настройку "Скачивать встроенные изображения в романах" добавлен выбор размера изображения</strong><br>
-Некоторые изображения в романах очень большие, поэтому некоторые пользователи хотели сохранять изображения меньшего размера. Теперь я добавил настройку размера изображения.<br>
-<strong>✨При объединении серийных романов загрузчик теперь сохраняет и изображения из glossary</strong><br>
-В glossary некоторых серийных романов есть изображения, и теперь загрузчик может сохранять и их.<br>
-<strong>✨На странице закладок добавлены две новые кнопки дополнительных функций</strong><br>
-- Удалить теги у всех работ<br>
-- Убрать все работы из закладок<br>
-<strong>🔄Некоторые кнопки на странице подписок были перенесены из области "Начать crawl" в область "Дополнительные функции"</strong><br>
-<strong>🐞Исправление: при высоком DPI-масштабировании нижняя часть панели настроек могла отображаться не полностью</strong><br>
-<strong>😊Улучшены некоторые подсказки</strong><br>`,
+    _版本更新说明19_2_0: [
+        `这次更新优化了命名规则功能，并修复了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）</strong><br>
+这个功能是为了处理这种情况：<br>
+1. 用户使用了可能为空的命名标记。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出系列标题。<br>
+2. 并且用户为它们添加了自定义字符，例如：<span class="blue">系列：{series_title}</span><br>
+当文件名里没有系列标题时，会留下不需要的 <span class="blue">系列：</span>。为了移除这种不需要的自定义字符，你可以使用 <span class="blue">[]</span> 建立可选片段，例如 <span class="blue">[系列：{series_title}]</span>。当 <span class="blue">[]</span> 里的标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+你可以在“图像作品的命名规则”里点击“小技巧：可选片段”查看更详细的说明。<br>
+⚠️注意：这个功能可能会对少部分用户造成破坏性变更：<br>
+如果你之前就已经使用了 <span class="blue">[]</span> 包裹命名标记，例如 <span class="blue">[{id}]</span>，现在它不会在文件名里输出 <span class="blue">[]</span> 符号。你需要额外添加一层 <span class="blue">[]</span>，变成 <span class="blue">[[{id}]]</span>，这样就可以和之前一样输出 <span class="blue">[]</span> 符号了。<br>
+<br>
+<strong>✨添加了 2 个新的命名标记</strong><br>
+- <span class="blue">{page_type}</span>：开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但页面类型名称都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。<br>
+<br>
+<strong>✨在“合并系列小说时的命名规则”里添加了新的命名标记</strong><br>
+- <span class="blue">{bmk}</span>：这个系列里所有小说的收藏数量之和，是数字。<br>
+<br>
+<strong>🐞修复问题：在预览作品时，预览区域可能会显示之前预览的动图，或者预览图在显示之后隐藏</strong><br>
+<strong>🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整</strong><br>
+<strong>🐞修复了其他 3 个问题</strong>`,
+        `本次更新最佳化了命名規則功能，並修復了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名標記裡的可選片段（當標記沒有值時，忽略它的附屬文字）</strong><br>
+這個功能是為了處理這種情況：<br>
+1. 使用者使用了可能為空的命名標記。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出系列標題。<br>
+2. 並且使用者為它們加入了自訂字元，例如：<span class="blue">系列：{series_title}</span><br>
+當檔案名稱裡沒有系列標題時，會留下不需要的 <span class="blue">系列：</span>。為了移除這種不需要的自訂字元，你可以使用 <span class="blue">[]</span> 建立可選片段，例如 <span class="blue">[系列：{series_title}]</span>。當 <span class="blue">[]</span> 裡的標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+你可以在「圖像作品的命名規則」裡點擊「小技巧：可選片段」查看更詳細的說明。<br>
+⚠️注意：這個功能可能會對少部分使用者造成破壞性變更：<br>
+如果你之前已經使用了 <span class="blue">[]</span> 包裹命名標記，例如 <span class="blue">[{id}]</span>，現在它不會在檔案名稱裡輸出 <span class="blue">[]</span> 符號。你需要額外加入一層 <span class="blue">[]</span>，變成 <span class="blue">[[{id}]]</span>，這樣就可以和之前一樣輸出 <span class="blue">[]</span> 符號。<br>
+<br>
+<strong>✨新增了 2 個命名標記</strong><br>
+- <span class="blue">{page_type}</span>：開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，有二十多種。有時劃分得比較籠統，例如首頁有插畫、漫畫、小說等子分類，但頁面類型名稱都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：開始抓取時的頁面 ID。其設計目的是用頁面 ID 歸納該頁面裡的多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。只有以下情況會輸出：1. 在作品頁面裡，輸出該頁面的作品 ID。2. 在使用者主頁、收藏頁面、關注頁面裡，輸出該頁面的使用者 ID。3. 在系列頁面裡，輸出系列 ID。<br>
+<br>
+<strong>✨在「合併系列小說時的命名規則」裡新增了命名標記</strong><br>
+- <span class="blue">{bmk}</span>：此系列中所有小說的收藏數量總和，是數字。<br>
+<br>
+<strong>🐞修正問題：預覽作品時，預覽區域可能顯示之前預覽的動圖，或預覽圖顯示後隱藏</strong><br>
+<strong>🐞修正問題：當「置頂的設定」區域高度不足時，命名規則的載入清單顯示不完整</strong><br>
+<strong>🐞修正了其他 3 個問題</strong>`,
+        `This update improves naming rules and fixes several bugs.<br>
+<br>
+<strong>✨New feature: Optional segments in naming tags (ignore associated text when a tag has no value)</strong><br>
+This feature handles the following situation:<br>
+1. You use a naming tag that may have no value. For example, when a work is not part of a series, <span class="blue">{series_title}</span> does not output a series title.<br>
+2. You add custom characters for it, for example: <span class="blue">Series: {series_title}</span><br>
+When a file name has no series title, the unnecessary <span class="blue">Series:</span> remains. To remove these unnecessary custom characters, create an optional segment with <span class="blue">[]</span>, for example <span class="blue">[Series: {series_title}]</span>. When the tag in <span class="blue">[]</span> has no value, the downloader ignores the entire segment, so no extra characters remain.<br>
+You can click "Tip: Optional segments" under "Naming rules for illustrations" for a more detailed explanation.<br>
+⚠️Note: This feature may be a breaking change for a small number of users:<br>
+If you previously used <span class="blue">[]</span> around a naming tag, for example <span class="blue">[{id}]</span>, <span class="blue">[]</span> is no longer output in the file name. Add another pair of <span class="blue">[]</span> to make <span class="blue">[[{id}]]</span>, and <span class="blue">[]</span> will be output as before.<br>
+<br>
+<strong>✨Added 2 new naming tags</strong><br>
+- <span class="blue">{page_type}</span>: The page type name when crawling begins, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, or <span class="blue">Bookmark</span>. These are the downloader's internal page types, with more than twenty types available. Some are broad: for example, the home page has illustration, manga, and novel subcategories, but their page type name is all <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: The page ID when crawling begins. It is designed to group multiple works on a page by that page's ID. For example, when crawling related works on a work page, it outputs the ID of that work page (one ID), rather than each related work's own ID (multiple IDs). It outputs a value only in these cases: 1. On a work page, the work ID of that page. 2. On a user home, bookmark, or following page, the user ID of that page. 3. On a series page, the series ID.<br>
+<br>
+<strong>✨Added a new naming tag to "Naming rules when merging novel series"</strong><br>
+- <span class="blue">{bmk}</span>: The total bookmark count of all novels in this series.<br>
+<br>
+<strong>🐞Fixed: When previewing works, the preview area could show a previously previewed Ugoira, or a preview image could disappear after being displayed</strong><br>
+<strong>🐞Fixed: The naming-rule load list could be displayed incompletely when the pinned settings area was too short</strong><br>
+<strong>🐞Fixed 3 other issues</strong>`,
+        `今回の更新では、命名規則機能を改善し、いくつかの不具合を修正しました。<br>
+<br>
+<strong>✨新機能：命名タグの任意セグメント（タグに値がないとき、関連する文字を無視）</strong><br>
+この機能は、次のような状況に対応するためのものです。<br>
+1. 値が空になる可能性のある命名タグを使用している場合。たとえば、作品がシリーズに属していないとき、<span class="blue">{series_title}</span> はシリーズ名を出力しません。<br>
+2. そのタグに説明用の文字を追加している場合。例：<span class="blue">シリーズ：{series_title}</span><br>
+ファイル名にシリーズ名がない場合、不要な <span class="blue">シリーズ：</span> が残ります。この不要な文字を削除するには、<span class="blue">[]</span> で任意セグメントを作成します。例：<span class="blue">[シリーズ：{series_title}]</span>。<span class="blue">[]</span> 内のタグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+詳しい説明は、「イラスト作品の命名規則」で「ヒント：任意セグメント」をクリックして確認できます。<br>
+⚠️注意：この機能は、一部のユーザーにとって破壊的変更になる可能性があります。<br>
+以前から <span class="blue">[]</span> で命名タグを囲んでいた場合（例：<span class="blue">[{id}]</span>）、ファイル名には <span class="blue">[]</span> が出力されなくなります。さらに 1 組の <span class="blue">[]</span> を追加して <span class="blue">[[{id}]]</span> にすると、以前と同じように <span class="blue">[]</span> を出力できます。<br>
+<br>
+<strong>✨新しい命名タグを 2 つ追加</strong><br>
+- <span class="blue">{page_type}</span>：クロール開始時のページタイプ名です。<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span> などがあります。これはダウンローダー内部のページ分類で、20 種類以上あります。分類が大まかな場合もあり、たとえばホームにはイラスト、マンガ、小説などのサブカテゴリがありますが、ページタイプ名はいずれも <span class="blue">Home</span> です。<br>
+- <span class="blue">{page_id}</span>：クロール開始時のページ ID です。ページ ID を使って、そのページ内にある複数の作品をまとめるために設計されています。たとえば、作品ページで関連作品をクロールすると、このタグは各作品自身の ID（複数）ではなく、その作品ページの ID（1 つ）を出力します。出力されるのは次の場合のみです：1. 作品ページでは、そのページの作品 ID。2. ユーザーホーム、ブックマーク、フォローのページでは、そのページのユーザー ID。3. シリーズページでは、シリーズ ID。<br>
+<br>
+<strong>✨「小説シリーズ結合時の命名規則」に新しい命名タグを追加</strong><br>
+- <span class="blue">{bmk}</span>：このシリーズ内のすべての小説のブックマーク数の合計です。<br>
+<br>
+<strong>🐞修正：作品のプレビュー時に、プレビュー領域に以前プレビューしたうごイラが表示される、またはプレビュー画像が表示後に消えることがある問題</strong><br>
+<strong>🐞修正：「固定された設定」エリアの高さが不足しているとき、命名規則の読み込みリストが不完全に表示される問題</strong><br>
+<strong>🐞その他 3 件の問題を修正</strong>`,
+        `이번 업데이트에서는 명명 규칙 기능을 개선하고 몇 가지 버그를 수정했습니다.<br>
+<br>
+<strong>✨새 기능: 명명 태그의 선택적 구간(태그에 값이 없을 때 관련 문자를 무시)</strong><br>
+이 기능은 다음과 같은 상황을 처리하기 위한 것입니다.<br>
+1. 값이 비어 있을 수 있는 명명 태그를 사용하는 경우입니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 시리즈 제목을 출력하지 않습니다.<br>
+2. 태그에 설명용 문자도 추가한 경우입니다. 예: <span class="blue">시리즈: {series_title}</span><br>
+파일 이름에 시리즈 제목이 없으면 불필요한 <span class="blue">시리즈:</span>가 남습니다. 이 불필요한 문자를 제거하려면 <span class="blue">[]</span>로 선택적 구간을 만드세요. 예: <span class="blue">[시리즈: {series_title}]</span>. <span class="blue">[]</span> 안의 태그에 값이 없으면 다운로더가 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+자세한 설명은 "일러스트 작품의 명명 규칙"에서 "팁: 선택적 구간"을 클릭하여 확인할 수 있습니다.<br>
+⚠️주의: 이 기능은 일부 사용자에게 호환되지 않는 변경이 될 수 있습니다.<br>
+이전에 <span class="blue">[]</span>로 명명 태그를 묶어 사용했다면(예: <span class="blue">[{id}]</span>), 이제 파일 이름에 <span class="blue">[]</span> 기호가 출력되지 않습니다. <span class="blue">[]</span>를 한 겹 더 추가하여 <span class="blue">[[{id}]]</span>로 만들면 이전처럼 <span class="blue">[]</span> 기호를 출력할 수 있습니다.<br>
+<br>
+<strong>✨새 명명 태그 2개 추가</strong><br>
+- <span class="blue">{page_type}</span>: 크롤링 시작 시의 페이지 유형 이름입니다. <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span> 등이 있습니다. 이는 다운로더 내부의 페이지 유형으로 20가지 이상이 있습니다. 때로는 구분이 넓습니다. 예를 들어 홈에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 페이지 유형 이름은 모두 <span class="blue">Home</span>입니다.<br>
+- <span class="blue">{page_id}</span>: 크롤링 시작 시의 페이지 ID입니다. 페이지 ID로 해당 페이지의 여러 작품을 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 태그는 각 작품의 ID(여러 개)가 아니라 그 작품 페이지의 작품 ID(하나)를 출력합니다. 다음 경우에만 값이 출력됩니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID. 2. 사용자 홈, 북마크, 팔로잉 페이지에서는 해당 페이지의 사용자 ID. 3. 시리즈 페이지에서는 시리즈 ID.<br>
+<br>
+<strong>✨"소설 시리즈 병합 시 명명 규칙"에 새 명명 태그 추가</strong><br>
+- <span class="blue">{bmk}</span>: 이 시리즈의 모든 소설 북마크 수의 합계입니다.<br>
+<br>
+<strong>🐞수정: 작품을 미리 볼 때 이전에 미리 본 우고이라가 미리 보기 영역에 표시되거나, 미리 보기 이미지가 표시된 후 사라질 수 있는 문제</strong><br>
+<strong>🐞수정: "고정된 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
+<strong>🐞기타 문제 3개 수정</strong>`,
+        `Это обновление улучшает правила именования и исправляет несколько ошибок.<br>
+<br>
+<strong>✨Новая функция: необязательные сегменты в тегах именования (игнорируют связанные символы, если у тега нет значения)</strong><br>
+Эта функция предназначена для следующей ситуации:<br>
+1. Вы используете тег именования, который может быть пустым. Например, если работа не входит в серию, <span class="blue">{series_title}</span> не выводит название серии.<br>
+2. Вы добавили к нему пользовательские символы, например: <span class="blue">Серия: {series_title}</span><br>
+Если в имени файла нет названия серии, остаётся ненужное <span class="blue">Серия:</span>. Чтобы удалить такие ненужные символы, создайте необязательный сегмент с помощью <span class="blue">[]</span>, например <span class="blue">[Серия: {series_title}]</span>. Если у тега в <span class="blue">[]</span> нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+Подробное описание можно посмотреть, нажав «Совет: необязательные сегменты» в разделе «Правила именования иллюстраций».<br>
+⚠️Внимание: для небольшого числа пользователей эта функция может стать несовместимым изменением:<br>
+Если вы уже обрамляли тег именования в <span class="blue">[]</span>, например <span class="blue">[{id}]</span>, теперь символы <span class="blue">[]</span> не выводятся в имени файла. Добавьте ещё один уровень <span class="blue">[]</span>, чтобы получилось <span class="blue">[[{id}]]</span>, и символы <span class="blue">[]</span> снова будут выводиться как раньше.<br>
+<br>
+<strong>✨Добавлено 2 новых тега именования</strong><br>
+- <span class="blue">{page_type}</span>: название типа страницы в начале crawl, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. Это внутренние типы страниц загрузчика, их более двадцати. Иногда классификация довольно общая: например, на главной странице есть подкатегории иллюстраций, манги и романов, но имя типа страницы у всех — <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: ID страницы в начале crawl. Он нужен для объединения нескольких работ на одной странице по ID этой страницы. Например, при crawl связанных работ на странице работы этот тег выводит ID работы этой страницы (один ID), а не собственные ID каждой связанной работы (несколько ID). Значение выводится только в следующих случаях: 1. На странице работы — ID работы этой страницы. 2. На странице профиля пользователя, закладок или подписок — ID пользователя этой страницы. 3. На странице серии — ID серии.<br>
+<br>
+<strong>✨Добавлен новый тег именования в «Правила именования при объединении серий романов»</strong><br>
+- <span class="blue">{bmk}</span>: сумма закладок всех романов этой серии.<br>
+<br>
+<strong>🐞Исправлено: при предпросмотре работ в области предпросмотра могла отображаться ранее просмотренная Ugoira либо изображение предпросмотра могло исчезать после показа</strong><br>
+<strong>🐞Исправлено: список загрузки правил именования мог отображаться не полностью, если область закреплённых настроек была слишком низкой</strong><br>
+<strong>🐞Исправлены ещё 3 проблемы</strong>`,
+    ],
+    _小技巧_可选片段: [
+        `小技巧：可选片段`,
+        `小技巧：可選片段`,
+        `Tip: Optional segments`,
+        `ヒント：任意セグメント`,
+        `팁: 선택적 구간`,
+        `Совет: необязательные сегменты`,
+    ],
+    _可选片段的说明: [
+        `有些命名标记在特定情况下可能没有内容。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出内容。<br>
+  此时，如果标记旁边有用户添加的说明文字或符号，即使标记没有内容，这些字符仍可能保留下来。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：当没有系列标题时，会留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：当没有排名时，可能会留下多余的横线 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字符，可以创建可选片段。方法是使用 <span class="blue">[]</span> 包裹一个可能为空的命名标记，以及与它有关的字符。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  当标记有内容时，下载器会正常输出片段里的内容，但不会输出 <span class="blue">[]</span>。<br>
+  当标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+  <br>
+  附加说明：<br>
+  - 只需要对可能为空的命名标记使用可选片段。有些标记始终有内容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可选片段。<br>
+  - 每个 <span class="blue">[]</span> 里只应放 1 个命名标记。不要把多个标记放进同一个片段，这会导致下载器依然保留多余的字符。<br>
+  - 如果有需要，你可以使用多个可选片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 里没有命名标记，<span class="blue">[]</span> 会被视为普通字符并原样输出。<br>
+  - 如果 <span class="blue">[]</span> 里有命名标记，但你又想在结果里保留 <span class="blue">[]</span>，可以使用两层 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的结果会像这样 <span class="blue">[1]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
+        `有些命名標記在特定情況下可能沒有內容。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出內容。<br>
+  此時，如果標記旁邊有使用者加入的說明文字或符號，即使標記沒有內容，這些字元仍可能保留下來。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：當沒有系列標題時，會留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：當沒有排名時，可能會留下多餘的橫線 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字元，可以建立可選片段。方法是使用 <span class="blue">[]</span> 包裹一個可能為空的命名標記，以及與它有關的字元。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  當標記有內容時，下載器會正常輸出片段裡的內容，但不會輸出 <span class="blue">[]</span>。<br>
+  當標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+  <br>
+  附加說明：<br>
+  - 只需要對可能為空的命名標記使用可選片段。有些標記始終有內容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可選片段。<br>
+  - 每個 <span class="blue">[]</span> 裡只應放 1 個命名標記。不要把多個標記放進同一個片段，這會導致下載器依然保留多餘的字元。<br>
+  - 如果有需要，你可以使用多個可選片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 裡沒有命名標記，<span class="blue">[]</span> 會被視為普通字元並原樣輸出。<br>
+  - 如果 <span class="blue">[]</span> 裡有命名標記，但你又想在結果裡保留 <span class="blue">[]</span>，可以使用兩層 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的結果會像這樣 <span class="blue">[1]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
+        `Some naming tags may have no value in certain cases. For example, if a work is not part of a series, <span class="blue">{series_title}</span> outputs nothing.<br>
+  In this case, custom text or symbols placed next to the tag may remain even when the tag has no value. For example:<br>
+  - <span class="blue">Series: {series_title}</span> - If there is no series title, <span class="blue">Series:</span> remains<br>
+  - <span class="blue">{rank}-{id}</span> - If no ranking is available, an extra hyphen <span class="blue">-</span> may remain<br>
+  <br>
+  To omit unneeded characters, you can create an optional segment. Enclose a naming tag that may be empty, along with related characters, in <span class="blue">[]</span>. For example:<br>
+  - <span class="blue">[Series: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  When a tag has a value, the downloader outputs the content in the segment, but not <span class="blue">[]</span>.<br>
+  When a tag has no value, the downloader ignores the entire segment, so no extra characters are left behind.<br>
+  <br>
+  Notes:<br>
+  - Use optional segments only for naming tags that may have no value. Some tags always have a value, such as <span class="blue">{id}</span> and <span class="blue">{user}</span>, and do not need optional segments.<br>
+  - Each <span class="blue">[]</span> should contain only 1 naming tag. Do not put multiple tags in one segment, as the downloader may still keep extra characters.<br>
+  - You can use multiple optional segments when needed. For example: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - If <span class="blue">[]</span> contains no naming tag, it is treated as ordinary characters and output as is.<br>
+  - If <span class="blue">[]</span> contains a naming tag but you also want <span class="blue">[]</span> in the result, use two layers of <span
+  class="blue">[]</span>. For example, <span class="blue">[[{rank}]]</span> produces <span class="blue">[1]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
+        `一部の命名タグは、状況によって値がない場合があります。たとえば、作品がシリーズに属していない場合、<span class="blue">{series_title}</span> は何も出力しません。<br>
+  このとき、タグのそばに追加した説明文や記号は、タグに値がなくても残ることがあります。例：<br>
+  - <span class="blue">シリーズ：{series_title}</span>：シリーズ名がない場合、<span class="blue">シリーズ：</span> だけが残ります<br>
+  - <span class="blue">{rank}-{id}</span>：順位がない場合、余分なハイフン <span class="blue">-</span> が残ることがあります<br>
+  <br>
+  不要な文字を除外したい場合は、任意セグメントを作成できます。値が空になる可能性がある命名タグと関連する文字を <span class="blue">[]</span> で囲みます。例：<br>
+  - <span class="blue">[シリーズ：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  タグに値がある場合、ダウンローダーはセグメント内の内容を出力しますが、<span class="blue">[]</span> は出力しません。<br>
+  タグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+  <br>
+  補足：<br>
+  - 任意セグメントは、値が空になる可能性がある命名タグにのみ使用してください。<span class="blue">{id}</span> や <span class="blue">{user}</span> のように常に値があるタグには不要です。<br>
+  - 1 組の <span class="blue">[]</span> には、命名タグを 1 つだけ入れてください。複数のタグを同じセグメントに入れると、余分な文字が残ることがあります。<br>
+  - 必要に応じて、複数の任意セグメントを使用できます。例：<span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - <span class="blue">[]</span> 内に命名タグがない場合、<span class="blue">[]</span> は通常の文字としてそのまま出力されます。<br>
+  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{rank}]]</span> の結果は <span class="blue">[1]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
+        `일부 명명 태그는 특정 상황에서 값이 없을 수 있습니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 아무 내용도 출력하지 않습니다.<br>
+  이때 태그 옆에 추가한 설명 문구나 기호는 태그에 값이 없어도 남아 있을 수 있습니다. 예:<br>
+  - <span class="blue">시리즈: {series_title}</span> - 시리즈 제목이 없으면 <span class="blue">시리즈:</span>만 남습니다<br>
+  - <span class="blue">{rank}-{id}</span> - 순위가 없으면 불필요한 하이픈 <span class="blue">-</span>이 남을 수 있습니다<br>
+  <br>
+  필요 없는 문자를 무시하려면 선택적 구간을 만들 수 있습니다. 값이 비어 있을 수 있는 명명 태그와 관련 문자를 <span class="blue">[]</span>로 묶으세요. 예:<br>
+  - <span class="blue">[시리즈: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  태그에 값이 있으면 다운로더는 구간 안의 내용을 출력하지만 <span class="blue">[]</span>는 출력하지 않습니다.<br>
+  태그에 값이 없으면 다운로더는 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+  <br>
+  추가 설명:<br>
+  - 선택적 구간은 값이 비어 있을 수 있는 명명 태그에만 사용하세요. <span class="blue">{id}</span>, <span class="blue">{user}</span>처럼 항상 값이 있는 태그에는 필요하지 않습니다.<br>
+  - 각 <span class="blue">[]</span>에는 명명 태그를 1개만 넣어야 합니다. 하나의 구간에 여러 태그를 넣으면 불필요한 문자가 남을 수 있습니다.<br>
+  - 필요하면 여러 선택적 구간을 사용할 수 있습니다. 예: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 없으면 <span class="blue">[]</span>는 일반 문자로 처리되어 그대로 출력됩니다.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{rank}]]</span>의 결과는 <span class="blue">[1]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
+        `Некоторые теги именования в определённых случаях могут не иметь значения. Например, если работа не входит в серию, <span class="blue">{series_title}</span> ничего не выводит.<br>
+  В этом случае добавленный рядом с тегом поясняющий текст или символы могут остаться, даже если у тега нет значения. Например:<br>
+  - <span class="blue">Серия: {series_title}</span> — если названия серии нет, останется <span class="blue">Серия:</span><br>
+  - <span class="blue">{rank}-{id}</span> — если рейтинга нет, может остаться лишний дефис <span class="blue">-</span><br>
+  <br>
+  Чтобы убрать ненужные символы, можно создать необязательный сегмент. Заключите тег именования, который может быть пустым, и связанные с ним символы в <span class="blue">[]</span>. Например:<br>
+  - <span class="blue">[Серия: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  Если у тега есть значение, загрузчик выводит содержимое сегмента, но не выводит <span class="blue">[]</span>.<br>
+  Если у тега нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+  <br>
+  Дополнительные сведения:<br>
+  - Используйте необязательные сегменты только для тегов именования, которые могут быть пустыми. Для тегов, которые всегда имеют значение, например <span class="blue">{id}</span> и <span class="blue">{user}</span>, они не нужны.<br>
+  - В каждой паре <span class="blue">[]</span> должен быть только 1 тег именования. Не помещайте несколько тегов в один сегмент, иначе лишние символы могут остаться.<br>
+  - При необходимости можно использовать несколько необязательных сегментов. Например: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - Если внутри <span class="blue">[]</span> нет тега именования, <span class="blue">[]</span> считаются обычными символами и выводятся без изменений.<br>
+  - Если внутри <span class="blue">[]</span> есть тег именования, но вы также хотите сохранить <span class="blue">[]</span> в результате, используйте два уровня <span
+  class="blue">[]</span>. Например, <span class="blue">[[{rank}]]</span> даст результат <span class="blue">[1]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
     ],
 };
 
@@ -45804,9 +46217,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
@@ -45853,7 +46266,7 @@ class NameRuleManager {
             const data = ev.detail.data;
             // 当用户开启这个开关时，设置当前页面类型的命名规则
             if (data.name === 'setNameRuleForEachPageType' && data.value) {
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
                     this.setInputValue();
                 }
             }
@@ -45866,11 +46279,11 @@ class NameRuleManager {
     textarea = null;
     get rule() {
         // 在 Pixivision 页面里，总是使用预设的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
+            return _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
         }
         if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setNameRuleForEachPageType) {
-            let rule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+            let rule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             if (rule === undefined) {
                 rule = this.defauleRule;
                 this.saveCurrentPageRule(rule);
@@ -45882,7 +46295,7 @@ class NameRuleManager {
         }
     }
     set rule(str) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
             return;
         }
         // 检查传递的命名规则的合法性
@@ -45901,7 +46314,9 @@ class NameRuleManager {
         }
         if (!check) {
             window.setTimeout(() => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_命名规则一定要包含id'));
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_命名规则一定要包含id'), {
+                    stay: 3000,
+                });
             }, 300);
         }
         else {
@@ -45916,7 +46331,7 @@ class NameRuleManager {
         }
     }
     async bindInputEvent() {
-        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         const name = this.type === 'artwork' ? 'userSetName' : 'userSetNameForNovel';
         this.textarea = document.querySelector(`textarea[name="${name}"]`);
         this.setInputValue();
@@ -45938,7 +46353,7 @@ class NameRuleManager {
                     return;
                 }
                 lastValue = input.value;
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] !== input.value) {
+                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
                     this.rule = input.value;
                 }
             });
@@ -45949,11 +46364,11 @@ class NameRuleManager {
         if (!this.textarea) {
             return;
         }
-        await _store_States__WEBPACK_IMPORTED_MODULE_5__.states.waitSettingInitialized();
+        await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
         // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Pixivision) {
-            this.textarea.value = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type];
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
+            this.textarea.value = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
             return;
         }
         // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
@@ -45965,7 +46380,7 @@ class NameRuleManager {
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.setRows(this.textarea);
     }
     saveCurrentPageRule(rule) {
-        _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type] = rule;
+        _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleList, _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList]);
     }
     // 处理命名规则的非法字符和非法规则
@@ -45974,9 +46389,7 @@ class NameRuleManager {
     // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
     handleUserSetName(str) {
         // 替换命名规则里可能存在的非法字符
-        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(str);
-        // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-        str = str.replace(/／/g, '/');
+        str = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(str, true);
         // 处理连续的 /
         str = str.replace(/\/{2,100}/g, '/');
         // 如果命名规则头部或者尾部是 / 则去掉
@@ -46029,6 +46442,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   namingRuleConfig: () => (/* binding */ namingRuleConfig)
 /* harmony export */ });
+/** 保存“图像作品的命名规则”的命名标记列表和说明文字，用于在提示区域里输出内容 */
 class NamingRuleConfig {
     namingConfig = [
         { name: '{id}', mayEmpty: false, help: '_命名标记id' },
@@ -46038,6 +46452,8 @@ class NamingRuleConfig {
         { name: '{user_id}', mayEmpty: false, help: '_用户id' },
         { name: '{title}', mayEmpty: false, help: '_命名标记title' },
         { name: '{page_title}', mayEmpty: false, help: '_命名标记page_title' },
+        { name: '{page_type}', mayEmpty: false, help: '_命名标记page_type' },
+        { name: '{page_id}', mayEmpty: true, help: '_命名标记page_id' },
         { name: '{tags}', mayEmpty: false, help: '_命名标记tags' },
         { name: '{tags_translate}', mayEmpty: false, help: '_命名标记tags_trans' },
         {
@@ -47149,6 +47565,7 @@ class OptionConfigs {
             hideOnPixivision: true,
             searchWordKeys: [],
             searchWords: [],
+            addedAt: 1784136618212,
         },
         {
             no: 72,
@@ -47592,7 +48009,7 @@ const optionConfigs = new OptionConfigs();
 /***/ ((module) => {
 
 "use strict";
-module.exports = "<!-- 设置项的编号是递增的，现在最大值是 104\n帮助按钮上的文字有两种：\n- 如果帮助文字使用 MsgBox 显示，则使用“_帮助”\n- 如果帮助文字直接在设置面板里显示，则使用“_提示” -->\n<div class=\"option\" data-no=\"0\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少作品\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantWork\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray1\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_抓取多少作品\"\n    data-msg=\"_抓取多少作品的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"1\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少页面\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantPage\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray1\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_抓取多少页面\"\n    data-msg=\"_抓取多少页面的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"2\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须大于0\"\n  >\n    <span data-xztext=\"_抓取每个用户最新的几个作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlLatestFewWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"crawlLatestFewWorks\">\n    <input\n      type=\"text\"\n      name=\"crawlLatestFewWorksNumber\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"3\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_作品类型\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downType0\"\n    id=\"setWorkType0\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span\n    class=\"beautify_checkbox\"\n    tabindex=\"0\"\n    aria-labelledby=\"setWorkType0\"\n  ></span>\n  <label for=\"setWorkType0\" data-xztext=\"_插画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType1\"\n    id=\"setWorkType1\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\" data-xztitle=\"_漫画\"></span>\n  <label for=\"setWorkType1\" data-xztext=\"_漫画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType2\"\n    id=\"setWorkType2\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType2\" data-xztext=\"_动图\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType3\"\n    id=\"setWorkType3\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType3\" data-xztext=\"_小说\"></label>\n</div>\n\n<div class=\"option\" data-no=\"4\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_年龄限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downAllAges\"\n    id=\"downAllAges\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downAllAges\" data-xztext=\"_全年龄\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18\"\n    id=\"downR18\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18\"> R-18</label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18G\"\n    id=\"downR18G\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18G\"> R-18G</label>\n</div>\n\n<div class=\"option\" data-no=\"5\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_AI作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"AIGenerated\"\n    id=\"AIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"AIGenerated\" data-xztext=\"_AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"notAIGenerated\"\n    id=\"notAIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"notAIGenerated\" data-xztext=\"_非AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"UnknownAI\"\n    id=\"UnknownAI\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label\n    for=\"UnknownAI\"\n    data-xztext=\"_未知\"\n    class=\"has_tip\"\n    data-xztip=\"_AI未知作品的说明\"\n  ></label>\n</div>\n\n<div class=\"option\" data-no=\"6\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_原创作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlOriginalWork\"\n    id=\"setCrawlOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlOriginalWork\" data-xztext=\"_原创\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"crawlNonOriginalWork\"\n    id=\"setCrawlNonOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlNonOriginalWork\" data-xztext=\"_非原创\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <input\n    type=\"checkbox\"\n    name=\"looseMatchOriginal\"\n    id=\"looseMatchOriginal\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"looseMatchOriginal\" data-xztext=\"_宽松匹配\"></label>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_原创作品\"\n    data-msg=\"_宽松匹配原创作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"7\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片色彩\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downColorImg\"\n    id=\"setDownColorImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownColorImg\" data-xztext=\"_彩色图片\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBlackWhiteImg\"\n    id=\"setDownBlackWhiteImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBlackWhiteImg\" data-xztext=\"_黑白图片\"></label>\n</div>\n\n<div class=\"option\" data-no=\"8\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downSingleImg\"\n    id=\"setDownSingleImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownSingleImg\" data-xztext=\"_单图作品\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downMultiImg\"\n    id=\"setDownMultiImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownMultiImg\" data-xztext=\"_多图作品\"></label>\n</div>\n\n<div class=\"option\" data-no=\"9\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downNotBookmarked\"\n    id=\"setDownNotBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownNotBookmarked\" data-xztext=\"_未收藏\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBookmarked\"\n    id=\"setDownBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBookmarked\" data-xztext=\"_已收藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"10\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置收藏数量的提示\"\n  >\n    <span data-xztext=\"_收藏数量\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"BMKNumSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"BMKNumSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_最小值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMin\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"0\"\n      />\n\n      &nbsp;\n      <span data-xztext=\"_最大值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMax\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"__BOOKMARK_COUNT_LIMIT__\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_或者\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"BMKNumAverageSwitch\"\n        class=\"has_tip\"\n        data-xztip=\"_日均收藏数量的提示\"\n      >\n        <span data-xztext=\"_满足日均收藏数量条件\"></span>\n        <span class=\"gray1\"> ? </span>\n      </label>\n      <input\n        type=\"checkbox\"\n        name=\"BMKNumAverageSwitch\"\n        id=\"BMKNumAverageSwitch\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <div class=\"subOptionWrap\" data-show=\"BMKNumAverageSwitch\">\n        &gt;=&nbsp;\n        <input\n          type=\"text\"\n          name=\"BMKNumAverage\"\n          class=\"setinput_style blue bmkNum\"\n          value=\"600\"\n        />\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"11\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_筛选宽高的提示文字\"\n  >\n    <span data-xztext=\"_图片的宽高\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"setWHSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setWHSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\"></span>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison3\">&lt;=</label>\n\n      <input\n        type=\"text\"\n        name=\"setWidth\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr1\"\n        class=\"need_beautify radio\"\n        value=\"&\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr1\" data-xztext=\"_并且\"></label>\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr2\"\n        class=\"need_beautify radio\"\n        value=\"|\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr2\" data-xztext=\"_或者\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_高度\"></span>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"setHeight\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"12\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置宽高比例Title\"\n  >\n    <span data-xztext=\"_图片的宽高比例\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"ratioSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"ratioSwitch\">\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio1\"\n      class=\"need_beautify radio\"\n      value=\"horizontal\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio1\" data-xztext=\"_横图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio2\"\n      class=\"need_beautify radio\"\n      value=\"vertical\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio2\" data-xztext=\"_竖图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio0\"\n      class=\"need_beautify radio\"\n      value=\"square\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio0\" data-xztext=\"_正方形\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio3\"\n      class=\"need_beautify radio\"\n      value=\"userSet\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <span class=\"has_tip settingNameStyle\" data-xztip=\"_宽高比的提示\">\n      <label for=\"ratio3\" style=\"padding: 0\" data-xztext=\"_宽高比\"></label>\n      <span class=\"gray1\"> ? </span>\n    </span>\n    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->\n    <input\n      type=\"checkbox\"\n      name=\"userSetChecked\"\n      class=\"need_beautify checkbox_switch\"\n      style=\"display: none\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\" style=\"display: none\"></span>\n    <div class=\"subOptionWrap\" data-show=\"userSetChecked\">\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"userRatio\"\n        class=\"setinput_style blue\"\n        value=\"1.4\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"13\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置id范围提示\"\n  >\n    <span data-xztext=\"_id范围\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"idRangeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"idRangeSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_图像作品\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForImageWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_系列小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelSeries\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"14\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置投稿时间提示\"\n  >\n    <span data-xztext=\"_投稿时间\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"postDate\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"postDate\">\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_起始时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateStart\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2009-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"2009-01-01T00:00\"\n        data-xztext=\"_过去\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_截止时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateEnd\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2100-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"2100-01-01T00:00\"\n        data-xztext=\"_未来\"\n      ></button>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"15\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须tag的提示文字\"\n  >\n    <span data-xztext=\"_必须含有tag\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"needTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"needTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode1\"\n      class=\"need_beautify radio\"\n      value=\"all\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode1\" data-xztext=\"_全部\"></label>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode2\"\n      class=\"need_beautify radio\"\n      value=\"one\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode2\" data-xztext=\"_任一\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"needTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"16\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_排除tag的提示文字\"\n  >\n    <span data-xztext=\"_不能含有tag\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"notNeedTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"notNeedTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <span class=\"gray1\" data-xztext=\"_任一\"></span>\n    <span class=\"verticalSplit\"></span>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode2\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"whole\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode2\" data-xztext=\"_完全一致\"></label>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode1\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"partial\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode1\" data-xztext=\"_部分一致\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"notNeedTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"17\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_针对特定用户屏蔽tag的提示\"\n  >\n    <span data-xztext=\"_针对特定用户屏蔽标签\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"blockTagsForSpecificUser\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"blockTagsForSpecificUser\">\n    <slot data-name=\"blockTagsForSpecificUser\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"18\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题必须含有的说明\"\n  >\n    <span data-xztext=\"_标题必须含有\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleIncludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleIncludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleIncludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"19\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题不能含有的说明\"\n  >\n    <span data-xztext=\"_标题不能含有\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleExcludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleExcludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleExcludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n\n    <label\n      for=\"alsoCheckSeriesTitle\"\n      class=\"has_tip\"\n      data-xztext=\"_也检查系列标题\"\n      data-xztip=\"_也检查系列标题的说明\"\n    ></label>\n    <span class=\"gray1 mr4\"> ? </span>\n    <input\n      type=\"checkbox\"\n      name=\"alsoCheckSeriesTitle\"\n      id=\"alsoCheckSeriesTitle\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"20\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_多图作品的图片数量上限提示\"\n  >\n    <span data-xztext=\"_多图作品的图片数量上限\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"multiImageWorkImageLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"multiImageWorkImageLimitSwitch\">\n    &lt;=&nbsp;\n    <input\n      type=\"text\"\n      name=\"multiImageWorkImageLimit\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"21\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlFirstFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlFirstFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlFirstFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取前几张图片\"\n    data-msg=\"_多图作品只抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"22\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlLastFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlLastFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlLastFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取后几张图片\"\n    data-msg=\"_多图作品只抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"23\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlFirstImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlFirstImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlFirstImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取前几张图片\"\n    data-msg=\"_多图作品不抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"24\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlLastImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlLastImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlLastImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取后几张图片\"\n    data-msg=\"_多图作品不抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"25\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_特定用户的多图作品不下载最后几张图片\"></span>\n  </a>\n  <slot data-name=\"DoNotDownloadLastFewImagesSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"26\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_不抓取下载过的作品的说明\"\n  >\n    <span data-xztext=\"_不抓取下载过的作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"DonotCrawlAlreadyDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_不抓取下载过的作品\"\n    data-msg=\"_不抓取下载过的作品的帮助信息\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"27\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_用户阻止名单的说明\"\n  >\n    <span data-xztext=\"_用户阻止名单\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"userBlockList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"userBlockList\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"blockList\"\n      rows=\"1\"\n      placeholder=\"11111,22222,33333\"\n    ></textarea>\n    <br />\n    <input\n      type=\"checkbox\"\n      name=\"removeBlockedUsersWork\"\n      id=\"setRemoveBlockedUsersWork\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label\n      for=\"setRemoveBlockedUsersWork\"\n      data-xztext=\"_从页面上移除他们的作品\"\n    ></label>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_用户阻止名单\"\n      data-msg=\"_用户阻止名单的说明2\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"28\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_减慢抓取速度的说明\"\n  >\n    <span data-xztext=\"_减慢抓取速度\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"slowCrawl\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"slowCrawl\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当作品数量超过指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"100\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlDealy\"\n        id=\"slowCrawlDealy\"\n        class=\"setinput_style blue\"\n        value=\"1600\"\n        placeholder=\"1600\"\n      />\n      ms\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"29\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_定时抓取的间隔时间的说明\"\n  >\n    <span data-xztext=\"_定时抓取的间隔时间\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"timedCrawlInterval\"\n    class=\"setinput_style blue\"\n    value=\"30\"\n  />\n  <span class=\"mr4\" data-xztext=\"_分钟\"></span>\n</div>\n\n<div class=\"option\" data-no=\"30\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动导出抓取结果的说明\"\n  >\n    <span data-xztext=\"_自动导出抓取结果\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportResult\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportResult\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当抓取结果大于指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"autoExportResultNumber\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_文件格式\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultCSV\"\n        id=\"autoExportResultCSV\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultCSV\"> CSV </label>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultJSON\"\n        id=\"autoExportResultJSON\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultJSON\"> JSON </label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"31\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_导出ID列表的说明\"\n  >\n    <span data-xztext=\"_导出ID列表\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"exportIDList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"32\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_图像作品的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForArtwork\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTip\"\n        data-for-no=\"32\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelect\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList artwork\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetName\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_ARTWORK__\"\n  >\n__DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTip\">\n    <span data-xztext=\"_命名标记的提示\"></span>\n    <!-- __NAMING_RULE_HELP_HTML__ -->\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"33\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_小说的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForNovel\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTipForNovel\"\n        data-for-no=\"33\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelectForNovel\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n        <option value=\"{follow_artwork}\">{follow_artwork}</option>\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList novel\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetNameForNovel\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_NOVEL__\"\n  >\n__DEFAULT_NAME_RULE_FOR_NOVEL__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTipForNovel\">\n    <span data-xztext=\"_小说的命名标记的提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"34\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在不同的页面类型中使用不同的命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setNameRuleForEachPageType\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_在不同的页面类型中使用不同的命名规则\"\n    data-msg=\"_在不同的页面类型中使用不同的命名规则的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"35\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_如果作品含有某些标签则对这个作品使用另一种命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n  >\n    <slot data-name=\"UseDifferentNameRuleIfWorkHasTagSlot\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"36\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_合并系列小说时的命名规则\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"showFileNameTip textButton toggleArea\"\n    data-toggle-Target=\"#seriesNovelNameTip\"\n    data-for-no=\"36\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"seriesNovelNameRule\"\n      rows=\"1\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"seriesNovelNameTip\">\n    <span data-xztext=\"_系列小说的命名标记提醒\"></span>\n    <br />\n    <span class=\"blue name\">{series_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_title\"></span>\n    <br />\n    <span class=\"blue name\">{series_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_id\"></span>\n    <br />\n    <span class=\"blue name\">{user}</span>\n    <span data-xztext=\"_系列小说的命名标记_user\"></span>\n    <br />\n    <span class=\"blue name\">{user_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_user_id\"></span>\n    <br />\n    * <span class=\"blue name\">{part}</span>\n    <span data-xztext=\"_系列小说的命名标记_part\"></span>\n    <br />\n    <span class=\"blue name\">{ext}</span>\n    <span data-xztext=\"_系列小说的命名标记_ext\"></span>\n    <br />\n    <span class=\"blue name\">{age}</span>\n    <span data-xztext=\"_系列小说的命名标记_age\"></span>\n    <br />\n    * <span class=\"blue name\">{age_r}</span>\n    <span data-xztext=\"_系列小说的命名标记_age_r\"></span>\n    <br />\n    * <span class=\"blue name\">{AI}</span>\n    <span data-xztext=\"_系列小说的命名标记_AI\"></span>\n    <br />\n    <span class=\"blue name\">{lang}</span>\n    <span data-xztext=\"_系列小说的命名标记_lang\"></span>\n    <br />\n    <span class=\"blue name\">{total}</span>\n    <span data-xztext=\"_系列小说的命名标记_total\"></span>\n    <br />\n    <span class=\"blue name\">{char_count}</span>\n    <span data-xztext=\"_系列小说的命名标记_char_count\"></span>\n    <br />\n    <span class=\"blue name\">{create_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_create_date\"></span>\n    <br />\n    <span class=\"blue name\">{last_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_last_date\"></span>\n    <br />\n    <span class=\"blue name\">{task_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_task_date\"></span>\n    <br />\n    <span class=\"blue name\">{first_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_first_id\"></span>\n    <br />\n    <span class=\"blue name\">{latest_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_latest_id\"></span>\n    <br />\n    <span class=\"blue name\">{tags}</span>\n    <span data-xztext=\"_系列小说的命名标记_tags\"></span>\n    <br />\n    * <span class=\"blue name\">{page_tag}</span>\n    <span data-xztext=\"_文件夹标记page_tag\"></span>\n    <br />\n    <span class=\"blue name\">{page_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_page_title\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"37\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_标签分隔符号\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"tagsSeparator\"\n    class=\"setinput_style blue\"\n    value=\",\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray1 textButton toggleArea\"\n    data-toggle-Target=\"#tagsSeparatorTip\"\n    data-for-no=\"37\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"tagsSeparatorTip\">\n    <span data-xztext=\"_标签分隔符号提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"38\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_日期格式\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"dateFormat\"\n    class=\"setinput_style blue w200\"\n    value=\"YYYY-MM-DD\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray1 textButton toggleArea\"\n    data-toggle-Target=\"#dateFormatTip\"\n    data-for-no=\"38\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"dateFormatTip\">\n    <span data-xztext=\"_日期格式提示\"></span>\n    <br />\n    <span class=\"blue\">YYYY</span> <span>2021</span>\n    <br />\n    <span class=\"blue\">YY</span> <span>21</span>\n    <br />\n    <span class=\"blue\">MM</span> <span>04</span>\n    <br />\n    <span class=\"blue\">MMM</span> <span>Apr</span>\n    <br />\n    <span class=\"blue\">MMMM</span> <span>April</span>\n    <br />\n    <span class=\"blue\">DD</span> <span>30</span>\n    <br />\n    <span class=\"blue\">hh</span> <span>06</span>\n    <br />\n    <span class=\"blue\">mm</span> <span>40</span>\n    <br />\n    <span class=\"blue\">ss</span> <span>08</span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"39\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_文件名长度限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"fullNameLengthLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap\" data-show=\"fullNameLengthLimitSwitch\">\n    <input\n      type=\"text\"\n      name=\"fullNameLengthLimit\"\n      class=\"setinput_style blue\"\n      value=\"210\"\n    />\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_文件名长度限制\"\n      data-msg=\"_文件名长度限制的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"40\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_不创建文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noFolderSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_不创建文件夹\"\n    data-msg=\"_不创建文件夹的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap noGrow flexBasis100\" data-show=\"noFolderSwitch\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownload1Image\"\n        id=\"noFolderWhenDownload1Image\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownload1Image\"\n        data-xztext=\"_从插画漫画里下载1张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownloadMultipleImages\"\n        id=\"noFolderWhenDownloadMultipleImages\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownloadMultipleImages\"\n        data-xztext=\"_从插画漫画里下载多张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenUgoira\"\n        id=\"noFolderWhenUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenNovel\"\n        id=\"noFolderWhenNovel\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenNovel\" data-xztext=\"_小说\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"41\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为多图作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"folderForMultiImageWorksSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_为多图作品添加一层文件夹\"\n    data-msg=\"_为多图作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap flexBasis100 namingTipArea\"\n    data-show=\"folderForMultiImageWorksSwitch\"\n  >\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksImageNumber\"\n        class=\"pr0\"\n        data-xztext=\"_当作品里的图片大于指定数量时启用\"\n      ></label>\n      <input\n        class=\"setinput_style blue w50 noGrow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksImageNumber\"\n        id=\"folderForMultiImageWorksImageNumber\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksRule\"\n        class=\"pr0\"\n        data-xztext=\"_要添加的这层文件夹的规则\"\n      ></label>\n      <input\n        class=\"setinput_style blue w150 grow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksRule\"\n        id=\"folderForMultiImageWorksRule\"\n        value=\"{pid}\"\n        style=\"min-width: 100px\"\n      />\n    </div>\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_multi_image_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"42\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为r18作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"r18Folder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_为r18作品添加一层文件夹\"\n    data-msg=\"_为r18作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100 namingTipArea\" data-show=\"r18Folder\">\n    <label\n      for=\"r18FolderName\"\n      class=\"pr0\"\n      data-xztext=\"_要添加的这层文件夹的规则\"\n    ></label>\n    <input\n      type=\"text\"\n      name=\"r18FolderName\"\n      id=\"r18FolderName\"\n      class=\"setinput_style blue grow\"\n      value=\"[R-18&R-18G]\"\n      style=\"min-width: 100px\"\n    />\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_r18_g_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"43\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_使用第一个匹配的标签建立文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"createFolderByTag\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_使用第一个匹配的标签建立文件夹\"\n    data-msg=\"_使用第一个匹配的标签建立文件夹的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap namingTipArea flexBasis100\"\n    data-show=\"createFolderByTag\"\n  >\n    <span class=\"name\">{match_tag_folder1}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <span class=\"name\">{match_tag_folder2}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList2\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_match_tag_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"44\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标签别名\"></span>\n  </a>\n\n  <label\n    for=\"useTagAliasForTagsNamingRule\"\n    data-xztext=\"_应用到文件名里的tags系列标记\"\n  ></label>\n  <input\n    type=\"checkbox\"\n    name=\"useTagAliasForTagsNamingRule\"\n    id=\"useTagAliasForTagsNamingRule\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_标签别名\"\n    data-msg=\"_标签别名的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <slot data-name=\"setTagAliasSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"45\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自定义用户名的说明\"\n  >\n    <span data-xztext=\"_自定义用户名\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <slot data-name=\"setUserNameSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"46\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_序号起始值的说明\"\n  >\n    <span data-xztext=\"_序号起始值\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart0\"\n    class=\"need_beautify radio\"\n    value=\"0\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart0\"> 0 </label>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart1\"\n    class=\"need_beautify radio\"\n    value=\"1\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart1\"> 1 </label>\n</div>\n\n<div class=\"option\" data-no=\"47\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_第一张图不带序号说明\"\n  >\n    <span data-xztext=\"_第一张图不带序号\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noSerialNo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"noSerialNo\">\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForSingleImg\"\n      id=\"setNoSerialNoForSingleImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForSingleImg\" data-xztext=\"_单图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForMultiImg\"\n      id=\"setNoSerialNoForMultiImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForMultiImg\" data-xztext=\"_多图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForUgoira\"\n      id=\"setNoSerialNoForUgoira\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForUgoira\" data-xztext=\"_动图\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"48\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在序号前面填充0的说明\"\n  >\n    <span data-xztext=\"_在序号前面填充0\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"zeroPadding\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"zeroPadding\">\n    <span data-xztext=\"_序号总长度\"></span>\n    <input\n      type=\"text\"\n      name=\"zeroPaddingLength\"\n      class=\"setinput_style blue\"\n      value=\"3\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"49\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_移除文件名里的emoji\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeEmoji\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"50\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_移除用户名中的at和后续字符的说明\"\n  >\n    <span data-xztext=\"_移除用户名中的at和后续字符\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeAtFromUsername\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"51\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_同时下载数量\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"downloadThread\"\n    class=\"has_tip setinput_style blue\"\n    data-xztip=\"_下载线程的说明\"\n    value=\"3\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"52\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动开始下载\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoStartDownload\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_自动开始下载\"\n    data-msg=\"_自动开始下载的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"53\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载之后收藏作品的提示\"\n  >\n    <span data-xztext=\"_下载之后收藏作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bmkAfterDL\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"54\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击收藏按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickBookmark\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"55\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击点赞按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickLike\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"56\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载间隔的说明\"\n  >\n    <span data-xztext=\"_下载间隔\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadIntervalSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"downloadIntervalSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当文件数量大于\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadIntervalOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"150\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadInterval\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n      <span data-xztext=\"_秒\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"57\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_文件下载顺序\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setFileDownloadOrder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setFileDownloadOrder\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序依据\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy1\"\n        class=\"need_beautify radio\"\n        value=\"ID\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy1\" data-xztext=\"_作品ID\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy2\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkCount\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy2\" data-xztext=\"_收藏数量2\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy3\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkID\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy3\" data-xztext=\"_收藏时间\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序方式\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder1\"\n        class=\"need_beautify radio\"\n        value=\"desc\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder1\" data-xztext=\"_降序\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder2\"\n        class=\"need_beautify radio\"\n        value=\"asc\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder2\" data-xztext=\"_升序\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"58\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_优先下载动图\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadUgoiraFirst\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"59\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_文件体积限制的说明\"\n  >\n    <span data-xztext=\"_文件体积限制\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"sizeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"sizeSwitch\">\n    <input\n      type=\"text\"\n      name=\"sizeMin\"\n      class=\"setinput_style blue\"\n      value=\"0\"\n    />MiB &nbsp;-&nbsp;\n    <input\n      type=\"text\"\n      name=\"sizeMax\"\n      class=\"setinput_style blue\"\n      value=\"100\"\n    />MiB\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"60\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_使用前请先查看提示\"\n  >\n    <span data-xztext=\"_把文件保存到用户上次选择的位置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"rememberTheLastSaveLocation\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_把文件保存到用户上次选择的位置\"\n    data-msg=\"_把文件保存到用户上次选择的位置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"61\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载完成后显示通知的说明\"\n  >\n    <span data-xztext=\"_下载完成后显示通知\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showNotificationAfterDownloadComplete\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"62\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_管理下载记录\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_管理下载记录\"\n    data-msg=\"_管理下载记录的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"exportDownloadRecord\"\n      data-event=\"exportDownloadRecord\"\n      data-xztext=\"_导出\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"importDownloadRecord\"\n      data-event=\"importDownloadRecord\"\n      data-xztext=\"_导入\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"importDownloadRecordTXT\"\n      data-event=\"importDownloadRecordTXT\"\n      data-xztext=\"_导入txt\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"clearDownloadRecord\"\n      data-event=\"clearDownloadRecord\"\n      data-xztext=\"_清除\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"63\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_不下载重复文件\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"deduplication\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"deduplication\">\n    <span data-xztext=\"_策略\"></span>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy2\"\n      class=\"need_beautify radio\"\n      value=\"loose\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy2\"\n      data-xztip=\"_宽松模式说明\"\n      data-xztext=\"_宽松\"\n    ></label>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy1\"\n      class=\"need_beautify radio\"\n      value=\"strict\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy1\"\n      data-xztip=\"_严格模式说明\"\n      data-xztext=\"_严格\"\n    ></label>\n  </div>\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_不下载重复文件\"\n    data-msg=\"_不下载重复文件的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"64\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载图片时的尺寸\"\n  ></a>\n\n  <div class=\"optionLine\">\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize2\" data-xztext=\"_普通\"></label>\n    <label for=\"imageSize2\" class=\"gray1\">(1200px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize3\"\n      class=\"need_beautify radio\"\n      value=\"small\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize3\" data-xztext=\"_小图\"></label>\n    <label for=\"imageSize3\" class=\"gray1\">(540px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize4\"\n      class=\"need_beautify radio\"\n      value=\"thumb\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize4\" data-xztext=\"_方形缩略图\"></label>\n    <label for=\"imageSize4\" class=\"gray1\">(250px)</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"65\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_动图保存格式\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_动图保存格式\"\n    data-msg=\"_动图保存格式的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" style=\"display: inline-flex\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebP\"\n        id=\"ugoiraSaveAsWebP\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebP\" data-xztext=\"_webp图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebM\"\n        id=\"ugoiraSaveAsWebM\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebM\" data-xztext=\"_webmVideo\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsGIF\"\n        id=\"ugoiraSaveAsGIF\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsGIF\" data-xztext=\"_gif图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsAPNG\"\n        id=\"ugoiraSaveAsAPNG\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsAPNG\" data-xztext=\"_apng图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsZIP\"\n        id=\"ugoiraSaveAsZIP\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsZIP\" data-xztext=\"_zip文件\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsUgoira\"\n        id=\"ugoiraSaveAsUgoira\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsUgoira\" data-xztext=\"_Ugoira文件\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_WebP图像质量\"></span>\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality0\"\n        class=\"need_beautify radio\"\n        value=\"lossy\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality0\" data-xztext=\"_有损\"></label>\n\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality1\"\n        class=\"need_beautify radio\"\n        value=\"lossless\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality1\" data-xztext=\"_无损\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"saveThumbnailForUgoira\"\n        data-xztext=\"_为动图保存一张缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveThumbnailForUgoira\"\n        id=\"saveThumbnailForUgoira\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"66\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_同时转换多少个动图的说明\"\n  >\n    <span data-xztext=\"_同时转换多少个动图\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"convertUgoiraThread\"\n    class=\"setinput_style blue\"\n    value=\"1\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"67\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_小说保存格式的说明\"\n  >\n    <span data-xztext=\"_小说保存格式\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs2\"\n    class=\"need_beautify radio\"\n    value=\"epub\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs2\"> EPUB </label>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs1\"\n    class=\"need_beautify radio\"\n    value=\"txt\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs1\"> TXT </label>\n</div>\n\n<div class=\"option\" data-no=\"68\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在小说里保存元数据提示\"\n  >\n    <span data-xztext=\"_在小说里保存元数据\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveNovelMeta\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"69\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说的封面图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelCoverImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"70\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说里的内嵌图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelEmbeddedImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"downloadNovelEmbeddedImage\"\n  >\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSizeOriginal\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSizeOriginal\" data-xztext=\"_原图\"></label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize1200\"\n      class=\"need_beautify radio\"\n      value=\"1200\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize1200\">1200px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize480\"\n      class=\"need_beautify radio\"\n      value=\"480\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize480\">480px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize240\"\n      class=\"need_beautify radio\"\n      value=\"240\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize240\">240px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize128\"\n      class=\"need_beautify radio\"\n      value=\"128\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize128\">128px</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"71\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动合并系列小说的说明\"\n  >\n    <span data-xztext=\"_自动合并系列小说\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoMergeNovel\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"autoMergeNovel\">\n    <label\n      for=\"skipNovelsInSeriesWhenAutoMerge\"\n      data-xztext=\"_不再单独下载系列里的小说\"\n      class=\"has_tip\"\n      data-xztip=\"_不再单独下载系列里的小说的说明\"\n    ></label>\n    <span class=\"gray1\"> ? &nbsp;</span>\n    <input\n      type=\"checkbox\"\n      name=\"skipNovelsInSeriesWhenAutoMerge\"\n      id=\"skipNovelsInSeriesWhenAutoMerge\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"104\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span\n      data-xztext=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    ></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveAllSeriesNovelsIfOneMatches\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    data-msg=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"72\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_合并系列小说时的分割阈值\"></span>\n  </a>\n\n  <input\n    type=\"text\"\n    name=\"singleEPUBFileSizeLimit\"\n    class=\"setinput_style blue\"\n    value=\"200\"\n  />\n  <span>MiB</span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_合并系列小说时的分割阈值\"\n    data-msg=\"_合并系列小说时的分割阈值的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"73\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品的元数据说明\"\n  >\n    <span data-xztext=\"_保存作品的元数据\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType0\"\n      id=\"setSaveMetaType0\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType0\" data-xztext=\"_插画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType1\"\n      id=\"setSaveMetaType1\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType1\" data-xztext=\"_漫画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType2\"\n      id=\"setSaveMetaType2\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType2\" data-xztext=\"_动图\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType3\"\n      id=\"setSaveMetaType3\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType3\" data-xztext=\"_小说\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_文件格式\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatTXT\"\n      id=\"saveMetaFormatTXT\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatTXT\"> TXT </label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatJSON\"\n      id=\"saveMetaFormatJSON\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatJSON\"> JSON </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"74\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品简介的说明\"\n  >\n    <span data-xztext=\"_保存作品的简介\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveWorkDescription\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"saveWorkDescription\">\n    <div class=\"optionLine\">\n      <label\n        for=\"saveEachDescription\"\n        data-xztext=\"_每个作品分别保存\"\n        class=\"has_tip\"\n        data-xztip=\"_简介的Links标记\"\n      ></label>\n      <span class=\"gray1\"> ? &nbsp;</span>\n      <input\n        type=\"checkbox\"\n        name=\"saveEachDescription\"\n        id=\"saveEachDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"summarizeDescription\" data-xztext=\"_汇总到一个文件\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"summarizeDescription\"\n        id=\"summarizeDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"75\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的说明\"\n  >\n    <span data-xztext=\"_预览作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWork\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWork\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"previewSingleImageWork\"\n        id=\"previewSingleImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewSingleImageWork\" data-xztext=\"_单图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewMultiImageWork\"\n        id=\"previewMultiImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewMultiImageWork\" data-xztext=\"_多图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewUgoira\"\n        id=\"previewUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"checkBlockTagsForPreviewWork\"\n        data-xztext=\"_检查屏蔽的标签\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"checkBlockTagsForPreviewWork\"\n        id=\"checkBlockTagsForPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray1 textButton showMsgBtn\"\n        data-title=\"_检查屏蔽的标签\"\n        data-msg=\"_检查屏蔽的标签的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"has_tip\"\n        data-xztext=\"_使用鼠标滚轮切换作品里的图片\"\n        data-xztip=\"_这可能会阻止页面滚动\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"wheelScrollSwitchImageOnPreviewWork\"\n        id=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"swicthImageByKeyboard\"\n        class=\"has_tip\"\n        data-xztext=\"_使用方向键和空格键切换图片\"\n        data-xztip=\"_使用方向键和空格键切换图片的提示\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"swicthImageByKeyboard\"\n        id=\"swicthImageByKeyboard\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"previewWorkWait\" data-xztext=\"_等待时间\"></label>\n      <input\n        type=\"text\"\n        name=\"previewWorkWait\"\n        id=\"previewWorkWait\"\n        class=\"setinput_style blue\"\n        value=\"400\"\n      />\n      <span>ms</span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"showPreviewWorkTip\" data-xztext=\"_显示摘要信息\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"showPreviewWorkTip\"\n        id=\"showPreviewWorkTip\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray1 textButton toggleArea\"\n        data-toggle-Target=\"#previewWorkShortcutTip\"\n        data-for-no=\"75\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"previewWorkShortcutTip\">\n    <span data-xztext=\"_预览作品的快捷键说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"76\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_长按右键显示大图\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showOriginImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"showOriginImage\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray1 textButton toggleArea\"\n        data-toggle-Target=\"#showOriginImageShortcutTip\"\n        data-for-no=\"76\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"showOriginImageShortcutTip\">\n    <span data-xztext=\"_查看作品大图时的快捷键\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"77\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的详细信息的说明\"\n  >\n    <span data-xztext=\"_预览作品的详细信息\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWorkDetailInfo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWorkDetailInfo\">\n    <span data-xztext=\"_显示区域宽度\"></span>&nbsp;\n    <input\n      type=\"text\"\n      name=\"PreviewDetailInfoWidth\"\n      class=\"setinput_style blue\"\n      value=\"400\"\n    />\n    <span>&nbsp;px</span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"78\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示更大的缩略图的说明\"\n  >\n    <span data-xztext=\"_显示更大的缩略图\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showLargerThumbnails\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"79\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_替换方形缩略图以显示图片比例的说明\"\n  >\n    <span data-xztext=\"_替换方形缩略图以显示图片比例\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"replaceSquareThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"80\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在多图作品页面里显示缩略图列表的说明\"\n  >\n    <span data-xztext=\"_在多图作品页面里显示缩略图列表\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"displayThumbnailListOnMultiImageWorkPage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"81\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_把图片显示为灰色\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"imageToGray\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"82\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle has_tip\"\n    data-xztip=\"_缩略图上按钮的位置的说明\"\n  >\n    <span data-xztext=\"_缩略图上按钮的位置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition1\"\n    class=\"need_beautify radio\"\n    value=\"left\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition1\" data-xztext=\"_左侧\"></label>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition2\"\n    class=\"need_beautify radio\"\n    value=\"right\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition2\" data-xztext=\"_右侧\"></label>\n</div>\n\n<div class=\"option\" data-no=\"83\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示放大按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"magnifier\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"magnifier\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize2\" data-xztext=\"_普通\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"84\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在缩略图上显示复制按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showCopyBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"85\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示下载按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showDownloadBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"86\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮关注的用户的说明\"\n  >\n    <span data-xztext=\"_高亮关注的用户\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"highlightFollowingUsers\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"87\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在下载过的作品上显示边框\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showBorderOnDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"showBorderOnDownloadedWorks\"\n  >\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\" class=\"mr4\"></span>\n      <input\n        type=\"text\"\n        name=\"borderWidth\"\n        class=\"setinput_style blue w30\"\n        value=\"3\"\n      />\n      px\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_颜色\" class=\"mr4\"></span> (Hex)\n      <input\n        type=\"text\"\n        name=\"borderColor\"\n        class=\"setinput_style blue w80\"\n        id=\"borderColor\"\n        value=\"#ff4060\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"88\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_收藏设置的说明\"\n  >\n    <span data-xztext=\"_收藏设置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否添加标签\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag1\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag1\" data-xztext=\"_添加\"></label>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag2\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag2\" data-xztext=\"_不添加\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否公开\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict1\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict1\" data-xztext=\"_公开\"></label>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict2\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict2\" data-xztext=\"_不公开\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"89\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示复制按钮的提示\"\n  >\n    <span data-xztext=\"_复制按钮\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_复制内容\" class=\"mr4\"></span>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatImage\"\n      id=\"setCopyFormatImage\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatImage\">image/png</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatText\"\n      id=\"setCopyFormatText\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatText\">text/plain</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatHtml\"\n      id=\"setCopyFormatHtml\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatHtml\">text/html</label>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_复制内容\"\n      data-msg=\"_对复制的内容的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize2\" data-xztext=\"_普通\"></label>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span data-xztext=\"_文本格式\" class=\"mr4\"></span>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton toggleArea\"\n      data-toggle-Target=\"#copyWorkInfoFormatTip\"\n      data-for-no=\"89\"\n      data-xztext=\"_提示\"\n    ></button>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"copyWorkInfoFormat\"\n      rows=\"1\"\n      placeholder=\"id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip namingTipArea\" id=\"copyWorkInfoFormatTip\">\n    <span data-xztext=\"_复制内容的格式的提示\"></span>\n    <br />\n    <span class=\"blue name\">{url}</span>\n    <span data-xztext=\"_url标记的说明\"></span>\n    <br />\n    <span class=\"blue name\">{n}</span>\n    <span data-xztext=\"_换行标记的说明\"></span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"90\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在搜索页面添加快捷搜索区域的说明\"\n  >\n    <span data-xztext=\"_在搜索页面添加快捷搜索区域\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showFastSearchArea\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"91\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_过滤搜索页面的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"filterSearchResults\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_过滤搜索页面的作品\"\n    data-msg=\"_过滤搜索页面的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"92\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在搜索页面里移除已关注用户的作品的说明\"\n  >\n    <span data-xztext=\"_在搜索页面里移除已关注用户的作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeWorksOfFollowedUsersOnSearchPage\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"93\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览搜索结果说明\"\n  >\n    <span data-xztext=\"_预览搜索结果\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"previewResult\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"previewResult\">\n    <span class=\"settingNameStyle\" data-xztext=\"_上限\"></span>\n    <input\n      type=\"text\"\n      name=\"previewResultLimit\"\n      class=\"setinput_style blue w80\"\n      value=\"3000\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"94\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\"\n    ><span class=\"key\">Language</span></a\n  >\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang2\"\n    class=\"need_beautify radio\"\n    value=\"zh-cn\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang2\">简体中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang3\"\n    class=\"need_beautify radio\"\n    value=\"zh-tw\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang3\">繁體中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang4\"\n    class=\"need_beautify radio\"\n    value=\"ja\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang4\">日本語</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang5\"\n    class=\"need_beautify radio\"\n    value=\"en\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang5\">English</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang6\"\n    class=\"need_beautify radio\"\n    value=\"ko\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang6\">한국어</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang7\"\n    class=\"need_beautify radio\"\n    value=\"ru\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang7\">Русский</label>\n</div>\n\n<div class=\"option\" data-no=\"95\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_选项卡切换方式的说明\"\n  >\n    <span data-xztext=\"_选项卡切换方式\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar1\"\n    class=\"need_beautify radio\"\n    value=\"over\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar1\" data-xztext=\"_鼠标经过\"></label>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar2\"\n    class=\"need_beautify radio\"\n    value=\"click\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar2\" data-xztext=\"_鼠标点击\"></label>\n</div>\n\n<div class=\"option\" data-no=\"96\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置卡片时切换它的开关状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickOptionCardToToggleSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_点击设置卡片时切换它的开关状态\"\n    data-msg=\"_点击设置卡片时切换它的开关状态的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"97\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置名字时打开wiki链接\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickSettingNameOpenWiki\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"98\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_颜色主题\"\n  ></a>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme2\"\n    class=\"need_beautify radio\"\n    value=\"white\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme2\">White</label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme3\"\n    class=\"need_beautify radio\"\n    value=\"dark\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme3\">Dark</label>\n</div>\n\n<div class=\"option\" data-no=\"99\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_背景图片的说明\"\n  >\n    <span data-xztext=\"_背景图片\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bgDisplay\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"bgDisplay\">\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent\"\n        data-event=\"selectBG\"\n        id=\"selectBG\"\n        data-xztext=\"_选择文件\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent\"\n        data-event=\"clearBG\"\n        id=\"clearBG\"\n        data-xztext=\"_清除\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_对齐方式\"></span>&nbsp;\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition1\"\n        class=\"need_beautify radio\"\n        value=\"center\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition1\" data-xztext=\"_居中\"></label>\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition2\"\n        class=\"need_beautify radio\"\n        value=\"top\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition2\" data-xztext=\"_顶部\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_不透明度\" class=\"mr4\"></span>\n      <input name=\"bgOpacity\" type=\"range\" />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"100\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮显示关键字的说明\"\n  >\n    <span data-xztext=\"_高亮显示关键字\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"boldKeywords\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"101\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_日志区域的默认可见性的说明\"\n  >\n    <span data-xztext=\"_日志区域的默认可见性\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault1\"\n    class=\"need_beautify radio\"\n    value=\"show\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault1\" data-xztext=\"_显示\"></label>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault2\"\n    class=\"need_beautify radio\"\n    value=\"hide\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault2\" data-xztext=\"_隐藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"102\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_导出日志\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"exportLog\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"exportLog\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_导出时机\"></span>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming1\"\n        class=\"need_beautify radio\"\n        value=\"crawlComplete\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming1\" data-xztext=\"_抓取完毕2\"></label>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming2\"\n        class=\"need_beautify radio\"\n        value=\"downloadComplete\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming2\" data-xztext=\"_下载完毕\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_日志类型\"></span>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogNormal\"\n        id=\"exportLogNormal\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogNormal\" data-xztext=\"_正常\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogError\"\n        id=\"exportLogError\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogError\" data-xztext=\"_错误\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_排除关键字\"></span>&nbsp;\n      <input\n        type=\"text\"\n        name=\"exportLogExclude\"\n        class=\"setinput_style blue setinput_tag\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"103\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_管理设置的说明\"\n  >\n    <span data-xztext=\"_管理设置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"exportSettings\"\n      id=\"exportSettings\"\n      data-xztext=\"_导出设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"importSettings\"\n      id=\"importSettings\"\n      data-xztext=\"_导入设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetSettings\"\n      id=\"resetSettings\"\n      data-xztext=\"_重置设置\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetFollowingData\"\n      id=\"resetFollowingData\"\n      data-xztext=\"_清除下载器保存的关注数据\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetHelpTip\"\n      id=\"resetHelpTip\"\n      data-xztext=\"_重新显示帮助\"\n    ></button>\n  </div>\n</div>\n";
+module.exports = "<!-- 设置项的编号是递增的，现在最大值是 104\n帮助按钮上的文字有两种：\n- 如果帮助文字使用 MsgBox 显示，则使用“_帮助”\n- 如果帮助文字直接在设置面板里显示，则使用“_提示” -->\n<div class=\"option\" data-no=\"0\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少作品\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantWork\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray1\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_抓取多少作品\"\n    data-msg=\"_抓取多少作品的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"1\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少页面\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantPage\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray1\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_抓取多少页面\"\n    data-msg=\"_抓取多少页面的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"2\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须大于0\"\n  >\n    <span data-xztext=\"_抓取每个用户最新的几个作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlLatestFewWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"crawlLatestFewWorks\">\n    <input\n      type=\"text\"\n      name=\"crawlLatestFewWorksNumber\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"3\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_作品类型\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downType0\"\n    id=\"setWorkType0\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span\n    class=\"beautify_checkbox\"\n    tabindex=\"0\"\n    aria-labelledby=\"setWorkType0\"\n  ></span>\n  <label for=\"setWorkType0\" data-xztext=\"_插画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType1\"\n    id=\"setWorkType1\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\" data-xztitle=\"_漫画\"></span>\n  <label for=\"setWorkType1\" data-xztext=\"_漫画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType2\"\n    id=\"setWorkType2\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType2\" data-xztext=\"_动图\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType3\"\n    id=\"setWorkType3\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType3\" data-xztext=\"_小说\"></label>\n</div>\n\n<div class=\"option\" data-no=\"4\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_年龄限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downAllAges\"\n    id=\"downAllAges\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downAllAges\" data-xztext=\"_全年龄\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18\"\n    id=\"downR18\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18\"> R-18</label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18G\"\n    id=\"downR18G\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18G\"> R-18G</label>\n</div>\n\n<div class=\"option\" data-no=\"5\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_AI作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"AIGenerated\"\n    id=\"AIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"AIGenerated\" data-xztext=\"_AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"notAIGenerated\"\n    id=\"notAIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"notAIGenerated\" data-xztext=\"_非AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"UnknownAI\"\n    id=\"UnknownAI\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label\n    for=\"UnknownAI\"\n    data-xztext=\"_未知\"\n    class=\"has_tip\"\n    data-xztip=\"_AI未知作品的说明\"\n  ></label>\n</div>\n\n<div class=\"option\" data-no=\"6\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_原创作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlOriginalWork\"\n    id=\"setCrawlOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlOriginalWork\" data-xztext=\"_原创\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"crawlNonOriginalWork\"\n    id=\"setCrawlNonOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlNonOriginalWork\" data-xztext=\"_非原创\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <input\n    type=\"checkbox\"\n    name=\"looseMatchOriginal\"\n    id=\"looseMatchOriginal\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"looseMatchOriginal\" data-xztext=\"_宽松匹配\"></label>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_原创作品\"\n    data-msg=\"_宽松匹配原创作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"7\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片色彩\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downColorImg\"\n    id=\"setDownColorImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownColorImg\" data-xztext=\"_彩色图片\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBlackWhiteImg\"\n    id=\"setDownBlackWhiteImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBlackWhiteImg\" data-xztext=\"_黑白图片\"></label>\n</div>\n\n<div class=\"option\" data-no=\"8\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downSingleImg\"\n    id=\"setDownSingleImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownSingleImg\" data-xztext=\"_单图作品\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downMultiImg\"\n    id=\"setDownMultiImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownMultiImg\" data-xztext=\"_多图作品\"></label>\n</div>\n\n<div class=\"option\" data-no=\"9\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downNotBookmarked\"\n    id=\"setDownNotBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownNotBookmarked\" data-xztext=\"_未收藏\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBookmarked\"\n    id=\"setDownBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBookmarked\" data-xztext=\"_已收藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"10\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置收藏数量的提示\"\n  >\n    <span data-xztext=\"_收藏数量\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"BMKNumSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"BMKNumSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_最小值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMin\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"0\"\n      />\n\n      &nbsp;\n      <span data-xztext=\"_最大值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMax\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"__BOOKMARK_COUNT_LIMIT__\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_或者\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"BMKNumAverageSwitch\"\n        class=\"has_tip\"\n        data-xztip=\"_日均收藏数量的提示\"\n      >\n        <span data-xztext=\"_满足日均收藏数量条件\"></span>\n        <span class=\"gray1\"> ? </span>\n      </label>\n      <input\n        type=\"checkbox\"\n        name=\"BMKNumAverageSwitch\"\n        id=\"BMKNumAverageSwitch\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <div class=\"subOptionWrap\" data-show=\"BMKNumAverageSwitch\">\n        &gt;=&nbsp;\n        <input\n          type=\"text\"\n          name=\"BMKNumAverage\"\n          class=\"setinput_style blue bmkNum\"\n          value=\"600\"\n        />\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"11\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_筛选宽高的提示文字\"\n  >\n    <span data-xztext=\"_图片的宽高\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"setWHSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setWHSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\"></span>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison3\">&lt;=</label>\n\n      <input\n        type=\"text\"\n        name=\"setWidth\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr1\"\n        class=\"need_beautify radio\"\n        value=\"&\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr1\" data-xztext=\"_并且\"></label>\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr2\"\n        class=\"need_beautify radio\"\n        value=\"|\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr2\" data-xztext=\"_或者\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_高度\"></span>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"setHeight\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"12\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置宽高比例Title\"\n  >\n    <span data-xztext=\"_图片的宽高比例\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"ratioSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"ratioSwitch\">\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio1\"\n      class=\"need_beautify radio\"\n      value=\"horizontal\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio1\" data-xztext=\"_横图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio2\"\n      class=\"need_beautify radio\"\n      value=\"vertical\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio2\" data-xztext=\"_竖图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio0\"\n      class=\"need_beautify radio\"\n      value=\"square\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio0\" data-xztext=\"_正方形\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio3\"\n      class=\"need_beautify radio\"\n      value=\"userSet\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <span class=\"has_tip settingNameStyle\" data-xztip=\"_宽高比的提示\">\n      <label for=\"ratio3\" style=\"padding: 0\" data-xztext=\"_宽高比\"></label>\n      <span class=\"gray1\"> ? </span>\n    </span>\n    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->\n    <input\n      type=\"checkbox\"\n      name=\"userSetChecked\"\n      class=\"need_beautify checkbox_switch\"\n      style=\"display: none\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\" style=\"display: none\"></span>\n    <div class=\"subOptionWrap\" data-show=\"userSetChecked\">\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"userRatio\"\n        class=\"setinput_style blue\"\n        value=\"1.4\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"13\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置id范围提示\"\n  >\n    <span data-xztext=\"_id范围\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"idRangeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"idRangeSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_图像作品\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForImageWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_系列小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelSeries\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"14\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置投稿时间提示\"\n  >\n    <span data-xztext=\"_投稿时间\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"postDate\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"postDate\">\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_起始时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateStart\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2009-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"2009-01-01T00:00\"\n        data-xztext=\"_过去\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_截止时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateEnd\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2100-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"2100-01-01T00:00\"\n        data-xztext=\"_未来\"\n      ></button>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"15\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须tag的提示文字\"\n  >\n    <span data-xztext=\"_必须含有tag\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"needTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"needTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode1\"\n      class=\"need_beautify radio\"\n      value=\"all\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode1\" data-xztext=\"_全部\"></label>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode2\"\n      class=\"need_beautify radio\"\n      value=\"one\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode2\" data-xztext=\"_任一\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"needTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"16\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_排除tag的提示文字\"\n  >\n    <span data-xztext=\"_不能含有tag\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"notNeedTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"notNeedTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <span class=\"gray1\" data-xztext=\"_任一\"></span>\n    <span class=\"verticalSplit\"></span>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode2\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"whole\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode2\" data-xztext=\"_完全一致\"></label>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode1\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"partial\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode1\" data-xztext=\"_部分一致\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"notNeedTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"17\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_针对特定用户屏蔽tag的提示\"\n  >\n    <span data-xztext=\"_针对特定用户屏蔽标签\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"blockTagsForSpecificUser\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"blockTagsForSpecificUser\">\n    <slot data-name=\"blockTagsForSpecificUser\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"18\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题必须含有的说明\"\n  >\n    <span data-xztext=\"_标题必须含有\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleIncludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleIncludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleIncludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"19\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题不能含有的说明\"\n  >\n    <span data-xztext=\"_标题不能含有\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleExcludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleExcludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleExcludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n\n    <label\n      for=\"alsoCheckSeriesTitle\"\n      class=\"has_tip\"\n      data-xztext=\"_也检查系列标题\"\n      data-xztip=\"_也检查系列标题的说明\"\n    ></label>\n    <span class=\"gray1 mr4\"> ? </span>\n    <input\n      type=\"checkbox\"\n      name=\"alsoCheckSeriesTitle\"\n      id=\"alsoCheckSeriesTitle\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"20\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_多图作品的图片数量上限提示\"\n  >\n    <span data-xztext=\"_多图作品的图片数量上限\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"multiImageWorkImageLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"multiImageWorkImageLimitSwitch\">\n    &lt;=&nbsp;\n    <input\n      type=\"text\"\n      name=\"multiImageWorkImageLimit\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"21\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlFirstFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlFirstFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlFirstFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取前几张图片\"\n    data-msg=\"_多图作品只抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"22\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlLastFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlLastFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlLastFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取后几张图片\"\n    data-msg=\"_多图作品只抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"23\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlFirstImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlFirstImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlFirstImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取前几张图片\"\n    data-msg=\"_多图作品不抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"24\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlLastImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlLastImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlLastImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取后几张图片\"\n    data-msg=\"_多图作品不抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"25\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_特定用户的多图作品不下载最后几张图片\"></span>\n  </a>\n  <slot data-name=\"DoNotDownloadLastFewImagesSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"26\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_不抓取下载过的作品的说明\"\n  >\n    <span data-xztext=\"_不抓取下载过的作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"DonotCrawlAlreadyDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_不抓取下载过的作品\"\n    data-msg=\"_不抓取下载过的作品的帮助信息\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"27\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_用户阻止名单的说明\"\n  >\n    <span data-xztext=\"_用户阻止名单\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"userBlockList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"userBlockList\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"blockList\"\n      rows=\"1\"\n      placeholder=\"11111,22222,33333\"\n    ></textarea>\n    <br />\n    <input\n      type=\"checkbox\"\n      name=\"removeBlockedUsersWork\"\n      id=\"setRemoveBlockedUsersWork\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label\n      for=\"setRemoveBlockedUsersWork\"\n      data-xztext=\"_从页面上移除他们的作品\"\n    ></label>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_用户阻止名单\"\n      data-msg=\"_用户阻止名单的说明2\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"28\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_减慢抓取速度的说明\"\n  >\n    <span data-xztext=\"_减慢抓取速度\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"slowCrawl\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"slowCrawl\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当作品数量超过指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"100\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlDealy\"\n        id=\"slowCrawlDealy\"\n        class=\"setinput_style blue\"\n        value=\"1600\"\n        placeholder=\"1600\"\n      />\n      ms\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"29\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_定时抓取的间隔时间的说明\"\n  >\n    <span data-xztext=\"_定时抓取的间隔时间\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"timedCrawlInterval\"\n    class=\"setinput_style blue\"\n    value=\"30\"\n  />\n  <span class=\"mr4\" data-xztext=\"_分钟\"></span>\n</div>\n\n<div class=\"option\" data-no=\"30\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动导出抓取结果的说明\"\n  >\n    <span data-xztext=\"_自动导出抓取结果\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportResult\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportResult\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当抓取结果大于指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"autoExportResultNumber\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_文件格式\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultCSV\"\n        id=\"autoExportResultCSV\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultCSV\"> CSV </label>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultJSON\"\n        id=\"autoExportResultJSON\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultJSON\"> JSON </label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"31\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_导出ID列表的说明\"\n  >\n    <span data-xztext=\"_导出ID列表\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"exportIDList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"32\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_图像作品的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForArtwork\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTip\"\n        data-for-no=\"32\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelect\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList artwork\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetName\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_ARTWORK__\"\n  >\n__DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTip\">\n    <span data-xztext=\"_命名标记的提示\"></span>\n    <!-- __NAMING_RULE_HELP_HTML__ -->\n  </p>\n\n  <p>\n    <button\n      type=\"button\"\n      class=\"showFileNameTip textButton toggleArea longTextButton\"\n      data-toggle-Target=\"#tipOptionalSegment\"\n      data-for-no=\"32\"\n      data-xztext=\"_小技巧_可选片段\"\n    ></button>\n  </p>\n  <p class=\"tip fileNameTip namingTipArea\" id=\"tipOptionalSegment\">\n    <span data-xztext=\"_可选片段的说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"33\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_小说的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForNovel\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTipForNovel\"\n        data-for-no=\"33\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelectForNovel\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n        <option value=\"{follow_artwork}\">{follow_artwork}</option>\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList novel\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetNameForNovel\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_NOVEL__\"\n  >\n__DEFAULT_NAME_RULE_FOR_NOVEL__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTipForNovel\">\n    <span data-xztext=\"_小说的命名标记的提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"34\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在不同的页面类型中使用不同的命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setNameRuleForEachPageType\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_在不同的页面类型中使用不同的命名规则\"\n    data-msg=\"_在不同的页面类型中使用不同的命名规则的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"35\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_如果作品含有某些标签则对这个作品使用另一种命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n  >\n    <slot data-name=\"UseDifferentNameRuleIfWorkHasTagSlot\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"36\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_合并系列小说时的命名规则\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"showFileNameTip textButton toggleArea\"\n    data-toggle-Target=\"#seriesNovelNameTip\"\n    data-for-no=\"36\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"seriesNovelNameRule\"\n      rows=\"1\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"seriesNovelNameTip\">\n    <span data-xztext=\"_系列小说的命名标记提醒\"></span>\n    <br />\n    <span class=\"blue name\">{series_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_title\"></span>\n    <br />\n    <span class=\"blue name\">{series_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_id\"></span>\n    <br />\n    <span class=\"blue name\">{user}</span>\n    <span data-xztext=\"_系列小说的命名标记_user\"></span>\n    <br />\n    <span class=\"blue name\">{user_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_user_id\"></span>\n    <br />\n    * <span class=\"blue name\">{part}</span>\n    <span data-xztext=\"_系列小说的命名标记_part\"></span>\n    <br />\n    <span class=\"blue name\">{ext}</span>\n    <span data-xztext=\"_系列小说的命名标记_ext\"></span>\n    <br />\n    <span class=\"blue name\">{age}</span>\n    <span data-xztext=\"_系列小说的命名标记_age\"></span>\n    <br />\n    * <span class=\"blue name\">{age_r}</span>\n    <span data-xztext=\"_系列小说的命名标记_age_r\"></span>\n    <br />\n    * <span class=\"blue name\">{AI}</span>\n    <span data-xztext=\"_系列小说的命名标记_AI\"></span>\n    <br />\n    <span class=\"blue name\">{bmk}</span>\n    <span data-xztext=\"_系列小说的命名标记_bmk\"></span>\n    <br />\n    <span class=\"blue name\">{total}</span>\n    <span data-xztext=\"_系列小说的命名标记_total\"></span>\n    <br />\n    <span class=\"blue name\">{char_count}</span>\n    <span data-xztext=\"_系列小说的命名标记_char_count\"></span>\n    <br />\n    <span class=\"blue name\">{create_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_create_date\"></span>\n    <br />\n    <span class=\"blue name\">{last_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_last_date\"></span>\n    <br />\n    <span class=\"blue name\">{task_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_task_date\"></span>\n    <br />\n    <span class=\"blue name\">{lang}</span>\n    <span data-xztext=\"_系列小说的命名标记_lang\"></span>\n    <br />\n    <span class=\"blue name\">{first_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_first_id\"></span>\n    <br />\n    <span class=\"blue name\">{latest_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_latest_id\"></span>\n    <br />\n    <span class=\"blue name\">{tags}</span>\n    <span data-xztext=\"_系列小说的命名标记_tags\"></span>\n    <br />\n    * <span class=\"blue name\">{page_tag}</span>\n    <span data-xztext=\"_文件夹标记page_tag\"></span>\n    <br />\n    <span class=\"blue name\">{page_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_page_title\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"37\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_标签分隔符号\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"tagsSeparator\"\n    class=\"setinput_style blue\"\n    value=\",\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray1 textButton toggleArea\"\n    data-toggle-Target=\"#tagsSeparatorTip\"\n    data-for-no=\"37\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"tagsSeparatorTip\">\n    <span data-xztext=\"_标签分隔符号提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"38\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_日期格式\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"dateFormat\"\n    class=\"setinput_style blue w200\"\n    value=\"YYYY-MM-DD\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray1 textButton toggleArea\"\n    data-toggle-Target=\"#dateFormatTip\"\n    data-for-no=\"38\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"dateFormatTip\">\n    <span data-xztext=\"_日期格式提示\"></span>\n    <br />\n    <span class=\"blue\">YYYY</span> <span>2021</span>\n    <br />\n    <span class=\"blue\">YY</span> <span>21</span>\n    <br />\n    <span class=\"blue\">MM</span> <span>04</span>\n    <br />\n    <span class=\"blue\">MMM</span> <span>Apr</span>\n    <br />\n    <span class=\"blue\">MMMM</span> <span>April</span>\n    <br />\n    <span class=\"blue\">DD</span> <span>30</span>\n    <br />\n    <span class=\"blue\">hh</span> <span>06</span>\n    <br />\n    <span class=\"blue\">mm</span> <span>40</span>\n    <br />\n    <span class=\"blue\">ss</span> <span>08</span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"39\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_文件名长度限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"fullNameLengthLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap\" data-show=\"fullNameLengthLimitSwitch\">\n    <input\n      type=\"text\"\n      name=\"fullNameLengthLimit\"\n      class=\"setinput_style blue\"\n      value=\"210\"\n    />\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_文件名长度限制\"\n      data-msg=\"_文件名长度限制的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"40\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_不创建文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noFolderSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_不创建文件夹\"\n    data-msg=\"_不创建文件夹的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap noGrow flexBasis100\" data-show=\"noFolderSwitch\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownload1Image\"\n        id=\"noFolderWhenDownload1Image\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownload1Image\"\n        data-xztext=\"_从插画漫画里下载1张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownloadMultipleImages\"\n        id=\"noFolderWhenDownloadMultipleImages\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownloadMultipleImages\"\n        data-xztext=\"_从插画漫画里下载多张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenUgoira\"\n        id=\"noFolderWhenUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenNovel\"\n        id=\"noFolderWhenNovel\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenNovel\" data-xztext=\"_小说\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"41\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为多图作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"folderForMultiImageWorksSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_为多图作品添加一层文件夹\"\n    data-msg=\"_为多图作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap flexBasis100 namingTipArea\"\n    data-show=\"folderForMultiImageWorksSwitch\"\n  >\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksImageNumber\"\n        class=\"pr0\"\n        data-xztext=\"_当作品里的图片大于指定数量时启用\"\n      ></label>\n      <input\n        class=\"setinput_style blue w50 noGrow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksImageNumber\"\n        id=\"folderForMultiImageWorksImageNumber\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksRule\"\n        class=\"pr0\"\n        data-xztext=\"_要添加的这层文件夹的规则\"\n      ></label>\n      <input\n        class=\"setinput_style blue w150 grow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksRule\"\n        id=\"folderForMultiImageWorksRule\"\n        value=\"{pid}\"\n        style=\"min-width: 100px\"\n      />\n    </div>\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_multi_image_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"42\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为r18作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"r18Folder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_为r18作品添加一层文件夹\"\n    data-msg=\"_为r18作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100 namingTipArea\" data-show=\"r18Folder\">\n    <label\n      for=\"r18FolderName\"\n      class=\"pr0\"\n      data-xztext=\"_要添加的这层文件夹的规则\"\n    ></label>\n    <input\n      type=\"text\"\n      name=\"r18FolderName\"\n      id=\"r18FolderName\"\n      class=\"setinput_style blue grow\"\n      value=\"[R-18&R-18G]\"\n      style=\"min-width: 100px\"\n    />\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_r18_g_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"43\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_使用第一个匹配的标签建立文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"createFolderByTag\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_使用第一个匹配的标签建立文件夹\"\n    data-msg=\"_使用第一个匹配的标签建立文件夹的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap namingTipArea flexBasis100\"\n    data-show=\"createFolderByTag\"\n  >\n    <span class=\"name\">{match_tag_folder1}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <span class=\"name\">{match_tag_folder2}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList2\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_match_tag_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"44\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标签别名\"></span>\n  </a>\n\n  <label\n    for=\"useTagAliasForTagsNamingRule\"\n    data-xztext=\"_应用到文件名里的tags系列标记\"\n  ></label>\n  <input\n    type=\"checkbox\"\n    name=\"useTagAliasForTagsNamingRule\"\n    id=\"useTagAliasForTagsNamingRule\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_标签别名\"\n    data-msg=\"_标签别名的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <slot data-name=\"setTagAliasSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"45\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自定义用户名的说明\"\n  >\n    <span data-xztext=\"_自定义用户名\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <slot data-name=\"setUserNameSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"46\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_序号起始值的说明\"\n  >\n    <span data-xztext=\"_序号起始值\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart0\"\n    class=\"need_beautify radio\"\n    value=\"0\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart0\"> 0 </label>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart1\"\n    class=\"need_beautify radio\"\n    value=\"1\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart1\"> 1 </label>\n</div>\n\n<div class=\"option\" data-no=\"47\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_第一张图不带序号说明\"\n  >\n    <span data-xztext=\"_第一张图不带序号\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noSerialNo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"noSerialNo\">\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForSingleImg\"\n      id=\"setNoSerialNoForSingleImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForSingleImg\" data-xztext=\"_单图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForMultiImg\"\n      id=\"setNoSerialNoForMultiImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForMultiImg\" data-xztext=\"_多图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForUgoira\"\n      id=\"setNoSerialNoForUgoira\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForUgoira\" data-xztext=\"_动图\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"48\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在序号前面填充0的说明\"\n  >\n    <span data-xztext=\"_在序号前面填充0\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"zeroPadding\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"zeroPadding\">\n    <span data-xztext=\"_序号总长度\"></span>\n    <input\n      type=\"text\"\n      name=\"zeroPaddingLength\"\n      class=\"setinput_style blue\"\n      value=\"3\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"49\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_移除文件名里的emoji\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeEmoji\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"50\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_移除用户名中的at和后续字符的说明\"\n  >\n    <span data-xztext=\"_移除用户名中的at和后续字符\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeAtFromUsername\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"51\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_同时下载数量\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"downloadThread\"\n    class=\"has_tip setinput_style blue\"\n    data-xztip=\"_下载线程的说明\"\n    value=\"3\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"52\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动开始下载\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoStartDownload\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_自动开始下载\"\n    data-msg=\"_自动开始下载的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"53\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载之后收藏作品的提示\"\n  >\n    <span data-xztext=\"_下载之后收藏作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bmkAfterDL\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"54\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击收藏按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickBookmark\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"55\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击点赞按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickLike\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"56\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载间隔的说明\"\n  >\n    <span data-xztext=\"_下载间隔\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadIntervalSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"downloadIntervalSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当文件数量大于\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadIntervalOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"150\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadInterval\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n      <span data-xztext=\"_秒\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"57\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_文件下载顺序\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setFileDownloadOrder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setFileDownloadOrder\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序依据\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy1\"\n        class=\"need_beautify radio\"\n        value=\"ID\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy1\" data-xztext=\"_作品ID\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy2\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkCount\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy2\" data-xztext=\"_收藏数量2\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy3\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkID\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy3\" data-xztext=\"_收藏时间\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序方式\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder1\"\n        class=\"need_beautify radio\"\n        value=\"desc\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder1\" data-xztext=\"_降序\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder2\"\n        class=\"need_beautify radio\"\n        value=\"asc\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder2\" data-xztext=\"_升序\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"58\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_优先下载动图\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadUgoiraFirst\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"59\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_文件体积限制的说明\"\n  >\n    <span data-xztext=\"_文件体积限制\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"sizeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"sizeSwitch\">\n    <input\n      type=\"text\"\n      name=\"sizeMin\"\n      class=\"setinput_style blue\"\n      value=\"0\"\n    />MiB &nbsp;-&nbsp;\n    <input\n      type=\"text\"\n      name=\"sizeMax\"\n      class=\"setinput_style blue\"\n      value=\"100\"\n    />MiB\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"60\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_使用前请先查看提示\"\n  >\n    <span data-xztext=\"_把文件保存到用户上次选择的位置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"rememberTheLastSaveLocation\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_把文件保存到用户上次选择的位置\"\n    data-msg=\"_把文件保存到用户上次选择的位置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"rememberTheLastSaveLocation\"\n  >\n    <div class=\"secondary_hint\">\n      <span data-xztext=\"_提示如果你启用了这个设置下载器不会创建文件夹\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"61\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载完成后显示通知的说明\"\n  >\n    <span data-xztext=\"_下载完成后显示通知\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showNotificationAfterDownloadComplete\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"62\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_管理下载记录\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_管理下载记录\"\n    data-msg=\"_管理下载记录的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"exportDownloadRecord\"\n      data-event=\"exportDownloadRecord\"\n      data-xztext=\"_导出\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"importDownloadRecord\"\n      data-event=\"importDownloadRecord\"\n      data-xztext=\"_导入\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"importDownloadRecordTXT\"\n      data-event=\"importDownloadRecordTXT\"\n      data-xztext=\"_导入txt\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      id=\"clearDownloadRecord\"\n      data-event=\"clearDownloadRecord\"\n      data-xztext=\"_清除\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"63\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_不下载重复文件\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"deduplication\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"deduplication\">\n    <span data-xztext=\"_策略\"></span>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy2\"\n      class=\"need_beautify radio\"\n      value=\"loose\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy2\"\n      data-xztip=\"_宽松模式说明\"\n      data-xztext=\"_宽松\"\n    ></label>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy1\"\n      class=\"need_beautify radio\"\n      value=\"strict\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy1\"\n      data-xztip=\"_严格模式说明\"\n      data-xztext=\"_严格\"\n    ></label>\n  </div>\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_不下载重复文件\"\n    data-msg=\"_不下载重复文件的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"64\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载图片时的尺寸\"\n  ></a>\n\n  <div class=\"optionLine\">\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize2\" data-xztext=\"_普通\"></label>\n    <label for=\"imageSize2\" class=\"gray1\">(1200px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize3\"\n      class=\"need_beautify radio\"\n      value=\"small\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize3\" data-xztext=\"_小图\"></label>\n    <label for=\"imageSize3\" class=\"gray1\">(540px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize4\"\n      class=\"need_beautify radio\"\n      value=\"thumb\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize4\" data-xztext=\"_方形缩略图\"></label>\n    <label for=\"imageSize4\" class=\"gray1\">(250px)</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"65\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_动图保存格式\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_动图保存格式\"\n    data-msg=\"_动图保存格式的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" style=\"display: inline-flex\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebP\"\n        id=\"ugoiraSaveAsWebP\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebP\" data-xztext=\"_webp图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebM\"\n        id=\"ugoiraSaveAsWebM\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebM\" data-xztext=\"_webmVideo\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsGIF\"\n        id=\"ugoiraSaveAsGIF\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsGIF\" data-xztext=\"_gif图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsAPNG\"\n        id=\"ugoiraSaveAsAPNG\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsAPNG\" data-xztext=\"_apng图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsZIP\"\n        id=\"ugoiraSaveAsZIP\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsZIP\" data-xztext=\"_zip文件\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsUgoira\"\n        id=\"ugoiraSaveAsUgoira\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsUgoira\" data-xztext=\"_Ugoira文件\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_WebP图像质量\"></span>\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality0\"\n        class=\"need_beautify radio\"\n        value=\"lossy\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality0\" data-xztext=\"_有损\"></label>\n\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality1\"\n        class=\"need_beautify radio\"\n        value=\"lossless\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality1\" data-xztext=\"_无损\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"saveThumbnailForUgoira\"\n        data-xztext=\"_为动图保存一张缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveThumbnailForUgoira\"\n        id=\"saveThumbnailForUgoira\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"66\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_同时转换多少个动图的说明\"\n  >\n    <span data-xztext=\"_同时转换多少个动图\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"convertUgoiraThread\"\n    class=\"setinput_style blue\"\n    value=\"1\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"67\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_小说保存格式的说明\"\n  >\n    <span data-xztext=\"_小说保存格式\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs2\"\n    class=\"need_beautify radio\"\n    value=\"epub\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs2\"> EPUB </label>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs1\"\n    class=\"need_beautify radio\"\n    value=\"txt\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs1\"> TXT </label>\n</div>\n\n<div class=\"option\" data-no=\"68\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在小说里保存元数据提示\"\n  >\n    <span data-xztext=\"_在小说里保存元数据\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveNovelMeta\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"69\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说的封面图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelCoverImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"70\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说里的内嵌图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelEmbeddedImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"downloadNovelEmbeddedImage\"\n  >\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSizeOriginal\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSizeOriginal\" data-xztext=\"_原图\"></label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize1200\"\n      class=\"need_beautify radio\"\n      value=\"1200\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize1200\">1200px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize480\"\n      class=\"need_beautify radio\"\n      value=\"480\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize480\">480px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize240\"\n      class=\"need_beautify radio\"\n      value=\"240\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize240\">240px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize128\"\n      class=\"need_beautify radio\"\n      value=\"128\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize128\">128px</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"71\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动合并系列小说的说明\"\n  >\n    <span data-xztext=\"_自动合并系列小说\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoMergeNovel\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"autoMergeNovel\">\n    <label\n      for=\"skipNovelsInSeriesWhenAutoMerge\"\n      data-xztext=\"_不再单独下载系列里的小说\"\n      class=\"has_tip\"\n      data-xztip=\"_不再单独下载系列里的小说的说明\"\n    ></label>\n    <span class=\"gray1\"> ? &nbsp;</span>\n    <input\n      type=\"checkbox\"\n      name=\"skipNovelsInSeriesWhenAutoMerge\"\n      id=\"skipNovelsInSeriesWhenAutoMerge\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"104\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span\n      data-xztext=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    ></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveAllSeriesNovelsIfOneMatches\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray1 showMsgBtn\"\n    data-title=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    data-msg=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"72\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_合并系列小说时的分割阈值\"></span>\n  </a>\n\n  <input\n    type=\"text\"\n    name=\"singleEPUBFileSizeLimit\"\n    class=\"setinput_style blue\"\n    value=\"200\"\n  />\n  <span>MiB</span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_合并系列小说时的分割阈值\"\n    data-msg=\"_合并系列小说时的分割阈值的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"73\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品的元数据说明\"\n  >\n    <span data-xztext=\"_保存作品的元数据\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType0\"\n      id=\"setSaveMetaType0\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType0\" data-xztext=\"_插画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType1\"\n      id=\"setSaveMetaType1\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType1\" data-xztext=\"_漫画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType2\"\n      id=\"setSaveMetaType2\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType2\" data-xztext=\"_动图\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType3\"\n      id=\"setSaveMetaType3\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType3\" data-xztext=\"_小说\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_文件格式\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatTXT\"\n      id=\"saveMetaFormatTXT\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatTXT\"> TXT </label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatJSON\"\n      id=\"saveMetaFormatJSON\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatJSON\"> JSON </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"74\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品简介的说明\"\n  >\n    <span data-xztext=\"_保存作品的简介\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveWorkDescription\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"saveWorkDescription\">\n    <div class=\"optionLine\">\n      <label\n        for=\"saveEachDescription\"\n        data-xztext=\"_每个作品分别保存\"\n        class=\"has_tip\"\n        data-xztip=\"_简介的Links标记\"\n      ></label>\n      <span class=\"gray1\"> ? &nbsp;</span>\n      <input\n        type=\"checkbox\"\n        name=\"saveEachDescription\"\n        id=\"saveEachDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"summarizeDescription\" data-xztext=\"_汇总到一个文件\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"summarizeDescription\"\n        id=\"summarizeDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"75\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的说明\"\n  >\n    <span data-xztext=\"_预览作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWork\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWork\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"previewSingleImageWork\"\n        id=\"previewSingleImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewSingleImageWork\" data-xztext=\"_单图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewMultiImageWork\"\n        id=\"previewMultiImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewMultiImageWork\" data-xztext=\"_多图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewUgoira\"\n        id=\"previewUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"checkBlockTagsForPreviewWork\"\n        data-xztext=\"_检查屏蔽的标签\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"checkBlockTagsForPreviewWork\"\n        id=\"checkBlockTagsForPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray1 textButton showMsgBtn\"\n        data-title=\"_检查屏蔽的标签\"\n        data-msg=\"_检查屏蔽的标签的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"has_tip\"\n        data-xztext=\"_使用鼠标滚轮切换作品里的图片\"\n        data-xztip=\"_这可能会阻止页面滚动\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"wheelScrollSwitchImageOnPreviewWork\"\n        id=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"swicthImageByKeyboard\"\n        class=\"has_tip\"\n        data-xztext=\"_使用方向键和空格键切换图片\"\n        data-xztip=\"_使用方向键和空格键切换图片的提示\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"swicthImageByKeyboard\"\n        id=\"swicthImageByKeyboard\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"previewWorkWait\" data-xztext=\"_等待时间\"></label>\n      <input\n        type=\"text\"\n        name=\"previewWorkWait\"\n        id=\"previewWorkWait\"\n        class=\"setinput_style blue\"\n        value=\"400\"\n      />\n      <span>ms</span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"showPreviewWorkTip\" data-xztext=\"_显示摘要信息\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"showPreviewWorkTip\"\n        id=\"showPreviewWorkTip\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray1 textButton toggleArea\"\n        data-toggle-Target=\"#previewWorkShortcutTip\"\n        data-for-no=\"75\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"previewWorkShortcutTip\">\n    <span data-xztext=\"_预览作品的快捷键说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"76\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_长按右键显示大图\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showOriginImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"showOriginImage\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray1 textButton toggleArea\"\n        data-toggle-Target=\"#showOriginImageShortcutTip\"\n        data-for-no=\"76\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"showOriginImageShortcutTip\">\n    <span data-xztext=\"_查看作品大图时的快捷键\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"77\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的详细信息的说明\"\n  >\n    <span data-xztext=\"_预览作品的详细信息\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWorkDetailInfo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWorkDetailInfo\">\n    <span data-xztext=\"_显示区域宽度\"></span>&nbsp;\n    <input\n      type=\"text\"\n      name=\"PreviewDetailInfoWidth\"\n      class=\"setinput_style blue\"\n      value=\"400\"\n    />\n    <span>&nbsp;px</span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"78\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示更大的缩略图的说明\"\n  >\n    <span data-xztext=\"_显示更大的缩略图\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showLargerThumbnails\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"79\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_替换方形缩略图以显示图片比例的说明\"\n  >\n    <span data-xztext=\"_替换方形缩略图以显示图片比例\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"replaceSquareThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"80\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在多图作品页面里显示缩略图列表的说明\"\n  >\n    <span data-xztext=\"_在多图作品页面里显示缩略图列表\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"displayThumbnailListOnMultiImageWorkPage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"81\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_把图片显示为灰色\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"imageToGray\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"82\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle has_tip\"\n    data-xztip=\"_缩略图上按钮的位置的说明\"\n  >\n    <span data-xztext=\"_缩略图上按钮的位置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition1\"\n    class=\"need_beautify radio\"\n    value=\"left\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition1\" data-xztext=\"_左侧\"></label>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition2\"\n    class=\"need_beautify radio\"\n    value=\"right\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition2\" data-xztext=\"_右侧\"></label>\n</div>\n\n<div class=\"option\" data-no=\"83\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示放大按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"magnifier\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"magnifier\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize2\" data-xztext=\"_普通\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"84\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在缩略图上显示复制按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showCopyBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"85\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示下载按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showDownloadBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"86\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮关注的用户的说明\"\n  >\n    <span data-xztext=\"_高亮关注的用户\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"highlightFollowingUsers\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"87\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在下载过的作品上显示边框\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showBorderOnDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"showBorderOnDownloadedWorks\"\n  >\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\" class=\"mr4\"></span>\n      <input\n        type=\"text\"\n        name=\"borderWidth\"\n        class=\"setinput_style blue w30\"\n        value=\"3\"\n      />\n      px\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_颜色\" class=\"mr4\"></span> (Hex)\n      <input\n        type=\"text\"\n        name=\"borderColor\"\n        class=\"setinput_style blue w80\"\n        id=\"borderColor\"\n        value=\"#ff4060\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"88\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_收藏设置的说明\"\n  >\n    <span data-xztext=\"_收藏设置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否添加标签\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag1\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag1\" data-xztext=\"_添加\"></label>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag2\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag2\" data-xztext=\"_不添加\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否公开\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict1\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict1\" data-xztext=\"_公开\"></label>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict2\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict2\" data-xztext=\"_不公开\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"89\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示复制按钮的提示\"\n  >\n    <span data-xztext=\"_复制按钮\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_复制内容\" class=\"mr4\"></span>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatImage\"\n      id=\"setCopyFormatImage\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatImage\">image/png</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatText\"\n      id=\"setCopyFormatText\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatText\">text/plain</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatHtml\"\n      id=\"setCopyFormatHtml\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatHtml\">text/html</label>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton showMsgBtn\"\n      data-title=\"_复制内容\"\n      data-msg=\"_对复制的内容的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize2\" data-xztext=\"_普通\"></label>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span data-xztext=\"_文本格式\" class=\"mr4\"></span>\n    <button\n      type=\"button\"\n      class=\"gray1 textButton toggleArea\"\n      data-toggle-Target=\"#copyWorkInfoFormatTip\"\n      data-for-no=\"89\"\n      data-xztext=\"_提示\"\n    ></button>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"copyWorkInfoFormat\"\n      rows=\"1\"\n      placeholder=\"id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip namingTipArea\" id=\"copyWorkInfoFormatTip\">\n    <span data-xztext=\"_复制内容的格式的提示\"></span>\n    <br />\n    <span class=\"blue name\">{url}</span>\n    <span data-xztext=\"_url标记的说明\"></span>\n    <br />\n    <span class=\"blue name\">{n}</span>\n    <span data-xztext=\"_换行标记的说明\"></span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"90\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在搜索页面添加快捷搜索区域的说明\"\n  >\n    <span data-xztext=\"_在搜索页面添加快捷搜索区域\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showFastSearchArea\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"91\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_过滤搜索页面的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"filterSearchResults\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_过滤搜索页面的作品\"\n    data-msg=\"_过滤搜索页面的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"92\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在搜索页面里移除已关注用户的作品的说明\"\n  >\n    <span data-xztext=\"_在搜索页面里移除已关注用户的作品\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeWorksOfFollowedUsersOnSearchPage\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"93\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览搜索结果说明\"\n  >\n    <span data-xztext=\"_预览搜索结果\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"previewResult\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"previewResult\">\n    <span class=\"settingNameStyle\" data-xztext=\"_上限\"></span>\n    <input\n      type=\"text\"\n      name=\"previewResultLimit\"\n      class=\"setinput_style blue w80\"\n      value=\"3000\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"94\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\"\n    ><span class=\"key\">Language</span></a\n  >\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang2\"\n    class=\"need_beautify radio\"\n    value=\"zh-cn\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang2\">简体中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang3\"\n    class=\"need_beautify radio\"\n    value=\"zh-tw\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang3\">繁體中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang4\"\n    class=\"need_beautify radio\"\n    value=\"ja\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang4\">日本語</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang5\"\n    class=\"need_beautify radio\"\n    value=\"en\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang5\">English</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang6\"\n    class=\"need_beautify radio\"\n    value=\"ko\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang6\">한국어</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang7\"\n    class=\"need_beautify radio\"\n    value=\"ru\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang7\">Русский</label>\n</div>\n\n<div class=\"option\" data-no=\"95\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_选项卡切换方式的说明\"\n  >\n    <span data-xztext=\"_选项卡切换方式\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar1\"\n    class=\"need_beautify radio\"\n    value=\"over\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar1\" data-xztext=\"_鼠标经过\"></label>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar2\"\n    class=\"need_beautify radio\"\n    value=\"click\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar2\" data-xztext=\"_鼠标点击\"></label>\n</div>\n\n<div class=\"option\" data-no=\"96\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置卡片时切换它的开关状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickOptionCardToToggleSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray1 textButton showMsgBtn\"\n    data-title=\"_点击设置卡片时切换它的开关状态\"\n    data-msg=\"_点击设置卡片时切换它的开关状态的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"97\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置名字时打开wiki链接\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickSettingNameOpenWiki\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"98\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_颜色主题\"\n  ></a>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme2\"\n    class=\"need_beautify radio\"\n    value=\"white\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme2\">White</label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme3\"\n    class=\"need_beautify radio\"\n    value=\"dark\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme3\">Dark</label>\n</div>\n\n<div class=\"option\" data-no=\"99\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_背景图片的说明\"\n  >\n    <span data-xztext=\"_背景图片\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bgDisplay\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"bgDisplay\">\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent\"\n        data-event=\"selectBG\"\n        id=\"selectBG\"\n        data-xztext=\"_选择文件\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent\"\n        data-event=\"clearBG\"\n        id=\"clearBG\"\n        data-xztext=\"_清除\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_对齐方式\"></span>&nbsp;\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition1\"\n        class=\"need_beautify radio\"\n        value=\"center\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition1\" data-xztext=\"_居中\"></label>\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition2\"\n        class=\"need_beautify radio\"\n        value=\"top\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition2\" data-xztext=\"_顶部\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_不透明度\" class=\"mr4\"></span>\n      <input name=\"bgOpacity\" type=\"range\" />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"100\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮显示关键字的说明\"\n  >\n    <span data-xztext=\"_高亮显示关键字\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"boldKeywords\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"101\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_日志区域的默认可见性的说明\"\n  >\n    <span data-xztext=\"_日志区域的默认可见性\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault1\"\n    class=\"need_beautify radio\"\n    value=\"show\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault1\" data-xztext=\"_显示\"></label>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault2\"\n    class=\"need_beautify radio\"\n    value=\"hide\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault2\" data-xztext=\"_隐藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"102\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_导出日志\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"exportLog\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"exportLog\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_导出时机\"></span>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming1\"\n        class=\"need_beautify radio\"\n        value=\"crawlComplete\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming1\" data-xztext=\"_抓取完毕2\"></label>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming2\"\n        class=\"need_beautify radio\"\n        value=\"downloadComplete\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming2\" data-xztext=\"_下载完毕\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_日志类型\"></span>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogNormal\"\n        id=\"exportLogNormal\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogNormal\" data-xztext=\"_正常\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogError\"\n        id=\"exportLogError\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogError\" data-xztext=\"_错误\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_排除关键字\"></span>&nbsp;\n      <input\n        type=\"text\"\n        name=\"exportLogExclude\"\n        class=\"setinput_style blue setinput_tag\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"103\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_管理设置的说明\"\n  >\n    <span data-xztext=\"_管理设置\"></span>\n    <span class=\"gray1\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"exportSettings\"\n      id=\"exportSettings\"\n      data-xztext=\"_导出设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"importSettings\"\n      id=\"importSettings\"\n      data-xztext=\"_导入设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetSettings\"\n      id=\"resetSettings\"\n      data-xztext=\"_重置设置\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetFollowingData\"\n      id=\"resetFollowingData\"\n      data-xztext=\"_清除下载器保存的关注数据\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent\"\n      data-event=\"resetHelpTip\"\n      id=\"resetHelpTip\"\n      data-xztext=\"_重新显示帮助\"\n    ></button>\n  </div>\n</div>\n";
 
 /***/ }),
 
@@ -48624,7 +49041,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 1000',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: {
                 work: false,
                 page: true,
                 min: 1,
@@ -48640,7 +49057,7 @@ class Settings {
                 value: 0,
                 tip: '',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: {
                 work: true,
                 page: false,
                 min: 1,
@@ -48680,7 +49097,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 100',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: {
                 work: false,
                 page: true,
                 min: 1,
@@ -48688,7 +49105,7 @@ class Settings {
                 value: 100,
                 tip: '1 - 100',
             },
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: {
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: {
                 work: true,
                 page: false,
                 min: 1,
@@ -48896,15 +49313,15 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: 'pixivision/{page_title}/{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
@@ -48926,15 +49343,15 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Pixivision]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.BookmarkDetail]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Discover]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtwork]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewArtworkFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Novel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelSearch]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelRanking]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelBookmark]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
-            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromFollowing]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NewNovelFromAllUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.ArtworkSeries]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Following]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Request]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
@@ -51340,6 +51757,10 @@ __webpack_require__.r(__webpack_exports__);
 class SettingsPanelShell {
     static shell;
     static allLangFlag = [];
+    /** 监听设置内容变化，以更新面板高度 */
+    static heightObserver;
+    /** 监听设置内容尺寸变化，以同步面板高度动画 */
+    static heightResizeObserver;
     static init() {
         if (this.shell) {
             return this.shell;
@@ -51446,6 +51867,7 @@ class SettingsPanelShell {
         if (!this.shell) {
             throw new Error('SettingsPanel shell not found');
         }
+        this.observeContentHeight();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
             document.body.classList.add('mobile');
             this.shell.classList.add('mobile');
@@ -51540,7 +51962,9 @@ class SettingsPanelShell {
         });
     }
     static show() {
-        this.get().style.display = 'block';
+        const shell = this.get();
+        shell.style.display = 'flex';
+        this.updateHeight();
         _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('centerPanelOpened');
     }
     static close() {
@@ -51550,13 +51974,58 @@ class SettingsPanelShell {
     static toggle() {
         const shell = this.get();
         const nowDisplay = shell.style.display;
-        nowDisplay === 'block' ? this.close() : this.show();
-        if (nowDisplay === 'block') {
+        nowDisplay === 'flex' ? this.close() : this.show();
+        if (nowDisplay === 'flex') {
             _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('closeCenterPanel');
         }
         else {
             _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('openCenterPanel');
         }
+    }
+    /** 监听会影响内容高度的 DOM 变化 */
+    static observeContentHeight() {
+        const content = this.get().querySelector('.centerWrap_con');
+        if (!content) {
+            throw new Error('Settings panel content not found');
+        }
+        const observeContentSize = () => {
+            const form = content.querySelector('.settingsPanel_form');
+            if (form) {
+                this.heightResizeObserver?.observe(form);
+            }
+        };
+        this.heightResizeObserver = new ResizeObserver(() => this.updateHeight());
+        observeContentSize();
+        this.heightObserver = new MutationObserver(() => {
+            observeContentSize();
+            this.updateHeight();
+        });
+        this.heightObserver.observe(content, {
+            attributes: true,
+            characterData: true,
+            childList: true,
+            subtree: true,
+        });
+        content.addEventListener('transitionend', (event) => {
+            if (event.target instanceof HTMLElement &&
+                event.target.matches('.settingsPanel_sectionContentShell') &&
+                event.propertyName === 'grid-template-rows') {
+                this.updateHeight();
+            }
+        });
+        window.addEventListener('resize', () => this.updateHeight());
+    }
+    /** 将面板高度调整为内容高度，并限制在可用视口内 */
+    static updateHeight() {
+        const shell = this.get();
+        if (shell.style.display !== 'flex') {
+            return;
+        }
+        shell.style.height = 'auto';
+        // 最小高度为 60vh，最大高度为 84vh。如果内容高度处于这个范围内，则使用内容高度
+        const minHeight = window.innerHeight * 0.6;
+        const maxHeight = window.innerHeight * 0.84;
+        shell.style.height = `${Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight)}px`;
     }
 }
 
@@ -52422,7 +52891,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存图片作品的数据
 class SaveArtworkData {
-    async save(data) {
+    async save(data, downloadIndexes) {
         // 获取需要检查的信息
         const body = data.body;
         const fullWidth = body.width; // 原图宽度
@@ -52540,7 +53009,7 @@ class SaveArtworkData {
                     commentCount: body.commentCount,
                     xRestrict: body.xRestrict,
                     sl: body.sl,
-                });
+                }, downloadIndexes);
             }
             else if (body.illustType === 2) {
                 // 动图
@@ -52914,14 +53383,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../filter/CheckIndexForMultiImageWork */ "./src/ts/filter/CheckIndexForMultiImageWork.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
 /** 保存抓取结果和一些公用数据 */
 class Store {
     constructor() {
-        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getLoggedUserID();
+        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getLoggedUserID();
         this.bindEvents();
     }
     /** 保存当前登录的用户的 ID。在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
@@ -52960,20 +53431,14 @@ class Store {
     tag = '';
     /** 开始抓取时，储存页面此时的 title */
     title = '';
+    /** 开始抓取时，储存页面此时的 id（只有部分页面类型会有这个值） */
+    pageId = '';
+    /** 开始抓取时，储存页面此时的类型的字面量，如 Artwork、UserHome */
+    pageType = '';
     /** 开始抓取时，储存页面此时的 URL */
     URLWhenCrawlStart = '';
     /** 抓取完成的时间 */
     crawlCompleteTime = new Date();
-    /** 只下载作品里的一部分图片 */
-    downloadOnlyPart = {};
-    setDownloadOnlyPart(workID, indexList) {
-        if (this.downloadOnlyPart[workID]) {
-            this.downloadOnlyPart[workID] = Array.from(new Set(this.downloadOnlyPart[workID].concat(indexList)));
-        }
-        else {
-            this.downloadOnlyPart[workID] = indexList;
-        }
-    }
     resultDefault = {
         aiType: 0,
         idNum: 0,
@@ -53013,9 +53478,11 @@ class Store {
         xRestrict: 0,
         sl: null,
     };
-    // 添加每个作品的数据。只需要传递有值的属性
-    // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
-    addResult(data) {
+    /** 添加每个作品的数据。只需要传递有值的属性
+     *
+     * 如果一个作品有多张图片，只需要传递第一张图片的数据。后续图片的数据会根据设置自动生成
+     */
+    addResult(data, requestedIndexList) {
         // 检查该作品 id 是否已存在，已存在则不添加
         if (data.idNum !== undefined) {
             const useList = data.type === 3 ? this.novelIDList : this.artworkIDList;
@@ -53045,9 +53512,8 @@ class Store {
             // 储存需要下载的图片的索引
             let indexList = [];
             // 如果已经指定了只下载部分图片
-            if (this.downloadOnlyPart[meta.idNum]) {
-                indexList = this.downloadOnlyPart[meta.idNum];
-                delete this.downloadOnlyPart[meta.idNum];
+            if (requestedIndexList) {
+                indexList = requestedIndexList;
             }
             else {
                 // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分
@@ -53098,8 +53564,10 @@ class Store {
         this.waitingIdList = [];
         this.rankList = {};
         this.remainingDownload = 0;
-        this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
-        this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
+        this.tag = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getTagFromURL();
+        this.title = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageTitle();
+        this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageIdFromURL();
+        this.pageType = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type];
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
@@ -53111,8 +53579,10 @@ class Store {
             this.waitingIdList = [];
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resume, () => {
-            this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getTagFromURL();
-            this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle();
+            this.tag = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getTagFromURL();
+            this.title = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageTitle();
+            this.pageId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getPageIdFromURL();
+            this.pageType = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type];
         });
     }
 }
@@ -67849,6 +68319,63 @@ const illustsData = [
     [147120000, 1783848540000],
     [147130000, 1783861260000],
     [147140000, 1783874100000],
+    [147150000, 1783910940000],
+    [147160000, 1783936860000],
+    [147170000, 1783951200000],
+    [147180000, 1783974180000],
+    [147190000, 1784009460000],
+    [147200000, 1784030160000],
+    [147210000, 1784043180000],
+    [147220000, 1784076840000],
+    [147230000, 1784106060000],
+    [147240000, 1784121420000],
+    [147250000, 1784139900000],
+    [147260000, 1784177100000],
+    [147270000, 1784200800000],
+    [147280000, 1784214180000],
+    [147290000, 1784244960000],
+    [147300000, 1784276100000],
+    [147310000, 1784291400000],
+    [147320000, 1784305140000],
+    [147330000, 1784338020000],
+    [147340000, 1784361660000],
+    [147350000, 1784377320000],
+    [147360000, 1784390100000],
+    [147370001, 1784421000000],
+    [147380000, 1784443560000],
+    [147390000, 1784459880000],
+    [147400000, 1784472540000],
+    [147410000, 1784497380000],
+    [147420000, 1784522820000],
+    [147430000, 1784542320000],
+    [147440000, 1784555280000],
+    [147450000, 1784574000000],
+    [147460000, 1784609220000],
+    [147470000, 1784632140000],
+    [147480001, 1784645700000],
+    [147490000, 1784674380000],
+    [147500000, 1784705880000],
+    [147510000, 1784723220000],
+    [147520000, 1784736420000],
+    [147530000, 1784773200000],
+    [147540000, 1784799720000],
+    [147550000, 1784814420000],
+    [147560000, 1784835420000],
+    [147570000, 1784871120000],
+    [147580000, 1784892420000],
+    [147590000, 1784905380000],
+    [147600000, 1784935440000],
+    [147610000, 1784960580000],
+    [147620000, 1784978220000],
+    [147630000, 1784991540000],
+    [147640000, 1785016800000],
+    [147650000, 1785042000000],
+    [147660000, 1785060000000],
+    [147670000, 1785072720000],
+    [147680000, 1785088320000],
+    [147690000, 1785123480000],
+    [147700000, 1785148260000],
+    [147710000, 1785162300000],
 ];
 
 
@@ -70725,6 +71252,19 @@ const novelsData = [
     [28560000, 1783596566000],
     [28570000, 1783694366000],
     [28580000, 1783789201000],
+    [28590000, 1783881677000],
+    [28600000, 1784016754000],
+    [28610000, 1784122558000],
+    [28620001, 1784257202000],
+    [28630000, 1784358871000],
+    [28640000, 1784453859000],
+    [28650000, 1784541711000],
+    [28660001, 1784637964000],
+    [28670002, 1784740576000],
+    [28680000, 1784880882000],
+    [28690001, 1784976435000],
+    [28700001, 1785067504000],
+    [28710000, 1785164401000],
 ];
 
 
@@ -71395,10 +71935,16 @@ class Utils {
         ['|', '｜'],
         ['~', '～'],
     ]);
-    /** 替换一些控制字符，并把一些半角字符替换成全角版本 */
-    static replaceUnsafeStr(str) {
+    /**
+     * 替换一些控制字符，并把一些半角字符替换成全角版本。
+     * @param keepPathSeparator 是否保留路径分隔符 /。默认是 false，会把 / 替换成全角版本 ／。如果为 true，则会保留 /，适用于文件夹路径的命名。
+     */
+    static replaceUnsafeStr(str, keepPathSeparator = false) {
         str = str.replace(this.unsafeStr, '');
         for (const [halfWidth, fullWidth] of this.fullWidthDict) {
+            if (keepPathSeparator && halfWidth === '/') {
+                continue;
+            }
             str = str.replaceAll(halfWidth, fullWidth);
         }
         return str;

@@ -37,7 +37,7 @@ class InitNovelSeriesPage extends InitPageBase {
       'brand'
     ).addEventListener('click', async () => {
       EVT.fire('closeCenterPanel')
-      const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
+      const seriesId = Tools.getSeriesId()
       let seriseTitle = ''
       // 尝试获取系列标题
       const meta = document.querySelector('meta[property="twitter:title"]')
@@ -54,7 +54,7 @@ class InitNovelSeriesPage extends InitPageBase {
   }
 
   protected async getIdList() {
-    const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
+    const seriesId = Tools.getSeriesId()
     const seriesData = await API.getNovelSeriesContent(
       seriesId,
       this.limit,

@@ -18,23 +18,46 @@ interface NamingSchema {
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
+  /** 临时保护嵌套可选片段外层方括号的标记 */
+  // 用于处理如 [[{p}]] 这样嵌套 [] 的情况，使外层的 [] 可以保留
+  private readonly optionalSegmentOpenBracketPlaceholder =
+    '\uE000optional-segment-open\uE001'
+
+  /** 临时保护嵌套可选片段外层方括号的标记 */
+  private readonly optionalSegmentCloseBracketPlaceholder =
+    '\uE000optional-segment-close\uE001'
+
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
     let rule = nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork')
-
-    // 1 把特定标记替换成它所代表的设置的值
-    for (const item of this.flagToSettingValue) {
-      const value = item.func(rule, item.flag, data)
-      rule = rule.replaceAll(item.flag, value)
-    }
-
     rule = this.handleCustomFeature(rule, data)
 
-    // 2 生成所有命名标记的值
+    // 1 生成所有命名标记的值
+    const schema: NamingSchema = {}
+
+    // 这是一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
+    // 该变量只在生成 schema 时使用，作用是判断展开后的完整规则里是否包含某些标记
+    let ruleWithExpandedSpecialTags = rule
+
+    for (const item of this.specialTagConfigs) {
+      // 把特殊标记的配置添加到 schema 里，这样在处理可选片段时可以判断它们是否为空
+      schema[item.flag] = {
+        // {multi_image_folder} 和 {r18_g_folder} 标记里允许使用 / 用来建立文件夹，所以这里不要替换斜线
+        value: Utils.replaceUnsafeStr(item.func(rule, item.flag, data), true),
+        safe: true,
+      }
+
+      // 展开这个特殊标记
+      ruleWithExpandedSpecialTags = ruleWithExpandedSpecialTags.replaceAll(
+        item.flag,
+        schema[item.flag].value
+      )
+    }
+
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const pid = (data.idNum || parseInt(data.id)).toString()
     const p = this.createPNum(data)
-    const schema: NamingSchema = {
+    Object.assign(schema, {
       '{p_title}': {
         value: store.title,
         safe: false,
@@ -42,6 +65,14 @@ class FileName {
       '{page_title}': {
         value: store.title,
         safe: false,
+      },
+      '{page_type}': {
+        value: store.pageType,
+        safe: true,
+      },
+      '{page_id}': {
+        value: store.pageId,
+        safe: true,
       },
       '{p_tag}': {
         value: store.tag ? this.handleTagsRule([store.tag]) : '',
@@ -72,7 +103,9 @@ class FileName {
         safe: true,
       },
       '{rank}': {
-        value: !rule.includes('{rank}') ? '' : this.createRank(data.rank),
+        value: !ruleWithExpandedSpecialTags.includes('{rank}')
+          ? ''
+          : this.createRank(data.rank),
         safe: true,
       },
       '{title}': {
@@ -94,7 +127,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: !rule.includes('{px}')
+        value: !ruleWithExpandedSpecialTags.includes('{px}')
           ? ''
           : data.fullWidth
             ? data.fullWidth + 'x' + data.fullHeight
@@ -102,21 +135,25 @@ class FileName {
         safe: true,
       },
       '{char_count}': {
-        value: !rule.includes('{char_count}') ? '' : this.getCharCount(data),
+        value: !ruleWithExpandedSpecialTags.includes('{char_count}')
+          ? ''
+          : this.getCharCount(data),
         safe: true,
       },
       '{tags}': {
-        value: !rule.includes('{tags}') ? '' : this.handleTagsRule(data.tags),
+        value: !ruleWithExpandedSpecialTags.includes('{tags}')
+          ? ''
+          : this.handleTagsRule(data.tags),
         safe: false,
       },
       '{tags_translate}': {
-        value: !rule.includes('{tags_translate}')
+        value: !ruleWithExpandedSpecialTags.includes('{tags_translate}')
           ? ''
           : this.handleTagsRule(data.tagsWithTransl),
         safe: false,
       },
       '{tags_transl_only}': {
-        value: !rule.includes('{tags_transl_only}')
+        value: !ruleWithExpandedSpecialTags.includes('{tags_transl_only}')
           ? ''
           : this.handleTagsRule(data.tagsTranslOnly),
         safe: false,
@@ -150,19 +187,19 @@ class FileName {
         safe: true,
       },
       '{date}': {
-        value: !rule.includes('{date}')
+        value: !ruleWithExpandedSpecialTags.includes('{date}')
           ? ''
           : DateFormat.format(data.date, settings.dateFormat),
         safe: false,
       },
       '{upload_date}': {
-        value: !rule.includes('{upload_date}')
+        value: !ruleWithExpandedSpecialTags.includes('{upload_date}')
           ? ''
           : DateFormat.format(data.uploadDate, settings.dateFormat),
         safe: false,
       },
       '{task_date}': {
-        value: !rule.includes('{task_date}')
+        value: !ruleWithExpandedSpecialTags.includes('{task_date}')
           ? ''
           : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
         safe: false,
@@ -207,7 +244,7 @@ class FileName {
         value: (data.sl ?? '').toString(),
         safe: true,
       },
-    }
+    })
 
     // 3 生成文件名
     let result = this.generateFileName(rule, schema)
@@ -240,22 +277,31 @@ class FileName {
 
   /** 传入命名规则和所有标记的配置，生成文件名 */
   public generateFileName(rule: string, schema: NamingSchema): string {
-    let result = rule
+    const normalizedSchema = this.normalizeNamingSchema(schema)
+
+    // 第一次处理可选片段。此时，对于特殊标记，处理的是它们自身而不是展开后的标记。
+    // 例如，如果 rule 里有 [{multi_image_folder}]，并且 {multi_image_folder} 的值为空，就会移除 [{multi_image_folder}]
+    let result = this.handleOptionalSegments(rule, normalizedSchema, true)
+
+    // 展开特殊标记，把它们替换成实际值
+    for (const item of this.specialTagConfigs) {
+      const itemSchema = normalizedSchema[item.flag]
+      if (itemSchema) {
+        // {match_tag_folder*} 标记的 func 函数会调用 generateFileName 方法，并且只传入 {match_tag_folder*} 这个标记的 schema。此时 schema 里没有其他特殊标记的配置，所以需要进行存在性判断
+        result = result.replaceAll(item.flag, itemSchema.value)
+      }
+    }
+    // 因为特殊标记的值里可能含有命名标记，所以需要再次处理可选片段
+    // 例如，如果 rule 里有 [{multi_image_folder}]，并且它展开后变成了 [{pid}]，那么现在会处理 {pid} 的值为空的情况。PS：{pid} 实际上不会为空，这里只是举例说明
+    result = this.handleOptionalSegments(result, normalizedSchema)
+    result = result
+      .replaceAll(this.optionalSegmentOpenBracketPlaceholder, '[')
+      .replaceAll(this.optionalSegmentCloseBracketPlaceholder, ']')
+
     // 把命名规则里的标记替换成实际值
-    for (const [tag, obj] of Object.entries(schema)) {
-      if (rule.includes(tag)) {
-        // 把空值替换成空字符串
-        let temp = obj.value ?? ''
-
-        // 替换不可以作为文件名的特殊字符
-        if (!obj.safe) {
-          temp = Utils.replaceUnsafeStr(temp)
-        }
-
-        // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
-        if (settings.removeEmoji) {
-          temp = Utils.removeEmojis(temp)
-        }
+    for (const [tag, obj] of Object.entries(normalizedSchema)) {
+      if (result.includes(tag)) {
+        const temp = obj.value ?? ''
 
         // 有些标记可能是空字符串，移除它们前面的分割符号
         if (temp === '') {
@@ -287,8 +333,131 @@ class FileName {
     return result
   }
 
-  /** 特定标记与其对应的处理函数的映射 */
-  private readonly flagToSettingValue: {
+  /** 预处理命名标记的值，使后续步骤使用相同的最终值 */
+  private normalizeNamingSchema(schema: NamingSchema): NamingSchema {
+    const result: NamingSchema = {}
+
+    for (const [tag, obj] of Object.entries(schema)) {
+      let value = obj.value ?? ''
+
+      // 替换不可以作为文件名的特殊字符
+      if (!obj.safe) {
+        value = Utils.replaceUnsafeStr(value)
+      }
+
+      // 移除 Emoji。这可能会导致一些标记的值变成空字符串，所以需要放在前面执行，以便后续处理空字符串的情况
+      if (settings.removeEmoji) {
+        value = Utils.removeEmojis(value)
+      }
+
+      result[tag] = {
+        ...obj,
+        value,
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * 处理命名规则中的可选片段，即使用 [] 把标记和其前后的自定义字符包裹起来的情况，如 [{p}-]。当标记的值为空时，整个 [] 片段里的内容都会被移除，以去掉多余的自定义字符。
+   * @param protectNestedOuterBrackets 是否临时保护嵌套片段的外层方括号
+   */
+  private handleOptionalSegments(
+    rule: string,
+    schema: NamingSchema,
+    protectNestedOuterBrackets = false
+  ): string {
+    const matchedBrackets = new Map<number, number>()
+    const openBrackets: number[] = []
+
+    // 记录每一对闭合的方括号。未闭合的方括号不会出现在映射中，会被原样保留。
+    for (let index = 0; index < rule.length; index++) {
+      if (rule[index] === '[') {
+        openBrackets.push(index)
+      } else if (rule[index] === ']' && openBrackets.length > 0) {
+        matchedBrackets.set(openBrackets.pop()!, index)
+      }
+    }
+
+    const tagNames = Object.keys(schema)
+    if (tagNames.length === 0) {
+      return rule
+    }
+
+    const tagRegExp = new RegExp(
+      tagNames
+        .map((tag) => tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('|'),
+      'g'
+    )
+
+    /** 处理指定范围内的字符，并优先处理内层的方括号 */
+    const processRange = (start: number, end: number): string => {
+      let result = ''
+      let index = start
+
+      while (index < end) {
+        const closeIndex = matchedBrackets.get(index)
+
+        if (closeIndex !== undefined && closeIndex < end) {
+          const content = processRange(index + 1, closeIndex)
+          let hasNestedSegment = false
+
+          for (
+            let childIndex = index + 1;
+            childIndex < closeIndex;
+            childIndex++
+          ) {
+            if (matchedBrackets.has(childIndex)) {
+              hasNestedSegment = true
+              break
+            }
+          }
+
+          // 外层方括号视为普通字符，但其中已经处理完成的内层片段仍然生效。
+          if (hasNestedSegment) {
+            if (protectNestedOuterBrackets) {
+              result += `${this.optionalSegmentOpenBracketPlaceholder}${content}${this.optionalSegmentCloseBracketPlaceholder}`
+            } else {
+              result += `[${content}]`
+            }
+          } else {
+            const tags =
+              rule.slice(index + 1, closeIndex).match(tagRegExp) ?? []
+
+            if (tags.length === 0) {
+              // 没有命名标记时，方括号就是普通字符。
+              result += `[${content}]`
+            } else if (
+              tags.length === 1 &&
+              (schema[tags[0]].value ?? '') === ''
+            ) {
+              // 单个空标记会使整个可选片段失效。
+            } else {
+              // 有标记的片段去掉方括号；多个标记时不根据其值删除内容。
+              result += content
+            }
+          }
+
+          index = closeIndex + 1
+          continue
+        }
+
+        result += rule[index]
+        index++
+      }
+
+      return result
+    }
+
+    return processRange(0, rule.length)
+  }
+
+  /** 特殊标记与其对应的处理函数的映射。
+   *
+   * {multi_image_folder} 和 {r18_g_folder} 的值可能是普通的字符串，也可能是合法的命名标记片段，例如 `xxx/{pid}` */
+  private readonly specialTagConfigs: {
     flag: string
     func: (rule: string, flag: string, data: Result) => string
   }[] = [
@@ -671,7 +840,8 @@ class FileName {
       parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
     }
 
-    string = parts.join('/')
+    // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
+    string = parts.filter((part) => part !== '').join('/')
     return string
   }
 

@@ -65,6 +65,8 @@ class MergeNovel {
   private seriesId = ''
   private seriesTitle = ''
   private seriesUpdateDate = ''
+  /** 系列小说的收藏数，是系列里所有小说的收藏数量之和 */
+  private seriesBookmarkCount = 0
   private seriesCaption = ''
   private seriesGlossaryText = ''
   private glossaryImages: GlossaryImageItem[] = []
@@ -141,7 +143,10 @@ class MergeNovel {
     await this.loadGlossaryData(seriesId)
     const body = await this.loadSeriesData()
 
-    this.novelName = mergeNovelFileName.getName(this.seriesData!)
+    this.novelName = mergeNovelFileName.getName(
+      this.seriesData!,
+      this.seriesBookmarkCount
+    )
     await this.mergeByFormat(body)
     await this.downloadSeriesCoverFile(body.cover.urls.original)
 
@@ -860,6 +865,12 @@ class MergeNovel {
     let list = seriesContents.body.page.seriesContents
     const thisPageIdNumber = list.length
 
+    // 累加所有作品的收藏数量，作为系列的收藏数量
+    list.forEach((item) => {
+      this.seriesBookmarkCount += item.bookmarkCount
+    })
+
+    let useList = list
     // 如果当前页面是系列页面，并且用户手动选择了部分小说，那么在合并时，只合并用户选择的小说，而不是整个系列里的所有小说
     if (
       pageType.type === pageType.list.NovelSeries &&
@@ -873,11 +884,11 @@ class MergeNovel {
           lang.transl('_提示只合并选择的小说'),
           'tipOnlyMergeSelectedNovels'
         )
-        list = list.filter((item) => selectedNovelIds.includes(item.id))
+        useList = list.filter((item) => selectedNovelIds.includes(item.id))
       }
     }
 
-    for (const item of list) {
+    for (const item of useList) {
       // 先保存小说 id（不进行过滤）
       this.novelIdListUnfiltered.push(item.id)
 
@@ -1126,7 +1137,11 @@ class MergeNovel {
         part = current.part
       }
       // 为这个分割的文件生成新的文件名（添加了 part 编号）
-      name = mergeNovelFileName.getName(this.seriesData!, part + 1)
+      name = mergeNovelFileName.getName(
+        this.seriesData!,
+        this.seriesBookmarkCount,
+        part + 1
+      )
     }
 
     // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。

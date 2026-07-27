@@ -179,15 +179,14 @@ class Bookmark {
         (old) => old.id === data.id && old.type === data.type
       )
       if (!find) {
+        // 决定添加收藏时使用的 tag 列表。如果有 bookmarkTags 就优先使用它，否则就使用作品本身的 tags
+        let useTags = data.tags
+        if (data.bookmarkTags && data.bookmarkTags.length > 0) {
+          useTags = data.bookmarkTags
+        }
+
         // 慢速收藏（添加等待时间）
-        await this.add(
-          data.id,
-          data.type!,
-          data.tags,
-          undefined,
-          undefined,
-          true
-        )
+        await this.add(data.id, data.type!, useTags, undefined, undefined, true)
       } else {
         skip++
       }

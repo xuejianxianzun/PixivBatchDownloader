@@ -1738,10 +1738,26 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   _命名标记page_title: [
     '开始抓取时的页面标题',
     '開始抓取時的頁面標題',
-    'Page title when starting the scrape',
-    'スクレイピング開始時のページタイトル',
-    '페이지 스크래핑 시작 시의 페이지 제목',
+    'Page title when starting the crawl',
+    'クロール開始時のページタイトル',
+    '크롤링 시작 시 페이지 제목',
     'Заголовок страницы при начале сбора данных',
+  ],
+  _命名标记page_type: [
+    `开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但类型名称都是 <span class="blue">Home</span>。`,
+    `開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，共有二十多種。有時分類比較籠統，例如首頁有插畫、漫畫、小說等子分類，但類型名稱都是 <span class="blue">Home</span>。`,
+    `Page type name when starting the crawl, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, and <span class="blue">Bookmark</span>. These are page types categorized internally by the downloader, and there are more than twenty of them. Sometimes the categories are broad; for example, the home page has subcategories such as illustrations, manga, and novels, but the type name for all of them is <span class="blue">Home</span>.`,
+    `クロール開始時のページの種類の名前。例：<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。ダウンローダーが内部で分類しているページの種類で、20種類以上あります。分類が比較的大まかな場合もあります。例えば、ホームページにはイラスト、漫画、小説などのサブカテゴリがありますが、種類の名前はすべて <span class="blue">Home</span> です。`,
+    `크롤링 시작 시 페이지 유형 이름입니다. 예: <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. 다운로더가 내부적으로 분류한 페이지 유형이며, 20가지가 넘습니다. 분류가 다소 포괄적인 경우도 있습니다. 예를 들어 홈페이지에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 유형 이름은 모두 <span class="blue">Home</span>입니다.`,
+    `Название типа страницы при начале сбора данных, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span> и <span class="blue">Bookmark</span>. Это типы страниц, классифицированные загрузчиком внутри программы; всего их более двадцати. Иногда классификация довольно общая. Например, на главной странице есть подкатегории иллюстраций, манги и новелл, но название типа для всех них — <span class="blue">Home</span>.`,
+  ],
+  _命名标记page_id: [
+    `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。`,
+    `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面，輸出該頁面的作品 ID。2. 在用戶主頁、收藏頁面、關注頁面，輸出該頁面的用戶 ID。3. 在系列頁面，輸出系列 ID。`,
+    `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. On a work page, it outputs the work ID of that page. 2. On a user's page, bookmark page, or following page, it outputs the user ID of that page. 3. On a series page, it outputs the series ID.`,
+    `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページでは、そのページの作品 ID を出力します。2. ユーザーページ、ブックマークページ、フォローページでは、そのページのユーザー ID を出力します。3. シリーズページでは、シリーズ ID を出力します。`,
+    `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지, 북마크 페이지, 팔로잉 페이지에서는 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지에서는 시리즈 ID를 출력합니다.`,
+    `Идентификатор страницы при начале сбора данных. Он предназначен для объединения нескольких работ на странице с помощью идентификатора страницы. Например, при сборе связанных работ на странице работы этот токен выводит идентификатор работы на этой странице (он только один), а не идентификаторы отдельных работ (их несколько). Он имеет значение только в следующих случаях: 1. На странице работы выводится идентификатор работы на этой странице. 2. На странице пользователя, странице закладок или странице подписок выводится идентификатор пользователя этой страницы. 3. На странице серии выводится идентификатор серии.`,
   ],
   _预览文件名: [
     '预览文件名',
@@ -6488,12 +6504,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
   ],
   _正在加载关注用户列表: [
-    '正在加载关注用户列表',
-    '正在載入關注使用者列表',
-    'Loading list of followed users',
-    'フォローしているユーザーのリストを読み込み中',
-    '팔로우한 사용자 목록 로드 중',
-    'Загрузка списка отслеживаемых пользователей',
+    '正在加载关注用户列表。该数据会保存在本地，供一些附加功能使用',
+    '正在載入關注使用者列表。該資料會保存在本地，供一些附加功能使用',
+    'Loading the list of following users. The data will be saved locally for some additional features.',
+    'フォローしているユーザーのリストを読み込んでいます。データは一部の追加機能のためにローカルに保存されます。',
+    '팔로우하는 사용자 목록을 로드하고 있습니다. 데이터는 일부 추가 기능을 위해 로컬에 저장됩니다.',
+    'Загрузка списка следующих пользователей. Данные будут сохранены локально для некоторых дополнительных функций.',
   ],
   _已更新关注用户列表: [
     '已更新关注用户列表',
@@ -6946,60 +6962,66 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息<br>
-<span class="blue">Esc</span> 关闭预览图<br>
+<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>
 <span class="blue">← ↑</span> 上一张图片<br>
 <span class="blue">→ ↓</span> 下一张图片<br>
-<span class="blue">空格键</span> 下一张图片`,
+<span class="blue">空格键</span> 下一张图片<br>
+你可以随时在“预览作品”设置里查看这个快捷键列表`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
 當你查看預覽圖時，可以使用如下快捷鍵：<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊<br>
-<span class="blue">Esc</span> 關閉預覽圖<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點選滑鼠左鍵也可以關閉預覽圖<br>
 <span class="blue">← ↑</span> 上一張圖片<br>
 <span class="blue">→ ↓</span> 下一張圖片<br>
-<span class="blue">空格鍵</span> 下一張圖片`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> Toggle preview work function on/off<br>
-When viewing the preview image, you can use the following shortcut keys:<br>
+<span class="blue">空格鍵</span> 下一張圖片<br>
+你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
+When you view the preview image, you can use the following keyboard shortcuts:<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
-<span class="blue">C</span>(urrent) Download the currently previewed image (if the work has multiple images, only the current one will be downloaded)<br>
-<span class="blue">D</span>(ownload) Download the currently previewed work (if the work has multiple images, all will be downloaded by default)<br>
+<span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information<br>
-<span class="blue">Esc</span> Close the preview image<br>
+<span class="blue">Esc</span> Close the preview image. You can also close it by left-clicking the preview image<br>
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
-<span class="blue">Spacebar</span> Next image`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能のオン/オフ<br>
-プレビュー画像を表示しているときに、以下のショートカットキーを使用できます：<br>
+<span class="blue">Spacebar</span> Next image<br>
+You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
+プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
-<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（作品に複数の画像がある場合、現在表示中のものだけがダウンロードされます）<br>
-<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードされます）<br>
+<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
+<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー<br>
-<span class="blue">Esc</span> プレビュー画像を閉じる<br>
+<span class="blue">Esc</span> プレビュー画像を閉じる。また、プレビュー画像を左クリックしても閉じられます<br>
 <span class="blue">← ↑</span> 前の画像<br>
 <span class="blue">→ ↓</span> 次の画像<br>
-<span class="blue">スペースキー</span> 次の画像`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 끄기/켜기<br>
-미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다:<br>
-<span class="blue">B</span>(ookmark) 미리보기 중인 작품을 북마크<br>
-<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지를 다운로드 (작품에 여러 이미지가 있으면 현재 이 하나만 다운로드)<br>
-<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품을 다운로드 (작품에 여러 이미지가 있으면 기본적으로 모두 다운로드)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기<br>
+<span class="blue">スペースバー</span> 次の画像<br>
+「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
+미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
+<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
+<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫을 수 있습니다<br>
 <span class="blue">← ↑</span> 이전 이미지<br>
 <span class="blue">→ ↓</span> 다음 이미지<br>
-<span class="blue">스페이스바</span> 다음 이미지`,
-    `<span class="blue">Alt</span> + <span class="blue">P</span> Включить/выключить функцию предпросмотра работы<br>
-При просмотре изображения предпросмотра вы можете использовать следующие комбинации клавиш:<br>
-<span class="blue">B</span>(ookmark) Добавить предпросматриваемую работу в закладки<br>
-<span class="blue">C</span>(urrent) Скачать изображение текущего предпросмотра (если в работе несколько изображений, будет скачано только текущее)<br>
-<span class="blue">D</span>(ownload) Скачать работу текущего предпросмотра (если в работе несколько изображений, по умолчанию все будут скачаны)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе<br>
-<span class="blue">Esc</span> Закрыть изображение предпросмотра<br>
+<span class="blue">스페이스바</span> 다음 이미지<br>
+「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
+Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+<span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее просматриваемое изображение и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть предварительный просмотр. Кроме того, закрыть его можно также нажав левую кнопку мыши на изображении<br>
 <span class="blue">← ↑</span> Предыдущее изображение<br>
 <span class="blue">→ ↓</span> Следующее изображение<br>
-<span class="blue">Пробел</span> Следующее изображение`,
+<span class="blue">Пробел</span> Следующее изображение<br>
+Вы можете в любой момент просмотреть этот список сочетаний клавиш в настройках «Предварительный просмотр работы»`,
   ],
   _导出收藏列表: [
     '导出收藏列表（JSON）',
@@ -8081,6 +8103,14 @@ If you want to use this feature, please note:
 - Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
 <br>`,
   ],
+  _提示如果你启用了这个设置下载器不会创建文件夹: [
+    `如果你启用了这个设置，下载器不会创建文件夹。`,
+    `如果你啟用了這個設置，下載器不會創建文件夾。`,
+    `If you enable this setting, the downloader will not create folders.`,
+    `この設定を有効にすると、ダウンロードツールはフォルダを作成しません。`,
+    `이 설정을 활성화하면 다운로더는 폴더를 생성하지 않습니다.`,
+    `Если вы включите эту настройку, загрузчик не будет создавать папки.`,
+  ],
   _下载器排除了一些作品原因: [
     `🚫下载器排除了一些作品，原因: `,
     `🚫下載器排除了一些作品，原因: `,
@@ -8410,6 +8440,14 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `このシリーズの言語コード、例：<span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> など。注意：これは常に正確ではなく、一部の作者が正しい言語を設定していないためです。`,
     `이 시리즈의 언어 코드, 예: <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 등. 주의: 이는 항상 정확하지 않으며, 일부 작가가 올바른 언어를 설정하지 않았기 때문입니다.`,
     `Код языка этой серии, например <span class="blue">zh-cn</span>, <span class="blue">ja</span>, <span class="blue">en</span> и т.д. Примечание: Это не всегда точно, поскольку некоторые авторы не установили правильный язык.`,
+  ],
+  _系列小说的命名标记_bmk: [
+    `这个系列里所有小说的收藏数量之和，是数字。`,
+    `這個系列裡所有小說的收藏數量之和，是數字。`,
+    `The total number of bookmarks for all novels in this series, it is a number.`,
+    `このシリーズ内のすべての小説のブックマーク数の合計、数値です。`,
+    `이 시리즈의 모든 소설의 북마크 수의 합계, 숫자입니다。`,
+    `Общее количество закладок для всех романов в этой серии, это число。`,
   ],
   _系列小说的命名标记_total: [
     `这个系列里一共含有多少篇小说，是数字。`,
@@ -10587,127 +10625,255 @@ If you enable this setting, the downloader will merge all novels.`,
     `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
     `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
   ],
-  _版本更新说明19_1_0: [
-    `本次更新添加了一些新功能，主要优化了下载小说时的体验。<br>
-<strong>✨在系列小说页面里，可以选择部分小说进行合并</strong><br>
-之前下载器总是会合并所有小说，现在可以只合并部分小说了。<br>
-操作方法：先使用“手动选择作品”功能选择部分小说，然后点击“合并系列小说”按钮来合并它们。<br>
-<strong>✨在下载小说时，下载器会应用“置换单词”设置</strong><br>
-如果用户设置了替换的单词，那么下载器在保存小说时也会进行相应的替换。<br>
-<strong>✨新增设置：在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说</strong><br>
-举例说明：<br>
-假如你设置了收藏数量 > 100；某个系列里有 10 篇小说，其中只有 1 篇小说符合条件。<br>
-在默认情况下（未启用此设置），下载器只会合并这 1 篇小说。如果你启用了这个设置，那么下载器会合并所有小说。<br>
-<strong>✨在“下载小说里的内嵌图片”设置里添加了图片尺寸的选择</strong><br>
-有些小说里的图片体积很大，所以一些用户希望可以保存尺寸较小的图片。现在我添加了图片尺寸的设置。<br>
-<strong>✨在合并系列小说时，下载器会保存设定资料里的图片</strong><br>
-有些系列小说的设定资料里有图片，现在下载器可以保存这些图片了。<br>
-<strong>✨在收藏页面里新增了两个附加功能按钮</strong><br>
-- 移除所有作品的标签<br>
-- 取消收藏所有作品<br>
-<strong>🔄把关注页面里的一些按钮从“开始抓取”区域移动到了“附加功能”区域里</strong><br>
-<strong>🐞修复问题：在高 DPI 缩放里，设置面板的底部可能显示不完整</strong><br>
-<strong>😊优化了一些提示</strong><br>`,
-    `本次更新新增了一些新功能，主要優化了下載小說時的體驗。<br>
-<strong>✨在系列小說頁面裡，可以選擇部分小說進行合併</strong><br>
-之前下載器總是會合併所有小說，現在可以只合併部分小說了。<br>
-操作方法：先使用「手動選擇作品」功能選擇部分小說，然後點擊「合併系列小說」按鈕來合併它們。<br>
-<strong>✨在下載小說時，下載器會套用「置換單詞」設定</strong><br>
-如果使用者設定了要替換的單詞，那麼下載器在儲存小說時也會進行相應的替換。<br>
-<strong>✨新增設定：在合併系列小說時，只要有一篇小說符合過濾條件，就儲存該系列裡的所有小說</strong><br>
-舉例說明：<br>
-假如你設定了收藏數量 > 100；某個系列裡有 10 篇小說，其中只有 1 篇小說符合條件。<br>
-在預設情況下（未啟用此設定），下載器只會合併這 1 篇小說。如果你啟用了這個設定，那麼下載器會合併所有小說。<br>
-<strong>✨在「下載小說裡的內嵌圖片」設定裡新增了圖片尺寸的選擇</strong><br>
-有些小說裡的圖片體積很大，所以有些使用者希望可以儲存尺寸較小的圖片。現在我新增了圖片尺寸的設定。<br>
-<strong>✨在合併系列小說時，下載器會儲存 glossary 裡的圖片</strong><br>
-有些系列小說的 glossary 裡有圖片，現在下載器可以儲存這些圖片了。<br>
-<strong>✨在收藏頁面裡新增了兩個附加功能按鈕</strong><br>
-- 移除所有作品的標籤<br>
-- 取消收藏所有作品<br>
-<strong>🔄把關注頁面裡的一些按鈕從「開始抓取」區域移動到了「附加功能」區域裡</strong><br>
-<strong>🐞修正問題：在高 DPI 縮放裡，設定面板的底部可能顯示不完整</strong><br>
-<strong>😊優化了一些提示</strong><br>`,
-    `This update adds several new features, mainly improving the experience of downloading novels.<br>
-<strong>✨On series novel pages, you can now choose only some novels to merge</strong><br>
-Previously, the downloader always merged all novels. Now you can merge only part of them.<br>
-How to use it: first use the "Manually select works" feature to choose some novels, then click the "Merge series novels" button to merge them.<br>
-<strong>✨The downloader now applies the "Replace words" setting when downloading novels</strong><br>
-If you have set words to be replaced, the downloader will apply those replacements when saving the novel as well.<br>
-<strong>✨New setting: When merging series novels, as long as one novel meets the filtering criteria, all novels in the series will be saved</strong><br>
-Example:<br>
-Suppose you set the number of bookmarks > 100; there are 10 novels in a series, and only 1 novel meets the criteria.<br>
-By default (without enabling this setting), the downloader will only merge that 1 novel. If you enable this setting, it will merge all novels.<br>
-<strong>✨The "Download embedded images in novels" setting now includes image size options</strong><br>
-Some images in novels are very large, so some users wanted a way to save smaller versions. Now I have added image size settings.<br>
-<strong>✨When merging series novels, the downloader now saves images in the glossary</strong><br>
-Some series novels have images in their glossary, and now the downloader can save those images too.<br>
-<strong>✨Two new extra feature buttons have been added to the bookmark page</strong><br>
-- Remove tags from all works<br>
-- Unbookmark all works<br>
-<strong>🔄Some buttons on the following page have been moved from the "Start crawl" area to the "Extra features" area</strong><br>
-<strong>🐞Bug fix: On high-DPI scaling, the bottom of the settings panel could be displayed incompletely</strong><br>
-<strong>😊Improved some tips</strong><br>`,
-    `今回のアップデートではいくつかの新機能を追加し、主に小説ダウンロード時の使い勝手を改善しました。<br>
-<strong>✨シリーズ小説ページで、マージする小説を一部だけ選べるようになりました</strong><br>
-これまではダウンローダーが常にすべての小説をマージしていましたが、今は一部だけをマージできます。<br>
-操作方法：まず「手動選択作品」機能で一部の小説を選び、その後「シリーズ小説をマージ」ボタンをクリックしてマージしてください。<br>
-<strong>✨小説をダウンロードするとき、ダウンローダーが「置換単語」設定を適用するようになりました</strong><br>
-置換する単語を設定している場合、ダウンローダーは小説を保存するときにもその置換を適用します。<br>
-<strong>✨新しい設定を追加：シリーズ小説をマージするとき、1つの小説がフィルタリング条件を満たしていれば、シリーズ内のすべての小説を保存します</strong><br>
-例：<br>
-ブックマーク数 > 100 を設定したとします。あるシリーズに小説が 10 本あり、そのうち条件を満たすのは 1 本だけです。<br>
-デフォルトでは（この設定を有効にしていない場合）、ダウンローダーはその 1 本だけをマージします。この設定を有効にすると、すべての小説をマージします。<br>
-<strong>✨「小説内の埋め込み画像をダウンロード」設定に画像サイズの選択肢を追加しました</strong><br>
-小説内の画像の中にはサイズがかなり大きいものもあるため、もっと小さい画像を保存したいというユーザーがいました。そこで画像サイズ設定を追加しました。<br>
-<strong>✨シリーズ小説をマージするとき、ダウンローダーが glossary 内の画像も保存するようになりました</strong><br>
-シリーズ小説の glossary に画像が含まれていることがありますが、今はそれらの画像も保存できます。<br>
-<strong>✨ブックマークページに 2 つの追加機能ボタンを追加しました</strong><br>
-- すべての作品のタグを削除<br>
-- すべての作品のブックマークを解除<br>
-<strong>🔄フォローページの一部のボタンを「クロール開始」エリアから「追加機能」エリアへ移動しました</strong><br>
-<strong>🐞不具合修正：高 DPI スケーリング時に、設定パネル下部が完全に表示されないことがある問題を修正しました</strong><br>
-<strong>😊いくつかのヒントを改善しました</strong><br>`,
-    `이번 업데이트에서는 몇 가지 새 기능이 추가되었고, 특히 소설 다운로드 경험이 개선되었습니다.<br>
-<strong>✨시리즈 소설 페이지에서 일부 소설만 선택해서 병합할 수 있게 되었습니다</strong><br>
-이전에는 다운로더가 항상 모든 소설을 병합했지만, 이제는 일부만 병합할 수 있습니다.<br>
-사용 방법: 먼저 "수동으로 작품 선택" 기능으로 일부 소설을 선택한 다음, "시리즈 소설 병합" 버튼을 클릭해 병합하면 됩니다.<br>
-<strong>✨소설을 다운로드할 때 다운로더가 "단어 치환" 설정을 적용합니다</strong><br>
-치환할 단어를 설정해 두었다면, 다운로더가 소설을 저장할 때도 그 치환을 적용합니다.<br>
-<strong>✨새 설정 추가: 시리즈 소설을 병합할 때 하나의 소설만 필터링 조건을 충족해도 시리즈의 모든 소설을 저장합니다</strong><br>
-예:<br>
-북마크 수 > 100 으로 설정했다고 가정해 보겠습니다. 어떤 시리즈에 소설이 10편 있고, 그중 조건을 충족하는 것은 1편뿐입니다.<br>
-기본적으로(이 설정을 활성화하지 않은 경우) 다운로더는 그 1편만 병합합니다. 이 설정을 활성화하면 모든 소설을 병합합니다.<br>
-<strong>✨"소설 속 내장 이미지 다운로드" 설정에 이미지 크기 선택이 추가되었습니다</strong><br>
-일부 소설 속 이미지는 크기가 매우 커서, 더 작은 이미지를 저장하고 싶어 하는 사용자가 있었습니다. 그래서 이미지 크기 설정을 추가했습니다.<br>
-<strong>✨시리즈 소설을 병합할 때 다운로더가 glossary 안의 이미지도 저장합니다</strong><br>
-일부 시리즈 소설의 glossary 안에는 이미지가 있는데, 이제 다운로더가 그 이미지들도 저장할 수 있습니다.<br>
-<strong>✨북마크 페이지에 추가 기능 버튼 2개가 새로 추가되었습니다</strong><br>
-- 모든 작품의 태그 제거<br>
-- 모든 작품의 북마크 해제<br>
-<strong>🔄팔로잉 페이지의 일부 버튼을 "크롤링 시작" 영역에서 "추가 기능" 영역으로 옮겼습니다</strong><br>
-<strong>🐞버그 수정: 고 DPI 배율에서 설정 패널 하단이 완전히 표시되지 않을 수 있던 문제를 수정했습니다</strong><br>
-<strong>😊일부 안내를 개선했습니다</strong><br>`,
-    `Это обновление добавляет несколько новых функций и в основном улучшает работу при скачивании романов.<br>
-<strong>✨На странице серии романов теперь можно выбирать только часть романов для объединения</strong><br>
-Раньше загрузчик всегда объединял все романы, а теперь можно объединять только часть из них.<br>
-Как использовать: сначала выберите нужные романы с помощью функции "Ручной выбор работ", а затем нажмите кнопку "Объединить серии романов".<br>
-<strong>✨Теперь при скачивании романов загрузчик применяет настройку "Заменять слова"</strong><br>
-Если вы задали слова для замены, загрузчик применит эти замены и при сохранении романа.<br>
-<strong>✨Новая настройка: при объединении серийных романов, если хотя бы один роман соответствует критериям фильтрации, будут сохранены все романы серии</strong><br>
-Пример:<br>
-Допустим, вы установили количество закладок > 100; в серии есть 10 романов, и только 1 роман соответствует условиям.<br>
-По умолчанию (если эта настройка не включена) загрузчик объединит только этот 1 роман. Если включить эту настройку, он объединит все романы.<br>
-<strong>✨В настройку "Скачивать встроенные изображения в романах" добавлен выбор размера изображения</strong><br>
-Некоторые изображения в романах очень большие, поэтому некоторые пользователи хотели сохранять изображения меньшего размера. Теперь я добавил настройку размера изображения.<br>
-<strong>✨При объединении серийных романов загрузчик теперь сохраняет и изображения из glossary</strong><br>
-В glossary некоторых серийных романов есть изображения, и теперь загрузчик может сохранять и их.<br>
-<strong>✨На странице закладок добавлены две новые кнопки дополнительных функций</strong><br>
-- Удалить теги у всех работ<br>
-- Убрать все работы из закладок<br>
-<strong>🔄Некоторые кнопки на странице подписок были перенесены из области "Начать crawl" в область "Дополнительные функции"</strong><br>
-<strong>🐞Исправление: при высоком DPI-масштабировании нижняя часть панели настроек могла отображаться не полностью</strong><br>
-<strong>😊Улучшены некоторые подсказки</strong><br>`,
+  _版本更新说明19_2_0: [
+    `这次更新优化了命名规则功能，并修复了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）</strong><br>
+这个功能是为了处理这种情况：<br>
+1. 用户使用了可能为空的命名标记。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出系列标题。<br>
+2. 并且用户为它们添加了自定义字符，例如：<span class="blue">系列：{series_title}</span><br>
+当文件名里没有系列标题时，会留下不需要的 <span class="blue">系列：</span>。为了移除这种不需要的自定义字符，你可以使用 <span class="blue">[]</span> 建立可选片段，例如 <span class="blue">[系列：{series_title}]</span>。当 <span class="blue">[]</span> 里的标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+你可以在“图像作品的命名规则”里点击“小技巧：可选片段”查看更详细的说明。<br>
+⚠️注意：这个功能可能会对少部分用户造成破坏性变更：<br>
+如果你之前就已经使用了 <span class="blue">[]</span> 包裹命名标记，例如 <span class="blue">[{id}]</span>，现在它不会在文件名里输出 <span class="blue">[]</span> 符号。你需要额外添加一层 <span class="blue">[]</span>，变成 <span class="blue">[[{id}]]</span>，这样就可以和之前一样输出 <span class="blue">[]</span> 符号了。<br>
+<br>
+<strong>✨添加了 2 个新的命名标记</strong><br>
+- <span class="blue">{page_type}</span>：开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但页面类型名称都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。<br>
+<br>
+<strong>✨在“合并系列小说时的命名规则”里添加了新的命名标记</strong><br>
+- <span class="blue">{bmk}</span>：这个系列里所有小说的收藏数量之和，是数字。<br>
+<br>
+<strong>🐞修复问题：在预览作品时，预览区域可能会显示之前预览的动图，或者预览图在显示之后隐藏</strong><br>
+<strong>🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整</strong><br>
+<strong>🐞修复了其他 3 个问题</strong>`,
+    `本次更新最佳化了命名規則功能，並修復了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名標記裡的可選片段（當標記沒有值時，忽略它的附屬文字）</strong><br>
+這個功能是為了處理這種情況：<br>
+1. 使用者使用了可能為空的命名標記。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出系列標題。<br>
+2. 並且使用者為它們加入了自訂字元，例如：<span class="blue">系列：{series_title}</span><br>
+當檔案名稱裡沒有系列標題時，會留下不需要的 <span class="blue">系列：</span>。為了移除這種不需要的自訂字元，你可以使用 <span class="blue">[]</span> 建立可選片段，例如 <span class="blue">[系列：{series_title}]</span>。當 <span class="blue">[]</span> 裡的標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+你可以在「圖像作品的命名規則」裡點擊「小技巧：可選片段」查看更詳細的說明。<br>
+⚠️注意：這個功能可能會對少部分使用者造成破壞性變更：<br>
+如果你之前已經使用了 <span class="blue">[]</span> 包裹命名標記，例如 <span class="blue">[{id}]</span>，現在它不會在檔案名稱裡輸出 <span class="blue">[]</span> 符號。你需要額外加入一層 <span class="blue">[]</span>，變成 <span class="blue">[[{id}]]</span>，這樣就可以和之前一樣輸出 <span class="blue">[]</span> 符號。<br>
+<br>
+<strong>✨新增了 2 個命名標記</strong><br>
+- <span class="blue">{page_type}</span>：開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，有二十多種。有時劃分得比較籠統，例如首頁有插畫、漫畫、小說等子分類，但頁面類型名稱都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：開始抓取時的頁面 ID。其設計目的是用頁面 ID 歸納該頁面裡的多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。只有以下情況會輸出：1. 在作品頁面裡，輸出該頁面的作品 ID。2. 在使用者主頁、收藏頁面、關注頁面裡，輸出該頁面的使用者 ID。3. 在系列頁面裡，輸出系列 ID。<br>
+<br>
+<strong>✨在「合併系列小說時的命名規則」裡新增了命名標記</strong><br>
+- <span class="blue">{bmk}</span>：此系列中所有小說的收藏數量總和，是數字。<br>
+<br>
+<strong>🐞修正問題：預覽作品時，預覽區域可能顯示之前預覽的動圖，或預覽圖顯示後隱藏</strong><br>
+<strong>🐞修正問題：當「置頂的設定」區域高度不足時，命名規則的載入清單顯示不完整</strong><br>
+<strong>🐞修正了其他 3 個問題</strong>`,
+    `This update improves naming rules and fixes several bugs.<br>
+<br>
+<strong>✨New feature: Optional segments in naming tags (ignore associated text when a tag has no value)</strong><br>
+This feature handles the following situation:<br>
+1. You use a naming tag that may have no value. For example, when a work is not part of a series, <span class="blue">{series_title}</span> does not output a series title.<br>
+2. You add custom characters for it, for example: <span class="blue">Series: {series_title}</span><br>
+When a file name has no series title, the unnecessary <span class="blue">Series:</span> remains. To remove these unnecessary custom characters, create an optional segment with <span class="blue">[]</span>, for example <span class="blue">[Series: {series_title}]</span>. When the tag in <span class="blue">[]</span> has no value, the downloader ignores the entire segment, so no extra characters remain.<br>
+You can click "Tip: Optional segments" under "Naming rules for illustrations" for a more detailed explanation.<br>
+⚠️Note: This feature may be a breaking change for a small number of users:<br>
+If you previously used <span class="blue">[]</span> around a naming tag, for example <span class="blue">[{id}]</span>, <span class="blue">[]</span> is no longer output in the file name. Add another pair of <span class="blue">[]</span> to make <span class="blue">[[{id}]]</span>, and <span class="blue">[]</span> will be output as before.<br>
+<br>
+<strong>✨Added 2 new naming tags</strong><br>
+- <span class="blue">{page_type}</span>: The page type name when crawling begins, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, or <span class="blue">Bookmark</span>. These are the downloader's internal page types, with more than twenty types available. Some are broad: for example, the home page has illustration, manga, and novel subcategories, but their page type name is all <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: The page ID when crawling begins. It is designed to group multiple works on a page by that page's ID. For example, when crawling related works on a work page, it outputs the ID of that work page (one ID), rather than each related work's own ID (multiple IDs). It outputs a value only in these cases: 1. On a work page, the work ID of that page. 2. On a user home, bookmark, or following page, the user ID of that page. 3. On a series page, the series ID.<br>
+<br>
+<strong>✨Added a new naming tag to "Naming rules when merging novel series"</strong><br>
+- <span class="blue">{bmk}</span>: The total bookmark count of all novels in this series.<br>
+<br>
+<strong>🐞Fixed: When previewing works, the preview area could show a previously previewed Ugoira, or a preview image could disappear after being displayed</strong><br>
+<strong>🐞Fixed: The naming-rule load list could be displayed incompletely when the pinned settings area was too short</strong><br>
+<strong>🐞Fixed 3 other issues</strong>`,
+    `今回の更新では、命名規則機能を改善し、いくつかの不具合を修正しました。<br>
+<br>
+<strong>✨新機能：命名タグの任意セグメント（タグに値がないとき、関連する文字を無視）</strong><br>
+この機能は、次のような状況に対応するためのものです。<br>
+1. 値が空になる可能性のある命名タグを使用している場合。たとえば、作品がシリーズに属していないとき、<span class="blue">{series_title}</span> はシリーズ名を出力しません。<br>
+2. そのタグに説明用の文字を追加している場合。例：<span class="blue">シリーズ：{series_title}</span><br>
+ファイル名にシリーズ名がない場合、不要な <span class="blue">シリーズ：</span> が残ります。この不要な文字を削除するには、<span class="blue">[]</span> で任意セグメントを作成します。例：<span class="blue">[シリーズ：{series_title}]</span>。<span class="blue">[]</span> 内のタグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+詳しい説明は、「イラスト作品の命名規則」で「ヒント：任意セグメント」をクリックして確認できます。<br>
+⚠️注意：この機能は、一部のユーザーにとって破壊的変更になる可能性があります。<br>
+以前から <span class="blue">[]</span> で命名タグを囲んでいた場合（例：<span class="blue">[{id}]</span>）、ファイル名には <span class="blue">[]</span> が出力されなくなります。さらに 1 組の <span class="blue">[]</span> を追加して <span class="blue">[[{id}]]</span> にすると、以前と同じように <span class="blue">[]</span> を出力できます。<br>
+<br>
+<strong>✨新しい命名タグを 2 つ追加</strong><br>
+- <span class="blue">{page_type}</span>：クロール開始時のページタイプ名です。<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span> などがあります。これはダウンローダー内部のページ分類で、20 種類以上あります。分類が大まかな場合もあり、たとえばホームにはイラスト、マンガ、小説などのサブカテゴリがありますが、ページタイプ名はいずれも <span class="blue">Home</span> です。<br>
+- <span class="blue">{page_id}</span>：クロール開始時のページ ID です。ページ ID を使って、そのページ内にある複数の作品をまとめるために設計されています。たとえば、作品ページで関連作品をクロールすると、このタグは各作品自身の ID（複数）ではなく、その作品ページの ID（1 つ）を出力します。出力されるのは次の場合のみです：1. 作品ページでは、そのページの作品 ID。2. ユーザーホーム、ブックマーク、フォローのページでは、そのページのユーザー ID。3. シリーズページでは、シリーズ ID。<br>
+<br>
+<strong>✨「小説シリーズ結合時の命名規則」に新しい命名タグを追加</strong><br>
+- <span class="blue">{bmk}</span>：このシリーズ内のすべての小説のブックマーク数の合計です。<br>
+<br>
+<strong>🐞修正：作品のプレビュー時に、プレビュー領域に以前プレビューしたうごイラが表示される、またはプレビュー画像が表示後に消えることがある問題</strong><br>
+<strong>🐞修正：「固定された設定」エリアの高さが不足しているとき、命名規則の読み込みリストが不完全に表示される問題</strong><br>
+<strong>🐞その他 3 件の問題を修正</strong>`,
+    `이번 업데이트에서는 명명 규칙 기능을 개선하고 몇 가지 버그를 수정했습니다.<br>
+<br>
+<strong>✨새 기능: 명명 태그의 선택적 구간(태그에 값이 없을 때 관련 문자를 무시)</strong><br>
+이 기능은 다음과 같은 상황을 처리하기 위한 것입니다.<br>
+1. 값이 비어 있을 수 있는 명명 태그를 사용하는 경우입니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 시리즈 제목을 출력하지 않습니다.<br>
+2. 태그에 설명용 문자도 추가한 경우입니다. 예: <span class="blue">시리즈: {series_title}</span><br>
+파일 이름에 시리즈 제목이 없으면 불필요한 <span class="blue">시리즈:</span>가 남습니다. 이 불필요한 문자를 제거하려면 <span class="blue">[]</span>로 선택적 구간을 만드세요. 예: <span class="blue">[시리즈: {series_title}]</span>. <span class="blue">[]</span> 안의 태그에 값이 없으면 다운로더가 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+자세한 설명은 "일러스트 작품의 명명 규칙"에서 "팁: 선택적 구간"을 클릭하여 확인할 수 있습니다.<br>
+⚠️주의: 이 기능은 일부 사용자에게 호환되지 않는 변경이 될 수 있습니다.<br>
+이전에 <span class="blue">[]</span>로 명명 태그를 묶어 사용했다면(예: <span class="blue">[{id}]</span>), 이제 파일 이름에 <span class="blue">[]</span> 기호가 출력되지 않습니다. <span class="blue">[]</span>를 한 겹 더 추가하여 <span class="blue">[[{id}]]</span>로 만들면 이전처럼 <span class="blue">[]</span> 기호를 출력할 수 있습니다.<br>
+<br>
+<strong>✨새 명명 태그 2개 추가</strong><br>
+- <span class="blue">{page_type}</span>: 크롤링 시작 시의 페이지 유형 이름입니다. <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span> 등이 있습니다. 이는 다운로더 내부의 페이지 유형으로 20가지 이상이 있습니다. 때로는 구분이 넓습니다. 예를 들어 홈에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 페이지 유형 이름은 모두 <span class="blue">Home</span>입니다.<br>
+- <span class="blue">{page_id}</span>: 크롤링 시작 시의 페이지 ID입니다. 페이지 ID로 해당 페이지의 여러 작품을 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 태그는 각 작품의 ID(여러 개)가 아니라 그 작품 페이지의 작품 ID(하나)를 출력합니다. 다음 경우에만 값이 출력됩니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID. 2. 사용자 홈, 북마크, 팔로잉 페이지에서는 해당 페이지의 사용자 ID. 3. 시리즈 페이지에서는 시리즈 ID.<br>
+<br>
+<strong>✨"소설 시리즈 병합 시 명명 규칙"에 새 명명 태그 추가</strong><br>
+- <span class="blue">{bmk}</span>: 이 시리즈의 모든 소설 북마크 수의 합계입니다.<br>
+<br>
+<strong>🐞수정: 작품을 미리 볼 때 이전에 미리 본 우고이라가 미리 보기 영역에 표시되거나, 미리 보기 이미지가 표시된 후 사라질 수 있는 문제</strong><br>
+<strong>🐞수정: "고정된 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
+<strong>🐞기타 문제 3개 수정</strong>`,
+    `Это обновление улучшает правила именования и исправляет несколько ошибок.<br>
+<br>
+<strong>✨Новая функция: необязательные сегменты в тегах именования (игнорируют связанные символы, если у тега нет значения)</strong><br>
+Эта функция предназначена для следующей ситуации:<br>
+1. Вы используете тег именования, который может быть пустым. Например, если работа не входит в серию, <span class="blue">{series_title}</span> не выводит название серии.<br>
+2. Вы добавили к нему пользовательские символы, например: <span class="blue">Серия: {series_title}</span><br>
+Если в имени файла нет названия серии, остаётся ненужное <span class="blue">Серия:</span>. Чтобы удалить такие ненужные символы, создайте необязательный сегмент с помощью <span class="blue">[]</span>, например <span class="blue">[Серия: {series_title}]</span>. Если у тега в <span class="blue">[]</span> нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+Подробное описание можно посмотреть, нажав «Совет: необязательные сегменты» в разделе «Правила именования иллюстраций».<br>
+⚠️Внимание: для небольшого числа пользователей эта функция может стать несовместимым изменением:<br>
+Если вы уже обрамляли тег именования в <span class="blue">[]</span>, например <span class="blue">[{id}]</span>, теперь символы <span class="blue">[]</span> не выводятся в имени файла. Добавьте ещё один уровень <span class="blue">[]</span>, чтобы получилось <span class="blue">[[{id}]]</span>, и символы <span class="blue">[]</span> снова будут выводиться как раньше.<br>
+<br>
+<strong>✨Добавлено 2 новых тега именования</strong><br>
+- <span class="blue">{page_type}</span>: название типа страницы в начале crawl, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. Это внутренние типы страниц загрузчика, их более двадцати. Иногда классификация довольно общая: например, на главной странице есть подкатегории иллюстраций, манги и романов, но имя типа страницы у всех — <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: ID страницы в начале crawl. Он нужен для объединения нескольких работ на одной странице по ID этой страницы. Например, при crawl связанных работ на странице работы этот тег выводит ID работы этой страницы (один ID), а не собственные ID каждой связанной работы (несколько ID). Значение выводится только в следующих случаях: 1. На странице работы — ID работы этой страницы. 2. На странице профиля пользователя, закладок или подписок — ID пользователя этой страницы. 3. На странице серии — ID серии.<br>
+<br>
+<strong>✨Добавлен новый тег именования в «Правила именования при объединении серий романов»</strong><br>
+- <span class="blue">{bmk}</span>: сумма закладок всех романов этой серии.<br>
+<br>
+<strong>🐞Исправлено: при предпросмотре работ в области предпросмотра могла отображаться ранее просмотренная Ugoira либо изображение предпросмотра могло исчезать после показа</strong><br>
+<strong>🐞Исправлено: список загрузки правил именования мог отображаться не полностью, если область закреплённых настроек была слишком низкой</strong><br>
+<strong>🐞Исправлены ещё 3 проблемы</strong>`,
+  ],
+  _小技巧_可选片段: [
+    `小技巧：可选片段`,
+    `小技巧：可選片段`,
+    `Tip: Optional segments`,
+    `ヒント：任意セグメント`,
+    `팁: 선택적 구간`,
+    `Совет: необязательные сегменты`,
+  ],
+  _可选片段的说明: [
+    `有些命名标记在特定情况下可能没有内容。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出内容。<br>
+  此时，如果标记旁边有用户添加的说明文字或符号，即使标记没有内容，这些字符仍可能保留下来。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：当没有系列标题时，会留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：当没有排名时，可能会留下多余的横线 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字符，可以创建可选片段。方法是使用 <span class="blue">[]</span> 包裹一个可能为空的命名标记，以及与它有关的字符。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  当标记有内容时，下载器会正常输出片段里的内容，但不会输出 <span class="blue">[]</span>。<br>
+  当标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+  <br>
+  附加说明：<br>
+  - 只需要对可能为空的命名标记使用可选片段。有些标记始终有内容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可选片段。<br>
+  - 每个 <span class="blue">[]</span> 里只应放 1 个命名标记。不要把多个标记放进同一个片段，这会导致下载器依然保留多余的字符。<br>
+  - 如果有需要，你可以使用多个可选片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 里没有命名标记，<span class="blue">[]</span> 会被视为普通字符并原样输出。<br>
+  - 如果 <span class="blue">[]</span> 里有命名标记，但你又想在结果里保留 <span class="blue">[]</span>，可以使用两层 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的结果会像这样 <span class="blue">[1]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
+    `有些命名標記在特定情況下可能沒有內容。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出內容。<br>
+  此時，如果標記旁邊有使用者加入的說明文字或符號，即使標記沒有內容，這些字元仍可能保留下來。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：當沒有系列標題時，會留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：當沒有排名時，可能會留下多餘的橫線 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字元，可以建立可選片段。方法是使用 <span class="blue">[]</span> 包裹一個可能為空的命名標記，以及與它有關的字元。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  當標記有內容時，下載器會正常輸出片段裡的內容，但不會輸出 <span class="blue">[]</span>。<br>
+  當標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+  <br>
+  附加說明：<br>
+  - 只需要對可能為空的命名標記使用可選片段。有些標記始終有內容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可選片段。<br>
+  - 每個 <span class="blue">[]</span> 裡只應放 1 個命名標記。不要把多個標記放進同一個片段，這會導致下載器依然保留多餘的字元。<br>
+  - 如果有需要，你可以使用多個可選片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 裡沒有命名標記，<span class="blue">[]</span> 會被視為普通字元並原樣輸出。<br>
+  - 如果 <span class="blue">[]</span> 裡有命名標記，但你又想在結果裡保留 <span class="blue">[]</span>，可以使用兩層 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的結果會像這樣 <span class="blue">[1]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
+    `Some naming tags may have no value in certain cases. For example, if a work is not part of a series, <span class="blue">{series_title}</span> outputs nothing.<br>
+  In this case, custom text or symbols placed next to the tag may remain even when the tag has no value. For example:<br>
+  - <span class="blue">Series: {series_title}</span> - If there is no series title, <span class="blue">Series:</span> remains<br>
+  - <span class="blue">{rank}-{id}</span> - If no ranking is available, an extra hyphen <span class="blue">-</span> may remain<br>
+  <br>
+  To omit unneeded characters, you can create an optional segment. Enclose a naming tag that may be empty, along with related characters, in <span class="blue">[]</span>. For example:<br>
+  - <span class="blue">[Series: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  When a tag has a value, the downloader outputs the content in the segment, but not <span class="blue">[]</span>.<br>
+  When a tag has no value, the downloader ignores the entire segment, so no extra characters are left behind.<br>
+  <br>
+  Notes:<br>
+  - Use optional segments only for naming tags that may have no value. Some tags always have a value, such as <span class="blue">{id}</span> and <span class="blue">{user}</span>, and do not need optional segments.<br>
+  - Each <span class="blue">[]</span> should contain only 1 naming tag. Do not put multiple tags in one segment, as the downloader may still keep extra characters.<br>
+  - You can use multiple optional segments when needed. For example: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - If <span class="blue">[]</span> contains no naming tag, it is treated as ordinary characters and output as is.<br>
+  - If <span class="blue">[]</span> contains a naming tag but you also want <span class="blue">[]</span> in the result, use two layers of <span
+  class="blue">[]</span>. For example, <span class="blue">[[{rank}]]</span> produces <span class="blue">[1]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
+    `一部の命名タグは、状況によって値がない場合があります。たとえば、作品がシリーズに属していない場合、<span class="blue">{series_title}</span> は何も出力しません。<br>
+  このとき、タグのそばに追加した説明文や記号は、タグに値がなくても残ることがあります。例：<br>
+  - <span class="blue">シリーズ：{series_title}</span>：シリーズ名がない場合、<span class="blue">シリーズ：</span> だけが残ります<br>
+  - <span class="blue">{rank}-{id}</span>：順位がない場合、余分なハイフン <span class="blue">-</span> が残ることがあります<br>
+  <br>
+  不要な文字を除外したい場合は、任意セグメントを作成できます。値が空になる可能性がある命名タグと関連する文字を <span class="blue">[]</span> で囲みます。例：<br>
+  - <span class="blue">[シリーズ：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  タグに値がある場合、ダウンローダーはセグメント内の内容を出力しますが、<span class="blue">[]</span> は出力しません。<br>
+  タグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+  <br>
+  補足：<br>
+  - 任意セグメントは、値が空になる可能性がある命名タグにのみ使用してください。<span class="blue">{id}</span> や <span class="blue">{user}</span> のように常に値があるタグには不要です。<br>
+  - 1 組の <span class="blue">[]</span> には、命名タグを 1 つだけ入れてください。複数のタグを同じセグメントに入れると、余分な文字が残ることがあります。<br>
+  - 必要に応じて、複数の任意セグメントを使用できます。例：<span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - <span class="blue">[]</span> 内に命名タグがない場合、<span class="blue">[]</span> は通常の文字としてそのまま出力されます。<br>
+  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{rank}]]</span> の結果は <span class="blue">[1]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
+    `일부 명명 태그는 특정 상황에서 값이 없을 수 있습니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 아무 내용도 출력하지 않습니다.<br>
+  이때 태그 옆에 추가한 설명 문구나 기호는 태그에 값이 없어도 남아 있을 수 있습니다. 예:<br>
+  - <span class="blue">시리즈: {series_title}</span> - 시리즈 제목이 없으면 <span class="blue">시리즈:</span>만 남습니다<br>
+  - <span class="blue">{rank}-{id}</span> - 순위가 없으면 불필요한 하이픈 <span class="blue">-</span>이 남을 수 있습니다<br>
+  <br>
+  필요 없는 문자를 무시하려면 선택적 구간을 만들 수 있습니다. 값이 비어 있을 수 있는 명명 태그와 관련 문자를 <span class="blue">[]</span>로 묶으세요. 예:<br>
+  - <span class="blue">[시리즈: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  태그에 값이 있으면 다운로더는 구간 안의 내용을 출력하지만 <span class="blue">[]</span>는 출력하지 않습니다.<br>
+  태그에 값이 없으면 다운로더는 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+  <br>
+  추가 설명:<br>
+  - 선택적 구간은 값이 비어 있을 수 있는 명명 태그에만 사용하세요. <span class="blue">{id}</span>, <span class="blue">{user}</span>처럼 항상 값이 있는 태그에는 필요하지 않습니다.<br>
+  - 각 <span class="blue">[]</span>에는 명명 태그를 1개만 넣어야 합니다. 하나의 구간에 여러 태그를 넣으면 불필요한 문자가 남을 수 있습니다.<br>
+  - 필요하면 여러 선택적 구간을 사용할 수 있습니다. 예: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 없으면 <span class="blue">[]</span>는 일반 문자로 처리되어 그대로 출력됩니다.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{rank}]]</span>의 결과는 <span class="blue">[1]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
+    `Некоторые теги именования в определённых случаях могут не иметь значения. Например, если работа не входит в серию, <span class="blue">{series_title}</span> ничего не выводит.<br>
+  В этом случае добавленный рядом с тегом поясняющий текст или символы могут остаться, даже если у тега нет значения. Например:<br>
+  - <span class="blue">Серия: {series_title}</span> — если названия серии нет, останется <span class="blue">Серия:</span><br>
+  - <span class="blue">{rank}-{id}</span> — если рейтинга нет, может остаться лишний дефис <span class="blue">-</span><br>
+  <br>
+  Чтобы убрать ненужные символы, можно создать необязательный сегмент. Заключите тег именования, который может быть пустым, и связанные с ним символы в <span class="blue">[]</span>. Например:<br>
+  - <span class="blue">[Серия: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  Если у тега есть значение, загрузчик выводит содержимое сегмента, но не выводит <span class="blue">[]</span>.<br>
+  Если у тега нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+  <br>
+  Дополнительные сведения:<br>
+  - Используйте необязательные сегменты только для тегов именования, которые могут быть пустыми. Для тегов, которые всегда имеют значение, например <span class="blue">{id}</span> и <span class="blue">{user}</span>, они не нужны.<br>
+  - В каждой паре <span class="blue">[]</span> должен быть только 1 тег именования. Не помещайте несколько тегов в один сегмент, иначе лишние символы могут остаться.<br>
+  - При необходимости можно использовать несколько необязательных сегментов. Например: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - Если внутри <span class="blue">[]</span> нет тега именования, <span class="blue">[]</span> считаются обычными символами и выводятся без изменений.<br>
+  - Если внутри <span class="blue">[]</span> есть тег именования, но вы также хотите сохранить <span class="blue">[]</span> в результате, используйте два уровня <span
+  class="blue">[]</span>. Например, <span class="blue">[[{rank}]]</span> даст результат <span class="blue">[1]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
   ],
 }
 

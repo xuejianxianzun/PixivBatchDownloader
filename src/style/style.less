@@ -71,6 +71,7 @@
 
 .flexBasis100 {
   flex-basis: 100%;
+  flex-grow: 1;
 }
 
 .nowrap {
@@ -225,6 +226,8 @@ main section nav[style] {
   cursor: pointer;
   text-decoration: none;
   display: block;
+  background: none;
+  border: none;
 }
 
 #copyBtnOnWorkPage {
@@ -256,6 +259,8 @@ body.mobile {
     display: inline-flex;
     align-items: center;
     cursor: pointer;
+    // 在移动端页面里需要把它显示的小一些
+    transform: scale(0.85);
 
     &:hover,
     &:active {

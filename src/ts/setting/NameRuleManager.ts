@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
+import { toast } from '../Toast'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting } from './Settings'
@@ -102,7 +103,9 @@ class NameRuleManager {
 
     if (!check) {
       window.setTimeout(() => {
-        msgBox.error(lang.transl('_命名规则一定要包含id'))
+        toast.warning(lang.transl('_命名规则一定要包含id'), {
+          stay: 3000,
+        })
       }, 300)
     } else {
       // 检查通过，替换特殊字符
@@ -187,9 +190,7 @@ class NameRuleManager {
   // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
   private handleUserSetName(str: string) {
     // 替换命名规则里可能存在的非法字符
-    str = Utils.replaceUnsafeStr(str)
-    // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-    str = str.replace(/／/g, '/')
+    str = Utils.replaceUnsafeStr(str, true)
 
     // 处理连续的 /
     str = str.replace(/\/{2,100}/g, '/')

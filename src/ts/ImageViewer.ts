@@ -12,7 +12,6 @@ import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 import { pageType } from './PageType'
-import { store } from './store/Store'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { DateFormat } from './utils/DateFormat'
@@ -473,18 +472,14 @@ class ImageViewer {
   /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
   private download(p?: number) {
     if (this.workData && this.workData.body.id === this.cfg.workId) {
-      if (p !== undefined) {
-        if (this.workData!.body.pageCount > 1) {
-          store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
-            this.index,
-          ])
-        }
-      }
-
       EVT.fire('crawlIdList', [
         {
           id: this.cfg.workId,
           type: 'illusts',
+          downloadIndexes:
+            p !== undefined && this.workData.body.pageCount > 1
+              ? [this.index]
+              : undefined,
         },
       ])
     }

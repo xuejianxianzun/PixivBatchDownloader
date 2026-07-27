@@ -13,7 +13,7 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
-class InitNewArtworkPage extends InitPageBase {
+class InitNewArtworkFromAllUsersPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -162,4 +162,4 @@ class InitNewArtworkPage extends InitPageBase {
     this.fetchCount = 0
   }
 }
-export { InitNewArtworkPage }
+export { InitNewArtworkFromAllUsersPage }

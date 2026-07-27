@@ -52,7 +52,7 @@ class CheckUser {
     pageType.list.UserHome,
     pageType.list.Home,
     pageType.list.Artwork,
-    pageType.list.NewArtworkBookmark,
+    pageType.list.NewArtworkFromFollowing,
   ]
 
   private findA(

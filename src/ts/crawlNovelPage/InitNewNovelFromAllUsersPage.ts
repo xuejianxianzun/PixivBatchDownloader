@@ -1,19 +1,18 @@
 // 初始化 本站的最新作品 小说页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
-import { NewIllustOption } from '../crawl/CrawlArgument.d'
-import { NewNovelData } from '../crawl/CrawlResult.d'
+import { NewIllustOption } from '../crawl/CrawlArgument'
+import { NewNovelData } from '../crawl/CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
-import { Tools } from '../Tools'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { Utils } from '../utils/Utils'
 
-class InitNewNovelPage extends InitPageBase {
+class InitNewNovelFromAllUsersPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -152,4 +151,4 @@ class InitNewNovelPage extends InitPageBase {
     this.fetchCount = 0
   }
 }
-export { InitNewNovelPage }
+export { InitNewNovelFromAllUsersPage }

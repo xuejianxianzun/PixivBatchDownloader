@@ -13,8 +13,6 @@ import { settings } from '../../setting/Settings'
 
 // 导出收藏的作品列表。会包含已被删除的作品
 class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResult> {
-  private exportList: BookmarkResult[] = []
-
   constructor(btn: HTMLButtonElement) {
     super()
 
@@ -29,7 +27,6 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
       return
     }
 
-    this.exportList = []
     EVT.fire('closeCenterPanel')
     const msg = lang.transl('_导出收藏列表')
     log.log(msg)
@@ -45,7 +42,7 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
     await this.run({
       crawlNumber: crawlNumber,
       slowCrawl: true,
-      collectWork: async (workData) => {
+      collectWork: async (workData, bookmarkTags) => {
         const filterOpt: FilterOption = {
           aiType: workData.aiType,
           id: workData.id,
@@ -68,17 +65,17 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
             (workData as ArtworkCommonData).illustType === undefined
               ? 'novels'
               : 'illusts',
-          tags: workData.tags,
           restrict: workData.bookmarkData?.private || false,
+          tags: workData.tags,
+          bookmarkTags: bookmarkTags || [],
         }
       },
       onCollected: async (bookmarkDataList) => {
-        this.exportList = bookmarkDataList
-        if (this.exportList.length === 0) {
+        if (bookmarkDataList.length === 0) {
           return
         }
 
-        const resultList = await Utils.json2BlobSafe(this.exportList)
+        const resultList = await Utils.json2BlobSafe(bookmarkDataList)
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,

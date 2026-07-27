@@ -3,7 +3,6 @@ import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
-import { store } from '../store/Store'
 import { IDData } from '../store/StoreType'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
@@ -131,11 +130,11 @@ class CrawlCurrent {
     }
 
     states.quickCrawl = true
-    store.setDownloadOnlyPart(id, [no])
 
     let idData: IDData = {
       type: 'illusts',
       id: id.toString(),
+      downloadIndexes: [no],
     }
 
     EVT.fire('crawlIdList', [idData])

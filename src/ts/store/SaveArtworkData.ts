@@ -9,7 +9,7 @@ import { Utils } from '../utils/Utils'
 
 // 保存图片作品的数据
 class SaveArtworkData {
-  public async save(data: ArtworkData) {
+  public async save(data: ArtworkData, downloadIndexes?: number[]) {
     // 获取需要检查的信息
     const body = data.body
     const fullWidth = body.width // 原图宽度
@@ -101,46 +101,49 @@ class SaveArtworkData {
         const tempExt = imgUrl.split('.')
         const ext = tempExt[tempExt.length - 1]
 
-        store.addResult({
-          aiType,
-          id: body.id,
-          idNum: idNum,
-          isOriginal: body.isOriginal,
-          // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
-          thumb:
-            body.pageCount > 1
-              ? Tools.convertArtworkThumbURL(body.urls.thumb, 0)
-              : body.urls.thumb,
-          pageCount: pageCount,
-          original: imgUrl,
-          regular: body.urls.regular,
-          small: body.urls.small,
-          title: title,
-          description: description,
-          tags: tags,
-          tagsWithTransl: tagsWithTransl,
-          tagsTranslOnly: tagsTranslOnly,
-          user: user,
-          userId: userId,
-          fullWidth: fullWidth,
-          fullHeight: fullHeight,
-          ext: ext,
-          bmk: bmk,
-          bmkId: body.bookmarkData ? body.bookmarkData.id : '',
-          bookmarked: bookmarked,
-          date: body.createDate,
-          uploadDate: body.uploadDate,
-          type: body.illustType,
-          rank: rank,
-          seriesTitle: seriesTitle,
-          seriesOrder: seriesOrder,
-          seriesId: body.seriesNavData ? body.seriesNavData!.seriesId : null,
-          viewCount: body.viewCount,
-          likeCount: body.likeCount,
-          commentCount: body.commentCount,
-          xRestrict: body.xRestrict,
-          sl: body.sl,
-        })
+        store.addResult(
+          {
+            aiType,
+            id: body.id,
+            idNum: idNum,
+            isOriginal: body.isOriginal,
+            // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
+            thumb:
+              body.pageCount > 1
+                ? Tools.convertArtworkThumbURL(body.urls.thumb, 0)
+                : body.urls.thumb,
+            pageCount: pageCount,
+            original: imgUrl,
+            regular: body.urls.regular,
+            small: body.urls.small,
+            title: title,
+            description: description,
+            tags: tags,
+            tagsWithTransl: tagsWithTransl,
+            tagsTranslOnly: tagsTranslOnly,
+            user: user,
+            userId: userId,
+            fullWidth: fullWidth,
+            fullHeight: fullHeight,
+            ext: ext,
+            bmk: bmk,
+            bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+            bookmarked: bookmarked,
+            date: body.createDate,
+            uploadDate: body.uploadDate,
+            type: body.illustType,
+            rank: rank,
+            seriesTitle: seriesTitle,
+            seriesOrder: seriesOrder,
+            seriesId: body.seriesNavData ? body.seriesNavData!.seriesId : null,
+            viewCount: body.viewCount,
+            likeCount: body.likeCount,
+            commentCount: body.commentCount,
+            xRestrict: body.xRestrict,
+            sl: body.sl,
+          },
+          downloadIndexes
+        )
       } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息

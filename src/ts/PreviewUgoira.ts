@@ -8,12 +8,14 @@ class PreviewUgoira {
   constructor(
     id: string | number,
     canvasWrap: HTMLElement,
+    img: HTMLImageElement,
     prevSize: 'original' | 'regular',
     wrapWidth?: number,
     wrapHeight?: number
   ) {
     this.id = id
     this.canvasWrap = canvasWrap
+    this.img = img
     this.prevSize = prevSize
     wrapWidth && (this.wrapWidth = wrapWidth)
     wrapHeight && (this.wrapHeight = wrapHeight)
@@ -31,9 +33,9 @@ class PreviewUgoira {
   /**完整的 zip 文件的字节数 */
   private zipLength = 0
   /** 用固定的字节数分割出多个文件片段 */
-  private readonly rangeSize = 500000
+  private readonly rangeSize = 2048000
   /**保存每个文件片段的请求头的值
-   * 字符串格式如 'bytes=0-499999'
+   * 字符串格式如 'bytes=0-2047999'
    */
   private rangeList: string[] = []
   /**把分段加载的 zip 文件合并，保存到这个容器 */
@@ -47,11 +49,14 @@ class PreviewUgoira {
     img: HTMLImageElement
     delay: number
   }[] = []
+  /** 保存 extractJPGData 创建的 Blob URL */
+  private blobURLList: string[] = []
 
   // jpg 文件名的长度固定为 10 个字节 000000.jpg
   private readonly jpgNameLength = 10
 
   private canvasWrap!: HTMLElement
+  private img!: HTMLImageElement
   private wrapWidth = 0
   private wrapHeight = 0
   private canvas = document.createElement('canvas')
@@ -61,10 +66,24 @@ class PreviewUgoira {
   private height = 0
 
   private destroyed = false
+  private abortController = new AbortController()
 
   private async start() {
+    try {
+      await this.startInternal()
+    } catch (error) {
+      if (!this.destroyed) {
+        throw error
+      }
+    }
+  }
+
+  private async startInternal() {
     // 获取这个动图的 meta 数据
     this.meta = await this.getMeta(this.id)
+    if (this.destroyed) {
+      return
+    }
 
     // 目前只支持提取 jpg 图片
     if (this.meta.mime_type !== 'image/jpeg') {
@@ -84,6 +103,9 @@ class PreviewUgoira {
 
     // 获取动图体积
     this.zipLength = await this.getFileLength()
+    if (this.destroyed) {
+      return
+    }
 
     // 生成区间
     this.rangeList = this.setRangeList(this.zipLength, this.rangeSize)
@@ -149,7 +171,10 @@ class PreviewUgoira {
 
   /**获取该作品的 meta 数据 */
   private async getMeta(id: string | number): Promise<UgoiraMetaBody> {
-    const meta = await API.getUgoiraMeta(id as string)
+    const meta = await API.getUgoiraMeta(
+      id as string,
+      this.abortController.signal
+    )
     if (meta.error) {
       throw new Error(meta.message)
     }
@@ -162,6 +187,7 @@ class PreviewUgoira {
     const response = await fetch(this.zipURL, {
       method: 'head',
       credentials: 'same-origin',
+      signal: this.abortController.signal,
     })
 
     const length = response.headers.get('content-length')
@@ -205,6 +231,7 @@ class PreviewUgoira {
       headers: {
         range: range,
       },
+      signal: this.abortController.signal,
     })
     const buff = await res.arrayBuffer()
     return buff
@@ -250,6 +277,7 @@ class PreviewUgoira {
           type: 'image/jpeg',
         })
         const url = URL.createObjectURL(blob)
+        this.blobURLList.push(url)
 
         // 下载这张图片（debug 用）
         // Utils.downloadFile(url, `${index}.jpg`)
@@ -265,7 +293,11 @@ class PreviewUgoira {
   }
 
   private startPlay() {
-    if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
+    if (
+      !this.destroyed &&
+      this.jpgFileList.length > 0 &&
+      !this.canvasIsAppend
+    ) {
       this.addCanvas()
       this.canvasIsAppend = true
       this.animationID = window.requestAnimationFrame(this.play)
@@ -273,10 +305,6 @@ class PreviewUgoira {
   }
 
   private addCanvas() {
-    const oldCanvas = this.canvasWrap.querySelector('canvas')
-    if (oldCanvas) {
-      oldCanvas.remove()
-    }
     this.canvas.style.display = 'none'
     this.canvasWrap.append(this.canvas)
     this.canvas.width = this.width
@@ -288,6 +316,10 @@ class PreviewUgoira {
   private lastPlayTime = 0
   private animationID = 0
   private play = (timestamp: number) => {
+    if (this.destroyed) {
+      return
+    }
+
     if (this.lastPlayTime === 0) {
       this.lastPlayTime = timestamp
     }
@@ -306,10 +338,7 @@ class PreviewUgoira {
       // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
       if (this.playIndex === 0) {
         this.canvas.style.display = 'inline-block'
-        const img = this.canvasWrap.querySelector('img')
-        if (img) {
-          img.style.display = 'none'
-        }
+        this.img.style.display = 'none'
       }
 
       this.playDelay = this.jpgFileList[this.playIndex].delay
@@ -340,8 +369,13 @@ class PreviewUgoira {
 
   public destroy() {
     this.destroyed = true
+    this.abortController.abort()
     window.cancelAnimationFrame(this.animationID)
     this.canvas.remove()
+    this.blobURLList.forEach((url) => {
+      URL.revokeObjectURL(url)
+    })
+    this.blobURLList = []
     this.zipContent = new ArrayBuffer(0)
     this.jpgFileList = []
     this.jpgContentIndexList = []

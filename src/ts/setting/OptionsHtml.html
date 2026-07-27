@@ -1355,6 +1355,19 @@ __DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea
     <span data-xztext="_命名标记的提示"></span>
     <!-- __NAMING_RULE_HELP_HTML__ -->
   </p>
+
+  <p>
+    <button
+      type="button"
+      class="showFileNameTip textButton toggleArea longTextButton"
+      data-toggle-Target="#tipOptionalSegment"
+      data-for-no="32"
+      data-xztext="_小技巧_可选片段"
+    ></button>
+  </p>
+  <p class="tip fileNameTip namingTipArea" id="tipOptionalSegment">
+    <span data-xztext="_可选片段的说明"></span>
+  </p>
 </div>
 
 <div class="option" data-no="33">
@@ -1496,8 +1509,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     * <span class="blue name">{AI}</span>
     <span data-xztext="_系列小说的命名标记_AI"></span>
     <br />
-    <span class="blue name">{lang}</span>
-    <span data-xztext="_系列小说的命名标记_lang"></span>
+    <span class="blue name">{bmk}</span>
+    <span data-xztext="_系列小说的命名标记_bmk"></span>
     <br />
     <span class="blue name">{total}</span>
     <span data-xztext="_系列小说的命名标记_total"></span>
@@ -1513,6 +1526,9 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <br />
     <span class="blue name">{task_date}</span>
     <span data-xztext="_系列小说的命名标记_task_date"></span>
+    <br />
+    <span class="blue name">{lang}</span>
+    <span data-xztext="_系列小说的命名标记_lang"></span>
     <br />
     <span class="blue name">{first_id}</span>
     <span data-xztext="_系列小说的命名标记_first_id"></span>
@@ -2284,6 +2300,15 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-msg="_把文件保存到用户上次选择的位置的说明"
     data-xztext="_帮助"
   ></button>
+
+  <div
+    class="subOptionWrap flexBasis100"
+    data-show="rememberTheLastSaveLocation"
+  >
+    <div class="secondary_hint">
+      <span data-xztext="_提示如果你启用了这个设置下载器不会创建文件夹"></span>
+    </div>
+  </div>
 </div>
 
 <div class="option" data-no="61">

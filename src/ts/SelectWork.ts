@@ -101,8 +101,8 @@ class SelectWork {
   // 定制：在一些页面类型上启用“全选”、“退出选择”功能
   private selectAllPageType = [
     pageType.list.UserHome,
-    pageType.list.NewNovelBookmark,
-    pageType.list.NewArtworkBookmark,
+    pageType.list.NewNovelFromFollowing,
+    pageType.list.NewArtworkFromFollowing,
   ]
   private selectAllBtn!: HTMLButtonElement
   private exitSelectBtn!: HTMLButtonElement
@@ -267,7 +267,7 @@ class SelectWork {
       works = document.querySelectorAll('li[size="1"]')
     }
     // 在已关注用户的最新作品-插画里
-    if (pageType.type === pageType.list.NewArtworkBookmark) {
+    if (pageType.type === pageType.list.NewArtworkFromFollowing) {
       const newPage = !document.querySelector('h1')
       const selector = newPage
         ? 'li[size="1"]'
@@ -275,7 +275,7 @@ class SelectWork {
       works = document.querySelectorAll(selector)
     }
     // 在已关注用户的最新作品-小说里
-    if (pageType.type === pageType.list.NewNovelBookmark) {
+    if (pageType.type === pageType.list.NewNovelFromFollowing) {
       const newPage = !document.querySelector('h1')
       const selector = newPage
         ? 'li[size="1"]'
@@ -524,17 +524,42 @@ class SelectWork {
       return
     }
 
-    if (!el || el.nodeName !== 'A') {
+    if (!el) {
       return
     }
 
-    const href = (el as HTMLAnchorElement).href
+    // 添加已选择的标记的目标元素，通常是点击的元素的父元素
+    let addFlagTarget = el.parentElement!
+    // 查找 A 标签，获取作品 id
+    let a: HTMLAnchorElement | null = null
+
+    if (el.nodeName === 'A') {
+      a = el as HTMLAnchorElement
+    } else {
+      // 处理点击在动图的播放图标上的情况
+      // 如果不针对性处理，就会导致选择无效，并正常进入这个动图的作品页面，打断选择操作
+      if (
+        el.nodeName === 'svg' ||
+        el.nodeName === 'path' ||
+        el.nodeName === 'circle'
+      ) {
+        a = el.closest('a')
+        // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
+        addFlagTarget = a!.parentElement!
+      }
+    }
+
+    if (!a || !a.href) {
+      return
+    }
+
+    const href = a.href
     const artworkId = Tools.getIllustId(href)
     if (artworkId) {
       ev.preventDefault()
       // 如果查找到了作品 id，必须阻止冒泡，否则会执行 clickThumbnail
       ev.stopPropagation()
-      this.addId(el.parentElement!, artworkId, 'illusts')
+      this.addId(addFlagTarget, artworkId, 'illusts')
       return
     }
 
@@ -542,7 +567,7 @@ class SelectWork {
     if (novelId) {
       ev.preventDefault()
       ev.stopPropagation()
-      this.addId(el.parentElement!, novelId, 'novels')
+      this.addId(addFlagTarget, novelId, 'novels')
       return
     }
 
@@ -551,7 +576,7 @@ class SelectWork {
     if (seriesId) {
       ev.preventDefault()
       ev.stopPropagation()
-      this.addId(el.parentElement!, seriesId, 'novelSeries')
+      this.addId(addFlagTarget, seriesId, 'novelSeries')
       return
     }
   }

@@ -16,7 +16,7 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
-class InitBookmarkNewPage extends InitPageBase {
+class InitNewWorksFromFollowingPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -210,4 +210,4 @@ class InitBookmarkNewPage extends InitPageBase {
     this.firstWorkId = ''
   }
 }
-export { InitBookmarkNewPage }
+export { InitNewWorksFromFollowingPage }

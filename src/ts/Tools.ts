@@ -161,16 +161,22 @@ class Tools {
 
   /**从 url 里获取系列小说的 id。如果查找不到会返回空字符串 */
   // https://www.pixiv.net/novel/series/11721618
-  static getNovelSeriesId(url?: string) {
-    const str = url || window.location.href
+  static getNovelSeriesId(url = location.href) {
     let result = ''
 
-    const test = str.match(/novel\/series\/(\d*)?/)
+    const test = url.match(/novel\/series\/(\d*)?/)
     if (test && test.length > 1) {
       result = test[1]
     }
 
     return result
+  }
+
+  /**从 pathname 里获取系列 id。如果查找不到会返回空字符串 */
+  // https://www.pixiv.net/novel/series/11721618
+  // https://www.pixiv.net/user/3698796/series/61267
+  static getSeriesId(path = location.pathname) {
+    return Utils.getURLPathField(path, 'series')
   }
 
   /**从 DOM 元素中获取作品的 id
@@ -506,6 +512,31 @@ class Tools {
       .replace(/\d+ \[pixiv\]/, '[pixiv]')
 
     return result
+  }
+
+  static getPageIdFromURL(url: string = location.href) {
+    if (
+      pageType.type === pageType.list.UserHome ||
+      pageType.type === pageType.list.BookmarkLegacy ||
+      pageType.type === pageType.list.Bookmark ||
+      pageType.type === pageType.list.Following
+    ) {
+      return this.getCurrentPageUserID()
+    } else if (
+      pageType.type === pageType.list.Artwork ||
+      pageType.type === pageType.list.BookmarkDetail
+    ) {
+      return this.getIllustId(url)
+    } else if (pageType.type === pageType.list.Novel) {
+      return this.getNovelId(url)
+    } else if (
+      pageType.type === pageType.list.NovelSeries ||
+      pageType.type === pageType.list.ArtworkSeries
+    ) {
+      return this.getSeriesId(location.pathname)
+    }
+
+    return ''
   }
 
   // 自定义的类型保护

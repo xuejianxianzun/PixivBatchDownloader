@@ -3,6 +3,7 @@ import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { DateFormat } from '../utils/DateFormat'
 import { fileName } from '../FileName'
+import { Utils } from '../utils/Utils'
 
 interface NamingSchema {
   [key: string]: { value: string; safe: boolean }
@@ -11,8 +12,12 @@ interface NamingSchema {
 
 class MergeNovelFileName {
   /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
-  public getName(seriesData: NovelSeriesData, part = 0): string {
-    let rule = settings.seriesNovelNameRule
+  public getName(
+    seriesData: NovelSeriesData,
+    seriesBookmarkCount: number,
+    part = 0
+  ): string {
+    let rule = Utils.replaceUnsafeStr(settings.seriesNovelNameRule, true)
     // 所有标记：
     // {series_title}-{series_id}-{user}-{user_id}-{part}-{age}-{age_r}-{AI}-{lang}-{total}-{char_count}-{create_date}-{last_date}-{task_date}-{first_id}-{latest_id}-{tags}-{page_tag}-{page_title}.{ext}
 
@@ -42,6 +47,10 @@ class MergeNovelFileName {
       },
       '{ext}': {
         value: settings.novelSaveAs,
+        safe: true,
+      },
+      '{bmk}': {
+        value: seriesBookmarkCount.toString(),
         safe: true,
       },
       '{age}': {

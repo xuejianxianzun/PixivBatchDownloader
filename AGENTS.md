@@ -6,8 +6,8 @@
 
 - 项目名称：Powerful Pixiv Downloader
 - 类型：浏览器扩展
-- 主要功能：批量下载 Pixiv 的插画、漫画、动图、小说，并提供筛选、命名、预览、断点续传、导出等功能
-- 主要技术栈：TypeScript、Webpack、Less、WebExtension API
+- 主要功能：批量抓取然后下载 Pixiv 的插画、漫画、动图、小说，并提供在抓取时筛选作品、下载文件时重命名、断点续传、导出抓取结果、增强浏览 Pixiv.net 时的体验等功能
+- 主要技术栈：TypeScript、WebExtension API、Less、Webpack
 - GitHub 主页：https://github.com/xuejianxianzun/PixivBatchDownloader
 
 ## 目录与入口
@@ -19,16 +19,49 @@
 - `src/ts/PageType.ts`：区分不同类型的页面。很多功能都会根据页面类型进行分别处理。
 - `src/ts/crawl*/`：初始化每种页面里的抓取逻辑。其中，`crawlArtworkPage` 文件夹里的模块用于抓取只有图像作品的页面；`crawlNovelPage` 文件夹里的模块用于抓取只有小说作品的页面；`crawlMixedPage` 抓取同时具有图像作品和小说作品的页面。
 - `src/ts/store/`：保存运行时数据、储存抓取结果、类型定义。
+- `src/ts/store/States.ts`：保存了该程序运行时的一些状态。
 - `src/ts/download/`：下载相关逻辑。
+- `src/ts/FileName.ts`：为下载的文件生成文件名。用户可以自定义文件名规则。
 - `src/ts/setting/Settings.ts`：保存下载器的设置、当设置发生变化时派发事件进行通知。
+- `src/ts/filter/Filter.ts`：过滤器系统。用户可以设置一些过滤条件，以排除不符合条件的作品（抓取结果），只保留符合条件的作品。
 - `src/ts/API.ts`：封装了对 Pixiv.net 的一些 API 的请求。
 - `src/ts/EVT.ts`：事件系统。有许多模块会触发事件；监听事件有助于解耦。
 - `src/ts/Tools.ts`：与本项目耦合的工具类。
 - `src/ts/utils/`：该文件夹里的模块是通用的工具类，与本项目没有耦合关系。其中 `src/ts/utils/Utils.ts` 是最常用的。
-- `src/ts/Language.ts`：自制的 i18n 系统。
+- `src/ts/Language.ts`：自制的 i18n 系统，它会从 i18n 语句（保存在 `src/ts/langText.ts`）里获取目标语言的文本内容。
+- `src/ts/Log.ts`：日志系统，它会在网页顶部添加日志区域并输出日志。
 - `src/style/`：Less 样式源码。
 - `dist/`：编译产物目录。
 - `notes/`：设计说明、调研记录、截图等。修改复杂功能前，先检查这里是否已有说明。
+
+## 主要工作流程
+
+这个下载器用于从 Pixiv.net 爬取作品数据，并进行下载。因此它的核心工作流程分为“抓取”和“下载”两个部分。
+
+### 抓取
+
+每种页面类型有对应的模块来初始化和启动抓取流程，例如在用户主页里使用的模块是 `src/ts/crawlMixedPage/InitUserPage.ts`。这些模块都在 `src/ts/crawl*/` 目录里，每个模块都继承自抽象类 `src/ts/crawl/InitPageBase.ts`。`InitPageBase.ts` 定义了每个页面里通用的初始化流程和抓取流程，其中一些方法有具体的实现，是在所有页面类型里通用的方法；有些方法则由继承它的类自行实现或覆写，以便在不同页面里处理该页面特有的逻辑。
+
+当用户点击抓取按钮后，典型的执行流程如下（可能有一些例外情况）：
+- 执行 `readyCrawl` 方法来决定是否可以执行抓取流程；
+- 如果可以抓取，就会执行 `nextStep` 方法
+- `nextStep` 方法在多数页面里都会执行 `getIdList` 方法，目的是获取作品 ID 列表，并把作品 ID 列表保存到 `store.idList` 里储存。
+- 获取完 ID 列表之后，会执行 `getIdListFinished` 方法。如果作品 ID 列表的数量大于 0，就继续执行 `startGetWorksData` 方法来获取每个作品的详细数据，并生成下载器内部的抓取结果，保存到 `store.result` 里。
+- 获取完作品详细数据之后，执行 `crawlFinished` 方法，并触发抓取完成的事件 `EVT.fire('crawlComplete')`。
+
+在获取作品 ID 列表和详细数据时，都有可能使用 `Filter` 模块的 `filter.check` 方法对数据进行过滤。
+
+### 下载
+
+抓取完成后，`src/ts/download/DownloadControl.ts` 会执行 `readyDownload` 方法来准备下载。这个模块负责掌控整个下载流程，本身不下载文件。
+
+主要的下载流程：
+- `DownloadControl` 模块把单个抓取结果发送给 `src/ts/download/Download.ts` 进行下载。
+- `Download` 模块可能会使用抓取结果直接生成文件，也可能使用 `Fetch` API 从网络下载文件。当文件内容准备好之后，使用 `browser.runtime.sendMessage` 发送消息给后台脚本 `src/ts/serviceWorker/background.ts`。
+- 后台脚本 `background` 收到消息后会调用浏览器的 downloads API 保存文件，并把文件保存成功或失败后的消息通过 `browser.tabs.sendMessage` 发送给建立下载任务的标签页。
+- 对应标签页里的 `DownloadControl` 模块接收到保存成功或失败的消息，更新下载进度，并开始下载下一个抓取结果。
+
+在 `Download` 模块里，会使用 `Filter` 模块的 `filter.check` 方法对抓取结果或文件属性进行过滤。
 
 ## 代码风格
 
@@ -38,7 +71,7 @@
   - 单引号
   - 不写分号
   - 2 空格缩进
-  - 保留 ES5 trailing comma
+  - 默认不使用 ES5 trailing comma
 - 注释的风格：
   - 代码注释与日志优先使用中文。
   - 修改代码时，对于模块里的全局变量和全局方法（即模块里或 class 里的顶级成员），必须添加注释，并且使用 JSDoc 格式，如 `/** 注释内容 */`。对于局部代码块、变量，添加适当的注释即可（通常用来说明工作流程），并且使用普通的双斜线注释。
@@ -50,8 +83,7 @@
 - 事件系统统一使用 `EVT`；很多模块通过监听事件驱动状态变化。
 - 很多功能模块是“副作用模块”：创建文件后如果希望自动启用，通常还需要在入口文件中 `import`。
 - 下载、抓取、预览、设置等逻辑已经高度模块化；改动前先搜索是否已有近似实现。
-- 小说、设定资料、命名规则等复杂功能，`notes/` 目录里可能有专门文档，优先遵循文档设计。
-- `dist/` 是编译产物，通常不手改源码生成内容；应修改 `src/` 下源文件并重新编译。
+- `dist/` 是编译产物，通常不手改源码生成内容；应修改 `src/` 里的源文件并重新编译。
 
 ## 修改原则
 
@@ -81,9 +113,23 @@
 - 确认 TypeScript 编译通过。
 - 不要提交无关的临时文件或调试残留。
 
-## 给后续 agent 的建议
+## 执行一些操作时的注意事项
 
 - 先搜索再改：本仓库功能多、历史久，重复实现的风险高。
 - 遇到修改抓取流程、下载流程、合并小说、命名规则等需求时，优先检查相邻模块。
-- review 时忽略编译产物，即 `dist/` 目录里的文件。 
-- 翻译 i18n 语句时（即修改 `src\ts\langText.ts` 里的文本时），需要遵守翻译规则：`notes\翻译多语言文本的 prompt.md`
+- 在代码文件里查找（搜索）内容时，默认忽略 `src/static/` 目录里的文件，因为这些文件大多是静态的库文件，不依赖下载器的代码，也很少进行修改。只有当我明确说明需要查找或编辑里面的文件时，才需要读写它们。
+- 翻译 i18n 语句时（即修改 `src/ts/langText.ts` 里的文本时），需要遵守翻译规则：`notes/翻译多语言文本的 prompt.md`
+- 每轮对话结束后，如果这轮对话修改了任意 *.ts 文件，就执行 `npm run ts` 进行编译。
+- 当我让你 review 时，以及让你查看修改的内容时，都要忽略编译产物，即忽略 `dist/` 目录里的文件。 
+
+## Windows 约束
+
+当你运行的终端环境是 Windows NT 时，如果需要执行 shell 脚本内容，优先使用 PowerShell 7 而不是 Windows 内置的 PowerShell 5.1。
+
+下面是一些附加约束：
+- 默认禁止使用 Bash 语法，除非确定此 shell 处在 Linux 环境。
+- 不要使用 Bash 引号/转义习惯，在 PowerShell 命令里，复杂正则优先用单引号包裹。
+- 如果正则本身同时包含单引号和双引号，优先拆成多个简单 `rg` 命令。
+- 在 PowerShell 里，语句块表达式（如 `foreach`、`if`）不能直接作为管道输入。 需要先使用 `$()` / `@()` 包裹，或先赋值给变量。 普通命令输出可直接进入管道，无需额外包裹。
+- PowerShell 使用 `rg` 时，遇到 PowerShell 解析异常或路径包含通配符时，先展开为真实路径。
+- 执行多行 Python 禁止使用 Bash heredoc ；改用 PowerShell here-string | python -

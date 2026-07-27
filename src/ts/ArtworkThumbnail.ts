@@ -130,7 +130,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       // 只在 大家的新作 页面里使用
       if (
         selector === 'li>div>div:first-child' &&
-        pageType.type !== pageType.list.NewArtwork
+        pageType.type !== pageType.list.NewArtworkFromAllUsers
       ) {
         continue
       }
@@ -172,7 +172,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         selector === 'li[size="1"]' &&
         (pageType.type === pageType.list.UserHome ||
           pageType.type == pageType.list.Artwork ||
-          pageType.type == pageType.list.NewArtworkBookmark ||
+          pageType.type == pageType.list.NewArtworkFromFollowing ||
           pageType.type === pageType.list.Bookmark)
       ) {
         continue

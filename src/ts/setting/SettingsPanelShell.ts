@@ -20,6 +20,10 @@ import { theme } from '../Theme'
 class SettingsPanelShell {
   private static shell?: HTMLDivElement
   private static allLangFlag: string[] = []
+  /** 监听设置内容变化，以更新面板高度 */
+  private static heightObserver?: MutationObserver
+  /** 监听设置内容尺寸变化，以同步面板高度动画 */
+  private static heightResizeObserver?: ResizeObserver
 
   public static init() {
     if (this.shell) {
@@ -130,6 +134,7 @@ class SettingsPanelShell {
       throw new Error('SettingsPanel shell not found')
     }
 
+    this.observeContentHeight()
     if (Config.mobile) {
       document.body.classList.add('mobile')
       this.shell.classList.add('mobile')
@@ -265,7 +270,9 @@ class SettingsPanelShell {
   }
 
   private static show() {
-    this.get().style.display = 'block'
+    const shell = this.get()
+    shell.style.display = 'flex'
+    this.updateHeight()
     EVT.fire('centerPanelOpened')
   }
 
@@ -277,12 +284,67 @@ class SettingsPanelShell {
   private static toggle() {
     const shell = this.get()
     const nowDisplay = shell.style.display
-    nowDisplay === 'block' ? this.close() : this.show()
-    if (nowDisplay === 'block') {
+    nowDisplay === 'flex' ? this.close() : this.show()
+    if (nowDisplay === 'flex') {
       EVT.fire('closeCenterPanel')
     } else {
       EVT.fire('openCenterPanel')
     }
+  }
+
+  /** 监听会影响内容高度的 DOM 变化 */
+  private static observeContentHeight() {
+    const content = this.get().querySelector(
+      '.centerWrap_con'
+    ) as HTMLDivElement
+    if (!content) {
+      throw new Error('Settings panel content not found')
+    }
+
+    const observeContentSize = () => {
+      const form = content.querySelector('.settingsPanel_form')
+      if (form) {
+        this.heightResizeObserver?.observe(form)
+      }
+    }
+
+    this.heightResizeObserver = new ResizeObserver(() => this.updateHeight())
+    observeContentSize()
+
+    this.heightObserver = new MutationObserver(() => {
+      observeContentSize()
+      this.updateHeight()
+    })
+    this.heightObserver.observe(content, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true,
+    })
+    content.addEventListener('transitionend', (event) => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.matches('.settingsPanel_sectionContentShell') &&
+        event.propertyName === 'grid-template-rows'
+      ) {
+        this.updateHeight()
+      }
+    })
+    window.addEventListener('resize', () => this.updateHeight())
+  }
+
+  /** 将面板高度调整为内容高度，并限制在可用视口内 */
+  private static updateHeight() {
+    const shell = this.get()
+    if (shell.style.display !== 'flex') {
+      return
+    }
+
+    shell.style.height = 'auto'
+    // 最小高度为 60vh，最大高度为 84vh。如果内容高度处于这个范围内，则使用内容高度
+    const minHeight = window.innerHeight * 0.6
+    const maxHeight = window.innerHeight * 0.84
+    shell.style.height = `${Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight)}px`
   }
 }
 

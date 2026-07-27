@@ -271,12 +271,22 @@ abstract class InitPageBase {
   protected async crawlIdList(idList: IDData[]) {
     // 对 idList 进行去重
     // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
-    const ids: string[] = []
     const _idList: IDData[] = []
     for (const i of idList) {
-      if (ids.includes(i.id) === false) {
-        ids.push(i.id)
-        _idList.push(i)
+      const existing = _idList.find((item) => item.id === i.id)
+      if (!existing) {
+        // 如果该作品 id 不存在则添加它
+        _idList.push({
+          ...i,
+          downloadIndexes: i.downloadIndexes
+            ? [...i.downloadIndexes]
+            : undefined,
+        })
+      } else if (existing.downloadIndexes && i.downloadIndexes) {
+        // 如果该作品 id 已存在，并且之前已经设置了只下载某些 index，则把本次的 index 和之前的 index 进行合并，以便可以下载所有指定的图片
+        existing.downloadIndexes = Array.from(
+          new Set(existing.downloadIndexes.concat(i.downloadIndexes))
+        )
       }
     }
 
@@ -448,10 +458,11 @@ abstract class InitPageBase {
       store.idList.length === 1 &&
       ['illusts', 'manga', 'ugoira'].includes(store.idList[0].type)
     ) {
-      const data = cacheWorkData.get(store.idList[0].id, 'artwork')
+      const idData = store.idList[0]
+      const data = cacheWorkData.get(idData.id, 'artwork')
       if (data) {
         store.idList = []
-        await saveArtworkData.save(data)
+        await saveArtworkData.save(data, idData.downloadIndexes)
         return this.crawlFinished()
       }
     }
@@ -538,7 +549,7 @@ abstract class InitPageBase {
       } else {
         // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
         const data = await API.getArtworkData(id, unlisted)
-        await saveArtworkData.save(data)
+        await saveArtworkData.save(data, idData.downloadIndexes)
         this.afterGetWorksData(data)
       }
     } catch (error: Error | any) {

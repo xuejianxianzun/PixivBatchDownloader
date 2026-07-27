@@ -1163,9 +1163,11 @@ body.mobile #quickCrawlBtn {
   --settings-panel-search-mark-bg: #ffe74b;
   display: none;
   box-sizing: border-box;
+  flex-direction: column;
   width: 925px;
   max-width: calc(100vw - 24px);
   max-height: 84vh;
+  min-height: 60vh;
   left: 50%;
   top: 10vh;
   margin-left: 0;
@@ -1268,6 +1270,7 @@ body.mobile #quickCrawlBtn {
   color: #fff !important;
 }
 .centerWrap .centerWrap_head {
+  flex: none;
   padding: 10px 10px 10px 20px;
   background: var(--settings-panel-head-bg);
   display: flex;
@@ -1439,12 +1442,12 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con {
   display: flex;
+  flex: 1;
   align-items: stretch;
   width: 100%;
   background: var(--settings-panel-con-bg);
   overflow: auto;
-  max-height: 76vh;
-  min-height: 600px;
+  min-height: 0;
 }
 .centerWrap .centerWrap_con slot[data-name='namingBtns'] button,
 .centerWrap .centerWrap_con slot[data-name='exportResult'] button {
@@ -1463,6 +1466,24 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .help_bar > *:hover,
 .centerWrap .centerWrap_con .updateActiveClass {
   color: var(--beautify-blue) !important;
+}
+.centerWrap .centerWrap_con .longTextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--settings-panel-input-radius);
+}
+.centerWrap .centerWrap_con .longTextButton::before {
+  content: 'ⓘ';
+  color: var(--settings-panel-section-icon-color);
+}
+.centerWrap .centerWrap_con .longTextButton:hover,
+.centerWrap .centerWrap_con .longTextButton:focus-visible {
+  background: var(--settings-panel-section-icon-bg);
+}
+.centerWrap .centerWrap_con .longTextButton:focus-visible {
+  outline: 1px solid var(--settings-panel-section-icon-color);
+  outline-offset: 1px;
 }
 .centerWrap .centerWrap_con .grayButton:hover,
 .centerWrap .centerWrap_con .grayButton:focus {
@@ -1820,6 +1841,7 @@ body.mobile #quickCrawlBtn {
   grid-column: 1 / -1;
   display: flex;
   align-items: flex-start;
+  flex-grow: 1;
   gap: 8px;
   margin-top: 15px;
   padding: 9px 12px;
@@ -2453,7 +2475,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingsPanel_titleContent,
 .centerWrap .centerWrap_con .settingsPanel_panelContent {
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.16s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
@@ -4117,6 +4139,7 @@ iframe[name='expandedFooter'] {
 }
 .flexBasis100 {
   flex-basis: 100%;
+  flex-grow: 1;
 }
 .nowrap {
   flex-wrap: nowrap;
@@ -4219,6 +4242,8 @@ main section nav[style]::-webkit-scrollbar-thumb {
   cursor: pointer;
   text-decoration: none;
   display: block;
+  background: none;
+  border: none;
 }
 #copyBtnOnWorkPage {
   padding: 0;
@@ -4245,6 +4270,7 @@ body.mobile #copyBtnOnWorkPage {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  transform: scale(0.85);
 }
 body.mobile #copyBtnOnWorkPage:hover,
 body.mobile #copyBtnOnWorkPage:active {

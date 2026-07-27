@@ -7,7 +7,7 @@ import { ArtworkCommonData, NovelCommonData } from '../../crawl/CrawlResult'
 
 /** 继承了在收藏页面里的通用抓取流程，并添加了导出 404 作品列表的功能 */
 abstract class Bookmark404ActionBase extends BookmarkPageBatchActionBase<WorkBookmarkData> {
-  protected idList404: string[] = []
+  protected idList404: number[] = []
 
   protected reset() {
     this.idList404 = []
@@ -16,7 +16,7 @@ abstract class Bookmark404ActionBase extends BookmarkPageBatchActionBase<WorkBoo
   // 获取被删除的作品列表
   protected get404IdList(workData: ArtworkCommonData | NovelCommonData) {
     if (Number.parseInt(workData.userId) === 0) {
-      this.idList404.push(workData.id)
+      this.idList404.push(Number.parseInt(workData.id))
       log.log(
         lang.transl(
           '_当前有x个已被删除的作品',
