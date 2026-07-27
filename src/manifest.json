@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "19.1.1",
+  "version": "19.2.0",
   "manifest_version": 3,
   "description": "__MSG_extDescription__",
   "default_locale": "zh_CN",

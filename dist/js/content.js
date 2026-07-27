@@ -11240,8 +11240,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '19.1.1';
-    textKey = '_版本更新说明19_1_1';
+    flag = '19.2.0';
+    textKey = '_版本更新说明19_2_0';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -40860,55 +40860,133 @@ If you enable this setting, the downloader will merge all novels.`,
         `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
         `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
     ],
-    _版本更新说明19_1_1: [
-        `本次更新修复了一些 Bug。<br>
-<strong>🐞修复问题：在收藏页面里，“取消收藏所有已被删除的作品”功能会错误的取消收藏正常的作品</strong><br>
-<strong>🐞修复问题：当系统 DPI 和网页缩放比例大于 100% 时，设置区域的底部可能无法完全显示</strong><br>
-<strong>🐞修复问题：在手动选择作品时，点击动图的播放图标无法选择这个作品</strong><br>
-<strong>🐞修复问题：在移动端的作品页面里，快速收藏按钮（☆）带有默认样式</strong><br>
-<strong>😊优化导出和导入收藏列表的功能</strong><br>
-下载器在导出收藏列表时，会保存用户为作品添加的自定义标签（这可能不同于作品本身的标签）。<br>
-在批量添加收藏时，如果有自定义标签，就会优先添加这些标签。<br>`,
-        `本次更新修復了一些 Bug。<br>
-<strong>🐞修復問題：在收藏頁面裡，「取消收藏所有已被刪除的作品」功能會錯誤地取消收藏正常的作品</strong><br>
-<strong>🐞修復問題：當系統 DPI 和網頁縮放比例大於 100% 時，設定區域的底部可能無法完全顯示</strong><br>
-<strong>🐞修復問題：在手動選擇作品時，點擊動圖的播放圖示無法選擇這個作品</strong><br>
-<strong>🐞修復問題：在行動版的作品頁面裡，快速收藏按鈕（☆）帶有預設樣式</strong><br>
-<strong>😊優化匯出和匯入收藏列表的功能</strong><br>
-下載器在匯出收藏列表時，會保存使用者為作品新增的自訂標籤（這可能不同於作品本身的標籤）。<br>
-在批量新增收藏時，如果有自訂標籤，就會優先新增這些標籤。<br>`,
-        `This update fixes some bugs.<br>
-<strong>🐞Fixed: On the bookmarks page, the "Remove bookmarks from all deleted works" function could incorrectly remove bookmarks from normal works</strong><br>
-<strong>🐞Fixed: When the system DPI and webpage zoom level were greater than 100%, the bottom of the settings area might not be fully visible</strong><br>
-<strong>🐞Fixed: When manually selecting works, clicking the play icon of a Ugoira could not select the work</strong><br>
-<strong>🐞Fixed: On work pages on mobile devices, the quick bookmark button (☆) had the default style</strong><br>
-<strong>😊Improved the bookmark list export and import functions</strong><br>
-When exporting the bookmark list, the downloader saves the custom tags added to works by the user (these may differ from the tags of the works themselves).<br>
-When adding bookmarks in batches, custom tags are added first if available.<br>`,
-        `今回のアップデートでは、いくつかのバグを修正しました。<br>
-<strong>🐞修正：ブックマークページで「削除されたすべての作品のブックマークを解除」機能を使用すると、正常な作品のブックマークまで誤って解除される問題</strong><br>
-<strong>🐞修正：システムの DPI とウェブページのズーム倍率が 100% を超えている場合、設定エリアの下部が完全に表示されないことがある問題</strong><br>
-<strong>🐞修正：作品を手動で選択するとき、Ugoira の再生アイコンをクリックしても作品を選択できない問題</strong><br>
-<strong>🐞修正：モバイル端末の作品ページで、クイックブックマークボタン（☆）にデフォルトのスタイルが適用されていた問題</strong><br>
-<strong>😊ブックマークリストのエクスポートとインポート機能を改善しました</strong><br>
-ブックマークリストをエクスポートするとき、ダウンローダーはユーザーが作品に追加したカスタムタグを保存します（作品自体のタグとは異なる場合があります）。<br>
-ブックマークを一括追加するとき、カスタムタグがあれば、それらのタグが優先して追加されます。<br>`,
-        `이번 업데이트에서는 일부 버그를 수정했습니다.<br>
-<strong>🐞수정: 북마크 페이지에서 "삭제된 모든 작품의 북마크 취소" 기능을 사용하면 정상적인 작품의 북마크까지 잘못 취소되는 문제</strong><br>
-<strong>🐞수정: 시스템 DPI와 웹페이지 확대/축소 비율이 100%를 초과하면 설정 영역의 아래쪽이 완전히 표시되지 않을 수 있는 문제</strong><br>
-<strong>🐞수정: 작품을 수동으로 선택할 때 Ugoira의 재생 아이콘을 클릭해도 작품을 선택할 수 없는 문제</strong><br>
-<strong>🐞수정: 모바일 기기의 작품 페이지에서 빠른 북마크 버튼(☆)에 기본 스타일이 적용되는 문제</strong><br>
-<strong>😊북마크 목록 내보내기 및 가져오기 기능을 개선했습니다</strong><br>
-북마크 목록을 내보낼 때 다운로더는 사용자가 작품에 추가한 사용자 지정 태그를 저장합니다(작품 자체의 태그와 다를 수 있습니다).<br>
-북마크를 일괄 추가할 때 사용자 지정 태그가 있으면 해당 태그를 우선 추가합니다.<br>`,
-        `В этом обновлении исправлено несколько ошибок.<br>
-<strong>🐞Исправлено: на странице закладок функция «Удалить закладки всех удалённых работ» могла ошибочно удалить закладки обычных работ</strong><br>
-<strong>🐞Исправлено: если DPI системы и масштаб веб-страницы превышали 100%, нижняя часть области настроек могла отображаться не полностью</strong><br>
-<strong>🐞Исправлено: при ручном выборе работ нажатие на значок воспроизведения Ugoira не позволяло выбрать эту работу</strong><br>
-<strong>🐞Исправлено: на страницах работ на мобильных устройствах кнопка быстрого добавления в закладки (☆) имела стандартный стиль</strong><br>
-<strong>😊Улучшены функции экспорта и импорта списка закладок</strong><br>
-При экспорте списка закладок загрузчик сохраняет пользовательские теги, добавленные пользователем к работам (они могут отличаться от тегов самих работ).<br>
-При массовом добавлении закладок пользовательские теги добавляются в первую очередь, если они доступны.<br>`,
+    _版本更新说明19_2_0: [
+        `这次更新优化了命名规则功能，并修复了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）</strong><br>
+这个功能是为了处理这种情况：<br>
+1. 用户使用了可能为空的命名标记。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出系列标题。<br>
+2. 并且用户为它们添加了自定义字符，例如：<span class="blue">系列：{series_title}</span><br>
+当文件名里没有系列标题时，会留下不需要的 <span class="blue">系列：</span>。为了移除这种不需要的自定义字符，你可以使用 <span class="blue">[]</span> 建立可选片段，例如 <span class="blue">[系列：{series_title}]</span>。当 <span class="blue">[]</span> 里的标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+你可以在“图像作品的命名规则”里点击“小技巧：可选片段”查看更详细的说明。<br>
+⚠️注意：这个功能可能会对少部分用户造成破坏性变更：<br>
+如果你之前就已经使用了 <span class="blue">[]</span> 包裹命名标记，例如 <span class="blue">[{id}]</span>，现在它不会在文件名里输出 <span class="blue">[]</span> 符号。你需要额外添加一层 <span class="blue">[]</span>，变成 <span class="blue">[[{id}]]</span>，这样就可以和之前一样输出 <span class="blue">[]</span> 符号了。<br>
+<br>
+<strong>✨添加了 2 个新的命名标记</strong><br>
+- <span class="blue">{page_type}</span>：开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但页面类型名称都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。<br>
+<br>
+<strong>✨在“合并系列小说时的命名规则”里添加了新的命名标记</strong><br>
+- <span class="blue">{bmk}</span>：这个系列里所有小说的收藏数量之和，是数字。<br>
+<br>
+<strong>🐞修复问题：在预览作品时，预览区域可能会显示之前预览的动图，或者预览图在显示之后隐藏</strong><br>
+<strong>🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整</strong><br>
+<strong>🐞修复了其他 3 个问题</strong>`,
+        `本次更新最佳化了命名規則功能，並修復了一些 Bug。<br>
+<br>
+<strong>✨新功能：命名標記裡的可選片段（當標記沒有值時，忽略它的附屬文字）</strong><br>
+這個功能是為了處理這種情況：<br>
+1. 使用者使用了可能為空的命名標記。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出系列標題。<br>
+2. 並且使用者為它們加入了自訂字元，例如：<span class="blue">系列：{series_title}</span><br>
+當檔案名稱裡沒有系列標題時，會留下不需要的 <span class="blue">系列：</span>。為了移除這種不需要的自訂字元，你可以使用 <span class="blue">[]</span> 建立可選片段，例如 <span class="blue">[系列：{series_title}]</span>。當 <span class="blue">[]</span> 裡的標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+你可以在「圖像作品的命名規則」裡點擊「小技巧：可選片段」查看更詳細的說明。<br>
+⚠️注意：這個功能可能會對少部分使用者造成破壞性變更：<br>
+如果你之前已經使用了 <span class="blue">[]</span> 包裹命名標記，例如 <span class="blue">[{id}]</span>，現在它不會在檔案名稱裡輸出 <span class="blue">[]</span> 符號。你需要額外加入一層 <span class="blue">[]</span>，變成 <span class="blue">[[{id}]]</span>，這樣就可以和之前一樣輸出 <span class="blue">[]</span> 符號。<br>
+<br>
+<strong>✨新增了 2 個命名標記</strong><br>
+- <span class="blue">{page_type}</span>：開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，有二十多種。有時劃分得比較籠統，例如首頁有插畫、漫畫、小說等子分類，但頁面類型名稱都是 <span class="blue">Home</span>。<br>
+- <span class="blue">{page_id}</span>：開始抓取時的頁面 ID。其設計目的是用頁面 ID 歸納該頁面裡的多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。只有以下情況會輸出：1. 在作品頁面裡，輸出該頁面的作品 ID。2. 在使用者主頁、收藏頁面、關注頁面裡，輸出該頁面的使用者 ID。3. 在系列頁面裡，輸出系列 ID。<br>
+<br>
+<strong>✨在「合併系列小說時的命名規則」裡新增了命名標記</strong><br>
+- <span class="blue">{bmk}</span>：此系列中所有小說的收藏數量總和，是數字。<br>
+<br>
+<strong>🐞修正問題：預覽作品時，預覽區域可能顯示之前預覽的動圖，或預覽圖顯示後隱藏</strong><br>
+<strong>🐞修正問題：當「置頂的設定」區域高度不足時，命名規則的載入清單顯示不完整</strong><br>
+<strong>🐞修正了其他 3 個問題</strong>`,
+        `This update improves naming rules and fixes several bugs.<br>
+<br>
+<strong>✨New feature: Optional segments in naming tags (ignore associated text when a tag has no value)</strong><br>
+This feature handles the following situation:<br>
+1. You use a naming tag that may have no value. For example, when a work is not part of a series, <span class="blue">{series_title}</span> does not output a series title.<br>
+2. You add custom characters for it, for example: <span class="blue">Series: {series_title}</span><br>
+When a file name has no series title, the unnecessary <span class="blue">Series:</span> remains. To remove these unnecessary custom characters, create an optional segment with <span class="blue">[]</span>, for example <span class="blue">[Series: {series_title}]</span>. When the tag in <span class="blue">[]</span> has no value, the downloader ignores the entire segment, so no extra characters remain.<br>
+You can click "Tip: Optional segments" under "Naming rules for illustrations" for a more detailed explanation.<br>
+⚠️Note: This feature may be a breaking change for a small number of users:<br>
+If you previously used <span class="blue">[]</span> around a naming tag, for example <span class="blue">[{id}]</span>, <span class="blue">[]</span> is no longer output in the file name. Add another pair of <span class="blue">[]</span> to make <span class="blue">[[{id}]]</span>, and <span class="blue">[]</span> will be output as before.<br>
+<br>
+<strong>✨Added 2 new naming tags</strong><br>
+- <span class="blue">{page_type}</span>: The page type name when crawling begins, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, or <span class="blue">Bookmark</span>. These are the downloader's internal page types, with more than twenty types available. Some are broad: for example, the home page has illustration, manga, and novel subcategories, but their page type name is all <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: The page ID when crawling begins. It is designed to group multiple works on a page by that page's ID. For example, when crawling related works on a work page, it outputs the ID of that work page (one ID), rather than each related work's own ID (multiple IDs). It outputs a value only in these cases: 1. On a work page, the work ID of that page. 2. On a user home, bookmark, or following page, the user ID of that page. 3. On a series page, the series ID.<br>
+<br>
+<strong>✨Added a new naming tag to "Naming rules when merging novel series"</strong><br>
+- <span class="blue">{bmk}</span>: The total bookmark count of all novels in this series.<br>
+<br>
+<strong>🐞Fixed: When previewing works, the preview area could show a previously previewed Ugoira, or a preview image could disappear after being displayed</strong><br>
+<strong>🐞Fixed: The naming-rule load list could be displayed incompletely when the pinned settings area was too short</strong><br>
+<strong>🐞Fixed 3 other issues</strong>`,
+        `今回の更新では、命名規則機能を改善し、いくつかの不具合を修正しました。<br>
+<br>
+<strong>✨新機能：命名タグの任意セグメント（タグに値がないとき、関連する文字を無視）</strong><br>
+この機能は、次のような状況に対応するためのものです。<br>
+1. 値が空になる可能性のある命名タグを使用している場合。たとえば、作品がシリーズに属していないとき、<span class="blue">{series_title}</span> はシリーズ名を出力しません。<br>
+2. そのタグに説明用の文字を追加している場合。例：<span class="blue">シリーズ：{series_title}</span><br>
+ファイル名にシリーズ名がない場合、不要な <span class="blue">シリーズ：</span> が残ります。この不要な文字を削除するには、<span class="blue">[]</span> で任意セグメントを作成します。例：<span class="blue">[シリーズ：{series_title}]</span>。<span class="blue">[]</span> 内のタグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+詳しい説明は、「イラスト作品の命名規則」で「ヒント：任意セグメント」をクリックして確認できます。<br>
+⚠️注意：この機能は、一部のユーザーにとって破壊的変更になる可能性があります。<br>
+以前から <span class="blue">[]</span> で命名タグを囲んでいた場合（例：<span class="blue">[{id}]</span>）、ファイル名には <span class="blue">[]</span> が出力されなくなります。さらに 1 組の <span class="blue">[]</span> を追加して <span class="blue">[[{id}]]</span> にすると、以前と同じように <span class="blue">[]</span> を出力できます。<br>
+<br>
+<strong>✨新しい命名タグを 2 つ追加</strong><br>
+- <span class="blue">{page_type}</span>：クロール開始時のページタイプ名です。<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span> などがあります。これはダウンローダー内部のページ分類で、20 種類以上あります。分類が大まかな場合もあり、たとえばホームにはイラスト、マンガ、小説などのサブカテゴリがありますが、ページタイプ名はいずれも <span class="blue">Home</span> です。<br>
+- <span class="blue">{page_id}</span>：クロール開始時のページ ID です。ページ ID を使って、そのページ内にある複数の作品をまとめるために設計されています。たとえば、作品ページで関連作品をクロールすると、このタグは各作品自身の ID（複数）ではなく、その作品ページの ID（1 つ）を出力します。出力されるのは次の場合のみです：1. 作品ページでは、そのページの作品 ID。2. ユーザーホーム、ブックマーク、フォローのページでは、そのページのユーザー ID。3. シリーズページでは、シリーズ ID。<br>
+<br>
+<strong>✨「小説シリーズ結合時の命名規則」に新しい命名タグを追加</strong><br>
+- <span class="blue">{bmk}</span>：このシリーズ内のすべての小説のブックマーク数の合計です。<br>
+<br>
+<strong>🐞修正：作品のプレビュー時に、プレビュー領域に以前プレビューしたうごイラが表示される、またはプレビュー画像が表示後に消えることがある問題</strong><br>
+<strong>🐞修正：「固定された設定」エリアの高さが不足しているとき、命名規則の読み込みリストが不完全に表示される問題</strong><br>
+<strong>🐞その他 3 件の問題を修正</strong>`,
+        `이번 업데이트에서는 명명 규칙 기능을 개선하고 몇 가지 버그를 수정했습니다.<br>
+<br>
+<strong>✨새 기능: 명명 태그의 선택적 구간(태그에 값이 없을 때 관련 문자를 무시)</strong><br>
+이 기능은 다음과 같은 상황을 처리하기 위한 것입니다.<br>
+1. 값이 비어 있을 수 있는 명명 태그를 사용하는 경우입니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 시리즈 제목을 출력하지 않습니다.<br>
+2. 태그에 설명용 문자도 추가한 경우입니다. 예: <span class="blue">시리즈: {series_title}</span><br>
+파일 이름에 시리즈 제목이 없으면 불필요한 <span class="blue">시리즈:</span>가 남습니다. 이 불필요한 문자를 제거하려면 <span class="blue">[]</span>로 선택적 구간을 만드세요. 예: <span class="blue">[시리즈: {series_title}]</span>. <span class="blue">[]</span> 안의 태그에 값이 없으면 다운로더가 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+자세한 설명은 "일러스트 작품의 명명 규칙"에서 "팁: 선택적 구간"을 클릭하여 확인할 수 있습니다.<br>
+⚠️주의: 이 기능은 일부 사용자에게 호환되지 않는 변경이 될 수 있습니다.<br>
+이전에 <span class="blue">[]</span>로 명명 태그를 묶어 사용했다면(예: <span class="blue">[{id}]</span>), 이제 파일 이름에 <span class="blue">[]</span> 기호가 출력되지 않습니다. <span class="blue">[]</span>를 한 겹 더 추가하여 <span class="blue">[[{id}]]</span>로 만들면 이전처럼 <span class="blue">[]</span> 기호를 출력할 수 있습니다.<br>
+<br>
+<strong>✨새 명명 태그 2개 추가</strong><br>
+- <span class="blue">{page_type}</span>: 크롤링 시작 시의 페이지 유형 이름입니다. <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span> 등이 있습니다. 이는 다운로더 내부의 페이지 유형으로 20가지 이상이 있습니다. 때로는 구분이 넓습니다. 예를 들어 홈에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 페이지 유형 이름은 모두 <span class="blue">Home</span>입니다.<br>
+- <span class="blue">{page_id}</span>: 크롤링 시작 시의 페이지 ID입니다. 페이지 ID로 해당 페이지의 여러 작품을 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 태그는 각 작품의 ID(여러 개)가 아니라 그 작품 페이지의 작품 ID(하나)를 출력합니다. 다음 경우에만 값이 출력됩니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID. 2. 사용자 홈, 북마크, 팔로잉 페이지에서는 해당 페이지의 사용자 ID. 3. 시리즈 페이지에서는 시리즈 ID.<br>
+<br>
+<strong>✨"소설 시리즈 병합 시 명명 규칙"에 새 명명 태그 추가</strong><br>
+- <span class="blue">{bmk}</span>: 이 시리즈의 모든 소설 북마크 수의 합계입니다.<br>
+<br>
+<strong>🐞수정: 작품을 미리 볼 때 이전에 미리 본 우고이라가 미리 보기 영역에 표시되거나, 미리 보기 이미지가 표시된 후 사라질 수 있는 문제</strong><br>
+<strong>🐞수정: "고정된 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
+<strong>🐞기타 문제 3개 수정</strong>`,
+        `Это обновление улучшает правила именования и исправляет несколько ошибок.<br>
+<br>
+<strong>✨Новая функция: необязательные сегменты в тегах именования (игнорируют связанные символы, если у тега нет значения)</strong><br>
+Эта функция предназначена для следующей ситуации:<br>
+1. Вы используете тег именования, который может быть пустым. Например, если работа не входит в серию, <span class="blue">{series_title}</span> не выводит название серии.<br>
+2. Вы добавили к нему пользовательские символы, например: <span class="blue">Серия: {series_title}</span><br>
+Если в имени файла нет названия серии, остаётся ненужное <span class="blue">Серия:</span>. Чтобы удалить такие ненужные символы, создайте необязательный сегмент с помощью <span class="blue">[]</span>, например <span class="blue">[Серия: {series_title}]</span>. Если у тега в <span class="blue">[]</span> нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+Подробное описание можно посмотреть, нажав «Совет: необязательные сегменты» в разделе «Правила именования иллюстраций».<br>
+⚠️Внимание: для небольшого числа пользователей эта функция может стать несовместимым изменением:<br>
+Если вы уже обрамляли тег именования в <span class="blue">[]</span>, например <span class="blue">[{id}]</span>, теперь символы <span class="blue">[]</span> не выводятся в имени файла. Добавьте ещё один уровень <span class="blue">[]</span>, чтобы получилось <span class="blue">[[{id}]]</span>, и символы <span class="blue">[]</span> снова будут выводиться как раньше.<br>
+<br>
+<strong>✨Добавлено 2 новых тега именования</strong><br>
+- <span class="blue">{page_type}</span>: название типа страницы в начале crawl, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. Это внутренние типы страниц загрузчика, их более двадцати. Иногда классификация довольно общая: например, на главной странице есть подкатегории иллюстраций, манги и романов, но имя типа страницы у всех — <span class="blue">Home</span>.<br>
+- <span class="blue">{page_id}</span>: ID страницы в начале crawl. Он нужен для объединения нескольких работ на одной странице по ID этой страницы. Например, при crawl связанных работ на странице работы этот тег выводит ID работы этой страницы (один ID), а не собственные ID каждой связанной работы (несколько ID). Значение выводится только в следующих случаях: 1. На странице работы — ID работы этой страницы. 2. На странице профиля пользователя, закладок или подписок — ID пользователя этой страницы. 3. На странице серии — ID серии.<br>
+<br>
+<strong>✨Добавлен новый тег именования в «Правила именования при объединении серий романов»</strong><br>
+- <span class="blue">{bmk}</span>: сумма закладок всех романов этой серии.<br>
+<br>
+<strong>🐞Исправлено: при предпросмотре работ в области предпросмотра могла отображаться ранее просмотренная Ugoira либо изображение предпросмотра могло исчезать после показа</strong><br>
+<strong>🐞Исправлено: список загрузки правил именования мог отображаться не полностью, если область закреплённых настроек была слишком низкой</strong><br>
+<strong>🐞Исправлены ещё 3 проблемы</strong>`,
     ],
     _小技巧_可选片段: [
         `小技巧：可选片段`,
