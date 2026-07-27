@@ -1453,6 +1453,24 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .updateActiveClass {
   color: var(--beautify-blue) !important;
 }
+.centerWrap .centerWrap_con .longTextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--settings-panel-input-radius);
+}
+.centerWrap .centerWrap_con .longTextButton::before {
+  content: 'ⓘ';
+  color: var(--settings-panel-section-icon-color);
+}
+.centerWrap .centerWrap_con .longTextButton:hover,
+.centerWrap .centerWrap_con .longTextButton:focus-visible {
+  background: var(--settings-panel-section-icon-bg);
+}
+.centerWrap .centerWrap_con .longTextButton:focus-visible {
+  outline: 1px solid var(--settings-panel-section-icon-color);
+  outline-offset: 1px;
+}
 .centerWrap .centerWrap_con .grayButton:hover,
 .centerWrap .centerWrap_con .grayButton:focus {
   background: var(--beautify-blue);

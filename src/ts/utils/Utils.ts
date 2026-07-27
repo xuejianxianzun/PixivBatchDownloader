@@ -20,10 +20,16 @@ class Utils {
     ['~', '～'],
   ])
 
-  /** 替换一些控制字符，并把一些半角字符替换成全角版本 */
-  static replaceUnsafeStr(str: string) {
+  /**
+   * 替换一些控制字符，并把一些半角字符替换成全角版本。
+   * @param keepPathSeparator 是否保留路径分隔符 /。默认是 false，会把 / 替换成全角版本 ／。如果为 true，则会保留 /，适用于文件夹路径的命名。
+   */
+  static replaceUnsafeStr(str: string, keepPathSeparator = false) {
     str = str.replace(this.unsafeStr, '')
     for (const [halfWidth, fullWidth] of this.fullWidthDict) {
+      if (keepPathSeparator && halfWidth === '/') {
+        continue
+      }
       str = str.replaceAll(halfWidth, fullWidth)
     }
     return str

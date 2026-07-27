@@ -501,6 +501,28 @@
       color: var(--beautify-blue) !important;
     }
 
+    .longTextButton {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: var(--settings-panel-input-radius);
+
+      &::before {
+        content: 'ⓘ';
+        color: var(--settings-panel-section-icon-color);
+      }
+
+      &:hover,
+      &:focus-visible {
+        background: var(--settings-panel-section-icon-bg);
+      }
+
+      &:focus-visible {
+        outline: 1px solid var(--settings-panel-section-icon-color);
+        outline-offset: 1px;
+      }
+    }
+
     .grayButton:hover,
     .grayButton:focus {
       background: var(--beautify-blue);

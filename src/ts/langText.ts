@@ -10675,6 +10675,128 @@ When adding bookmarks in batches, custom tags are added first if available.<br>`
 При экспорте списка закладок загрузчик сохраняет пользовательские теги, добавленные пользователем к работам (они могут отличаться от тегов самих работ).<br>
 При массовом добавлении закладок пользовательские теги добавляются в первую очередь, если они доступны.<br>`,
   ],
+  _小技巧_可选片段: [
+    `小技巧：可选片段`,
+    `小技巧：可選片段`,
+    `Tip: Optional segments`,
+    `ヒント：任意セグメント`,
+    `팁: 선택적 구간`,
+    `Совет: необязательные сегменты`,
+  ],
+  _可选片段的说明: [
+    `有些命名标记在特定情况下可能没有内容。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出内容。<br>
+  此时，如果标记旁边有用户添加的说明文字或符号，即使标记没有内容，这些字符仍可能保留下来。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：当没有系列标题时，会留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：当没有排名时，可能会留下多余的横线 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字符，可以创建可选片段。方法是使用 <span class="blue">[]</span> 包裹一个可能为空的命名标记，以及与它有关的字符。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  当标记有内容时，下载器会正常输出片段里的内容，但不会输出 <span class="blue">[]</span>。<br>
+  当标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
+  <br>
+  附加说明：<br>
+  - 只需要对可能为空的命名标记使用可选片段。有些标记始终有内容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可选片段。<br>
+  - 每个 <span class="blue">[]</span> 里只应放 1 个命名标记。不要把多个标记放进同一个片段，这会导致下载器依然保留多余的字符。<br>
+  - 如果有需要，你可以使用多个可选片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 里没有命名标记，<span class="blue">[]</span> 会被视为普通字符并原样输出。<br>
+  - 如果 <span class="blue">[]</span> 里有命名标记，但你又想在结果里保留 <span class="blue">[]</span>，可以使用两层 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的结果会像这样 <span class="blue">[1]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
+    `有些命名標記在特定情況下可能沒有內容。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出內容。<br>
+  此時，如果標記旁邊有使用者加入的說明文字或符號，即使標記沒有內容，這些字元仍可能保留下來。例如：<br>
+  - <span class="blue">系列：{series_title}</span>：當沒有系列標題時，會留下 <span class="blue">系列：</span><br>
+  - <span class="blue">{rank}-{id}</span>：當沒有排名時，可能會留下多餘的橫線 <span class="blue">-</span><br>
+  <br>
+  如果你想忽略不需要的字元，可以建立可選片段。方法是使用 <span class="blue">[]</span> 包裹一個可能為空的命名標記，以及與它有關的字元。例如：<br>
+  - <span class="blue">[系列：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  當標記有內容時，下載器會正常輸出片段裡的內容，但不會輸出 <span class="blue">[]</span>。<br>
+  當標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
+  <br>
+  附加說明：<br>
+  - 只需要對可能為空的命名標記使用可選片段。有些標記始終有內容，例如 <span class="blue">{id}</span>、<span class="blue">{user}</span>，不需要使用可選片段。<br>
+  - 每個 <span class="blue">[]</span> 裡只應放 1 個命名標記。不要把多個標記放進同一個片段，這會導致下載器依然保留多餘的字元。<br>
+  - 如果有需要，你可以使用多個可選片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - 如果 <span class="blue">[]</span> 裡沒有命名標記，<span class="blue">[]</span> 會被視為普通字元並原樣輸出。<br>
+  - 如果 <span class="blue">[]</span> 裡有命名標記，但你又想在結果裡保留 <span class="blue">[]</span>，可以使用兩層 <span
+  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的結果會像這樣 <span class="blue">[1]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
+    `Some naming tags may have no value in certain cases. For example, if a work is not part of a series, <span class="blue">{series_title}</span> outputs nothing.<br>
+  In this case, custom text or symbols placed next to the tag may remain even when the tag has no value. For example:<br>
+  - <span class="blue">Series: {series_title}</span> - If there is no series title, <span class="blue">Series:</span> remains<br>
+  - <span class="blue">{rank}-{id}</span> - If no ranking is available, an extra hyphen <span class="blue">-</span> may remain<br>
+  <br>
+  To omit unneeded characters, you can create an optional segment. Enclose a naming tag that may be empty, along with related characters, in <span class="blue">[]</span>. For example:<br>
+  - <span class="blue">[Series: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  When a tag has a value, the downloader outputs the content in the segment, but not <span class="blue">[]</span>.<br>
+  When a tag has no value, the downloader ignores the entire segment, so no extra characters are left behind.<br>
+  <br>
+  Notes:<br>
+  - Use optional segments only for naming tags that may have no value. Some tags always have a value, such as <span class="blue">{id}</span> and <span class="blue">{user}</span>, and do not need optional segments.<br>
+  - Each <span class="blue">[]</span> should contain only 1 naming tag. Do not put multiple tags in one segment, as the downloader may still keep extra characters.<br>
+  - You can use multiple optional segments when needed. For example: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - If <span class="blue">[]</span> contains no naming tag, it is treated as ordinary characters and output as is.<br>
+  - If <span class="blue">[]</span> contains a naming tag but you also want <span class="blue">[]</span> in the result, use two layers of <span
+  class="blue">[]</span>. For example, <span class="blue">[[{rank}]]</span> produces <span class="blue">[1]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
+    `一部の命名タグは、状況によって値がない場合があります。たとえば、作品がシリーズに属していない場合、<span class="blue">{series_title}</span> は何も出力しません。<br>
+  このとき、タグのそばに追加した説明文や記号は、タグに値がなくても残ることがあります。例：<br>
+  - <span class="blue">シリーズ：{series_title}</span>：シリーズ名がない場合、<span class="blue">シリーズ：</span> だけが残ります<br>
+  - <span class="blue">{rank}-{id}</span>：順位がない場合、余分なハイフン <span class="blue">-</span> が残ることがあります<br>
+  <br>
+  不要な文字を除外したい場合は、任意セグメントを作成できます。値が空になる可能性がある命名タグと関連する文字を <span class="blue">[]</span> で囲みます。例：<br>
+  - <span class="blue">[シリーズ：{series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  タグに値がある場合、ダウンローダーはセグメント内の内容を出力しますが、<span class="blue">[]</span> は出力しません。<br>
+  タグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
+  <br>
+  補足：<br>
+  - 任意セグメントは、値が空になる可能性がある命名タグにのみ使用してください。<span class="blue">{id}</span> や <span class="blue">{user}</span> のように常に値があるタグには不要です。<br>
+  - 1 組の <span class="blue">[]</span> には、命名タグを 1 つだけ入れてください。複数のタグを同じセグメントに入れると、余分な文字が残ることがあります。<br>
+  - 必要に応じて、複数の任意セグメントを使用できます。例：<span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
+  - <span class="blue">[]</span> 内に命名タグがない場合、<span class="blue">[]</span> は通常の文字としてそのまま出力されます。<br>
+  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{rank}]]</span> の結果は <span class="blue">[1]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
+    `일부 명명 태그는 특정 상황에서 값이 없을 수 있습니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 아무 내용도 출력하지 않습니다.<br>
+  이때 태그 옆에 추가한 설명 문구나 기호는 태그에 값이 없어도 남아 있을 수 있습니다. 예:<br>
+  - <span class="blue">시리즈: {series_title}</span> - 시리즈 제목이 없으면 <span class="blue">시리즈:</span>만 남습니다<br>
+  - <span class="blue">{rank}-{id}</span> - 순위가 없으면 불필요한 하이픈 <span class="blue">-</span>이 남을 수 있습니다<br>
+  <br>
+  필요 없는 문자를 무시하려면 선택적 구간을 만들 수 있습니다. 값이 비어 있을 수 있는 명명 태그와 관련 문자를 <span class="blue">[]</span>로 묶으세요. 예:<br>
+  - <span class="blue">[시리즈: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  태그에 값이 있으면 다운로더는 구간 안의 내용을 출력하지만 <span class="blue">[]</span>는 출력하지 않습니다.<br>
+  태그에 값이 없으면 다운로더는 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
+  <br>
+  추가 설명:<br>
+  - 선택적 구간은 값이 비어 있을 수 있는 명명 태그에만 사용하세요. <span class="blue">{id}</span>, <span class="blue">{user}</span>처럼 항상 값이 있는 태그에는 필요하지 않습니다.<br>
+  - 각 <span class="blue">[]</span>에는 명명 태그를 1개만 넣어야 합니다. 하나의 구간에 여러 태그를 넣으면 불필요한 문자가 남을 수 있습니다.<br>
+  - 필요하면 여러 선택적 구간을 사용할 수 있습니다. 예: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 없으면 <span class="blue">[]</span>는 일반 문자로 처리되어 그대로 출력됩니다.<br>
+  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{rank}]]</span>의 결과는 <span class="blue">[1]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
+    `Некоторые теги именования в определённых случаях могут не иметь значения. Например, если работа не входит в серию, <span class="blue">{series_title}</span> ничего не выводит.<br>
+  В этом случае добавленный рядом с тегом поясняющий текст или символы могут остаться, даже если у тега нет значения. Например:<br>
+  - <span class="blue">Серия: {series_title}</span> — если названия серии нет, останется <span class="blue">Серия:</span><br>
+  - <span class="blue">{rank}-{id}</span> — если рейтинга нет, может остаться лишний дефис <span class="blue">-</span><br>
+  <br>
+  Чтобы убрать ненужные символы, можно создать необязательный сегмент. Заключите тег именования, который может быть пустым, и связанные с ним символы в <span class="blue">[]</span>. Например:<br>
+  - <span class="blue">[Серия: {series_title}]</span><br>
+  - <span class="blue">[{rank}-]</span><br>
+  - <span class="blue">[-{p}]</span><br>
+  Если у тега есть значение, загрузчик выводит содержимое сегмента, но не выводит <span class="blue">[]</span>.<br>
+  Если у тега нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
+  <br>
+  Дополнительные сведения:<br>
+  - Используйте необязательные сегменты только для тегов именования, которые могут быть пустыми. Для тегов, которые всегда имеют значение, например <span class="blue">{id}</span> и <span class="blue">{user}</span>, они не нужны.<br>
+  - В каждой паре <span class="blue">[]</span> должен быть только 1 тег именования. Не помещайте несколько тегов в один сегмент, иначе лишние символы могут остаться.<br>
+  - При необходимости можно использовать несколько необязательных сегментов. Например: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
+  - Если внутри <span class="blue">[]</span> нет тега именования, <span class="blue">[]</span> считаются обычными символами и выводятся без изменений.<br>
+  - Если внутри <span class="blue">[]</span> есть тег именования, но вы также хотите сохранить <span class="blue">[]</span> в результате, используйте два уровня <span
+  class="blue">[]</span>. Например, <span class="blue">[[{rank}]]</span> даст результат <span class="blue">[1]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText
