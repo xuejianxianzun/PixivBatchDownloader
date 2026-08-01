@@ -10780,7 +10780,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 如果有需要，你可以使用多个可选片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - 如果 <span class="blue">[]</span> 里没有命名标记，<span class="blue">[]</span> 会被视为普通字符并原样输出。<br>
   - 如果 <span class="blue">[]</span> 里有命名标记，但你又想在结果里保留 <span class="blue">[]</span>，可以使用两层 <span
-  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的结果会像这样 <span class="blue">[1]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
+  class="blue">[]</span>。例如 <span class="blue">[[{id}]] </span> 的结果会像这样 <span class="blue">[143623396_p0]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
     `有些命名標記在特定情況下可能沒有內容。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出內容。<br>
   此時，如果標記旁邊有使用者加入的說明文字或符號，即使標記沒有內容，這些字元仍可能保留下來。例如：<br>
   - <span class="blue">系列：{series_title}</span>：當沒有系列標題時，會留下 <span class="blue">系列：</span><br>
@@ -10799,7 +10799,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 如果有需要，你可以使用多個可選片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - 如果 <span class="blue">[]</span> 裡沒有命名標記，<span class="blue">[]</span> 會被視為普通字元並原樣輸出。<br>
   - 如果 <span class="blue">[]</span> 裡有命名標記，但你又想在結果裡保留 <span class="blue">[]</span>，可以使用兩層 <span
-  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的結果會像這樣 <span class="blue">[1]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
+  class="blue">[]</span>。例如 <span class="blue">[[{id}]] </span> 的結果會像這樣 <span class="blue">[143623396_p0]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
     `Some naming tags may have no value in certain cases. For example, if a work is not part of a series, <span class="blue">{series_title}</span> outputs nothing.<br>
   In this case, custom text or symbols placed next to the tag may remain even when the tag has no value. For example:<br>
   - <span class="blue">Series: {series_title}</span> - If there is no series title, <span class="blue">Series:</span> remains<br>
@@ -10818,7 +10818,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - You can use multiple optional segments when needed. For example: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - If <span class="blue">[]</span> contains no naming tag, it is treated as ordinary characters and output as is.<br>
   - If <span class="blue">[]</span> contains a naming tag but you also want <span class="blue">[]</span> in the result, use two layers of <span
-  class="blue">[]</span>. For example, <span class="blue">[[{rank}]]</span> produces <span class="blue">[1]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
+  class="blue">[]</span>. For example, <span class="blue">[[{id}]] </span> produces <span class="blue">[143623396_p0]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
     `一部の命名タグは、状況によって値がない場合があります。たとえば、作品がシリーズに属していない場合、<span class="blue">{series_title}</span> は何も出力しません。<br>
   このとき、タグのそばに追加した説明文や記号は、タグに値がなくても残ることがあります。例：<br>
   - <span class="blue">シリーズ：{series_title}</span>：シリーズ名がない場合、<span class="blue">シリーズ：</span> だけが残ります<br>
@@ -10836,7 +10836,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 1 組の <span class="blue">[]</span> には、命名タグを 1 つだけ入れてください。複数のタグを同じセグメントに入れると、余分な文字が残ることがあります。<br>
   - 必要に応じて、複数の任意セグメントを使用できます。例：<span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - <span class="blue">[]</span> 内に命名タグがない場合、<span class="blue">[]</span> は通常の文字としてそのまま出力されます。<br>
-  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{rank}]]</span> の結果は <span class="blue">[1]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
+  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{id}]] </span> の結果は <span class="blue">[143623396_p0]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
     `일부 명명 태그는 특정 상황에서 값이 없을 수 있습니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 아무 내용도 출력하지 않습니다.<br>
   이때 태그 옆에 추가한 설명 문구나 기호는 태그에 값이 없어도 남아 있을 수 있습니다. 예:<br>
   - <span class="blue">시리즈: {series_title}</span> - 시리즈 제목이 없으면 <span class="blue">시리즈:</span>만 남습니다<br>
@@ -10854,7 +10854,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 각 <span class="blue">[]</span>에는 명명 태그를 1개만 넣어야 합니다. 하나의 구간에 여러 태그를 넣으면 불필요한 문자가 남을 수 있습니다.<br>
   - 필요하면 여러 선택적 구간을 사용할 수 있습니다. 예: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - <span class="blue">[]</span> 안에 명명 태그가 없으면 <span class="blue">[]</span>는 일반 문자로 처리되어 그대로 출력됩니다.<br>
-  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{rank}]]</span>의 결과는 <span class="blue">[1]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
+  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{id}]] </span>의 결과는 <span class="blue">[143623396_p0]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
     `Некоторые теги именования в определённых случаях могут не иметь значения. Например, если работа не входит в серию, <span class="blue">{series_title}</span> ничего не выводит.<br>
   В этом случае добавленный рядом с тегом поясняющий текст или символы могут остаться, даже если у тега нет значения. Например:<br>
   - <span class="blue">Серия: {series_title}</span> — если названия серии нет, останется <span class="blue">Серия:</span><br>
@@ -10873,7 +10873,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - При необходимости можно использовать несколько необязательных сегментов. Например: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - Если внутри <span class="blue">[]</span> нет тега именования, <span class="blue">[]</span> считаются обычными символами и выводятся без изменений.<br>
   - Если внутри <span class="blue">[]</span> есть тег именования, но вы также хотите сохранить <span class="blue">[]</span> в результате, используйте два уровня <span
-  class="blue">[]</span>. Например, <span class="blue">[[{rank}]]</span> даст результат <span class="blue">[1]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
+  class="blue">[]</span>. Например, <span class="blue">[[{id}]] </span> даст результат <span class="blue">[143623396_p0]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
   ],
 }
 

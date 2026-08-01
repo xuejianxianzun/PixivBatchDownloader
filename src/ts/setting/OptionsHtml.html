@@ -1875,18 +1875,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <span data-xztext="_标签别名"></span>
   </a>
 
-  <label
-    for="useTagAliasForTagsNamingRule"
-    data-xztext="_应用到文件名里的tags系列标记"
-  ></label>
-  <input
-    type="checkbox"
-    name="useTagAliasForTagsNamingRule"
-    id="useTagAliasForTagsNamingRule"
-    class="need_beautify checkbox_switch"
-  />
-  <span class="beautify_switch" tabindex="0"></span>
-
   <button
     type="button"
     class="gray1 textButton showMsgBtn"
@@ -1894,6 +1882,20 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-msg="_标签别名的帮助"
     data-xztext="_帮助"
   ></button>
+
+  <p class="flexBasis100 shrink0">
+    <label
+      for="useTagAliasForTagsNamingRule"
+      data-xztext="_应用到文件名里的tags系列标记"
+    ></label>
+    <input
+      type="checkbox"
+      name="useTagAliasForTagsNamingRule"
+      id="useTagAliasForTagsNamingRule"
+      class="need_beautify checkbox_switch"
+    />
+    <span class="beautify_switch" tabindex="0"></span>
+  </p>
 
   <slot data-name="setTagAliasSlot"></slot>
 </div>

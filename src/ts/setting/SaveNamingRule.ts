@@ -160,14 +160,38 @@ class SaveNamingRule {
         this.delete(index)
       })
     }
+
+    if (this.show) {
+      this.adjustTitleContentHeight()
+    }
+  }
+
+  /** 调整标题内容区域的高度，确保命名规则列表完整可见 */
+  private adjustTitleContentHeight() {
+    const titleContent = this.listWrap.closest('.settingsPanel_titleContent')
+    if (!(titleContent instanceof HTMLElement)) {
+      return
+    }
+
+    const contentRect = titleContent.getBoundingClientRect()
+    const listRect = this.listWrap.getBoundingClientRect()
+    const listBottom =
+      listRect.bottom - contentRect.top + titleContent.scrollTop
+    const height = Math.ceil(Math.max(titleContent.scrollHeight, listBottom))
+    titleContent.style.height = `${height}px`
   }
 
   private showListWrap() {
     this.listWrap.style.display = 'block'
+    this.adjustTitleContentHeight()
   }
 
   private hideListWrap() {
     this.listWrap.style.display = 'none'
+    const titleContent = this.listWrap.closest('.settingsPanel_titleContent')
+    if (titleContent instanceof HTMLElement) {
+      titleContent.style.height = ''
+    }
   }
 }
 

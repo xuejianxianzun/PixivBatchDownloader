@@ -3,6 +3,12 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
+## next
+
+### 🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整
+
+上次更新简单修复过，但只是允许在父元素高度不足时滚动来查看加载列表，仍然不好用。主要问题是当容器高度很小时，同时只能显示 2 个列表项。用户滚动鼠标一次可能滚动大于 2 个列表项，导致某些列表项无法查看和选中。现在进行了彻底的优化，直接加大父元素的高度，使加载列表总是能完整显示。
+
 ## 19.2.0 2026-07-28
 
 ### ✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）
