@@ -172,6 +172,10 @@ export interface FormType extends HTMLFormElement {
   PreviewDetailInfoWidth: HTMLInputElement
   removeWorksOfFollowedUsersOnSearchPage: HTMLInputElement
   saveWorkDescription: HTMLInputElement
+  saveDescriptionType0: HTMLInputElement
+  saveDescriptionType1: HTMLInputElement
+  saveDescriptionType2: HTMLInputElement
+  saveDescriptionType3: HTMLInputElement
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
   slowCrawlDealy: HTMLInputElement

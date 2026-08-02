@@ -5,6 +5,14 @@
 
 ## next
 
+### ✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/651
+
+你可以选择作品类型：插画、漫画、动图、小说。
+
+默认选择了前三个，也就是图像作品。默认未选择小说，因为在默认设置里，小说的简介会保存到小说文件内部，所以无需使用单独的文件来保存简介。
+
 ### 🐞修复问题：当标签别名里含有特殊字符时，可能导致程序错误
 
 在 `src\ts\setting\SetTagAlias.ts` 里，每个列表项的删除按钮使用了 `data-deleteRule="${alias}"` 作为选择器，但有些 alias 可能不是合法的选择器。例如 `button[data-deleteRule='Foster's Home for Imaginary Friends']` 是非法的，导致代码产生了语法错误。现在使用 CSS.escape 方法修复。

@@ -346,6 +346,10 @@ interface XzSetting {
   PreviewDetailInfoWidth: number
   removeWorksOfFollowedUsersOnSearchPage: boolean
   saveWorkDescription: boolean
+  saveDescriptionType0: boolean
+  saveDescriptionType1: boolean
+  saveDescriptionType2: boolean
+  saveDescriptionType3: boolean
   saveEachDescription: boolean
   summarizeDescription: boolean
   // delay 的拼写错误，但为了维持兼容性，不做修改
@@ -907,6 +911,10 @@ class Settings {
     PreviewDetailInfoWidth: 400,
     removeWorksOfFollowedUsersOnSearchPage: false,
     saveWorkDescription: false,
+    saveDescriptionType0: true,
+    saveDescriptionType1: true,
+    saveDescriptionType2: true,
+    saveDescriptionType3: false,
     saveEachDescription: true,
     summarizeDescription: false,
     slowCrawlDealy: 1800,

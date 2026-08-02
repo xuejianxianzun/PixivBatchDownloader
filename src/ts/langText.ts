@@ -3793,24 +3793,12 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     `Функция <span class="key">закладок</span> загрузчика (✩)`,
   ],
   _收藏设置的说明: [
-    `有时你会看到下载器添加的收藏按钮 (✩)，点击这个按钮可以收藏作品。<br>
-    你可以选择是否附带作品的 tags，以及是否公开。<br>
-    另外，使用下载器批量收藏作品时也会使用此设置。`,
-    `有時你會看到下載器新增的收藏按鈕 (✩)，點選這個按鈕可以收藏作品。<br>
-    你可以選擇是否附帶作品的 tags，以及是否公開。<br>
-    另外，使用下載器批次收藏作品時也會使用此設定。`,
-    `Sometimes you'll see a bookmark button (✩) added by the downloader, which you can click to bookmark the work. <br>
-You can choose whether to include tags for the work, and whether to make it public.<br>
-This setting is also used when you use the Downloader to bookmark works in batches.`,
-    `ダウンロードした作品にはブックマークボタン（✩）が表示されることがあります。このボタンをクリックすると、作品をブックマークできます。<br>
-作品にタグを付けるかどうか、また公開するかどうかを選択できます。<br>
-この設定は、ダウンローダーを使用して作品を一括でブックマークする場合にも使用されます。`,
-    `다운로더에서 북마크 버튼(✩)을 추가하는 경우가 있는데, 이 버튼을 클릭하면 작품을 북마크할 수 있습니다. <br>
-작품에 태그를 포함할지 여부와 공개 여부를 선택할 수 있습니다.<br>
-이 설정은 다운로더를 사용하여 작품을 일괄적으로 북마크할 때도 사용됩니다.`,
-    `Иногда вы увидите кнопку закладки (✩), добавленную загрузчиком, которую вы можете нажать, чтобы добавить работу в закладки. <br>
-Вы можете выбрать, следует ли включать теги для работы и следует ли делать ее общедоступной.<br>
-Эта настройка также используется при использовании Загрузчика для добавления закладок в пакетном режиме.`,
+    `当你使用下载器的收藏功能时，可以设置是否添加作品本身的标签，以及是否公开。`,
+    `當你使用下載器的收藏功能時，可以設定是否新增作品本身的標籤，以及是否公開。`,
+    `When using the downloader's bookmark feature, you can choose whether to add the work's own tags and make the bookmark public.`,
+    `ダウンローダーのブックマーク機能を使用する際、作品自体のタグを追加するかどうかと、公開するかどうかを設定できます。`,
+    `다운로더의 북마크 기능을 사용할 때 작품 자체의 태그를 추가할지, 북마크를 공개할지 설정할 수 있습니다.`,
+    `При использовании функции закладок загрузчика можно настроить, добавлять ли теги самой работы и делать ли закладку публичной.`,
   ],
   _下载器的收藏按钮默认会添加作品的标签: [
     '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
@@ -7089,7 +7077,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
     'Сохранить описание работы',
   ],
   _保存作品简介的说明: [
-    '生成 TXT 文件保存作品简介',
+    '生成 TXT 文件保存作品简介。',
     '生成 TXT 檔案儲存作品說明',
     'Create a TXT file to save the work description',
     '作業説明を保存するためのTXTファイルを作成します。',
@@ -7114,12 +7102,12 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
     'Сохраняйте каждую работу отдельно',
   ],
   _简介的Links标记: [
-    `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
-    `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
-    `Save each work's description in a separate TXT file.<br>If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
-    `各作品の説明を別々の TXT ファイルに保存します。 <br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
-    `각 작품에 대한 설명을 별도의 TXT 파일로 저장합니다. <br>작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
-    `Сохраните описание каждой работы в отдельном TXT-файле. <br>Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+    `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记。<br>有些作品没有简介，此时下载器不会为其生成 TXT 文件。`,
+    `將每個作品的說明儲存到個別的 TXT 檔案裡。<br>如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記。<br>有些作品沒有說明，此時下載器不會為其建立 TXT 檔案。`,
+    `Save each work's description in a separate TXT file.<br>If a work's description contains hyperlinks, the downloader adds a 'links' tag to the end of the filename.<br>Some works have no description, so no TXT file is created for them.`,
+    `各作品の説明を個別の TXT ファイルに保存します。<br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。<br>説明がない作品については、TXT ファイルを作成しません。`,
+    `각 작품의 설명을 별도의 TXT 파일로 저장합니다.<br>작품 설명에 하이퍼링크가 포함되어 있으면 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.<br>설명이 없는 작품에는 TXT 파일을 만들지 않습니다.`,
+    `Описание каждой работы сохраняется в отдельный TXT-файл.<br>Если описание работы содержит гиперссылки, загрузчик добавляет тег «links» в конце имени файла.<br>Для работ без описания TXT-файл не создаётся.`,
   ],
   _汇总到一个文件: [
     '汇总到一个文件',
