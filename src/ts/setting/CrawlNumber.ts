@@ -207,6 +207,15 @@ class CrawlNumber {
         }, 0)
       })
     })
+
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name === 'crawlNumber') {
+        setTimeout(() => {
+          this.setOption()
+        }, 0)
+      }
+    })
   }
 }
 

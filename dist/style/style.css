@@ -491,6 +491,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.theme-white {
   --settings-panel-text: #444;
+  --settings-panel-placeholder-text: #999;
   --settings-panel-border: #9dd4f9;
   --settings-panel-shadow: 0 0 25px #b4e0f5;
   --settings-panel-con-bg: #eee;
@@ -615,7 +616,8 @@ body.mobile #quickCrawlBtn {
   --settings-panel-search-mark-bg: #ffe74b;
 }
 .centerWrap.theme-dark {
-  --settings-panel-text: #dfe7ef;
+  --settings-panel-text: #fff;
+  --settings-panel-placeholder-text: #eee;
   --settings-panel-border: rgba(94, 172, 230, 0.45);
   --settings-panel-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
   --settings-panel-con-bg: rgba(18, 24, 33, 0.98);
@@ -734,6 +736,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG {
   --settings-panel-text: #fff;
+  --settings-panel-placeholder-text: #eee;
   --settings-panel-head-bg: rgba(10, 18, 28, 0.2);
   --settings-panel-con-bg: rgba(10, 18, 28, 0.1);
   --settings-panel-head-border: rgba(255, 255, 255, 0.08);
@@ -3378,7 +3381,7 @@ iframe[name='expandedFooter'] {
 }
 .blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
 .blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #999;
+  color: var(--settings-panel-placeholder-text);
 }
 .blockTagsForSpecificUserWrap .icon {
   font-size: 1.3em;
@@ -3419,7 +3422,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3447,22 +3450,6 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap button.refresh svg {
   position: relative;
   top: 1px;
-}
-.theme-dark.blockTagsForSpecificUserWrap div,
-.theme-dark.blockTagsForSpecificUserWrap span {
-  color: #fff !important;
-}
-.theme-dark.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.theme-dark.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .blockTagsForSpecificUserWrap div,
-.xzBG .blockTagsForSpecificUserWrap span {
-  color: #fff !important;
-}
-.xzBG .blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.xzBG .blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
 }
 #xzLoadingWrap {
   position: fixed;
@@ -3504,7 +3491,7 @@ iframe[name='expandedFooter'] {
 }
 .setUserNameWrap input::-webkit-input-placeholder,
 .setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #999;
+  color: var(--settings-panel-placeholder-text);
 }
 .setUserNameWrap .icon {
   font-size: 1.3em;
@@ -3546,7 +3533,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .setUserNameWrap .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .setUserNameWrap .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3583,22 +3570,6 @@ iframe[name='expandedFooter'] {
   position: relative;
   top: 1px;
 }
-.setUserNameWrap .theme-dark.setUserNameWrap div,
-.setUserNameWrap .theme-dark.setUserNameWrap span {
-  color: #fff !important;
-}
-.setUserNameWrap .theme-dark.setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap .theme-dark.setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.setUserNameWrap .xzBG .setUserNameWrap div,
-.setUserNameWrap .xzBG .setUserNameWrap span {
-  color: #fff !important;
-}
-.setUserNameWrap .xzBG .setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
 .setUserNameWrap.setTagAliasWrap .addWrap .settingItem {
   flex-basis: 100%;
 }
@@ -3628,7 +3599,7 @@ iframe[name='expandedFooter'] {
 }
 .DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
 .DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
-  color: #999;
+  color: var(--settings-panel-placeholder-text);
 }
 .DoNotDownloadLastFewImagesWarp .icon {
   font-size: 1.3em;
@@ -3672,7 +3643,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3710,25 +3681,9 @@ iframe[name='expandedFooter'] {
   position: relative;
   top: 1px;
 }
-.theme-dark.DoNotDownloadLastFewImages div,
-.theme-dark.DoNotDownloadLastFewImages span {
-  color: #fff !important;
-}
-.theme-dark.DoNotDownloadLastFewImages input::-webkit-input-placeholder,
-.theme-dark.DoNotDownloadLastFewImages textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .DoNotDownloadLastFewImagesWarp div,
-.xzBG .DoNotDownloadLastFewImagesWarp span {
-  color: #fff !important;
-}
-.xzBG .DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
-.xzBG .DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
 .UseDifferentNameRuleIfWorkHasTagWarp input::-webkit-input-placeholder,
 .UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
-  color: #999;
+  color: var(--settings-panel-placeholder-text);
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .icon {
   font-size: 1.3em;
@@ -3771,7 +3726,7 @@ iframe[name='expandedFooter'] {
   flex-basis: 40%;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem.id {
   flex-basis: 5%;
@@ -3811,22 +3766,6 @@ iframe[name='expandedFooter'] {
 .UseDifferentNameRuleIfWorkHasTagWarp .listWrap button.refresh svg {
   position: relative;
   top: 1px;
-}
-.theme-dark.DoNotDownloadLastFewImages div,
-.theme-dark.DoNotDownloadLastFewImages span {
-  color: #fff !important;
-}
-.theme-dark.DoNotDownloadLastFewImages input::-webkit-input-placeholder,
-.theme-dark.DoNotDownloadLastFewImages textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp div,
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp span {
-  color: #fff !important;
-}
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp input::-webkit-input-placeholder,
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
-  color: #ddd;
 }
 .XZInputWrap {
   position: fixed;

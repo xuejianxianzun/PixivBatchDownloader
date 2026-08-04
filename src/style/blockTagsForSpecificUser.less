@@ -1,7 +1,7 @@
 .blockTagsForSpecificUserWrap {
   input::-webkit-input-placeholder,
   textarea::-webkit-input-placeholder {
-    color: #999;
+    color: var(--settings-panel-placeholder-text);
   }
 
   .icon {
@@ -52,7 +52,7 @@
       margin-right: 10px;
 
       .label {
-        color: #444;
+        color: var(--settings-panel-text);
       }
 
       &.uid {
@@ -95,34 +95,6 @@
     svg {
       position: relative;
       top: 1px;
-    }
-  }
-}
-
-.theme-dark {
-  &.blockTagsForSpecificUserWrap {
-    div,
-    span {
-      color: #fff !important;
-    }
-
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
-    }
-  }
-}
-
-.xzBG {
-  .blockTagsForSpecificUserWrap {
-    div,
-    span {
-      color: #fff !important;
-    }
-
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
     }
   }
 }

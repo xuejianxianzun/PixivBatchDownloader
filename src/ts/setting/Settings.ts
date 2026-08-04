@@ -43,8 +43,8 @@
 // 最后会触发一次 resetSettingsEnd 事件
 
 // 持久化保存的数据只有一份，保存在 browser.storage.local 里
-// 所以当页面刷新时，或者打开新的页面时，会加载设置数据
-// 如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。之后，当用户在任意标签页里修改设置时，下载器会根据 settingsAcrossDifferentTabs 设置决定是否把新的设置同步到其他标签页里
+// 所以当页面刷新时，或者打开新的页面时，会加载设置数据。如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。
+// 该模块监听了 browser.storage.onChanged 事件。当用户在任意标签页里修改设置之后，其他标签页都可以感知到变化，并根据 settingsAcrossDifferentTabs 设置决定是否同步这些变化
 
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
@@ -1058,10 +1058,25 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
+  /** 正在应用其他标签页的设置，避免产生回写循环 */
+  private isApplyingSettingsFromOtherTab = false
+
+  /** 当前标签页的设置是否已从本地存储恢复 */
+  private settingsRestored = false
+
+  /** 设置恢复期间收到的最新设置快照 */
+  private pendingSettingsFromOtherTab?: Partial<XzSetting>
+
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      this.store()
+      if (!this.isApplyingSettingsFromOtherTab) {
+        this.store()
+      }
+    })
+
+    browser.storage.onChanged.addListener((changes, areaName) => {
+      this.receiveSettingsFromOtherTab(changes, areaName)
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -1171,6 +1186,11 @@ class Settings {
       }
 
       this.assignSettings(restoreData)
+      this.settingsRestored = true
+      if (this.pendingSettingsFromOtherTab) {
+        this.applySettingsFromOtherTab(this.pendingSettingsFromOtherTab)
+        this.pendingSettingsFromOtherTab = undefined
+      }
       EVT.fire('settingInitialized')
     })
   }
@@ -1191,6 +1211,107 @@ class Settings {
     for (const [key, value] of Object.entries(origin)) {
       this.setSetting(key as SettingKeys, value)
     }
+  }
+
+  /** 接收并应用其他标签页保存的设置 */
+  private receiveSettingsFromOtherTab(
+    changes: { [key: string]: browser.Storage.StorageChange },
+    areaName: string
+  ) {
+    if (areaName !== 'local') {
+      return
+    }
+
+    const change = changes[Config.settingStoreName]
+    const data = change?.newValue
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return
+    }
+
+    const remoteSettings = data as Partial<XzSetting>
+    if (!this.settingsRestored) {
+      this.pendingSettingsFromOtherTab = remoteSettings
+      return
+    }
+
+    this.applySettingsFromOtherTab(remoteSettings)
+  }
+
+  /** 按同步方式应用其他标签页的设置 */
+  private applySettingsFromOtherTab(remoteSettings: Partial<XzSetting>) {
+    const remoteSyncMode =
+      remoteSettings.settingsAcrossDifferentTabs ??
+      this.defaultSettings.settingsAcrossDifferentTabs
+    const syncModeChanged =
+      remoteSyncMode !== this.settings.settingsAcrossDifferentTabs
+
+    // 同步方式（即 settingsAcrossDifferentTabs 设置的值）总是会同步变化，以便可以从“保持不变”恢复到同步状态
+    if (!syncModeChanged && remoteSyncMode === 'doNotSynchronizeChanges') {
+      return
+    }
+
+    this.isApplyingSettingsFromOtherTab = true
+    try {
+      if (syncModeChanged) {
+        this.setSetting('settingsAcrossDifferentTabs', remoteSyncMode)
+      }
+
+      for (const [key, value] of Object.entries(remoteSettings)) {
+        const settingKey = key as SettingKeys
+        if (
+          settingKey === 'settingsAcrossDifferentTabs' ||
+          !this.allSettingKeys.includes(settingKey) ||
+          this.isSameSettingValue(this.settings[settingKey], value)
+        ) {
+          continue
+        }
+        this.setSetting(settingKey, value)
+      }
+    } finally {
+      this.isApplyingSettingsFromOtherTab = false
+    }
+  }
+
+  /** 比较设置值是否相同 */
+  private isSameSettingValue(value1: unknown, value2: unknown): boolean {
+    if (Object.is(value1, value2)) {
+      return true
+    }
+
+    if (
+      value1 === null ||
+      value2 === null ||
+      typeof value1 !== 'object' ||
+      typeof value2 !== 'object'
+    ) {
+      return false
+    }
+
+    if (Array.isArray(value1) || Array.isArray(value2)) {
+      if (!Array.isArray(value1) || !Array.isArray(value2)) {
+        return false
+      }
+      if (value1.length !== value2.length) {
+        return false
+      }
+      return value1.every((value, index) =>
+        this.isSameSettingValue(value, value2[index])
+      )
+    }
+
+    const object1 = value1 as Record<string, unknown>
+    const object2 = value2 as Record<string, unknown>
+    const keys1 = Object.keys(object1)
+    const keys2 = Object.keys(object2)
+    if (keys1.length !== keys2.length) {
+      return false
+    }
+
+    return keys1.every(
+      (key) =>
+        Object.hasOwn(object2, key) &&
+        this.isSameSettingValue(object1[key], object2[key])
+    )
   }
 
   private exportSettings() {

@@ -44,13 +44,12 @@ class NameRuleManager {
 
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      // 当用户开启这个开关时，设置当前页面类型的命名规则
-      if (data.name === 'setNameRuleForEachPageType' && data.value) {
-        if (
-          settings[this.ruleList][pageType.type] !== settings[this.ruleSetting]
-        ) {
-          this.setInputValue()
-        }
+      if (
+        data.name === 'setNameRuleForEachPageType' ||
+        data.name === this.ruleSetting ||
+        data.name === this.ruleList
+      ) {
+        this.scheduleSetInputValue()
       }
     })
   }
@@ -62,6 +61,8 @@ class NameRuleManager {
   private ruleSetting: 'userSetName' | 'userSetNameForNovel'
   private defauleRule: string
   private textarea: HTMLTextAreaElement | null = null
+  /** 合并同一批设置变化后的输入框刷新 */
+  private setInputValueTimer = 0
 
   public get rule() {
     // 在 Pixivision 页面里，总是使用预设的命名规则
@@ -172,11 +173,15 @@ class NameRuleManager {
     const rule = this.rule
     this.textarea.value = rule
 
-    if (rule !== settings[this.ruleSetting]) {
-      setSetting(this.ruleSetting, rule)
-    }
-
     Tools.setRows(this.textarea)
+  }
+
+  /** 在同一批设置变化完成后刷新命名规则输入框 */
+  private scheduleSetInputValue() {
+    window.clearTimeout(this.setInputValueTimer)
+    this.setInputValueTimer = window.setTimeout(() => {
+      this.setInputValue()
+    }, 0)
   }
 
   private saveCurrentPageRule(rule: string) {

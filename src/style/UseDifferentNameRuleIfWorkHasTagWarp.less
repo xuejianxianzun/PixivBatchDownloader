@@ -1,7 +1,7 @@
 .UseDifferentNameRuleIfWorkHasTagWarp {
   input::-webkit-input-placeholder,
   textarea::-webkit-input-placeholder {
-    color: #999;
+    color: var(--settings-panel-placeholder-text);
   }
 
   .icon {
@@ -53,7 +53,7 @@
       flex-basis: 40%;
 
       .label {
-        color: #444;
+        color: var(--settings-panel-text);
       }
 
       &.id {
@@ -110,34 +110,6 @@
         position: relative;
         top: 1px;
       }
-    }
-  }
-}
-
-.theme-dark {
-  &.DoNotDownloadLastFewImages {
-    div,
-    span {
-      color: #fff !important;
-    }
-
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
-    }
-  }
-}
-
-.xzBG {
-  .UseDifferentNameRuleIfWorkHasTagWarp {
-    div,
-    span {
-      color: #fff !important;
-    }
-
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
     }
   }
 }

@@ -1862,6 +1862,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
+
 
 
 
@@ -1875,15 +1880,24 @@ class BG {
     bgModeflagClassName = 'xzBG';
     bgLayerClassName = 'xzBGLayer';
     bgUrl = '';
+    /** 用于预加载当前背景图片的元素 */
+    preloadImage;
     IDB;
     DBName = 'PBDBG';
     DBVer = 1;
     storeName = 'bg';
     keyName = 'bg';
+    /** 通知其他标签页重新读取背景图片的存储键 */
+    backgroundChangeStoreName = 'bgChange';
+    /** 设置初始化期间收到的背景图片变更 */
+    pendingBackgroundChange = false;
     async init() {
         this.bindEvents();
         await this.initDB();
-        this.restore();
+        await this.restore();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized) {
+            this.pendingBackgroundChange = false;
+        }
     }
     async initDB() {
         await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
@@ -1921,19 +1935,44 @@ class BG {
                 this.setBGAll();
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            if (this.pendingBackgroundChange &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.settingsAcrossDifferentTabs === 'synchronizeChanges' &&
+                this.IDB.db) {
+                this.restore();
+            }
+            this.pendingBackgroundChange = false;
+        });
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_4___default().storage.onChanged.addListener((changes, areaName) => {
+            const change = changes[this.backgroundChangeStoreName];
+            const data = change?.newValue;
+            if (areaName !== 'local' ||
+                !data ||
+                data.origin !== location.origin) {
+                return;
+            }
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized || !this.IDB.db) {
+                this.pendingBackgroundChange = true;
+                return;
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.settingsAcrossDifferentTabs === 'synchronizeChanges') {
+                this.restore();
+            }
+        });
     }
     async restore() {
         const data = (await this.IDB.get(this.storeName, this.keyName));
         if (!data || !data.file) {
+            this.setBGUrl('');
+            this.setBGAll();
             return;
         }
-        this.bgUrl = URL.createObjectURL(data.file);
-        this.preload();
+        this.setBGUrl(URL.createObjectURL(data.file));
+        this.setBGAll();
     }
     async selectBG() {
         const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.selectFile('.jpg,.jpeg,.png,.bmp,.webp'))[0];
-        this.bgUrl = URL.createObjectURL(file);
-        this.preload();
+        this.setBGUrl(URL.createObjectURL(file));
         for (const o of this.list) {
             this.setBG(o);
         }
@@ -1942,22 +1981,46 @@ class BG {
             file: file,
         };
         const test = await this.IDB.get(this.storeName, this.keyName);
-        this.IDB[test ? 'put' : 'add'](this.storeName, data);
+        await this.IDB[test ? 'put' : 'add'](this.storeName, data);
+        await this.notifyBackgroundChange();
     }
-    clearBG() {
-        this.IDB.clear(this.storeName);
-        this.bgUrl = '';
-        for (const o of this.list) {
-            o.bg.style.backgroundImage = 'none';
-            this.setDisplay(o);
+    async clearBG() {
+        await this.IDB.clear(this.storeName);
+        this.setBGUrl('');
+        this.setBGAll();
+        await this.notifyBackgroundChange();
+    }
+    /** 替换背景图片 URL，并释放不再使用的资源 */
+    setBGUrl(url) {
+        if (this.bgUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(this.bgUrl);
+        }
+        this.bgUrl = url;
+        this.preloadImage?.remove();
+        this.preloadImage = undefined;
+        if (this.bgUrl) {
+            this.preload();
         }
     }
     // 预加载背景图片
     preload() {
         // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
         const img = new Image();
-        img.src = this.bgUrl;
         img.style.display = 'none';
+        this.preloadImage = img;
+        img.addEventListener('load', () => {
+            if (this.preloadImage === img) {
+                img.remove();
+                this.preloadImage = undefined;
+            }
+        });
+        img.addEventListener('error', () => {
+            if (this.preloadImage === img) {
+                img.remove();
+                this.preloadImage = undefined;
+            }
+        });
+        img.src = this.bgUrl;
         document.body.append(img);
     }
     async setBG(o) {
@@ -1975,7 +2038,16 @@ class BG {
         }
     }
     setBGURL(o) {
-        o.bg.style.backgroundImage = `url(${this.bgUrl})`;
+        o.bg.style.backgroundImage = this.bgUrl ? `url(${this.bgUrl})` : 'none';
+    }
+    /** 通知其他标签页重新读取 IndexedDB 中的背景图片 */
+    notifyBackgroundChange() {
+        return webextension_polyfill__WEBPACK_IMPORTED_MODULE_4___default().storage.local.set({
+            [this.backgroundChangeStoreName]: {
+                origin: location.origin,
+                token: Date.now() + Math.random(),
+            },
+        });
     }
     setDisplay(o) {
         o.bg.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.bgDisplay ? 'block' : 'none';
@@ -43885,6 +43957,14 @@ class CrawlNumber {
                 }, 0);
             });
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'crawlNumber') {
+                setTimeout(() => {
+                    this.setOption();
+                }, 0);
+            }
+        });
     }
 }
 
@@ -45031,11 +45111,10 @@ class NameRuleManager {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            // 当用户开启这个开关时，设置当前页面类型的命名规则
-            if (data.name === 'setNameRuleForEachPageType' && data.value) {
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
-                    this.setInputValue();
-                }
+            if (data.name === 'setNameRuleForEachPageType' ||
+                data.name === this.ruleSetting ||
+                data.name === this.ruleList) {
+                this.scheduleSetInputValue();
             }
         });
     }
@@ -45044,6 +45123,8 @@ class NameRuleManager {
     ruleSetting;
     defauleRule;
     textarea = null;
+    /** 合并同一批设置变化后的输入框刷新 */
+    setInputValueTimer = 0;
     get rule() {
         // 在 Pixivision 页面里，总是使用预设的命名规则
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision) {
@@ -45141,10 +45222,14 @@ class NameRuleManager {
         // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
         const rule = this.rule;
         this.textarea.value = rule;
-        if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting]) {
-            (0,_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(this.ruleSetting, rule);
-        }
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.setRows(this.textarea);
+    }
+    /** 在同一批设置变化完成后刷新命名规则输入框 */
+    scheduleSetInputValue() {
+        window.clearTimeout(this.setInputValueTimer);
+        this.setInputValueTimer = window.setTimeout(() => {
+            this.setInputValue();
+        }, 0);
     }
     saveCurrentPageRule(rule) {
         _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
@@ -47731,8 +47816,8 @@ __webpack_require__.r(__webpack_exports__);
 // 在执行上面两种操作的过程中，每个设置项都会触发一次 settingChange 事件
 // 最后会触发一次 resetSettingsEnd 事件
 // 持久化保存的数据只有一份，保存在 browser.storage.local 里
-// 所以当页面刷新时，或者打开新的页面时，会加载设置数据
-// 如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。之后，当用户在任意标签页里修改设置时，下载器会根据 settingsAcrossDifferentTabs 设置决定是否把新的设置同步到其他标签页里
+// 所以当页面刷新时，或者打开新的页面时，会加载设置数据。如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。
+// 该模块监听了 browser.storage.onChanged 事件。当用户在任意标签页里修改设置之后，其他标签页都可以感知到变化，并根据 settingsAcrossDifferentTabs 设置决定是否同步这些变化
 
 
 
@@ -48376,10 +48461,21 @@ class Settings {
     ];
     // 以默认设置作为初始设置
     settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.defaultSettings);
+    /** 正在应用其他标签页的设置，避免产生回写循环 */
+    isApplyingSettingsFromOtherTab = false;
+    /** 当前标签页的设置是否已从本地存储恢复 */
+    settingsRestored = false;
+    /** 设置恢复期间收到的最新设置快照 */
+    pendingSettingsFromOtherTab;
     bindEvents() {
         // 当设置发生变化时进行本地存储
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, () => {
-            this.store();
+            if (!this.isApplyingSettingsFromOtherTab) {
+                this.store();
+            }
+        });
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.onChanged.addListener((changes, areaName) => {
+            this.receiveSettingsFromOtherTab(changes, areaName);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettings, () => {
             const result = window.confirm(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_是否重置设置'));
@@ -48470,6 +48566,11 @@ class Settings {
                 }
             }
             this.assignSettings(restoreData);
+            this.settingsRestored = true;
+            if (this.pendingSettingsFromOtherTab) {
+                this.applySettingsFromOtherTab(this.pendingSettingsFromOtherTab);
+                this.pendingSettingsFromOtherTab = undefined;
+            }
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingInitialized');
         });
     }
@@ -48488,6 +48589,82 @@ class Settings {
         for (const [key, value] of Object.entries(origin)) {
             this.setSetting(key, value);
         }
+    }
+    /** 接收并应用其他标签页保存的设置 */
+    receiveSettingsFromOtherTab(changes, areaName) {
+        if (areaName !== 'local') {
+            return;
+        }
+        const change = changes[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
+        const data = change?.newValue;
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            return;
+        }
+        const remoteSettings = data;
+        if (!this.settingsRestored) {
+            this.pendingSettingsFromOtherTab = remoteSettings;
+            return;
+        }
+        this.applySettingsFromOtherTab(remoteSettings);
+    }
+    /** 按同步方式应用其他标签页的设置 */
+    applySettingsFromOtherTab(remoteSettings) {
+        const remoteSyncMode = remoteSettings.settingsAcrossDifferentTabs ??
+            this.defaultSettings.settingsAcrossDifferentTabs;
+        const syncModeChanged = remoteSyncMode !== this.settings.settingsAcrossDifferentTabs;
+        // 同步方式（即 settingsAcrossDifferentTabs 设置的值）总是会同步变化，以便可以从“保持不变”恢复到同步状态
+        if (!syncModeChanged &&
+            remoteSyncMode === 'doNotSynchronizeChanges') {
+            return;
+        }
+        this.isApplyingSettingsFromOtherTab = true;
+        try {
+            if (syncModeChanged) {
+                this.setSetting('settingsAcrossDifferentTabs', remoteSyncMode);
+            }
+            for (const [key, value] of Object.entries(remoteSettings)) {
+                const settingKey = key;
+                if (settingKey === 'settingsAcrossDifferentTabs' ||
+                    !this.allSettingKeys.includes(settingKey) ||
+                    this.isSameSettingValue(this.settings[settingKey], value)) {
+                    continue;
+                }
+                this.setSetting(settingKey, value);
+            }
+        }
+        finally {
+            this.isApplyingSettingsFromOtherTab = false;
+        }
+    }
+    /** 比较设置值是否相同 */
+    isSameSettingValue(value1, value2) {
+        if (Object.is(value1, value2)) {
+            return true;
+        }
+        if (value1 === null ||
+            value2 === null ||
+            typeof value1 !== 'object' ||
+            typeof value2 !== 'object') {
+            return false;
+        }
+        if (Array.isArray(value1) || Array.isArray(value2)) {
+            if (!Array.isArray(value1) || !Array.isArray(value2)) {
+                return false;
+            }
+            if (value1.length !== value2.length) {
+                return false;
+            }
+            return value1.every((value, index) => this.isSameSettingValue(value, value2[index]));
+        }
+        const object1 = value1;
+        const object2 = value2;
+        const keys1 = Object.keys(object1);
+        const keys2 = Object.keys(object2);
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+        return keys1.every((key) => Object.hasOwn(object2, key) &&
+            this.isSameSettingValue(object1[key], object2[key]));
     }
     exportSettings() {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2Blob(this.settings);
