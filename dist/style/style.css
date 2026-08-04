@@ -1569,7 +1569,7 @@ body.mobile #quickCrawlBtn {
   box-shadow: var(--settings-panel-input-focus-shadow);
 }
 .centerWrap .centerWrap_con .settingForm .option .setinput_style.postDate {
-  width: 170px;
+  width: 220px;
 }
 .centerWrap .centerWrap_con .settingForm .option .setinput_style.bmkNum {
   width: 76px;
