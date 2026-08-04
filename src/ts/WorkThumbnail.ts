@@ -53,9 +53,19 @@ abstract class WorkThumbnail {
       // 移动端的收藏按钮不是 button，其容器是 div.bookmark
       return el.querySelector('.bookmark')
     } else {
-      // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
-      if (el.querySelector('button svg[width="32"]')) {
-        return el.querySelector('button') as HTMLButtonElement
+      // 新版缩略图里可能同时存在多个按钮（例如三点菜单和收藏按钮），不能直接返回第一个 button
+      // 优先使用 Pixiv 的收藏按钮标记；某些旧版缩略图没有这个标记，
+      // 此时回退到包含 32px 图标的按钮（返回图标所在的按钮，而不是第一个按钮）
+      const bookmarkBtn = el.querySelector<HTMLButtonElement>(
+        'button[data-ga4-label="bookmark_button"]'
+      )
+      if (bookmarkBtn) {
+        return bookmarkBtn
+      }
+
+      const svgEl = el.querySelector('button svg[width="32"]')
+      if (svgEl) {
+        return svgEl.closest('button') as HTMLButtonElement
       }
 
       // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
