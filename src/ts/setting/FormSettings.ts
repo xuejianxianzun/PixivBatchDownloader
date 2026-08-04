@@ -199,6 +199,7 @@ class FormSettings {
       'serialNoStart',
       'animatedWebPQuality',
       'novelEmbeddedImageSize',
+      'settingsAcrossDifferentTabs',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',

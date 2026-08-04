@@ -3,7 +3,7 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
-## next
+## 19.3.0
 
 ### ✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介
 
@@ -26,6 +26,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/651
 原因是：wiki 里的语言目前只有 zh-cn 和 en，没有其他语言。但之前打开 Wiki 链接的代码里错误使用了 `lang.transl`，这会返回下载器的界面语言，有 6 种。
 
 当选择器的界面语言与 Wiki 里可用的语言不同时，打开的 URL 就是错误的。现在修复。
+
+### 🐞修复问题：在排行榜页面里点击收藏按钮时，“点击收藏按钮时下载作品”没有正常生效
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/666
 
 ## 19.2.0 2026-07-28
 

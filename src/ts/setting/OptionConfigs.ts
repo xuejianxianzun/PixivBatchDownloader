@@ -1460,6 +1460,17 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 105,
+      nameKey: '_当你修改设置时其他标签页',
+      name: '',
+      categoryLevel1: 'general',
+      categoryLevel2: 'manageSettings',
+      pinned: false,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1785867197040,
+    },
+    {
       no: 103,
       nameKey: '_管理设置',
       name: '',

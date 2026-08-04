@@ -219,4 +219,5 @@ export interface FormType extends HTMLFormElement {
   clickSettingNameOpenWiki: HTMLInputElement
   downloadIntervalSwitch: HTMLInputElement
   saveAllSeriesNovelsIfOneMatches: HTMLInputElement
+  settingsAcrossDifferentTabs: RadioNodeList
 }

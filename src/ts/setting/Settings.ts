@@ -42,9 +42,9 @@
 // 在执行上面两种操作的过程中，每个设置项都会触发一次 settingChange 事件
 // 最后会触发一次 resetSettingsEnd 事件
 
-// 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
-// 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
-// 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
+// 持久化保存的数据只有一份，保存在 browser.storage.local 里
+// 所以当页面刷新时，或者打开新的页面时，会加载设置数据
+// 如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。之后，当用户在任意标签页里修改设置时，下载器会根据 settingsAcrossDifferentTabs 设置决定是否把新的设置同步到其他标签页里
 
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
@@ -407,6 +407,7 @@ interface XzSetting {
   downloadIntervalSwitch: boolean
   /** 在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说 */
   saveAllSeriesNovelsIfOneMatches: boolean
+  settingsAcrossDifferentTabs: 'synchronizeChanges' | 'doNotSynchronizeChanges'
 }
 
 type SettingKeys = keyof XzSetting
@@ -1022,6 +1023,7 @@ class Settings {
     clickSettingNameOpenWiki: true,
     downloadIntervalSwitch: true,
     saveAllSeriesNovelsIfOneMatches: false,
+    settingsAcrossDifferentTabs: 'synchronizeChanges',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
