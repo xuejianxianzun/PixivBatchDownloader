@@ -43,6 +43,26 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/651
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/666
 
+### 🐞修复问题：一些用户名里含有特殊的窄空格字符，导致在 Firefox 浏览器里无法下载他们的作品
+
+根据 Discord 上一位用户的报告，当命名规则里含有用户名时，无法下载以下两个作者的作品：
+
+1. https://www.pixiv.net/users/3043593
+
+用户名 `キ サ ム` 虽然看上去是 3 个字，但其中包含两处不可见的 `U+200A` HAIR SPACE（窄空格）：
+キ U+200A サ U+200A ム
+
+它属于 Unicode 的  Space_Separator 。虽然实际上 Windows 允许使用使用这样的文件夹名字，Chrome 也允许，但 Firefox 不允许，认为是不能出现在下载路径里的非法字符，所以产生了报错。，导致文件无法下载 
+
+2. https://www.pixiv.net/users/102195413
+
+用户名 `su xi xi` 里包含两个 `U+2006` 字符：
+su[U+2006]xi[U+2006]xi
+
+同样，只有 Firefox 会对此报错。
+
+现在下载器会过滤掉上面的特殊空格。
+
 ## 19.2.0 2026-07-28
 
 ### ✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）

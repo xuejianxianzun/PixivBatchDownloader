@@ -48827,7 +48827,7 @@ class Settings {
             value = 0;
         }
         if (key === 'fullNameLengthLimit') {
-            // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
+            // 考虑到 id 的长度已经达到了十几位，所以不允许把文件名的长度设置为小于 20 的值
             if (value < 20) {
                 value = this.defaultSettings[key];
             }
@@ -70916,7 +70916,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class Utils {
     // 不安全的字符，这里多数是控制字符，需要替换掉
-    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u2000-\u200f\u202a-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
     // 一些半角字符与全角字符的对照表
     static fullWidthDict = new Map([
         ['\\', '＼'],

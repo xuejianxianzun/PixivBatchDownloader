@@ -1487,7 +1487,7 @@ class Settings {
     }
 
     if (key === 'fullNameLengthLimit') {
-      // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
+      // 考虑到 id 的长度已经达到了十几位，所以不允许把文件名的长度设置为小于 20 的值
       if ((value as number) < 20) {
         value = this.defaultSettings[key]
       }
