@@ -617,7 +617,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.theme-dark {
   --settings-panel-text: #fff;
-  --settings-panel-placeholder-text: #eee;
+  --settings-panel-placeholder-text: #ccc;
   --settings-panel-border: rgba(94, 172, 230, 0.45);
   --settings-panel-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
   --settings-panel-con-bg: rgba(18, 24, 33, 0.98);
@@ -736,7 +736,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG {
   --settings-panel-text: #fff;
-  --settings-panel-placeholder-text: #eee;
+  --settings-panel-placeholder-text: #ddd;
   --settings-panel-head-bg: rgba(10, 18, 28, 0.2);
   --settings-panel-con-bg: rgba(10, 18, 28, 0.1);
   --settings-panel-head-border: rgba(255, 255, 255, 0.08);
@@ -1444,6 +1444,10 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .showFileNameTip {
   height: var(--line-height);
+}
+.centerWrap .centerWrap_con input::-webkit-input-placeholder,
+.centerWrap .centerWrap_con textarea::-webkit-input-placeholder {
+  color: var(--settings-panel-placeholder-text);
 }
 .centerWrap .centerWrap_con a.settingNameStyle:hover,
 .centerWrap .centerWrap_con .has_tip:hover,
@@ -3379,10 +3383,6 @@ iframe[name='expandedFooter'] {
 .theme-dark#viewerWarpper {
   border: none;
 }
-.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: var(--settings-panel-placeholder-text);
-}
 .blockTagsForSpecificUserWrap .icon {
   font-size: 1.3em;
 }
@@ -3489,10 +3489,6 @@ iframe[name='expandedFooter'] {
     transform: rotate(360deg);
   }
 }
-.setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap textarea::-webkit-input-placeholder {
-  color: var(--settings-panel-placeholder-text);
-}
 .setUserNameWrap .icon {
   font-size: 1.3em;
 }
@@ -3597,10 +3593,6 @@ iframe[name='expandedFooter'] {
   flex-basis: 70%;
   flex-grow: 1;
 }
-.DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
-.DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
-  color: var(--settings-panel-placeholder-text);
-}
 .DoNotDownloadLastFewImagesWarp .icon {
   font-size: 1.3em;
 }
@@ -3680,10 +3672,6 @@ iframe[name='expandedFooter'] {
 .DoNotDownloadLastFewImagesWarp .listWrap .settingItem button.refresh svg {
   position: relative;
   top: 1px;
-}
-.UseDifferentNameRuleIfWorkHasTagWarp input::-webkit-input-placeholder,
-.UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
-  color: var(--settings-panel-placeholder-text);
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .icon {
   font-size: 1.3em;
