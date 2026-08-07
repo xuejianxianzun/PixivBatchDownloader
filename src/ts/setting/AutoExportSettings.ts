@@ -8,22 +8,18 @@ class AutoExportSettings {
   /** 共享的上次定时导出时间戳 */
   private readonly lastExportTimeStoreName = 'lastAutoExportSettingsTime'
 
-  /** 尚未定时导出时的检查间隔，在 1 - 5 秒之间随机，可减少多个标签页同时导出的概率 */
-  private readonly initialCheckInterval =
-    1000 + Math.floor(Math.random() * 4001)
+  /** 首次检查是否需要定时导出的延迟时间。在一定时间范围之间随机，可减少多个标签页同时导出的概率 */
+  private readonly firstCheckInterval = 1000 + Math.floor(Math.random() * 4001)
 
-  /** 已定时导出一次之后，每隔 10 分钟检查一次 */
-  private readonly checkIntervalAfterExport = 10 * 60 * 1000
+  /** 在首次检查之后，后续的检查会使用较长的间隔时间，以避免过于频繁的进行无效检查 */
+  private readonly subsequentCheckInterval = 5 * 60 * 1000
 
   /** 防止同一标签页里的异步检查重叠 */
   private checkingTimedExport = false
 
-  /** 是否已存在定时导出记录 */
-  private hasTimedExported = false
-
   constructor() {
     this.bindEvents()
-    this.scheduleTimedExportCheck(this.initialCheckInterval)
+    this.scheduleTimedExportCheck(this.firstCheckInterval)
   }
 
   /** 监听本标签页保存设置的事件，以处理“每当设置变化后立即导出”策略 */
@@ -43,11 +39,7 @@ class AutoExportSettings {
   private scheduleTimedExportCheck(interval: number) {
     window.setTimeout(() => {
       this.checkTimedExport().finally(() => {
-        this.scheduleTimedExportCheck(
-          this.hasTimedExported
-            ? this.checkIntervalAfterExport
-            : this.initialCheckInterval
-        )
+        this.scheduleTimedExportCheck(this.subsequentCheckInterval)
       })
     }, interval)
   }
@@ -69,14 +61,12 @@ class AutoExportSettings {
       const lastExportTime = data[this.lastExportTimeStoreName] as
         | number
         | undefined
-      this.hasTimedExported = !!lastExportTime
       const interval = settings.autoExportSettingsInterval * 60 * 60 * 1000
       if (!lastExportTime || Date.now() - lastExportTime >= interval) {
         await exportSettings()
         await browser.storage.local.set({
           [this.lastExportTimeStoreName]: Date.now(),
         })
-        this.hasTimedExported = true
       }
     } finally {
       this.checkingTimedExport = false

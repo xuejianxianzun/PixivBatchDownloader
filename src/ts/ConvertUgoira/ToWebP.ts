@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 import { settings } from '../setting/Settings'
+import { Utils } from '../utils/Utils'
 
 declare const PPDWebP: {
   init(workerUrl: string): void
@@ -14,7 +15,9 @@ declare const PPDWebP: {
 
 class ToWebP {
   constructor() {
-    this.loadWorker()
+    if (Utils.isPixiv()) {
+      this.loadWorker()
+    }
   }
 
   private async loadWorker() {

@@ -1852,6 +1852,12 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm .option .secondary_hint {
   margin-top: 4px;
 }
+.centerWrap .centerWrap_con .settingForm .settingsPanel_emptyCategoryHint {
+  width: calc(100% - 20px);
+  margin: 10px auto 0;
+  flex-grow: 0;
+  grid-column: auto;
+}
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns {
   padding: 0;
   display: grid;

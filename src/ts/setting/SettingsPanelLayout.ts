@@ -301,6 +301,7 @@ class SettingsPanelLayout {
           this.makeCanonicalKey(page, group.id),
           section.content
         )
+        this.createEmptyCategoryHint(section.content)
       })
     })
   }
@@ -450,6 +451,22 @@ class SettingsPanelLayout {
     hint.append(text)
 
     return hint
+  }
+
+  /** 创建二级分类没有可用设置时显示的提示 */
+  private createEmptyCategoryHint(content: HTMLDivElement) {
+    const hint = document.createElement('div')
+    hint.classList.add(
+      'secondary_hint',
+      'settingsPanel_emptyCategoryHint',
+      'is-hidden'
+    )
+
+    const text = document.createElement('span')
+    text.dataset.xztext = '_该分类里目前没有可用的内容'
+    hint.append(text)
+
+    content.append(hint)
   }
 }
 

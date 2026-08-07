@@ -1477,7 +1477,6 @@ class OptionConfigs {
       categoryLevel1: 'general',
       categoryLevel2: 'manageSettings',
       pinned: false,
-      hideOnPixivision: true,
       searchWordKeys: ['_定时导出间隔', '_备份设置'],
       searchWords: [],
       addedAt: 1785867197040,

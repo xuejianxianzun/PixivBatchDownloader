@@ -3110,12 +3110,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
 class ToWebP {
     constructor() {
-        this.loadWorker();
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.isPixiv()) {
+            this.loadWorker();
+        }
     }
     async loadWorker() {
         const res = await fetch(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL('lib/ppd-webp.worker.js'));
@@ -41363,6 +41367,14 @@ Because of the drawbacks of legacy behavior, starting with version 19.3.0 (Augus
         `설정 백업`,
         `Резервное копирование настроек`,
     ],
+    _该分类里目前没有可用的内容: [
+        `该分类里目前没有可用的内容。`,
+        `此分類裡目前沒有可用的內容。`,
+        `There is currently no content available in this category.`,
+        `このカテゴリには現在利用可能なコンテンツはありません。`,
+        `이 카테고리에는 현재 사용할 수 있는 내용이 없습니다.`,
+        `В этой категории сейчас нет доступного содержимого.`,
+    ],
     _自动导出设置的说明: [
         `如果你想自动导出（备份）设置，可以启用这个功能。导出的设置会保存到浏览器下载目录的 <span class="blue">PPD Settings</span> 文件夹里。<br>
 <br>
@@ -43841,17 +43853,15 @@ __webpack_require__.r(__webpack_exports__);
 class AutoExportSettings {
     /** 共享的上次定时导出时间戳 */
     lastExportTimeStoreName = 'lastAutoExportSettingsTime';
-    /** 尚未定时导出时的检查间隔，随机延迟可减少多个标签页同时导出的概率 */
-    initialCheckInterval = 1000 + Math.floor(Math.random() * 4001);
-    /** 已定时导出一次之后，每隔 10 分钟检查一次 */
-    checkIntervalAfterExport = 10 * 60 * 1000;
+    /** 首次检查是否需要定时导出的延迟时间。在一定时间范围之间随机，可减少多个标签页同时导出的概率 */
+    firstCheckInterval = 1000 + Math.floor(Math.random() * 4001);
+    /** 在首次检查之后，后续的检查会使用较长的间隔时间，以避免过于频繁的进行无效检查 */
+    subsequentCheckInterval = 5 * 60 * 1000;
     /** 防止同一标签页里的异步检查重叠 */
     checkingTimedExport = false;
-    /** 是否已存在定时导出记录 */
-    hasTimedExported = false;
     constructor() {
         this.bindEvents();
-        this.scheduleTimedExportCheck(this.initialCheckInterval);
+        this.scheduleTimedExportCheck(this.firstCheckInterval);
     }
     /** 监听本标签页保存设置的事件，以处理“每当设置变化后立即导出”策略 */
     bindEvents() {
@@ -43867,9 +43877,7 @@ class AutoExportSettings {
     scheduleTimedExportCheck(interval) {
         window.setTimeout(() => {
             this.checkTimedExport().finally(() => {
-                this.scheduleTimedExportCheck(this.hasTimedExported
-                    ? this.checkIntervalAfterExport
-                    : this.initialCheckInterval);
+                this.scheduleTimedExportCheck(this.subsequentCheckInterval);
             });
         }, interval);
     }
@@ -43885,14 +43893,12 @@ class AutoExportSettings {
         try {
             const data = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(this.lastExportTimeStoreName);
             const lastExportTime = data[this.lastExportTimeStoreName];
-            this.hasTimedExported = !!lastExportTime;
             const interval = _Settings__WEBPACK_IMPORTED_MODULE_3__.settings.autoExportSettingsInterval * 60 * 60 * 1000;
             if (!lastExportTime || Date.now() - lastExportTime >= interval) {
                 await (0,_Settings__WEBPACK_IMPORTED_MODULE_3__.exportSettings)();
                 await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.set({
                     [this.lastExportTimeStoreName]: Date.now(),
                 });
-                this.hasTimedExported = true;
             }
         }
         finally {
@@ -46987,7 +46993,6 @@ class OptionConfigs {
             categoryLevel1: 'general',
             categoryLevel2: 'manageSettings',
             pinned: false,
-            hideOnPixivision: true,
             searchWordKeys: ['_定时导出间隔', '_备份设置'],
             searchWords: [],
             addedAt: 1785867197040,
@@ -49261,6 +49266,7 @@ class SettingsPanel {
             renderDefaultPage: (showPinnedOnHome) => this.placementController.placeOptionsToDefaultContainers(showPinnedOnHome),
             afterRender: () => {
                 this.placementController.updatePinnedSectionVisibility();
+                this.sectionController.refreshEmptyCategoryHints();
                 this.sectionController.updateExpandAllButton();
                 window.setTimeout(() => this.sectionController.refreshStickyHeader(), 0);
             },
@@ -50099,6 +50105,7 @@ class SettingsPanelLayout {
                 });
                 inner.append(section.root);
                 this.canonicalContainers.set(this.makeCanonicalKey(page, group.id), section.content);
+                this.createEmptyCategoryHint(section.content);
             });
         });
     }
@@ -50203,6 +50210,15 @@ class SettingsPanelLayout {
         text.dataset.xztext = '_目前没有可用的抓取结果提示';
         hint.append(text);
         return hint;
+    }
+    /** 创建二级分类没有可用设置时显示的提示 */
+    createEmptyCategoryHint(content) {
+        const hint = document.createElement('div');
+        hint.classList.add('secondary_hint', 'settingsPanel_emptyCategoryHint', 'is-hidden');
+        const text = document.createElement('span');
+        text.dataset.xztext = '_该分类里目前没有可用的内容';
+        hint.append(text);
+        content.append(hint);
     }
 }
 
@@ -50776,10 +50792,13 @@ class SettingsPanelSections {
     foldableSections = new Map();
     stickyEls = new Map();
     expandAllBtn;
+    emptyHintsObserver;
     connect({ foldableSections, stickyEls, expandAllBtn, }) {
         this.foldableSections = foldableSections;
         this.stickyEls = stickyEls;
         this.expandAllBtn = expandAllBtn;
+        this.bindEmptyHintsObserver();
+        this.refreshEmptyCategoryHints();
     }
     makeSectionKey(page, id) {
         return `${page}__${id}`;
@@ -50802,6 +50821,7 @@ class SettingsPanelSections {
         section.header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         section.contentWrap.toggleAttribute('inert', !expanded);
         section.contentWrap.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+        this.updateEmptyCategoryHint(section);
     }
     toggleSection(section) {
         const expanded = !this.getExpandedState(section);
@@ -50815,6 +50835,12 @@ class SettingsPanelSections {
         });
         this.updateExpandAllButton();
         this.refreshStickyHeader();
+    }
+    /** 刷新所有二级分类没有可用设置时的提示 */
+    refreshEmptyCategoryHints() {
+        this.foldableSections.forEach((section) => {
+            this.updateEmptyCategoryHint(section);
+        });
     }
     toggleAllSections() {
         const shouldExpand = !this.areAllSectionsExpanded();
@@ -50886,6 +50912,31 @@ class SettingsPanelSections {
         }
         (0,_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('expandedCards', nextExpandedCards);
         this.applyExpandedState(section, expanded);
+    }
+    /** 监听设置项的显隐变化 */
+    bindEmptyHintsObserver() {
+        this.emptyHintsObserver?.disconnect();
+        this.emptyHintsObserver = new MutationObserver((mutations) => {
+            if (mutations.some((mutation) => mutation.target instanceof HTMLElement &&
+                mutation.target.matches('div.option'))) {
+                this.refreshEmptyCategoryHints();
+            }
+        });
+        this.emptyHintsObserver.observe(this.main, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style'],
+        });
+    }
+    /** 根据二级分类里的设置项显示状态更新提示 */
+    updateEmptyCategoryHint(section) {
+        const hint = section.content.querySelector('.settingsPanel_emptyCategoryHint');
+        if (!hint) {
+            return;
+        }
+        const options = section.contentWrap.querySelectorAll('div.option');
+        const allOptionsHidden = [...options].every((option) => option.style.display === 'none');
+        hint.classList.toggle('is-hidden', !section.root.classList.contains('expanded') || !allOptionsHidden);
     }
     areAllSectionsExpanded() {
         return this.getExpandAllState() === 'expanded';

@@ -10987,6 +10987,14 @@ Because of the drawbacks of legacy behavior, starting with version 19.3.0 (Augus
     `설정 백업`,
     `Резервное копирование настроек`,
   ],
+  _该分类里目前没有可用的内容: [
+    `该分类里目前没有可用的内容。`,
+    `此分類裡目前沒有可用的內容。`,
+    `There is currently no content available in this category.`,
+    `このカテゴリには現在利用可能なコンテンツはありません。`,
+    `이 카테고리에는 현재 사용할 수 있는 내용이 없습니다.`,
+    `В этой категории сейчас нет доступного содержимого.`,
+  ],
   _自动导出设置的说明: [
     `如果你想自动导出（备份）设置，可以启用这个功能。导出的设置会保存到浏览器下载目录的 <span class="blue">PPD Settings</span> 文件夹里。<br>
 <br>
