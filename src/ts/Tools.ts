@@ -12,6 +12,7 @@ import {
 } from './store/StoreType'
 import { Utils } from './utils/Utils'
 import { ppdTask } from './PPDTask'
+import { DateFormat } from './utils/DateFormat'
 
 type artworkDataTagsItem = {
   tag: string
@@ -1414,6 +1415,19 @@ class Tools {
   /** 为设定资料里的图片生成唯一的标记，如 [glossaryImage-24974873] */
   static createGlossaryImageFlag(imageId: string) {
     return `[glossaryImage-${imageId}]`
+  }
+
+  /** 把当前时间格式化为 2026-08-07 08-01-00 的字符串 */
+  static formatNowDateTime() {
+    const now = new Date()
+    return DateFormat.format(now, 'YYYY-MM-DD hh-mm-ss')
+  }
+
+  /** 传入一个布尔值来决定使用哪种下载方式。true 为 downloadsAPI，false 为 anchorDownload */
+  static chooseDownloadMethod(
+    bool: boolean
+  ): 'downloadsAPI' | 'anchorDownload' {
+    return bool ? 'downloadsAPI' : 'anchorDownload'
   }
 }
 

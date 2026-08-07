@@ -109,7 +109,11 @@ class SaveWorkDescription {
       hasLink ? '-links' : ''
     }.txt`
 
-    await SendDownload.noReply(blob, fileName)
+    await SendDownload.noReply(
+      blob,
+      fileName,
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
     this.savedIds.push(id)
   }
 
@@ -244,7 +248,11 @@ class SaveWorkDescription {
       }
     }
 
-    await SendDownload.noReply(blob, txtName)
+    await SendDownload.noReply(
+      blob,
+      txtName,
+      settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI'
+    )
     const msg = `✅${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'
     )}`

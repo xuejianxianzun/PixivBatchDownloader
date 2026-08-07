@@ -382,7 +382,12 @@ class MergeNovel {
     const blob = new Blob(text, {
       type: 'text/plain',
     })
-    await SendDownload.noReply(blob, this.novelName, 'uniquify')
+    await SendDownload.noReply(
+      blob,
+      this.novelName,
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation),
+      'uniquify'
+    )
   }
 
   /** 下载 TXT 合并流程需要的内嵌图片和设定资料图片。 */
@@ -1147,7 +1152,12 @@ class MergeNovel {
     // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
     // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
     const blob = await jepub.generate('blob', (metadata: any) => {})
-    await SendDownload.noReply(blob, name, 'uniquify')
+    await SendDownload.noReply(
+      blob,
+      name,
+      settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI',
+      'uniquify'
+    )
 
     // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
     if (complete && this.sizeLog.length > 1) {

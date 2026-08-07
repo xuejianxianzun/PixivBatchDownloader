@@ -11934,6 +11934,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Wiki */ "./src/ts/setting/Wiki.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -13102,6 +13104,15 @@ class Tools {
     /** 为设定资料里的图片生成唯一的标记，如 [glossaryImage-24974873] */
     static createGlossaryImageFlag(imageId) {
         return `[glossaryImage-${imageId}]`;
+    }
+    /** 把当前时间格式化为 2026-08-07 08-01-00 的字符串 */
+    static formatNowDateTime() {
+        const now = new Date();
+        return _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(now, 'YYYY-MM-DD hh-mm-ss');
+    }
+    /** 选择使用哪种下载方式。true 为 downloadsAPI，false 为 anchorDownload */
+    static chooseDownloadMethod(bool) {
+        return bool ? 'downloadsAPI' : 'anchorDownload';
     }
 }
 
@@ -23641,6 +23652,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
 
 
 
@@ -23654,7 +23669,7 @@ class DownloadNovelCover {
             return;
         }
         let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceExtension(novelName, coverURL);
-        _SendDownload__WEBPACK_IMPORTED_MODULE_3__.SendDownload.noReply(blob, coverName);
+        _SendDownload__WEBPACK_IMPORTED_MODULE_3__.SendDownload.noReply(blob, coverName, _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.rememberTheLastSaveLocation));
     }
     /**最多重试一定次数，避免无限重试 */
     retryMax = 5;
@@ -23799,7 +23814,7 @@ class DownloadNovelEmbeddedImage {
             }
             const imageId = novelId + '-' + image.flag_id_part;
             const imageName = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createNovelImageName(novelName, image.url, novelId, imageId);
-            await _SendDownload__WEBPACK_IMPORTED_MODULE_8__.SendDownload.noReply(blob, imageName);
+            await _SendDownload__WEBPACK_IMPORTED_MODULE_8__.SendDownload.noReply(blob, imageName, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.rememberTheLastSaveLocation));
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelId);
     }
@@ -24053,7 +24068,7 @@ class DownloadNovelGlossaryImage {
         const _imageId = seriesId + '-' + imageId;
         const url = this.getUrl(urls);
         const imageName = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.createNovelImageName(novelName, url, seriesId, _imageId);
-        _SendDownload__WEBPACK_IMPORTED_MODULE_2__.SendDownload.noReply(blob, imageName);
+        _SendDownload__WEBPACK_IMPORTED_MODULE_2__.SendDownload.noReply(blob, imageName, _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.rememberTheLastSaveLocation));
     }
     /**最多重试一定次数，避免无限重试 */
     retryMax = 5;
@@ -25590,7 +25605,7 @@ class MergeNovel {
         const blob = new Blob(text, {
             type: 'text/plain',
         });
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, this.novelName, 'uniquify');
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, this.novelName, _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation), 'uniquify');
     }
     /** 下载 TXT 合并流程需要的内嵌图片和设定资料图片。 */
     async downloadTXTAssets() {
@@ -26192,7 +26207,7 @@ class MergeNovel {
         // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
         // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
         const blob = await jepub.generate('blob', (metadata) => { });
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, name, 'uniquify');
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, name, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI', 'uniquify');
         // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
         if (complete && this.sizeLog.length > 1) {
             _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_由于这个系列小说里的图片体积很大所以分割成了x个文件', this.sizeLog.length.toString()));
@@ -27211,7 +27226,7 @@ class SaveWorkDescription {
         const hasLink = this.hasLinkRegexp.test(desc);
         const namePart1 = this.createFileName(data);
         const fileName = `${namePart1}-${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_简介')}${hasLink ? '-links' : ''}.txt`;
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, fileName);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, fileName, _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation));
         this.savedIds.push(id);
     }
     /**抓取完毕后，把所有简介汇总到一个文件里 */
@@ -27328,7 +27343,7 @@ class SaveWorkDescription {
                 }
             }
         }
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, txtName);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, txtName, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI');
         const msg = `✅${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介2')}: ${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
@@ -27497,7 +27512,7 @@ class SaveWorkMeta {
         const blob = new Blob(fileContent, {
             type: 'text/plain',
         });
-        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.txt');
+        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.txt', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation));
     }
     async saveJSON(data, metaFileName) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaFormatJSON) {
@@ -27505,7 +27520,7 @@ class SaveWorkMeta {
         }
         // 保存文件
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2Blob(data);
-        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.json');
+        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.json', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation));
     }
 }
 new SaveWorkMeta();
@@ -27527,28 +27542,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
-
+// 由于现在有两种下载方式：1. 调用浏览器的 downloads API；2. 使用 A 标签下载。所以在这里统一处理
 class SendDownload {
-    // 由于现在有两种下载方式：交给浏览器下载和使用 a 标签下载，所以在这里统一处理
-    /** 不检查下载状态，默认下载成功。这些文件是不会出现在下载进度条上的独立文件 */
-    static async noReply(blob, name, conflictAction) {
+    /**
+     * 下载不显示在下载进度条上的独立文件，不检查下载状态，默认下载成功。
+     * @param blob 要下载的文件内容
+     * @param name 文件名，可包含文件夹路径
+     * @param downloadMethod `downloadsAPI` 使用浏览器 downloads API，可以创建子文件夹保存文件；`anchorDownload` 使用 A 标签下载，该方法会忽略文件夹，直接把文件保存到下载目录里。
+     *
+     * 提示：如果这个文件是某个抓取结果的附带文件，则应该根据 settings.rememberTheLastSaveLocation 来决定使用哪种下载方式。
+     * @param conflictAction downloads API 遇到同名文件时的处理方式。如果未指定，后台脚本默认会使用 overwrite
+     */
+    static async noReply(blob, name, downloadMethod, conflictAction) {
         const blobURL = URL.createObjectURL(blob);
         // 如果需要使用 a.download 来下载文件
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation) {
+        if (downloadMethod === 'anchorDownload') {
             // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
             const lastName = name.split('/').pop();
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.downloadFile(blobURL, lastName);
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(blobURL, lastName);
         }
         else {
             // 调用 downloads API
             let dataURL = undefined;
             if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.sendDataURL) {
-                dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.blobToDataURL(blob);
+                dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.blobToDataURL(blob);
             }
             const sendData = {
                 msg: 'save_novel_series_file',
@@ -47781,6 +47802,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _download_SendDownload__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../download/SendDownload */ "./src/ts/download/SendDownload.ts");
 // settings 保存了下载器的所有设置项。这些设置都是可以被用户修改的
 // 获取设置项的值：
 // settings[name]
@@ -47821,6 +47844,8 @@ __webpack_require__.r(__webpack_exports__);
 // 持久化保存的数据只有一份，保存在 browser.storage.local 里
 // 所以当页面刷新时，或者打开新的页面时，会加载设置数据。如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。
 // 该模块监听了 browser.storage.onChanged 事件。当用户在任意标签页里修改设置之后，其他标签页都可以感知到变化，并根据 settingsAcrossDifferentTabs 设置决定是否同步这些变化
+
+
 
 
 
@@ -48670,9 +48695,8 @@ class Settings {
     }
     exportSettings() {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2Blob(this.settings);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName + ` Settings.json`);
-        URL.revokeObjectURL(url);
+        const filename = `PPD Settings/${_Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName} Settings-${_Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.formatNowDateTime()}.json`;
+        _download_SendDownload__WEBPACK_IMPORTED_MODULE_12__.SendDownload.noReply(blob, filename, 'downloadsAPI');
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_导出成功'));
     }
     async importSettings() {

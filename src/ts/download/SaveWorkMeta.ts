@@ -166,7 +166,11 @@ class SaveWorkMeta {
     const blob = new Blob(fileContent, {
       type: 'text/plain',
     })
-    SendDownload.noReply(blob, metaFileName + '.txt')
+    SendDownload.noReply(
+      blob,
+      metaFileName + '.txt',
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
   }
 
   private async saveJSON(data: Result, metaFileName: string) {
@@ -176,7 +180,11 @@ class SaveWorkMeta {
 
     // 保存文件
     const blob = Utils.json2Blob(data)
-    SendDownload.noReply(blob, metaFileName + '.json')
+    SendDownload.noReply(
+      blob,
+      metaFileName + '.json',
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
   }
 }
 

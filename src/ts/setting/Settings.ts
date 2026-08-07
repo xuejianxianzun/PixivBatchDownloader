@@ -57,6 +57,8 @@ import { toast } from '../Toast'
 import { lang } from '../Language'
 import { PageName } from '../PageType'
 import { ppdTask } from '../PPDTask'
+import { Tools } from '../Tools'
+import { SendDownload } from '../download/SendDownload'
 
 export type OptionCategoryLevel1 =
   | 'crawl'
@@ -1316,9 +1318,8 @@ class Settings {
 
   private exportSettings() {
     const blob = Utils.json2Blob(this.settings)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, Config.appName + ` Settings.json`)
-    URL.revokeObjectURL(url)
+    const filename = `PPD Settings/${Config.appName} Settings-${Tools.formatNowDateTime()}.json`
+    SendDownload.noReply(blob, filename, 'downloadsAPI')
     toast.success(lang.transl('_导出成功'))
   }
 
