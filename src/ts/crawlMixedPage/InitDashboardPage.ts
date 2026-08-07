@@ -388,7 +388,7 @@ class InitDashboardPage extends InitPageBase {
     // 生成文件并保存
     const blob = createCSV.create(csvContent)
     const url = URL.createObjectURL(blob)
-    const date = DateFormat.format(new Date())
+    const date = Tools.formatDateTimeInFilename()
     const fileName = `${lang.transl('_数据分析')} - ${this.exportScope} - ${date}.csv`
     Utils.downloadFile(url, fileName)
     URL.revokeObjectURL(url)

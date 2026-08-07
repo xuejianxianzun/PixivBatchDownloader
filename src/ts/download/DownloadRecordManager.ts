@@ -4,6 +4,7 @@ import { log } from '../Log'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
+import { Tools } from '../Tools'
 import { DownloadRecordType } from './DownloadRecord'
 import { EVT } from '../EVT'
 
@@ -90,9 +91,7 @@ class DownloadRecordManager {
     for (const result of resultList) {
       Utils.downloadFile(
         result.url,
-        `record-total ${result.total}-${Utils.replaceUnsafeStr(
-          new Date().toLocaleString()
-        )}.json`
+        `record-total ${result.total}-${Tools.formatDateTimeInFilename()}.json`
       )
     }
 

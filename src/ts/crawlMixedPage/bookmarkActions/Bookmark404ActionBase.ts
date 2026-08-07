@@ -4,6 +4,7 @@ import { lang } from '../../Language'
 import { WorkBookmarkData } from '../../Bookmark'
 import { BookmarkPageBatchActionBase } from './BookmarkPageBatchActionBase'
 import { ArtworkCommonData, NovelCommonData } from '../../crawl/CrawlResult'
+import { Tools } from '../../Tools'
 
 /** 继承了在收藏页面里的通用抓取流程，并添加了导出 404 作品列表的功能 */
 abstract class Bookmark404ActionBase extends BookmarkPageBatchActionBase<WorkBookmarkData> {
@@ -35,7 +36,10 @@ abstract class Bookmark404ActionBase extends BookmarkPageBatchActionBase<WorkBoo
 
     const blob = Utils.json2Blob(this.idList404)
     const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, '404 bookmark ID list.json')
+    Utils.downloadFile(
+      url,
+      `404 bookmark ID list-${Tools.formatDateTimeInFilename()}.json`
+    )
     log.success(lang.transl('_已导出被删除的作品的ID列表'))
   }
 }

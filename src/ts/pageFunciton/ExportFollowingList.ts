@@ -258,11 +258,11 @@ class ExportFollowingList {
       }
 
       // 文件名示例：
-      // following list-total 4514-from user 9460149-[part 1-]2026／3／26 20：58：54
+      // following list-total 4514-from user 9460149-part 1-2026-08-07 08-01-00.json
       const fileName = `following list-total ${this.JSONData.length}-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
-      )}-${partString}${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
+      )}-${partString}${Tools.formatDateTimeInFilename()}.json`
       Utils.downloadFile(url, fileName)
       URL.revokeObjectURL(url)
       part++

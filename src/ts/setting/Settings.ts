@@ -1318,7 +1318,7 @@ class Settings {
 
   private exportSettings() {
     const blob = Utils.json2Blob(this.settings)
-    const filename = `PPD Settings/${Config.appName} Settings-${Tools.formatNowDateTime()}.json`
+    const filename = `PPD Settings/${Config.appName} Settings-${Tools.formatDateTimeInFilename()}.json`
     SendDownload.noReply(blob, filename, 'downloadsAPI')
     toast.success(lang.transl('_导出成功'))
   }

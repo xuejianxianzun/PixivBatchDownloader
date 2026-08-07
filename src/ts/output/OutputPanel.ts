@@ -7,6 +7,7 @@ import { theme } from '../Theme'
 import { msgBox } from '../MsgBox'
 import { toast } from '../Toast'
 import { bg } from '../BG'
+import { Tools } from '../Tools'
 
 export type OutputData = {
   content: string
@@ -135,7 +136,7 @@ class OutputPanel {
         type: 'text/plain',
       })
       const url = URL.createObjectURL(file)
-      const fileName = `Output-${new Date().toLocaleString()}.txt`
+      const fileName = `output-${Tools.formatDateTimeInFilename()}.txt`
       Utils.downloadFile(url, fileName)
 
       this.copyBtn.disabled = true

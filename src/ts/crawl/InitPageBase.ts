@@ -407,9 +407,7 @@ abstract class InitPageBase {
             result.url,
             `ID list-total ${
               result.total
-            }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
-              new Date().toLocaleString()
-            )}.json`
+            }-from ${Tools.getPageTitle()}-${Tools.formatDateTimeInFilename()}.json`
           )
         }
 

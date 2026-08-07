@@ -199,9 +199,7 @@ class SaveWorkDescription {
     let txtName = ''
     const name = lang.transl('_简介汇总')
     const title = Utils.replaceUnsafeStr(Tools.getPageTitle())
-    const time = Utils.replaceUnsafeStr(
-      store.crawlCompleteTime.toLocaleString()
-    )
+    const time = Tools.formatDateTimeInFilename(store.crawlCompleteTime)
     // 在文件名里添加时间戳可以避免同名文件覆盖
 
     // 检查这些作品是否属于同一个画师
