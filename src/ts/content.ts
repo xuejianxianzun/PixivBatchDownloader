@@ -6,7 +6,6 @@
  * Releases: https://github.com/xuejianxianzun/PixivBatchDownloader/releases
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
- * E-mail:  xuejianxianzun@gmail.com
  */
 
 import './Language'
@@ -14,6 +13,7 @@ import './IconHelper'
 import './Theme'
 import './store/States'
 import './setting/Settings'
+import './setting/AutoExportSettings'
 import './setting/InvisibleSettings'
 import './ListenPageSwitch'
 import './setting/SettingsPanelBootstrap'

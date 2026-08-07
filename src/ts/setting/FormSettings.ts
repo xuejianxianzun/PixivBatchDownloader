@@ -166,6 +166,7 @@ class FormSettings {
       'clickSettingNameOpenWiki',
       'downloadIntervalSwitch',
       'saveAllSeriesNovelsIfOneMatches',
+      'autoExportSettings',
     ],
     radio: [
       'novelSaveAs',
@@ -200,6 +201,7 @@ class FormSettings {
       'animatedWebPQuality',
       'novelEmbeddedImageSize',
       'settingsAcrossDifferentTabs',
+      'autoExportSettingsStrategy',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -242,6 +244,7 @@ class FormSettings {
       'onlyCrawlLastFewImagesCount',
       'doNotCrawlFirstImagesCount',
       'singleEPUBFileSizeLimit',
+      'autoExportSettingsInterval',
     ],
     textarea: [
       'notNeedTag',

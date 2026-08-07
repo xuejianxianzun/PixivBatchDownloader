@@ -220,4 +220,7 @@ export interface FormType extends HTMLFormElement {
   downloadIntervalSwitch: HTMLInputElement
   saveAllSeriesNovelsIfOneMatches: HTMLInputElement
   settingsAcrossDifferentTabs: RadioNodeList
+  autoExportSettings: HTMLInputElement
+  autoExportSettingsStrategy: RadioNodeList
+  autoExportSettingsInterval: HTMLInputElement
 }

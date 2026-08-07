@@ -4101,6 +4101,64 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   ></button>
 </div>
 
+<div class="option" data-no="106">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_自动导出设置"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="autoExportSettings"
+    class="need_beautify checkbox_switch"
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自动导出设置"
+    data-msg="_自动导出设置的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="autoExportSettings">
+    <div class="optionLine">
+      <input
+        type="radio"
+        name="autoExportSettingsStrategy"
+        id="autoExportSettingsStrategyTimed"
+        class="need_beautify radio"
+        value="timed"
+        checked
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="autoExportSettingsStrategyTimed">
+        <span data-xztext="_定时导出间隔"></span>
+        <input
+          type="text"
+          name="autoExportSettingsInterval"
+          class="setinput_style blue"
+          value="24"
+        />
+        <span data-xztext="_小时"></span>
+      </label>
+    </div>
+
+    <div class="optionLine">
+      <input
+        type="radio"
+        name="autoExportSettingsStrategy"
+        id="autoExportSettingsStrategyOnChange"
+        class="need_beautify radio"
+        value="onSettingChange"
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label
+        for="autoExportSettingsStrategyOnChange"
+        data-xztext="_每当设置变化后立即导出"
+      ></label>
+    </div>
+  </div>
+</div>
+
 <div class="option" data-no="103">
   <a
     href=""

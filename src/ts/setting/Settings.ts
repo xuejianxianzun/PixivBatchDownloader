@@ -410,6 +410,9 @@ interface XzSetting {
   /** 在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说 */
   saveAllSeriesNovelsIfOneMatches: boolean
   settingsAcrossDifferentTabs: 'synchronizeChanges' | 'doNotSynchronizeChanges'
+  autoExportSettings: boolean
+  autoExportSettingsStrategy: 'timed' | 'onSettingChange'
+  autoExportSettingsInterval: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -1026,6 +1029,9 @@ class Settings {
     downloadIntervalSwitch: true,
     saveAllSeriesNovelsIfOneMatches: false,
     settingsAcrossDifferentTabs: 'synchronizeChanges',
+    autoExportSettings: false,
+    autoExportSettingsStrategy: 'timed',
+    autoExportSettingsInterval: 24,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1069,10 +1075,14 @@ class Settings {
   /** 设置恢复期间收到的最新设置快照 */
   private pendingSettingsFromOtherTab?: Partial<XzSetting>
 
+  /** 当前待保存的设置是否需要在成功保存后通知 */
+  private shouldFireSettingsStored = false
+
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
       if (!this.isApplyingSettingsFromOtherTab) {
+        this.shouldFireSettingsStored ||= this.settingsRestored
         this.store()
       }
     })
@@ -1198,10 +1208,19 @@ class Settings {
   }
 
   private store = Utils.debounce(() => {
+    const fireSettingsStoredEvent = this.shouldFireSettingsStored
+    this.shouldFireSettingsStored = false
+
     // browser.storage.local 的储存上限是 5 MiB（5242880 Byte）
-    browser.storage.local.set({
-      [Config.settingStoreName]: this.settings,
-    })
+    browser.storage.local
+      .set({
+        [Config.settingStoreName]: this.settings,
+      })
+      .then(() => {
+        if (fireSettingsStoredEvent) {
+          EVT.fire('settingsStored')
+        }
+      })
   }, 50)
 
   // 接收整个设置项，通过循环将其更新到 settings 上
@@ -1316,11 +1335,12 @@ class Settings {
     )
   }
 
-  private exportSettings() {
+  /** 导出当前设置 */
+  public async exportSettings() {
     const blob = Utils.json2Blob(this.settings)
     const filename = `PPD Settings/${Config.appName} Settings-${Tools.formatDateTimeInFilename()}.json`
-    SendDownload.noReply(blob, filename, 'downloadsAPI')
-    toast.success(lang.transl('_导出成功'))
+    await SendDownload.noReply(blob, filename, 'downloadsAPI')
+    toast.success(lang.transl('_已导出设置'))
   }
 
   private async importSettings() {
@@ -1434,8 +1454,12 @@ class Settings {
       }
 
       if (isNaN(value as number)) {
-        const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
-        return msgBox.error(msg)
+        if (key === 'autoExportSettingsInterval') {
+          value = this.defaultSettings[key]
+        } else {
+          const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
+          return msgBox.error(msg)
+        }
       }
     }
 
@@ -1535,6 +1559,13 @@ class Settings {
       }
     }
 
+    if (key === 'autoExportSettingsInterval') {
+      const v = value as number
+      if (isNaN(v) || v < 1 || v > 8760) {
+        value = this.defaultSettings[key]
+      }
+    }
+
     if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
       value = (value as string).replaceAll('{id}', '{pid}')
     }
@@ -1575,5 +1606,6 @@ class Settings {
 const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
+const exportSettings = self.exportSettings.bind(self)
 
-export { settings, setSetting, SettingKeys }
+export { settings, setSetting, exportSettings, SettingKeys }

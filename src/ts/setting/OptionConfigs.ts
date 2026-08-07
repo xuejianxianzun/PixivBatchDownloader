@@ -1471,6 +1471,18 @@ class OptionConfigs {
       addedAt: 1785867197040,
     },
     {
+      no: 106,
+      nameKey: '_自动导出设置',
+      name: '',
+      categoryLevel1: 'general',
+      categoryLevel2: 'manageSettings',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_定时导出间隔', '_备份设置'],
+      searchWords: [],
+      addedAt: 1785867197040,
+    },
+    {
       no: 103,
       nameKey: '_管理设置',
       name: '',
