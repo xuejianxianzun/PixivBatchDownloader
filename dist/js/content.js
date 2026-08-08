@@ -11943,6 +11943,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+
 
 
 
@@ -12860,6 +12862,17 @@ class Tools {
             return this.AIMark.get(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType) || 'AI-generated';
         }
         return '';
+    }
+    /** 传入用户 ID，返回用户名。如果请求出错，会返回空字符串 */
+    static async getUserName(uid) {
+        try {
+            const profile = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getUserProfile(uid.toString());
+            return profile?.body?.name || '';
+        }
+        catch (err) {
+            console.log(err);
+            return '';
+        }
     }
     static originalMark = new Map([
         ['zh-cn', '原创'],
@@ -37622,6 +37635,38 @@ PS: На странице профиля заблокированного пол
         `"사용자 차단 목록"에 있는 사용자의 작품 제거`,
         `Удалять работы пользователей из «Списка заблокированных пользователей»`,
     ],
+    _已添加屏蔽: [
+        `已添加屏蔽`,
+        `已新增封鎖`,
+        `User blocked`,
+        `ユーザーをブロックしました`,
+        `사용자를 차단했습니다`,
+        `Пользователь заблокирован`,
+    ],
+    _已取消屏蔽: [
+        `已取消屏蔽`,
+        `已取消封鎖`,
+        `User unblocked`,
+        `ユーザーのブロックを解除しました`,
+        `사용자 차단을 해제했습니다`,
+        `Пользователь разблокирован`,
+    ],
+    _屏蔽该用户: [
+        `屏蔽该用户`,
+        `封鎖該使用者`,
+        `Block this user`,
+        `このユーザーをブロック`,
+        `이 사용자 차단`,
+        `Заблокировать этого пользователя`,
+    ],
+    _取消屏蔽该用户: [
+        `取消屏蔽该用户`,
+        `取消封鎖該使用者`,
+        `Unblock this user`,
+        `このユーザーのブロックを解除`,
+        `이 사용자 차단 해제`,
+        `Разблокировать этого пользователя`,
+    ],
     _修复了因Pixiv变化而失效的显示更大的缩略图功能: [
         '修复了因 Pixiv 变化而失效的一些增强功能，比如“显示更大的缩略图”、“高亮关注的用户”等功能。',
         '修復了因 Pixiv 變化而失效的一些增強功能，比如“顯示更大的縮圖”、“高亮關注的使用者”等功能。',
@@ -47228,6 +47273,235 @@ class PinOptions {
 }
 const pinOption = new PinOptions();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/QuicklyBlockUsers.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/setting/QuicklyBlockUsers.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
+
+
+// 当鼠标放在画师头像上时，检查这个画师是否被屏蔽，并显示一个浮动面板允许用户快速屏蔽或者取消屏蔽这个画师
+class QuicklyBlockUsers {
+    constructor() {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv()) {
+            return;
+        }
+        document.body.addEventListener('mousemove', (ev) => {
+            this.target = ev.target;
+            this.fun();
+        });
+        window.addEventListener('scroll', () => {
+            this.removePanel();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
+            this.removePanel();
+        });
+    }
+    // 触发鼠标事件的元素，注意这可能不是 A 标签
+    target = null;
+    // 如果用户的鼠标停留在用户超链接上，则保存这个 A 标签，这是最后激活的 A 标签
+    activeEl = document.createElement('a');
+    checkUserLinkReg = /\/users\/(\d+)$/;
+    panelID = 'xzUserCheckPanel';
+    hiddenPanelTimer;
+    findA(el, loop = 3) {
+        if (el === null || loop === 0) {
+            return null;
+        }
+        loop = loop - 1;
+        if (el.nodeName === 'A') {
+            return el;
+        }
+        return this.findA(el.parentElement, loop);
+    }
+    findUserLink() {
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.userBlockList ||
+            !_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.quicklyBlockUsers ||
+            !this.target) {
+            return;
+        }
+        // 在用户主页需要特殊处理，因为这里的用户头像没有超链接
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome) {
+            // 当鼠标经过头像图片或者名字时，显示面板
+            const avatar = document.querySelector('div[size="96"]');
+            const h1 = document.querySelector('h1');
+            if (this.target === avatar || this.target === h1) {
+                this.activeEl = this.target;
+                const userID = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getCurrentPageUserID();
+                const result = this.checkSettings(userID);
+                this.createPanel(result, userID);
+                return;
+            }
+        }
+        let a = this.findA(this.target, 3);
+        if (a === null) {
+            return;
+        }
+        const userID = this.findUserID(a);
+        if (!userID) {
+            return;
+        }
+        // 在画师主页里，如果超链接的用户 ID 就是网址里的 ID，说明这是“主页”按钮链接。
+        // 此时不显示面板
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome) {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getCurrentPageUserID() === userID) {
+                return;
+            }
+        }
+        this.activeEl = a;
+        const result = this.checkSettings(userID);
+        this.createPanel(result, userID);
+    }
+    fun = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.debounce(() => {
+        this.findUserLink();
+    }, 100);
+    findUserID(a) {
+        if (!a || !a.href) {
+            return '';
+        }
+        const test = a.href.match(this.checkUserLinkReg);
+        if (test && test.length > 1) {
+            return test[1];
+        }
+        return '';
+    }
+    /**检查下载器里针对这个用户的设置，决定对这个用户显示什么提示和操作 */
+    checkSettings(userID) {
+        const result = {
+            isBlock: _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList.includes(userID),
+            notDownloadLastImage: undefined,
+            blockTags: undefined,
+        };
+        // for (const item of settings.DoNotDownloadLastFewImagesList) {
+        //   if (item.uid === Number.parseInt(userID)) {
+        //     result.notDownloadLastImage = item.value
+        //   }
+        // }
+        // const blockTags = settings.blockTagsForSpecificUserList.find(
+        //   (item) => item.uid.toString() === userID
+        // )
+        // result.blockTags = blockTags ? blockTags.tags : undefined
+        return result;
+    }
+    async createPanel(result, userID) {
+        this.removePanel();
+        // 创建浮动面板的元素
+        const html = `
+    <div class="xzTipPanelWrap" id="${this.panelID}">
+      <div class="notNeedTip">
+        <p style="display: ${result.isBlock ? 'none' : 'block'};"><button><span class="mr4" data-xztext="_屏蔽该用户"></span>${userID}</button></p>
+        <p style="display: ${result.isBlock ? 'block' : 'none'};"><button><span class="mr4" data-xztext="_取消屏蔽该用户"></span></button></p>
+      </div>
+    </div>`;
+        const wrap = document.createElement('div');
+        wrap.innerHTML = html;
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(wrap);
+        // 绑定事件
+        const panel = wrap.querySelector('#' + this.panelID);
+        panel.addEventListener('mouseenter', () => {
+            window.clearTimeout(this.hiddenPanelTimer);
+        });
+        panel.addEventListener('mouseleave', () => {
+            this.removePanel();
+        });
+        // 屏蔽用户
+        const blockBtns = panel.querySelectorAll('.notNeedTip button');
+        blockBtns[0].onclick = () => {
+            this.addBlock(userID);
+        };
+        blockBtns[1].onclick = () => {
+            this.removeBlock(userID);
+        };
+        // 确定位置
+        const rectList = this.activeEl.getClientRects();
+        const rect = rectList[0];
+        // 显示在超链接的上方还是下方
+        // 主要是为了避免遮挡 pixiv 本身出现的小卡片
+        // 默认显示在下方
+        // 有时 activeEl 元素的高度为 0(这经常发生在一些用户头像上)，此时使用 24 px 的高度, 避免浮动面板遮挡住头像
+        let top = rect.y + (rect.height || 24);
+        panel.style.top = top + 'px';
+        // 检测需要显示在上方的情况
+        let showTop = false;
+        if (rect.y < 470) {
+            // 如果顶部剩余空间不足，则 pixiv 的卡片可能显示在下方，此时让面板显示在上方
+            // 但是这个数值不是固定的，因为不管是关注的还是没关注的用户，它们的卡片高度都可能不同
+            // pixiv 会根据实际高度调整显示在上方或者下方，下载器不能精确预知卡片位置
+            // 所以有时候可能仍然会与卡片重叠
+            showTop = true;
+        }
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome) {
+            // 在画师主页里，如果超链接的用户 ID 不是地址栏里的 ID，则是底部弹出的推荐关注画师
+            // 面板需要显示在上方
+            if (_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getCurrentPageUserID() !== userID) {
+                showTop = true;
+            }
+        }
+        panel.style.left = rect.x + 'px';
+        document.body.appendChild(panel);
+        const panelRectList = panel.getClientRects();
+        const panelHeight = panelRectList[0].height;
+        if (showTop) {
+            // 当面板显示在画师名字上方时，需要减去面板高度，但面板高度是不固定的
+            // 所以需要先添加面板到 DOM 上，然后才能获取面板高度，做出调整
+            top = rect.y - panelHeight;
+            if (top < 0) {
+                top = 0;
+            }
+            panel.style.top = top + 'px';
+        }
+        else {
+            // 当面板显示在下方时，防止其显示在可视区域之下
+            // 发生时这个情况，说明目标元素位于可视区域底部，此时面板显示在下方的话会导致看不到面板，因此需要上提一些
+            // 数字 16 是考虑到底部滚动条的高度，避免面板被滚动条遮挡
+            if (top + panelHeight > window.innerHeight) {
+                top = window.innerHeight - panelHeight - 16;
+            }
+            panel.style.top = top + 'px';
+        }
+    }
+    removePanel() {
+        const panel = document.querySelector('#' + this.panelID);
+        panel && panel.remove();
+    }
+    addBlock(userID) {
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList.includes(userID)) {
+            _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList.push(userID);
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('blockList', _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.warning(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已添加屏蔽')} ${userID}`);
+            this.removePanel();
+        }
+    }
+    removeBlock(userID) {
+        const index = _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList.findIndex((str) => str === userID);
+        if (index > -1) {
+            _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList.splice(index, 1);
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('blockList', _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.blockList);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已取消屏蔽')} ${userID}`);
+            this.removePanel();
+        }
+    }
+}
+new QuicklyBlockUsers();
 
 
 /***/ }),
@@ -72253,11 +72527,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
 /* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
 /* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -72267,6 +72542,7 @@ __webpack_require__.r(__webpack_exports__);
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  */
+
 
 
 

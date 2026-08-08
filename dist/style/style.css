@@ -1,26 +1,3 @@
-:root {
-  --theme-blue: #199df5;
-  --blue-buttons-bg: #0ea8ef;
-  --beautify-blue: #1dacf5;
-  --bg-checkbox-blue: #1fb2fd;
-  --bg-progress-blue: #0eb3f3;
-  --box-shadow-blue: #2ca6df;
-  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
-  --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
-  --pixiv-font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  --mobile-font-family: sans-serif;
-  --line-height: 26px;
-  --color-r18: #f63d5b;
-  --color-ai: #b036f6;
-  --settings-panel-bg: #fff;
-  --settings-panel-bg-white: #fff;
-  --settings-panel-bg-dark: #161a1f;
-  --settings-panel-bg-xzbg: #0a121c;
-  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
-  --white-30: rgba(255, 255, 255, 0.3);
-  --text-shadow-on-xzbg: #003247 0px 0px 2px;
-  --settings-panel-text: #444;
-}
 #deleteWorkEl {
   box-sizing: border-box;
   position: fixed;
@@ -3993,6 +3970,87 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.xz_PreviewWorkDetailPanel .content .date {
   color: #ccc;
+}
+.xzTipPanelWrap {
+  border: 1px solid #fff;
+  border-radius: 8px;
+  background-color: #0096fa;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  position: fixed;
+  z-index: 999;
+}
+body[data-page-type='6'] .xzTipPanelWrap,
+body[data-page-type='9'] .xzTipPanelWrap {
+  z-index: 19999;
+}
+.xzTipPanelWrap p {
+  margin: 0;
+}
+.xzTipPanelWrap > div {
+  display: inline-flex;
+  flex-direction: column;
+}
+.xzTipPanelWrap button {
+  padding: 4px 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  text-align: left;
+}
+.xzTipPanelWrap button:hover {
+  font-weight: bold;
+}
+.xzTipPanelWrap .hr {
+  height: 1px;
+  background-color: #a1d9ff;
+  margin: 6px 0;
+}
+.xzTipPanelWrap .renameTip p {
+  margin-bottom: 6px;
+}
+.xzTipPanelWrap .renameTip ul {
+  margin: 0;
+  padding: 0;
+}
+.xzTipPanelWrap .renameTip ul li {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  flex-wrap: wrap;
+}
+:root {
+  --theme-blue: #199df5;
+  --blue-buttons-bg: #0ea8ef;
+  --beautify-blue: #1dacf5;
+  --bg-checkbox-blue: #1fb2fd;
+  --bg-progress-blue: #0eb3f3;
+  --box-shadow-blue: #2ca6df;
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
+  --pixiv-font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --mobile-font-family: sans-serif;
+  --line-height: 26px;
+  --color-r18: #f63d5b;
+  --color-ai: #b036f6;
+  --settings-panel-bg: #fff;
+  --settings-panel-bg-white: #fff;
+  --settings-panel-bg-dark: #161a1f;
+  --settings-panel-bg-xzbg: #0a121c;
+  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
+  --white-30: rgba(255, 255, 255, 0.3);
+  --text-shadow-on-xzbg: #003247 0px 0px 2px;
+  --settings-panel-text: #444;
 }
 .warn {
   color: #d27e00;

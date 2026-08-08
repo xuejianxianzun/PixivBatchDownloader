@@ -13,6 +13,7 @@ import {
 import { Utils } from './utils/Utils'
 import { ppdTask } from './PPDTask'
 import { DateFormat } from './utils/DateFormat'
+import { API } from './API'
 
 type artworkDataTagsItem = {
   tag: string
@@ -1120,6 +1121,17 @@ class Tools {
       return this.AIMark.get(lang.htmlLangType) || 'AI-generated'
     }
     return ''
+  }
+
+  /** 传入用户 ID，返回用户名。如果请求出错，会返回空字符串 */
+  static async getUserName(uid: number): Promise<string> {
+    try {
+      const profile = await API.getUserProfile(uid.toString())
+      return profile?.body?.name || ''
+    } catch (err) {
+      console.log(err)
+      return ''
+    }
   }
 
   static readonly originalMark: Map<string, string> = new Map([
