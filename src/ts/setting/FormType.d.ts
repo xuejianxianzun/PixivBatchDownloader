@@ -75,6 +75,7 @@ export interface FormType extends HTMLFormElement {
   widthTag: RadioNodeList
   restrict: RadioNodeList
   userBlockList: HTMLInputElement
+  quicklyBlockUsers: HTMLInputElement
   blockList: HTMLInputElement
   removeBlockedUsersWork: HTMLInputElement
   needTagMode: RadioNodeList

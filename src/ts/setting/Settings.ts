@@ -216,6 +216,7 @@ interface XzSetting {
 
   userBlockList: boolean
   blockList: string[]
+  quicklyBlockUsers: boolean
   removeBlockedUsersWork: boolean
   needTagMode: 'all' | 'one'
   theme: 'auto' | 'white' | 'dark'
@@ -744,6 +745,7 @@ class Settings {
     restrictBoolean: false,
     userBlockList: false,
     removeBlockedUsersWork: true,
+    quicklyBlockUsers: true,
     blockList: [],
     theme: 'auto',
     needTagMode: 'all',

@@ -27,6 +27,8 @@
 
 另外，考虑到这个功能会导出多个设置文件，所以下载器会建立 `PPD Settings` 文件夹来统一存放设置文件。
 
+### 🔧“用户阻止名单”改名为“用户屏蔽名单”，并添加了“快捷屏蔽用户”的功能
+
 ### ✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/651

@@ -1141,9 +1141,9 @@
     href=""
     target="_blank"
     class="has_tip settingNameStyle"
-    data-xztip="_用户阻止名单的说明"
+    data-xztip="_用户屏蔽名单的说明"
   >
-    <span data-xztext="_用户阻止名单"></span>
+    <span data-xztext="_用户屏蔽名单"></span>
     <span class="gray"> ? </span>
   </a>
   <input
@@ -1152,33 +1152,54 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_用户屏蔽名单"
+    data-msg="_用户屏蔽名单的说明2"
+    data-xztext="_帮助"
+  ></button>
   <div class="subOptionWrap flexBasis100" data-show="userBlockList">
-    <textarea
-      class="centerPanelTextArea beautify_scrollbar"
-      name="blockList"
-      rows="1"
-      placeholder="11111,22222,33333"
-    ></textarea>
-    <br />
-    <input
-      type="checkbox"
-      name="removeBlockedUsersWork"
-      id="setRemoveBlockedUsersWork"
-      class="need_beautify checkbox_common"
-      checked
-    />
-    <span class="beautify_checkbox" tabindex="0"></span>
-    <label
-      for="setRemoveBlockedUsersWork"
-      data-xztext="_从页面上移除他们的作品"
-    ></label>
-    <button
-      type="button"
-      class="gray textButton showMsgBtn"
-      data-title="_用户阻止名单"
-      data-msg="_用户阻止名单的说明2"
-      data-xztext="_帮助"
-    ></button>
+    <div class="optionLine">
+      <textarea
+        class="centerPanelTextArea beautify_scrollbar"
+        name="blockList"
+        rows="1"
+        placeholder="11111,22222,33333"
+      ></textarea>
+    </div>
+    <div class="optionLine">
+      <input
+        type="checkbox"
+        name="quicklyBlockUsers"
+        id="setQuicklyBlockUsers"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setQuicklyBlockUsers" data-xztext="_快捷屏蔽用户"></label>
+      <button
+        type="button"
+        class="gray textButton showMsgBtn"
+        data-title="_快捷屏蔽用户"
+        data-msg="_快捷屏蔽用户的说明"
+        data-xztext="_帮助"
+      ></button>
+    </div>
+    <div class="optionLine">
+      <input
+        type="checkbox"
+        name="removeBlockedUsersWork"
+        id="setRemoveBlockedUsersWork"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label
+        for="setRemoveBlockedUsersWork"
+        data-xztext="_从页面上移除他们的作品"
+      ></label>
+    </div>
   </div>
 </div>
 

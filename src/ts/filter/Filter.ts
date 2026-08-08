@@ -214,10 +214,10 @@ class Filter {
       return false
     }
 
-    // 检查用户阻止名单
+    // 检查用户屏蔽名单
     if (!this.checkBlockList(option.userId)) {
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户阻止名单'),
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户屏蔽名单'),
         'excludeWorkByBlockList'
       )
       return false
