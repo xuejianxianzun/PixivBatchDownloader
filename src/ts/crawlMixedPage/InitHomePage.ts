@@ -14,6 +14,7 @@ import { log } from '../Log'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { Input } from '../Input'
+import { pageType } from '../PageType'
 
 class InitHomePage extends InitPageBase {
   constructor() {
@@ -86,17 +87,20 @@ class InitHomePage extends InitPageBase {
     this.removeAD()
   }
 
+  /** 查找首页里的一些广告元素，将其移除。循环执行 */
   private async removeAD() {
-    // 查找首页的“推荐作品”里的广告元素，将其移除
     await Utils.sleep(1000)
-    const findAD = document.body.querySelector(
-      '.homeRecommendedWorks div[id^="adsdk"]'
-    )
-    if (findAD) {
-      findAD.closest('li')?.remove()
-    } else {
-      this.removeAD()
+
+    if (pageType.type === pageType.list.Home) {
+      const findADs = document.body.querySelectorAll('iframe[data-uid]')
+      if (findADs.length > 0) {
+        findADs.forEach((ad) => {
+          ad.remove()
+        })
+      }
     }
+
+    this.removeAD()
   }
 
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看

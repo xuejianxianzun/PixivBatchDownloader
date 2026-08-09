@@ -157,11 +157,12 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会连带插画封面下方的用户名区域也一起选择
+      // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会导致错误的选择，或者导致同一个作品被选择两次
       if (selector === 'li[size="1"]' && pageType.type === pageType.list.Home) {
         if (
           location.pathname.endsWith('/illustration') ||
-          location.pathname.endsWith('/manga')
+          location.pathname.endsWith('/manga') ||
+          location.pathname.includes('/cate_r18.php')
         ) {
           continue
         }

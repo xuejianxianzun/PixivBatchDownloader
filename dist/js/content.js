@@ -1797,7 +1797,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会连带插画封面下方的用户名区域也一起选择
             if (selector === 'li[size="1"]' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
                 if (location.pathname.endsWith('/illustration') ||
-                    location.pathname.endsWith('/manga')) {
+                    location.pathname.endsWith('/manga') ||
+                    location.pathname.includes('/cate_r18.php')) {
                     continue;
                 }
             }
@@ -7508,8 +7509,9 @@ class PageType {
     getType() {
         const url = window.location.href;
         const path = window.location.pathname;
+        const homePathList = ['/', '/en/', '/illustration', '/manga', '/novel', '/cate_r18.php', '/novel/cate_r18.php'];
         if (window.location.hostname === 'www.pixiv.net' &&
-            ['/', '/en/', '/illustration', '/manga', '/novel'].includes(path)) {
+            homePathList.includes(path)) {
             return PageName.Home;
         }
         else if ((path.startsWith('/artworks') || path.startsWith('/en/artworks')) &&
@@ -19076,7 +19078,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化首页
+
 
 
 
@@ -19129,16 +19133,18 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     initAny() {
         this.removeAD();
     }
+    /** 查找首页里的一些广告元素，将其移除。循环执行 */
     async removeAD() {
-        // 查找首页的“推荐作品”里的广告元素，将其移除
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(1000);
-        const findAD = document.body.querySelector('.homeRecommendedWorks div[id^="adsdk"]');
-        if (findAD) {
-            findAD.closest('li')?.remove();
+        if (_PageType__WEBPACK_IMPORTED_MODULE_14__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_14__.pageType.list.Home) {
+            const findADs = document.body.querySelectorAll('iframe[data-uid]');
+            if (findADs.length > 0) {
+                findADs.forEach((ad) => {
+                    ad.remove();
+                });
+            }
         }
-        else {
-            this.removeAD();
-        }
+        this.removeAD();
     }
     // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
     createidRangeTip() {
