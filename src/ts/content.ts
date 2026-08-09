@@ -6,7 +6,6 @@
  * Releases: https://github.com/xuejianxianzun/PixivBatchDownloader/releases
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
- * E-mail:  xuejianxianzun@gmail.com
  */
 
 import './Language'
@@ -14,6 +13,7 @@ import './IconHelper'
 import './Theme'
 import './store/States'
 import './setting/Settings'
+import './setting/AutoExportSettings'
 import './setting/InvisibleSettings'
 import './ListenPageSwitch'
 import './setting/SettingsPanelBootstrap'
@@ -51,6 +51,8 @@ import './HighlightFollowingUsers'
 import './ImageToGray'
 import './UpdateUserName'
 import './ShowBorderOnDownloadedWorks'
+// 在红叶版本里不需要启用 QuicklyBlockUsers，因为该版本里使用 CheckUser 实现了这个功能
+// import './setting/QuicklyBlockUsers'
 import './ImageToGray'
 import './ShowWhatIsNew'
 import './CheckUnsupportBrowser'

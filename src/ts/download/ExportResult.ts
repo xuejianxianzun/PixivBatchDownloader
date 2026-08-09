@@ -29,9 +29,7 @@ class ExportResult {
         result.url,
         `result-total ${result.total}-${Utils.replaceUnsafeStr(
           Tools.getPageTitle()
-        )}-${Utils.replaceUnsafeStr(
-          store.crawlCompleteTime.toLocaleString()
-        )}.json`
+        )}-${Tools.formatDateTimeInFilename(store.crawlCompleteTime)}.json`
       )
     }
 

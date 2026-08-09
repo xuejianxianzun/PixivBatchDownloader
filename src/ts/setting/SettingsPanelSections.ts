@@ -36,6 +36,7 @@ class SettingsPanelSections {
   private foldableSections = new Map<string, FoldableSection>()
   private stickyEls = new Map<PageId, HTMLButtonElement>()
   private expandAllBtn?: HTMLButtonElement
+  private emptyHintsObserver?: MutationObserver
 
   public connect({
     foldableSections,
@@ -49,6 +50,8 @@ class SettingsPanelSections {
     this.foldableSections = foldableSections
     this.stickyEls = stickyEls
     this.expandAllBtn = expandAllBtn
+    this.bindEmptyHintsObserver()
+    this.refreshEmptyCategoryHints()
   }
 
   public makeSectionKey(page: PageId, id: string) {
@@ -77,6 +80,7 @@ class SettingsPanelSections {
     section.header.setAttribute('aria-expanded', expanded ? 'true' : 'false')
     section.contentWrap.toggleAttribute('inert', !expanded)
     section.contentWrap.setAttribute('aria-hidden', expanded ? 'false' : 'true')
+    this.updateEmptyCategoryHint(section)
   }
 
   public toggleSection(section: FoldableSection) {
@@ -92,6 +96,13 @@ class SettingsPanelSections {
     })
     this.updateExpandAllButton()
     this.refreshStickyHeader()
+  }
+
+  /** 刷新所有二级分类没有可用设置时的提示 */
+  public refreshEmptyCategoryHints() {
+    this.foldableSections.forEach((section) => {
+      this.updateEmptyCategoryHint(section)
+    })
   }
 
   public toggleAllSections() {
@@ -193,6 +204,47 @@ class SettingsPanelSections {
     }
     setSetting('expandedCards', nextExpandedCards)
     this.applyExpandedState(section, expanded)
+  }
+
+  /** 监听设置项的显隐变化 */
+  private bindEmptyHintsObserver() {
+    this.emptyHintsObserver?.disconnect()
+    this.emptyHintsObserver = new MutationObserver((mutations) => {
+      if (
+        mutations.some(
+          (mutation) =>
+            mutation.target instanceof HTMLElement &&
+            mutation.target.matches('div.option')
+        )
+      ) {
+        this.refreshEmptyCategoryHints()
+      }
+    })
+    this.emptyHintsObserver.observe(this.main, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style'],
+    })
+  }
+
+  /** 根据二级分类里的设置项显示状态更新提示 */
+  private updateEmptyCategoryHint(section: FoldableSection) {
+    const hint = section.content.querySelector(
+      '.settingsPanel_emptyCategoryHint'
+    ) as HTMLDivElement | null
+    if (!hint) {
+      return
+    }
+
+    const options =
+      section.contentWrap.querySelectorAll<HTMLDivElement>('div.option')
+    const allOptionsHidden = [...options].every(
+      (option) => option.style.display === 'none'
+    )
+    hint.classList.toggle(
+      'is-hidden',
+      !section.root.classList.contains('expanded') || !allOptionsHidden
+    )
   }
 
   private areAllSectionsExpanded() {

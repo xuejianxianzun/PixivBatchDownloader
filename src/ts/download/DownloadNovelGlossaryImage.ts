@@ -55,7 +55,11 @@ class DownloadNovelGlossaryImage {
       _imageId
     )
 
-    SendDownload.noReply(blob, imageName)
+    SendDownload.noReply(
+      blob,
+      imageName,
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
   }
 
   /**最多重试一定次数，避免无限重试 */

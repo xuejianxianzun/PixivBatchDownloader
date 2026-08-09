@@ -1,0 +1,74 @@
+// 当用户把鼠标移动到用户名链接上时，显示的浮动面板。
+// 这个模块使用了这个样式:src\ts\setting\QuicklyBlockUsers.ts
+
+.xzTipPanelWrap {
+  border: 1px solid #fff;
+  border-radius: 8px;
+  background-color: #0096fa;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  position: fixed;
+  z-index: 999;
+}
+
+// 在某些页面里，浮动面板的 z-index 需要更高，避免被其他元素遮挡
+// 主要是在旧版页面里，用户简介小卡片的层级是 10001, 因此浮动面板的 z-index 需要更高
+body[data-page-type='6'],
+body[data-page-type='9'] {
+  .xzTipPanelWrap {
+    z-index: 19999;
+  }
+}
+
+.xzTipPanelWrap p {
+  margin: 0;
+}
+
+.xzTipPanelWrap > div {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.xzTipPanelWrap button {
+  padding: 4px 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.xzTipPanelWrap button:hover {
+  font-weight: bold;
+}
+
+.xzTipPanelWrap .hr {
+  height: 1px;
+  background-color: #a1d9ff;
+  margin: 6px 0;
+}
+
+.xzTipPanelWrap .renameTip p {
+  margin-bottom: 6px;
+}
+
+.xzTipPanelWrap .renameTip ul {
+  margin: 0;
+  padding: 0;
+}
+
+.xzTipPanelWrap .renameTip ul li {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  flex-wrap: wrap;
+}

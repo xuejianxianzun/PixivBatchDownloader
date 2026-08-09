@@ -1,26 +1,3 @@
-:root {
-  --theme-blue: #199df5;
-  --blue-buttons-bg: #0ea8ef;
-  --beautify-blue: #1dacf5;
-  --bg-checkbox-blue: #1fb2fd;
-  --bg-progress-blue: #0eb3f3;
-  --box-shadow-blue: #2ca6df;
-  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
-  --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
-  --pixiv-font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  --mobile-font-family: sans-serif;
-  --line-height: 26px;
-  --color-r18: #f63d5b;
-  --color-ai: #b036f6;
-  --settings-panel-bg: #fff;
-  --settings-panel-bg-white: #fff;
-  --settings-panel-bg-dark: #161a1f;
-  --settings-panel-bg-xzbg: #0a121c;
-  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
-  --white-30: rgba(255, 255, 255, 0.3);
-  --text-shadow-on-xzbg: #003247 0px 0px 2px;
-  --settings-panel-text: #444;
-}
 #deleteWorkEl {
   box-sizing: border-box;
   position: fixed;
@@ -505,6 +482,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.theme-white {
   --settings-panel-text: #444;
+  --settings-panel-placeholder-text: #999;
   --settings-panel-border: #9dd4f9;
   --settings-panel-shadow: 0 0 25px #b4e0f5;
   --settings-panel-con-bg: #eee;
@@ -629,7 +607,8 @@ body.mobile #quickCrawlBtn {
   --settings-panel-search-mark-bg: #ffe74b;
 }
 .centerWrap.theme-dark {
-  --settings-panel-text: #dfe7ef;
+  --settings-panel-text: #fff;
+  --settings-panel-placeholder-text: #ccc;
   --settings-panel-border: rgba(94, 172, 230, 0.45);
   --settings-panel-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
   --settings-panel-con-bg: rgba(18, 24, 33, 0.98);
@@ -748,6 +727,7 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG {
   --settings-panel-text: #fff;
+  --settings-panel-placeholder-text: #ddd;
   --settings-panel-head-bg: rgba(10, 18, 28, 0.2);
   --settings-panel-con-bg: rgba(10, 18, 28, 0.1);
   --settings-panel-head-border: rgba(255, 255, 255, 0.08);
@@ -1241,7 +1221,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .fwb {
   font-weight: 700;
 }
-.centerWrap .gray1 {
+.centerWrap .gray {
   color: #777;
 }
 .centerWrap .hidden {
@@ -1456,6 +1436,10 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .showFileNameTip {
   height: var(--line-height);
 }
+.centerWrap .centerWrap_con input::-webkit-input-placeholder,
+.centerWrap .centerWrap_con textarea::-webkit-input-placeholder {
+  color: var(--settings-panel-placeholder-text);
+}
 .centerWrap .centerWrap_con a.settingNameStyle:hover,
 .centerWrap .centerWrap_con .has_tip:hover,
 .centerWrap .centerWrap_con label:hover,
@@ -1583,7 +1567,7 @@ body.mobile #quickCrawlBtn {
   box-shadow: var(--settings-panel-input-focus-shadow);
 }
 .centerWrap .centerWrap_con .settingForm .option .setinput_style.postDate {
-  width: 170px;
+  width: 220px;
 }
 .centerWrap .centerWrap_con .settingForm .option .setinput_style.bmkNum {
   width: 76px;
@@ -1858,6 +1842,12 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .centerWrap_con .settingForm .option .secondary_hint {
   margin-top: 4px;
+}
+.centerWrap .centerWrap_con .settingForm .settingsPanel_emptyCategoryHint {
+  width: calc(100% - 20px);
+  margin: 10px auto 0;
+  flex-grow: 0;
+  grid-column: auto;
 }
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns {
   padding: 0;
@@ -2716,7 +2706,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap.theme-dark .tip {
   color: #fff;
 }
-.centerWrap.theme-dark .gray1 {
+.centerWrap.theme-dark .gray {
   color: #bbb;
 }
 .centerWrap.theme-dark .blue,
@@ -2776,7 +2766,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap.xzBG .tip {
   color: #fff;
 }
-.centerWrap.xzBG .gray1,
+.centerWrap.xzBG .gray,
 .centerWrap.xzBG .centerWrap_top_btn {
   color: #eee !important;
 }
@@ -3390,10 +3380,6 @@ iframe[name='expandedFooter'] {
 .theme-dark#viewerWarpper {
   border: none;
 }
-.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #999;
-}
 .blockTagsForSpecificUserWrap .icon {
   font-size: 1.3em;
 }
@@ -3433,7 +3419,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3461,22 +3447,6 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap button.refresh svg {
   position: relative;
   top: 1px;
-}
-.theme-dark.blockTagsForSpecificUserWrap div,
-.theme-dark.blockTagsForSpecificUserWrap span {
-  color: #fff !important;
-}
-.theme-dark.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.theme-dark.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .blockTagsForSpecificUserWrap div,
-.xzBG .blockTagsForSpecificUserWrap span {
-  color: #fff !important;
-}
-.xzBG .blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
-.xzBG .blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
 }
 #xzLoadingWrap {
   position: fixed;
@@ -3515,10 +3485,6 @@ iframe[name='expandedFooter'] {
   to {
     transform: rotate(360deg);
   }
-}
-.setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #999;
 }
 .setUserNameWrap .icon {
   font-size: 1.3em;
@@ -3560,7 +3526,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .setUserNameWrap .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .setUserNameWrap .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3597,22 +3563,6 @@ iframe[name='expandedFooter'] {
   position: relative;
   top: 1px;
 }
-.setUserNameWrap .theme-dark.setUserNameWrap div,
-.setUserNameWrap .theme-dark.setUserNameWrap span {
-  color: #fff !important;
-}
-.setUserNameWrap .theme-dark.setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap .theme-dark.setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.setUserNameWrap .xzBG .setUserNameWrap div,
-.setUserNameWrap .xzBG .setUserNameWrap span {
-  color: #fff !important;
-}
-.setUserNameWrap .xzBG .setUserNameWrap input::-webkit-input-placeholder,
-.setUserNameWrap .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
 .setUserNameWrap.setTagAliasWrap .addWrap .settingItem {
   flex-basis: 100%;
 }
@@ -3639,10 +3589,6 @@ iframe[name='expandedFooter'] {
 .setUserNameWrap.setTagAliasWrap .listWrap .settingItem input.tags {
   flex-basis: 70%;
   flex-grow: 1;
-}
-.DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
-.DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
-  color: #999;
 }
 .DoNotDownloadLastFewImagesWarp .icon {
   font-size: 1.3em;
@@ -3686,7 +3632,7 @@ iframe[name='expandedFooter'] {
   margin-right: 10px;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem.uid input {
   width: auto !important;
@@ -3723,26 +3669,6 @@ iframe[name='expandedFooter'] {
 .DoNotDownloadLastFewImagesWarp .listWrap .settingItem button.refresh svg {
   position: relative;
   top: 1px;
-}
-.theme-dark.DoNotDownloadLastFewImages div,
-.theme-dark.DoNotDownloadLastFewImages span {
-  color: #fff !important;
-}
-.theme-dark.DoNotDownloadLastFewImages input::-webkit-input-placeholder,
-.theme-dark.DoNotDownloadLastFewImages textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .DoNotDownloadLastFewImagesWarp div,
-.xzBG .DoNotDownloadLastFewImagesWarp span {
-  color: #fff !important;
-}
-.xzBG .DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
-.xzBG .DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.UseDifferentNameRuleIfWorkHasTagWarp input::-webkit-input-placeholder,
-.UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
-  color: #999;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .icon {
   font-size: 1.3em;
@@ -3785,7 +3711,7 @@ iframe[name='expandedFooter'] {
   flex-basis: 40%;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem .label {
-  color: #444;
+  color: var(--settings-panel-text);
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem.id {
   flex-basis: 5%;
@@ -3825,22 +3751,6 @@ iframe[name='expandedFooter'] {
 .UseDifferentNameRuleIfWorkHasTagWarp .listWrap button.refresh svg {
   position: relative;
   top: 1px;
-}
-.theme-dark.DoNotDownloadLastFewImages div,
-.theme-dark.DoNotDownloadLastFewImages span {
-  color: #fff !important;
-}
-.theme-dark.DoNotDownloadLastFewImages input::-webkit-input-placeholder,
-.theme-dark.DoNotDownloadLastFewImages textarea::-webkit-input-placeholder {
-  color: #ddd;
-}
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp div,
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp span {
-  color: #fff !important;
-}
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp input::-webkit-input-placeholder,
-.xzBG .UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
-  color: #ddd;
 }
 .xzTipPanelWrap {
   border: 1px solid #fff;
@@ -4128,6 +4038,29 @@ iframe[name='expandedFooter'] {
 .theme-dark.xz_PreviewWorkDetailPanel .content .date {
   color: #ccc;
 }
+:root {
+  --theme-blue: #199df5;
+  --blue-buttons-bg: #0ea8ef;
+  --beautify-blue: #1dacf5;
+  --bg-checkbox-blue: #1fb2fd;
+  --bg-progress-blue: #0eb3f3;
+  --box-shadow-blue: #2ca6df;
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
+  --pixiv-font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --mobile-font-family: sans-serif;
+  --line-height: 26px;
+  --color-r18: #f63d5b;
+  --color-ai: #b036f6;
+  --settings-panel-bg: #fff;
+  --settings-panel-bg-white: #fff;
+  --settings-panel-bg-dark: #161a1f;
+  --settings-panel-bg-xzbg: #0a121c;
+  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
+  --white-30: rgba(255, 255, 255, 0.3);
+  --text-shadow-on-xzbg: #003247 0px 0px 2px;
+  --settings-panel-text: #444;
+}
 .warn {
   color: #d27e00;
 }
@@ -4155,6 +4088,9 @@ iframe[name='expandedFooter'] {
 }
 .mr4 {
   margin-right: 4px !important;
+}
+.mr8 {
+  margin-right: 8px !important;
 }
 .p0 {
   padding: 0 !important;

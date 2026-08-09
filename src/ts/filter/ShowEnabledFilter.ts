@@ -463,7 +463,7 @@ class ShowEnabledFilter {
         return this.error(
           lang.transl('_用户ID必须是数字') +
             ': <br>' +
-            lang.transl('_用户阻止名单')
+            lang.transl('_用户屏蔽名单')
         )
       }
     }
@@ -471,7 +471,7 @@ class ShowEnabledFilter {
     if (settings.blockList.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_用户阻止名单') +
+          lang.transl('_用户屏蔽名单') +
           ': ' +
           settings.blockList.toString()
       )

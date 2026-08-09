@@ -2,6 +2,8 @@ import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 import { IndexedDB } from './utils/IndexedDB'
 import { settings } from './setting/Settings'
+import browser from 'webextension-polyfill'
+import { states } from './store/States'
 
 interface BGData {
   readonly key: 'bg'
@@ -12,6 +14,11 @@ interface BGItem {
   wrap: HTMLElement
   bg: HTMLElement
   opacity?: number
+}
+
+interface BGChange {
+  origin: string
+  token: number
 }
 
 class BG {
@@ -25,17 +32,26 @@ class BG {
   private readonly bgModeflagClassName = 'xzBG'
   private readonly bgLayerClassName = 'xzBGLayer'
   private bgUrl = ''
+  /** 用于预加载当前背景图片的元素 */
+  private preloadImage?: HTMLImageElement
 
   private IDB: IndexedDB
   private readonly DBName = 'PBDBG'
   private readonly DBVer = 1
   private readonly storeName = 'bg'
   private readonly keyName = 'bg'
+  /** 通知其他标签页重新读取背景图片的存储键 */
+  private readonly backgroundChangeStoreName = 'bgChange'
+  /** 设置初始化期间收到的背景图片变更 */
+  private pendingBackgroundChange = false
 
   private async init() {
     this.bindEvents()
     await this.initDB()
-    this.restore()
+    await this.restore()
+    if (states.settingInitialized) {
+      this.pendingBackgroundChange = false
+    }
   }
 
   private async initDB() {
@@ -81,6 +97,34 @@ class BG {
         this.setBGAll()
       }
     })
+
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      if (
+        this.pendingBackgroundChange &&
+        settings.settingsAcrossDifferentTabs === 'synchronizeChanges' &&
+        this.IDB.db
+      ) {
+        this.restore()
+      }
+      this.pendingBackgroundChange = false
+    })
+
+    browser.storage.onChanged.addListener((changes, areaName) => {
+      const change = changes[this.backgroundChangeStoreName]
+      const data = change?.newValue as BGChange | undefined
+      if (areaName !== 'local' || !data || data.origin !== location.origin) {
+        return
+      }
+
+      if (!states.settingInitialized || !this.IDB.db) {
+        this.pendingBackgroundChange = true
+        return
+      }
+
+      if (settings.settingsAcrossDifferentTabs === 'synchronizeChanges') {
+        this.restore()
+      }
+    })
   }
 
   private async restore() {
@@ -89,16 +133,17 @@ class BG {
       this.keyName
     )) as any
     if (!data || !data.file) {
+      this.setBGUrl('')
+      this.setBGAll()
       return
     }
-    this.bgUrl = URL.createObjectURL(data.file)
-    this.preload()
+    this.setBGUrl(URL.createObjectURL(data.file))
+    this.setBGAll()
   }
 
   private async selectBG() {
     const file = (await Utils.selectFile('.jpg,.jpeg,.png,.bmp,.webp'))[0]
-    this.bgUrl = URL.createObjectURL(file)
-    this.preload()
+    this.setBGUrl(URL.createObjectURL(file))
     for (const o of this.list) {
       this.setBG(o)
     }
@@ -109,15 +154,28 @@ class BG {
     }
 
     const test = await this.IDB.get(this.storeName, this.keyName)
-    this.IDB[test ? 'put' : 'add'](this.storeName, data)
+    await this.IDB[test ? 'put' : 'add'](this.storeName, data)
+    await this.notifyBackgroundChange()
   }
 
-  private clearBG() {
-    this.IDB.clear(this.storeName)
-    this.bgUrl = ''
-    for (const o of this.list) {
-      o.bg.style.backgroundImage = 'none'
-      this.setDisplay(o)
+  private async clearBG() {
+    await this.IDB.clear(this.storeName)
+    this.setBGUrl('')
+    this.setBGAll()
+    await this.notifyBackgroundChange()
+  }
+
+  /** 替换背景图片 URL，并释放不再使用的资源 */
+  private setBGUrl(url: string) {
+    if (this.bgUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(this.bgUrl)
+    }
+    this.bgUrl = url
+
+    this.preloadImage?.remove()
+    this.preloadImage = undefined
+    if (this.bgUrl) {
+      this.preload()
     }
   }
 
@@ -125,8 +183,21 @@ class BG {
   private preload() {
     // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
     const img = new Image()
-    img.src = this.bgUrl
     img.style.display = 'none'
+    this.preloadImage = img
+    img.addEventListener('load', () => {
+      if (this.preloadImage === img) {
+        img.remove()
+        this.preloadImage = undefined
+      }
+    })
+    img.addEventListener('error', () => {
+      if (this.preloadImage === img) {
+        img.remove()
+        this.preloadImage = undefined
+      }
+    })
+    img.src = this.bgUrl
     document.body.append(img)
   }
 
@@ -147,7 +218,17 @@ class BG {
   }
 
   private setBGURL(o: BGItem) {
-    o.bg.style.backgroundImage = `url(${this.bgUrl})`
+    o.bg.style.backgroundImage = this.bgUrl ? `url(${this.bgUrl})` : 'none'
+  }
+
+  /** 通知其他标签页重新读取 IndexedDB 中的背景图片 */
+  private notifyBackgroundChange() {
+    return browser.storage.local.set({
+      [this.backgroundChangeStoreName]: {
+        origin: location.origin,
+        token: Date.now() + Math.random(),
+      } as BGChange,
+    })
   }
 
   private setDisplay(o: BGItem) {

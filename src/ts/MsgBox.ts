@@ -27,7 +27,7 @@ class MsgBox {
   } = {
     success: Colors.textSuccess,
     warning: Colors.textWarning,
-    error: Colors.textError,
+    error: Colors.textErrorLight,
   }
 
   private bindEvents() {
@@ -113,6 +113,10 @@ class MsgBox {
     let colorStyle = ''
     if (data.color) {
       colorStyle = `style="color:${data.color}"`
+      // 当显示错误信息的红色文字时，把文字加粗以提高其可读性（尤其是在暗色模式和背景图片模式里）
+      if (data.color === this.typeColor.error) {
+        colorStyle = `style="color:${this.typeColor.error}; font-weight: bold;"`
+      }
     }
 
     wrap.innerHTML = `

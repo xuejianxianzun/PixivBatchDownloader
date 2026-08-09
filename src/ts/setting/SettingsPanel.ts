@@ -147,6 +147,7 @@ class SettingsPanel {
         ),
       afterRender: () => {
         this.placementController.updatePinnedSectionVisibility()
+        this.sectionController.refreshEmptyCategoryHints()
         this.sectionController.updateExpandAllButton()
         window.setTimeout(() => this.sectionController.refreshStickyHeader(), 0)
       },

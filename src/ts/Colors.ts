@@ -10,6 +10,7 @@ enum Colors {
   textSuccess = '#00BD17',
   textWarning = '#d27e00',
   textError = '#f00',
+  textErrorLight = '#ff4c4c',
 
   // 背景颜色
   // 稍暗，适合在颜色区域的面积较大时使用。之前用作主要按钮的背景颜色，但现在已经不直接使用这几个颜色了，而是使用 CSS 变量来定义按钮的背景颜色，这样更灵活一些。

@@ -195,7 +195,7 @@ class ExportResult2CSV {
     // 设置文件名
     let csvName = `result-total ${body.length - 1}-${Utils.replaceUnsafeStr(
       Tools.getPageTitle()
-    )}-${Utils.replaceUnsafeStr(store.crawlCompleteTime.toLocaleString())}.csv`
+    )}-${Tools.formatDateTimeInFilename(store.crawlCompleteTime)}.csv`
 
     Utils.downloadFile(csvURL, csvName)
 

@@ -42,9 +42,9 @@
 // 在执行上面两种操作的过程中，每个设置项都会触发一次 settingChange 事件
 // 最后会触发一次 resetSettingsEnd 事件
 
-// 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
-// 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
-// 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
+// 持久化保存的数据只有一份，保存在 browser.storage.local 里
+// 所以当页面刷新时，或者打开新的页面时，会加载设置数据。如果用户打开了多个标签页，每个标签页里的内容脚本都会保存一份设置副本。
+// 该模块监听了 browser.storage.onChanged 事件。当用户在任意标签页里修改设置之后，其他标签页都可以感知到变化，并根据 settingsAcrossDifferentTabs 设置决定是否同步这些变化
 
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
@@ -57,6 +57,8 @@ import { toast } from '../Toast'
 import { lang } from '../Language'
 import { PageName } from '../PageType'
 import { ppdTask } from '../PPDTask'
+import { Tools } from '../Tools'
+import { SendDownload } from '../download/SendDownload'
 
 export type OptionCategoryLevel1 =
   | 'crawl'
@@ -214,6 +216,7 @@ interface XzSetting {
 
   userBlockList: boolean
   blockList: string[]
+  quicklyBlockUsers: boolean
   removeBlockedUsersWork: boolean
   needTagMode: 'all' | 'one'
   theme: 'auto' | 'white' | 'dark'
@@ -346,6 +349,10 @@ interface XzSetting {
   PreviewDetailInfoWidth: number
   removeWorksOfFollowedUsersOnSearchPage: boolean
   saveWorkDescription: boolean
+  saveDescriptionType0: boolean
+  saveDescriptionType1: boolean
+  saveDescriptionType2: boolean
+  saveDescriptionType3: boolean
   saveEachDescription: boolean
   summarizeDescription: boolean
   // delay 的拼写错误，但为了维持兼容性，不做修改
@@ -403,6 +410,10 @@ interface XzSetting {
   downloadIntervalSwitch: boolean
   /** 在合并系列小说时，只要有一篇小说符合过滤条件，就保存该系列里的所有小说 */
   saveAllSeriesNovelsIfOneMatches: boolean
+  settingsAcrossDifferentTabs: 'synchronizeChanges' | 'doNotSynchronizeChanges'
+  autoExportSettings: boolean
+  autoExportSettingsStrategy: 'timed' | 'onSettingChange'
+  autoExportSettingsInterval: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -734,6 +745,7 @@ class Settings {
     restrictBoolean: false,
     userBlockList: false,
     removeBlockedUsersWork: true,
+    quicklyBlockUsers: true,
     blockList: [],
     theme: 'auto',
     needTagMode: 'all',
@@ -907,6 +919,10 @@ class Settings {
     PreviewDetailInfoWidth: 400,
     removeWorksOfFollowedUsersOnSearchPage: false,
     saveWorkDescription: false,
+    saveDescriptionType0: true,
+    saveDescriptionType1: true,
+    saveDescriptionType2: true,
+    saveDescriptionType3: false,
     saveEachDescription: true,
     summarizeDescription: false,
     slowCrawlDealy: 1800,
@@ -1013,6 +1029,10 @@ class Settings {
     clickSettingNameOpenWiki: true,
     downloadIntervalSwitch: true,
     saveAllSeriesNovelsIfOneMatches: false,
+    settingsAcrossDifferentTabs: 'synchronizeChanges',
+    autoExportSettings: false,
+    autoExportSettingsStrategy: 'timed',
+    autoExportSettingsInterval: 24,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1047,10 +1067,29 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
+  /** 正在应用其他标签页的设置，避免产生回写循环 */
+  private isApplyingSettingsFromOtherTab = false
+
+  /** 当前标签页的设置是否已从本地存储恢复 */
+  private settingsRestored = false
+
+  /** 设置恢复期间收到的最新设置快照 */
+  private pendingSettingsFromOtherTab?: Partial<XzSetting>
+
+  /** 当前待保存的设置是否需要在成功保存后通知 */
+  private shouldFireSettingsStored = false
+
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      this.store()
+      if (!this.isApplyingSettingsFromOtherTab) {
+        this.shouldFireSettingsStored ||= this.settingsRestored
+        this.store()
+      }
+    })
+
+    browser.storage.onChanged.addListener((changes, areaName) => {
+      this.receiveSettingsFromOtherTab(changes, areaName)
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -1160,15 +1199,29 @@ class Settings {
       }
 
       this.assignSettings(restoreData)
+      this.settingsRestored = true
+      if (this.pendingSettingsFromOtherTab) {
+        this.applySettingsFromOtherTab(this.pendingSettingsFromOtherTab)
+        this.pendingSettingsFromOtherTab = undefined
+      }
       EVT.fire('settingInitialized')
     })
   }
 
   private store = Utils.debounce(() => {
+    const fireSettingsStoredEvent = this.shouldFireSettingsStored
+    this.shouldFireSettingsStored = false
+
     // browser.storage.local 的储存上限是 5 MiB（5242880 Byte）
-    browser.storage.local.set({
-      [Config.settingStoreName]: this.settings,
-    })
+    browser.storage.local
+      .set({
+        [Config.settingStoreName]: this.settings,
+      })
+      .then(() => {
+        if (fireSettingsStoredEvent) {
+          EVT.fire('settingsStored')
+        }
+      })
   }, 50)
 
   // 接收整个设置项，通过循环将其更新到 settings 上
@@ -1182,12 +1235,113 @@ class Settings {
     }
   }
 
-  private exportSettings() {
+  /** 接收并应用其他标签页保存的设置 */
+  private receiveSettingsFromOtherTab(
+    changes: { [key: string]: browser.Storage.StorageChange },
+    areaName: string
+  ) {
+    if (areaName !== 'local') {
+      return
+    }
+
+    const change = changes[Config.settingStoreName]
+    const data = change?.newValue
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return
+    }
+
+    const remoteSettings = data as Partial<XzSetting>
+    if (!this.settingsRestored) {
+      this.pendingSettingsFromOtherTab = remoteSettings
+      return
+    }
+
+    this.applySettingsFromOtherTab(remoteSettings)
+  }
+
+  /** 按同步方式应用其他标签页的设置 */
+  private applySettingsFromOtherTab(remoteSettings: Partial<XzSetting>) {
+    const remoteSyncMode =
+      remoteSettings.settingsAcrossDifferentTabs ??
+      this.defaultSettings.settingsAcrossDifferentTabs
+    const syncModeChanged =
+      remoteSyncMode !== this.settings.settingsAcrossDifferentTabs
+
+    // 同步方式（即 settingsAcrossDifferentTabs 设置的值）总是会同步变化，以便可以从“保持不变”恢复到同步状态
+    if (!syncModeChanged && remoteSyncMode === 'doNotSynchronizeChanges') {
+      return
+    }
+
+    this.isApplyingSettingsFromOtherTab = true
+    try {
+      if (syncModeChanged) {
+        this.setSetting('settingsAcrossDifferentTabs', remoteSyncMode)
+      }
+
+      for (const [key, value] of Object.entries(remoteSettings)) {
+        const settingKey = key as SettingKeys
+        if (
+          settingKey === 'settingsAcrossDifferentTabs' ||
+          !this.allSettingKeys.includes(settingKey) ||
+          this.isSameSettingValue(this.settings[settingKey], value)
+        ) {
+          continue
+        }
+        this.setSetting(settingKey, value)
+      }
+    } finally {
+      this.isApplyingSettingsFromOtherTab = false
+    }
+  }
+
+  /** 比较设置值是否相同 */
+  private isSameSettingValue(value1: unknown, value2: unknown): boolean {
+    if (Object.is(value1, value2)) {
+      return true
+    }
+
+    if (
+      value1 === null ||
+      value2 === null ||
+      typeof value1 !== 'object' ||
+      typeof value2 !== 'object'
+    ) {
+      return false
+    }
+
+    if (Array.isArray(value1) || Array.isArray(value2)) {
+      if (!Array.isArray(value1) || !Array.isArray(value2)) {
+        return false
+      }
+      if (value1.length !== value2.length) {
+        return false
+      }
+      return value1.every((value, index) =>
+        this.isSameSettingValue(value, value2[index])
+      )
+    }
+
+    const object1 = value1 as Record<string, unknown>
+    const object2 = value2 as Record<string, unknown>
+    const keys1 = Object.keys(object1)
+    const keys2 = Object.keys(object2)
+    if (keys1.length !== keys2.length) {
+      return false
+    }
+
+    return keys1.every(
+      (key) =>
+        Object.hasOwn(object2, key) &&
+        this.isSameSettingValue(object1[key], object2[key])
+    )
+  }
+
+  /** 导出当前设置 */
+  public async exportSettings() {
     const blob = Utils.json2Blob(this.settings)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, Config.appName + ` Settings.json`)
-    URL.revokeObjectURL(url)
-    toast.success(lang.transl('_导出成功'))
+    const filename = `PPD Settings/${Config.appName} Settings-${Tools.formatDateTimeInFilename()}.json`
+    await SendDownload.noReply(blob, filename, 'downloadsAPI')
+    toast.success(lang.transl('_已导出设置'))
   }
 
   private async importSettings() {
@@ -1301,8 +1455,12 @@ class Settings {
       }
 
       if (isNaN(value as number)) {
-        const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
-        return msgBox.error(msg)
+        if (key === 'autoExportSettingsInterval') {
+          value = this.defaultSettings[key]
+        } else {
+          const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
+          return msgBox.error(msg)
+        }
       }
     }
 
@@ -1355,7 +1513,7 @@ class Settings {
     }
 
     if (key === 'fullNameLengthLimit') {
-      // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
+      // 考虑到 id 的长度已经达到了十几位，所以不允许把文件名的长度设置为小于 20 的值
       if ((value as number) < 20) {
         value = this.defaultSettings[key]
       }
@@ -1402,6 +1560,13 @@ class Settings {
       }
     }
 
+    if (key === 'autoExportSettingsInterval') {
+      const v = value as number
+      if (isNaN(v) || v < 1 || v > 8760) {
+        value = this.defaultSettings[key]
+      }
+    }
+
     if (key === 'folderForMultiImageWorksRule' || key === 'r18FolderName') {
       value = (value as string).replaceAll('{id}', '{pid}')
     }
@@ -1442,5 +1607,6 @@ class Settings {
 const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
+const exportSettings = self.exportSettings.bind(self)
 
-export { settings, setSetting, SettingKeys }
+export { settings, setSetting, exportSettings, SettingKeys }

@@ -179,14 +179,15 @@ class SetTagAlias {
     element.dataset.key = alias
     element.innerHTML = html
 
+    const aliasSelector = CSS.escape(alias)
     const deleteRule = element.querySelector(
-      `button[data-deleteRule='${alias}']`
+      `button[data-deleteRule='${aliasSelector}']`
     )
     const uidInput = element.querySelector(
-      `input[data-uidInput='${alias}']`
+      `input[data-uidInput='${aliasSelector}']`
     )! as HTMLInputElement
     const nameInput = element.querySelector(
-      `input[data-nameInput='${alias}']`
+      `input[data-nameInput='${aliasSelector}']`
     )! as HTMLInputElement
 
     // 当输入框发生变化时，进行更新
@@ -281,7 +282,7 @@ class SetTagAlias {
 
   private removeListElement(alias: string) {
     const listElement = this.listWrap.querySelector(
-      `.settingItem[data-key='${alias}']`
+      `.settingItem[data-key='${CSS.escape(alias)}']`
     )
     listElement?.remove()
   }

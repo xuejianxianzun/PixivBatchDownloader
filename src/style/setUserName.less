@@ -1,9 +1,4 @@
 .setUserNameWrap {
-  input::-webkit-input-placeholder,
-  textarea::-webkit-input-placeholder {
-    color: #999;
-  }
-
   .icon {
     font-size: 1.3em;
   }
@@ -53,7 +48,7 @@
       margin-right: 10px;
 
       .label {
-        color: #444;
+        color: var(--settings-panel-text);
       }
 
       &.uid {
@@ -105,34 +100,6 @@
           position: relative;
           top: 1px;
         }
-      }
-    }
-  }
-
-  .theme-dark {
-    &.setUserNameWrap {
-      div,
-      span {
-        color: #fff !important;
-      }
-
-      input::-webkit-input-placeholder,
-      textarea::-webkit-input-placeholder {
-        color: #ddd;
-      }
-    }
-  }
-
-  .xzBG {
-    .setUserNameWrap {
-      div,
-      span {
-        color: #fff !important;
-      }
-
-      input::-webkit-input-placeholder,
-      textarea::-webkit-input-placeholder {
-        color: #ddd;
       }
     }
   }

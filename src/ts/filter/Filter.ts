@@ -210,7 +210,7 @@ class Filter {
       return false
     }
 
-    // 检查用户阻止名单
+    // 检查用户屏蔽名单
     if (!this.checkBlockList(option.userId, option.id)) {
       return false
     }

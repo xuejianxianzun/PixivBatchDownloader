@@ -131,7 +131,7 @@ class ShowLargerThumbnails {
       // 在漫画页面里，查找 推荐作品
       if (window.location.pathname.includes('/manga')) {
         const allLi = sectionList[2]?.querySelectorAll('ul li')
-        if (allLi.length > 1) {
+        if (allLi && allLi.length > 1) {
           sectionList[2].classList.add('homeRecommendedWorks')
           sectionList[2].parentElement!.classList.add(
             'homeRecommendedWorksParent'

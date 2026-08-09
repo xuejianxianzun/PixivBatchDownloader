@@ -133,7 +133,11 @@ class DownloadNovelEmbeddedImage {
         imageId
       )
 
-      await SendDownload.noReply(blob, imageName)
+      await SendDownload.noReply(
+        blob,
+        imageName,
+        Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+      )
     }
 
     log.persistentRefresh('downloadNovelImage' + novelId)

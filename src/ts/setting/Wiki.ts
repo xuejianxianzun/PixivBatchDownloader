@@ -61,6 +61,8 @@ type Level2 = {
 type AvailableLanguages = 'zh-cn' | 'en'
 
 /** 为每个设置和按钮创建其在 Wiki 上的 URL */
+// 当修改了按钮时，需要同步更新 buttonsSchema 里的配置；
+// 当修改了设置时，不需要修改 optionsSchema 里的配置，而是修改 optionConfigs.ts 里的配置。optionsSchema 会在初始化时根据 optionConfigs.ts 里的配置自动生成。
 // PS：Wiki 里除了设置和按钮还有其他页面，那些页面与这里无关。
 class Wiki {
   constructor() {
@@ -353,6 +355,17 @@ class Wiki {
     return 'en'
   }
 
+  /** 获取用于 Wiki URL 的文本 */
+  private getWikiText(key: LangTextKey): string {
+    const langFlag = this.useLang()
+    switch (langFlag) {
+      case 'zh-cn':
+        return langText[key][0]
+      case 'en':
+        return langText[key][2]
+    }
+  }
+
   private resetHomeConfig() {
     let HomePrefix = 'https://xuejianxianzun.github.io/PBDWiki/'
     if (settings.debugForWiki) {
@@ -423,7 +436,7 @@ class Wiki {
         if (lv2.ids.includes(id)) {
           // 需要把文件名里的空格替换成横线 -，因为如果有空格的话就无法解析为 markdown 里的链接。
           const url =
-            `${home}${lang.transl(level0Key)}-${lang.transl(level1.nameKey)}/${lang.transl(lv2.nameKey)}?flag=${id}`.replaceAll(
+            `${home}${this.getWikiText(level0Key)}-${this.getWikiText(level1.nameKey)}/${this.getWikiText(lv2.nameKey)}?flag=${id}`.replaceAll(
               ' ',
               '-'
             )

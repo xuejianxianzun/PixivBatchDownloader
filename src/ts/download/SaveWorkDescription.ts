@@ -19,7 +19,7 @@ class SaveWorkDescription {
   }
 
   private savedIds: number[] = []
-  private hasLinkRegexp = /http[s]:\/\//
+  private hasLinkRegexp = /https?:\/\//
 
   private bindEvents() {
     // 当有作品文件下载成功时，保存其元数据
@@ -39,9 +39,39 @@ class SaveWorkDescription {
     })
   }
 
+  /** 如果所有作品类型都没有选中，就不需要保存简介 */
+  private allWorkTypeUnchecked(): boolean {
+    return (
+      settings.saveDescriptionType0 === false &&
+      settings.saveDescriptionType1 === false &&
+      settings.saveDescriptionType2 === false &&
+      settings.saveDescriptionType3 === false
+    )
+  }
+
+  /** 根据作品类型，决定是否要保存它的简介 */
+  private checkNeedSave(type: 0 | 1 | 2 | 3): boolean {
+    switch (type) {
+      case 0:
+        return settings.saveDescriptionType0
+      case 1:
+        return settings.saveDescriptionType1
+      case 2:
+        return settings.saveDescriptionType2
+      case 3:
+        return settings.saveDescriptionType3
+      default:
+        return false
+    }
+  }
+
   /**保存单个作品的简介 */
   private async saveOne(id: number) {
     if (!settings.saveWorkDescription || !settings.saveEachDescription) {
+      return
+    }
+
+    if (this.allWorkTypeUnchecked()) {
       return
     }
 
@@ -62,6 +92,10 @@ class SaveWorkDescription {
       return
     }
 
+    if (this.checkNeedSave(data.type) === false) {
+      return
+    }
+
     // 生成文件
     const desc = Utils.htmlToText(Tools.replaceATag(data.description))
     const blob = new Blob([desc], {
@@ -75,33 +109,21 @@ class SaveWorkDescription {
       hasLink ? '-links' : ''
     }.txt`
 
-    await SendDownload.noReply(blob, fileName)
+    await SendDownload.noReply(
+      blob,
+      fileName,
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
     this.savedIds.push(id)
-  }
-
-  /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */
-  private createFileName(data: Result) {
-    // 生成文件名
-    // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
-
-    // 生成这个数据的路径和文件名
-    const _fileName = fileName.createFileName(data)
-    // 取出后缀名之前的部分
-    const index = _fileName.lastIndexOf('.')
-    let part1 = _fileName.substring(0, index)
-
-    // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-    if (!settings.zeroPadding) {
-      // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
-      part1 = part1.replace(data.id, data.idNum.toString())
-    }
-
-    return part1
   }
 
   /**抓取完毕后，把所有简介汇总到一个文件里 */
   private async summary() {
     if (!settings.saveWorkDescription || !settings.summarizeDescription) {
+      return
+    }
+
+    if (this.allWorkTypeUnchecked()) {
       return
     }
 
@@ -117,6 +139,10 @@ class SaveWorkDescription {
     // 因为 resultMeta 里每个作品只有一条数据，而 result 里可能有多条。使用 resultMeta 不需要去重
     for (const result of store.resultMeta) {
       if (result.description === '') {
+        continue
+      }
+
+      if (this.checkNeedSave(result.type) === false) {
         continue
       }
 
@@ -173,9 +199,7 @@ class SaveWorkDescription {
     let txtName = ''
     const name = lang.transl('_简介汇总')
     const title = Utils.replaceUnsafeStr(Tools.getPageTitle())
-    const time = Utils.replaceUnsafeStr(
-      store.crawlCompleteTime.toLocaleString()
-    )
+    const time = Tools.formatDateTimeInFilename(store.crawlCompleteTime)
     // 在文件名里添加时间戳可以避免同名文件覆盖
 
     // 检查这些作品是否属于同一个画师
@@ -222,12 +246,36 @@ class SaveWorkDescription {
       }
     }
 
-    await SendDownload.noReply(blob, txtName)
+    await SendDownload.noReply(
+      blob,
+      txtName,
+      settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI'
+    )
     const msg = `✅${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'
     )}`
     log.success(msg)
     toast.success(msg)
+  }
+
+  /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */
+  private createFileName(data: Result) {
+    // 生成文件名
+    // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+
+    // 生成这个数据的路径和文件名
+    const _fileName = fileName.createFileName(data)
+    // 取出后缀名之前的部分
+    const index = _fileName.lastIndexOf('.')
+    let part1 = _fileName.substring(0, index)
+
+    // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+    if (!settings.zeroPadding) {
+      // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+      part1 = part1.replace(data.id, data.idNum.toString())
+    }
+
+    return part1
   }
 }
 

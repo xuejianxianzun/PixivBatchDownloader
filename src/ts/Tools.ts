@@ -1,4 +1,3 @@
-import { API } from './API'
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
@@ -13,6 +12,8 @@ import {
 } from './store/StoreType'
 import { Utils } from './utils/Utils'
 import { ppdTask } from './PPDTask'
+import { DateFormat } from './utils/DateFormat'
+import { API } from './API'
 
 type artworkDataTagsItem = {
   tag: string
@@ -1122,19 +1123,15 @@ class Tools {
     return ''
   }
 
+  /** 传入用户 ID，返回用户名。如果请求出错，会返回空字符串 */
   static async getUserName(uid: number): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
-        console.log(err)
-        return reject(
-          `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
-        )
-      })
-      if (profile && profile.body.name) {
-        return resolve(profile.body.name)
-      }
-      return resolve('')
-    })
+    try {
+      const profile = await API.getUserProfile(uid.toString())
+      return profile?.body?.name || ''
+    } catch (err) {
+      console.log(err)
+      return ''
+    }
   }
 
   static readonly originalMark: Map<string, string> = new Map([
@@ -1430,6 +1427,19 @@ class Tools {
   /** 为设定资料里的图片生成唯一的标记，如 [glossaryImage-24974873] */
   static createGlossaryImageFlag(imageId: string) {
     return `[glossaryImage-${imageId}]`
+  }
+
+  /** 下载器导出的一些文件的名字里含有时间戳。这个方法用来格式化这种时间戳，格式固定为 2026-08-07 08-01-00 */
+  static formatDateTimeInFilename(date?: Date) {
+    const now = date || new Date()
+    return DateFormat.format(now, 'YYYY-MM-DD hh-mm-ss')
+  }
+
+  /** 传入一个布尔值来决定使用哪种下载方式。true 为 downloadsAPI，false 为 anchorDownload */
+  static chooseDownloadMethod(
+    bool: boolean
+  ): 'downloadsAPI' | 'anchorDownload' {
+    return bool ? 'downloadsAPI' : 'anchorDownload'
   }
 }
 

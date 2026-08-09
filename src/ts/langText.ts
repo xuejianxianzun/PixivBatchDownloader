@@ -1108,12 +1108,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     'Список страниц просканирован',
   ],
   _抓取结果为零请检查筛选条件: [
-    `抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置，并查看日志里显示的信息。`,
-    `抓取完畢，但沒有找到符合篩選條件的作品。<br>請檢查「抓取」相關的設置，並查看日誌裡顯示的資訊。`,
-    `Crawling completed, but no works matching the filter conditions were found.<br>Please check the "crawl"-related settings and view the information displayed in the log.`,
-    `クロールが完了しましたが、フィルター条件に一致する作品が見つかりませんでした。<br>「クロール」関連の設定を確認し、ログに表示される情報をご覧ください。`,
-    `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
-    `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
+    `抓取完毕，但是没有找到需要下载的作品。<br>这通常是因为作品被某些过滤条件排除了，你可以在顶部日志里查看具体原因。`,
+    `抓取完畢，但沒有找到需要下載的作品。<br>這通常是因為作品被某些篩選條件排除了，你可以在頂部日誌中查看具體原因。`,
+    `Crawl completed, but no works to download were found.<br>This is usually because some filter conditions excluded the works. Check the log at the top for the specific reason.`,
+    `クロールが完了しましたが、ダウンロードする作品が見つかりませんでした。<br>通常は、何らかのフィルター条件によって作品が除外されたことが原因です。詳しい理由は上部のログで確認できます。`,
+    `크롤링이 완료되었지만 다운로드할 작품을 찾지 못했습니다.<br>일반적으로 일부 필터 조건에 의해 작품이 제외되었기 때문입니다. 자세한 이유는 상단 로그에서 확인할 수 있습니다.`,
+    `Сбор завершен, но работы для загрузки не найдены.<br>Обычно это связано с тем, что работы были исключены условиями фильтрации. Подробную причину можно посмотреть в журнале в верхней части страницы.`,
   ],
   _抓取结果为零并且所有作品都产生了合并系列小说时的提示: [
     `本次抓取中的所有作品都是系列小说，没有单篇小说需要下载，所以抓取结果是 0。`,
@@ -3793,24 +3793,12 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     `Функция <span class="key">закладок</span> загрузчика (✩)`,
   ],
   _收藏设置的说明: [
-    `有时你会看到下载器添加的收藏按钮 (✩)，点击这个按钮可以收藏作品。<br>
-    你可以选择是否附带作品的 tags，以及是否公开。<br>
-    另外，使用下载器批量收藏作品时也会使用此设置。`,
-    `有時你會看到下載器新增的收藏按鈕 (✩)，點選這個按鈕可以收藏作品。<br>
-    你可以選擇是否附帶作品的 tags，以及是否公開。<br>
-    另外，使用下載器批次收藏作品時也會使用此設定。`,
-    `Sometimes you'll see a bookmark button (✩) added by the downloader, which you can click to bookmark the work. <br>
-You can choose whether to include tags for the work, and whether to make it public.<br>
-This setting is also used when you use the Downloader to bookmark works in batches.`,
-    `ダウンロードした作品にはブックマークボタン（✩）が表示されることがあります。このボタンをクリックすると、作品をブックマークできます。<br>
-作品にタグを付けるかどうか、また公開するかどうかを選択できます。<br>
-この設定は、ダウンローダーを使用して作品を一括でブックマークする場合にも使用されます。`,
-    `다운로더에서 북마크 버튼(✩)을 추가하는 경우가 있는데, 이 버튼을 클릭하면 작품을 북마크할 수 있습니다. <br>
-작품에 태그를 포함할지 여부와 공개 여부를 선택할 수 있습니다.<br>
-이 설정은 다운로더를 사용하여 작품을 일괄적으로 북마크할 때도 사용됩니다.`,
-    `Иногда вы увидите кнопку закладки (✩), добавленную загрузчиком, которую вы можете нажать, чтобы добавить работу в закладки. <br>
-Вы можете выбрать, следует ли включать теги для работы и следует ли делать ее общедоступной.<br>
-Эта настройка также используется при использовании Загрузчика для добавления закладок в пакетном режиме.`,
+    `当你使用下载器的收藏功能时，可以设置是否添加作品本身的标签，以及是否公开。`,
+    `當你使用下載器的收藏功能時，可以設定是否新增作品本身的標籤，以及是否公開。`,
+    `When using the downloader's bookmark feature, you can choose whether to add the work's own tags and make the bookmark public.`,
+    `ダウンローダーのブックマーク機能を使用する際、作品自体のタグを追加するかどうかと、公開するかどうかを設定できます。`,
+    `다운로더의 북마크 기능을 사용할 때 작품 자체의 태그를 추가할지, 북마크를 공개할지 설정할 수 있습니다.`,
+    `При использовании функции закладок загрузчика можно настроить, добавлять ли теги самой работы и делать ли закладку публичной.`,
   ],
   _下载器的收藏按钮默认会添加作品的标签: [
     '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
@@ -3853,15 +3841,39 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '태그 추가하지 않기',
     'Не добавлять тег',
   ],
-  _用户阻止名单: [
-    '用户<span class="key">阻止</span>名单',
-    '使用者<span class="key">阻止</span>名單',
-    'User <span class="key">block</span> list',
-    '<span class="key">ユーザー</span>ブロックリスト',
-    '유저 <span class="key">차단</span> 목록',
-    '<span class="key">Блок</span> списка пользователей',
+  _用户屏蔽名单: [
+    `用户<span class="key">屏蔽</span>名单`,
+    `使用者<span class="key">封鎖</span>名單`,
+    `User <span class="key">block</span> list`,
+    `ユーザー<span class="key">ブロック</span>リスト`,
+    `사용자 <span class="key">차단</span> 목록`,
+    `Список <span class="key">заблокированных</span> пользователей`,
   ],
-  _用户阻止名单的说明: [
+  _快捷屏蔽用户: [
+    `快捷屏蔽用户`,
+    `快速封鎖使用者`,
+    `Quickly block users`,
+    `ユーザーをすばやくブロック`,
+    `빠르게 사용자 차단`,
+    `Быстрая блокировка пользователей`,
+  ],
+  _快捷屏蔽用户的说明: [
+    `当你把鼠标指针停留在任意用户的名字上时，下载器会显示一个屏蔽按钮，点击按钮即可屏蔽这个用户。`,
+    `當你把滑鼠指標停留在任意使用者的名字上時，下載器會顯示一個封鎖按鈕，點擊按鈕即可封鎖這個使用者。`,
+    `When you hover your pointer over any user's name, the downloader shows a block button. Click it to block that user.`,
+    `任意のユーザー名にマウスポインターを合わせると、ダウンローダーにブロックボタンが表示されます。そのボタンをクリックすると、そのユーザーをブロックできます。`,
+    `사용자 이름 위에 마우스 포인터를 올리면 다운로더에 차단 버튼이 표시됩니다. 버튼을 클릭하면 해당 사용자를 차단할 수 있습니다.`,
+    `Когда вы наведете указатель мыши на имя любого пользователя, загрузчик покажет кнопку блокировки. Нажмите её, чтобы заблокировать этого пользователя.`,
+  ],
+  _用户阻止名单: [
+    '用户阻止名单',
+    '使用者阻止名單',
+    'User block list',
+    'ユーザーブロックリスト',
+    '유저 차단 목록',
+    'Блок списка пользователей',
+  ],
+  _用户屏蔽名单的说明: [
     `不下载这些用户的作品。需要输入用户 id。<br>
     如果有多个用户 id，使用英文逗号,分割。`,
     `不下載這些使用者的作品。需要輸入使用者 id。<br>
@@ -7089,7 +7101,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
     'Сохранить описание работы',
   ],
   _保存作品简介的说明: [
-    '生成 TXT 文件保存作品简介',
+    '生成 TXT 文件保存作品简介。',
     '生成 TXT 檔案儲存作品說明',
     'Create a TXT file to save the work description',
     '作業説明を保存するためのTXTファイルを作成します。',
@@ -7114,12 +7126,12 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
     'Сохраняйте каждую работу отдельно',
   ],
   _简介的Links标记: [
-    `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
-    `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
-    `Save each work's description in a separate TXT file.<br>If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
-    `各作品の説明を別々の TXT ファイルに保存します。 <br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
-    `각 작품에 대한 설명을 별도의 TXT 파일로 저장합니다. <br>작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
-    `Сохраните описание каждой работы в отдельном TXT-файле. <br>Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+    `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记。<br>有些作品没有简介，此时下载器不会为其生成 TXT 文件。`,
+    `將每個作品的說明儲存到個別的 TXT 檔案裡。<br>如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記。<br>有些作品沒有說明，此時下載器不會為其建立 TXT 檔案。`,
+    `Save each work's description in a separate TXT file.<br>If a work's description contains hyperlinks, the downloader adds a 'links' tag to the end of the filename.<br>Some works have no description, so no TXT file is created for them.`,
+    `各作品の説明を個別の TXT ファイルに保存します。<br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。<br>説明がない作品については、TXT ファイルを作成しません。`,
+    `각 작품의 설명을 별도의 TXT 파일로 저장합니다.<br>작품 설명에 하이퍼링크가 포함되어 있으면 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.<br>설명이 없는 작품에는 TXT 파일을 만들지 않습니다.`,
+    `Описание каждой работы сохраняется в отдельный TXT-файл.<br>Если описание работы содержит гиперссылки, загрузчик добавляет тег «links» в конце имени файла.<br>Для работ без описания TXT-файл не создаётся.`,
   ],
   _汇总到一个文件: [
     '汇总到一个文件',
@@ -7204,27 +7216,59 @@ This is because when continuously downloading many files (especially novels), yo
     '사용자 {} 의 작업이 제거되었습니다.',
     'Удалена работа пользователя {}',
   ],
-  _用户阻止名单的说明2: [
-    `下载器不会抓取“用户阻止名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。<br>
-PS：在被阻止的用户的主页里不会移除他们的作品，所以你可以正常查看他们的主页。`,
-    `下載器不會抓取“使用者阻止名單”裡的使用者的作品，而且還可以從頁面上移除他們的作品，這樣你就不會看到不喜歡的使用者的作品了。<br>
-PS：在被阻止的使用者的主頁裡不會移除他們的作品，所以你可以正常檢視他們的主頁。`,
-    `The downloader will not crawl the works of users in the "user block list", and can also remove their works from the page, so you won't see the works of users you don't like. <br>
-PS: The works of blocked users will not be removed from their homepages, so you can view their homepages normally.`,
-    `ダウンローダーは「ユーザーブロックリスト」内のユーザーの作品をクロールしません。また、ページから作品を削除することもできます。そのため、気に入らないユーザーの作品は表示されません。<br>
-追記：ブロックされたユーザーの作品はホームページから削除されないため、通常どおりホームページを閲覧できます。`,
-    `다운로더는 "사용자 차단 목록"에 있는 사용자의 작품을 크롤링하지 않으며, 페이지에서 해당 작품을 제거할 수도 있으므로 마음에 들지 않는 사용자의 작품은 볼 수 없습니다. <br>
-PS: 차단된 사용자의 작품은 홈페이지에서 제거되지 않으므로, 해당 홈페이지를 정상적으로 볼 수 있습니다.`,
-    `Загрузчик не будет сканировать работы пользователей из «списка заблокированных пользователей», а также может удалить их работы со страницы, так что вы не увидите работы пользователей, которые вам не нравятся. <br>
-P.S. Работы заблокированных пользователей не будут удалены с их домашних страниц, так что вы сможете просматривать их домашние страницы как обычно.`,
+  _用户屏蔽名单的说明2: [
+    `下载器不会抓取“用户屏蔽名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。<br>
+PS：在被屏蔽的用户的主页里不会移除他们的作品，所以你可以正常查看他们的主页。`,
+    `下載器不會抓取「使用者封鎖名單」裡的使用者的作品，而且還可以從頁面上移除他們的作品，這樣你就不會看到不喜歡的使用者的作品了。<br>
+PS：在被封鎖的使用者的主頁裡不會移除他們的作品，所以你可以正常查看他們的主頁。`,
+    `The downloader will not crawl works by users on the "User block list". It can also remove their works from pages, so you will not see works by users you dislike.<br>
+PS: Works are not removed on a blocked user's profile page, so you can view their profile normally.`,
+    `ダウンローダーは「ユーザーブロックリスト」に登録したユーザーの作品をクロールしません。また、ページからそのユーザーの作品を削除できるため、好みでないユーザーの作品を見ずに済みます。<br>
+PS：ブロックしたユーザーのプロフィールページでは作品を削除しないため、そのプロフィールページは通常どおり閲覧できます。`,
+    `다운로더는 "사용자 차단 목록"에 있는 사용자의 작품을 크롤하지 않습니다. 또한 페이지에서 해당 사용자의 작품을 제거할 수 있으므로, 원하지 않는 사용자의 작품을 보지 않아도 됩니다.<br>
+PS: 차단한 사용자의 프로필 페이지에서는 작품을 제거하지 않으므로, 해당 프로필 페이지는 정상적으로 볼 수 있습니다.`,
+    `Загрузчик не будет сканировать работы пользователей из «Списка заблокированных пользователей». Также он может удалять их работы со страниц, поэтому вы не увидите работы пользователей, которые вам не нравятся.<br>
+PS: На странице профиля заблокированного пользователя его работы не удаляются, поэтому вы можете просматривать его профиль как обычно.`,
   ],
-  _移除用户阻止名单里的用户的作品: [
-    '移除“用户阻止名单”里的用户的作品',
-    '移除“使用者阻止名單”裡的使用者的作品',
-    'Remove works from users in the "User Blocklist"',
-    '「ユーザーブロックリスト」のユーザーから作品を削除する',
-    '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
-    'Удалить работы пользователей из «Черного списка пользователей»',
+  _移除用户屏蔽名单里的用户的作品: [
+    `移除“用户屏蔽名单”里的用户的作品`,
+    `移除「使用者封鎖名單」裡的使用者的作品`,
+    `Remove works by users on the "User block list"`,
+    `「ユーザーブロックリスト」のユーザーの作品を削除`,
+    `"사용자 차단 목록"에 있는 사용자의 작품 제거`,
+    `Удалять работы пользователей из «Списка заблокированных пользователей»`,
+  ],
+  _已添加屏蔽: [
+    `已添加屏蔽`,
+    `已新增封鎖`,
+    `User blocked`,
+    `ユーザーをブロックしました`,
+    `사용자를 차단했습니다`,
+    `Пользователь заблокирован`,
+  ],
+  _已取消屏蔽: [
+    `已取消屏蔽`,
+    `已取消封鎖`,
+    `User unblocked`,
+    `ユーザーのブロックを解除しました`,
+    `사용자 차단을 해제했습니다`,
+    `Пользователь разблокирован`,
+  ],
+  _屏蔽该用户: [
+    `屏蔽该用户`,
+    `封鎖該使用者`,
+    `Block this user`,
+    `このユーザーをブロック`,
+    `이 사용자 차단`,
+    `Заблокировать этого пользователя`,
+  ],
+  _取消屏蔽该用户: [
+    `取消屏蔽该用户`,
+    `取消封鎖該使用者`,
+    `Unblock this user`,
+    `このユーザーのブロックを解除`,
+    `이 사용자 차단 해제`,
+    `Разблокировать этого пользователя`,
   ],
   _修复了因Pixiv变化而失效的显示更大的缩略图功能: [
     '修复了因 Pixiv 变化而失效的一些增强功能，比如“显示更大的缩略图”、“高亮关注的用户”等功能。',
@@ -10625,134 +10669,6 @@ If you enable this setting, the downloader will merge all novels.`,
     `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
     `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
   ],
-  _版本更新说明19_2_0: [
-    `这次更新优化了命名规则功能，并修复了一些 Bug。<br>
-<br>
-<strong>✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）</strong><br>
-这个功能是为了处理这种情况：<br>
-1. 用户使用了可能为空的命名标记。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出系列标题。<br>
-2. 并且用户为它们添加了自定义字符，例如：<span class="blue">系列：{series_title}</span><br>
-当文件名里没有系列标题时，会留下不需要的 <span class="blue">系列：</span>。为了移除这种不需要的自定义字符，你可以使用 <span class="blue">[]</span> 建立可选片段，例如 <span class="blue">[系列：{series_title}]</span>。当 <span class="blue">[]</span> 里的标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
-你可以在“图像作品的命名规则”里点击“小技巧：可选片段”查看更详细的说明。<br>
-⚠️注意：这个功能可能会对少部分用户造成破坏性变更：<br>
-如果你之前就已经使用了 <span class="blue">[]</span> 包裹命名标记，例如 <span class="blue">[{id}]</span>，现在它不会在文件名里输出 <span class="blue">[]</span> 符号。你需要额外添加一层 <span class="blue">[]</span>，变成 <span class="blue">[[{id}]]</span>，这样就可以和之前一样输出 <span class="blue">[]</span> 符号了。<br>
-<br>
-<strong>✨添加了 2 个新的命名标记</strong><br>
-- <span class="blue">{page_type}</span>：开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但页面类型名称都是 <span class="blue">Home</span>。<br>
-- <span class="blue">{page_id}</span>：开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。<br>
-<br>
-<strong>✨在“合并系列小说时的命名规则”里添加了新的命名标记</strong><br>
-- <span class="blue">{bmk}</span>：这个系列里所有小说的收藏数量之和，是数字。<br>
-<br>
-<strong>🐞修复问题：在预览作品时，预览区域可能会显示之前预览的动图，或者预览图在显示之后隐藏</strong><br>
-<strong>🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整</strong><br>
-<strong>🐞修复了其他 3 个问题</strong>`,
-    `本次更新最佳化了命名規則功能，並修復了一些 Bug。<br>
-<br>
-<strong>✨新功能：命名標記裡的可選片段（當標記沒有值時，忽略它的附屬文字）</strong><br>
-這個功能是為了處理這種情況：<br>
-1. 使用者使用了可能為空的命名標記。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出系列標題。<br>
-2. 並且使用者為它們加入了自訂字元，例如：<span class="blue">系列：{series_title}</span><br>
-當檔案名稱裡沒有系列標題時，會留下不需要的 <span class="blue">系列：</span>。為了移除這種不需要的自訂字元，你可以使用 <span class="blue">[]</span> 建立可選片段，例如 <span class="blue">[系列：{series_title}]</span>。當 <span class="blue">[]</span> 裡的標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
-你可以在「圖像作品的命名規則」裡點擊「小技巧：可選片段」查看更詳細的說明。<br>
-⚠️注意：這個功能可能會對少部分使用者造成破壞性變更：<br>
-如果你之前已經使用了 <span class="blue">[]</span> 包裹命名標記，例如 <span class="blue">[{id}]</span>，現在它不會在檔案名稱裡輸出 <span class="blue">[]</span> 符號。你需要額外加入一層 <span class="blue">[]</span>，變成 <span class="blue">[[{id}]]</span>，這樣就可以和之前一樣輸出 <span class="blue">[]</span> 符號。<br>
-<br>
-<strong>✨新增了 2 個命名標記</strong><br>
-- <span class="blue">{page_type}</span>：開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，有二十多種。有時劃分得比較籠統，例如首頁有插畫、漫畫、小說等子分類，但頁面類型名稱都是 <span class="blue">Home</span>。<br>
-- <span class="blue">{page_id}</span>：開始抓取時的頁面 ID。其設計目的是用頁面 ID 歸納該頁面裡的多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。只有以下情況會輸出：1. 在作品頁面裡，輸出該頁面的作品 ID。2. 在使用者主頁、收藏頁面、關注頁面裡，輸出該頁面的使用者 ID。3. 在系列頁面裡，輸出系列 ID。<br>
-<br>
-<strong>✨在「合併系列小說時的命名規則」裡新增了命名標記</strong><br>
-- <span class="blue">{bmk}</span>：此系列中所有小說的收藏數量總和，是數字。<br>
-<br>
-<strong>🐞修正問題：預覽作品時，預覽區域可能顯示之前預覽的動圖，或預覽圖顯示後隱藏</strong><br>
-<strong>🐞修正問題：當「置頂的設定」區域高度不足時，命名規則的載入清單顯示不完整</strong><br>
-<strong>🐞修正了其他 3 個問題</strong>`,
-    `This update improves naming rules and fixes several bugs.<br>
-<br>
-<strong>✨New feature: Optional segments in naming tags (ignore associated text when a tag has no value)</strong><br>
-This feature handles the following situation:<br>
-1. You use a naming tag that may have no value. For example, when a work is not part of a series, <span class="blue">{series_title}</span> does not output a series title.<br>
-2. You add custom characters for it, for example: <span class="blue">Series: {series_title}</span><br>
-When a file name has no series title, the unnecessary <span class="blue">Series:</span> remains. To remove these unnecessary custom characters, create an optional segment with <span class="blue">[]</span>, for example <span class="blue">[Series: {series_title}]</span>. When the tag in <span class="blue">[]</span> has no value, the downloader ignores the entire segment, so no extra characters remain.<br>
-You can click "Tip: Optional segments" under "Naming rules for illustrations" for a more detailed explanation.<br>
-⚠️Note: This feature may be a breaking change for a small number of users:<br>
-If you previously used <span class="blue">[]</span> around a naming tag, for example <span class="blue">[{id}]</span>, <span class="blue">[]</span> is no longer output in the file name. Add another pair of <span class="blue">[]</span> to make <span class="blue">[[{id}]]</span>, and <span class="blue">[]</span> will be output as before.<br>
-<br>
-<strong>✨Added 2 new naming tags</strong><br>
-- <span class="blue">{page_type}</span>: The page type name when crawling begins, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, or <span class="blue">Bookmark</span>. These are the downloader's internal page types, with more than twenty types available. Some are broad: for example, the home page has illustration, manga, and novel subcategories, but their page type name is all <span class="blue">Home</span>.<br>
-- <span class="blue">{page_id}</span>: The page ID when crawling begins. It is designed to group multiple works on a page by that page's ID. For example, when crawling related works on a work page, it outputs the ID of that work page (one ID), rather than each related work's own ID (multiple IDs). It outputs a value only in these cases: 1. On a work page, the work ID of that page. 2. On a user home, bookmark, or following page, the user ID of that page. 3. On a series page, the series ID.<br>
-<br>
-<strong>✨Added a new naming tag to "Naming rules when merging novel series"</strong><br>
-- <span class="blue">{bmk}</span>: The total bookmark count of all novels in this series.<br>
-<br>
-<strong>🐞Fixed: When previewing works, the preview area could show a previously previewed Ugoira, or a preview image could disappear after being displayed</strong><br>
-<strong>🐞Fixed: The naming-rule load list could be displayed incompletely when the pinned settings area was too short</strong><br>
-<strong>🐞Fixed 3 other issues</strong>`,
-    `今回の更新では、命名規則機能を改善し、いくつかの不具合を修正しました。<br>
-<br>
-<strong>✨新機能：命名タグの任意セグメント（タグに値がないとき、関連する文字を無視）</strong><br>
-この機能は、次のような状況に対応するためのものです。<br>
-1. 値が空になる可能性のある命名タグを使用している場合。たとえば、作品がシリーズに属していないとき、<span class="blue">{series_title}</span> はシリーズ名を出力しません。<br>
-2. そのタグに説明用の文字を追加している場合。例：<span class="blue">シリーズ：{series_title}</span><br>
-ファイル名にシリーズ名がない場合、不要な <span class="blue">シリーズ：</span> が残ります。この不要な文字を削除するには、<span class="blue">[]</span> で任意セグメントを作成します。例：<span class="blue">[シリーズ：{series_title}]</span>。<span class="blue">[]</span> 内のタグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
-詳しい説明は、「イラスト作品の命名規則」で「ヒント：任意セグメント」をクリックして確認できます。<br>
-⚠️注意：この機能は、一部のユーザーにとって破壊的変更になる可能性があります。<br>
-以前から <span class="blue">[]</span> で命名タグを囲んでいた場合（例：<span class="blue">[{id}]</span>）、ファイル名には <span class="blue">[]</span> が出力されなくなります。さらに 1 組の <span class="blue">[]</span> を追加して <span class="blue">[[{id}]]</span> にすると、以前と同じように <span class="blue">[]</span> を出力できます。<br>
-<br>
-<strong>✨新しい命名タグを 2 つ追加</strong><br>
-- <span class="blue">{page_type}</span>：クロール開始時のページタイプ名です。<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span> などがあります。これはダウンローダー内部のページ分類で、20 種類以上あります。分類が大まかな場合もあり、たとえばホームにはイラスト、マンガ、小説などのサブカテゴリがありますが、ページタイプ名はいずれも <span class="blue">Home</span> です。<br>
-- <span class="blue">{page_id}</span>：クロール開始時のページ ID です。ページ ID を使って、そのページ内にある複数の作品をまとめるために設計されています。たとえば、作品ページで関連作品をクロールすると、このタグは各作品自身の ID（複数）ではなく、その作品ページの ID（1 つ）を出力します。出力されるのは次の場合のみです：1. 作品ページでは、そのページの作品 ID。2. ユーザーホーム、ブックマーク、フォローのページでは、そのページのユーザー ID。3. シリーズページでは、シリーズ ID。<br>
-<br>
-<strong>✨「小説シリーズ結合時の命名規則」に新しい命名タグを追加</strong><br>
-- <span class="blue">{bmk}</span>：このシリーズ内のすべての小説のブックマーク数の合計です。<br>
-<br>
-<strong>🐞修正：作品のプレビュー時に、プレビュー領域に以前プレビューしたうごイラが表示される、またはプレビュー画像が表示後に消えることがある問題</strong><br>
-<strong>🐞修正：「固定された設定」エリアの高さが不足しているとき、命名規則の読み込みリストが不完全に表示される問題</strong><br>
-<strong>🐞その他 3 件の問題を修正</strong>`,
-    `이번 업데이트에서는 명명 규칙 기능을 개선하고 몇 가지 버그를 수정했습니다.<br>
-<br>
-<strong>✨새 기능: 명명 태그의 선택적 구간(태그에 값이 없을 때 관련 문자를 무시)</strong><br>
-이 기능은 다음과 같은 상황을 처리하기 위한 것입니다.<br>
-1. 값이 비어 있을 수 있는 명명 태그를 사용하는 경우입니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 시리즈 제목을 출력하지 않습니다.<br>
-2. 태그에 설명용 문자도 추가한 경우입니다. 예: <span class="blue">시리즈: {series_title}</span><br>
-파일 이름에 시리즈 제목이 없으면 불필요한 <span class="blue">시리즈:</span>가 남습니다. 이 불필요한 문자를 제거하려면 <span class="blue">[]</span>로 선택적 구간을 만드세요. 예: <span class="blue">[시리즈: {series_title}]</span>. <span class="blue">[]</span> 안의 태그에 값이 없으면 다운로더가 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
-자세한 설명은 "일러스트 작품의 명명 규칙"에서 "팁: 선택적 구간"을 클릭하여 확인할 수 있습니다.<br>
-⚠️주의: 이 기능은 일부 사용자에게 호환되지 않는 변경이 될 수 있습니다.<br>
-이전에 <span class="blue">[]</span>로 명명 태그를 묶어 사용했다면(예: <span class="blue">[{id}]</span>), 이제 파일 이름에 <span class="blue">[]</span> 기호가 출력되지 않습니다. <span class="blue">[]</span>를 한 겹 더 추가하여 <span class="blue">[[{id}]]</span>로 만들면 이전처럼 <span class="blue">[]</span> 기호를 출력할 수 있습니다.<br>
-<br>
-<strong>✨새 명명 태그 2개 추가</strong><br>
-- <span class="blue">{page_type}</span>: 크롤링 시작 시의 페이지 유형 이름입니다. <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span> 등이 있습니다. 이는 다운로더 내부의 페이지 유형으로 20가지 이상이 있습니다. 때로는 구분이 넓습니다. 예를 들어 홈에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 페이지 유형 이름은 모두 <span class="blue">Home</span>입니다.<br>
-- <span class="blue">{page_id}</span>: 크롤링 시작 시의 페이지 ID입니다. 페이지 ID로 해당 페이지의 여러 작품을 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 태그는 각 작품의 ID(여러 개)가 아니라 그 작품 페이지의 작품 ID(하나)를 출력합니다. 다음 경우에만 값이 출력됩니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID. 2. 사용자 홈, 북마크, 팔로잉 페이지에서는 해당 페이지의 사용자 ID. 3. 시리즈 페이지에서는 시리즈 ID.<br>
-<br>
-<strong>✨"소설 시리즈 병합 시 명명 규칙"에 새 명명 태그 추가</strong><br>
-- <span class="blue">{bmk}</span>: 이 시리즈의 모든 소설 북마크 수의 합계입니다.<br>
-<br>
-<strong>🐞수정: 작품을 미리 볼 때 이전에 미리 본 우고이라가 미리 보기 영역에 표시되거나, 미리 보기 이미지가 표시된 후 사라질 수 있는 문제</strong><br>
-<strong>🐞수정: "고정된 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
-<strong>🐞기타 문제 3개 수정</strong>`,
-    `Это обновление улучшает правила именования и исправляет несколько ошибок.<br>
-<br>
-<strong>✨Новая функция: необязательные сегменты в тегах именования (игнорируют связанные символы, если у тега нет значения)</strong><br>
-Эта функция предназначена для следующей ситуации:<br>
-1. Вы используете тег именования, который может быть пустым. Например, если работа не входит в серию, <span class="blue">{series_title}</span> не выводит название серии.<br>
-2. Вы добавили к нему пользовательские символы, например: <span class="blue">Серия: {series_title}</span><br>
-Если в имени файла нет названия серии, остаётся ненужное <span class="blue">Серия:</span>. Чтобы удалить такие ненужные символы, создайте необязательный сегмент с помощью <span class="blue">[]</span>, например <span class="blue">[Серия: {series_title}]</span>. Если у тега в <span class="blue">[]</span> нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
-Подробное описание можно посмотреть, нажав «Совет: необязательные сегменты» в разделе «Правила именования иллюстраций».<br>
-⚠️Внимание: для небольшого числа пользователей эта функция может стать несовместимым изменением:<br>
-Если вы уже обрамляли тег именования в <span class="blue">[]</span>, например <span class="blue">[{id}]</span>, теперь символы <span class="blue">[]</span> не выводятся в имени файла. Добавьте ещё один уровень <span class="blue">[]</span>, чтобы получилось <span class="blue">[[{id}]]</span>, и символы <span class="blue">[]</span> снова будут выводиться как раньше.<br>
-<br>
-<strong>✨Добавлено 2 новых тега именования</strong><br>
-- <span class="blue">{page_type}</span>: название типа страницы в начале crawl, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. Это внутренние типы страниц загрузчика, их более двадцати. Иногда классификация довольно общая: например, на главной странице есть подкатегории иллюстраций, манги и романов, но имя типа страницы у всех — <span class="blue">Home</span>.<br>
-- <span class="blue">{page_id}</span>: ID страницы в начале crawl. Он нужен для объединения нескольких работ на одной странице по ID этой страницы. Например, при crawl связанных работ на странице работы этот тег выводит ID работы этой страницы (один ID), а не собственные ID каждой связанной работы (несколько ID). Значение выводится только в следующих случаях: 1. На странице работы — ID работы этой страницы. 2. На странице профиля пользователя, закладок или подписок — ID пользователя этой страницы. 3. На странице серии — ID серии.<br>
-<br>
-<strong>✨Добавлен новый тег именования в «Правила именования при объединении серий романов»</strong><br>
-- <span class="blue">{bmk}</span>: сумма закладок всех романов этой серии.<br>
-<br>
-<strong>🐞Исправлено: при предпросмотре работ в области предпросмотра могла отображаться ранее просмотренная Ugoira либо изображение предпросмотра могло исчезать после показа</strong><br>
-<strong>🐞Исправлено: список загрузки правил именования мог отображаться не полностью, если область закреплённых настроек была слишком низкой</strong><br>
-<strong>🐞Исправлены ещё 3 проблемы</strong>`,
-  ],
   _小技巧_可选片段: [
     `小技巧：可选片段`,
     `小技巧：可選片段`,
@@ -10780,7 +10696,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 如果有需要，你可以使用多个可选片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - 如果 <span class="blue">[]</span> 里没有命名标记，<span class="blue">[]</span> 会被视为普通字符并原样输出。<br>
   - 如果 <span class="blue">[]</span> 里有命名标记，但你又想在结果里保留 <span class="blue">[]</span>，可以使用两层 <span
-  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的结果会像这样 <span class="blue">[1]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
+  class="blue">[]</span>。例如 <span class="blue">[[{id}]] </span> 的结果会像这样 <span class="blue">[143623396_p0]</span>，此时内层的 <span class="blue">[]</span> 用于可选片段，外层的 <span class="blue">[]</span> 会原样保留。`,
     `有些命名標記在特定情況下可能沒有內容。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出內容。<br>
   此時，如果標記旁邊有使用者加入的說明文字或符號，即使標記沒有內容，這些字元仍可能保留下來。例如：<br>
   - <span class="blue">系列：{series_title}</span>：當沒有系列標題時，會留下 <span class="blue">系列：</span><br>
@@ -10799,7 +10715,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 如果有需要，你可以使用多個可選片段，例如 <span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - 如果 <span class="blue">[]</span> 裡沒有命名標記，<span class="blue">[]</span> 會被視為普通字元並原樣輸出。<br>
   - 如果 <span class="blue">[]</span> 裡有命名標記，但你又想在結果裡保留 <span class="blue">[]</span>，可以使用兩層 <span
-  class="blue">[]</span>。例如 <span class="blue">[[{rank}]]</span> 的結果會像這樣 <span class="blue">[1]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
+  class="blue">[]</span>。例如 <span class="blue">[[{id}]] </span> 的結果會像這樣 <span class="blue">[143623396_p0]</span>，此時內層的 <span class="blue">[]</span> 用於可選片段，外層的 <span class="blue">[]</span> 會原樣保留。`,
     `Some naming tags may have no value in certain cases. For example, if a work is not part of a series, <span class="blue">{series_title}</span> outputs nothing.<br>
   In this case, custom text or symbols placed next to the tag may remain even when the tag has no value. For example:<br>
   - <span class="blue">Series: {series_title}</span> - If there is no series title, <span class="blue">Series:</span> remains<br>
@@ -10818,7 +10734,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - You can use multiple optional segments when needed. For example: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - If <span class="blue">[]</span> contains no naming tag, it is treated as ordinary characters and output as is.<br>
   - If <span class="blue">[]</span> contains a naming tag but you also want <span class="blue">[]</span> in the result, use two layers of <span
-  class="blue">[]</span>. For example, <span class="blue">[[{rank}]]</span> produces <span class="blue">[1]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
+  class="blue">[]</span>. For example, <span class="blue">[[{id}]] </span> produces <span class="blue">[143623396_p0]</span>. The inner <span class="blue">[]</span> is the optional segment, and the outer <span class="blue">[]</span> is kept as is.`,
     `一部の命名タグは、状況によって値がない場合があります。たとえば、作品がシリーズに属していない場合、<span class="blue">{series_title}</span> は何も出力しません。<br>
   このとき、タグのそばに追加した説明文や記号は、タグに値がなくても残ることがあります。例：<br>
   - <span class="blue">シリーズ：{series_title}</span>：シリーズ名がない場合、<span class="blue">シリーズ：</span> だけが残ります<br>
@@ -10836,7 +10752,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 1 組の <span class="blue">[]</span> には、命名タグを 1 つだけ入れてください。複数のタグを同じセグメントに入れると、余分な文字が残ることがあります。<br>
   - 必要に応じて、複数の任意セグメントを使用できます。例：<span class="blue">[SeriesID={series_id}][ {series_title}]</span>。<br>
   - <span class="blue">[]</span> 内に命名タグがない場合、<span class="blue">[]</span> は通常の文字としてそのまま出力されます。<br>
-  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{rank}]]</span> の結果は <span class="blue">[1]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
+  - <span class="blue">[]</span> 内に命名タグがあり、結果にも <span class="blue">[]</span> を残したい場合は、<span class="blue">[]</span> を二重にしてください。たとえば、<span class="blue">[[{id}]] </span> の結果は <span class="blue">[143623396_p0]</span> になります。内側の <span class="blue">[]</span> は任意セグメントとして使われ、外側の <span class="blue">[]</span> はそのまま残ります。`,
     `일부 명명 태그는 특정 상황에서 값이 없을 수 있습니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 아무 내용도 출력하지 않습니다.<br>
   이때 태그 옆에 추가한 설명 문구나 기호는 태그에 값이 없어도 남아 있을 수 있습니다. 예:<br>
   - <span class="blue">시리즈: {series_title}</span> - 시리즈 제목이 없으면 <span class="blue">시리즈:</span>만 남습니다<br>
@@ -10854,7 +10770,7 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - 각 <span class="blue">[]</span>에는 명명 태그를 1개만 넣어야 합니다. 하나의 구간에 여러 태그를 넣으면 불필요한 문자가 남을 수 있습니다.<br>
   - 필요하면 여러 선택적 구간을 사용할 수 있습니다. 예: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - <span class="blue">[]</span> 안에 명명 태그가 없으면 <span class="blue">[]</span>는 일반 문자로 처리되어 그대로 출력됩니다.<br>
-  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{rank}]]</span>의 결과는 <span class="blue">[1]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
+  - <span class="blue">[]</span> 안에 명명 태그가 있지만 결과에도 <span class="blue">[]</span>를 남기고 싶다면 <span class="blue">[]</span>를 두 겹으로 사용하세요. 예를 들어 <span class="blue">[[{id}]] </span>의 결과는 <span class="blue">[143623396_p0]</span>처럼 됩니다. 안쪽 <span class="blue">[]</span>는 선택적 구간에 사용되고 바깥쪽 <span class="blue">[]</span>는 그대로 남습니다.`,
     `Некоторые теги именования в определённых случаях могут не иметь значения. Например, если работа не входит в серию, <span class="blue">{series_title}</span> ничего не выводит.<br>
   В этом случае добавленный рядом с тегом поясняющий текст или символы могут остаться, даже если у тега нет значения. Например:<br>
   - <span class="blue">Серия: {series_title}</span> — если названия серии нет, останется <span class="blue">Серия:</span><br>
@@ -10873,7 +10789,340 @@ If you previously used <span class="blue">[]</span> around a naming tag, for exa
   - При необходимости можно использовать несколько необязательных сегментов. Например: <span class="blue">[SeriesID={series_id}][ {series_title}]</span>.<br>
   - Если внутри <span class="blue">[]</span> нет тега именования, <span class="blue">[]</span> считаются обычными символами и выводятся без изменений.<br>
   - Если внутри <span class="blue">[]</span> есть тег именования, но вы также хотите сохранить <span class="blue">[]</span> в результате, используйте два уровня <span
-  class="blue">[]</span>. Например, <span class="blue">[[{rank}]]</span> даст результат <span class="blue">[1]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
+  class="blue">[]</span>. Например, <span class="blue">[[{id}]] </span> даст результат <span class="blue">[143623396_p0]</span>. Внутренние <span class="blue">[]</span> используются для необязательного сегмента, а внешние <span class="blue">[]</span> сохраняются без изменений.`,
+  ],
+  _当你修改设置时其他标签页: [
+    `当你<span class="key">修改</span>设置时，其他标签页`,
+    `當你<span class="key">修改</span>設定時，其他分頁`,
+    `Other tabs when you <span class="key">change</span> settings`,
+    `設定を<span class="key">変更</span>したとき、他のタブ`,
+    `설정을 <span class="key">변경</span>할 때 다른 탭`,
+    `Другие вкладки при <span class="key">изменении</span> настроек`,
+  ],
+  _同步变化: [
+    `同步变化`,
+    `同步變化`,
+    `Sync changes`,
+    `同期する`,
+    `동기화`,
+    `Синхронизировать изменения`,
+  ],
+  _保持不变: [
+    `保持不变`,
+    `保持不變`,
+    `Keep unchanged`,
+    `変更しない`,
+    `변경하지 않음`,
+    `Не изменять`,
+  ],
+  _旧版行为: [
+    `（旧版行为）`,
+    `（舊版行為）`,
+    `(Legacy behavior)`,
+    `（旧バージョンの動作）`,
+    `（이전 버전의 동작）`,
+    `(Поведение предыдущих версий)`,
+  ],
+  _当你修改设置时其他标签页的说明: [
+    `用户经常会打开多个 Pixiv.net 标签页。这个设置用来决定每个标签页里使用相同的设置，还是保持各自的独立设置。<br>
+<br>
+子选项：<br>
+- 同步变化（默认值）：当你在一个标签页里修改了设置之后，其他标签页里的设置也会随之变化。所有标签页都会使用相同的设置。<br>
+- 保持不变（旧版行为）：当你在一个标签页里修改了设置之后，其他标签页里的设置不会变化。换言之，所有标签页里的修改都不会影响到其他标签页，直到其他标签页刷新、或者打开新的标签页时，才会使用最新的设置。<br>
+<br>
+旧版行为的优点是：当用户在不同标签页里同时抓取、下载时，可以使用不同的设置。例如，你可以在标签页 A 里启用“收藏数量”条件，但在标签页 B 里不启用这个条件，然后同时进行抓取。这确实是一个实用技巧，但只要你不是同时抓取，就不需要这个特性。<br>
+另外，旧版行为还存在一些缺点：<br>
+1. 反直觉。新用户通常以为设置会在不同标签页之间同步变化，但实际上其他标签页里的设置没有变化，导致操作失误，浪费时间。即使用户知道了这个特点，也经常需要确认某个标签页里的设置是否符合预期，这加重了心智负担。<br>
+2. 可能会丢失你在某些设置里添加的数据。例如：你先在标签页 A 里添加了一个排除的标签（tag1），下载器会保存这份设置，但此时标签页 B 里依然会使用旧的设置（没有 tag1）；之后你在标签页 B 里添加了另一个排除的标签（tag2），下载器会再次保存设置，但是里面只有 tag2，没有 tag1。所以你在标签页 A 里做的一些修改消失了。<br>
+考虑到旧版行为的缺点，从 19.3.0 版本（2026 年 8 月）开始，下载器默认会使设置在不同标签页之间同步。如果你确实需要使用旧版行为，可以修改此设置。`,
+    `使用者經常會開啟多個 Pixiv.net 分頁。這個設定用來決定各分頁使用相同的設定，還是各自保留獨立的設定。<br>
+<br>
+子選項：<br>
+- 同步變化（預設值）：當你在一個分頁裡修改設定後，其他分頁裡的設定也會隨之變化。所有分頁都會使用相同的設定。<br>
+- 保持不變（舊版行為）：當你在一個分頁裡修改設定後，其他分頁裡的設定不會變化。換言之，所有分頁裡的修改都不會影響其他分頁，直到其他分頁重新整理，或開啟新的分頁時，才會使用最新的設定。<br>
+<br>
+舊版行為的優點是：當使用者在不同分頁裡同時抓取、下載時，可以使用不同的設定。例如，你可以在分頁 A 裡啟用「收藏數量」條件，但在分頁 B 裡不啟用這個條件，然後同時進行抓取。這確實是一個實用技巧，但只要你不是同時抓取，就不需要這個特性。<br>
+另外，舊版行為還有一些缺點：<br>
+1. 不直覺。新使用者通常以為設定會在不同分頁之間同步變化，但實際上其他分頁裡的設定沒有變化，導致操作失誤、浪費時間。即使使用者知道這個特點，也經常需要確認某個分頁裡的設定是否符合預期，這加重了心智負擔。<br>
+2. 可能會遺失你在某些設定裡新增的資料。例如：你先在分頁 A 裡新增了一個排除的標籤（tag1），下載器會儲存這份設定，但此時分頁 B 依然會使用舊的設定（沒有 tag1）；之後你在分頁 B 裡新增了另一個排除的標籤（tag2），下載器會再次儲存設定，但是裡面只有 tag2，沒有 tag1。所以你在分頁 A 裡做的一些修改消失了。<br>
+考慮到舊版行為的缺點，從 19.3.0 版本（2026 年 8 月）開始，下載器預設會使設定在不同分頁之間同步。如果你確實需要使用舊版行為，可以修改此設定。`,
+    `Users often open multiple Pixiv.net tabs. This setting determines whether all tabs use the same settings or keep their own independent settings.<br>
+<br>
+Options:<br>
+- Sync changes (default): When you change settings in one tab, settings in other tabs change too. All tabs use the same settings.<br>
+- Keep unchanged (legacy behavior): When you change settings in one tab, settings in other tabs do not change. In other words, changes in any tab do not affect other tabs. Other tabs use the latest settings only after they are refreshed or a new tab is opened.<br>
+<br>
+The advantage of legacy behavior is that you can use different settings while crawling or downloading in multiple tabs at the same time. For example, you can enable the “Bookmark count” condition in tab A but not in tab B, then crawl in both tabs at the same time. This can be useful, but you do not need this feature unless you crawl in multiple tabs simultaneously.<br>
+However, legacy behavior also has some drawbacks:<br>
+1. It is unintuitive. New users usually expect settings to synchronize across tabs, but settings in other tabs actually do not change. This can lead to mistakes and wasted time. Even users who know about this behavior often need to check whether a tab's settings are as expected, which increases mental overhead.<br>
+2. Data added to some settings may be lost. For example, you add an excluded tag (tag1) in tab A, and the downloader saves these settings. Tab B still uses its old settings without tag1. If you then add another excluded tag (tag2) in tab B, the downloader saves the settings again, but they contain only tag2, not tag1. Some changes you made in tab A are therefore lost.<br>
+Because of the drawbacks of legacy behavior, starting with version 19.3.0 (August 2026), the downloader synchronizes settings across tabs by default. If you really need legacy behavior, you can change this setting.`,
+    `ユーザーは複数の Pixiv.net タブを開くことがよくあります。この設定では、すべてのタブで同じ設定を使用するか、それぞれのタブで独立した設定を維持するかを決めます。<br>
+<br>
+選択肢：<br>
+- 同期する（デフォルト）：1 つのタブで設定を変更すると、他のタブの設定も変わります。すべてのタブで同じ設定が使用されます。<br>
+- 変更しない（旧バージョンの動作）：1 つのタブで設定を変更しても、他のタブの設定は変わりません。つまり、どのタブでの変更も他のタブには影響せず、他のタブで最新の設定が使用されるのは、ページを再読み込みするか新しいタブを開いたときです。<br>
+<br>
+旧バージョンの動作の利点は、複数のタブで同時にクロールやダウンロードを行うときに、異なる設定を使えることです。たとえば、タブ A では「ブックマーク数」の条件を有効にし、タブ B では有効にせず、両方のタブで同時にクロールできます。これは便利な使い方ですが、同時にクロールしない場合はこの機能は必要ありません。<br>
+ただし、旧バージョンの動作にはいくつかの欠点もあります。<br>
+1. 直感的ではありません。新しいユーザーは通常、設定がタブ間で同期されると考えますが、実際には他のタブの設定は変わりません。これにより操作ミスや時間の無駄が発生することがあります。この動作を知っているユーザーであっても、タブの設定が期待どおりかを頻繁に確認する必要があり、負担が増えます。<br>
+2. 一部の設定に追加したデータが失われる可能性があります。たとえば、タブ A で除外するタグ（tag1）を追加すると、ダウンローダーはその設定を保存します。しかし、タブ B では tag1 がない古い設定が引き続き使われます。その後タブ B で別の除外タグ（tag2）を追加すると、ダウンローダーは設定を再度保存しますが、そこには tag2 だけがあり、tag1 はありません。そのため、タブ A で行った一部の変更が失われます。<br>
+旧バージョンの動作の欠点を考慮し、バージョン 19.3.0（2026 年 8 月）から、ダウンローダーはデフォルトでタブ間の設定を同期します。旧バージョンの動作が必要な場合は、この設定を変更できます。`,
+    `사용자는 여러 Pixiv.net 탭을 자주 엽니다. 이 설정은 모든 탭에서 같은 설정을 사용할지, 각 탭에서 독립적인 설정을 유지할지 결정합니다.<br>
+<br>
+옵션:<br>
+- 동기화(기본값): 한 탭에서 설정을 변경하면 다른 탭의 설정도 함께 변경됩니다. 모든 탭에서 같은 설정을 사용합니다.<br>
+- 변경하지 않음(이전 버전의 동작): 한 탭에서 설정을 변경해도 다른 탭의 설정은 변경되지 않습니다. 즉, 어느 탭에서 변경하든 다른 탭에는 영향을 주지 않으며, 다른 탭은 새로고침하거나 새 탭을 열 때에만 최신 설정을 사용합니다.<br>
+<br>
+이전 버전의 동작의 장점은 여러 탭에서 동시에 크롤하거나 다운로드할 때 서로 다른 설정을 사용할 수 있다는 점입니다. 예를 들어 탭 A에서는 “북마크 수” 조건을 켜고 탭 B에서는 끈 다음, 두 탭에서 동시에 크롤할 수 있습니다. 이는 유용한 방법이지만, 동시에 크롤하지 않는다면 이 기능은 필요하지 않습니다.<br>
+하지만 이전 버전의 동작에는 몇 가지 단점도 있습니다.<br>
+1. 직관적이지 않습니다. 새 사용자는 보통 설정이 탭 간에 동기화될 것으로 생각하지만, 실제로 다른 탭의 설정은 변경되지 않습니다. 이로 인해 실수와 시간 낭비가 생길 수 있습니다. 이 동작을 알고 있는 사용자도 특정 탭의 설정이 예상대로인지 자주 확인해야 하므로 부담이 커집니다.<br>
+2. 일부 설정에 추가한 데이터가 사라질 수 있습니다. 예를 들어 탭 A에서 제외할 태그(tag1)를 추가하면 다운로더가 이 설정을 저장합니다. 하지만 탭 B는 tag1이 없는 이전 설정을 계속 사용합니다. 이후 탭 B에서 다른 제외 태그(tag2)를 추가하면 다운로더가 설정을 다시 저장하지만, 여기에는 tag2만 있고 tag1은 없습니다. 따라서 탭 A에서 변경한 일부 내용이 사라집니다.<br>
+이전 버전의 동작의 단점을 고려하여, 버전 19.3.0(2026년 8월)부터 다운로더는 기본적으로 탭 간 설정을 동기화합니다. 이전 버전의 동작이 꼭 필요한 경우 이 설정을 변경할 수 있습니다.`,
+    `Пользователи часто открывают несколько вкладок Pixiv.net. Эта настройка определяет, будут ли все вкладки использовать одинаковые настройки или каждая вкладка сохранит собственные независимые настройки.<br>
+<br>
+Варианты:<br>
+- Синхронизировать изменения (по умолчанию): когда вы меняете настройки в одной вкладке, настройки в других вкладках тоже изменяются. Все вкладки используют одинаковые настройки.<br>
+- Не изменять (поведение предыдущих версий): когда вы меняете настройки в одной вкладке, настройки в других вкладках не изменяются. Другими словами, изменения в любой вкладке не влияют на другие вкладки; другие вкладки начнут использовать последние настройки только после обновления страницы или открытия новой вкладки.<br>
+<br>
+Преимущество поведения предыдущих версий в том, что при одновременном скачивании или сборе данных в нескольких вкладках можно использовать разные настройки. Например, в вкладке A можно включить условие «Количество закладок», а в вкладке B не включать его, после чего одновременно собирать данные в обеих вкладках. Это может быть полезно, но если вы не собираете данные одновременно в нескольких вкладках, эта возможность не нужна.<br>
+Однако у поведения предыдущих версий есть и недостатки:<br>
+1. Это неинтуитивно. Новые пользователи обычно ожидают, что настройки будут синхронизироваться между вкладками, но на деле настройки в других вкладках не меняются. Это может приводить к ошибкам и потере времени. Даже пользователям, которые знают об этом поведении, часто приходится проверять, соответствуют ли настройки в каждой вкладке ожиданиям, что увеличивает нагрузку.<br>
+2. Данные, добавленные в некоторые настройки, могут быть потеряны. Например, вы добавляете исключаемый тег (tag1) во вкладке A, и загрузчик сохраняет эти настройки. Во вкладке B по-прежнему используются старые настройки без tag1. Затем вы добавляете другой исключаемый тег (tag2) во вкладке B, и загрузчик снова сохраняет настройки, но в них есть только tag2, а tag1 нет. В результате часть изменений, сделанных во вкладке A, теряется.<br>
+Учитывая недостатки поведения предыдущих версий, начиная с версии 19.3.0 (август 2026 года) загрузчик по умолчанию синхронизирует настройки между вкладками. Если вам действительно нужно поведение предыдущих версий, вы можете изменить эту настройку.`,
+  ],
+  _自动导出设置: [
+    `自动<span class="key">导出</span>设置`,
+    `自動<span class="key">匯出</span>設定`,
+    `Automatically <span class="key">export</span> settings`,
+    `設定を自動的に<span class="key">エクスポート</span>`,
+    `설정 자동 <span class="key">내보내기</span>`,
+    `Автоматический <span class="key">экспорт</span> настроек`,
+  ],
+  _已导出设置: [
+    `已导出设置`,
+    `已匯出設定`,
+    `Settings exported`,
+    `設定をエクスポートしました`,
+    `설정을 내보냈습니다`,
+    `Настройки экспортированы`,
+  ],
+  _备份设置: [
+    `备份设置`,
+    `備份設定`,
+    `Back up settings`,
+    `設定をバックアップ`,
+    `설정 백업`,
+    `Резервное копирование настроек`,
+  ],
+  _该分类里目前没有可用的内容: [
+    `该分类里目前没有可用的内容。`,
+    `此分類裡目前沒有可用的內容。`,
+    `There is currently no content available in this category.`,
+    `このカテゴリには現在利用可能なコンテンツはありません。`,
+    `이 카테고리에는 현재 사용할 수 있는 내용이 없습니다.`,
+    `В этой категории сейчас нет доступного содержимого.`,
+  ],
+  _自动导出设置的说明: [
+    `如果你想自动导出（备份）设置，可以启用这个功能。导出的设置会保存到浏览器下载目录的 <span class="blue">PPD Settings</span> 文件夹里。<br>
+<br>
+你可以选择两种导出策略：<br>
+1. 每隔一定小时导出一次，默认值是 24 小时。<br>
+2. 每当设置变化后立即导出。如果你频繁修改设置，下载器可能会频繁导出设置。`,
+    `如果你想自動匯出（備份）設定，可以啟用這個功能。匯出的設定會儲存到瀏覽器下載目錄的 <span class="blue">PPD Settings</span> 資料夾裡。<br>
+<br>
+你可以選擇兩種匯出策略：<br>
+1. 每隔一定小時匯出一次，預設值是 24 小時。<br>
+2. 每當設定變化後立即匯出。如果你頻繁修改設定，下載器可能會頻繁匯出設定。`,
+    `Enable this feature to automatically export (back up) your settings. Exported settings are saved to the <span class="blue">PPD Settings</span> folder in your browser's download directory.<br>
+<br>
+You can choose between two export strategies:<br>
+1. Export at a fixed hourly interval. The default interval is 24 hours.<br>
+2. Export immediately whenever settings change. If you change settings frequently, the downloader may export settings frequently.`,
+    `設定を自動的にエクスポート（バックアップ）したい場合は、この機能を有効にしてください。エクスポートした設定は、ブラウザーのダウンロードフォルダー内の <span class="blue">PPD Settings</span> フォルダーに保存されます。<br>
+<br>
+次の 2 つのエクスポート方法を選択できます。<br>
+1. 指定した時間間隔でエクスポートします。デフォルトは 24 時間です。<br>
+2. 設定が変更されるたびにすぐエクスポートします。設定を頻繁に変更すると、ダウンローダーも設定を頻繁にエクスポートする可能性があります。`,
+    `설정을 자동으로 내보내기(백업)하려면 이 기능을 켜세요. 내보낸 설정은 브라우저 다운로드 폴더의 <span class="blue">PPD Settings</span> 폴더에 저장됩니다.<br>
+<br>
+두 가지 내보내기 전략을 선택할 수 있습니다.<br>
+1. 지정한 시간 간격마다 내보냅니다. 기본값은 24시간입니다.<br>
+2. 설정이 변경될 때마다 즉시 내보냅니다. 설정을 자주 변경하면 다운로더도 설정을 자주 내보낼 수 있습니다.`,
+    `Включите эту функцию, если хотите автоматически экспортировать (создавать резервные копии) настроек. Экспортированные настройки сохраняются в папке <span class="blue">PPD Settings</span> в каталоге загрузок браузера.<br>
+<br>
+Можно выбрать одну из двух стратегий экспорта:<br>
+1. Экспортировать через заданный интервал в часах. Интервал по умолчанию — 24 часа.<br>
+2. Экспортировать сразу после каждого изменения настроек. Если вы часто меняете настройки, загрузчик может часто экспортировать их.`,
+  ],
+  _定时导出间隔: [
+    `定时导出，间隔：`,
+    `定時匯出，間隔：`,
+    `Timed export, interval:`,
+    `定期エクスポート、間隔：`,
+    `일정 내보내기, 간격:`,
+    `Экспорт по расписанию, интервал:`,
+  ],
+  _小时: [`小时`, `小時`, `hours`, `時間`, `시간`, `часов`],
+  _每当设置变化后立即导出: [
+    `每当设置变化后立即导出`,
+    `每當設定變化後立即匯出`,
+    `Export immediately whenever settings change`,
+    `設定が変更されるたびにすぐエクスポート`,
+    `설정이 변경될 때마다 즉시 내보내기`,
+    `Экспортировать сразу после каждого изменения настроек`,
+  ],
+  _版本更新说明19_3_0: [
+    `<strong>⚙️行为变更：当你修改了下载器的设置之后，所有 Pixiv 标签页里的设置都会同步变化</strong><br>
+用户经常会打开多个 Pixiv.net 标签页。之前当你在一个标签页里修改了设置之后，其他标签页里的设置不会变化。现在，其他标签页默认会同步变化，所以所有标签页都会使用相同的设置。<br>
+⚠️这是一个行为变更。如果你想保持以前的行为，可以在下面的设置里选择旧版行为。<br>
+<strong>✨新增设置：当你修改设置时，其他标签页是否同步变化</strong><br>
+这个设置位于“通用”-“管理设置”分类里。你可以选择“同步变化”（默认值）或者“保持不变”（旧版行为）。<br>
+<strong>✨新增设置：自动导出设置</strong><br>
+这个设置位于“通用”-“管理设置”分类里，用来自动备份设置。默认未启用。<br>
+你可以选择两种策略：<br>
+1. 定时导出（默认每隔 24 小时导出一次）<br>
+2. 每当设置变化后立即导出<br>
+另外，现在下载器导出设置时，会建立 <span class="blue">PPD Settings</span> 文件夹来统一存放设置文件。<br>
+<strong>✨“用户阻止名单”改名为“用户屏蔽名单”，并添加了“快捷屏蔽用户”的功能</strong><br>
+对“快捷屏蔽用户”功能的说明：<br>
+当你启用了“用户屏蔽名单”功能之后，把鼠标指针移动到任意用户的名字上，下载器就会显示屏蔽他的按钮，点击即可添加屏蔽。<br>
+以前屏蔽用户时，你需要手动复制他的 ID 并添加到输入框里，现在方便多了。<br>
+<strong>✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介</strong><br>
+你可以选择作品类型：插画、漫画、动图、小说。<br>
+<strong>📝下载器导出的一些文件的名字里可能含有时间戳，现在我修改了时间字符串的格式</strong><br>
+例如在导出抓取结果时，文件名里会包含时间戳。之前的格式是这样的：<span class="blue">2026／3／26 20：58：54</span>，现在改成这样：<span class="blue">2026-08-08 00-30-34</span>，看起来更自然。<br>
+<strong>🐞修复问题：当标签别名里含有特殊字符时，可能会导致该功能出现异常</strong><br>
+<strong>🐞修复问题：当用户启用了“点击收藏按钮时下载作品”功能时，在排行榜页面里无效</strong><br>
+
+<strong>🐞修复问题：一些用户名里含有特殊的窄空格字符，导致 Firefox 浏览器无法下载他们的作品</strong><br>
+<strong>🐞修复问题：当“置顶的设置”区域的高度不足时，命名规则的加载列表显示不完整</strong><br>
+<strong>🐞修复其他一些问题</strong>`,
+    `<strong>⚙️行為變更：當你修改下載器的設定後，所有 Pixiv 分頁裡的設定都會同步變化</strong><br>
+使用者經常會開啟多個 Pixiv.net 分頁。以前當你在一個分頁裡修改設定後，其他分頁裡的設定不會變化。現在，其他分頁預設會同步變化，因此所有分頁都會使用相同的設定。<br>
+⚠️這是一項行為變更。如果你想保持以前的行為，可以在下面的設定裡選擇舊版行為。<br>
+<strong>✨新增設定：當你修改設定時，其他分頁是否同步變化</strong><br>
+這個設定位於「通用」-「管理設定」分類裡。你可以選擇「同步變化」（預設值）或「保持不變」（舊版行為）。<br>
+<strong>✨新增設定：自動匯出設定</strong><br>
+這個設定位於「通用」-「管理設定」分類裡，用來自動備份設定。預設未啟用。<br>
+你可以選擇兩種策略：<br>
+1. 定時匯出（預設每隔 24 小時匯出一次）<br>
+2. 每當設定變化後立即匯出<br>
+另外，現在下載器匯出設定時，會建立 <span class="blue">PPD Settings</span> 資料夾來統一存放設定檔案。<br>
+<strong>✨「使用者阻止名單」改名為「使用者封鎖名單」，並新增了「快速封鎖使用者」功能</strong><br>
+「快速封鎖使用者」功能說明：<br>
+當你啟用了「使用者封鎖名單」功能後，把滑鼠指標移到任意使用者的名字上，下載器就會顯示封鎖他的按鈕，點擊即可新增封鎖。<br>
+以前封鎖使用者時，你需要手動複製他的 ID 並新增到輸入框裡，現在方便多了。<br>
+<strong>✨在「儲存作品簡介」設定裡，你可以選擇為哪些類型的作品儲存簡介</strong><br>
+你可以選擇作品類型：插畫、漫畫、動圖、小說。<br>
+<strong>📝下載器匯出的一些檔案名稱裡可能含有時間戳，現在我修改了時間字串的格式</strong><br>
+例如在匯出抓取結果時，檔案名稱裡會包含時間戳。以前的格式是：<span class="blue">2026／3／26 20：58：54</span>，現在改成：<span class="blue">2026-08-08 00-30-34</span>，看起來更自然。<br>
+<strong>🐞修復問題：當標籤別名裡含有特殊字元時，可能會導致該功能出現異常</strong><br>
+<strong>🐞修復問題：當使用者啟用了「點擊收藏按鈕時下載作品」功能時，該功能在排行榜頁面裡無效</strong><br>
+
+<strong>🐞修復問題：一些使用者名稱裡含有特殊的窄空格字元，導致 Firefox 瀏覽器無法下載他們的作品</strong><br>
+<strong>🐞修復問題：當「置頂的設定」區域高度不足時，命名規則的載入列表顯示不完整</strong><br>
+<strong>🐞修復其他一些問題</strong>`,
+    `<strong>⚙️Behavior change: Settings now synchronize across all Pixiv tabs when you change them</strong><br>
+Users often open multiple Pixiv.net tabs. Previously, changing settings in one tab did not change settings in other tabs. Now, settings synchronize across other tabs by default, so all tabs use the same settings.<br>
+⚠️This is a behavior change. If you want to keep the previous behavior, select the legacy behavior in the setting below.<br>
+<strong>✨New setting: Whether settings synchronize across other tabs when you change them</strong><br>
+This setting is in the "General" - "Manage settings" category. You can choose "Synchronize changes" (default) or "Keep unchanged" (legacy behavior).<br>
+<strong>✨New setting: Automatically export settings</strong><br>
+This setting is in the "General" - "Manage settings" category and automatically backs up settings. It is disabled by default.<br>
+You can choose between two strategies:<br>
+1. Timed export (exports once every 24 hours by default)<br>
+2. Export immediately whenever settings change<br>
+In addition, the downloader now creates a <span class="blue">PPD Settings</span> folder to store exported settings files.<br>
+<strong>✨"User deny list" was renamed to "User block list", and "Quickly block users" was added</strong><br>
+About "Quickly block users":<br>
+After enabling "User block list", move your pointer over any user's name and the downloader shows a button for blocking that user. Click it to add the block.<br>
+Previously, blocking a user required manually copying their ID and adding it to the input field. It is much more convenient now.<br>
+<strong>✨In the "Save work description" setting, you can choose which types of works have their descriptions saved</strong><br>
+You can choose these work types: illustrations, manga, Ugoira, and novels.<br>
+<strong>📝Some file names exported by the downloader may include timestamps. The time string format has now been changed</strong><br>
+For example, exported crawl results include a timestamp in the file name. The previous format was <span class="blue">2026／3／26 20：58：54</span>; it is now <span class="blue">2026-08-08 00-30-34</span>, which looks more natural.<br>
+<strong>🐞Fixed: Special characters in tag aliases could cause this feature to malfunction</strong><br>
+<strong>🐞Fixed: "Download works when clicking the bookmark button" did not work on ranking pages</strong><br>
+
+<strong>🐞Fixed: Special narrow-space characters in some user names prevented Firefox from downloading their works</strong><br>
+<strong>🐞Fixed: The naming-rule load list was incomplete when the "Pinned settings" area was not tall enough</strong><br>
+<strong>🐞Fixed several other issues</strong>`,
+    `<strong>⚙️動作変更：ダウンローダーの設定を変更すると、すべての Pixiv タブの設定も同期して変更されるようになりました</strong><br>
+ユーザーは複数の Pixiv.net タブを開くことがよくあります。以前は、1 つのタブで設定を変更しても、他のタブの設定は変わりませんでした。現在は、他のタブの設定もデフォルトで同期して変更されるため、すべてのタブで同じ設定が使われます。<br>
+⚠️これは動作変更です。以前の動作を維持したい場合は、下記の設定で旧バージョンの動作を選択してください。<br>
+<strong>✨新しい設定：設定を変更したときに、他のタブの設定も同期して変更するかどうか</strong><br>
+この設定は「一般」-「設定の管理」カテゴリにあります。「同期する」（デフォルト）または「変更しない」（旧バージョンの動作）を選択できます。<br>
+<strong>✨新しい設定：設定を自動的にエクスポート</strong><br>
+この設定は「一般」-「設定の管理」カテゴリにあり、設定を自動的にバックアップします。デフォルトでは無効です。<br>
+次の 2 つの方法を選択できます。<br>
+1. 定期エクスポート（デフォルトでは 24 時間ごとに 1 回エクスポート）<br>
+2. 設定が変更されるたびにすぐエクスポート<br>
+また、設定をエクスポートするときに、エクスポートした設定ファイルをまとめて保存するための <span class="blue">PPD Settings</span> フォルダーが作成されるようになりました。<br>
+<strong>✨「ユーザー拒否リスト」を「ユーザーブロックリスト」に改称し、「ユーザーをすばやくブロック」機能を追加</strong><br>
+「ユーザーをすばやくブロック」機能について：<br>
+「ユーザーブロックリスト」を有効にした後、任意のユーザー名にマウスポインターを合わせると、ダウンローダーにそのユーザーをブロックするボタンが表示されます。クリックするとブロックに追加できます。<br>
+以前は、ユーザーをブロックするには ID を手動でコピーして入力欄に追加する必要がありましたが、これでより便利になりました。<br>
+<strong>✨「作品の説明を保存」設定で、説明を保存する作品の種類を選択できるようになりました</strong><br>
+選択できる作品の種類：イラスト、マンガ、うごイラ、小説。<br>
+<strong>📝ダウンローダーがエクスポートする一部のファイル名にはタイムスタンプが含まれます。時刻文字列の形式を変更しました</strong><br>
+たとえば、クロール結果をエクスポートすると、ファイル名にタイムスタンプが含まれます。以前の形式は <span class="blue">2026／3／26 20：58：54</span> でしたが、現在は <span class="blue">2026-08-08 00-30-34</span> になり、より自然に見えます。<br>
+<strong>🐞修正：タグエイリアスに特殊文字が含まれていると、この機能が異常になることがある問題</strong><br>
+<strong>🐞修正：「ブックマークボタンをクリックしたときに作品をダウンロード」機能がランキングページで動作しない問題</strong><br>
+
+<strong>🐞修正：一部のユーザー名に特殊な狭いスペース文字が含まれていると、Firefox で作品をダウンロードできない問題</strong><br>
+<strong>🐞修正：「固定した設定」エリアの高さが不足していると、命名規則の読み込みリストが不完全に表示される問題</strong><br>
+<strong>🐞その他のいくつかの問題を修正</strong>`,
+    `<strong>⚙️동작 변경: 다운로더 설정을 변경하면 모든 Pixiv 탭의 설정도 동기화되어 변경됩니다</strong><br>
+사용자는 여러 Pixiv.net 탭을 자주 엽니다. 이전에는 한 탭에서 설정을 변경해도 다른 탭의 설정은 변경되지 않았습니다. 이제 다른 탭의 설정도 기본적으로 동기화되어 변경되므로, 모든 탭에서 같은 설정을 사용합니다.<br>
+⚠️이는 동작 변경입니다. 이전 동작을 유지하려면 아래 설정에서 이전 버전의 동작을 선택하세요.<br>
+<strong>✨새 설정: 설정을 변경할 때 다른 탭의 설정도 동기화할지 여부</strong><br>
+이 설정은 "일반" - "설정 관리" 분류에 있습니다. "변경 사항 동기화"(기본값) 또는 "변경하지 않음"(이전 버전의 동작)을 선택할 수 있습니다.<br>
+<strong>✨새 설정: 설정 자동 내보내기</strong><br>
+이 설정은 "일반" - "설정 관리" 분류에 있으며 설정을 자동으로 백업합니다. 기본적으로 꺼져 있습니다.<br>
+두 가지 전략을 선택할 수 있습니다.<br>
+1. 일정 내보내기(기본값: 24시간마다 한 번 내보내기)<br>
+2. 설정이 변경될 때마다 즉시 내보내기<br>
+또한 이제 설정을 내보낼 때 내보낸 설정 파일을 한곳에 저장하는 <span class="blue">PPD Settings</span> 폴더를 만듭니다.<br>
+<strong>✨"사용자 거부 목록"의 이름을 "사용자 차단 목록"으로 변경하고 "빠르게 사용자 차단" 기능 추가</strong><br>
+"빠르게 사용자 차단" 기능 설명:<br>
+"사용자 차단 목록" 기능을 켠 후 아무 사용자 이름 위에 마우스 포인터를 올리면 다운로더에 해당 사용자를 차단하는 버튼이 표시됩니다. 클릭하면 차단에 추가됩니다.<br>
+이전에는 사용자를 차단하려면 ID를 직접 복사하여 입력란에 추가해야 했지만, 이제 훨씬 편리해졌습니다.<br>
+<strong>✨"작품 설명 저장" 설정에서 어떤 종류의 작품 설명을 저장할지 선택할 수 있습니다</strong><br>
+선택할 수 있는 작품 유형: 일러스트, 만화, Ugoira, 소설.<br>
+<strong>📝다운로더에서 내보낸 일부 파일 이름에는 타임스탬프가 포함될 수 있습니다. 이제 시간 문자열 형식을 변경했습니다</strong><br>
+예를 들어 크롤 결과를 내보낼 때 파일 이름에 타임스탬프가 포함됩니다. 이전 형식은 <span class="blue">2026／3／26 20：58：54</span>였지만, 이제 <span class="blue">2026-08-08 00-30-34</span>로 변경되어 더 자연스럽게 보입니다.<br>
+<strong>🐞수정: 태그 별칭에 특수 문자가 있으면 이 기능이 비정상적으로 작동할 수 있는 문제</strong><br>
+<strong>🐞수정: "북마크 버튼을 클릭할 때 작품 다운로드" 기능이 랭킹 페이지에서 작동하지 않는 문제</strong><br>
+
+<strong>🐞수정: 일부 사용자 이름의 특수한 좁은 공백 문자 때문에 Firefox에서 작품을 다운로드할 수 없는 문제</strong><br>
+<strong>🐞수정: "고정한 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
+<strong>🐞기타 몇 가지 문제 수정</strong>`,
+    `<strong>⚙️Изменение поведения: после изменения настроек загрузчика настройки синхронизируются во всех вкладках Pixiv</strong><br>
+Пользователи часто открывают несколько вкладок Pixiv.net. Раньше изменение настроек в одной вкладке не меняло настройки в других вкладках. Теперь настройки в других вкладках по умолчанию синхронизируются, поэтому во всех вкладках используются одинаковые настройки.<br>
+⚠️Это изменение поведения. Если вы хотите сохранить прежнее поведение, выберите поведение предыдущих версий в настройке ниже.<br>
+<strong>✨Новая настройка: Синхронизировать ли настройки в других вкладках при изменении настроек</strong><br>
+Эта настройка находится в категории «Общее» - «Управление настройками». Можно выбрать «Синхронизировать изменения» (по умолчанию) или «Не изменять» (поведение предыдущих версий).<br>
+<strong>✨Новая настройка: Автоматический экспорт настроек</strong><br>
+Эта настройка находится в категории «Общее» - «Управление настройками» и автоматически создаёт резервные копии настроек. По умолчанию она отключена.<br>
+Можно выбрать одну из двух стратегий:<br>
+1. Экспорт по расписанию (по умолчанию один раз в 24 часа)<br>
+2. Экспортировать сразу после каждого изменения настроек<br>
+Кроме того, при экспорте настроек загрузчик теперь создаёт папку <span class="blue">PPD Settings</span>, в которой хранятся экспортированные файлы настроек.<br>
+<strong>✨«Список блокировки пользователей» переименован в «Список заблокированных пользователей», также добавлена функция «Быстрая блокировка пользователей»</strong><br>
+О функции «Быстрая блокировка пользователей»:<br>
+После включения функции «Список заблокированных пользователей» наведите указатель мыши на имя любого пользователя. Загрузчик покажет кнопку блокировки этого пользователя; нажмите её, чтобы добавить блокировку.<br>
+Раньше для блокировки пользователя нужно было вручную скопировать его ID и добавить в поле ввода, теперь это стало намного удобнее.<br>
+<strong>✨В настройке «Сохранять описание работы» можно выбрать типы работ, для которых сохраняется описание</strong><br>
+Можно выбрать следующие типы работ: иллюстрации, манга, Ugoira, романы.<br>
+<strong>📝Имена некоторых файлов, экспортируемых загрузчиком, могут содержать отметку времени. Теперь формат строки времени изменён</strong><br>
+Например, при экспорте результатов сбора данных имя файла содержит отметку времени. Раньше формат был таким: <span class="blue">2026／3／26 20：58：54</span>, а теперь такой: <span class="blue">2026-08-08 00-30-34</span>, что выглядит естественнее.<br>
+<strong>🐞Исправлено: специальные символы в псевдонимах тегов могли вызывать сбои этой функции</strong><br>
+<strong>🐞Исправлено: функция «Скачивать работы при нажатии кнопки закладки» не работала на страницах рейтинга</strong><br>
+
+<strong>🐞Исправлено: специальные узкие пробельные символы в некоторых именах пользователей не позволяли Firefox скачивать их работы</strong><br>
+<strong>🐞Исправлено: список загрузки правил именования отображался не полностью, когда область «Закрепленные настройки» была недостаточно высокой</strong><br>
+<strong>🐞Исправлено несколько других проблем</strong>`,
   ],
 }
 

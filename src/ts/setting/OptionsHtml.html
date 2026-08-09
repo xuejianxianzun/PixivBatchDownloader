@@ -1,4 +1,4 @@
-<!-- 设置项的编号是递增的，现在最大值是 104
+<!-- 设置项的编号是递增的，现在最大值是 105
 帮助按钮上的文字有两种：
 - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 - 如果帮助文字直接在设置面板里显示，则使用“_提示” -->
@@ -18,10 +18,10 @@
     role="setMin"
   ></button>
   <button type="button" class="textButton grayButton" role="setMax"></button>
-  <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
+  <span class="gray" data-xztext="_负1或者大于0" role="tip"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_抓取多少作品"
     data-msg="_抓取多少作品的提示"
     data-xztext="_帮助"
@@ -44,10 +44,10 @@
     role="setMin"
   ></button>
   <button type="button" class="textButton grayButton" role="setMax"></button>
-  <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
+  <span class="gray" data-xztext="_负1或者大于0" role="tip"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_抓取多少页面"
     data-msg="_抓取多少页面的提示"
     data-xztext="_帮助"
@@ -62,7 +62,7 @@
     data-xztip="_必须大于0"
   >
     <span data-xztext="_抓取每个用户最新的几个作品"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -232,7 +232,7 @@
   <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_原创作品"
     data-msg="_宽松匹配原创作品的说明"
     data-xztext="_帮助"
@@ -319,7 +319,7 @@
     data-xztip="_设置收藏数量的提示"
   >
     <span data-xztext="_收藏数量"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -358,7 +358,7 @@
         data-xztip="_日均收藏数量的提示"
       >
         <span data-xztext="_满足日均收藏数量条件"></span>
-        <span class="gray1"> ? </span>
+        <span class="gray"> ? </span>
       </label>
       <input
         type="checkbox"
@@ -388,7 +388,7 @@
     data-xztip="_筛选宽高的提示文字"
   >
     <span data-xztext="_图片的宽高"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -507,7 +507,7 @@
     data-xztip="_设置宽高比例Title"
   >
     <span data-xztext="_图片的宽高比例"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -553,7 +553,7 @@
     <span class="beautify_radio" tabindex="0"></span>
     <span class="has_tip settingNameStyle" data-xztip="_宽高比的提示">
       <label for="ratio3" style="padding: 0" data-xztext="_宽高比"></label>
-      <span class="gray1"> ? </span>
+      <span class="gray"> ? </span>
     </span>
     <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->
     <input
@@ -610,7 +610,7 @@
     data-xztip="_设置id范围提示"
   >
     <span data-xztext="_id范围"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -719,7 +719,7 @@
     data-xztip="_设置投稿时间提示"
   >
     <span data-xztext="_投稿时间"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -792,7 +792,7 @@
     data-xztip="_必须tag的提示文字"
   >
     <span data-xztext="_必须含有tag"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -838,7 +838,7 @@
     data-xztip="_排除tag的提示文字"
   >
     <span data-xztext="_不能含有tag"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -848,7 +848,7 @@
   <span class="beautify_switch" tabindex="0"></span>
   <div class="subOptionWrap flexBasis100" data-show="notNeedTagSwitch">
     <span data-xztext="_匹配模式"></span>
-    <span class="gray1" data-xztext="_任一"></span>
+    <span class="gray" data-xztext="_任一"></span>
     <span class="verticalSplit"></span>
     <input
       type="radio"
@@ -886,7 +886,7 @@
     data-xztip="_针对特定用户屏蔽tag的提示"
   >
     <span data-xztext="_针对特定用户屏蔽标签"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -907,7 +907,7 @@
     data-xztip="_标题必须含有的说明"
   >
     <span data-xztext="_标题必须含有"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -934,7 +934,7 @@
     data-xztip="_标题不能含有的说明"
   >
     <span data-xztext="_标题不能含有"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -957,7 +957,7 @@
       data-xztext="_也检查系列标题"
       data-xztip="_也检查系列标题的说明"
     ></label>
-    <span class="gray1 mr4"> ? </span>
+    <span class="gray mr4"> ? </span>
     <input
       type="checkbox"
       name="alsoCheckSeriesTitle"
@@ -977,7 +977,7 @@
     data-xztip="_多图作品的图片数量上限提示"
   >
     <span data-xztext="_多图作品的图片数量上限"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1016,7 +1016,7 @@
   </div>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_多图作品只抓取前几张图片"
     data-msg="_多图作品只抓取前几张图片的说明"
     data-xztext="_帮助"
@@ -1043,7 +1043,7 @@
   </div>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_多图作品只抓取后几张图片"
     data-msg="_多图作品只抓取后几张图片的说明"
     data-xztext="_帮助"
@@ -1070,7 +1070,7 @@
   </div>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_多图作品不抓取前几张图片"
     data-msg="_多图作品不抓取前几张图片的说明"
     data-xztext="_帮助"
@@ -1097,7 +1097,7 @@
   </div>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_多图作品不抓取后几张图片"
     data-msg="_多图作品不抓取后几张图片的说明"
     data-xztext="_帮助"
@@ -1119,7 +1119,7 @@
     data-xztip="_不抓取下载过的作品的说明"
   >
     <span data-xztext="_不抓取下载过的作品"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1129,7 +1129,7 @@
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_不抓取下载过的作品"
     data-msg="_不抓取下载过的作品的帮助信息"
     data-xztext="_帮助"
@@ -1141,10 +1141,10 @@
     href=""
     target="_blank"
     class="has_tip settingNameStyle"
-    data-xztip="_用户阻止名单的说明"
+    data-xztip="_用户屏蔽名单的说明"
   >
-    <span data-xztext="_用户阻止名单"></span>
-    <span class="gray1"> ? </span>
+    <span data-xztext="_用户屏蔽名单"></span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1152,33 +1152,54 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_用户屏蔽名单"
+    data-msg="_用户屏蔽名单的说明2"
+    data-xztext="_帮助"
+  ></button>
   <div class="subOptionWrap flexBasis100" data-show="userBlockList">
-    <textarea
-      class="centerPanelTextArea beautify_scrollbar"
-      name="blockList"
-      rows="1"
-      placeholder="11111,22222,33333"
-    ></textarea>
-    <br />
-    <input
-      type="checkbox"
-      name="removeBlockedUsersWork"
-      id="setRemoveBlockedUsersWork"
-      class="need_beautify checkbox_common"
-      checked
-    />
-    <span class="beautify_checkbox" tabindex="0"></span>
-    <label
-      for="setRemoveBlockedUsersWork"
-      data-xztext="_从页面上移除他们的作品"
-    ></label>
-    <button
-      type="button"
-      class="gray1 textButton showMsgBtn"
-      data-title="_用户阻止名单"
-      data-msg="_用户阻止名单的说明2"
-      data-xztext="_帮助"
-    ></button>
+    <div class="optionLine">
+      <textarea
+        class="centerPanelTextArea beautify_scrollbar"
+        name="blockList"
+        rows="1"
+        placeholder="11111,22222,33333"
+      ></textarea>
+    </div>
+    <div class="optionLine">
+      <input
+        type="checkbox"
+        name="quicklyBlockUsers"
+        id="setQuicklyBlockUsers"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setQuicklyBlockUsers" data-xztext="_快捷屏蔽用户"></label>
+      <button
+        type="button"
+        class="gray textButton showMsgBtn"
+        data-title="_快捷屏蔽用户"
+        data-msg="_快捷屏蔽用户的说明"
+        data-xztext="_帮助"
+      ></button>
+    </div>
+    <div class="optionLine">
+      <input
+        type="checkbox"
+        name="removeBlockedUsersWork"
+        id="setRemoveBlockedUsersWork"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label
+        for="setRemoveBlockedUsersWork"
+        data-xztext="_从页面上移除他们的作品"
+      ></label>
+    </div>
   </div>
 </div>
 
@@ -1190,7 +1211,7 @@
     data-xztip="_减慢抓取速度的说明"
   >
     <span data-xztext="_减慢抓取速度"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1234,7 +1255,7 @@
     data-xztip="_定时抓取的间隔时间的说明"
   >
     <span data-xztext="_定时抓取的间隔时间"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="text"
@@ -1253,7 +1274,7 @@
     data-xztip="_自动导出抓取结果的说明"
   >
     <span data-xztext="_自动导出抓取结果"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1304,7 +1325,7 @@
     data-xztip="_导出ID列表的说明"
   >
     <span data-xztext="_导出ID列表"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1428,7 +1449,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_在不同的页面类型中使用不同的命名规则"
     data-msg="_在不同的页面类型中使用不同的命名规则的帮助"
     data-xztext="_帮助"
@@ -1562,7 +1583,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   />
   <button
     type="button"
-    class="gray1 textButton toggleArea"
+    class="gray textButton toggleArea"
     data-toggle-Target="#tagsSeparatorTip"
     data-for-no="37"
     data-xztext="_提示"
@@ -1588,7 +1609,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   />
   <button
     type="button"
-    class="gray1 textButton toggleArea"
+    class="gray textButton toggleArea"
     data-toggle-Target="#dateFormatTip"
     data-for-no="38"
     data-xztext="_提示"
@@ -1639,7 +1660,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <button
       type="button"
-      class="gray1 textButton showMsgBtn"
+      class="gray textButton showMsgBtn"
       data-title="_文件名长度限制"
       data-msg="_文件名长度限制的说明"
       data-xztext="_帮助"
@@ -1660,7 +1681,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_不创建文件夹"
     data-msg="_不创建文件夹的帮助内容"
     data-xztext="_帮助"
@@ -1736,7 +1757,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_为多图作品添加一层文件夹"
     data-msg="_为多图作品添加一层文件夹的帮助"
     data-xztext="_帮助"
@@ -1799,7 +1820,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_为r18作品添加一层文件夹"
     data-msg="_为r18作品添加一层文件夹的帮助"
     data-xztext="_帮助"
@@ -1839,7 +1860,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_使用第一个匹配的标签建立文件夹"
     data-msg="_使用第一个匹配的标签建立文件夹的说明"
     data-xztext="_帮助"
@@ -1875,25 +1896,27 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <span data-xztext="_标签别名"></span>
   </a>
 
-  <label
-    for="useTagAliasForTagsNamingRule"
-    data-xztext="_应用到文件名里的tags系列标记"
-  ></label>
-  <input
-    type="checkbox"
-    name="useTagAliasForTagsNamingRule"
-    id="useTagAliasForTagsNamingRule"
-    class="need_beautify checkbox_switch"
-  />
-  <span class="beautify_switch" tabindex="0"></span>
-
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_标签别名"
     data-msg="_标签别名的帮助"
     data-xztext="_帮助"
   ></button>
+
+  <p class="flexBasis100 shrink0">
+    <label
+      for="useTagAliasForTagsNamingRule"
+      data-xztext="_应用到文件名里的tags系列标记"
+    ></label>
+    <input
+      type="checkbox"
+      name="useTagAliasForTagsNamingRule"
+      id="useTagAliasForTagsNamingRule"
+      class="need_beautify checkbox_switch"
+    />
+    <span class="beautify_switch" tabindex="0"></span>
+  </p>
 
   <slot data-name="setTagAliasSlot"></slot>
 </div>
@@ -1906,7 +1929,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_自定义用户名的说明"
   >
     <span data-xztext="_自定义用户名"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <slot data-name="setUserNameSlot"></slot>
 </div>
@@ -1919,7 +1942,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_序号起始值的说明"
   >
     <span data-xztext="_序号起始值"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="radio"
@@ -1950,7 +1973,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_第一张图不带序号说明"
   >
     <span data-xztext="_第一张图不带序号"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1997,7 +2020,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_在序号前面填充0的说明"
   >
     <span data-xztext="_在序号前面填充0"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2036,7 +2059,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_移除用户名中的at和后续字符的说明"
   >
     <span data-xztext="_移除用户名中的at和后续字符"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2072,7 +2095,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_自动开始下载"
     data-msg="_自动开始下载的帮助内容"
     data-xztext="_帮助"
@@ -2087,7 +2110,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_下载之后收藏作品的提示"
   >
     <span data-xztext="_下载之后收藏作品"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2129,7 +2152,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_下载间隔的说明"
   >
     <span data-xztext="_下载间隔"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2253,7 +2276,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_文件体积限制的说明"
   >
     <span data-xztext="_文件体积限制"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2285,7 +2308,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_使用前请先查看提示"
   >
     <span data-xztext="_把文件保存到用户上次选择的位置"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2295,7 +2318,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_把文件保存到用户上次选择的位置"
     data-msg="_把文件保存到用户上次选择的位置的说明"
     data-xztext="_帮助"
@@ -2319,7 +2342,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_下载完成后显示通知的说明"
   >
     <span data-xztext="_下载完成后显示通知"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2338,7 +2361,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   ></a>
   <button
     type="button"
-    class="textButton gray1 showMsgBtn"
+    class="textButton gray showMsgBtn"
     data-title="_管理下载记录"
     data-msg="_管理下载记录的提示"
     data-xztext="_帮助"
@@ -2423,7 +2446,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   </div>
   <button
     type="button"
-    class="textButton gray1 showMsgBtn"
+    class="textButton gray showMsgBtn"
     data-title="_不下载重复文件"
     data-msg="_不下载重复文件的提示"
     data-xztext="_帮助"
@@ -2458,7 +2481,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_radio" tabindex="0"></span>
     <label for="imageSize2" data-xztext="_普通"></label>
-    <label for="imageSize2" class="gray1">(1200px)</label>
+    <label for="imageSize2" class="gray">(1200px)</label>
     <input
       type="radio"
       name="imageSize"
@@ -2468,7 +2491,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_radio" tabindex="0"></span>
     <label for="imageSize3" data-xztext="_小图"></label>
-    <label for="imageSize3" class="gray1">(540px)</label>
+    <label for="imageSize3" class="gray">(540px)</label>
     <input
       type="radio"
       name="imageSize"
@@ -2478,7 +2501,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_radio" tabindex="0"></span>
     <label for="imageSize4" data-xztext="_方形缩略图"></label>
-    <label for="imageSize4" class="gray1">(250px)</label>
+    <label for="imageSize4" class="gray">(250px)</label>
   </div>
 </div>
 
@@ -2489,7 +2512,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 
   <button
     type="button"
-    class="textButton gray1 showMsgBtn"
+    class="textButton gray showMsgBtn"
     data-title="_动图保存格式"
     data-msg="_动图保存格式的说明"
     data-xztext="_帮助"
@@ -2601,7 +2624,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_同时转换多少个动图的说明"
   >
     <span data-xztext="_同时转换多少个动图"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="text"
@@ -2619,7 +2642,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_小说保存格式的说明"
   >
     <span data-xztext="_小说保存格式"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="radio"
@@ -2650,7 +2673,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_在小说里保存元数据提示"
   >
     <span data-xztext="_在小说里保存元数据"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2758,7 +2781,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_自动合并系列小说的说明"
   >
     <span data-xztext="_自动合并系列小说"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2773,7 +2796,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       class="has_tip"
       data-xztip="_不再单独下载系列里的小说的说明"
     ></label>
-    <span class="gray1"> ? &nbsp;</span>
+    <span class="gray"> ? &nbsp;</span>
     <input
       type="checkbox"
       name="skipNovelsInSeriesWhenAutoMerge"
@@ -2800,7 +2823,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 
   <button
     type="button"
-    class="textButton gray1 showMsgBtn"
+    class="textButton gray showMsgBtn"
     data-title="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说"
     data-msg="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示"
     data-xztext="_帮助"
@@ -2821,7 +2844,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span>MiB</span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_合并系列小说时的分割阈值"
     data-msg="_合并系列小说时的分割阈值的帮助"
     data-xztext="_帮助"
@@ -2836,7 +2859,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_保存作品的元数据说明"
   >
     <span data-xztext="_保存作品的元数据"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
 
   <div class="optionLine">
@@ -2906,7 +2929,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_保存作品简介的说明"
   >
     <span data-xztext="_保存作品的简介"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2916,13 +2939,52 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <div class="subOptionWrap flexBasis100" data-show="saveWorkDescription">
     <div class="optionLine">
+      <span class="mb4" data-xztext="_作品类型带冒号"> </span>
+      <input
+        type="checkbox"
+        name="saveDescriptionType0"
+        id="setSaveDescriptionType0"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setSaveDescriptionType0" data-xztext="_插画"></label>
+      <input
+        type="checkbox"
+        name="saveDescriptionType1"
+        id="setSaveDescriptionType1"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setSaveDescriptionType1" data-xztext="_漫画"></label>
+      <input
+        type="checkbox"
+        name="saveDescriptionType2"
+        id="setSaveDescriptionType2"
+        class="need_beautify checkbox_common"
+        checked
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setSaveDescriptionType2" data-xztext="_动图"></label>
+      <input
+        type="checkbox"
+        name="saveDescriptionType3"
+        id="setSaveDescriptionType3"
+        class="need_beautify checkbox_common"
+      />
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setSaveDescriptionType3" data-xztext="_小说"></label>
+    </div>
+
+    <div class="optionLine">
       <label
         for="saveEachDescription"
         data-xztext="_每个作品分别保存"
         class="has_tip"
         data-xztip="_简介的Links标记"
       ></label>
-      <span class="gray1"> ? &nbsp;</span>
+      <span class="gray"> ? &nbsp;</span>
       <input
         type="checkbox"
         name="saveEachDescription"
@@ -2953,7 +3015,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_预览作品的说明"
   >
     <span data-xztext="_预览作品"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3008,7 +3070,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       <span class="beautify_switch" tabindex="0"></span>
       <button
         type="button"
-        class="gray1 textButton showMsgBtn"
+        class="gray textButton showMsgBtn"
         data-title="_检查屏蔽的标签"
         data-msg="_检查屏蔽的标签的帮助"
         data-xztext="_帮助"
@@ -3101,7 +3163,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <div class="optionLine">
       <button
         type="button"
-        class="gray1 textButton toggleArea"
+        class="gray textButton toggleArea"
         data-toggle-Target="#previewWorkShortcutTip"
         data-for-no="75"
         data-xztext="_快捷键列表"
@@ -3155,7 +3217,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <div class="optionLine">
       <button
         type="button"
-        class="gray1 textButton toggleArea"
+        class="gray textButton toggleArea"
         data-toggle-Target="#showOriginImageShortcutTip"
         data-for-no="76"
         data-xztext="_快捷键列表"
@@ -3176,7 +3238,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_预览作品的详细信息的说明"
   >
     <span data-xztext="_预览作品的详细信息"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3204,7 +3266,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_显示更大的缩略图的说明"
   >
     <span data-xztext="_显示更大的缩略图"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3222,7 +3284,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_替换方形缩略图以显示图片比例的说明"
   >
     <span data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3241,7 +3303,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_在多图作品页面里显示缩略图列表的说明"
   >
     <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3272,7 +3334,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_缩略图上按钮的位置的说明"
   >
     <span data-xztext="_缩略图上按钮的位置"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="radio"
@@ -3375,7 +3437,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_高亮关注的用户的说明"
   >
     <span data-xztext="_高亮关注的用户"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3408,7 +3470,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       <input
         type="text"
         name="borderWidth"
-        class="setinput_style blue w30"
+        class="setinput_style blue w40"
         value="3"
       />
       px
@@ -3435,7 +3497,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_收藏设置的说明"
   >
     <span data-xztext="_收藏设置"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
 
   <div class="optionLine">
@@ -3493,7 +3555,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_显示复制按钮的提示"
   >
     <span data-xztext="_复制按钮"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
 
   <div class="optionLine">
@@ -3526,7 +3588,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <label for="setCopyFormatHtml">text/html</label>
     <button
       type="button"
-      class="gray1 textButton showMsgBtn"
+      class="gray textButton showMsgBtn"
       data-title="_复制内容"
       data-msg="_对复制的内容的说明"
       data-xztext="_帮助"
@@ -3560,7 +3622,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <span data-xztext="_文本格式" class="mr4"></span>
     <button
       type="button"
-      class="gray1 textButton toggleArea"
+      class="gray textButton toggleArea"
       data-toggle-Target="#copyWorkInfoFormatTip"
       data-for-no="89"
       data-xztext="_提示"
@@ -3593,7 +3655,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_在搜索页面添加快捷搜索区域的说明"
   >
     <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3616,7 +3678,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_过滤搜索页面的作品"
     data-msg="_过滤搜索页面的作品的说明"
     data-xztext="_帮助"
@@ -3631,7 +3693,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_在搜索页面里移除已关注用户的作品的说明"
   >
     <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3649,7 +3711,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_预览搜索结果说明"
   >
     <span data-xztext="_预览搜索结果"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3747,7 +3809,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_选项卡切换方式的说明"
   >
     <span data-xztext="_选项卡切换方式"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="radio"
@@ -3783,7 +3845,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
   <button
     type="button"
-    class="gray1 textButton showMsgBtn"
+    class="gray textButton showMsgBtn"
     data-title="_点击设置卡片时切换它的开关状态"
     data-msg="_点击设置卡片时切换它的开关状态的说明"
     data-xztext="_帮助"
@@ -3848,7 +3910,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_背景图片的说明"
   >
     <span data-xztext="_背景图片"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3912,7 +3974,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_高亮显示关键字的说明"
   >
     <span data-xztext="_高亮显示关键字"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3931,7 +3993,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_日志区域的默认可见性的说明"
   >
     <span data-xztext="_日志区域的默认可见性"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
   <input
     type="radio"
@@ -4024,6 +4086,100 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   </div>
 </div>
 
+<div class="option" data-no="105">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_当你修改设置时其他标签页"></span>
+    <span class="mr4">:</span>
+  </a>
+  <input
+    type="radio"
+    name="settingsAcrossDifferentTabs"
+    id="settingsAcrossDifferentTabs1"
+    class="need_beautify radio"
+    value="synchronizeChanges"
+    checked
+  />
+  <span class="beautify_radio" tabindex="0"></span>
+  <label for="settingsAcrossDifferentTabs1" data-xztext="_同步变化"></label>
+  <input
+    type="radio"
+    name="settingsAcrossDifferentTabs"
+    id="settingsAcrossDifferentTabs2"
+    class="need_beautify radio"
+    value="doNotSynchronizeChanges"
+  />
+  <span class="beautify_radio" tabindex="0"></span>
+  <label for="settingsAcrossDifferentTabs2">
+    <span data-xztext="_保持不变"></span>
+    <span class="gray" data-xztext="_旧版行为"></span>
+  </label>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_当你修改设置时其他标签页"
+    data-msg="_当你修改设置时其他标签页的说明"
+    data-xztext="_帮助"
+  ></button>
+</div>
+
+<div class="option" data-no="106">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_自动导出设置"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="autoExportSettings"
+    class="need_beautify checkbox_switch"
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自动导出设置"
+    data-msg="_自动导出设置的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="autoExportSettings">
+    <div class="optionLine">
+      <input
+        type="radio"
+        name="autoExportSettingsStrategy"
+        id="autoExportSettingsStrategyTimed"
+        class="need_beautify radio"
+        value="timed"
+        checked
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="autoExportSettingsStrategyTimed">
+        <span data-xztext="_定时导出间隔"></span>
+        <input
+          type="text"
+          name="autoExportSettingsInterval"
+          class="setinput_style blue"
+          value="24"
+        />
+        <span data-xztext="_小时"></span>
+      </label>
+    </div>
+
+    <div class="optionLine">
+      <input
+        type="radio"
+        name="autoExportSettingsStrategy"
+        id="autoExportSettingsStrategyOnChange"
+        class="need_beautify radio"
+        value="onSettingChange"
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label
+        for="autoExportSettingsStrategyOnChange"
+        data-xztext="_每当设置变化后立即导出"
+      ></label>
+    </div>
+  </div>
+</div>
+
 <div class="option" data-no="103">
   <a
     href=""
@@ -4032,7 +4188,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-xztip="_管理设置的说明"
   >
     <span data-xztext="_管理设置"></span>
-    <span class="gray1"> ? </span>
+    <span class="gray"> ? </span>
   </a>
 
   <div class="optionLine">

@@ -67,6 +67,7 @@ class FormSettings {
       'deduplication',
       'bmkAfterDL',
       'userBlockList',
+      'quicklyBlockUsers',
       'removeBlockedUsersWork',
       'blockTagsForSpecificUser',
       'bgDisplay',
@@ -125,6 +126,10 @@ class FormSettings {
       'PreviewWorkDetailInfo',
       'removeWorksOfFollowedUsersOnSearchPage',
       'saveWorkDescription',
+      'saveDescriptionType0',
+      'saveDescriptionType1',
+      'saveDescriptionType2',
+      'saveDescriptionType3',
       'saveEachDescription',
       'summarizeDescription',
       'copyFormatImage',
@@ -162,6 +167,7 @@ class FormSettings {
       'clickSettingNameOpenWiki',
       'downloadIntervalSwitch',
       'saveAllSeriesNovelsIfOneMatches',
+      'autoExportSettings',
     ],
     radio: [
       'novelSaveAs',
@@ -195,6 +201,8 @@ class FormSettings {
       'serialNoStart',
       'animatedWebPQuality',
       'novelEmbeddedImageSize',
+      'settingsAcrossDifferentTabs',
+      'autoExportSettingsStrategy',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -237,6 +245,7 @@ class FormSettings {
       'onlyCrawlLastFewImagesCount',
       'doNotCrawlFirstImagesCount',
       'singleEPUBFileSizeLimit',
+      'autoExportSettingsInterval',
     ],
     textarea: [
       'notNeedTag',

@@ -1,12 +1,15 @@
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
+import { Utils } from '../utils/Utils'
 
 declare const GIF: any
 
 class ToGIF {
   constructor() {
-    this.loadWorkerJS()
+    if (Utils.isPixiv()) {
+      this.loadWorkerJS()
+    }
   }
 
   private gifWorkerUrl: string = ''

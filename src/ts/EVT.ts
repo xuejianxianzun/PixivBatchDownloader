@@ -140,6 +140,8 @@ class EVENT {
     output: 'output',
     /** 当设置表单里的设置项发生变化时触发 */
     settingChange: 'settingChange',
+    /** 当设置成功保存到 browser.storage.local 时触发 */
+    settingsStored: 'settingsStored',
     /** 当下载器检测到有新版本时触发 */
     hasNewVer: 'hasNewVer',
     /** 进入批量收藏模式时触发 */
@@ -255,6 +257,7 @@ class EVENT {
       | 'exportLog'
       | 'showRecentUpdates'
       | 'resetFollowingData'
+      | 'settingsStored'
   ): void
 
   // 对于需要携带数据的事件进行重载

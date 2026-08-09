@@ -223,7 +223,7 @@
     font-weight: 700;
   }
 
-  .gray1 {
+  .gray {
     color: #777;
   }
 
@@ -489,6 +489,11 @@
       height: var(--line-height);
     }
 
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder {
+      color: var(--settings-panel-placeholder-text);
+    }
+
     a.settingNameStyle:hover,
     .has_tip:hover,
     label:hover,
@@ -644,7 +649,7 @@
           }
 
           &.postDate {
-            width: 170px;
+            width: 220px;
           }
 
           &.bmkNum {
@@ -998,6 +1003,13 @@
         .secondary_hint {
           margin-top: 4px;
         }
+      }
+
+      .settingsPanel_emptyCategoryHint {
+        width: calc(100% - 20px);
+        margin: 10px auto 0;
+        flex-grow: 0;
+        grid-column: auto;
       }
 
       .centerWrap_btns {
@@ -2072,7 +2084,7 @@
     color: #fff;
   }
 
-  .gray1 {
+  .gray {
     color: #bbb;
   }
 
@@ -2147,7 +2159,7 @@
     color: #fff;
   }
 
-  .gray1,
+  .gray,
   .centerWrap_top_btn {
     color: #eee !important;
   }

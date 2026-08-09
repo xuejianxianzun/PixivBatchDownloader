@@ -75,6 +75,7 @@ export interface FormType extends HTMLFormElement {
   widthTag: RadioNodeList
   restrict: RadioNodeList
   userBlockList: HTMLInputElement
+  quicklyBlockUsers: HTMLInputElement
   blockList: HTMLInputElement
   removeBlockedUsersWork: HTMLInputElement
   needTagMode: RadioNodeList
@@ -172,6 +173,10 @@ export interface FormType extends HTMLFormElement {
   PreviewDetailInfoWidth: HTMLInputElement
   removeWorksOfFollowedUsersOnSearchPage: HTMLInputElement
   saveWorkDescription: HTMLInputElement
+  saveDescriptionType0: HTMLInputElement
+  saveDescriptionType1: HTMLInputElement
+  saveDescriptionType2: HTMLInputElement
+  saveDescriptionType3: HTMLInputElement
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
   slowCrawlDealy: HTMLInputElement
@@ -215,4 +220,8 @@ export interface FormType extends HTMLFormElement {
   clickSettingNameOpenWiki: HTMLInputElement
   downloadIntervalSwitch: HTMLInputElement
   saveAllSeriesNovelsIfOneMatches: HTMLInputElement
+  settingsAcrossDifferentTabs: RadioNodeList
+  autoExportSettings: HTMLInputElement
+  autoExportSettingsStrategy: RadioNodeList
+  autoExportSettingsInterval: HTMLInputElement
 }

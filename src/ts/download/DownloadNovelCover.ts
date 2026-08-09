@@ -2,6 +2,8 @@ import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { lang } from '../Language'
 import { SendDownload } from './SendDownload'
+import { settings } from '../setting/Settings'
+import { Tools } from '../Tools'
 
 class DownloadNovelCover {
   /**下载小说的封面图片 */
@@ -13,7 +15,11 @@ class DownloadNovelCover {
     }
 
     let coverName = Utils.replaceExtension(novelName, coverURL)
-    SendDownload.noReply(blob, coverName)
+    SendDownload.noReply(
+      blob,
+      coverName,
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
+    )
   }
 
   /**最多重试一定次数，避免无限重试 */

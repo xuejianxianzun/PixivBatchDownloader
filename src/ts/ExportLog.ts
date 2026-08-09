@@ -114,9 +114,7 @@ class ExportLog {
 
     const fileName = `log-${Utils.replaceUnsafeStr(
       Tools.getPageTitle()
-    )}-${Utils.replaceUnsafeStr(
-      DateFormat.format(store.crawlCompleteTime, settings.dateFormat)
-    )}.html`
+    )}-${Tools.formatDateTimeInFilename(store.crawlCompleteTime)}.html`
 
     const content = `<!DOCTYPE html>
         <html>

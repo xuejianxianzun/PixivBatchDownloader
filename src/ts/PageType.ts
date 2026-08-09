@@ -92,10 +92,19 @@ class PageType {
   private getType(): PageName {
     const url = window.location.href
     const path = window.location.pathname
+    const homePathList = [
+      '/',
+      '/en/',
+      '/illustration',
+      '/manga',
+      '/novel',
+      '/cate_r18.php',
+      '/novel/cate_r18.php',
+    ]
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      ['/', '/en/', '/illustration', '/manga', '/novel'].includes(path)
+      homePathList.includes(path)
     ) {
       return PageName.Home
     } else if (
