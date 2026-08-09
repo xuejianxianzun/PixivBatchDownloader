@@ -1794,7 +1794,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                     selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)')) {
                 continue;
             }
-            // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会连带插画封面下方的用户名区域也一起选择
+            // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会导致错误的选择，或者导致同一个作品被选择两次
             if (selector === 'li[size="1"]' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
                 if (location.pathname.endsWith('/illustration') ||
                     location.pathname.endsWith('/manga') ||
@@ -7509,7 +7509,15 @@ class PageType {
     getType() {
         const url = window.location.href;
         const path = window.location.pathname;
-        const homePathList = ['/', '/en/', '/illustration', '/manga', '/novel', '/cate_r18.php', '/novel/cate_r18.php'];
+        const homePathList = [
+            '/',
+            '/en/',
+            '/illustration',
+            '/manga',
+            '/novel',
+            '/cate_r18.php',
+            '/novel/cate_r18.php',
+        ];
         if (window.location.hostname === 'www.pixiv.net' &&
             homePathList.includes(path)) {
             return PageName.Home;
@@ -10471,7 +10479,7 @@ class ShowLargerThumbnails {
             // 在漫画页面里，查找 推荐作品
             if (window.location.pathname.includes('/manga')) {
                 const allLi = sectionList[2]?.querySelectorAll('ul li');
-                if (allLi.length > 1) {
+                if (allLi && allLi.length > 1) {
                     sectionList[2].classList.add('homeRecommendedWorks');
                     sectionList[2].parentElement.classList.add('homeRecommendedWorksParent');
                     const ul = sectionList[2].querySelector('ul');
@@ -11325,8 +11333,8 @@ class ShowWhatIsNew {
             this.showMsg();
         });
     }
-    flag = '19.2.0';
-    textKey = '_版本更新说明19_2_0';
+    flag = '19.3.0';
+    textKey = '_版本更新说明19_3_0';
     show() {
         // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
         // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
@@ -41072,134 +41080,6 @@ If you enable this setting, the downloader will merge all novels.`,
         `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
         `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
     ],
-    _版本更新说明19_2_0: [
-        `这次更新优化了命名规则功能，并修复了一些 Bug。<br>
-<br>
-<strong>✨新功能：命名标记里的可选片段（当标记没有值时，忽略它的附属文字）</strong><br>
-这个功能是为了处理这种情况：<br>
-1. 用户使用了可能为空的命名标记。例如，当作品不属于一个系列时，<span class="blue">{series_title}</span> 就不会输出系列标题。<br>
-2. 并且用户为它们添加了自定义字符，例如：<span class="blue">系列：{series_title}</span><br>
-当文件名里没有系列标题时，会留下不需要的 <span class="blue">系列：</span>。为了移除这种不需要的自定义字符，你可以使用 <span class="blue">[]</span> 建立可选片段，例如 <span class="blue">[系列：{series_title}]</span>。当 <span class="blue">[]</span> 里的标记没有内容时，下载器会忽略整个片段，所以不会留下多余的字符。<br>
-你可以在“图像作品的命名规则”里点击“小技巧：可选片段”查看更详细的说明。<br>
-⚠️注意：这个功能可能会对少部分用户造成破坏性变更：<br>
-如果你之前就已经使用了 <span class="blue">[]</span> 包裹命名标记，例如 <span class="blue">[{id}]</span>，现在它不会在文件名里输出 <span class="blue">[]</span> 符号。你需要额外添加一层 <span class="blue">[]</span>，变成 <span class="blue">[[{id}]]</span>，这样就可以和之前一样输出 <span class="blue">[]</span> 符号了。<br>
-<br>
-<strong>✨添加了 2 个新的命名标记</strong><br>
-- <span class="blue">{page_type}</span>：开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但页面类型名称都是 <span class="blue">Home</span>。<br>
-- <span class="blue">{page_id}</span>：开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。<br>
-<br>
-<strong>✨在“合并系列小说时的命名规则”里添加了新的命名标记</strong><br>
-- <span class="blue">{bmk}</span>：这个系列里所有小说的收藏数量之和，是数字。<br>
-<br>
-<strong>🐞修复问题：在预览作品时，预览区域可能会显示之前预览的动图，或者预览图在显示之后隐藏</strong><br>
-<strong>🐞修复问题：当“置顶的设置”区域高度不足时，命名规则的加载列表显示不完整</strong><br>
-<strong>🐞修复了其他 3 个问题</strong>`,
-        `本次更新最佳化了命名規則功能，並修復了一些 Bug。<br>
-<br>
-<strong>✨新功能：命名標記裡的可選片段（當標記沒有值時，忽略它的附屬文字）</strong><br>
-這個功能是為了處理這種情況：<br>
-1. 使用者使用了可能為空的命名標記。例如，當作品不屬於一個系列時，<span class="blue">{series_title}</span> 就不會輸出系列標題。<br>
-2. 並且使用者為它們加入了自訂字元，例如：<span class="blue">系列：{series_title}</span><br>
-當檔案名稱裡沒有系列標題時，會留下不需要的 <span class="blue">系列：</span>。為了移除這種不需要的自訂字元，你可以使用 <span class="blue">[]</span> 建立可選片段，例如 <span class="blue">[系列：{series_title}]</span>。當 <span class="blue">[]</span> 裡的標記沒有內容時，下載器會忽略整個片段，所以不會留下多餘的字元。<br>
-你可以在「圖像作品的命名規則」裡點擊「小技巧：可選片段」查看更詳細的說明。<br>
-⚠️注意：這個功能可能會對少部分使用者造成破壞性變更：<br>
-如果你之前已經使用了 <span class="blue">[]</span> 包裹命名標記，例如 <span class="blue">[{id}]</span>，現在它不會在檔案名稱裡輸出 <span class="blue">[]</span> 符號。你需要額外加入一層 <span class="blue">[]</span>，變成 <span class="blue">[[{id}]]</span>，這樣就可以和之前一樣輸出 <span class="blue">[]</span> 符號。<br>
-<br>
-<strong>✨新增了 2 個命名標記</strong><br>
-- <span class="blue">{page_type}</span>：開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，有二十多種。有時劃分得比較籠統，例如首頁有插畫、漫畫、小說等子分類，但頁面類型名稱都是 <span class="blue">Home</span>。<br>
-- <span class="blue">{page_id}</span>：開始抓取時的頁面 ID。其設計目的是用頁面 ID 歸納該頁面裡的多個作品。例如：在作品頁面裡抓取相關作品時，這個標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。只有以下情況會輸出：1. 在作品頁面裡，輸出該頁面的作品 ID。2. 在使用者主頁、收藏頁面、關注頁面裡，輸出該頁面的使用者 ID。3. 在系列頁面裡，輸出系列 ID。<br>
-<br>
-<strong>✨在「合併系列小說時的命名規則」裡新增了命名標記</strong><br>
-- <span class="blue">{bmk}</span>：此系列中所有小說的收藏數量總和，是數字。<br>
-<br>
-<strong>🐞修正問題：預覽作品時，預覽區域可能顯示之前預覽的動圖，或預覽圖顯示後隱藏</strong><br>
-<strong>🐞修正問題：當「置頂的設定」區域高度不足時，命名規則的載入清單顯示不完整</strong><br>
-<strong>🐞修正了其他 3 個問題</strong>`,
-        `This update improves naming rules and fixes several bugs.<br>
-<br>
-<strong>✨New feature: Optional segments in naming tags (ignore associated text when a tag has no value)</strong><br>
-This feature handles the following situation:<br>
-1. You use a naming tag that may have no value. For example, when a work is not part of a series, <span class="blue">{series_title}</span> does not output a series title.<br>
-2. You add custom characters for it, for example: <span class="blue">Series: {series_title}</span><br>
-When a file name has no series title, the unnecessary <span class="blue">Series:</span> remains. To remove these unnecessary custom characters, create an optional segment with <span class="blue">[]</span>, for example <span class="blue">[Series: {series_title}]</span>. When the tag in <span class="blue">[]</span> has no value, the downloader ignores the entire segment, so no extra characters remain.<br>
-You can click "Tip: Optional segments" under "Naming rules for illustrations" for a more detailed explanation.<br>
-⚠️Note: This feature may be a breaking change for a small number of users:<br>
-If you previously used <span class="blue">[]</span> around a naming tag, for example <span class="blue">[{id}]</span>, <span class="blue">[]</span> is no longer output in the file name. Add another pair of <span class="blue">[]</span> to make <span class="blue">[[{id}]]</span>, and <span class="blue">[]</span> will be output as before.<br>
-<br>
-<strong>✨Added 2 new naming tags</strong><br>
-- <span class="blue">{page_type}</span>: The page type name when crawling begins, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, or <span class="blue">Bookmark</span>. These are the downloader's internal page types, with more than twenty types available. Some are broad: for example, the home page has illustration, manga, and novel subcategories, but their page type name is all <span class="blue">Home</span>.<br>
-- <span class="blue">{page_id}</span>: The page ID when crawling begins. It is designed to group multiple works on a page by that page's ID. For example, when crawling related works on a work page, it outputs the ID of that work page (one ID), rather than each related work's own ID (multiple IDs). It outputs a value only in these cases: 1. On a work page, the work ID of that page. 2. On a user home, bookmark, or following page, the user ID of that page. 3. On a series page, the series ID.<br>
-<br>
-<strong>✨Added a new naming tag to "Naming rules when merging novel series"</strong><br>
-- <span class="blue">{bmk}</span>: The total bookmark count of all novels in this series.<br>
-<br>
-<strong>🐞Fixed: When previewing works, the preview area could show a previously previewed Ugoira, or a preview image could disappear after being displayed</strong><br>
-<strong>🐞Fixed: The naming-rule load list could be displayed incompletely when the pinned settings area was too short</strong><br>
-<strong>🐞Fixed 3 other issues</strong>`,
-        `今回の更新では、命名規則機能を改善し、いくつかの不具合を修正しました。<br>
-<br>
-<strong>✨新機能：命名タグの任意セグメント（タグに値がないとき、関連する文字を無視）</strong><br>
-この機能は、次のような状況に対応するためのものです。<br>
-1. 値が空になる可能性のある命名タグを使用している場合。たとえば、作品がシリーズに属していないとき、<span class="blue">{series_title}</span> はシリーズ名を出力しません。<br>
-2. そのタグに説明用の文字を追加している場合。例：<span class="blue">シリーズ：{series_title}</span><br>
-ファイル名にシリーズ名がない場合、不要な <span class="blue">シリーズ：</span> が残ります。この不要な文字を削除するには、<span class="blue">[]</span> で任意セグメントを作成します。例：<span class="blue">[シリーズ：{series_title}]</span>。<span class="blue">[]</span> 内のタグに値がない場合、ダウンローダーはセグメント全体を無視するため、余分な文字は残りません。<br>
-詳しい説明は、「イラスト作品の命名規則」で「ヒント：任意セグメント」をクリックして確認できます。<br>
-⚠️注意：この機能は、一部のユーザーにとって破壊的変更になる可能性があります。<br>
-以前から <span class="blue">[]</span> で命名タグを囲んでいた場合（例：<span class="blue">[{id}]</span>）、ファイル名には <span class="blue">[]</span> が出力されなくなります。さらに 1 組の <span class="blue">[]</span> を追加して <span class="blue">[[{id}]]</span> にすると、以前と同じように <span class="blue">[]</span> を出力できます。<br>
-<br>
-<strong>✨新しい命名タグを 2 つ追加</strong><br>
-- <span class="blue">{page_type}</span>：クロール開始時のページタイプ名です。<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span> などがあります。これはダウンローダー内部のページ分類で、20 種類以上あります。分類が大まかな場合もあり、たとえばホームにはイラスト、マンガ、小説などのサブカテゴリがありますが、ページタイプ名はいずれも <span class="blue">Home</span> です。<br>
-- <span class="blue">{page_id}</span>：クロール開始時のページ ID です。ページ ID を使って、そのページ内にある複数の作品をまとめるために設計されています。たとえば、作品ページで関連作品をクロールすると、このタグは各作品自身の ID（複数）ではなく、その作品ページの ID（1 つ）を出力します。出力されるのは次の場合のみです：1. 作品ページでは、そのページの作品 ID。2. ユーザーホーム、ブックマーク、フォローのページでは、そのページのユーザー ID。3. シリーズページでは、シリーズ ID。<br>
-<br>
-<strong>✨「小説シリーズ結合時の命名規則」に新しい命名タグを追加</strong><br>
-- <span class="blue">{bmk}</span>：このシリーズ内のすべての小説のブックマーク数の合計です。<br>
-<br>
-<strong>🐞修正：作品のプレビュー時に、プレビュー領域に以前プレビューしたうごイラが表示される、またはプレビュー画像が表示後に消えることがある問題</strong><br>
-<strong>🐞修正：「固定された設定」エリアの高さが不足しているとき、命名規則の読み込みリストが不完全に表示される問題</strong><br>
-<strong>🐞その他 3 件の問題を修正</strong>`,
-        `이번 업데이트에서는 명명 규칙 기능을 개선하고 몇 가지 버그를 수정했습니다.<br>
-<br>
-<strong>✨새 기능: 명명 태그의 선택적 구간(태그에 값이 없을 때 관련 문자를 무시)</strong><br>
-이 기능은 다음과 같은 상황을 처리하기 위한 것입니다.<br>
-1. 값이 비어 있을 수 있는 명명 태그를 사용하는 경우입니다. 예를 들어 작품이 시리즈에 속하지 않으면 <span class="blue">{series_title}</span>은 시리즈 제목을 출력하지 않습니다.<br>
-2. 태그에 설명용 문자도 추가한 경우입니다. 예: <span class="blue">시리즈: {series_title}</span><br>
-파일 이름에 시리즈 제목이 없으면 불필요한 <span class="blue">시리즈:</span>가 남습니다. 이 불필요한 문자를 제거하려면 <span class="blue">[]</span>로 선택적 구간을 만드세요. 예: <span class="blue">[시리즈: {series_title}]</span>. <span class="blue">[]</span> 안의 태그에 값이 없으면 다운로더가 구간 전체를 무시하므로 불필요한 문자가 남지 않습니다.<br>
-자세한 설명은 "일러스트 작품의 명명 규칙"에서 "팁: 선택적 구간"을 클릭하여 확인할 수 있습니다.<br>
-⚠️주의: 이 기능은 일부 사용자에게 호환되지 않는 변경이 될 수 있습니다.<br>
-이전에 <span class="blue">[]</span>로 명명 태그를 묶어 사용했다면(예: <span class="blue">[{id}]</span>), 이제 파일 이름에 <span class="blue">[]</span> 기호가 출력되지 않습니다. <span class="blue">[]</span>를 한 겹 더 추가하여 <span class="blue">[[{id}]]</span>로 만들면 이전처럼 <span class="blue">[]</span> 기호를 출력할 수 있습니다.<br>
-<br>
-<strong>✨새 명명 태그 2개 추가</strong><br>
-- <span class="blue">{page_type}</span>: 크롤링 시작 시의 페이지 유형 이름입니다. <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span> 등이 있습니다. 이는 다운로더 내부의 페이지 유형으로 20가지 이상이 있습니다. 때로는 구분이 넓습니다. 예를 들어 홈에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 페이지 유형 이름은 모두 <span class="blue">Home</span>입니다.<br>
-- <span class="blue">{page_id}</span>: 크롤링 시작 시의 페이지 ID입니다. 페이지 ID로 해당 페이지의 여러 작품을 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 태그는 각 작품의 ID(여러 개)가 아니라 그 작품 페이지의 작품 ID(하나)를 출력합니다. 다음 경우에만 값이 출력됩니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID. 2. 사용자 홈, 북마크, 팔로잉 페이지에서는 해당 페이지의 사용자 ID. 3. 시리즈 페이지에서는 시리즈 ID.<br>
-<br>
-<strong>✨"소설 시리즈 병합 시 명명 규칙"에 새 명명 태그 추가</strong><br>
-- <span class="blue">{bmk}</span>: 이 시리즈의 모든 소설 북마크 수의 합계입니다.<br>
-<br>
-<strong>🐞수정: 작품을 미리 볼 때 이전에 미리 본 우고이라가 미리 보기 영역에 표시되거나, 미리 보기 이미지가 표시된 후 사라질 수 있는 문제</strong><br>
-<strong>🐞수정: "고정된 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
-<strong>🐞기타 문제 3개 수정</strong>`,
-        `Это обновление улучшает правила именования и исправляет несколько ошибок.<br>
-<br>
-<strong>✨Новая функция: необязательные сегменты в тегах именования (игнорируют связанные символы, если у тега нет значения)</strong><br>
-Эта функция предназначена для следующей ситуации:<br>
-1. Вы используете тег именования, который может быть пустым. Например, если работа не входит в серию, <span class="blue">{series_title}</span> не выводит название серии.<br>
-2. Вы добавили к нему пользовательские символы, например: <span class="blue">Серия: {series_title}</span><br>
-Если в имени файла нет названия серии, остаётся ненужное <span class="blue">Серия:</span>. Чтобы удалить такие ненужные символы, создайте необязательный сегмент с помощью <span class="blue">[]</span>, например <span class="blue">[Серия: {series_title}]</span>. Если у тега в <span class="blue">[]</span> нет значения, загрузчик игнорирует весь сегмент, поэтому лишние символы не остаются.<br>
-Подробное описание можно посмотреть, нажав «Совет: необязательные сегменты» в разделе «Правила именования иллюстраций».<br>
-⚠️Внимание: для небольшого числа пользователей эта функция может стать несовместимым изменением:<br>
-Если вы уже обрамляли тег именования в <span class="blue">[]</span>, например <span class="blue">[{id}]</span>, теперь символы <span class="blue">[]</span> не выводятся в имени файла. Добавьте ещё один уровень <span class="blue">[]</span>, чтобы получилось <span class="blue">[[{id}]]</span>, и символы <span class="blue">[]</span> снова будут выводиться как раньше.<br>
-<br>
-<strong>✨Добавлено 2 новых тега именования</strong><br>
-- <span class="blue">{page_type}</span>: название типа страницы в начале crawl, например <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. Это внутренние типы страниц загрузчика, их более двадцати. Иногда классификация довольно общая: например, на главной странице есть подкатегории иллюстраций, манги и романов, но имя типа страницы у всех — <span class="blue">Home</span>.<br>
-- <span class="blue">{page_id}</span>: ID страницы в начале crawl. Он нужен для объединения нескольких работ на одной странице по ID этой страницы. Например, при crawl связанных работ на странице работы этот тег выводит ID работы этой страницы (один ID), а не собственные ID каждой связанной работы (несколько ID). Значение выводится только в следующих случаях: 1. На странице работы — ID работы этой страницы. 2. На странице профиля пользователя, закладок или подписок — ID пользователя этой страницы. 3. На странице серии — ID серии.<br>
-<br>
-<strong>✨Добавлен новый тег именования в «Правила именования при объединении серий романов»</strong><br>
-- <span class="blue">{bmk}</span>: сумма закладок всех романов этой серии.<br>
-<br>
-<strong>🐞Исправлено: при предпросмотре работ в области предпросмотра могла отображаться ранее просмотренная Ugoira либо изображение предпросмотра могло исчезать после показа</strong><br>
-<strong>🐞Исправлено: список загрузки правил именования мог отображаться не полностью, если область закреплённых настроек была слишком низкой</strong><br>
-<strong>🐞Исправлены ещё 3 проблемы</strong>`,
-    ],
     _小技巧_可选片段: [
         `小技巧：可选片段`,
         `小技巧：可選片段`,
@@ -41502,6 +41382,158 @@ You can choose between two export strategies:<br>
         `設定が変更されるたびにすぐエクスポート`,
         `설정이 변경될 때마다 즉시 내보내기`,
         `Экспортировать сразу после каждого изменения настроек`,
+    ],
+    _版本更新说明19_3_0: [
+        `<strong>⚙️行为变更：当你修改了下载器的设置之后，所有 Pixiv 标签页里的设置都会同步变化</strong><br>
+用户经常会打开多个 Pixiv.net 标签页。之前当你在一个标签页里修改了设置之后，其他标签页里的设置不会变化。现在，其他标签页默认会同步变化，所以所有标签页都会使用相同的设置。<br>
+⚠️这是一个行为变更。如果你想保持以前的行为，可以在下面的设置里选择旧版行为。<br>
+<strong>✨新增设置：当你修改设置时，其他标签页是否同步变化</strong><br>
+这个设置位于“通用”-“管理设置”分类里。你可以选择“同步变化”（默认值）或者“保持不变”（旧版行为）。<br>
+<strong>✨新增设置：自动导出设置</strong><br>
+这个设置位于“通用”-“管理设置”分类里，用来自动备份设置。默认未启用。<br>
+你可以选择两种策略：<br>
+1. 定时导出（默认每隔 24 小时导出一次）<br>
+2. 每当设置变化后立即导出<br>
+另外，现在下载器导出设置时，会建立 <span class="blue">PPD Settings</span> 文件夹来统一存放设置文件。<br>
+<strong>✨“用户阻止名单”改名为“用户屏蔽名单”，并添加了“快捷屏蔽用户”的功能</strong><br>
+对“快捷屏蔽用户”功能的说明：<br>
+当你启用了“用户屏蔽名单”功能之后，把鼠标指针移动到任意用户的名字上，下载器就会显示屏蔽他的按钮，点击即可添加屏蔽。<br>
+以前屏蔽用户时，你需要手动复制他的 ID 并添加到输入框里，现在方便多了。<br>
+<strong>✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介</strong><br>
+你可以选择作品类型：插画、漫画、动图、小说。<br>
+<strong>📝下载器导出的一些文件的名字里可能含有时间戳，现在我修改了时间字符串的格式</strong><br>
+例如在导出抓取结果时，文件名里会包含时间戳。之前的格式是这样的：<span class="blue">2026／3／26 20：58：54</span>，现在改成这样：<span class="blue">2026-08-08 00-30-34</span>，看起来更自然。<br>
+<strong>🐞修复问题：当标签别名里含有特殊字符时，可能会导致该功能出现异常</strong><br>
+<strong>🐞修复问题：当用户启用了“点击收藏按钮时下载作品”功能时，在排行榜页面里无效</strong><br>
+
+<strong>🐞修复问题：一些用户名里含有特殊的窄空格字符，导致 Firefox 浏览器无法下载他们的作品</strong><br>
+<strong>🐞修复问题：当“置顶的设置”区域的高度不足时，命名规则的加载列表显示不完整</strong><br>
+<strong>🐞修复其他一些问题</strong>`,
+        `<strong>⚙️行為變更：當你修改下載器的設定後，所有 Pixiv 分頁裡的設定都會同步變化</strong><br>
+使用者經常會開啟多個 Pixiv.net 分頁。以前當你在一個分頁裡修改設定後，其他分頁裡的設定不會變化。現在，其他分頁預設會同步變化，因此所有分頁都會使用相同的設定。<br>
+⚠️這是一項行為變更。如果你想保持以前的行為，可以在下面的設定裡選擇舊版行為。<br>
+<strong>✨新增設定：當你修改設定時，其他分頁是否同步變化</strong><br>
+這個設定位於「通用」-「管理設定」分類裡。你可以選擇「同步變化」（預設值）或「保持不變」（舊版行為）。<br>
+<strong>✨新增設定：自動匯出設定</strong><br>
+這個設定位於「通用」-「管理設定」分類裡，用來自動備份設定。預設未啟用。<br>
+你可以選擇兩種策略：<br>
+1. 定時匯出（預設每隔 24 小時匯出一次）<br>
+2. 每當設定變化後立即匯出<br>
+另外，現在下載器匯出設定時，會建立 <span class="blue">PPD Settings</span> 資料夾來統一存放設定檔案。<br>
+<strong>✨「使用者阻止名單」改名為「使用者封鎖名單」，並新增了「快速封鎖使用者」功能</strong><br>
+「快速封鎖使用者」功能說明：<br>
+當你啟用了「使用者封鎖名單」功能後，把滑鼠指標移到任意使用者的名字上，下載器就會顯示封鎖他的按鈕，點擊即可新增封鎖。<br>
+以前封鎖使用者時，你需要手動複製他的 ID 並新增到輸入框裡，現在方便多了。<br>
+<strong>✨在「儲存作品簡介」設定裡，你可以選擇為哪些類型的作品儲存簡介</strong><br>
+你可以選擇作品類型：插畫、漫畫、動圖、小說。<br>
+<strong>📝下載器匯出的一些檔案名稱裡可能含有時間戳，現在我修改了時間字串的格式</strong><br>
+例如在匯出抓取結果時，檔案名稱裡會包含時間戳。以前的格式是：<span class="blue">2026／3／26 20：58：54</span>，現在改成：<span class="blue">2026-08-08 00-30-34</span>，看起來更自然。<br>
+<strong>🐞修復問題：當標籤別名裡含有特殊字元時，可能會導致該功能出現異常</strong><br>
+<strong>🐞修復問題：當使用者啟用了「點擊收藏按鈕時下載作品」功能時，該功能在排行榜頁面裡無效</strong><br>
+
+<strong>🐞修復問題：一些使用者名稱裡含有特殊的窄空格字元，導致 Firefox 瀏覽器無法下載他們的作品</strong><br>
+<strong>🐞修復問題：當「置頂的設定」區域高度不足時，命名規則的載入列表顯示不完整</strong><br>
+<strong>🐞修復其他一些問題</strong>`,
+        `<strong>⚙️Behavior change: Settings now synchronize across all Pixiv tabs when you change them</strong><br>
+Users often open multiple Pixiv.net tabs. Previously, changing settings in one tab did not change settings in other tabs. Now, settings synchronize across other tabs by default, so all tabs use the same settings.<br>
+⚠️This is a behavior change. If you want to keep the previous behavior, select the legacy behavior in the setting below.<br>
+<strong>✨New setting: Whether settings synchronize across other tabs when you change them</strong><br>
+This setting is in the "General" - "Manage settings" category. You can choose "Synchronize changes" (default) or "Keep unchanged" (legacy behavior).<br>
+<strong>✨New setting: Automatically export settings</strong><br>
+This setting is in the "General" - "Manage settings" category and automatically backs up settings. It is disabled by default.<br>
+You can choose between two strategies:<br>
+1. Timed export (exports once every 24 hours by default)<br>
+2. Export immediately whenever settings change<br>
+In addition, the downloader now creates a <span class="blue">PPD Settings</span> folder to store exported settings files.<br>
+<strong>✨"User deny list" was renamed to "User block list", and "Quickly block users" was added</strong><br>
+About "Quickly block users":<br>
+After enabling "User block list", move your pointer over any user's name and the downloader shows a button for blocking that user. Click it to add the block.<br>
+Previously, blocking a user required manually copying their ID and adding it to the input field. It is much more convenient now.<br>
+<strong>✨In the "Save work description" setting, you can choose which types of works have their descriptions saved</strong><br>
+You can choose these work types: illustrations, manga, Ugoira, and novels.<br>
+<strong>📝Some file names exported by the downloader may include timestamps. The time string format has now been changed</strong><br>
+For example, exported crawl results include a timestamp in the file name. The previous format was <span class="blue">2026／3／26 20：58：54</span>; it is now <span class="blue">2026-08-08 00-30-34</span>, which looks more natural.<br>
+<strong>🐞Fixed: Special characters in tag aliases could cause this feature to malfunction</strong><br>
+<strong>🐞Fixed: "Download works when clicking the bookmark button" did not work on ranking pages</strong><br>
+
+<strong>🐞Fixed: Special narrow-space characters in some user names prevented Firefox from downloading their works</strong><br>
+<strong>🐞Fixed: The naming-rule load list was incomplete when the "Pinned settings" area was not tall enough</strong><br>
+<strong>🐞Fixed several other issues</strong>`,
+        `<strong>⚙️動作変更：ダウンローダーの設定を変更すると、すべての Pixiv タブの設定も同期して変更されるようになりました</strong><br>
+ユーザーは複数の Pixiv.net タブを開くことがよくあります。以前は、1 つのタブで設定を変更しても、他のタブの設定は変わりませんでした。現在は、他のタブの設定もデフォルトで同期して変更されるため、すべてのタブで同じ設定が使われます。<br>
+⚠️これは動作変更です。以前の動作を維持したい場合は、下記の設定で旧バージョンの動作を選択してください。<br>
+<strong>✨新しい設定：設定を変更したときに、他のタブの設定も同期して変更するかどうか</strong><br>
+この設定は「一般」-「設定の管理」カテゴリにあります。「同期する」（デフォルト）または「変更しない」（旧バージョンの動作）を選択できます。<br>
+<strong>✨新しい設定：設定を自動的にエクスポート</strong><br>
+この設定は「一般」-「設定の管理」カテゴリにあり、設定を自動的にバックアップします。デフォルトでは無効です。<br>
+次の 2 つの方法を選択できます。<br>
+1. 定期エクスポート（デフォルトでは 24 時間ごとに 1 回エクスポート）<br>
+2. 設定が変更されるたびにすぐエクスポート<br>
+また、設定をエクスポートするときに、エクスポートした設定ファイルをまとめて保存するための <span class="blue">PPD Settings</span> フォルダーが作成されるようになりました。<br>
+<strong>✨「ユーザー拒否リスト」を「ユーザーブロックリスト」に改称し、「ユーザーをすばやくブロック」機能を追加</strong><br>
+「ユーザーをすばやくブロック」機能について：<br>
+「ユーザーブロックリスト」を有効にした後、任意のユーザー名にマウスポインターを合わせると、ダウンローダーにそのユーザーをブロックするボタンが表示されます。クリックするとブロックに追加できます。<br>
+以前は、ユーザーをブロックするには ID を手動でコピーして入力欄に追加する必要がありましたが、これでより便利になりました。<br>
+<strong>✨「作品の説明を保存」設定で、説明を保存する作品の種類を選択できるようになりました</strong><br>
+選択できる作品の種類：イラスト、マンガ、うごイラ、小説。<br>
+<strong>📝ダウンローダーがエクスポートする一部のファイル名にはタイムスタンプが含まれます。時刻文字列の形式を変更しました</strong><br>
+たとえば、クロール結果をエクスポートすると、ファイル名にタイムスタンプが含まれます。以前の形式は <span class="blue">2026／3／26 20：58：54</span> でしたが、現在は <span class="blue">2026-08-08 00-30-34</span> になり、より自然に見えます。<br>
+<strong>🐞修正：タグエイリアスに特殊文字が含まれていると、この機能が異常になることがある問題</strong><br>
+<strong>🐞修正：「ブックマークボタンをクリックしたときに作品をダウンロード」機能がランキングページで動作しない問題</strong><br>
+
+<strong>🐞修正：一部のユーザー名に特殊な狭いスペース文字が含まれていると、Firefox で作品をダウンロードできない問題</strong><br>
+<strong>🐞修正：「固定した設定」エリアの高さが不足していると、命名規則の読み込みリストが不完全に表示される問題</strong><br>
+<strong>🐞その他のいくつかの問題を修正</strong>`,
+        `<strong>⚙️동작 변경: 다운로더 설정을 변경하면 모든 Pixiv 탭의 설정도 동기화되어 변경됩니다</strong><br>
+사용자는 여러 Pixiv.net 탭을 자주 엽니다. 이전에는 한 탭에서 설정을 변경해도 다른 탭의 설정은 변경되지 않았습니다. 이제 다른 탭의 설정도 기본적으로 동기화되어 변경되므로, 모든 탭에서 같은 설정을 사용합니다.<br>
+⚠️이는 동작 변경입니다. 이전 동작을 유지하려면 아래 설정에서 이전 버전의 동작을 선택하세요.<br>
+<strong>✨새 설정: 설정을 변경할 때 다른 탭의 설정도 동기화할지 여부</strong><br>
+이 설정은 "일반" - "설정 관리" 분류에 있습니다. "변경 사항 동기화"(기본값) 또는 "변경하지 않음"(이전 버전의 동작)을 선택할 수 있습니다.<br>
+<strong>✨새 설정: 설정 자동 내보내기</strong><br>
+이 설정은 "일반" - "설정 관리" 분류에 있으며 설정을 자동으로 백업합니다. 기본적으로 꺼져 있습니다.<br>
+두 가지 전략을 선택할 수 있습니다.<br>
+1. 일정 내보내기(기본값: 24시간마다 한 번 내보내기)<br>
+2. 설정이 변경될 때마다 즉시 내보내기<br>
+또한 이제 설정을 내보낼 때 내보낸 설정 파일을 한곳에 저장하는 <span class="blue">PPD Settings</span> 폴더를 만듭니다.<br>
+<strong>✨"사용자 거부 목록"의 이름을 "사용자 차단 목록"으로 변경하고 "빠르게 사용자 차단" 기능 추가</strong><br>
+"빠르게 사용자 차단" 기능 설명:<br>
+"사용자 차단 목록" 기능을 켠 후 아무 사용자 이름 위에 마우스 포인터를 올리면 다운로더에 해당 사용자를 차단하는 버튼이 표시됩니다. 클릭하면 차단에 추가됩니다.<br>
+이전에는 사용자를 차단하려면 ID를 직접 복사하여 입력란에 추가해야 했지만, 이제 훨씬 편리해졌습니다.<br>
+<strong>✨"작품 설명 저장" 설정에서 어떤 종류의 작품 설명을 저장할지 선택할 수 있습니다</strong><br>
+선택할 수 있는 작품 유형: 일러스트, 만화, Ugoira, 소설.<br>
+<strong>📝다운로더에서 내보낸 일부 파일 이름에는 타임스탬프가 포함될 수 있습니다. 이제 시간 문자열 형식을 변경했습니다</strong><br>
+예를 들어 크롤 결과를 내보낼 때 파일 이름에 타임스탬프가 포함됩니다. 이전 형식은 <span class="blue">2026／3／26 20：58：54</span>였지만, 이제 <span class="blue">2026-08-08 00-30-34</span>로 변경되어 더 자연스럽게 보입니다.<br>
+<strong>🐞수정: 태그 별칭에 특수 문자가 있으면 이 기능이 비정상적으로 작동할 수 있는 문제</strong><br>
+<strong>🐞수정: "북마크 버튼을 클릭할 때 작품 다운로드" 기능이 랭킹 페이지에서 작동하지 않는 문제</strong><br>
+
+<strong>🐞수정: 일부 사용자 이름의 특수한 좁은 공백 문자 때문에 Firefox에서 작품을 다운로드할 수 없는 문제</strong><br>
+<strong>🐞수정: "고정한 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
+<strong>🐞기타 몇 가지 문제 수정</strong>`,
+        `<strong>⚙️Изменение поведения: после изменения настроек загрузчика настройки синхронизируются во всех вкладках Pixiv</strong><br>
+Пользователи часто открывают несколько вкладок Pixiv.net. Раньше изменение настроек в одной вкладке не меняло настройки в других вкладках. Теперь настройки в других вкладках по умолчанию синхронизируются, поэтому во всех вкладках используются одинаковые настройки.<br>
+⚠️Это изменение поведения. Если вы хотите сохранить прежнее поведение, выберите поведение предыдущих версий в настройке ниже.<br>
+<strong>✨Новая настройка: Синхронизировать ли настройки в других вкладках при изменении настроек</strong><br>
+Эта настройка находится в категории «Общее» - «Управление настройками». Можно выбрать «Синхронизировать изменения» (по умолчанию) или «Не изменять» (поведение предыдущих версий).<br>
+<strong>✨Новая настройка: Автоматический экспорт настроек</strong><br>
+Эта настройка находится в категории «Общее» - «Управление настройками» и автоматически создаёт резервные копии настроек. По умолчанию она отключена.<br>
+Можно выбрать одну из двух стратегий:<br>
+1. Экспорт по расписанию (по умолчанию один раз в 24 часа)<br>
+2. Экспортировать сразу после каждого изменения настроек<br>
+Кроме того, при экспорте настроек загрузчик теперь создаёт папку <span class="blue">PPD Settings</span>, в которой хранятся экспортированные файлы настроек.<br>
+<strong>✨«Список блокировки пользователей» переименован в «Список заблокированных пользователей», также добавлена функция «Быстрая блокировка пользователей»</strong><br>
+О функции «Быстрая блокировка пользователей»:<br>
+После включения функции «Список заблокированных пользователей» наведите указатель мыши на имя любого пользователя. Загрузчик покажет кнопку блокировки этого пользователя; нажмите её, чтобы добавить блокировку.<br>
+Раньше для блокировки пользователя нужно было вручную скопировать его ID и добавить в поле ввода, теперь это стало намного удобнее.<br>
+<strong>✨В настройке «Сохранять описание работы» можно выбрать типы работ, для которых сохраняется описание</strong><br>
+Можно выбрать следующие типы работ: иллюстрации, манга, Ugoira, романы.<br>
+<strong>📝Имена некоторых файлов, экспортируемых загрузчиком, могут содержать отметку времени. Теперь формат строки времени изменён</strong><br>
+Например, при экспорте результатов сбора данных имя файла содержит отметку времени. Раньше формат был таким: <span class="blue">2026／3／26 20：58：54</span>, а теперь такой: <span class="blue">2026-08-08 00-30-34</span>, что выглядит естественнее.<br>
+<strong>🐞Исправлено: специальные символы в псевдонимах тегов могли вызывать сбои этой функции</strong><br>
+<strong>🐞Исправлено: функция «Скачивать работы при нажатии кнопки закладки» не работала на страницах рейтинга</strong><br>
+
+<strong>🐞Исправлено: специальные узкие пробельные символы в некоторых именах пользователей не позволяли Firefox скачивать их работы</strong><br>
+<strong>🐞Исправлено: список загрузки правил именования отображался не полностью, когда область «Закрепленные настройки» была недостаточно высокой</strong><br>
+<strong>🐞Исправлено несколько других проблем</strong>`,
     ],
 };
 
@@ -67963,6 +67995,58 @@ const illustsData = [
     [147690000, 1785123480000],
     [147700000, 1785148260000],
     [147710000, 1785162300000],
+    [147720002, 1785187860000],
+    [147730000, 1785220620000],
+    [147740000, 1785239940000],
+    [147750000, 1785253740000],
+    [147760000, 1785288540000],
+    [147770000, 1785316200000],
+    [147780000, 1785331380000],
+    [147790000, 1785348900000],
+    [147800001, 1785384180000],
+    [147810000, 1785408180000],
+    [147820000, 1785422040000],
+    [147830001, 1785448440000],
+    [147840000, 1785478680000],
+    [147850000, 1785496800000],
+    [147860000, 1785509280000],
+    [147870000, 1785531660000],
+    [147880000, 1785557400000],
+    [147890000, 1785577860000],
+    [147900000, 1785590940000],
+    [147910000, 1785605940000],
+    [147920000, 1785636660000],
+    [147930001, 1785657180000],
+    [147940001, 1785671220000],
+    [147950000, 1785682260000],
+    [147960003, 1785707160000],
+    [147970001, 1785737700000],
+    [147980000, 1785757380000],
+    [147990000, 1785770340000],
+    [148000001, 1785801420000],
+    [148010000, 1785831540000],
+    [148020000, 1785847560000],
+    [148030000, 1785861600000],
+    [148040000, 1785897480000],
+    [148050002, 1785923220000],
+    [148060000, 1785937080000],
+    [148070000, 1785956700000],
+    [148080000, 1785991140000],
+    [148090000, 1786014000000],
+    [148100000, 1786027440000],
+    [148110000, 1786053360000],
+    [148120000, 1786084800000],
+    [148130000, 1786102500000],
+    [148140000, 1786114800000],
+    [148150000, 1786140360000],
+    [148160000, 1786165560000],
+    [148170000, 1786184760000],
+    [148180000, 1786197600000],
+    [148190001, 1786215120000],
+    [148200000, 1786244460000],
+    [148210000, 1786265100000],
+    [148220000, 1786278600000],
+    [148230001, 1786290600000],
 ];
 
 
@@ -70852,6 +70936,17 @@ const novelsData = [
     [28690001, 1784976435000],
     [28700001, 1785067504000],
     [28710000, 1785164401000],
+    [28720000, 1785292170000],
+    [28730000, 1785404375000],
+    [28740000, 1785503257000],
+    [28750000, 1785591372000],
+    [28760000, 1785678519000],
+    [28770000, 1785775875000],
+    [28780000, 1785899434000],
+    [28790000, 1786007492000],
+    [28800001, 1786105362000],
+    [28810000, 1786194073000],
+    [28820000, 1786283789000],
 ];
 
 
