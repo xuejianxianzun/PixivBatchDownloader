@@ -427,6 +427,17 @@
   color: #555;
   background-color: rgba(0, 0, 0, 0.04);
 }
+#rightButtonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  top: 15%;
+  right: 0;
+  z-index: 1000;
+  row-gap: max(0px, calc(5vh - 32px));
+  pointer-events: none;
+}
 .rightButton {
   display: flex;
   display: none;
@@ -439,11 +450,9 @@
   width: 30px;
   height: 32px;
   padding: 0;
-  right: 0;
   text-align: center;
   cursor: pointer;
-  position: fixed;
-  z-index: 1000;
+  pointer-events: auto;
   font-size: 22px;
 }
 .rightButton:hover {
@@ -453,18 +462,19 @@
   vertical-align: middle;
 }
 #openCenterPanelBtn {
-  top: 15%;
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }
+#showLogBtn {
+  background: -webkit-linear-gradient(top, #82ccff 0%, #1c96e8 100%);
+}
 #quickCrawlBtn {
-  top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
   font-size: 20px;
 }
-body.mobile #quickCrawlBtn {
-  top: 26%;
+body.mobile #rightButtonContainer {
+  row-gap: max(0px, calc(6vh - 32px));
 }
 .centerWrap.theme-white {
   --settings-panel-text: #444;
@@ -3039,32 +3049,10 @@ body.mobile #quickCrawlBtn {
 .logContent a {
   color: var(--beautify-blue);
 }
-.logBtn {
-  font-family: var(--pixiv-font-family);
-  position: fixed;
-  top: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-block;
-  opacity: 0;
-  pointer-events: none;
-  cursor: pointer;
-  background-color: var(--beautify-blue);
-  color: white;
-  padding: 8px 10px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  z-index: 1;
-  transition: opacity 0.3s;
-}
-.logBtn.show {
-  opacity: 1;
-  pointer-events: initial;
-}
 .contest .logWrap {
   z-index: 1000;
 }
-.contest .logBtn {
+.contest #rightButtonContainer {
   z-index: 1001;
 }
 .theme-dark.logWrap {
@@ -4252,12 +4240,15 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   font-size: 15px;
   pointer-events: none;
   display: inline-block;
+  box-sizing: border-box;
+  min-width: 100px;
   max-width: 500px;
+  padding: 9px 13px;
+  border-radius: 6px;
   color: #fff;
   background-color: var(--beautify-blue);
   box-shadow: var(--box-shadow);
-  padding: 9px 13px;
-  border-radius: 6px;
+  text-align: center;
 }
 .xzToast.mobile {
   font-size: 16px;

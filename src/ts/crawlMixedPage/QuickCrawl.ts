@@ -5,6 +5,7 @@ import { pageType } from '../PageType'
 import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { IDData } from '../store/StoreType'
 import { Tools } from '../Tools'
+import { rightButtonManager } from '../RightButtonManager'
 
 // 快速抓取
 class QuickCrawl {
@@ -26,16 +27,12 @@ class QuickCrawl {
   ]
 
   private addBtn() {
-    // 在右侧添加快速抓取按钮
-    this.btn = document.createElement('button')
-    this.btn.classList.add('rightButton')
-    this.btn.id = 'quickCrawlBtn'
-    this.btn.setAttribute('data-xztitle', '_快速下载本页')
-    this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#download"></use>
-</svg>`
-    document.body.append(this.btn)
-    lang.register(this.btn)
+    this.btn = rightButtonManager.register({
+      id: 'quickCrawlBtn',
+      title: '_快速下载本页',
+      icon: 'download',
+      order: 30,
+    })
   }
 
   private bindEvents() {
@@ -93,7 +90,11 @@ class QuickCrawl {
 
   private setVisible() {
     this.show = this.enablePageType.includes(pageType.type)
-    this.btn.style.display = this.show ? 'flex' : 'none'
+    if (this.show) {
+      rightButtonManager.show(this.btn)
+    } else {
+      rightButtonManager.hide(this.btn)
+    }
   }
 }
 
