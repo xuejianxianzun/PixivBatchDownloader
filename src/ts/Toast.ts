@@ -144,8 +144,10 @@ class Toast {
     // 设置 left
     const rect = span.getBoundingClientRect()
     let left = centerPoint - rect.width / 2
-    const minLeft = 0 // 防止提示左侧超出窗口
-    const maxLeft = window.innerWidth - rect.width // 防止提示右侧超出窗口
+    // 防止提示左侧超出窗口
+    const minLeft = 0
+    // 防止提示右侧超出窗口。16 是滚动条的宽度，防止提示的右侧被滚动条遮挡
+    const maxLeft = window.innerWidth - rect.width - 16
     if (left < minLeft) {
       left = minLeft
     }

@@ -3,6 +3,13 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
+## next
+
+### ♻️把“显示日志”按钮从网页顶部移动到了右侧
+
+之前这个按钮是显示在顶部的，经常会遮挡住搜索框的一部分，所以我把它移动到了右侧。
+PS：它的快捷键 L 依旧可用。
+
 ## 19.3.0 2026-08-10
 
 ### ⚙️行为变更：当你修改了下载器的设置之后，所有 Pixiv 标签页里的设置都会同步变化
