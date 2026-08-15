@@ -3,6 +3,13 @@
 在 Pixiv 的 console 里隐藏这些脚本的消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
+## next
+
+### ♻️把“显示日志”按钮从网页顶部移动到了右侧
+
+之前这个按钮是显示在顶部的，经常会遮挡住搜索框的一部分，所以我把它移动到了右侧。
+PS：它的快捷键 L 依旧可用。
+
 ## 19.3.0 2026-08-10
 
 ### ⚙️行为变更：当你修改了下载器的设置之后，所有 Pixiv 标签页里的设置都会同步变化
@@ -73,7 +80,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/666
 用户名 `キ サ ム` 虽然看上去是 3 个字，但其中包含两处不可见的 `U+200A` HAIR SPACE（窄空格）：
 キ U+200A サ U+200A ム
 
-它属于 Unicode 的  Space_Separator 。虽然实际上 Windows 允许使用使用这样的文件夹名字，Chrome 也允许，但 Firefox 不允许，认为是不能出现在下载路径里的非法字符，所以产生了报错。，导致文件无法下载 
+它属于 Unicode 的  Space_Separator 。虽然实际上 Windows 允许使用这样的文件夹名字，Chrome 也允许，但 Firefox 不允许，认为是不能出现在下载路径里的非法字符，所以产生了报错。，导致文件无法下载 
 
 2. https://www.pixiv.net/users/102195413
 

@@ -1,3 +1,15 @@
+#rightButtonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  top: 15%;
+  right: 0;
+  z-index: 1000;
+  row-gap: max(0px, calc(5vh - 32px));
+  pointer-events: none;
+}
+
 .rightButton {
   display: flex;
   display: none;
@@ -10,11 +22,9 @@
   width: 30px;
   height: 32px;
   padding: 0;
-  right: 0;
   text-align: center;
   cursor: pointer;
-  position: fixed;
-  z-index: 1000;
+  pointer-events: auto;
   font-size: 22px;
 
   &:hover {
@@ -27,19 +37,24 @@
 }
 
 #openCenterPanelBtn {
-  top: 15%;
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }
 
+#showLogBtn {
+  background: -webkit-linear-gradient(
+    top,
+    rgb(130, 204, 255) 0%,
+    rgb(28, 150, 232) 100%
+  );
+}
+
 #quickCrawlBtn {
-  top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
 }
 
 #crawlCurrentBtn {
-  top: 27%;
   background: #0096fa;
   background: -webkit-linear-gradient(
     top,
@@ -49,7 +64,6 @@
 }
 
 #selectAllBtn {
-  top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(
     top,
@@ -59,7 +73,6 @@
 }
 
 #exitSelectBtn {
-  top: 27%;
   background: #0096fa;
   background: -webkit-linear-gradient(
     top,
@@ -69,7 +82,7 @@
 }
 
 body.mobile {
-  #quickCrawlBtn {
-    top: 26%;
+  #rightButtonContainer {
+    row-gap: max(0px, calc(6vh - 32px));
   }
 }

@@ -39,39 +39,13 @@
   }
 }
 
-.logBtn {
-  font-family: var(--pixiv-font-family);
-  position: fixed;
-  top: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-block;
-  opacity: 0;
-  pointer-events: none;
-  cursor: pointer;
-  background-color: var(--beautify-blue);
-  color: white;
-  padding: 8px 10px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  // z-index 设置为 1, 这是因为这个提示经常会和 Pixiv 顶部的搜索框重叠在一起。
-  // 如果设置为 0, 那么鼠标经过重叠区域时，会优先触发搜索框的鼠标经过效果（搜索框变暗）
-  z-index: 1;
-  transition: opacity 0.3s;
-
-  &.show {
-    opacity: 1;
-    pointer-events: initial;
-  }
-}
-
 // 在比赛页面里因为顶部有个固定的横幅，所以需要进行一些调整
 .contest {
   .logWrap {
     z-index: 1000;
   }
 
-  .logBtn {
+  #rightButtonContainer {
     z-index: 1001;
   }
 }

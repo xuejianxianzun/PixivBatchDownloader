@@ -5,13 +5,13 @@ import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
 import { Config } from './Config'
 import { exportLog } from './ExportLog'
-import { logButton } from './LogButton'
+import { showLogButton } from './ShowLogButton'
 import { ppdTask } from './PPDTask'
 import { bg } from './BG'
 
 class Log {
   constructor() {
-    logButton.init({
+    showLogButton.init({
       getShow: () => this._show,
       setShow: (value: boolean) => {
         this.show = value
@@ -72,11 +72,9 @@ class Log {
     if (value) {
       // 显示所有日志区域
       this.showAll()
-      logButton.setVisible(false)
     } else {
       // 隐藏当前日志区域。至于以前的区域，不需要处理
       this.hideAll()
-      logButton.setVisible(true)
     }
 
     this._show = value
@@ -264,7 +262,6 @@ class Log {
 
     this.count = 0
     this.show = false
-    logButton.setVisible(false)
     this.isVisible = false
   }
 

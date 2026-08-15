@@ -220,7 +220,7 @@ class SettingsPanelShell {
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltXToShowControlPanel',
-            lang.transl('_快捷键ALTX显示隐藏控制面板')
+            lang.transl('_快捷键ALTX显示隐藏设置面板')
           )
         }
       })

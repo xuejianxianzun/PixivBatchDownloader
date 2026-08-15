@@ -12,6 +12,7 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
+import { rightButtonManager } from './RightButtonManager'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -108,25 +109,19 @@ class SelectWork {
   private exitSelectBtn!: HTMLButtonElement
 
   private addRightBtn() {
-    // 在右侧添加全选按钮
-    this.selectAllBtn = document.createElement('button')
-    this.selectAllBtn.classList.add('rightButton')
-    this.selectAllBtn.id = 'selectAllBtn'
-    this.selectAllBtn.setAttribute('title', '全选')
-    this.selectAllBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#selectAll"></use>
-</svg>`
-    document.body.insertAdjacentElement('afterbegin', this.selectAllBtn)
+    this.selectAllBtn = rightButtonManager.register({
+      id: 'selectAllBtn',
+      title: '_全选',
+      icon: 'selectAll',
+      order: 21,
+    })
 
-    // 在右侧添加退出选择按钮
-    this.exitSelectBtn = document.createElement('button')
-    this.exitSelectBtn.classList.add('rightButton')
-    this.exitSelectBtn.id = 'exitSelectBtn'
-    this.exitSelectBtn.setAttribute('title', '退出全选')
-    this.exitSelectBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#cancel_selectAll"></use>
-</svg>`
-    document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
+    this.exitSelectBtn = rightButtonManager.register({
+      id: 'exitSelectBtn',
+      title: '_退出全选',
+      icon: 'cancel_selectAll',
+      order: 22,
+    })
   }
   private readonly svg = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#select"></use>
@@ -250,8 +245,13 @@ class SelectWork {
 
   private toggleRightBtn() {
     const enable = this.selectAllPageType.includes(pageType.type)
-    this.selectAllBtn.style.display = enable ? 'flex' : 'none'
-    this.exitSelectBtn.style.display = enable ? 'flex' : 'none'
+    if (enable) {
+      rightButtonManager.show(this.selectAllBtn)
+      rightButtonManager.show(this.exitSelectBtn)
+    } else {
+      rightButtonManager.hide(this.selectAllBtn)
+      rightButtonManager.hide(this.exitSelectBtn)
+    }
   }
 
   // 选择当前页面上所有作品

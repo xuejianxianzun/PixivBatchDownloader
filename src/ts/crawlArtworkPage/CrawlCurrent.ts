@@ -6,6 +6,7 @@ import { states } from '../store/States'
 import { IDData } from '../store/StoreType'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
+import { rightButtonManager } from '../RightButtonManager'
 
 // 抓取当前显示/查看的这一张图片
 class CrawlCurrent {
@@ -26,14 +27,12 @@ class CrawlCurrent {
   ]
 
   private addBtn() {
-    // 在右侧添加快速抓取按钮
-    this.btn = document.createElement('button')
-    this.btn.classList.add('rightButton')
-    this.btn.id = 'crawlCurrentBtn'
-    this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#C_square"></use>
-</svg>`
-    document.body.append(this.btn)
+    this.btn = rightButtonManager.register({
+      id: 'crawlCurrentBtn',
+      title: '_下载当前图片',
+      icon: 'C_square',
+      order: 25,
+    })
   }
 
   private bindEvents() {
@@ -146,7 +145,11 @@ class CrawlCurrent {
 
   private setVisible() {
     this.show = this.enablePageType.includes(pageType.type)
-    this.btn.style.display = this.show ? 'flex' : 'none'
+    if (this.show) {
+      rightButtonManager.show(this.btn)
+    } else {
+      rightButtonManager.hide(this.btn)
+    }
   }
 }
 

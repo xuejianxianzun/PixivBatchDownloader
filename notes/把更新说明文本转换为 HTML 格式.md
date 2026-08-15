@@ -61,6 +61,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/666
 - 在每个换行处添加一个 `<br>` 标签。并且保持原本的换行格式，即不要把所有文本压缩到一行。原本是单独一行的，现在仍然保持单独一行。
 - 对于标题行，之前使用了三级标题的符号 `### `，现在把标题行的内容改为 `<strong>原标题内容</strong>` 格式
 - 对于每个反引号对（用于高亮显示关键词），都改为 `<span class="blue">原内容</span>` 的格式。
+- 对于 Markdown 格式的链接 `[]()`，把它们转换成 HTML 的 `A` 标签，并且设置 `target="_blank"` 属性。
 
 ## 处理转换结果
 
