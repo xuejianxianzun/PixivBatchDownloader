@@ -73,7 +73,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/666
 用户名 `キ サ ム` 虽然看上去是 3 个字，但其中包含两处不可见的 `U+200A` HAIR SPACE（窄空格）：
 キ U+200A サ U+200A ム
 
-它属于 Unicode 的  Space_Separator 。虽然实际上 Windows 允许使用使用这样的文件夹名字，Chrome 也允许，但 Firefox 不允许，认为是不能出现在下载路径里的非法字符，所以产生了报错。，导致文件无法下载 
+它属于 Unicode 的  Space_Separator 。虽然实际上 Windows 允许使用这样的文件夹名字，Chrome 也允许，但 Firefox 不允许，认为是不能出现在下载路径里的非法字符，所以产生了报错。，导致文件无法下载 
 
 2. https://www.pixiv.net/users/102195413
 
