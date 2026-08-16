@@ -32,16 +32,9 @@ class ShowLogButton {
   }
 
   private bindBtnEvents() {
-    // 在"显示日志"按钮上触发这些事件时，显示日志区域
-    const showEvents = ['click', 'touchstart']
-    showEvents.forEach((evt) => {
-      this.showLogBtn.addEventListener(
-        evt,
-        () => {
-          this.toggleLog()
-        },
-        { passive: false }
-      )
+    // click 事件同时覆盖鼠标点击和触摸确认，避免与 touchstart 重复触发
+    this.showLogBtn.addEventListener('click', () => {
+      this.toggleLog()
     })
   }
 

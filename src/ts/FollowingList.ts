@@ -84,9 +84,8 @@ class FollowingList {
     }
 
     this.status = 'locked'
-    const tip1 = lang.transl('_正在加载关注用户列表')
-    log.warning(tip1)
-    toast.show(tip1, {
+    log.warning(lang.transl('_正在加载关注用户列表_该数据会保存在本地'))
+    toast.show(lang.transl('_正在加载关注用户列表'), {
       position: 'topCenter',
     })
 

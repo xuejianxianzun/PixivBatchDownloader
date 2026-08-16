@@ -1,3 +1,23 @@
+:root {
+  --logs-font-size: 14px;
+}
+
+.logArea {
+  font-family: var(--pixiv-font-family);
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  display: none;
+  color: #333;
+  background: #fff;
+
+  .logWrap {
+    display: block;
+    color: inherit;
+    background: transparent;
+  }
+}
+
 .logWrap {
   font-family: var(--pixiv-font-family);
   position: relative;
@@ -15,8 +35,7 @@
   max-height: 300px;
   overflow-y: scroll;
   margin: 0 auto;
-  margin-bottom: 20px;
-  font-size: 14px;
+  font-size: var(--logs-font-size);
   // 在内容区域周围添加 padding，是为了让用户使用鼠标选择文字内容时，点击左键时的坐标依然属于 logContent
   // 如果不加 padding，那么鼠标在文字之外点击时就超出了 logContent 区域，会导致日志区域隐藏，无法选择和复制文字
   padding: 10px 30px;
@@ -39,6 +58,30 @@
   }
 }
 
+.logButtons {
+  width: 96vw;
+  max-width: 950px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 auto 12px;
+  padding-bottom: 20px;
+}
+
+.logActionBtn {
+  font-size: var(--logs-font-size);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #fff;
+  background-color: var(--beautify-blue);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
 // 在比赛页面里因为顶部有个固定的横幅，所以需要进行一些调整
 .contest {
   .logWrap {
@@ -51,6 +94,7 @@
 }
 
 .theme-dark {
+  &.logArea,
   &.logWrap {
     background: #222;
     color: #fff;
@@ -58,6 +102,7 @@
 }
 
 .xzBG {
+  &.logArea,
   &.logWrap {
     background: #222;
     color: #fff;
@@ -77,5 +122,15 @@
   .logContent {
     max-width: 100%;
     padding: 0;
+  }
+
+  .logButtons {
+    max-width: 100%;
+  }
+}
+
+.logArea.mobile {
+  .logButtons {
+    max-width: 100%;
   }
 }

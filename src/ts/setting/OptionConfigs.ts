@@ -1450,7 +1450,7 @@ class OptionConfigs {
     },
     {
       no: 102,
-      nameKey: '_导出日志',
+      nameKey: '_自动导出日志',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'log',

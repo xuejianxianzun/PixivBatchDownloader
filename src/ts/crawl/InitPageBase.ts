@@ -734,10 +734,10 @@ abstract class InitPageBase {
       log.success('✅' + lang.transl('_抓取完毕'))
       log.log('')
 
-      // 在这里触发 exportLog 属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来导出日志
+      // 在这里触发导出日志属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来允许自动导出日志
       if (settings.exportLogTiming === 'downloadComplete') {
         setTimeout(() => {
-          EVT.fire('exportLog')
+          EVT.fire('exportLogsTiming')
         }, 0)
       }
       return

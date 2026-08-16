@@ -181,8 +181,10 @@ class EVENT {
     followingUsersChange: 'followingUsersChange',
     /**网络请求错误，并且有状态码 */
     requestStatusError: 'requestStatusError',
-    /** 触发导出日志的事件 */
-    exportLog: 'exportLog',
+    /** 当下载器完成了某些任务时，提示可以导出日志（因为此时的日志内容已经生成完毕） */
+    exportLogsTiming: 'exportLogsTiming',
+    /** 当用户点击“导出日志”按钮时，直接导出当前的日志内容。这与设置项“导出日志”无关 */
+    forceExportLogs: 'forceExportLogs',
     /** 显示最近更新 */
     showRecentUpdates: 'showRecentUpdates',
     /** 重置下载器保存的关注数据 */
@@ -254,7 +256,8 @@ class EVENT {
       | 'cancelTimedCrawl'
       | 'sendBrowserDownload'
       | 'followingUsersChange'
-      | 'exportLog'
+      | 'exportLogsTiming'
+      | 'forceExportLogs'
       | 'showRecentUpdates'
       | 'resetFollowingData'
       | 'settingsStored'

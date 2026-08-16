@@ -3017,6 +3017,23 @@ body.mobile #rightButtonContainer {
   width: 92vw;
   font-family: var(--mobile-font-family);
 }
+:root {
+  --logs-font-size: 14px;
+}
+.logArea {
+  font-family: var(--pixiv-font-family);
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  display: none;
+  color: #333;
+  background: #fff;
+}
+.logArea .logWrap {
+  display: block;
+  color: inherit;
+  background: transparent;
+}
 .logWrap {
   font-family: var(--pixiv-font-family);
   position: relative;
@@ -3032,8 +3049,7 @@ body.mobile #rightButtonContainer {
   max-height: 300px;
   overflow-y: scroll;
   margin: 0 auto;
-  margin-bottom: 20px;
-  font-size: 14px;
+  font-size: var(--logs-font-size);
   padding: 10px 30px;
 }
 .logContent .blue {
@@ -3049,21 +3065,45 @@ body.mobile #rightButtonContainer {
 .logContent a {
   color: var(--beautify-blue);
 }
+.logButtons {
+  width: 96vw;
+  max-width: 950px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 auto 12px;
+  padding-bottom: 20px;
+}
+.logActionBtn {
+  font-size: var(--logs-font-size);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #fff;
+  background-color: var(--beautify-blue);
+}
+.logActionBtn:hover {
+  opacity: 0.8;
+}
 .contest .logWrap {
   z-index: 1000;
 }
 .contest #rightButtonContainer {
   z-index: 1001;
 }
+.theme-dark.logArea,
 .theme-dark.logWrap {
   background: #222;
   color: #fff;
 }
+.xzBG.logArea,
 .xzBG.logWrap {
   background: #222;
   color: #fff;
   text-shadow: var(--text-shadow-on-xzbg);
 }
+.xzBG.logArea .logContent *,
 .xzBG.logWrap .logContent * {
   color: #fff !important;
 }
@@ -3075,6 +3115,12 @@ body.mobile #rightButtonContainer {
 .logWrap.mobile .logContent {
   max-width: 100%;
   padding: 0;
+}
+.logWrap.mobile .logButtons {
+  max-width: 100%;
+}
+.logArea.mobile .logButtons {
+  max-width: 100%;
 }
 .xz_msg_box {
   background: var(--settings-panel-bg);

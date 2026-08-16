@@ -414,8 +414,10 @@ class SelectWork {
         el.nodeName === 'circle'
       ) {
         a = el.closest('a')
-        // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
-        addFlagTarget = a!.parentElement!
+        if (a) {
+          // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
+          addFlagTarget = a!.parentElement!
+        }
       }
     }
 

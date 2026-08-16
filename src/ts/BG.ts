@@ -251,7 +251,7 @@ class BG {
   }
 
   // 其他模块可以调用这个方法，为一个元素添加背景层
-  // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户用户设置的不透明度
+  // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户设置的不透明度
   public useBG(wrap: HTMLElement, opacity?: number) {
     if (this.bgUrl) {
       this.readySet(wrap, opacity)

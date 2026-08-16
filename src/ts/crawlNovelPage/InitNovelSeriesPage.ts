@@ -45,7 +45,7 @@ class InitNovelSeriesPage extends InitPageBase {
         seriseTitle = meta.getAttribute('content') || ''
       }
       await new MergeNovel().merge(seriesId, seriseTitle)
-      EVT.fire('exportLog')
+      EVT.fire('exportLogsTiming')
     })
   }
 
