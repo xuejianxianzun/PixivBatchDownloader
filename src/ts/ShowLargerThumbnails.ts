@@ -202,6 +202,21 @@ class ShowLargerThumbnails {
       }
     }
 
+    // 在约稿分类页面里
+    if (pageType.type === pageType.list.UserRequest) {
+      // 查找约稿的图像作品的超链接
+      const a = document.querySelector('a[data-ga4-label="title_link"]')
+      if (a) {
+        const ulParent = a.closest('section')
+        if (ulParent) {
+          ulParent.classList.add('userHomeULParent')
+          const wrapper = ulParent.parentElement!
+          wrapper.classList.add('userHomeWrapper')
+          this.needFind = false
+        }
+      }
+    }
+
     // 画师主页
     if (pageType.type === pageType.list.UserHome) {
       // 查找“插画·漫画”的父级 div（宽度为 1224px 的那个）

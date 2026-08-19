@@ -465,13 +465,6 @@ body[data-page-type='2'] {
     width: 92vw;
   }
 
-  // ul
-  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .buGhFj {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
   .jELUak {
     align-items: center;
   }
@@ -1070,5 +1063,31 @@ body[data-page-type='23'] {
   div[type='illust'] > div {
     width: auto !important;
     height: auto !important;
+  }
+}
+
+// UserRequest 用户主页里的约稿分类页面
+// https://www.pixiv.net/users/42787448/request
+// 这个测试网址里同时有创作的约稿、向别人发起的约稿，比较齐全
+body[data-page-type='27'] {
+  /* 图像作品列表容器取消宽度限制 */
+  .userHomeWrapper,
+  .userHomeULParent {
+    width: 92vw;
+    max-width: unset;
+  }
+
+  .userHomeULParent ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* img */
+  a[data-gtm-value] img {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
   }
 }

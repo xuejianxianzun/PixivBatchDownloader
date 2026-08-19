@@ -2038,3 +2038,86 @@ export interface ContestData {
     total: number
   }
 }
+
+/** 用户的约稿分类页面的数据（该用户创作的约稿）。有些数据用不到，所以它们的类型是简略的 */
+export interface UserRequestPageInfo {
+  error: boolean
+  message: string
+  body: {
+    page: {
+      /** 该用户的约稿方案 */
+      plans: {}[]
+      /** 该用户已接受的约稿申请（正在创作中的约稿作品）的 ID 列表 */
+      inProgressRequestIds: string[]
+      /** 该用户创作（已发表）的图像约稿作品的 ID 列表 */
+      postArtworkRequestIds: string[]
+      /** 该用户创作（已发表）的图像约稿作品的总数 */
+      postArtworkCount: number
+      /** 该用户创作（已发表）的小说约稿作品的 ID 列表 */
+      postNovelRequestIds: string[]
+      /** 该用户创作（已发表）的小说约稿作品的总数 */
+      postNovelCount: number
+    }
+    zoneConfig: {}
+    tagTranslation: {}
+    thumbnails: {
+      illust: ArtworkCommonData[]
+      novel: NovelCommonData[]
+      novelSeries: []
+      novelDraft: []
+      collection: []
+    }
+    illustSeries: []
+    requests: []
+    users: []
+  }
+}
+
+/** 用户约到的稿（发出的约稿）的分类页面的数据。有些数据用不到，所以它们的类型是简略的 */
+export interface UserRequestSentPageInfo {
+  error: boolean
+  message: string
+  body: {
+    page: {
+      /** 该用户约到的图像作品的 ID 列表 */
+      sentArtworkRequestIds: string[]
+      /** 该用户约到的图像作品的总数 */
+      sentArtworkCount: number
+      /** 该用户约到的小说作品的 ID 列表 */
+      sentNovelRequestIds: string[]
+      /** 该用户约到的小说作品的总数 */
+      sentNovelCount: number
+    }
+    zoneConfig: {}
+    tagTranslation: {}
+    thumbnails: {
+      illust: ArtworkCommonData[]
+      novel: NovelCommonData[]
+      novelSeries: []
+      novelDraft: []
+      collection: []
+    }
+    illustSeries: []
+    requests: []
+    users: []
+  }
+}
+
+/** 根据约稿 ID 获得的作品粗略数据 */
+export interface RequestWorksData {
+  error: boolean
+  message: string
+  body: {
+    requests: []
+    tagTranslation: {}
+    thumbnails: {
+      illust: ArtworkCommonData[]
+      novel: NovelCommonData[]
+      novelSeries: []
+      novelDraft: []
+      collection: []
+    }
+    illustSeries: []
+    users: []
+  }
+}

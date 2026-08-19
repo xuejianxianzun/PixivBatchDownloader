@@ -27,6 +27,7 @@ import { InitUnlistedPage } from './crawlMixedPage/InitUnlistedPage'
 import { InitRequestPage } from './crawl/InitRequestPage'
 import { InitDashboardPage } from './crawlMixedPage/InitDashboardPage'
 import { InitContestPage } from './crawlMixedPage/InitContestPage'
+import { InitUserRequestPage } from './crawlMixedPage/InitUserRequestPage'
 
 class InitPage {
   constructor() {
@@ -96,6 +97,8 @@ class InitPage {
         return new InitDashboardPage()
       case pageType.list.Contest:
         return new InitContestPage()
+      case pageType.list.UserRequest:
+        return new InitUserRequestPage()
       default:
         return new InitUnsupportedPage()
     }

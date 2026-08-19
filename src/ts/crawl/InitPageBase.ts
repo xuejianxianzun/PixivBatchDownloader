@@ -234,9 +234,7 @@ abstract class InitPageBase {
     )
 
     log.success('🚀' + lang.transl('_开始抓取'))
-    toast.show(lang.transl('_开始抓取'), {
-      position: 'center',
-    })
+    toast.show(lang.transl('_开始抓取'))
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
@@ -743,7 +741,7 @@ abstract class InitPageBase {
       return
     }
 
-    const msg = lang.transl('_抓取结果为零请检查筛选条件')
+    const msg = lang.transl('_抓取结果为零的提示')
     log.error(msg)
     log.log('')
     if (!states.timedCrawlMode) {

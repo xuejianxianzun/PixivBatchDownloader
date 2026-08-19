@@ -62,14 +62,14 @@ class BookmarksAddTag {
     // 获取收藏的作品的数据
     const [showData, hideData]: BookmarkData[] = await Promise.all([
       API.getBookmarkData(
-        Tools.getCurrentPageUserID(),
+        Tools.getCurrentPageUserId(),
         this.type,
         '未分類',
         offset,
         false
       ),
       API.getBookmarkData(
-        Tools.getCurrentPageUserID(),
+        Tools.getCurrentPageUserId(),
         this.type,
         '未分類',
         offset,

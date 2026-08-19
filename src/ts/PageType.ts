@@ -66,6 +66,8 @@ enum PageName {
   Contest,
   /** 搜索用户 */
   SearchUsers,
+  /** 用户主页里的约稿分类页面 */
+  UserRequest,
 }
 
 // 获取页面类型
@@ -119,9 +121,27 @@ class PageType {
         path.includes('/followers')
       ) {
         return PageName.Following
-      } else {
+      }
+
+      // 在用户的约稿分类页面里，有些 path 里的内容不是约稿作品,而是约稿方案等内容。
+      // 只有下面列出的 path 会被视为用户约稿页面进行处理
+      if (
+        path.endsWith('/request') ||
+        path.endsWith('/request/artworks') ||
+        path.endsWith('/request/novels') ||
+        path.endsWith('/request/sent') ||
+        path.endsWith('/request/sent/artworks') ||
+        path.endsWith('/request/sent/novels')
+      ) {
+        return PageName.UserRequest
+      }
+
+      // 在剩余的 path 里，排除了不需要支持的、但含有 /request 的 path，剩下的才是用户主页
+      if (!path.includes('/request')) {
         return PageName.UserHome
       }
+
+      return PageName.Unsupported
     } else if (path.includes('/bookmarks/')) {
       return PageName.Bookmark
     } else if (url.includes('/tags/')) {
@@ -182,7 +202,15 @@ class PageType {
     } else if (path.startsWith('/user/') && path.includes('/series/')) {
       return PageName.ArtworkSeries
     } else if (path.startsWith('/request')) {
-      return PageName.Request
+      // 在约稿页面里，只适配部分特定 path。因为其他一些页面里显示的不是作品内容（可能是约稿方案之类），不需要支持
+      if (
+        path === '/request' ||
+        path.includes('/request/creators') ||
+        path.includes('/request/complete')
+      ) {
+        return PageName.Request
+      }
+      return PageName.Unsupported
     } else if (path.includes('/unlisted')) {
       return PageName.Unlisted
     } else if (path.includes('/dashboard')) {
@@ -348,6 +376,10 @@ class PageType {
       {
         type: PageName.Contest,
         url: 'https://www.pixiv.net/contest/gf2',
+      },
+      {
+        type: PageName.UserRequest,
+        url: 'https://www.pixiv.net/users/42787448/request',
       },
     ]
 

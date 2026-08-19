@@ -52,6 +52,8 @@ class ArtworkThumbnail extends WorkThumbnail {
         // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
         'div[style="width:184px"]>div:first-child',
         'div[style="width: 184px;"]>div:first-child',
+        // 约稿页面里的图像作品
+        'ul li>div>div:first-child',
       ]
       // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
       // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -141,6 +143,14 @@ class ArtworkThumbnail extends WorkThumbnail {
         (selector === 'li>div>div:first-child>div:first-child' ||
           selector === '.worksUL li>div>div:first-child') &&
         pageType.type !== pageType.list.Request
+      ) {
+        continue
+      }
+
+      // 只在用户主页的约稿分类页面里使用
+      if (
+        selector === 'ul li>div>div:first-child' &&
+        pageType.type !== pageType.list.UserRequest
       ) {
         continue
       }

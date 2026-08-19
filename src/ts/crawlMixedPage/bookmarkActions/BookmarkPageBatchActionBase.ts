@@ -182,7 +182,7 @@ abstract class BookmarkPageBatchActionBase<T> {
   }): Promise<T[]> {
     const bookmarkDataList: T[] = []
     // 当前收藏页所属用户。
-    const userID = Tools.getCurrentPageUserID()
+    const userID = Tools.getCurrentPageUserId()
 
     while (true) {
       if (states.stopCrawl) {

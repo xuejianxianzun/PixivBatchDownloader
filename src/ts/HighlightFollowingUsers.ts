@@ -189,7 +189,7 @@ class HighlightFollowingUsers {
   private handleUserHomePage() {
     if (pageType.type === pageType.list.UserHome) {
       // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
-      const userID = Tools.getCurrentPageUserID()
+      const userID = Tools.getCurrentPageUserId()
       const flag = followingList.following.includes(userID)
       const h1 = document.querySelector('h1') as HTMLHeadingElement
       if (h1) {

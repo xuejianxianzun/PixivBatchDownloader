@@ -255,7 +255,7 @@ class Tools {
   // 获取当前页面的用户 id
   // 这是一个不够可靠的 api
   // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
-  static getCurrentPageUserID() {
+  static getCurrentPageUserId() {
     const newRegExp = /\/users\/(\d+)/ // 获取 /users/ 后面连续的数字部分，也就是用户的 id
 
     // 列表页里从 url 中获取
@@ -522,7 +522,7 @@ class Tools {
       pageType.type === pageType.list.Bookmark ||
       pageType.type === pageType.list.Following
     ) {
-      return this.getCurrentPageUserID()
+      return this.getCurrentPageUserId()
     } else if (
       pageType.type === pageType.list.Artwork ||
       pageType.type === pageType.list.BookmarkDetail
@@ -1453,7 +1453,7 @@ ppdTask.register(24, 'Tools.getLoggedUserID', () => {
   alert(Tools.getLoggedUserID())
 })
 ppdTask.register(25, 'Tools.getCurrentPageUserID', () => {
-  alert(Tools.getCurrentPageUserID())
+  alert(Tools.getCurrentPageUserId())
 })
 ppdTask.register(26, 'Tools.isPremium', () => {
   alert(Tools.isPremium())

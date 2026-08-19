@@ -104,7 +104,7 @@ class RemoveBlockedUsersWork {
       if (document.readyState !== 'complete') {
         return
       }
-      currentUserID = Tools.getCurrentPageUserID()
+      currentUserID = Tools.getCurrentPageUserId()
     }
 
     const allUserLink = document.body.querySelectorAll(
