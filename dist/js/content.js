@@ -10554,6 +10554,7 @@ class ShowLargerThumbnails {
         if (this.needFind === false) {
             return;
         }
+        const path = location.pathname;
         // 首页
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Home) {
             {
@@ -10571,41 +10572,39 @@ class ShowLargerThumbnails {
             if (sectionList.length === 0) {
                 return;
             }
-            if (sectionList[1]) {
-                // 查找 精选新作 和 已关注用户的作品 的 section 父元素
-                if (sectionList[1].querySelector('ul div')) {
-                    sectionList[1].classList.add('homeFriendsNewWorks');
-                    sectionList[1].parentElement.classList.add('homeFriendsNewWorksParent');
+            // 为所有 section 元素的父元素解除宽度限制
+            sectionList.forEach((section) => {
+                const parent = section.parentElement;
+                if (parent) {
+                    parent.classList.add('width92vw');
+                }
+            });
+            // 保存已经使用过（查找到目标元素）的 section 元素的索引，避免重复使用同一个 section 元素
+            let usedNo = -1;
+            // 查找 精选新作 和 关注用户・好P友的作品 的 section 父元素
+            // 在所有 section 元素里遍历，而不是指定第几个 section 元素。因为在有些子页面里是第一个 section 元素，有些子页面里是第二个 section 元素
+            let no = -1;
+            for (const section of sectionList) {
+                no++;
+                if (section.querySelector('ul div')) {
+                    section.classList.add('homeFriendsNewWorks');
+                    section.parentElement.classList.add('homeFriendsNewWorksParent');
                     this.needFind = false;
+                    usedNo = no;
+                    break;
                 }
             }
-            // 在漫画页面里，查找 推荐作品
-            if (window.location.pathname.includes('/manga')) {
-                const allLi = sectionList[2]?.querySelectorAll('ul li');
-                if (allLi && allLi.length > 1) {
-                    sectionList[2].classList.add('homeRecommendedWorks');
-                    sectionList[2].parentElement.classList.add('homeRecommendedWorksParent');
-                    const ul = sectionList[2].querySelector('ul');
-                    ul.classList.add('homeRecommendedWorksUL');
-                    // 宽度为 1224px 的容器
-                    ul.parentElement.classList.add('homeRecommendedWorksULWrapper');
+            // 在新版首页里查找 推荐作品
+            no = -1;
+            for (const section of sectionList) {
+                no++;
+                if (no === usedNo) {
+                    continue;
                 }
-            }
-            // 查找“正在举办的比赛”
-            const testA = document.querySelector('section li a[href*="/contest"]');
-            if (testA) {
-                // 查找这个章节，然后查找显示的几张图片的 UL 元素
-                const wrapper = testA.closest('section');
-                const ul = wrapper?.querySelector('ul');
-                ul?.classList.add('contestWorksUL');
-            }
-            // 在新版首页里，额外查找 推荐作品
-            if (sectionList[2] &&
-                ['/', '/en/', '/illustration'].includes(window.location.pathname)) {
-                const allLi = sectionList[2].querySelectorAll('ul li');
+                const allLi = section.querySelectorAll('ul li');
                 if (allLi.length > 1) {
-                    sectionList[2].classList.add('homeRecommendedWorks');
-                    sectionList[2].parentElement.classList.add('homeRecommendedWorksParent');
+                    section.classList.add('homeRecommendedWorks');
+                    section.parentElement.classList.add('homeRecommendedWorksParent');
                     // 并且需要查找里面的小说作品，然后找到其 li 元素。
                     // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
                     allLi.forEach((li) => {
@@ -10624,6 +10623,7 @@ class ShowLargerThumbnails {
                             iframe.remove();
                         }
                     });
+                    break;
                 }
             }
         }
@@ -10746,7 +10746,7 @@ class ShowLargerThumbnails {
         }
         // 已关注用户的新作品
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromFollowing) {
-            if (window.location.pathname.includes('/novel') === false) {
+            if (path.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
                 const sectionList = document.querySelectorAll('div>section');
@@ -10768,7 +10768,7 @@ class ShowLargerThumbnails {
         // 大家的新作
         // https://www.pixiv.net/new_illust.php
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkFromAllUsers) {
-            if (window.location.pathname.includes('/novel') === false) {
+            if (path.includes('/novel') === false) {
                 // 查找每个作品列表区域的共同父元素
                 // 也就是 div>section 的 div，然后给它添加自定义 className
                 const sectionList = document.querySelectorAll('div>section');
@@ -10841,8 +10841,8 @@ class ShowLargerThumbnails {
             // https://www.pixiv.net/request/creators/works/illust
             // 已完成的约稿页面
             // https://www.pixiv.net/request/complete/illust
-            if (window.location.pathname.includes('/request/complete') ||
-                window.location.pathname.includes('/request/creators')) {
+            if (path.includes('/request/complete') ||
+                path.includes('/request/creators')) {
                 // 首先查找作品列表的 UL 元素
                 const illustLink = document.querySelector('ul li a[href^="/artworks/"]');
                 if (!illustLink) {
@@ -20216,8 +20216,6 @@ class InitUserRequestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 由于约稿 ID 可能很多，所以需要分批请求，每批最多可以携带 50 个 ID
         const splitIds = _utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.splitArray(requetIds, 50);
         for (const ids of splitIds) {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl)
-                break;
             const idList = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getRequestWorksIdList(ids);
             if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl)
                 break;

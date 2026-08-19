@@ -39,6 +39,7 @@ body[data-page-type='0'] {
 }
 body[data-page-type='0'] .bgPpJb,
 body[data-page-type='0'] div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+body[data-page-type='0'] div.gtm-toppage-thumbnail-r18-illustration-recommend-tag-zone > div > div,
 body[data-page-type='0'] .bYCbxa,
 body[data-page-type='0'] .cwAKCq {
   width: auto !important;
@@ -112,6 +113,7 @@ body[data-page-type='0'] div[width='184'] {
   height: auto !important;
 }
 body[data-page-type='0'] div[width='184'] a div img,
+body[data-page-type='0'] section ul > div > div,
 body[data-page-type='0'] .jercGe {
   position: relative;
   width: auto !important;
