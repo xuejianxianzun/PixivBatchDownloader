@@ -479,6 +479,17 @@ class ShowLargerThumbnails {
         ad.parentElement!.style.display = 'none'
       })
     }
+
+    // 搜索用户页面
+    if (pageType.type === pageType.list.SearchUsers) {
+      // 查找每个作品列表区域的共同父元素，然后给它添加自定义 className
+      const targets = document.querySelectorAll('.bg-background1')
+      if (targets.length > 0) {
+        targets[targets.length - 1].firstElementChild!.classList.add(
+          'sectionParentDiv'
+        )
+      }
+    }
   }
 }
 

@@ -564,6 +564,7 @@ body[data-page-type='5'] {
     mask-image: none;
     padding-left: 72px;
   }
+
   nav[data-ga4-label='tags_carousel'] > div > div:first-child > div {
     display: none;
   }
@@ -1065,6 +1066,46 @@ body[data-page-type='23'] {
   div[type='illust'] > div {
     width: auto !important;
     height: auto !important;
+  }
+}
+
+// SearchUsers 搜索用户页面
+// https://www.pixiv.net/search/users?s_mode=s_usr&nick=vivi&i=1&comment=&p=1
+body[data-page-type='26'] {
+  // 解除列表容器的宽度限制
+  .sectionParentDiv {
+    width: 92vw;
+  }
+
+  // 这个页面里左侧是用户信息，右侧是用户的插画
+  // 这个选择器解除右侧插画区域的宽度限制
+  .sectionParentDiv > div > li > div > div:nth-child(2) {
+    width: 100%;
+  }
+
+  // ul 元素
+  .sectionParentDiv > div > li > div > div:nth-child(2) ul {
+    width: 100%;
+    max-width: 70vw;
+    padding-right: 0;
+    overflow: auto;
+  }
+
+  // div
+  // 解除作品缩略图元素里 div 的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .sectionParentDiv > div > li > div > div:nth-child(2) ul > div > div > div,
+  div[size='184'],
+  div[size='184'] > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  div[size='184'] img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
   }
 }
 
