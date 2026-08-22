@@ -207,7 +207,22 @@ class Resume {
     EVT.fire('resume')
   }
 
-  private async saveData() {
+  // 保存数据的串行队列。把每次保存请求串到同一条队列上，
+  // 保证 get → delete → add 严格按顺序执行，避免并发的 saveData 互相穿插，
+  // 导致同一 url 的两条记录撞上 taskMeta 表的 url 唯一索引而报错。
+  private saveDataChain: Promise<void> = Promise.resolve()
+
+  private saveData() {
+    // 无论上一次保存成功还是失败，都把本次保存接到队列末尾顺序执行
+    const run = () => this.saveDataInner()
+    const p = this.saveDataChain.then(run, run)
+    this.saveDataChain = p.catch(() => {
+      // 忽略单次保存失败，避免阻塞后续保存
+    })
+    return p
+  }
+
+  private async saveDataInner() {
     // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
     const taskData = (await this.IDB.get(
       this.metaName,
@@ -242,7 +257,13 @@ class Resume {
       date: store.crawlCompleteTime,
     }
 
-    this.IDB.add(this.metaName, metaData)
+    // add 必须 await，否则下一个排队的保存可能在它提交前就读取/插入，撞上 url 唯一索引
+    // 主键冲突时退化为 put 保存（仍 await，确保本次写入完成后再进行下一次保存）
+    await this.IDB.add(this.metaName, metaData).catch(async (err) => {
+      // 有时错误信息是这样的：Key already exists in the object store
+      // 所以尝试使用 put 来保存 meta 数据
+      await this.IDB.put(this.metaName, metaData)
+    })
 
     // 保存 states 数据
     const statesData = {
@@ -250,7 +271,7 @@ class Resume {
       states: downloadStates.states,
     }
 
-    this.IDB.add(this.statesName, statesData)
+    await this.IDB.add(this.statesName, statesData)
 
     log.success(lang.transl('_已保存抓取结果'), 'saveCrawlResult')
   }

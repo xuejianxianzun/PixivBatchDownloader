@@ -110,6 +110,7 @@ class WorkSelection {
     }
 
     this.excludeIdList.push({ id, type, title })
+    EVT.fire('manuallyExcludeWork', { id, type })
     return true
   }
 

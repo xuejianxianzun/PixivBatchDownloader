@@ -1086,9 +1086,21 @@ class Filter {
     }
 
     const idStr = id.toString()
-    const excluded = workSelection.excludeIdList.some(
-      (item) => item.id === idStr && item.type === type
-    )
+    const excluded = workSelection.excludeIdList.some((item) => {
+      if (item.id === idStr) {
+        // 需要对 type 进行特殊处理。因为在选择/排除作品时，图像作品的类型都是粗略的 illusts，而在这里检查时，传入的作品类型可能更具体，例如 illusts、manga、ugoira，所以需要对 type 进行特殊处理
+        if (item.type === 'illusts') {
+          return (
+            type === 'illusts' ||
+            type === 'manga' ||
+            type === 'ugoira' ||
+            type === 'unknown'
+          )
+        } else {
+          return item.type === type
+        }
+      }
+    })
 
     if (excluded) {
       log.warning(

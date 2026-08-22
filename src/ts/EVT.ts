@@ -1,5 +1,5 @@
 import { DonwloadSkipData, DonwloadSuccessData } from './download/DownloadType'
-import { IDData, Result } from './store/StoreType'
+import { IDData, IDTypeString, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
@@ -195,6 +195,8 @@ class EVENT {
     selectWorkRemovedExternally: 'selectWorkRemovedExternally',
     /** 当一个作品被选择、且它已在“排除作品”列表里时触发，通知 ExcludeWork 移除其标记 */
     excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
+    /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
+    manuallyExcludeWork: 'manuallyExcludeWork',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -320,6 +322,14 @@ class EVENT {
   public fire(
     type: 'selectWorkRemovedExternally' | 'excludeWorkRemovedExternally',
     data: string
+  ): void
+
+  public fire(
+    type: 'manuallyExcludeWork',
+    data: {
+      id: string
+      type: IDTypeString
+    }
   ): void
 
   public fire(type: eventNames, data?: unknown) {

@@ -1018,7 +1018,7 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 14px;
 
-        & button {
+        .settingsPanelActionBtn {
           box-sizing: border-box;
           border: 1px solid currentColor;
           width: 100%;
@@ -1044,27 +1044,25 @@
             transform 0.2s;
         }
 
-        & button[data-btn-intent='success'] {
+        .settingsPanelActionBtn[data-btn-intent='success'] {
           color: var(--settings-panel-btn-secondary-success-text);
         }
 
-        & button[data-btn-intent='warning'] {
+        .settingsPanelActionBtn[data-btn-intent='warning'] {
           color: var(--settings-panel-btn-secondary-warning-text);
         }
 
-        & button[data-btn-intent='danger'] {
+        .settingsPanelActionBtn[data-btn-intent='danger'] {
           color: var(--settings-panel-btn-secondary-danger-text);
         }
 
-        & button[data-btn-emphasis='secondary']:hover,
-        & button[data-btn-emphasis='secondary']:focus {
+        .settingsPanelActionBtn[data-btn-emphasis='secondary']:hover,
+        .settingsPanelActionBtn[data-btn-emphasis='secondary']:focus {
           background: var(--settings-panel-btn-secondary-hover-bg);
         }
 
-        &
-          button[data-btn-emphasis='secondary'][data-btn-intent='warning']:hover,
-        &
-          button[data-btn-emphasis='secondary'][data-btn-intent='warning']:focus {
+        .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='warning']:hover,
+        .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='warning']:focus {
           background: var(--settings-panel-btn-secondary-warning-hover-bg);
           border-color: var(
             --settings-panel-btn-secondary-warning-hover-border
@@ -1072,42 +1070,52 @@
           color: var(--settings-panel-btn-secondary-warning-hover-text);
         }
 
-        & button[data-btn-emphasis='secondary'][data-btn-intent='danger']:hover,
-        &
-          button[data-btn-emphasis='secondary'][data-btn-intent='danger']:focus {
+        .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='danger']:hover,
+        .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='danger']:focus {
           background: var(--settings-panel-btn-secondary-danger-hover-bg);
           border-color: var(--settings-panel-btn-secondary-danger-hover-border);
           color: var(--settings-panel-btn-secondary-danger-hover-text);
         }
 
-        & button[data-btn-emphasis='primary'] {
+        .settingsPanelActionBtn[data-btn-emphasis='primary'] {
           color: var(--settings-panel-btn-primary-text);
           border-color: transparent;
           box-shadow: var(--settings-panel-btn-primary-shadow);
           font-weight: 600;
         }
 
-        & button[data-btn-emphasis='primary']:hover,
-        & button[data-btn-emphasis='primary']:focus {
+        .settingsPanelActionBtn[data-btn-emphasis='primary']:hover,
+        .settingsPanelActionBtn[data-btn-emphasis='primary']:focus {
           transform: translateY(-1px);
           box-shadow: var(--settings-panel-btn-primary-shadow-hover);
         }
 
-        & button[data-btn-emphasis='primary'][data-btn-intent='brand'] {
+        .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='brand'] {
           background: var(--settings-panel-btn-brand);
         }
 
-        & button[data-btn-emphasis='primary'][data-btn-intent='success'] {
+        .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='success'] {
           background: var(--settings-panel-btn-success);
         }
 
-        & button[data-btn-emphasis='primary'][data-btn-intent='warning'] {
+        .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='warning'] {
           background: var(--settings-panel-btn-warning);
         }
 
-        & button[data-btn-emphasis='primary'][data-btn-intent='danger'] {
+        .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='danger'] {
           background: var(--settings-panel-btn-danger);
         }
+
+        .settingsPanel_tipCard {
+          // 让提示卡片独占一行
+          grid-column: 1 / -1;
+          margin-top: 0;
+        }
+      }
+
+      // 多个按钮块上下堆叠时（抓取 / 手动选择 / 手动排除），彼此之间留出间距
+      .centerWrap_btns + .centerWrap_btns {
+        margin-top: 14px;
       }
 
       .progressTip {

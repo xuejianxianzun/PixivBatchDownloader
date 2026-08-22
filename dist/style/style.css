@@ -1024,13 +1024,13 @@ body.mobile #rightButtonContainer {
 .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.centerWrap.mobile .centerWrap_con .settingForm .setinput_style {
-  font-size: 15px !important;
-}
-.centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+.centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn {
   font-size: 15px;
   line-height: 24px;
   padding: 7px 10px;
+}
+.centerWrap.mobile .centerWrap_con .settingForm .setinput_style {
+  font-size: 15px !important;
 }
 .centerWrap.mobile .centerWrap_con .settingForm input[name='needTag'] {
   flex-basis: 100% !important;
@@ -1939,7 +1939,7 @@ body.mobile #rightButtonContainer {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn {
   box-sizing: border-box;
   border: 1px solid currentColor;
   width: 100%;
@@ -1959,53 +1959,60 @@ body.mobile #rightButtonContainer {
   box-shadow: var(--settings-panel-btn-secondary-shadow);
   transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-intent='success'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-intent='success'] {
   color: var(--settings-panel-btn-secondary-success-text);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-intent='warning'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-intent='warning'] {
   color: var(--settings-panel-btn-secondary-warning-text);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-intent='danger'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-intent='danger'] {
   color: var(--settings-panel-btn-secondary-danger-text);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary']:hover,
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary']:focus {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary']:hover,
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary']:focus {
   background: var(--settings-panel-btn-secondary-hover-bg);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary'][data-btn-intent='warning']:hover,
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary'][data-btn-intent='warning']:focus {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='warning']:hover,
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='warning']:focus {
   background: var(--settings-panel-btn-secondary-warning-hover-bg);
   border-color: var(--settings-panel-btn-secondary-warning-hover-border);
   color: var(--settings-panel-btn-secondary-warning-hover-text);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary'][data-btn-intent='danger']:hover,
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='secondary'][data-btn-intent='danger']:focus {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='danger']:hover,
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='secondary'][data-btn-intent='danger']:focus {
   background: var(--settings-panel-btn-secondary-danger-hover-bg);
   border-color: var(--settings-panel-btn-secondary-danger-hover-border);
   color: var(--settings-panel-btn-secondary-danger-hover-text);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary'] {
   color: var(--settings-panel-btn-primary-text);
   border-color: transparent;
   box-shadow: var(--settings-panel-btn-primary-shadow);
   font-weight: 600;
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary']:hover,
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary']:focus {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary']:hover,
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary']:focus {
   transform: translateY(-1px);
   box-shadow: var(--settings-panel-btn-primary-shadow-hover);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary'][data-btn-intent='brand'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='brand'] {
   background: var(--settings-panel-btn-brand);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary'][data-btn-intent='success'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='success'] {
   background: var(--settings-panel-btn-success);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary'][data-btn-intent='warning'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='warning'] {
   background: var(--settings-panel-btn-warning);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns button[data-btn-emphasis='primary'][data-btn-intent='danger'] {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn[data-btn-emphasis='primary'][data-btn-intent='danger'] {
   background: var(--settings-panel-btn-danger);
+}
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns .settingsPanel_tipCard {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns + .centerWrap_btns {
+  margin-top: 14px;
 }
 .centerWrap .centerWrap_con .settingForm .progressTip {
   font-size: 15px;

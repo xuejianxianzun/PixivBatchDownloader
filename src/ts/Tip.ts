@@ -5,7 +5,12 @@ interface MouseArg {
 }
 
 // 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
-// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
+// 用法：
+// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容，例如：
+// <div class="has_tip" data-tip="提示"></div>
+// 如果要让 tip 文本支持多语言动态切换，可以使用 data-xztip 设置提示内容的 i18n key，例如：
+// <div class="has_tip" data-xztip="_提示"></div>
+// 然后在语言模块里注册这个元素：lang.register(el)
 class Tip {
   constructor() {
     this.addTipEl()

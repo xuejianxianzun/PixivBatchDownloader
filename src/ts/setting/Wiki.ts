@@ -95,8 +95,10 @@ class Wiki {
             'scheduleCrawling',
             'cancelScheduledCrawling',
             'manuallySelectWork',
-            'clearSelectedWork',
             'crawlSelectedWork',
+            'clearSelectedWork',
+            'excludeWork',
+            'clearExcludedWork',
           ],
         },
         HomePage: {
@@ -164,6 +166,11 @@ class Wiki {
           id: 'pixivision',
           nameKey: '_pixivision',
           ids: ['crawlImagesOnThisPage'],
+        },
+        UserRequest: {
+          id: 'UserRequest',
+          nameKey: '_用户的约稿页面',
+          ids: ['startCrawlRequestWorks'],
         },
       },
     },
@@ -237,6 +244,11 @@ class Wiki {
             'batchFollowUser',
             'findDeactivatedUsers',
           ],
+        },
+        UserRequest: {
+          id: 'UserRequest',
+          nameKey: '_用户的约稿页面',
+          ids: ['bookmarkAllRequestWorks'],
         },
       },
     },
@@ -404,6 +416,10 @@ class Wiki {
   public registerBtn(btn: HTMLButtonElement) {
     Utils.longPress(btn, async () => {
       const link = await this.link('button', btn.id)
+      if (!link) {
+        toast.error(lang.transl('_没有找到对应的链接') + `: ${btn.id}`)
+        return
+      }
       window.open(link, '_blank')
     })
   }

@@ -3789,6 +3789,8 @@ class EVENT {
         selectWorkRemovedExternally: 'selectWorkRemovedExternally',
         /** 当一个作品被选择、且它已在“排除作品”列表里时触发，通知 ExcludeWork 移除其标记 */
         excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
+        /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
+        manuallyExcludeWork: 'manuallyExcludeWork',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -3826,6 +3828,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -3915,6 +3919,17 @@ class ExcludeWork {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.closeCenterPanel, () => {
             this.tempHide = false;
         });
+        // 使用 Alt + E 快捷键来模拟点击控制按钮
+        window.addEventListener('keydown', (ev) => {
+            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+                return;
+            }
+            if (ev.altKey && ev.code === 'KeyE') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.controlBtn.click();
+            }
+        });
         // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', (ev) => {
             this.moveEvent(ev);
@@ -3975,6 +3990,9 @@ class ExcludeWork {
     }
     addBtn() {
         this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('excludeWorkBtns', '_手动排除作品', '', 'excludeWork', 'secondary', 'danger');
+        this.controlBtn.classList.add('has_tip');
+        this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_E');
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.controlBtn);
         this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
         this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('excludeWorkBtns', '_清空排除的作品', '', 'clearExcludedWork', 'secondary', 'danger');
@@ -4041,10 +4059,13 @@ class ExcludeWork {
         // 添加这个 id，或从列表里移除它（toggle）
         const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addExcludeId(id, type, seriesTitle);
         if (added) {
-            this.addExcludedFlag(el, id);
+            this.addExcludedFlag(el, id, type);
             // 如果这个作品已经被抓取，则从抓取结果里移除它
             if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.removeWorkById([id]);
+                const removed = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.removeWorkById([id]);
+                if (removed) {
+                    _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从抓取结果中移除'));
+                }
             }
         }
         else {
@@ -4153,10 +4174,11 @@ class ExcludeWork {
         return this.start && !this.pause;
     }
     // 给这个作品添加排除标记
-    addExcludedFlag(wrap, id) {
+    addExcludedFlag(wrap, id, type = 'illusts') {
         const i = document.createElement('i');
         i.classList.add(this.excludedWorkFlagClass);
         i.dataset.id = id;
+        i.dataset.type = type;
         i.innerHTML = this.svg;
         wrap.insertAdjacentElement('afterbegin', i);
         // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
@@ -4184,7 +4206,7 @@ class ExcludeWork {
             }
             if (el) {
                 // 如果在当前页面查找到了排除的作品，就给它添加标记
-                this.addExcludedFlag(el, id);
+                this.addExcludedFlag(el, id, type);
             }
         }
     }
@@ -6859,6 +6881,11 @@ class Lang {
         const tipEl = wrap.querySelectorAll('*[data-xztip]');
         for (const el of tipEl) {
             el.dataset.tip = this.transl(el.dataset.xztip);
+        }
+        // 元素自身存在 xztip 标记的情况
+        const tip = wrap.dataset.xztip;
+        if (tip) {
+            wrap.dataset.tip = this.transl(tip);
         }
         // 设置 placeholder
         const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]');
@@ -10299,7 +10326,7 @@ class SelectWork {
                 this.crawled = true;
             }
         });
-        // 可以使用 Alt + S 快捷键来模拟点击控制按钮
+        // 使用 Alt + S 快捷键来模拟点击控制按钮
         window.addEventListener('keydown', (ev) => {
             if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
@@ -10380,7 +10407,10 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_手动选择作品', 'Alt + S', 'manuallySelectWork', 'secondary', 'brand');
+        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_手动选择作品', '', 'manuallySelectWork', 'secondary', 'brand');
+        this.controlBtn.classList.add('has_tip');
+        this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_S');
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.controlBtn);
         this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
         this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_抓取选择的作品', '', 'crawlSelectedWork', 'secondary', 'brand');
@@ -10457,7 +10487,7 @@ class SelectWork {
         const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type, seriesTitle);
         if (added) {
             this.crawled = false;
-            this.addSelectedFlag(el, id);
+            this.addSelectedFlag(el, id, type);
         }
         else {
             this.removeSelectedFlag(id);
@@ -10584,10 +10614,11 @@ class SelectWork {
         this.crawled = false;
     }
     // 给这个作品添加标记
-    addSelectedFlag(wrap, id) {
+    addSelectedFlag(wrap, id, type = 'illusts') {
         const i = document.createElement('i');
         i.classList.add(this.selectedWorkFlagClass);
         i.dataset.id = id;
+        i.dataset.type = type;
         i.innerHTML = this.svg;
         wrap.insertAdjacentElement('afterbegin', i);
         // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
@@ -10620,7 +10651,7 @@ class SelectWork {
             }
             if (el) {
                 // 如果在当前页面查找到了选择的作品，就给它添加标记
-                this.addSelectedFlag(el, id);
+                this.addSelectedFlag(el, id, type);
             }
         }
     }
@@ -12204,7 +12235,12 @@ const theme = new Theme();
 "use strict";
 
 // 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
-// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
+// 用法：
+// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容，例如：
+// <div class="has_tip" data-tip="提示"></div>
+// 如果要让 tip 文本支持多语言动态切换，可以使用 data-xztip 设置提示内容的 i18n key，例如：
+// <div class="has_tip" data-xztip="_提示"></div>
+// 然后在语言模块里注册这个元素：lang.register(el)
 class Tip {
     constructor() {
         this.addTipEl();
@@ -13959,6 +13995,7 @@ class WorkSelection {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('selectWorkRemovedExternally', id);
         }
         this.excludeIdList.push({ id, type, title });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('manuallyExcludeWork', { id, type });
         return true;
     }
     /** 清空手动选择作品的列表 */
@@ -27832,7 +27869,20 @@ class Resume {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'), 'restoreCrawlResult');
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resume');
     }
-    async saveData() {
+    // 保存数据的串行队列。把每次保存请求串到同一条队列上，
+    // 保证 get → delete → add 严格按顺序执行，避免并发的 saveData 互相穿插，
+    // 导致同一 url 的两条记录撞上 taskMeta 表的 url 唯一索引而报错。
+    saveDataChain = Promise.resolve();
+    saveData() {
+        // 无论上一次保存成功还是失败，都把本次保存接到队列末尾顺序执行
+        const run = () => this.saveDataInner();
+        const p = this.saveDataChain.then(run, run);
+        this.saveDataChain = p.catch(() => {
+            // 忽略单次保存失败，避免阻塞后续保存
+        });
+        return p;
+    }
+    async saveDataInner() {
         // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
         const taskData = (await this.IDB.get(this.metaName, this.getURL(), 'url'));
         if (taskData) {
@@ -27856,13 +27906,19 @@ class Resume {
             part: this.part.length,
             date: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime,
         };
-        this.IDB.add(this.metaName, metaData);
+        // add 必须 await，否则下一个排队的保存可能在它提交前就读取/插入，撞上 url 唯一索引
+        // 主键冲突时退化为 put 保存（仍 await，确保本次写入完成后再进行下一次保存）
+        await this.IDB.add(this.metaName, metaData).catch(async (err) => {
+            // 有时错误信息是这样的：Key already exists in the object store
+            // 所以尝试使用 put 来保存 meta 数据
+            await this.IDB.put(this.metaName, metaData);
+        });
         // 保存 states 数据
         const statesData = {
             id: this.taskId,
             states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.states,
         };
-        this.IDB.add(this.statesName, statesData);
+        await this.IDB.add(this.statesName, statesData);
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已保存抓取结果'), 'saveCrawlResult');
     }
     // 存储抓取结果
@@ -30511,7 +30567,20 @@ class Filter {
             return true;
         }
         const idStr = id.toString();
-        const excluded = _WorkSelection__WEBPACK_IMPORTED_MODULE_13__.workSelection.excludeIdList.some((item) => item.id === idStr && item.type === type);
+        const excluded = _WorkSelection__WEBPACK_IMPORTED_MODULE_13__.workSelection.excludeIdList.some((item) => {
+            if (item.id === idStr) {
+                // 需要对 type 进行特殊处理。因为在选择/排除作品时，图像作品的类型都是粗略的 illusts，而在这里检查时，传入的作品类型可能更具体，例如 illusts、manga、ugoira，所以需要对 type 进行特殊处理
+                if (item.type === 'illusts') {
+                    return (type === 'illusts' ||
+                        type === 'manga' ||
+                        type === 'ugoira' ||
+                        type === 'unknown');
+                }
+                else {
+                    return item.type === type;
+                }
+            }
+        });
         if (excluded) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_手动排除了这个作品'), 'excludeWork');
@@ -35434,6 +35503,14 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
         '手動で作品を除外',
         '수동 제외',
         'Ручное исключение',
+    ],
+    _手动排除作品的提示信息: [
+        '你可以使用“手动排除作品”按钮标记你不想抓取的作品。下载器在抓取时会排除它们；如果已经抓取了它们，则会从抓取结果里移除它们。',
+        '你可以使用「手動排除作品」按鈕標記你不想抓取的作品。下載器在抓取時會排除它們；如果已經抓取了它們，則會從抓取結果裡移除它們。',
+        'You can use the "Manually exclude" button to mark the works you don\'t want to crawl. The downloader excludes them during crawling; if they\'ve already been crawled, it removes them from the crawl results.',
+        '「手動で作品を除外」ボタンで、クロールしたくない作品をマークできます。ダウンロードツールはクロール時にそれらを除外します；すでにクロール済みの場合は、クロール結果から削除します。',
+        '「수동 제외」 버튼으로 크롤링하고 싶지 않은 작품을 표시할 수 있습니다. 다운로더는 크롤링 시 이들을 제외합니다; 이미 크롤링된 경우 크롤링 결과에서 제거합니다.',
+        'С помощью кнопки «Ручное исключение» можно отметить работы, которые вы не хотите сканировать. Загрузчик исключает их при сканировании; если они уже просканированы, он удаляет их из результатов краулинга.',
     ],
     _暂停排除: [
         '暂停排除',
@@ -42563,6 +42640,14 @@ For example, exported crawl results include a timestamp in the file name. The pr
 <strong>🐞Исправлено: список загрузки правил именования отображался не полностью, когда область «Закрепленные настройки» была недостаточно высокой</strong><br>
 <strong>🐞Исправлено несколько других проблем</strong>`,
     ],
+    _用户的约稿页面: [
+        '用户的约稿页面',
+        '用戶的約稿頁面',
+        "User's request page",
+        'ユーザーのリクエストページ',
+        '사용자의 리퀘스트 페이지',
+        'Страница запросов пользователя',
+    ],
     _抓取约稿作品: [
         `抓取约稿作品`,
         `抓取約稿作品`,
@@ -42594,6 +42679,38 @@ For example, exported crawl results include a timestamp in the file name. The pr
         `すべてのリクエスト作品をブックマーク`,
         `모든 리퀘스트 작품 북마크`,
         `Добавить в закладки все работы из запросов`,
+    ],
+    _没有找到对应的链接: [
+        '没有找到对应的链接',
+        '沒有找到對應的鏈接',
+        'No corresponding link found',
+        '対応するリンクが見つかりません',
+        '해당 링크를 찾을 수 없습니다',
+        'Соответствующая ссылка не найдена',
+    ],
+    _已从抓取结果中移除: [
+        '已从抓取结果中移除',
+        '已從抓取結果中移除',
+        'Removed from crawl results',
+        'クロール結果から削除されました',
+        '크롤링 결과에서 제거됨',
+        'Удалено из результатов сбора',
+    ],
+    _快捷键_Alt_E: [
+        '快捷键 Alt + E',
+        '快捷鍵 Alt + E',
+        'Shortcut Alt + E',
+        'ショートカット Alt + E',
+        '단축키 Alt + E',
+        'Горячая клавиша Alt + E',
+    ],
+    _快捷键_Alt_S: [
+        '快捷键 Alt + S',
+        '快捷鍵 Alt + S',
+        'Shortcut Alt + S',
+        'ショートカット Alt + S',
+        '단축키 Alt + S',
+        'Горячая клавиша Alt + S',
     ],
 };
 
@@ -43706,6 +43823,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class DeleteWorks {
     constructor(worksSelectors) {
+        // .searchList
         this.worksSelector = worksSelectors;
         this.icon = this.createDeleteIcon();
         this.bindEvents();
@@ -43755,6 +43873,21 @@ class DeleteWorks {
         window.addEventListener('mousemove', (ev) => {
             this.moveEvent(ev);
         }, true);
+        // 当用户使用“手动排除作品”功能排除了一个作品时，自动删除页面上对应的作品元素
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.manuallyExcludeWork, (ev) => {
+            const id = ev.detail.data.id;
+            const type = ev.detail.data.type;
+            if (id && type !== 'novels' && type !== 'novelSeries') {
+                const selector = `${this.worksSelector}[data-id="${id}"]`;
+                const el = document.querySelector(selector);
+                if (el) {
+                    el.remove();
+                    this.showWorksCount();
+                    // 触发此事件是为了让搜索页面的模块（InitSearchArtworkPage）执行 deleteWork 方法，保持数据一致性
+                    _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('deleteWork', el);
+                }
+            }
+        });
     }
     // 监听鼠标移动
     moveEvent(ev) {
@@ -45787,64 +45920,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 
 
 
 
 
-
-/** 管理表单里的帮助信息 */
+/** 管理表单里的一些帮助信息 */
 class FormHelpManager {
     constructor(form) {
         this.form = form;
         this.downloadEmptyHint = this.form.querySelector('.secondary_hint');
-        this.displayTipArea();
         this.toggleHelpArea();
         this.showMsgWhenClickBtn();
         this.bindDownloadEmptyHint();
     }
     form;
     downloadEmptyHint = null;
-    /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
-    tipAreaConfig = [
-        {
-            key: 'tipPinOption',
-            selector: '#tipPinOption',
-        },
-        {
-            key: 'tipCloseAskFileSaveLocation',
-            selector: '#tipCloseAskFileSaveLocation',
-        },
-        {
-            key: 'tipOpenWikiLink',
-            selector: '#tipOpenWikiLinkWrap',
-        },
-    ];
-    /** 根据设置来显示或隐藏一些提示 */
-    displayTipArea() {
-        this.tipAreaConfig.forEach((item) => {
-            const el = document.querySelector(item.selector);
-            if (el) {
-                // 点击“我知道了”按钮之后隐藏提示区域
-                const btn = el.querySelector('button');
-                btn.addEventListener('click', () => {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)(item.key, false);
-                    el.style.display = 'none';
-                });
-                // 监听设置变化
-                window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-                    const data = ev.detail.data;
-                    if (data.name === item.key) {
-                        el.style.display = data.value ? 'flex' : 'none';
-                    }
-                });
-            }
-        });
-    }
     /**点击一些按钮时，切换显示对应的提示区域 */
     toggleHelpArea() {
         const btns = this.form.querySelectorAll('.toggleArea');
@@ -45853,7 +45947,7 @@ class FormHelpManager {
             const tipEl = document.querySelector(targetSelector);
             btn.addEventListener('click', () => {
                 // 切换显示提示区域
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.toggleEl(tipEl);
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.toggleEl(tipEl);
             });
         });
     }
@@ -45864,7 +45958,7 @@ class FormHelpManager {
             btn.addEventListener('click', () => {
                 const title = btn.dataset.title;
                 const msg = btn.dataset.msg;
-                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(msg), {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(msg), {
                     title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(title),
                 });
             });
@@ -45874,7 +45968,7 @@ class FormHelpManager {
         if (!this.downloadEmptyHint) {
             return;
         }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length > 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
             this.hideDownloadEmptyHint();
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
@@ -50102,6 +50196,7 @@ class Settings {
         autoExportSettings: false,
         autoExportSettingsStrategy: 'timed',
         autoExportSettingsInterval: 24,
+        tipManuallyExcludeWorks: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -50383,6 +50478,7 @@ class Settings {
         this.setSetting('tipCloseAskFileSaveLocation', true);
         this.setSetting('tipPinOption', true);
         this.setSetting('tipCopyWorkInfoButton', true);
+        this.setSetting('tipManuallyExcludeWorks', true);
         _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助的说明'), {
             title: _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助'),
         });
@@ -51161,10 +51257,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SettingsPanelTipCard */ "./src/ts/setting/SettingsPanelTipCard.ts");
 
 
 
 
+
+// 构造设置面板里的帮助页面
 class SettingsPanelHelp {
     constructor(root) {
         this.root = root;
@@ -51178,28 +51277,13 @@ class SettingsPanelHelp {
     render() {
         const tipsWrap = document.createElement('div');
         tipsWrap.className = 'settingsPanel_helpTips';
-        tipsWrap.innerHTML = `
-    <div class="settingsPanel_tipCard" id="tipPinOption">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent" data-xztext="_提示可以置顶选项"></span>
-        <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-          <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-        </button>
-      </div>
-    </div>
-    <div class="settingsPanel_tipCard" id="tipOpenWikiLinkWrap">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent">
-          <span data-xztext="_提示查看wiki页面"></span>
-          <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-          </button>
-        </span>
-      </div>
-    </div>
-    `;
+        const cards = ['tipPinOption', 'tipOpenWikiLink'];
+        cards.forEach((key) => {
+            const tipCard = _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__.settingsPanelTipCard.use(key);
+            if (tipCard) {
+                tipsWrap.append(tipCard);
+            }
+        });
         this.root.append(tipsWrap);
         this.actionsWrap = document.createElement('div');
         this.actionsWrap.className = 'settingsPanel_helpActions';
@@ -51350,6 +51434,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _OptionConfigs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./OptionConfigs */ "./src/ts/setting/OptionConfigs.ts");
 /* harmony import */ var _SettingsPanelHelp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SettingsPanelHelp */ "./src/ts/setting/SettingsPanelHelp.ts");
 /* harmony import */ var _SettingsPanelTypes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SettingsPanelTypes */ "./src/ts/setting/SettingsPanelTypes.ts");
+/* harmony import */ var _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SettingsPanelTipCard */ "./src/ts/setting/SettingsPanelTipCard.ts");
+
 
 
 
@@ -51387,12 +51473,15 @@ class SettingsPanelLayout {
     homePinnedContent;
     otherBtnsVisibilityObserver;
     build() {
-        const crawlBtnsBlock = this.createSlotBlock([
-            'stopCrawl',
-            'crawlBtns',
-            'selectWorkBtns',
-            'excludeWorkBtns',
-        ]);
+        const crawlBtnsBlock = this.createSlotBlock(['stopCrawl', 'crawlBtns']);
+        // 手动选择、手动排除各自独占一行，不与抓取按钮并排
+        const selectWorkBtnsBlock = this.createSlotBlock(['selectWorkBtns']);
+        const excludeWorkBtnsBlock = this.createSlotBlock(['excludeWorkBtns']);
+        // 在手动排除按钮底部添加一个提示卡片
+        const card = _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__.settingsPanelTipCard.use('tipManuallyExcludeWorks');
+        if (card) {
+            excludeWorkBtnsBlock.append(card);
+        }
         const otherBtnsBlock = this.createSlotBlock(['otherBtns']);
         const downloadBtnsBlock = this.createSlotBlock([
             'exportResult',
@@ -51436,7 +51525,7 @@ class SettingsPanelLayout {
             this.pageInners.set(page, inner);
             this.stickyEls.set(page, sticky);
         });
-        this.buildHomePage(crawlBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar);
+        this.buildHomePage(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar);
         this.buildCategoryPages();
         this.buildHelpPage();
         for (const option of this.optionElements.values()) {
@@ -51459,23 +51548,14 @@ class SettingsPanelLayout {
             this.navEls.set(button.dataset.page, button);
         });
     }
-    buildHomePage(crawlBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar) {
+    buildHomePage(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar) {
         const home = this.pageInners.get('home');
         const homeTipsWrap = document.createElement('div');
         homeTipsWrap.className = 'settingsPanel_helpTips settingsPanel_homeTips';
-        homeTipsWrap.innerHTML = `
-    <div class="settingsPanel_tipCard" id="tipCloseAskFileSaveLocation">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent">
-          <span data-xztext="_建议您关闭询问文件保存位置"></span>
-          <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-          </button>
-        </span>
-      </div>
-    </div>
-    `;
+        const card = _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__.settingsPanelTipCard.use('tipCloseAskFileSaveLocation');
+        if (card) {
+            homeTipsWrap.append(card);
+        }
         home.append(homeTipsWrap);
         const pinnedSection = this.createSection({
             page: 'home',
@@ -51497,7 +51577,8 @@ class SettingsPanelLayout {
             stickyEligible: false,
             type: 'panel',
         });
-        crawlBlock.content.append(crawlBtnsBlock);
+        // 抓取、手动选择、手动排除各自独占一行
+        crawlBlock.content.append(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock);
         home.append(crawlBlock.root);
         const downloadBlock = this.createSection({
             page: 'home',
@@ -52751,6 +52832,82 @@ class SettingsPanelShell {
 
 /***/ }),
 
+/***/ "./src/ts/setting/SettingsPanelTipCard.ts":
+/*!************************************************!*\
+  !*** ./src/ts/setting/SettingsPanelTipCard.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   settingsPanelTipCard: () => (/* binding */ settingsPanelTipCard)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+/** 管理设置面板上的一些小提示卡片，默认显示，用户点击确定按钮之后改为隐藏 */
+class SettingsPanelTipCard {
+    config = [
+        {
+            key: 'tipPinOption',
+            text: '_提示可以置顶选项',
+        },
+        {
+            key: 'tipManuallyExcludeWorks',
+            text: '_手动排除作品的提示信息',
+        },
+        {
+            key: 'tipCloseAskFileSaveLocation',
+            text: '_建议您关闭询问文件保存位置',
+        },
+        {
+            key: 'tipOpenWikiLink',
+            text: '_提示查看wiki页面',
+        },
+    ];
+    use(key) {
+        const item = this.config.find((item) => item.key === key);
+        if (!item) {
+            return null;
+        }
+        const div = document.createElement('div');
+        div.classList.add('settingsPanel_tipCard');
+        div.id = item.key;
+        div.innerHTML = `
+    <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
+      <div class="settingsPanel_tipText">
+        <span class="settingsPanel_tipTextContent" data-xztext="${item.text}"></span>
+        <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
+          <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
+        </button>
+      </div>`;
+        this.bindEvent(div, item);
+        return div;
+    }
+    bindEvent(div, item) {
+        // 点击确认按钮之后隐藏提示卡片
+        const btn = div.querySelector('button');
+        btn.addEventListener('click', () => {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)(item.key, false);
+            div.style.display = 'none';
+        });
+        // 监听设置变化，显示或隐藏提示卡片
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === item.key) {
+                div.style.display = data.value ? 'flex' : 'none';
+            }
+        });
+    }
+}
+const settingsPanelTipCard = new SettingsPanelTipCard();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/setting/SettingsPanelTypes.ts":
 /*!**********************************************!*\
   !*** ./src/ts/setting/SettingsPanelTypes.ts ***!
@@ -53192,8 +53349,10 @@ class Wiki {
                         'scheduleCrawling',
                         'cancelScheduledCrawling',
                         'manuallySelectWork',
-                        'clearSelectedWork',
                         'crawlSelectedWork',
+                        'clearSelectedWork',
+                        'excludeWork',
+                        'clearExcludedWork',
                     ],
                 },
                 HomePage: {
@@ -53261,6 +53420,11 @@ class Wiki {
                     id: 'pixivision',
                     nameKey: '_pixivision',
                     ids: ['crawlImagesOnThisPage'],
+                },
+                UserRequest: {
+                    id: 'UserRequest',
+                    nameKey: '_用户的约稿页面',
+                    ids: ['startCrawlRequestWorks'],
                 },
             },
         },
@@ -53334,6 +53498,11 @@ class Wiki {
                         'batchFollowUser',
                         'findDeactivatedUsers',
                     ],
+                },
+                UserRequest: {
+                    id: 'UserRequest',
+                    nameKey: '_用户的约稿页面',
+                    ids: ['bookmarkAllRequestWorks'],
                 },
             },
         },
@@ -53477,6 +53646,10 @@ class Wiki {
     registerBtn(btn) {
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async () => {
             const link = await this.link('button', btn.id);
+            if (!link) {
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到对应的链接') + `: ${btn.id}`);
+                return;
+            }
             window.open(link, '_blank');
         });
     }
@@ -54283,8 +54456,14 @@ class Store {
     findResult(id) {
         return this.result.find((item) => item.id === id);
     }
-    /** 从抓取结果里移除指定的作品（用于“手动排除作品”功能） */
+    /** 从 idList 和抓取结果里移除指定的作品。返回值表示是否有作品被删除
+     *
+     * 目前只用于“手动排除作品”功能
+     */
     removeWorkById(ids) {
+        // 记录删除前的 resultMeta / result 数量，用于判断是否真的发生了删除
+        const beforeMetaLength = this.resultMeta.length;
+        const beforeResultLength = this.result.length;
         for (const id of ids) {
             // 从 id 列表里移除（使用 id 字符串匹配）
             const idIndex = this.idList.findIndex((item) => item.id === id);
@@ -54298,7 +54477,7 @@ class Store {
             }
             // 从元数据里移除
             this.resultMeta = this.resultMeta.filter((r) => r.idNum !== idNum);
-            // 从抓取结果里移除（多图作品是 _p0.._pn，idNum 相同）
+            // 从抓取结果里移除
             this.result = this.result.filter((r) => r.idNum !== idNum);
             // 从去重表移除，避免后续 addResult 因去重而拒绝重新加入
             const artworkIndex = this.artworkIDList.indexOf(idNum);
@@ -54310,8 +54489,13 @@ class Store {
                 this.novelIDList.splice(novelIndex, 1);
             }
         }
-        // 结果发生了变化，通知相关模块刷新
-        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resultChange');
+        // 只有确实从 resultMeta 或 result 里删除了数据时，才通知相关模块刷新
+        if (this.resultMeta.length < beforeMetaLength ||
+            this.result.length < beforeResultLength) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resultChange');
+            return true;
+        }
+        return false;
     }
     reset() {
         this.resultMeta = [];

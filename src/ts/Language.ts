@@ -172,6 +172,11 @@ class Lang {
     for (const el of tipEl) {
       el.dataset.tip = this.transl(el.dataset.xztip! as any)
     }
+    // 元素自身存在 xztip 标记的情况
+    const tip = wrap.dataset.xztip
+    if (tip) {
+      wrap.dataset.tip = this.transl(tip as any)
+    }
 
     // 设置 placeholder
     const placeholderEl = wrap.querySelectorAll(

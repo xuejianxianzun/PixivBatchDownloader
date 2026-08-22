@@ -19,8 +19,14 @@ export type WorkTypeString =
   | 'novels'
   | 'unknown'
 
-// IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里
-export type IDTypeString = WorkTypeString | 'novelSeries'
+/** IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里 */
+export type IDTypeString =
+  | 'illusts'
+  | 'manga'
+  | 'ugoira'
+  | 'novels'
+  | 'unknown'
+  | 'novelSeries'
 
 export interface IDData {
   /** 可能是作品的 id，也可能是系列 id，取决于 type 是不是 novelSeries */

@@ -414,6 +414,7 @@ interface XzSetting {
   autoExportSettings: boolean
   autoExportSettingsStrategy: 'timed' | 'onSettingChange'
   autoExportSettingsInterval: number
+  tipManuallyExcludeWorks: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -1044,6 +1045,7 @@ class Settings {
     autoExportSettings: false,
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
+    tipManuallyExcludeWorks: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1388,6 +1390,7 @@ class Settings {
     this.setSetting('tipCloseAskFileSaveLocation', true)
     this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
+    this.setSetting('tipManuallyExcludeWorks', true)
 
     msgBox.show(lang.transl('_重新显示帮助的说明'), {
       title: lang.transl('_重新显示帮助'),

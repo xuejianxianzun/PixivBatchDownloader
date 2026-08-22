@@ -11,6 +11,7 @@ import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { Config } from './Config'
+import { toast } from './Toast'
 
 // 手动排除作品，图片作品和小说都可以排除
 class ExcludeWork {
@@ -116,6 +117,19 @@ class ExcludeWork {
       this.tempHide = false
     })
 
+    // 使用 Alt + E 快捷键来模拟点击控制按钮
+    window.addEventListener('keydown', (ev) => {
+      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        return
+      }
+
+      if (ev.altKey && ev.code === 'KeyE') {
+        ev.preventDefault()
+        ev.stopPropagation()
+        this.controlBtn.click()
+      }
+    })
+
     // 鼠标移动时保存鼠标的坐标
     window.addEventListener(
       'mousemove',
@@ -204,6 +218,9 @@ class ExcludeWork {
       'secondary',
       'danger'
     )
+    this.controlBtn.classList.add('has_tip')
+    this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_E')
+    lang.register(this.controlBtn)
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
@@ -284,10 +301,13 @@ class ExcludeWork {
     // 添加这个 id，或从列表里移除它（toggle）
     const added = workSelection.addExcludeId(id, type, seriesTitle)
     if (added) {
-      this.addExcludedFlag(el, id)
+      this.addExcludedFlag(el, id, type)
       // 如果这个作品已经被抓取，则从抓取结果里移除它
       if (!states.busy) {
-        store.removeWorkById([id])
+        const removed = store.removeWorkById([id])
+        if (removed) {
+          toast.error(lang.transl('_已从抓取结果中移除'))
+        }
       }
     } else {
       this.removeExcludedFlag(id)
@@ -424,10 +444,15 @@ class ExcludeWork {
   }
 
   // 给这个作品添加排除标记
-  private addExcludedFlag(wrap: HTMLElement, id: string) {
+  private addExcludedFlag(
+    wrap: HTMLElement,
+    id: string,
+    type: IDTypeString = 'illusts'
+  ) {
     const i = document.createElement('i')
     i.classList.add(this.excludedWorkFlagClass)
     i.dataset.id = id
+    i.dataset.type = type
     i.innerHTML = this.svg
 
     wrap.insertAdjacentElement('afterbegin', i)
@@ -460,7 +485,7 @@ class ExcludeWork {
 
       if (el) {
         // 如果在当前页面查找到了排除的作品，就给它添加标记
-        this.addExcludedFlag(el, id)
+        this.addExcludedFlag(el, id, type)
       }
     }
   }

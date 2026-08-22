@@ -188,8 +188,15 @@ class Store {
     return this.result.find((item) => item.id === id)
   }
 
-  /** 从抓取结果里移除指定的作品（用于“手动排除作品”功能） */
+  /** 从 idList 和抓取结果里移除指定的作品。返回值表示是否有作品被删除
+   *
+   * 目前只用于“手动排除作品”功能
+   */
   public removeWorkById(ids: string[]) {
+    // 记录删除前的 resultMeta / result 数量，用于判断是否真的发生了删除
+    const beforeMetaLength = this.resultMeta.length
+    const beforeResultLength = this.result.length
+
     for (const id of ids) {
       // 从 id 列表里移除（使用 id 字符串匹配）
       const idIndex = this.idList.findIndex((item) => item.id === id)
@@ -205,7 +212,7 @@ class Store {
 
       // 从元数据里移除
       this.resultMeta = this.resultMeta.filter((r) => r.idNum !== idNum)
-      // 从抓取结果里移除（多图作品是 _p0.._pn，idNum 相同）
+      // 从抓取结果里移除
       this.result = this.result.filter((r) => r.idNum !== idNum)
 
       // 从去重表移除，避免后续 addResult 因去重而拒绝重新加入
@@ -219,8 +226,16 @@ class Store {
       }
     }
 
-    // 结果发生了变化，通知相关模块刷新
-    EVT.fire('resultChange')
+    // 只有确实从 resultMeta 或 result 里删除了数据时，才通知相关模块刷新
+    if (
+      this.resultMeta.length < beforeMetaLength ||
+      this.result.length < beforeResultLength
+    ) {
+      EVT.fire('resultChange')
+      return true
+    }
+
+    return false
   }
 
   public reset() {
