@@ -8,17 +8,15 @@ import { Utils } from './utils/Utils'
 import { PreviewUgoira } from './PreviewUgoira'
 import { toast } from './Toast'
 import { lang } from './Language'
-import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
 import { Tools } from './Tools'
-import { bookmark } from './Bookmark'
-import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
 import { filter } from './filter/Filter'
+import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -335,12 +333,19 @@ class PreviewWork {
           ])
         }
 
+        // 预览作品时，可以使用快捷键 V 调用查看原图的功能
+        if (ev.code === 'KeyV') {
+          ev.preventDefault()
+          ev.stopPropagation()
+          EVT.fire('callShowOriginSizeImage', this.workData!.body.id)
+        }
+
         // 预览作品时，可以使用快捷键 B 收藏这个作品
         // 实际上 Alt + B 也会生效
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          this.addBookmark()
+          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
         }
 
         // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片
@@ -825,57 +830,6 @@ class PreviewWork {
         }
         img.src = url
       }
-    }
-  }
-
-  private async addBookmark() {
-    if (this.workData?.body.illustId === undefined) {
-      return
-    }
-
-    toast.show(lang.transl('_收藏'), {
-      bgColor: Colors.bgBlue,
-    })
-
-    const status = await bookmark.add(
-      this.workData.body.illustId,
-      'illusts',
-      Tools.extractTags(this.workData!)
-    )
-
-    if (status === 200) {
-      toast.success(lang.transl('_已收藏'))
-
-      // 将作品缩略图上的收藏按钮变成红色
-      const allSVG = this.workEL!.querySelectorAll('svg')
-      if (allSVG.length > 0) {
-        // 如果有多个 svg，一般最后一个是收藏按钮
-        let useSVG = allSVG[allSVG.length - 1]
-
-        // 但有些特殊情况是第一个
-        if (pageType.type === pageType.list.Request) {
-          useSVG = allSVG[0]
-        }
-
-        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-        // 区别是收藏按钮在 button 元素里
-        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
-        if (btnSVG) {
-          useSVG = btnSVG
-        }
-
-        useSVG.style.color = 'rgb(255, 64, 96)'
-        const allPath = useSVG.querySelectorAll('path')
-        for (const path of allPath) {
-          path.style.fill = 'currentcolor'
-        }
-      }
-    }
-
-    // 排行榜页面的收藏按钮
-    const btn = this.workEL!.querySelector('._one-click-bookmark')
-    if (btn) {
-      btn.classList.add('on')
     }
   }
 

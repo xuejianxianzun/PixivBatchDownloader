@@ -5775,48 +5775,42 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     'Результаты сканирования недоступны',
   ],
   _查看作品大图时的快捷键: [
-    `查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。
-    <br>
-    按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息。
-    <br>
-    `,
-    `檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。
-    <br>
-    按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊。
-    <br>
-    `,
-    `When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.
-    <br>
-    Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information.
-    <br>
-    `,
-    `作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。
-    <br>
-    ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー。
-    <br>
-    `,
-    `작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. 
-    <br>
-    현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사.
-    <br>
-    `,
-    `При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. 
-    <br>
-    Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе.
-    <br>
-    `,
+    `当你查看作品的大图时，可以使用这些快捷键：<br>
+<span class="blue">B</span>(ookmark) 收藏查看的作品<br>
+<span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+<span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 复制当前查看的图片和作品信息<br>
+<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
+    `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
+<span class="blue">B</span>(ookmark) 收藏查看的作品<br>
+<span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
+<span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 複製當前查看的圖片和作品資訊<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
+    `When you are viewing the large image of a work, you can use these shortcuts:<br>
+<span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
+<span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently viewed image and work information<br>
+<span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
+    `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
+<span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
+<span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
+<span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 現在表示している画像と作品情報をコピー<br>
+<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
+    `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
+<span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
+<span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 보고 있는 이미지와 작품 정보 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
+    `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
+<span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее изображение и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
   ],
   _定时抓取: [
     '定时抓取',
@@ -7092,6 +7086,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
   _预览作品的快捷键说明: [
     `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
 当你查看预览图时，可以使用如下快捷键：<br>
+<span class="blue">V</span>(iew) 以 1:1 原始比例查看原图<br>
 <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
@@ -7103,6 +7098,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 你可以随时在“预览作品”设置里查看这个快捷键列表`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
 當你查看預覽圖時，可以使用如下快捷鍵：<br>
+<span class="blue">V</span>(iew) 以 1:1 原始比例查看原圖<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
@@ -7114,6 +7110,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
 When you view the preview image, you can use the following keyboard shortcuts:<br>
+<span class="blue">V</span>(iew) View the original image at 1:1 actual size<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
 <span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
@@ -7125,6 +7122,7 @@ When you view the preview image, you can use the following keyboard shortcuts:<b
 You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
 プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
+<span class="blue">V</span>(iew) オリジナル画像を 1:1 の実際のサイズで表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
@@ -7136,6 +7134,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
 「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
 미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">V</span>(iew) 1:1 실제 크기로 원본 이미지 보기<br>
 <span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
 <span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
@@ -7147,6 +7146,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
 「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
 Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+<span class="blue">V</span>(iew) Просмотр оригинального изображения в реальном размере 1:1<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>

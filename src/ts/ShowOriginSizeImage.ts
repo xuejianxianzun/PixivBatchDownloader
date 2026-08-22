@@ -12,6 +12,7 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { cacheWorkData } from './store/CacheWorkData'
 import { toast } from './Toast'
 import { states } from './store/States'
+import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
 
 interface Style {
   imgW: number
@@ -36,6 +37,9 @@ class ShowOriginSizeImage {
 
   private workId = ''
   private workData?: ArtworkData
+
+  /** 当前鼠标所在的作品缩略图元素。用于在收藏成功后更新该缩略图上的收藏按钮状态 */
+  private workEL?: HTMLElement
 
   /** 显示这个作品里的第几张图片。如果该作品被“预览作品”功能查看过，可以获取用户最后查看的是第几张图片。否则使用第 1 张 */
   private get index(): number {
@@ -125,9 +129,27 @@ class ShowOriginSizeImage {
   }
 
   private bindEvents() {
+    // 通过事件调用查看原图的功能
+    window.addEventListener(
+      EVT.list.callShowOriginSizeImage,
+      (ev: CustomEventInit) => {
+        const id = ev.detail.data as string
+        if (id) {
+          // 先隐藏现有的原图区域，然后使用新的作品 id 显示原图
+          this.show = false
+          this.workId = id
+          this.initWrap({
+            clientX: this.moveX || window.innerWidth / 2,
+            clientY: this.moveY || window.innerHeight / 2,
+          } as MouseEvent)
+        }
+      }
+    )
+
     artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       if (settings.showOriginImage) {
         this.workId = id
+        this.workEL = el
         el.addEventListener('mousedown', this.readyShow)
         el.addEventListener('mouseup', this.cancelReadyShow)
       }
@@ -143,7 +165,13 @@ class ShowOriginSizeImage {
       this.show = false
     })
 
-    document.body.addEventListener('click', () => {
+    document.body.addEventListener('click', (ev) => {
+      // 如果点击的目标元素是 button 元素，则不关闭原图区域
+      // 这是为了避免按 B 收藏作品时，触发收藏按钮的点击事件而导致原图区域关闭
+      if ((ev.target as HTMLElement).nodeName === 'BUTTON') {
+        return
+      }
+
       this.show = false
     })
 
@@ -170,6 +198,17 @@ class ShowOriginSizeImage {
       // 本来我对此事件进行了节流处理，但是节流的话容易显得画面不流畅。
       // 而且我试了试，不节流也不会产生太高的 CPU 负荷。所以现在不再做节流处理
       this.moveWrap(ev)
+      this.moveX = ev.clientX
+      this.moveY = ev.clientY
+    })
+
+    // 跟踪全局最后已知的鼠标位置。
+    // 上面的 mousemove 监听只绑在 this.wrap 上；当通过事件调用查看原图时
+    // （例如从预览作品触发），鼠标位于其它元素上，this.wrap 此时处于隐藏状态，
+    // 那个监听不会触发，this.moveX/this.moveY 就会停留在上一次查看遗留的陈旧值，
+    // 导致 onePxMove 计算偏差、以及图片显示后第一次移动鼠标时瞬移。
+    // 这里用 window 级别的监听持续更新最后位置，供事件调用路径作为触发坐标使用。
+    window.addEventListener('mousemove', (ev) => {
       this.moveX = ev.clientX
       this.moveY = ev.clientY
     })
@@ -209,6 +248,13 @@ class ShowOriginSizeImage {
           } else {
             this.downloadImage(this.workId)
           }
+        }
+
+        // 按 B 键收藏这个作品（实际上 Alt + B 也会生效）
+        if (ev.code === 'KeyB') {
+          ev.preventDefault()
+          ev.stopPropagation()
+          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
         }
 
         // 按 Esc 键时取消预览
@@ -252,6 +298,8 @@ class ShowOriginSizeImage {
 
   // 初次显示一个图片时，初始化 wrap 的样式
   private async initWrap(ev: MouseEvent) {
+    this.moveX = ev.clientX
+    this.moveY = ev.clientY
     try {
       this.workData = await cacheWorkData.getWorkDataAsync(
         this.workId,

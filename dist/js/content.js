@@ -1722,6 +1722,85 @@ class API {
 
 /***/ }),
 
+/***/ "./src/ts/AddBookmarkWhenPreviewWorks.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/AddBookmarkWhenPreviewWorks.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   addBookmarkWhenPreviewWorks: () => (/* binding */ addBookmarkWhenPreviewWorks)
+/* harmony export */ });
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+
+
+
+
+// 在预览作品、查看原图时，收藏这个作品
+class AddBookmarkWhenPreviewWorks {
+    async add(workData, workEL, clickBtn = false) {
+        if (workData?.body.illustId === undefined) {
+            return;
+        }
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
+        });
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_0__.bookmark.add(workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(workData));
+        if (status === 200) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
+            // 将作品缩略图上的收藏按钮变成红色
+            if (workEL) {
+                const allSVG = workEL.querySelectorAll('svg');
+                if (allSVG.length > 0) {
+                    // 如果有多个 svg，一般最后一个是收藏按钮
+                    let useSVG = allSVG[allSVG.length - 1];
+                    // 但有些特殊情况是第一个
+                    if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request) {
+                        useSVG = allSVG[0];
+                    }
+                    // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
+                    // 区别是收藏按钮在 button 元素里
+                    const btnSVG = workEL.querySelector('button svg');
+                    if (btnSVG) {
+                        useSVG = btnSVG;
+                    }
+                    useSVG.style.color = 'rgb(255, 64, 96)';
+                    const allPath = useSVG.querySelectorAll('path');
+                    for (const path of allPath) {
+                        path.style.fill = 'currentcolor';
+                    }
+                    // 点击收藏按钮时，触发收藏按钮的点击事件
+                    if (clickBtn) {
+                        const btn = useSVG.closest('button');
+                        if (btn && clickBtn) {
+                            btn.click();
+                        }
+                    }
+                }
+                // 排行榜页面的收藏按钮
+                const btn = workEL.querySelector('._one-click-bookmark');
+                if (btn) {
+                    btn.classList.add('on');
+                }
+            }
+        }
+    }
+}
+const addBookmarkWhenPreviewWorks = new AddBookmarkWhenPreviewWorks();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/ArtworkThumbnail.ts":
 /*!************************************!*\
   !*** ./src/ts/ArtworkThumbnail.ts ***!
@@ -3755,6 +3834,8 @@ class EVENT {
         /** 点击了下载器在作品缩略图上添加的按钮时触发 */
         /** 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题 */
         clickBtnOnThumb: 'clickBtnOnThumb',
+        /** 请求显示原比例图片时触发 */
+        callShowOriginSizeImage: 'callShowOriginSizeImage',
         /** 显示原比例图片时触发 */
         showOriginSizeImage: 'showOriginSizeImage',
         /** 语言类型改变时触发 */
@@ -3847,14 +3928,12 @@ class ExcludeWork {
     constructor() {
         // 符合条件时才会创建“手动排除作品”的按钮
         // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
-        if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
-            this.created = true;
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             this.selector = this.createSelectorEl();
             this.addBtn();
             this.bindEvents();
         }
     }
-    created = false;
     selector; // 用于排除作品的指示器
     selectorId = 'excludeWorkEl';
     left = 0;
@@ -5954,8 +6033,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 // https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -6142,6 +6223,8 @@ class ImageViewer {
     configureViewer() {
         const setIndex = (index) => {
             this.index = index;
+            // 记录当前查看的图片索引到 states 里，以便当用户预览这张图片或显示其大图时，能正确显示最后查看的这张图片
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.indexRecord[this.cfg.workId] = index;
         };
         // 图片查看器显示之后
         this.viewerUl.addEventListener('shown', () => {
@@ -6213,11 +6296,11 @@ class ImageViewer {
             viewed(ev) {
                 handleToTop();
                 // 当图片显示完成（加载完成）后，预加载下一张图片
-                let index = ev.detail.index;
-                if (index < pageCount - 1) {
-                    index++;
+                let nextIndex = ev.detail.index + 1;
+                if (nextIndex >= pageCount) {
+                    nextIndex = 0;
                 }
-                const nextImg = firstImageURL.replace('p0', 'p' + index);
+                const nextImg = firstImageURL.replace('p0', 'p' + nextIndex);
                 const img = new Image();
                 img.src = nextImg;
             },
@@ -6232,14 +6315,18 @@ class ImageViewer {
             // 不显示缩放比例
             tooltip: false,
         };
-        // initialViewIndex 在有值的时候才能设置。如果没有值就设置的话会出错
+        // 指定显示哪一张图片
         if (this.cfg.initialViewIndex !== undefined) {
             option.initialViewIndex = this.cfg.initialViewIndex;
         }
+        else {
+            // 如果没有指定显示哪一张图片，则检查这个 id 在 states 里是否有记录上次查看的图片索引，如果有的话就显示上次查看的图片
+            option.initialViewIndex = _store_States__WEBPACK_IMPORTED_MODULE_15__.states.indexRecord[this.cfg.workId] || 0;
+        }
         this.myViewer = new Viewer(this.viewerUl, option);
-        // 预加载第一张图片
+        // 预加载第一张要显示的图片
         const img = new Image();
-        img.src = firstImageURL;
+        img.src = firstImageURL.replace('p0', 'p' + option.initialViewIndex);
         if (this.cfg.autoStart) {
             // 启动图片查看器
             _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_12__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的帮助'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
@@ -8620,19 +8707,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
-
-
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./AddBookmarkWhenPreviewWorks */ "./src/ts/AddBookmarkWhenPreviewWorks.ts");
 
 
 
@@ -8654,7 +8737,7 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
     constructor() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
             return;
         }
         setTimeout(() => {
@@ -8740,8 +8823,8 @@ class PreviewWork {
                 }
                 // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.checkBlockTagsForPreviewWork) {
-                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData, 'origin');
-                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_19__.filter.checkExcludeAndMuteTags(tags);
+                    const tags = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.extractTags(this.workData, 'origin');
+                    const checkTag = await _filter_Filter__WEBPACK_IMPORTED_MODULE_16__.filter.checkExcludeAndMuteTags(tags);
                     if (version !== this.previewVersion) {
                         return;
                     }
@@ -8759,8 +8842,8 @@ class PreviewWork {
                 this._show = true;
                 this.showWrap(version);
                 window.clearTimeout(this.delayHiddenTimer);
-                if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
-                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品'));
+                if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_预览作品'));
                 }
             }
         }
@@ -8801,7 +8884,7 @@ class PreviewWork {
                 this.index = _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[id] || 0;
             }
             // 在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_17__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 const _index = Number.parseInt(el.dataset.index);
                 this.index = _index;
             }
@@ -8861,7 +8944,7 @@ class PreviewWork {
                         //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
                         ev.stopPropagation();
                         ev.preventDefault();
-                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_16__.copyWorkInfo.receive({
+                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__.copyWorkInfo.receive({
                             type: 'illusts',
                             id: this.workData.body.id,
                         }, this.index);
@@ -8922,12 +9005,18 @@ class PreviewWork {
                     },
                 ]);
             }
+            // 预览作品时，可以使用快捷键 V 调用查看原图的功能
+            if (ev.code === 'KeyV') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('callShowOriginSizeImage', this.workData.body.id);
+            }
             // 预览作品时，可以使用快捷键 B 收藏这个作品
             // 实际上 Alt + B 也会生效
             if (ev.code === 'KeyB') {
                 ev.preventDefault();
                 ev.stopPropagation();
-                this.addBookmark();
+                _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_17__.addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true);
             }
             // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片
             if (ev.code === 'ArrowLeft' ||
@@ -8964,7 +9053,7 @@ class PreviewWork {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
             this.dontShowAfterPageSwitch = false;
         });
-        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_18__.logErrorStatus.listen((status, url) => {
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_15__.logErrorStatus.listen((status, url) => {
             if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_状态码429的提示'), {
                     position: 'mouse',
@@ -9192,10 +9281,10 @@ class PreviewWork {
     </span>`);
             }
             // 判断是不是 AI 生成的作品
-            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(workData, 'both');
+            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.extractTags(workData, 'both');
             let aiType = body.aiType;
             if (aiType !== 2) {
-                if (_Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.checkAIFromTags(tagsWithTransl)) {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.checkAIFromTags(tagsWithTransl)) {
                     aiType = 2;
                 }
             }
@@ -9226,7 +9315,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
-            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(body.createDate, 'YYYY/MM/DD'));
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.createDate, 'YYYY/MM/DD'));
             text.push(body.title);
             // 把简介里的换行替换成空格。因为简介区域只有一行，为了尽量多的显示简介文本，所以取消换行
             text.push(body.description.replaceAll('<br />', '&nbsp;'));
@@ -9333,44 +9422,6 @@ class PreviewWork {
                 };
                 img.src = url;
             }
-        }
-    }
-    async addBookmark() {
-        if (this.workData?.body.illustId === undefined) {
-            return;
-        }
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_收藏'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
-        });
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_14__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_13__.Tools.extractTags(this.workData));
-        if (status === 200) {
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已收藏'));
-            // 将作品缩略图上的收藏按钮变成红色
-            const allSVG = this.workEL.querySelectorAll('svg');
-            if (allSVG.length > 0) {
-                // 如果有多个 svg，一般最后一个是收藏按钮
-                let useSVG = allSVG[allSVG.length - 1];
-                // 但有些特殊情况是第一个
-                if (_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.list.Request) {
-                    useSVG = allSVG[0];
-                }
-                // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-                // 区别是收藏按钮在 button 元素里
-                const btnSVG = this.workEL.querySelector('button svg');
-                if (btnSVG) {
-                    useSVG = btnSVG;
-                }
-                useSVG.style.color = 'rgb(255, 64, 96)';
-                const allPath = useSVG.querySelectorAll('path');
-                for (const path of allPath) {
-                    path.style.fill = 'currentcolor';
-                }
-            }
-        }
-        // 排行榜页面的收藏按钮
-        const btn = this.workEL.querySelector('._one-click-bookmark');
-        if (btn) {
-            btn.classList.add('on');
         }
     }
     /** 检查是否应该预览这个作品 */
@@ -10242,14 +10293,12 @@ class SelectWork {
     constructor() {
         // 符合条件时才会创建“手动选择作品”的按钮
         // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
-        if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv()) {
-            this.created = true;
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.isPixiv()) {
             this.selector = this.createSelectorEl();
             this.addBtn();
             this.bindEvents();
         }
     }
-    created = false;
     selector; // 用于选择作品的指示器
     selectorId = 'selectWorkEl';
     left = 0;
@@ -10293,7 +10342,7 @@ class SelectWork {
     // 储存当前页面的作品列表容器
     worksWrapper = document.body;
     ob = undefined;
-    /** 当前已手动选择的作品 id 列表。其他模块可读取这个列表。 */
+    /** 当前已手动选择的作品 id 列表 */
     get idList() {
         return _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.selectIdList;
     }
@@ -11549,6 +11598,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./AddBookmarkWhenPreviewWorks */ "./src/ts/AddBookmarkWhenPreviewWorks.ts");
+
 
 
 
@@ -11573,6 +11624,8 @@ class ShowOriginSizeImage {
     }
     workId = '';
     workData;
+    /** 当前鼠标所在的作品缩略图元素。用于在收藏成功后更新该缩略图上的收藏按钮状态 */
+    workEL;
     /** 显示这个作品里的第几张图片。如果该作品被“预览作品”功能查看过，可以获取用户最后查看的是第几张图片。否则使用第 1 张 */
     get index() {
         return _store_States__WEBPACK_IMPORTED_MODULE_11__.states.indexRecord[this.workId] || 0;
@@ -11643,9 +11696,23 @@ class ShowOriginSizeImage {
         document.documentElement.appendChild(this.wrap);
     }
     bindEvents() {
+        // 通过事件调用查看原图的功能
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.callShowOriginSizeImage, (ev) => {
+            const id = ev.detail.data;
+            if (id) {
+                // 先隐藏现有的原图区域，然后使用新的作品 id 显示原图
+                this.show = false;
+                this.workId = id;
+                this.initWrap({
+                    clientX: this.moveX || window.innerWidth / 2,
+                    clientY: this.moveY || window.innerHeight / 2,
+                });
+            }
+        });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_3__.artworkThumbnail.onEnter((el, id) => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImage) {
                 this.workId = id;
+                this.workEL = el;
                 el.addEventListener('mousedown', this.readyShow);
                 el.addEventListener('mouseup', this.cancelReadyShow);
             }
@@ -11658,7 +11725,12 @@ class ShowOriginSizeImage {
         this.wrap.addEventListener('click', () => {
             this.show = false;
         });
-        document.body.addEventListener('click', () => {
+        document.body.addEventListener('click', (ev) => {
+            // 如果点击的目标元素是 button 元素，则不关闭原图区域
+            // 这是为了避免按 B 收藏作品时，触发收藏按钮的点击事件而导致原图区域关闭
+            if (ev.target.nodeName === 'BUTTON') {
+                return;
+            }
             this.show = false;
         });
         this.wrap.addEventListener('wheel', (ev) => {
@@ -11678,6 +11750,16 @@ class ShowOriginSizeImage {
             // 本来我对此事件进行了节流处理，但是节流的话容易显得画面不流畅。
             // 而且我试了试，不节流也不会产生太高的 CPU 负荷。所以现在不再做节流处理
             this.moveWrap(ev);
+            this.moveX = ev.clientX;
+            this.moveY = ev.clientY;
+        });
+        // 跟踪全局最后已知的鼠标位置。
+        // 上面的 mousemove 监听只绑在 this.wrap 上；当通过事件调用查看原图时
+        // （例如从预览作品触发），鼠标位于其它元素上，this.wrap 此时处于隐藏状态，
+        // 那个监听不会触发，this.moveX/this.moveY 就会停留在上一次查看遗留的陈旧值，
+        // 导致 onePxMove 计算偏差、以及图片显示后第一次移动鼠标时瞬移。
+        // 这里用 window 级别的监听持续更新最后位置，供事件调用路径作为触发坐标使用。
+        window.addEventListener('mousemove', (ev) => {
             this.moveX = ev.clientX;
             this.moveY = ev.clientY;
         });
@@ -11711,6 +11793,12 @@ class ShowOriginSizeImage {
                 else {
                     this.downloadImage(this.workId);
                 }
+            }
+            // 按 B 键收藏这个作品（实际上 Alt + B 也会生效）
+            if (ev.code === 'KeyB') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_12__.addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true);
             }
             // 按 Esc 键时取消预览
             if (ev.code === 'Escape') {
@@ -11746,6 +11834,8 @@ class ShowOriginSizeImage {
     }
     // 初次显示一个图片时，初始化 wrap 的样式
     async initWrap(ev) {
+        this.moveX = ev.clientX;
+        this.moveY = ev.clientY;
         try {
             this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
         }
@@ -37145,48 +37235,42 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         'Результаты сканирования недоступны',
     ],
     _查看作品大图时的快捷键: [
-        `查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。
-    <br>
-    按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息。
-    <br>
-    `,
-        `檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。
-    <br>
-    按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊。
-    <br>
-    `,
-        `When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.
-    <br>
-    Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information.
-    <br>
-    `,
-        `作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。
-    <br>
-    ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー。
-    <br>
-    `,
-        `작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. 
-    <br>
-    현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사.
-    <br>
-    `,
-        `При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. 
-    <br>
-    Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.
-    <br>
-    <span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе.
-    <br>
-    `,
+        `当你查看作品的大图时，可以使用这些快捷键：<br>
+<span class="blue">B</span>(ookmark) 收藏查看的作品<br>
+<span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+<span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 复制当前查看的图片和作品信息<br>
+<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
+        `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
+<span class="blue">B</span>(ookmark) 收藏查看的作品<br>
+<span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
+<span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 複製當前查看的圖片和作品資訊<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
+        `When you are viewing the large image of a work, you can use these shortcuts:<br>
+<span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
+<span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently viewed image and work information<br>
+<span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
+        `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
+<span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
+<span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
+<span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 現在表示している画像と作品情報をコピー<br>
+<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
+        `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
+<span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
+<span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 보고 있는 이미지와 작품 정보 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
+        `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
+<span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее изображение и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
     ],
     _定时抓取: [
         '定时抓取',
@@ -38462,6 +38546,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     _预览作品的快捷键说明: [
         `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
 当你查看预览图时，可以使用如下快捷键：<br>
+<span class="blue">V</span>(iew) 以 1:1 原始比例查看原图<br>
 <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
@@ -38473,6 +38558,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 你可以随时在“预览作品”设置里查看这个快捷键列表`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
 當你查看預覽圖時，可以使用如下快捷鍵：<br>
+<span class="blue">V</span>(iew) 以 1:1 原始比例查看原圖<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
@@ -38484,6 +38570,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
 When you view the preview image, you can use the following keyboard shortcuts:<br>
+<span class="blue">V</span>(iew) View the original image at 1:1 actual size<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
 <span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
@@ -38495,6 +38582,7 @@ When you view the preview image, you can use the following keyboard shortcuts:<b
 You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
 プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
+<span class="blue">V</span>(iew) オリジナル画像を 1:1 の実際のサイズで表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
@@ -38506,6 +38594,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
 「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
 미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">V</span>(iew) 1:1 실제 크기로 원본 이미지 보기<br>
 <span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
 <span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
@@ -38517,6 +38606,7 @@ You can view this list of keyboard shortcuts anytime in the "Preview work" setti
 「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
 Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+<span class="blue">V</span>(iew) Просмотр оригинального изображения в реальном размере 1:1<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>

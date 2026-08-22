@@ -16,6 +16,7 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { DateFormat } from './utils/DateFormat'
 import { settings } from './setting/Settings'
+import { states } from './store/States'
 
 interface InitConfig {
   /** 作品 id，如果为空从会 url 中获取作品 id */
@@ -238,6 +239,8 @@ class ImageViewer {
   private configureViewer() {
     const setIndex = (index: number) => {
       this.index = index
+      // 记录当前查看的图片索引到 states 里，以便当用户预览这张图片或显示其大图时，能正确显示最后查看的这张图片
+      states.indexRecord[this.cfg.workId] = index
     }
 
     // 图片查看器显示之后
@@ -318,13 +321,11 @@ class ImageViewer {
       viewed(ev) {
         handleToTop()
         // 当图片显示完成（加载完成）后，预加载下一张图片
-        let index = ev.detail.index
-
-        if (index < pageCount - 1) {
-          index++
+        let nextIndex = ev.detail.index + 1
+        if (nextIndex >= pageCount) {
+          nextIndex = 0
         }
-
-        const nextImg = firstImageURL.replace('p0', 'p' + index)
+        const nextImg = firstImageURL.replace('p0', 'p' + nextIndex)
         const img = new Image()
         img.src = nextImg
       },
@@ -340,16 +341,19 @@ class ImageViewer {
       // 不显示缩放比例
       tooltip: false,
     }
-    // initialViewIndex 在有值的时候才能设置。如果没有值就设置的话会出错
+    // 指定显示哪一张图片
     if (this.cfg.initialViewIndex !== undefined) {
       option.initialViewIndex = this.cfg.initialViewIndex
+    } else {
+      // 如果没有指定显示哪一张图片，则检查这个 id 在 states 里是否有记录上次查看的图片索引，如果有的话就显示上次查看的图片
+      option.initialViewIndex = states.indexRecord[this.cfg.workId] || 0
     }
 
     this.myViewer = new Viewer(this.viewerUl, option)
 
-    // 预加载第一张图片
+    // 预加载第一张要显示的图片
     const img = new Image()
-    img.src = firstImageURL
+    img.src = firstImageURL.replace('p0', 'p' + option.initialViewIndex)
 
     if (this.cfg.autoStart) {
       // 启动图片查看器

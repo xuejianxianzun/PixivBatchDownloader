@@ -17,15 +17,12 @@ class SelectWork {
   constructor() {
     // 符合条件时才会创建“手动选择作品”的按钮
     // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
-    if (!this.created && Utils.isPixiv()) {
-      this.created = true
+    if (Utils.isPixiv()) {
       this.selector = this.createSelectorEl()
       this.addBtn()
       this.bindEvents()
     }
   }
-
-  private created = false
 
   private selector?: HTMLElement // 用于选择作品的指示器
   private selectorId = 'selectWorkEl'
@@ -81,8 +78,8 @@ class SelectWork {
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
 
-  /** 当前已手动选择的作品 id 列表。其他模块可读取这个列表。 */
-  public get idList() {
+  /** 当前已手动选择的作品 id 列表 */
+  private get idList() {
     return workSelection.selectIdList
   }
 

@@ -18,15 +18,12 @@ class ExcludeWork {
   constructor() {
     // 符合条件时才会创建“手动排除作品”的按钮
     // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
-    if (!this.created && Utils.isPixiv()) {
-      this.created = true
+    if (Utils.isPixiv()) {
       this.selector = this.createSelectorEl()
       this.addBtn()
       this.bindEvents()
     }
   }
-
-  private created = false
 
   private selector?: HTMLElement // 用于排除作品的指示器
   private selectorId = 'excludeWorkEl'

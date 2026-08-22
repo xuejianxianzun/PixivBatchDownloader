@@ -161,6 +161,8 @@ class EVENT {
     /** 点击了下载器在作品缩略图上添加的按钮时触发 */
     /** 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题 */
     clickBtnOnThumb: 'clickBtnOnThumb',
+    /** 请求显示原比例图片时触发 */
+    callShowOriginSizeImage: 'callShowOriginSizeImage',
     /** 显示原比例图片时触发 */
     showOriginSizeImage: 'showOriginSizeImage',
     /** 语言类型改变时触发 */
@@ -319,8 +321,12 @@ class EVENT {
 
   public fire(type: 'workSelectionChange'): void
 
+  // 需要传递作品 id 的事件
   public fire(
-    type: 'selectWorkRemovedExternally' | 'excludeWorkRemovedExternally',
+    type:
+      | 'selectWorkRemovedExternally'
+      | 'excludeWorkRemovedExternally'
+      | 'callShowOriginSizeImage',
     data: string
   ): void
 
