@@ -21,7 +21,7 @@ import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
 import { states } from '../store/States'
 import { downloadRecord, DownloadRecordType } from './DownloadRecord'
-import { selectWork } from '../SelectWork'
+import { workSelection } from '../WorkSelection'
 
 declare const jEpub: any
 
@@ -879,9 +879,9 @@ class MergeNovel {
     // 如果当前页面是系列页面，并且用户手动选择了部分小说，那么在合并时，只合并用户选择的小说，而不是整个系列里的所有小说
     if (
       pageType.type === pageType.list.NovelSeries &&
-      selectWork.idList.length > 0
+      workSelection.selectIdList.length > 0
     ) {
-      const selectedNovelIds = selectWork.idList
+      const selectedNovelIds = workSelection.selectIdList
         .filter((item) => item.type === 'novels')
         .map((item) => item.id)
       if (selectedNovelIds.length > 0) {

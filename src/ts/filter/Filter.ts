@@ -12,6 +12,7 @@ import { downloadRecord, DownloadRecordType } from '../download/DownloadRecord'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
+import { workSelection } from '../WorkSelection'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -52,6 +53,11 @@ class Filter {
   // 每个过滤器函数都必须检查参数为 undefined 的情况
   // 每个过滤器函数必须返回一个 boolean 值，false 表示排除这个作品,true 表示保留这个作品
   public async check(option: FilterOption): Promise<boolean> {
+    // 检查这个作品是否被用户手动排除
+    if (!this.checkExcluded(option.id, option.IDTypeString)) {
+      return false
+    }
+
     // 检查作品类型设置
     if (!this.checkDownType(option.workType)) {
       log.warning(
@@ -1068,6 +1074,32 @@ class Filter {
       // 这是图像作品的记录，如果传入的类型不是小说，则是完全匹配
       return !(type !== 'novels')
     }
+  }
+
+  /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除 */
+  private checkExcluded(
+    id?: FilterOption['id'],
+    type?: FilterOption['IDTypeString']
+  ): boolean {
+    if (id === undefined || !type) {
+      return true
+    }
+
+    const idStr = id.toString()
+    const excluded = workSelection.excludeIdList.some(
+      (item) => item.id === idStr && item.type === type
+    )
+
+    if (excluded) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_手动排除了这个作品'),
+        'excludeWork'
+      )
+      return false
+    }
+
+    return true
   }
 }
 

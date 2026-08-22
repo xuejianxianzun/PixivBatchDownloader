@@ -189,6 +189,12 @@ class EVENT {
     showRecentUpdates: 'showRecentUpdates',
     /** 重置下载器保存的关注数据 */
     resetFollowingData: 'resetFollowingData',
+    /** 当“手动选择作品”或“手动排除作品”的状态发生变化时触发，用于两个模块同步 UI */
+    workSelectionChange: 'workSelectionChange',
+    /** 当一个作品被排除、且它已在“手动选择作品”列表里时触发，通知 SelectWork 移除其标记 */
+    selectWorkRemovedExternally: 'selectWorkRemovedExternally',
+    /** 当一个作品被选择、且它已在“排除作品”列表里时触发，通知 ExcludeWork 移除其标记 */
+    excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -307,6 +313,13 @@ class EVENT {
       x: number
       y: number
     }
+  ): void
+
+  public fire(type: 'workSelectionChange'): void
+
+  public fire(
+    type: 'selectWorkRemovedExternally' | 'excludeWorkRemovedExternally',
+    data: string
   ): void
 
   public fire(type: eventNames, data?: unknown) {

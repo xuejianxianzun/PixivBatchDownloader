@@ -1,0 +1,107 @@
+@beautify-red: #f5222d;
+
+@keyframes moveRightExclude {
+  from {
+    left: -100vw;
+  }
+  to {
+    left: -98vw;
+  }
+}
+
+@keyframes moveBottomExclude {
+  from {
+    top: -100vh;
+  }
+  to {
+    top: -98vh;
+  }
+}
+
+#excludeWorkEl {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: @beautify-red;
+  display: none;
+  pointer-events: none;
+
+  // 排除按钮的横线伪元素
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 200vw;
+    left: -100vw;
+    top: 10px;
+    height: 1px;
+    background-image: linear-gradient(
+      to right,
+      @beautify-red 0%,
+      @beautify-red 50%,
+      transparent 50%
+    );
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    animation: moveRightExclude 2s linear infinite;
+  }
+
+  // 排除按钮的竖线伪元素
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 200vh;
+    top: -100vh;
+    left: 10px;
+    width: 1px;
+    background-image: linear-gradient(
+      to bottom,
+      @beautify-red 0%,
+      @beautify-red 50%,
+      transparent 50%
+    );
+    background-size: 1px 8px;
+    background-repeat: repeat-y;
+    animation: moveBottomExclude 1s linear infinite;
+  }
+}
+
+.excludedWorkFlag {
+  position: absolute;
+  z-index: 1000;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  font-size: 54px;
+  border-radius: 50%;
+  text-align: center;
+  .icon {
+    color: @beautify-red;
+    vertical-align: baseline;
+    border-radius: 50%;
+    background-color: yellow;
+    box-shadow: 0px 0px 6px yellow;
+  }
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    border-radius: 50%;
+    background-color: #fff;
+    left: 12px;
+    top: 12px;
+    z-index: -1;
+  }
+}

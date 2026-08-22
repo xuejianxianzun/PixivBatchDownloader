@@ -2,20 +2,20 @@ import { Tools } from './Tools'
 import { lang } from './Language'
 import { EVT } from './EVT'
 import { workSelection } from './WorkSelection'
+import { store } from './store/Store'
+import { states } from './store/States'
 import { IDData, IDTypeString } from './store/StoreType'
-import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
-import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
 
-// 手动选择作品，图片作品和小说都可以选择
-class SelectWork {
+// 手动排除作品，图片作品和小说都可以排除
+class ExcludeWork {
   constructor() {
-    // 符合条件时才会创建“手动选择作品”的按钮
+    // 符合条件时才会创建“手动排除作品”的按钮
     // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
     if (!this.created && Utils.isPixiv()) {
       this.created = true
@@ -27,36 +27,34 @@ class SelectWork {
 
   private created = false
 
-  private selector?: HTMLElement // 用于选择作品的指示器
-  private selectorId = 'selectWorkEl'
+  private selector?: HTMLElement // 用于排除作品的指示器
+  private selectorId = 'excludeWorkEl'
   private left = 0
   private top = 0
   private half = 10 // 指示器的一半宽度（用于设置位置）
 
-  private _start = false
-  private _pause = false
-  private _tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
+  private _tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响指示器的 display
 
   private disablePageList = [pageType.list.Unlisted]
 
   get start() {
-    return workSelection.selectActive
+    return workSelection.excludeActive
   }
 
   set start(bool: boolean) {
     if (bool) {
-      workSelection.enterSelectMode()
+      workSelection.enterExcludeMode()
     } else {
-      workSelection.exitSelectMode()
+      workSelection.exitExcludeMode()
     }
   }
 
   get pause() {
-    return workSelection.selectPaused
+    return workSelection.excludePaused
   }
 
   set pause(bool: boolean) {
-    workSelection.setSelectPaused(bool)
+    workSelection.setExcludePaused(bool)
   }
 
   get tempHide() {
@@ -68,34 +66,29 @@ class SelectWork {
     this.updateSelectorEl()
   }
 
-  private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
+  private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续排除的按钮
   private controlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
-  private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
-  private crawlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
-  private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
+  private clearBtn: HTMLButtonElement = document.createElement('button') // 清空排除作品的按钮
+  private clearTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
 
-  private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
+  private excludedWorkFlagClass = 'excludedWorkFlag' // 给被排除的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
 
   // 储存当前页面的作品列表容器
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
 
-  /** 当前已手动选择的作品 id 列表。其他模块可读取这个列表。 */
-  public get idList() {
-    return workSelection.selectIdList
-  }
-
-  private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
-  private crawled = false // 是否已经抓取了选择的作品
-
   private readonly svg = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#select"></use>
+  <use xlink:href="#exclude"></use>
 </svg>`
 
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
 
   private bindEvents() {
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.pauseExclude()
+    })
+
     artworkThumbnail.onClick((el: HTMLElement, id: string, ev: Event) => {
       this.clickThumbnail(el, id, ev, 'illusts')
     })
@@ -123,24 +116,6 @@ class SelectWork {
       this.tempHide = false
     })
 
-    window.addEventListener(EVT.list.crawlComplete, () => {
-      if (this.sendCrawl) {
-        this.sendCrawl = false
-        this.crawled = true
-      }
-    })
-
-    // 可以使用 Alt + S 快捷键来模拟点击控制按钮
-    window.addEventListener('keydown', (ev) => {
-      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.altKey && ev.code === 'KeyS') {
-        this.controlBtn.click()
-      }
-    })
-
     // 鼠标移动时保存鼠标的坐标
     window.addEventListener(
       'mousemove',
@@ -150,25 +125,12 @@ class SelectWork {
       true
     )
 
-    // 离开页面前提示用户
-    // 如果把此处的 window.onbeforeunload 换成 window.addEventListener('beforeunload') 会出现问题
-    // 浏览器不会弹出询问对话框，而是直接关闭页面
-    window.onbeforeunload = () => {
-      // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
-      if (this.idList.length > 0 && !this.crawled) {
-        msgBox.error(lang.transl('_离开页面前提示选择的作品未抓取'), {
-          btn: lang.transl('_我知道了'),
-        })
-        return false
-      }
-    }
-
     // 每次页面切换之后，查找新的作品列表容器并保存
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.worksWrapper = document.body
     })
 
-    // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
+    // 每次页面切换之后，查找新显示的作品里是否有之前被排除的作品，如果有则为其添加标记
     // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
     window.addEventListener(EVT.list.pageSwitch, () => {
       // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
@@ -193,22 +155,22 @@ class SelectWork {
       this.updateControlBtn()
     })
 
-    // 当一个作品被排除、并且它之前被选择时，移除其选择标记
+    // 当一个作品被选择、并且它之前被排除时，移除其排除标记
     window.addEventListener(
-      EVT.list.selectWorkRemovedExternally,
+      EVT.list.excludeWorkRemovedExternally,
       (ev: CustomEventInit) => {
         const id = ev.detail.data as string
-        this.removeSelectedFlag(id)
-        this.updateCrawlBtn()
+        this.removeExcludedFlag(id)
+        this.updateClearBtn()
       }
     )
   }
 
   private clearIdList() {
     // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
-    this.removeAllSelectedFlag()
-    workSelection.clearSelect()
-    this.updateCrawlBtn()
+    this.removeAllExcludedFlag()
+    workSelection.clearExclude()
+    this.updateClearBtn()
   }
 
   private createSelectorEl() {
@@ -223,11 +185,9 @@ class SelectWork {
       return
     }
 
-    const show = this.canSelect() && !this.tempHide
+    const show = this.canExclude() && !this.tempHide
 
     this.selector.style.display = show ? 'flex' : 'none'
-    // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
-
     // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
     if (show) {
       this.selector.style.left = this.left - this.half + 'px'
@@ -237,95 +197,75 @@ class SelectWork {
 
   private addBtn() {
     this.controlBtn = Tools.addBtn(
-      'selectWorkBtns',
-      '_手动选择作品',
-      'Alt + S',
-      'manuallySelectWork',
+      'excludeWorkBtns',
+      '_手动排除作品',
+      '',
+      'excludeWork',
       'secondary',
-      'brand'
+      'danger'
     )
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
-    this.crawlBtn = Tools.addBtn(
-      'selectWorkBtns',
-      '_抓取选择的作品',
-      '',
-      'crawlSelectedWork',
-      'secondary',
-      'brand'
-    )
-    this.crawlBtn.style.display = 'none'
-    this.crawlBtn.addEventListener('click', (ev) => {
-      this.sendDownload()
-    })
-    this.crawlTextSpan = this.crawlBtn.querySelector('span')!
-
     this.clearBtn = Tools.addBtn(
-      'selectWorkBtns',
-      '_清空选择的作品',
+      'excludeWorkBtns',
+      '_清空排除的作品',
       '',
-      'clearSelectedWork',
+      'clearExcludedWork',
       'secondary',
       'danger'
     )
     this.clearBtn.style.display = 'none'
+    this.clearTextSpan = this.clearBtn.querySelector('span')!
     this.clearBtn.addEventListener('click', () => {
       this.clearIdList()
       this.clearBtn.style.display = 'none'
-      this.crawlBtn.style.display = 'none'
     })
   }
 
   // 切换控制按钮的文字和点击事件
   private updateControlBtn() {
     if (!this.start) {
-      lang.updateText(this.controlTextSpan, '_手动选择作品')
+      lang.updateText(this.controlTextSpan, '_手动排除作品')
       this.controlBtn.onclick = (ev) => {
         const disable = this.disablePageList.includes(pageType.type)
         if (disable) {
-          msgBox.warning(lang.transl('_不支持在此页面上手动选择作品'), {
-            title: lang.transl('_手动选择作品'),
+          msgBox.warning(lang.transl('_不支持在此页面上排除作品'), {
+            title: lang.transl('_手动排除作品'),
           })
           return
         }
 
-        this.startSelect(ev)
+        this.startExclude(ev)
         this.clearBtn.style.display = 'flex'
-        if (!Config.mobile) {
-          showOneTimeMsg.show(
-            'tipAltSToSelectWork',
-            lang.transl('_快捷键ALTS手动选择作品')
-          )
-        }
       }
     } else {
       if (!this.pause) {
-        lang.updateText(this.controlTextSpan, '_暂停选择')
-        this.controlBtn.onclick = (ev) => {
-          this.pauseSelect()
+        lang.updateText(this.controlTextSpan, '_暂停排除')
+        this.controlBtn.onclick = () => {
+          this.pauseExclude()
         }
       } else {
-        lang.updateText(this.controlTextSpan, '_继续选择')
+        lang.updateText(this.controlTextSpan, '_继续排除')
         this.controlBtn.onclick = (ev) => {
-          this.startSelect(ev)
+          this.startExclude(ev)
         }
       }
     }
   }
 
-  // 在选择作品的数量改变时，在抓取按钮上显示作品数量
-  private updateCrawlBtn() {
-    this.crawlBtn.style.display = this.start ? 'flex' : 'none'
-    if (this.idList.length > 0) {
+  // 在排除作品的数量改变时，在清空按钮上显示作品数量
+  private updateClearBtn() {
+    if (workSelection.excludeIdList.length > 0) {
       lang.updateText(
-        this.crawlTextSpan,
-        '_抓取选择的作品2',
-        this.idList.length.toString()
+        this.clearTextSpan,
+        '_清空排除的作品2',
+        workSelection.excludeIdList.length.toString()
       )
       this.clearBtn.style.display = 'flex'
     } else {
-      lang.updateText(this.crawlTextSpan, '_抓取选择的作品')
+      lang.updateText(this.clearTextSpan, '_清空排除的作品')
+      this.clearBtn.style.display = 'none'
     }
   }
 
@@ -342,14 +282,17 @@ class SelectWork {
     }
 
     // 添加这个 id，或从列表里移除它（toggle）
-    const added = workSelection.addSelectId(id, type, seriesTitle)
+    const added = workSelection.addExcludeId(id, type, seriesTitle)
     if (added) {
-      this.crawled = false
-      this.addSelectedFlag(el, id)
+      this.addExcludedFlag(el, id)
+      // 如果这个作品已经被抓取，则从抓取结果里移除它
+      if (!states.busy) {
+        store.removeWorkById([id])
+      }
     } else {
-      this.removeSelectedFlag(id)
+      this.removeExcludedFlag(id)
     }
-    this.updateCrawlBtn()
+    this.updateClearBtn()
   }
 
   private clickThumbnail(
@@ -358,21 +301,15 @@ class SelectWork {
     ev: Event,
     type: IDTypeString
   ) {
-    if (!this.canSelect()) {
+    if (!this.canExclude()) {
       return
     }
 
-    // 如果点击的元素是作品缩略图里的收藏按钮，则不选择这个作品，这样可以让收藏按钮发挥作用
-    // 注意这些 nodeName 是小写的
+    // 如果点击的元素是作品缩略图里的收藏按钮，则不排除这个作品，这样可以让收藏按钮发挥作用
     const target = ev.target as HTMLElement
     if (target && (target.nodeName === 'svg' || target.nodeName === 'path')) {
       return
     }
-
-    // 真实点击的元素
-    // console.log(ev.target)
-    // 绑定了这个事件的元素
-    // console.log(ev.currentTarget)
 
     if (!id || id === '0') {
       id = Tools.findWorkIdFromElement(
@@ -381,14 +318,14 @@ class SelectWork {
       )
     }
 
-    // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
+    // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续排除
     ev.preventDefault()
     ev.stopPropagation()
     this.addId(el, id, type)
   }
 
   private clickElement(el: HTMLElement, ev: Event) {
-    if (!this.canSelect()) {
+    if (!this.canExclude()) {
       return
     }
 
@@ -396,7 +333,7 @@ class SelectWork {
       return
     }
 
-    // 添加已选择的标记的目标元素，通常是点击的元素的父元素
+    // 添加排除标记的目标元素，通常是点击的元素的父元素
     let addFlagTarget = el.parentElement!
     // 查找 A 标签，获取作品 id
     let a: HTMLAnchorElement | null = null
@@ -405,7 +342,6 @@ class SelectWork {
       a = el as HTMLAnchorElement
     } else {
       // 处理点击在动图的播放图标上的情况
-      // 如果不针对性处理，就会导致选择无效，并正常进入这个动图的作品页面，打断选择操作
       if (
         el.nodeName === 'svg' ||
         el.nodeName === 'path' ||
@@ -413,7 +349,6 @@ class SelectWork {
       ) {
         a = el.closest('a')
         if (a) {
-          // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
           addFlagTarget = a!.parentElement!
         }
       }
@@ -427,7 +362,6 @@ class SelectWork {
     const artworkId = Tools.getIllustId(href)
     if (artworkId) {
       ev.preventDefault()
-      // 如果查找到了作品 id，必须阻止冒泡，否则会执行 clickThumbnail
       ev.stopPropagation()
       this.addId(addFlagTarget, artworkId, 'illusts')
       return
@@ -452,26 +386,25 @@ class SelectWork {
   }
 
   // 监听鼠标移动
-  // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有使用节流等加以限制
   private moveEvent(ev: MouseEvent) {
     this.left = ev.x
     this.top = ev.y
     this.updateSelectorEl()
   }
 
-  // 按 Esc 键时暂停选择
+  // 按 Esc 键时暂停排除
   private escEvent(ev: KeyboardEvent) {
     if (ev.code === 'Escape') {
-      this.pauseSelect()
+      this.pauseExclude()
     }
   }
 
-  // 开始或继续选择
-  private startSelect(ev: MouseEvent) {
+  // 开始或继续排除
+  private startExclude(ev: MouseEvent) {
     this.start = true
-    // 进入选择模式时，确保处于“活动中、未暂停”的状态。
-    // 不在这里清空已选择的作品，选择的列表会一直保留，直到用户点击“清空选择的作品”按钮为止。
-    // 这样可以避免切换到“手动排除作品”模式再切回来时，之前选择的作品被误清空。
+    // 进入排除模式时，确保处于“活动中、未暂停”的状态。
+    // 不排除列表的数据不会在这里被清空。排除列表会一直保留，直到用户点击“清空排除的作品”按钮为止。
+    // 这样可以避免切换到“手动选择作品”模式再切回来时，之前排除的作品被误清空。
     this.pause = false
 
     this.bindEscEvent = this.escEvent.bind(this)
@@ -480,33 +413,20 @@ class SelectWork {
     EVT.fire('closeCenterPanel')
   }
 
-  private pauseSelect() {
+  private pauseExclude() {
     this.pause = true
     this.bindEscEvent &&
       window.removeEventListener('keydown', this.bindEscEvent)
   }
 
-  private canSelect() {
+  private canExclude() {
     return this.start && !this.pause
   }
 
-  // 抓取选择的作品，这会自动暂停手动选择作品
-  private async sendDownload() {
-    if (this.idList.length === 0) {
-      return toast.warning(lang.transl('_没有数据可供使用'))
-    }
-
-    this.pauseSelect()
-
-    EVT.fire('crawlIdList', this.idList)
-    this.sendCrawl = true
-    this.crawled = false
-  }
-
-  // 给这个作品添加标记
-  private addSelectedFlag(wrap: HTMLElement, id: string) {
+  // 给这个作品添加排除标记
+  private addExcludedFlag(wrap: HTMLElement, id: string) {
     const i = document.createElement('i')
-    i.classList.add(this.selectedWorkFlagClass)
+    i.classList.add(this.excludedWorkFlagClass)
     i.dataset.id = id
     i.innerHTML = this.svg
 
@@ -519,20 +439,15 @@ class SelectWork {
     }
   }
 
-  // 重新添加被选择的作品上的标记
+  // 重新添加被排除的作品上的标记
   private reAddAllFlag() {
-    if (this.idList.length === 0) {
+    if (workSelection.excludeIdList.length === 0) {
       return
     }
 
-    for (const { id, type } of this.idList) {
-      if (this.getSelectedFlag(id)) {
+    for (const { id, type } of workSelection.excludeIdList) {
+      if (this.getExcludedFlag(id)) {
         // 如果这个作品的标记依旧存在，就不需要重新添加
-        /**
-         * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
-         * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
-         * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
-         */
         return
       }
 
@@ -544,31 +459,31 @@ class SelectWork {
       }
 
       if (el) {
-        // 如果在当前页面查找到了选择的作品，就给它添加标记
-        this.addSelectedFlag(el, id)
+        // 如果在当前页面查找到了排除的作品，就给它添加标记
+        this.addExcludedFlag(el, id)
       }
     }
   }
 
-  private getSelectedFlag(id: string) {
+  private getExcludedFlag(id: string) {
     return document.querySelector(
-      `.${this.selectedWorkFlagClass}[data-id='${id}']`
+      `.${this.excludedWorkFlagClass}[data-id='${id}']`
     )
   }
 
   // 清空指定作品的标记
-  private removeSelectedFlag(id: string) {
-    const el = this.getSelectedFlag(id)
+  private removeExcludedFlag(id: string) {
+    const el = this.getExcludedFlag(id)
     el && el.remove()
   }
 
   // 清空所有标记
-  private removeAllSelectedFlag() {
-    for (const item of this.idList) {
-      this.removeSelectedFlag(item.id)
+  private removeAllExcludedFlag() {
+    for (const item of workSelection.excludeIdList) {
+      this.removeExcludedFlag(item.id)
     }
   }
 }
 
-const selectWork = new SelectWork()
-export { selectWork }
+const excludeWork = new ExcludeWork()
+export { excludeWork }

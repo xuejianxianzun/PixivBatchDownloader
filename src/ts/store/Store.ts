@@ -188,6 +188,41 @@ class Store {
     return this.result.find((item) => item.id === id)
   }
 
+  /** 从抓取结果里移除指定的作品（用于“手动排除作品”功能） */
+  public removeWorkById(ids: string[]) {
+    for (const id of ids) {
+      // 从 id 列表里移除（使用 id 字符串匹配）
+      const idIndex = this.idList.findIndex((item) => item.id === id)
+      if (idIndex !== -1) {
+        this.idList.splice(idIndex, 1)
+      }
+
+      // 转换为数字 id 以便匹配 resultMeta / result
+      const idNum = Number.parseInt(id)
+      if (Number.isNaN(idNum)) {
+        continue
+      }
+
+      // 从元数据里移除
+      this.resultMeta = this.resultMeta.filter((r) => r.idNum !== idNum)
+      // 从抓取结果里移除（多图作品是 _p0.._pn，idNum 相同）
+      this.result = this.result.filter((r) => r.idNum !== idNum)
+
+      // 从去重表移除，避免后续 addResult 因去重而拒绝重新加入
+      const artworkIndex = this.artworkIDList.indexOf(idNum)
+      if (artworkIndex !== -1) {
+        this.artworkIDList.splice(artworkIndex, 1)
+      }
+      const novelIndex = this.novelIDList.indexOf(idNum)
+      if (novelIndex !== -1) {
+        this.novelIDList.splice(novelIndex, 1)
+      }
+    }
+
+    // 结果发生了变化，通知相关模块刷新
+    EVT.fire('resultChange')
+  }
+
   public reset() {
     this.resultMeta = []
     this.artworkIDList = []

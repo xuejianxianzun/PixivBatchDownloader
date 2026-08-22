@@ -80,6 +80,7 @@ class SettingsPanelLayout {
       'stopCrawl',
       'crawlBtns',
       'selectWorkBtns',
+      'excludeWorkBtns',
     ])
     const otherBtnsBlock = this.createSlotBlock(['otherBtns'])
     const downloadBtnsBlock = this.createSlotBlock([
