@@ -1779,12 +1779,13 @@ class AddBookmarkWhenPreviewWorks {
                         path.style.fill = 'currentcolor';
                     }
                     // 点击收藏按钮时，触发收藏按钮的点击事件
-                    if (clickBtn) {
-                        const btn = useSVG.closest('button');
-                        if (btn && clickBtn) {
-                            btn.click();
-                        }
-                    }
+                    // 注释掉了，因为不应该点击收藏按钮。原因是：下载器会先添加收藏（默认会附带标签），如果点击了收藏按钮，会导致触发一次收藏按钮原本的收藏事件，并且这次收藏没有附带标签，导致第一次收藏时附带的标签被覆盖掉了
+                    // if (clickBtn) {
+                    //   const btn = useSVG.closest('button')
+                    //   if (btn && clickBtn) {
+                    //     btn.click()
+                    //   }
+                    // }
                 }
                 // 排行榜页面的收藏按钮
                 const btn = workEL.querySelector('._one-click-bookmark');
@@ -2637,6 +2638,45 @@ var Colors;
     Colors["bgError"] = "#f00";
 })(Colors || (Colors = {}));
 
+
+
+/***/ }),
+
+/***/ "./src/ts/CommandReceiver.ts":
+/*!***********************************!*\
+  !*** ./src/ts/CommandReceiver.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+
+
+// 浏览器命令名 -> EVT 事件名的映射
+// 下载器只根据稳定的命令名执行动作，不直接解析用户实际使用的按键
+const commandMap = {
+    'toggle-settings-panel': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleSettingsPanel,
+    'start-default-crawl': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandStartDefaultCrawl,
+    'toggle-select-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleSelectWork,
+    'toggle-exclude-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleExcludeWork,
+    'toggle-preview-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandTogglePreviewWork,
+    'quick-download': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandQuickDownload,
+    'quick-bookmark': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandQuickBookmark,
+    'copy-work-info': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandCopyWorkInfo,
+};
+// 统一的命令接收层：把 background 转发的浏览器命令分发为语义化 EVT 事件
+// 各功能模块通过监听对应的 EVT 事件来执行动作，而不是各自注册 runtime.onMessage
+webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg) => {
+    if (msg && msg.msg === 'ppdCommand' && typeof msg.command === 'string') {
+        const eventName = commandMap[msg.command];
+        if (eventName) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire(eventName);
+        }
+    }
+});
 
 
 /***/ }),
@@ -3872,6 +3912,22 @@ class EVENT {
         excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
         /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
         manuallyExcludeWork: 'manuallyExcludeWork',
+        /** 浏览器命令：切换显示设置面板（对应一级快捷键 Alt + X） */
+        commandToggleSettingsPanel: 'commandToggleSettingsPanel',
+        /** 浏览器命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */
+        commandStartDefaultCrawl: 'commandStartDefaultCrawl',
+        /** 浏览器命令：启动或暂停手动选择作品（对应一级快捷键 Alt + S） */
+        commandToggleSelectWork: 'commandToggleSelectWork',
+        /** 浏览器命令：启动或暂停手动排除作品（对应一级快捷键 Alt + W） */
+        commandToggleExcludeWork: 'commandToggleExcludeWork',
+        /** 浏览器命令：启用或关闭预览作品功能（对应一级快捷键 Alt + P） */
+        commandTogglePreviewWork: 'commandTogglePreviewWork',
+        /** 浏览器命令：在作品页面里快速下载当前作品（对应一级快捷键 Alt + Q） */
+        commandQuickDownload: 'commandQuickDownload',
+        /** 浏览器命令：在作品页面里快速收藏当前作品（对应一级快捷键 Alt + B） */
+        commandQuickBookmark: 'commandQuickBookmark',
+        /** 浏览器命令：复制作品的图片和摘要信息（对应一级快捷键 Alt + C） */
+        commandCopyWorkInfo: 'commandCopyWorkInfo',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -3910,6 +3966,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+
 
 
 
@@ -3998,16 +4056,9 @@ class ExcludeWork {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.closeCenterPanel, () => {
             this.tempHide = false;
         });
-        // 使用 Alt + E 快捷键来模拟点击控制按钮
-        window.addEventListener('keydown', (ev) => {
-            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-                return;
-            }
-            if (ev.altKey && ev.code === 'KeyE') {
-                ev.preventDefault();
-                ev.stopPropagation();
-                this.controlBtn.click();
-            }
+        // 一级快捷键 Alt + W 已迁移为浏览器命令
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.commandToggleExcludeWork, () => {
+            this.toggleExcludeWork();
         });
         // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', (ev) => {
@@ -4069,9 +4120,6 @@ class ExcludeWork {
     }
     addBtn() {
         this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('excludeWorkBtns', '_手动排除作品', '', 'excludeWork', 'secondary', 'danger');
-        this.controlBtn.classList.add('has_tip');
-        this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_E');
-        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.controlBtn);
         this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
         this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('excludeWorkBtns', '_清空排除的作品', '', 'clearExcludedWork', 'secondary', 'danger');
@@ -4096,6 +4144,9 @@ class ExcludeWork {
                 }
                 this.startExclude(ev);
                 this.clearBtn.style.display = 'flex';
+                if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipAltWToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTW手动排除作品'));
+                }
             };
         }
         else {
@@ -4251,6 +4302,10 @@ class ExcludeWork {
     }
     canExclude() {
         return this.start && !this.pause;
+    }
+    /** 启动或暂停手动排除作品（模拟点击控制按钮） */
+    toggleExcludeWork() {
+        this.controlBtn.click();
     }
     // 给这个作品添加排除标记
     addExcludedFlag(wrap, id, type = 'illusts') {
@@ -6057,6 +6112,7 @@ __webpack_require__.r(__webpack_exports__);
 class ImageViewer {
     constructor(cfg) {
         this.cfg = Object.assign(this.cfg, cfg);
+        ImageViewer.current = this;
         this.init();
     }
     myViewer; // 查看器
@@ -6064,6 +6120,12 @@ class ImageViewer {
     viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
     show = false; // 当前查看器实例是否处于显示状态
     isOriginalSize = false; // 是否原尺寸显示图片
+    /** 当前活动的图片查看器实例。因为 ImageViewer 每次都是 new 的，
+     * 用这个静态属性记录最新的实例，以便命令监听器能找到真正显示的那个 */
+    static current;
+    /** 命令监听器是否已经被注册过。ImageViewer 会被多次 new，
+     * 用静态标记避免重复注册 commandCopyWorkInfo 的监听器 */
+    static cmdListenerAdded = false;
     // 图片查看器初始化时会获取作品数据
     workData;
     // 图片查看器的一些状态
@@ -6082,6 +6144,9 @@ class ImageViewer {
         // 删除旧的图片查看器元素
         const oldViewerContainer = document.querySelector('.viewer-container');
         oldViewerContainer && oldViewerContainer.remove();
+        // 旧的查看器被移除，它已不再显示，复位显示标记
+        // （旧的实例不会触发 hide 事件，所以在这里主动复位，避免状态残留）
+        _store_States__WEBPACK_IMPORTED_MODULE_15__.states.imageViewerIsShow = false;
         const wrap = await this.createImageList();
         if (wrap) {
             this.bindShortcuts();
@@ -6116,15 +6181,6 @@ class ImageViewer {
                     // 需要阻止冒泡，因为 L 也是查看日志的快捷键
                     ev.stopPropagation();
                     this.copyWorkLink();
-                }
-            }
-            else {
-                // 需要 Alt 的快捷键
-                if (ev.code === 'KeyC') {
-                    // 按 Alt + C 复制当前作品的信息
-                    // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
-                    ev.stopPropagation();
-                    this.copy();
                 }
             }
         });
@@ -6163,8 +6219,7 @@ class ImageViewer {
                 return;
             }
             // 按 B 收藏当前作品
-            // 实际上 Alt + B 也会生效
-            if (ev.code === 'KeyB') {
+            if (!ev.altKey && ev.code === 'KeyB') {
                 ev.stopPropagation();
                 this.addBookmark();
                 return;
@@ -6173,6 +6228,18 @@ class ImageViewer {
             capture: true,
             passive: false,
         });
+        // 一级快捷键 复制当前作品的信息（浏览器命令）
+        // ImageViewer 会被多次 new，这里用静态标记保证命令监听器只注册一次，避免重复创建
+        if (!ImageViewer.cmdListenerAdded) {
+            ImageViewer.cmdListenerAdded = true;
+            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandCopyWorkInfo, () => {
+                const iv = ImageViewer.current;
+                // 只有当前活动的查看器处于显示状态时才复制，避免旧的（已移除的）实例误触发
+                if (iv && iv.show) {
+                    iv.copy();
+                }
+            });
+        }
     }
     // 图片查看器需要一个图片列表元素，创建缩略图列表
     async createImageList() {
@@ -6229,6 +6296,7 @@ class ImageViewer {
         // 图片查看器显示之后
         this.viewerUl.addEventListener('shown', () => {
             this.show = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.imageViewerIsShow = true;
             // 添加自定义的按钮
             this.addOneToOneBtn();
             this.addCopyWorkLinkBtn();
@@ -6246,6 +6314,7 @@ class ImageViewer {
         // 退出图片查看器时（可能尚未完全退出）
         this.viewerUl.addEventListener('hide', () => {
             this.show = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.imageViewerIsShow = false;
         });
         // 查看每一张图片时，如果处于 1:1 模式，就把图片缩放到 100%
         // viewed 事件是图片加载完成时触发的
@@ -6467,7 +6536,7 @@ class ImageViewer {
     addCopyBtn() {
         const li = document.createElement('li');
         li.setAttribute('role', 'button');
-        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制摘要数据') + ' (Alt + C)');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制摘要数据'));
         li.classList.add(this.addBtnClass);
         li.textContent = '↓';
         li.id = 'imageViewerCopyBtn';
@@ -8840,6 +8909,7 @@ class PreviewWork {
                 }
                 this.isReadyShow = false;
                 this._show = true;
+                _store_States__WEBPACK_IMPORTED_MODULE_4__.states.previewWorkIsShow = true;
                 this.showWrap(version);
                 window.clearTimeout(this.delayHiddenTimer);
                 if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
@@ -8855,6 +8925,7 @@ class PreviewWork {
             this.isReadyShow = false;
             this._show = false;
             this.dontShowAgain = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_4__.states.previewWorkIsShow = false;
             this.wrap.style.display = 'none';
             // 隐藏 wrap 时，把 img 的 src 设置为空
             // 这样图片会停止加载，避免浪费网络资源
@@ -8936,36 +9007,6 @@ class PreviewWork {
             if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
             }
-            // 当用户按下 Alt 时
-            if (ev.altKey) {
-                // 可以使用 Alt + P 快捷键来启用/禁用此功能
-                if (ev.code === 'KeyP') {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork);
-                    // 显示提示信息
-                    if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork) {
-                        const msg = 'Preview works - On';
-                        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(msg);
-                    }
-                    else {
-                        const msg = 'Preview works - Off';
-                        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(msg);
-                    }
-                    return;
-                }
-                else if (ev.code === 'KeyC') {
-                    // 使用快捷键 Alt + C 调用复制功能
-                    if (this.show && this.workData) {
-                        //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__.copyWorkInfo.receive({
-                            type: 'illusts',
-                            id: this.workData.body.id,
-                        }, this.index);
-                    }
-                    return;
-                }
-            }
             // 按翻页键时关闭当前预览
             // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
             // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
@@ -9026,8 +9067,7 @@ class PreviewWork {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('callShowOriginSizeImage', this.workData.body.id);
             }
             // 预览作品时，可以使用快捷键 B 收藏这个作品
-            // 实际上 Alt + B 也会生效
-            if (ev.code === 'KeyB') {
+            if (!ev.altKey && ev.code === 'KeyB') {
                 ev.preventDefault();
                 ev.stopPropagation();
                 _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_17__.addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true);
@@ -9051,6 +9091,25 @@ class PreviewWork {
         }, {
             capture: true,
             passive: false,
+        });
+        // 一级快捷键 切换预览功能（浏览器命令）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.commandTogglePreviewWork, () => {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork);
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork) {
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success('Preview works - On');
+            }
+            else {
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning('Preview works - Off');
+            }
+        });
+        // 一级快捷键 复制作品信息（浏览器命令）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.commandCopyWorkInfo, () => {
+            if (this.show && this.workData) {
+                _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__.copyWorkInfo.receive({
+                    type: 'illusts',
+                    id: this.workData.body.id,
+                }, this.index);
+            }
         });
         const hiddenEvtList = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch,
@@ -10394,14 +10453,9 @@ class SelectWork {
                 this.crawled = true;
             }
         });
-        // 使用 Alt + S 快捷键来模拟点击控制按钮
-        window.addEventListener('keydown', (ev) => {
-            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-                return;
-            }
-            if (ev.altKey && ev.code === 'KeyS') {
-                this.controlBtn.click();
-            }
+        // 一级快捷键 Alt + S 已迁移为浏览器命令
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.commandToggleSelectWork, () => {
+            this.toggleSelectWork();
         });
         // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', (ev) => {
@@ -10476,9 +10530,6 @@ class SelectWork {
     }
     addBtn() {
         this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_手动选择作品', '', 'manuallySelectWork', 'secondary', 'brand');
-        this.controlBtn.classList.add('has_tip');
-        this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_S');
-        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.controlBtn);
         this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
         this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_抓取选择的作品', '', 'crawlSelectedWork', 'secondary', 'brand');
@@ -10670,6 +10721,10 @@ class SelectWork {
     }
     canSelect() {
         return this.start && !this.pause;
+    }
+    /** 启动或暂停手动选择作品（模拟点击控制按钮） */
+    toggleSelectWork() {
+        this.controlBtn.click();
     }
     // 抓取选择的作品，这会自动暂停手动选择作品
     async sendDownload() {
@@ -11684,6 +11739,7 @@ class ShowOriginSizeImage {
     }
     set show(val) {
         this._show = val;
+        _store_States__WEBPACK_IMPORTED_MODULE_11__.states.showOriginSizeImageIsShow = val;
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
@@ -11803,15 +11859,9 @@ class ShowOriginSizeImage {
                 this.downloadWork(this.workId);
             }
             if (ev.code === 'KeyC') {
+                // 按 C 下载当前显示的这张图片（不需要 Alt）
                 ev.stopPropagation();
-                // 使用快捷键 Alt + C 调用复制功能
-                if (ev.altKey) {
-                    ev.preventDefault();
-                    this.copy(this.workId);
-                }
-                else {
-                    this.downloadImage(this.workId);
-                }
+                this.downloadImage(this.workId);
             }
             // 按 V 键关闭原图区域
             if (!ev.altKey && ev.code === 'KeyV') {
@@ -11831,6 +11881,12 @@ class ShowOriginSizeImage {
                 ev.stopPropagation();
             }
         }, true);
+        // 一级快捷键 复制当前作品的信息（浏览器命令）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.commandCopyWorkInfo, () => {
+            if (this.show) {
+                this.copy(this.workId);
+            }
+        });
     }
     readyShow = (ev) => {
         window.clearTimeout(this.showTimer);
@@ -12045,7 +12101,7 @@ class ShowOriginSizeImage {
         };
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
-    /** 使用快捷键 Alt + C 调用复制功能 */
+    /** 复制当前作品的信息 */
     async copy(id) {
         const idData = {
             type: 'illusts',
@@ -20935,16 +20991,10 @@ class InitUserRequestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _RightButtonManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../RightButtonManager */ "./src/ts/RightButtonManager.ts");
-
-
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _RightButtonManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../RightButtonManager */ "./src/ts/RightButtonManager.ts");
 
 
 
@@ -20960,12 +21010,12 @@ class QuickCrawl {
     show = true; // 是否显示
     // 指定在哪些页面类型里启用
     enablePageType = [
-        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
-        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
-        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Novel,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted,
     ];
     addBtn() {
-        this.btn = _RightButtonManager__WEBPACK_IMPORTED_MODULE_6__.rightButtonManager.register({
+        this.btn = _RightButtonManager__WEBPACK_IMPORTED_MODULE_3__.rightButtonManager.register({
             id: 'quickCrawlBtn',
             title: '_快速下载本页',
             icon: 'download',
@@ -20976,18 +21026,15 @@ class QuickCrawl {
         // 点击按钮启动快速抓取
         this.btn.addEventListener('click', () => {
             this.sendDownload();
-            if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__.showOneTimeMsg.show('tipAltQToQuickDownload', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
-            }
         }, false);
-        // 使用快捷键 Alt + Q 启动快速抓取
-        window.addEventListener('keydown', (ev) => {
-            if (this.show && ev.altKey && ev.code === 'KeyQ') {
+        // 一级快捷键 已迁移为浏览器命令
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.commandQuickDownload, () => {
+            if (this.show) {
                 this.sendDownload();
             }
-        }, false);
+        });
         // 页面类型改变时设置按钮的显示隐藏
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.setVisible();
         });
     }
@@ -20997,24 +21044,24 @@ class QuickCrawl {
         if (isNovel) {
             idData = {
                 type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getNovelId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getNovelId(window.location.href),
             };
         }
         else {
             idData = {
                 type: 'illusts',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(window.location.href),
             };
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [idData]);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
     setVisible() {
-        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type);
+        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type);
         if (this.show) {
-            _RightButtonManager__WEBPACK_IMPORTED_MODULE_6__.rightButtonManager.show(this.btn);
+            _RightButtonManager__WEBPACK_IMPORTED_MODULE_3__.rightButtonManager.show(this.btn);
         }
         else {
-            _RightButtonManager__WEBPACK_IMPORTED_MODULE_6__.rightButtonManager.hide(this.btn);
+            _RightButtonManager__WEBPACK_IMPORTED_MODULE_3__.rightButtonManager.hide(this.btn);
         }
     }
 }
@@ -32852,28 +32899,28 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     _github: ['Github', 'Github', 'Github', 'Github', 'Github', 'Github'],
     _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
     _快捷键ALTX显示隐藏设置面板: [
-        `你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">X</span> 显示或隐藏设置面板。`,
-        `你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">X</span> 顯示或隱藏設定面板。`,
-        `You can use the shortcut <span class="blue">Alt</span> + <span class="blue">X</span> to show or hide the settings panel.`,
-        `ショートカットキー <span class="blue">Alt</span> + <span class="blue">X</span> で設定パネルを表示または非表示にできます。`,
-        `단축키 <span class="blue">Alt</span> + <span class="blue">X</span>를 사용하여 설정 패널을 표시하거나 숨길 수 있습니다.`,
-        `Вы можете использовать сочетание клавиш <span class="blue">Alt</span> + <span class="blue">X</span>, чтобы показать или скрыть панель настроек.`,
+        `你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">X</span>）显示或隐藏设置面板。`,
+        `你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">X</span>）顯示或隱藏設定面板。`,
+        `You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">X</span>) to show or hide the settings panel.`,
+        `ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">X</span>）を使用して、設定パネルを表示または非表示にできます。`,
+        `단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">X</span>）를 사용하여 설정 패널을 표시하거나 숨길 수 있습니다。`,
+        `Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">X</span>), чтобы показать или скрыть панель настроек.`,
     ],
     _隐藏设置面板: [
-        `隐藏设置面板（Alt + X）`,
-        `隱藏設定面板（Alt + X）`,
-        `Hide settings panel (Alt + X)`,
-        `設定パネルを非表示（Alt + X）`,
-        `설정 패널 숨기기 (Alt + X)`,
-        `Скрыть панель настроек (Alt + X)`,
+        `隐藏设置面板`,
+        `隱藏設定面板`,
+        `Hide settings panel`,
+        `設定パネルを非表示`,
+        `설정 패널 숨기기`,
+        `Скрыть панель настроек`,
     ],
     _显示设置面板: [
-        `显示设置面板（Alt + X）`,
-        `顯示設定面板（Alt + X）`,
-        `Show settings panel (Alt + X)`,
-        `設定パネルを表示（Alt + X）`,
-        `설정 패널 표시 (Alt + X)`,
-        `Показать панель настроек (Alt + X)`,
+        `显示设置面板`,
+        `顯示設定面板`,
+        `Show settings panel`,
+        `設定パネルを表示`,
+        `설정 패널 표시`,
+        `Показать панель настроек`,
     ],
     _共抓取到n个文件: [
         '共抓取到 {} 个文件',
@@ -33656,20 +33703,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         'Вытаскивание завершено',
     ],
     _快速下载本页: [
-        '快速下载本页作品 (Alt + Q)',
-        '快速下載本頁作品 (Alt + Q)',
-        'Download this work quickly (Alt + Q)',
-        'この作品をすばやくダウンロードする (Alt + Q)',
-        '작품 빠른 다운로드 (Alt + Q)',
-        'Быстро загрузить эту работу (Alt + Q)',
-    ],
-    _快捷键ALTQ快速下载本页作品: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下载本页作品。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下載本頁作品。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">Q</span> to quickly download works on this page.',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">Q</span> を使用して、このページの作品をすばやくダウンロードできます。',
-        '단축키 <span class="blue">Alt</span> + <span class="blue">Q</span>를 사용하여 이 페이지에서 작품을 빠르게 다운로드할 수 있습니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">Q</span> для быстрой загрузки работ на этой странице.',
+        '快速下载本页作品',
+        '快速下載本頁作品',
+        'Download this work quickly',
+        'この作品をすばやくダウンロードする',
+        '작품 빠른 다운로드',
+        'Быстро загрузить эту работу',
     ],
     _抓取此作品: [
         '抓取此作品',
@@ -33944,21 +33983,21 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         '올바르지 않은 ID',
         'Это ID неверно',
     ],
-    _快速收藏AltB: [
-        '快速收藏 (Alt + B)',
-        '快速收藏 (Alt + B)',
-        'Quick bookmarks (Alt + B)',
-        'クイックブックマーク (Alt + B)',
-        '빠른 북마크 (Alt + B)',
-        'Быстрые закладки (Alt + B)',
+    _快速收藏: [
+        '快速收藏',
+        '快速收藏',
+        'Quick bookmarks',
+        'クイックブックマーク',
+        '빠른 북마크',
+        'Быстрые закладки',
     ],
-    _取消收藏AltB: [
-        `取消收藏(Alt + B)`,
-        `取消收藏(Alt + B)`,
-        `Cancel bookmark (Alt + B)`,
-        `ブックマークをキャンセル(Alt + B)`,
-        `북마크 취소(Alt + B)`,
-        `Отменить закладку (Alt + B)`,
+    _取消收藏: [
+        `取消收藏`,
+        `取消收藏`,
+        `Cancel bookmark`,
+        `ブックマークをキャンセル`,
+        `북마크 취소`,
+        `Отменить закладку`,
     ],
     _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
     _自动开始下载: [
@@ -35564,12 +35603,12 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
         `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
     ],
     _快捷键ALTS手动选择作品: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
-        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
+        '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">S</span>）开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击"抓取选择的作品"。',
+        '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">S</span>）開始或暫停手動選擇作品。<br>選擇完畢之後，打開下載器面板，點擊「抓取選擇的作品」。',
+        'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">S</span>) to start or pause manually selecting works.<br>After you finish selecting, open the downloader panel and click "Crawl selected works".',
+        'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span>）を使用して、手動で作品を選択することを開始または一時停止できます。<br>選択が終わったら、ダウンローダーパネルを開き、「選択した作品をクロール」をクリックしてください。',
+        '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>）를 사용하여 수동으로 작품을 선택하는 것을 시작하거나 일시 중지할 수 있습니다。<br>선택을 마친 후, 다운로더 패널을 열고 "선택한 작품 긁어오기"를 클릭하세요。',
+        'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>), чтобы начать или приостановить ручной выбор работ.<br>После завершения выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
     ],
     _抓取选择的作品: [
         '抓取选择的作品',
@@ -37265,42 +37304,42 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 复制当前查看的图片和作品信息<br>
+复制当前查看的图片和作品信息（该快捷键需要手动设置）<br>
 <span class="blue">V</span>、<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
         `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
 滑鼠滾輪：放大或縮小圖片<br>
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 複製當前查看的圖片和作品資訊<br>
+複製當前查看的圖片和作品資訊（該快捷鍵需要手動設定）<br>
 <span class="blue">V</span>、<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
         `When you are viewing the large image of a work, you can use these shortcuts:<br>
 Mouse wheel: zoom in or out of the image<br>
 <span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
 <span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently viewed image and work information<br>
+Copy the currently viewed image and work information (this shortcut key needs to be set manually)<br>
 <span class="blue">V</span>, <span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
         `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
 マウスホイール：画像を拡大または縮小<br>
 <span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 現在表示している画像と作品情報をコピー<br>
+現在表示している画像と作品情報をコピー（このショートカットキーは手動で設定する必要があります）<br>
 <span class="blue">V</span>、<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
         `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
 마우스 휠：이미지 확대 또는 축소<br>
 <span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
 <span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 현재 보고 있는 이미지와 작품 정보 복사<br>
+현재 보고 있는 이미지와 작품 정보 복사（이 단축키는 수동으로 설정해야 합니다）<br>
 <span class="blue">V</span>, <span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
         `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
 Колесо мыши：увеличить или уменьшить изображение<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее изображение и информацию о работе<br>
+Копировать текущее изображение и информацию о работе (эту клавишу нужно настроить вручную)<br>
 <span class="blue">V</span>, <span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
     ],
     _定时抓取: [
@@ -38575,73 +38614,66 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
         'Список ярлыков',
     ],
     _预览作品的快捷键说明: [
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
-当你查看预览图时，可以使用如下快捷键：<br>
+        `当你查看预览图时，可以使用如下快捷键：<br>
 <span class="blue">V</span>(iew) 以 1:1 原始比例查看原图<br>
 <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息<br>
+复制当前预览的图片和作品信息（该快捷键需要手动设置）<br>
 <span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>
 <span class="blue">← ↑</span> 上一张图片<br>
 <span class="blue">→ ↓</span> 下一张图片<br>
 <span class="blue">空格键</span> 下一张图片<br>
 你可以随时在“预览作品”设置里查看这个快捷键列表`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
-當你查看預覽圖時，可以使用如下快捷鍵：<br>
+        `當你查看預覽圖時，可以使用如下快捷鍵：<br>
 <span class="blue">V</span>(iew) 以 1:1 原始比例查看原圖<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊<br>
+複製當前預覽的圖片和作品資訊（該快捷鍵需要手動設定）<br>
 <span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點選滑鼠左鍵也可以關閉預覽圖<br>
 <span class="blue">← ↑</span> 上一張圖片<br>
 <span class="blue">→ ↓</span> 下一張圖片<br>
 <span class="blue">空格鍵</span> 下一張圖片<br>
 你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Disable/Enable the preview work feature<br>
-When you view the preview image, you can use the following keyboard shortcuts:<br>
+        `When you view the preview image, you can use the following keyboard shortcuts:<br>
 <span class="blue">V</span>(iew) View the original image at 1:1 actual size<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
 <span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information<br>
+Copy the currently previewed image and work information (this shortcut key needs to be set manually)<br>
 <span class="blue">Esc</span> Close the preview image. You can also close it by left-clicking the preview image<br>
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
 <span class="blue">Spacebar</span> Next image<br>
 You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能の有効/無効を切り替える<br>
-プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
+        `プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
 <span class="blue">V</span>(iew) オリジナル画像を 1:1 の実際のサイズで表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー<br>
+現在プレビュー中の画像と作品情報をコピー（このショートカットキーは手動で設定する必要があります）<br>
 <span class="blue">Esc</span> プレビュー画像を閉じる。また、プレビュー画像を左クリックしても閉じられます<br>
 <span class="blue">← ↑</span> 前の画像<br>
 <span class="blue">→ ↓</span> 次の画像<br>
 <span class="blue">スペースバー</span> 次の画像<br>
 「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 켜기/끄기<br>
-미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
-<span class="blue">V</span>(iew) 1:1 실제 크기로 원본 이미지 보기<br>
+        `<span class="blue">V</span>(iew) 1:1 실제 크기로 원본 이미지 보기<br>
 <span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
 <span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보 복사<br>
+현재 미리보기 중인 이미지와 작품 정보 복사（이 단축키는 수동으로 설정해야 합니다）<br>
 <span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫을 수 있습니다<br>
 <span class="blue">← ↑</span> 이전 이미지<br>
 <span class="blue">→ ↓</span> 다음 이미지<br>
 <span class="blue">스페이스바</span> 다음 이미지<br>
 「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/Включить функцию предварительного просмотра работы<br>
-Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
+        `Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
 <span class="blue">V</span>(iew) Просмотр оригинального изображения в реальном размере 1:1<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>
-<span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее просматриваемое изображение и информацию о работе<br>
+Копировать текущее просматриваемое изображение и информацию о работе (эту клавишу нужно настроить вручную)<br>
 <span class="blue">Esc</span> Закрыть предварительный просмотр. Кроме того, закрыть его можно также нажав левую кнопку мыши на изображении<br>
 <span class="blue">← ↑</span> Предыдущее изображение<br>
 <span class="blue">→ ↓</span> Следующее изображение<br>
@@ -38963,14 +38995,6 @@ PS: На странице профиля заблокированного пол
         '동작 변경 사항',
         'Изменения поведения',
     ],
-    _现在下载器会默认隐藏网页顶部的日志: [
-        '现在下载器会默认隐藏网页顶部的日志。你可以使用一个按钮或快捷键 (L) 来查看日志。',
-        '現在下載器會預設隱藏網頁頂部的日誌。你可以使用一個按鈕或快捷鍵 (L) 來檢視日誌。',
-        'Downloader now hides the log at the top of the page by default. You can view the log using a button or keyboard shortcut (L).',
-        'ダウンローダーは、デフォルトでページ上部のログを非表示にするようになりました。ログはボタンまたはキーボードショートカット（L）を使用して表示できます。',
-        '다운로더는 이제 기본적으로 페이지 상단의 로그를 숨깁니다. 버튼이나 키보드 단축키(L)를 사용하여 로그를 볼 수 있습니다.',
-        'Загрузчик теперь скрывает журнал в верхней части страницы по умолчанию. Вы можете просмотреть журнал с помощью кнопки или сочетания клавиш (L).',
-    ],
     _扩展程序升到x版本: [
         '此扩展程序已经升级到 {} 版本。',
         '此擴充程式已經升級到 {} 版本。',
@@ -39030,34 +39054,22 @@ PS: На странице профиля заблокированного пол
     _显示复制按钮的提示: [
         `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。
 <br>
-你可以自定义要复制的数据和格式。
-<br>
-在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt + C</span> 进行复制。`,
+你可以自定义要复制的数据和格式。`,
         `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。
 <br>
-你可以自訂要複製的資料和格式。
-<br>
-在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt + C</span> 進行複製。`,
+你可以自訂要複製的資料和格式。`,
         `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data.
 <br>
-You can customize the data and format to be copied.
-<br>
-On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt + C</span> to copy.`,
+You can customize the data and format to be copied.`,
         `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。
 <br>
-コピーするデータとフォーマットをカスタマイズできます。
-<br>
-作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt + C</span> を押してコピーできます。`,
+コピーするデータとフォーマットをカスタマイズできます。`,
         `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.
 <br>
-복사할 데이터와 형식을 사용자 지정할 수 있습니다.
-<br>
-작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt + C</span>를 눌러 복사할 수 있습니다.`,
+복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
         `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные.
 <br>
-Вы можете настроить данные и формат для копирования.
-<br>
-На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt + C</span> для копирования.`,
+Вы можете настроить данные и формат для копирования.`,
     ],
     _内容格式: [
         `内容格式`,
@@ -39198,7 +39210,7 @@ Additionally, you can use these tags:`,
     _对复制的内容的说明: [
         `你可以根据自己的需要选择复制的内容。
 <br>
-在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。
+在作品页面里，以及预览作品时，你可以按快捷键进行复制（该快捷键需要手动设置）。
 <br>
 <br>
 <strong>每种格式的说明：</strong>
@@ -39260,7 +39272,7 @@ Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span>
 <br>`,
         `你可以根據自己的需要選擇複製的內容。
 <br>
-在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。
+在作品頁面裡，以及預覽作品時，你可以按快捷鍵進行複製（該快捷鍵需要手動設定）。
 <br>
 <br>
 <strong>每種格式的說明：</strong>
@@ -39322,7 +39334,7 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>`,
         `You can select the content to copy according to your own needs.
 <br>
-On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt</span> + <span class="blue">C</span> to copy.
+On the work page, and when previewing a work, you can use the shortcut key to copy (this shortcut key needs to be set manually).
 <br>
 <br>
 <strong>Explanation of each format:</strong>
@@ -39384,7 +39396,7 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>`,
         `自分のニーズに応じてコピーする内容を選択できます。
 <br>
-作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt</span> + <span class="blue">C</span> を押してコピーできます。
+作品ページ内、および作品をプレビューする際は、ショートカットキーを押してコピーできます（このショートカットキーは手動で設定する必要があります）。
 <br>
 <br>
 <strong>各フォーマットの説明：</strong>
@@ -39446,7 +39458,7 @@ Android の一部のアプリは <span class="blue">text/html</span> コンテ�
 <br>`,
         `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
 <br>
-작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt</span> + <span class="blue">C</span>를 눌러 복사할 수 있습니다.
+작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키를 눌러 복사할 수 있습니다（이 단축키는 수동으로 설정해야 합니다）.
 <br>
 <br>
 <strong>각 형식의 설명:</strong>
@@ -39508,7 +39520,7 @@ Android의 일부 앱은 <span class="blue">text/html</span> 콘텐츠를 붙여
 <br>`,
         `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
 <br>
-На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt</span> + <span class="blue">C</span> для копирования.
+На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш для копирования (эту клавишу нужно настроить вручную).
 <br>
 <br>
 <strong>Объяснение каждого формата:</strong>
@@ -42817,21 +42829,113 @@ For example, exported crawl results include a timestamp in the file name. The pr
         '크롤링 결과에서 제거됨',
         'Удалено из результатов сбора',
     ],
-    _快捷键_Alt_E: [
-        '快捷键 Alt + E',
-        '快捷鍵 Alt + E',
-        'Shortcut Alt + E',
-        'ショートカット Alt + E',
-        '단축키 Alt + E',
-        'Горячая клавиша Alt + E',
+    _快捷键ALTW手动排除作品: [
+        '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">W</span>）开始或暂停手动排除作品。',
+        '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">W</span>）開始或暫停手動排除作品。',
+        'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">W</span>) to start or pause manually excluding works.',
+        'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">W</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
+        '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">W</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
+        'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">W</span>), чтобы начать или приостановить ручное исключение работ。',
     ],
-    _快捷键_Alt_S: [
-        '快捷键 Alt + S',
-        '快捷鍵 Alt + S',
-        'Shortcut Alt + S',
-        'ショートカット Alt + S',
-        '단축키 Alt + S',
-        'Горячая клавиша Alt + S',
+    _快捷键: [
+        '快捷键',
+        '快捷鍵',
+        'Shortcut',
+        'ショートカット',
+        '단축키',
+        'Горячая клавиша',
+    ],
+    _快捷键说明: [
+        `下载器有一些预设的快捷键，并且你可以修改大部分快捷键：<br>
+- <span class="blue">L</span> 查看/关闭日志区域（这个快捷键无法修改）<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> 打开/关闭设置面板<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> 点击默认的抓取按钮（开始抓取）<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> 手动选择作品<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> 手动排除作品<br>
+- 未设置：启用/关闭预览作品功能（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
+- 未设置：在作品页面里，快速下载当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
+- 未设置：在作品页面里，快速收藏当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
+- 未设置：复制作品的图片和摘要信息（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">C</span>）<br>
+<br>
+以前下载器的快捷键是不能修改的，现在可以在浏览器的扩展管理里修改了。但是由于浏览器限制了只能预设 4 个快捷键，所以有些功能以前有快捷键，但现在没有快捷键。如果你想修改或设置快捷键，可以这样做：<br>
+打开浏览器菜单，点击“扩展程序”进入扩展管理页面，然后点击“键盘快捷键”，找到这个扩展程序，即可设置快捷键。<br>
+Chrome 浏览器可以使用这个网址：chrome://extensions/shortcuts<br>
+Edge 浏览器可以使用这个网址：edge://extensions/shortcuts<br>`,
+        `下載器有一些預設的快捷鍵，並且你可以修改大部分快捷鍵：<br>
+- <span class="blue">L</span> 檢視/關閉日誌區域（這個快捷鍵無法修改）<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> 開啟/關閉設定面板<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> 手動選擇作品<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> 手動排除作品<br>
+- 未設定：啟用/關閉預覽作品功能（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
+- 未設定：在作品頁面裡，快速下載目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
+- 未設定：在作品頁面裡，快速收藏目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
+- 未設定：複製作品的圖片和摘要資訊（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">C</span>）<br>
+<br>
+以前下載器的快捷鍵是不能修改的，現在可以在瀏覽器的擴充功能管理裡修改了。但是由於瀏覽器限制了只能預設 4 個快捷鍵，所以有些功能以前有快捷鍵，但現在沒有快捷鍵。如果你想修改或設定快捷鍵，可以這樣做：<br>
+開啟瀏覽器選單，點擊「擴充功能」進入擴充功能管理頁面，然後點擊「鍵盤快捷鍵」，找到這個擴充功能，即可設定快捷鍵。<br>
+Chrome 瀏覽器可以使用這個網址：chrome://extensions/shortcuts<br>
+Edge 瀏覽器可以使用這個網址：edge://extensions/shortcuts<br>`,
+        `The downloader has some preset keyboard shortcuts, and you can modify most of them:<br>
+- <span class="blue">L</span> View/open or close the log area (this shortcut cannot be changed)<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> Open/close the settings panel<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> Click the default crawl button (start crawling)<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> Manually select works<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> Manually exclude works<br>
+- Not set: enable/disable the work preview feature (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
+- Not set: on the artwork page, quickly download the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
+- Not set: on the artwork page, quickly bookmark the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
+- Not set: copy the artwork's images and summary info (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">C</span>)<br>
+<br>
+Previously, the downloader's shortcuts could not be changed, but now you can modify them in the browser's extension management. However, because the browser limits you to preset only 4 shortcuts, some features used to have a shortcut but now don't. If you want to change or set a shortcut, you can do this:<br>
+Open the browser menu, click "Extensions" to enter the extension management page, then click "Keyboard shortcuts", find this extension, and you can set the shortcut.<br>
+For Chrome, you can use this URL: chrome://extensions/shortcuts<br>
+For Edge, you can use this URL: edge://extensions/shortcuts<br>`,
+        `ダウンローダーにはいくつかの既定のショートカットキーがあり、ほとんどのものは変更できます：<br>
+- <span class="blue">L</span> ログエリアの表示/非表示（このショートカットは変更できません）<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> 設定パネルの開閉<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> 既定の取得ボタンをクリック（取得開始）<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> 作品を手動で選択<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> 作品を手動で除外<br>
+- 未設定：作品プレビュー機能の有効化/無効化（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">P</span> でした）<br>
+- 未設定：作品ページで、現在の作品をすばやくダウンロード（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">Q</span> でした）<br>
+- 未設定：作品ページで、現在の作品をすばやくブックマーク（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">B</span> でした）<br>
+- 未設定：作品の画像と概要情報をコピー（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">C</span> でした）<br>
+<br>
+以前はダウンローダーのショートカットキーは変更できませんでしたが、現在はブラウザーの拡張機能管理から変更できるようになりました。ただし、ブラウザーでは既定のショートカットを 4 つまでしか設定できないため、以前ショートカットがあった機能の一部に現在ショートカットがありません。ショートカットを変更または設定したい場合は、以下の手順で行います：<br>
+ブラウザーのメニューを開き、「拡張機能」をクリックして拡張機能管理ページを開き、次に「キーボードショートカット」をクリックし、この拡張機能を見つけてショートカットを設定します。<br>
+Chrome ブラウザーはこの URL を使用できます：chrome://extensions/shortcuts<br>
+Edge ブラウザーはこの URL を使用できます：edge://extensions/shortcuts<br>`,
+        `다운로더에는 몇 가지 기본 단축키가 있으며, 대부분을 수정할 수 있습니다:<br>
+- <span class="blue">L</span> 로그 영역 보기/닫기(이 단축키는 수정할 수 없습니다)<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> 설정 패널 열기/닫기<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> 기본 크롤링 버튼 클릭(크롤링 시작)<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> 작품 수동 선택<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> 작품 수동 제외<br>
+- 미설정: 작품 미리보기 기능 켜기/끄기(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">P</span> 였습니다)<br>
+- 미설정: 작품 페이지에서 현재 작품 빠르게 다운로드(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">Q</span> 였습니다)<br>
+- 미설정: 작품 페이지에서 현재 작품 빠르게 북마크(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">B</span> 였습니다)<br>
+- 미설정: 작품의 이미지와 요약 정보 복사(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">C</span> 였습니다)<br>
+<br>
+이전에는 다운로더의 단축키를 수정할 수 없었지만, 이제는 브라우저의 확장 관리에서 수정할 수 있습니다. 하지만 브라우저에서는 기본 단축키를 4개까지만 설정할 수 있으므로, 이전에 단축키가 있던 일부 기능에 현재 단축키가 없습니다. 단축키를 수정하거나 설정하려면 다음과 같이 하세요:<br>
+브라우저 메뉴를 열고 "확장 프로그램"을 클릭하여 확장 관리 페이지로 들어간 다음, "키보드 단축키"를 클릭하여 이 확장 프로그램을 찾아 단축키를 설정합니다.<br>
+Chrome 브라우저는 이 URL을 사용할 수 있습니다: chrome://extensions/shortcuts<br>
+Edge 브라우저는 이 URL을 사용할 수 있습니다: edge://extensions/shortcuts<br>`,
+        `У загрузчика есть несколько предустановленных сочетаний клавиш, и большинство из них можно изменить:<br>
+- <span class="blue">L</span> Показать/скрыть область журнала (это сочетание нельзя изменить)<br>
+- <span class="blue">Alt</span> + <span class="blue">X</span> Открыть/закрыть панель настроек<br>
+- <span class="blue">Alt</span> + <span class="blue">Z</span> Нажать кнопку сбора по умолчанию (начать сбор)<br>
+- <span class="blue">Alt</span> + <span class="blue">S</span> Выбрать работы вручную<br>
+- <span class="blue">Alt</span> + <span class="blue">W</span> Исключить работы вручную<br>
+- Не назначено: включить/отключить функцию предпросмотра работ (прежнее сочетание этой функции — <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
+- Не назначено: на странице работы быстро загрузить текущую работу (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
+- Не назначено: на странице работы быстро добавить текущую работу в закладки (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
+- Не назначено: скопировать изображения и краткую информацию о работе (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">C</span>)<br>
+<br>
+Раньше сочетания клавиш загрузчика нельзя было изменить, но теперь это можно сделать в управлении расширениями браузера. Однако, поскольку браузер позволяет предустановить только 4 сочетания клавиш, некоторые функции, у которых раньше были сочетания, теперь их не имеют. Если вы хотите изменить или назначить сочетание клавиш, сделайте следующее:<br>
+Откройте меню браузера, нажмите "Расширения", чтобы перейти на страницу управления расширениями, затем нажмите "Клавиатурные сочетания", найдите это расширение и назначьте сочетание.<br>
+В Chrome можно использовать этот адрес: chrome://extensions/shortcuts<br>
+В Edge можно использовать этот адрес: edge://extensions/shortcuts<br>`,
     ],
     _该页面里没有默认的抓取按钮: [
         `该页面里没有默认的抓取按钮`,
@@ -43845,6 +43949,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -43881,23 +43987,18 @@ class CopyButtonOnWorkPage {
             likeBtn.parentElement.insertAdjacentElement('beforebegin', btn);
         }
         btn.addEventListener('click', () => {
-            const isNovel = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel;
-            const idData = {
-                id: isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getIllustId(),
-                type: isNovel ? 'novels' : 'illusts',
-            };
-            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData);
-            const msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮的提示')}`;
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__.showOneTimeMsg.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
+            this.copyWork();
         });
-        // 使用快捷键 Alt + C 点击复制按钮
-        window.addEventListener('keydown', (ev) => {
-            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        // 一级快捷键 复制当前作品的信息（浏览器命令）
+        // 当预览作品、图片查看器、原比例查看图片这三者之一正在显示时，
+        // 由对应的模块负责复制（它们各自带 index），这里跳过以免重复复制
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.commandCopyWorkInfo, () => {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.previewWorkIsShow ||
+                _store_States__WEBPACK_IMPORTED_MODULE_8__.states.imageViewerIsShow ||
+                _store_States__WEBPACK_IMPORTED_MODULE_8__.states.showOriginSizeImageIsShow) {
                 return;
             }
-            if (ev.code === 'KeyC' && ev.altKey) {
-                btn && btn.click();
-            }
+            this.copyWork();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
             btn = null;
@@ -43913,6 +44014,17 @@ class CopyButtonOnWorkPage {
 </svg>`;
         btn.dataset.xztitle = '_复制摘要数据';
         return btn;
+    }
+    /** 复制当前作品页面的作品信息 */
+    copyWork() {
+        const isNovel = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel;
+        const idData = {
+            id: isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getIllustId(),
+            type: isNovel ? 'novels' : 'illusts',
+        };
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData);
+        const msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮的提示')}`;
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__.showOneTimeMsg.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
     }
 }
 new CopyButtonOnWorkPage();
@@ -44698,19 +44810,21 @@ class FastScreen {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -44728,27 +44842,18 @@ __webpack_require__.r(__webpack_exports__);
 // 在作品页面里添加快速收藏按钮
 class QuickBookmark {
     constructor() {
-        _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             this.init(toolbar, pixivBMKDiv, likeBtn);
         });
-        // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
-        // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，保留了 Ctrl + B
-        // PS: B 是 Pixiv 自身的收藏按钮的快捷键。快速收藏按钮的快捷键是 Alt + B，不会冲突
-        window.addEventListener('keydown', (ev) => {
-            // 防止影响其他页面，因为图片查看器的收藏按钮快捷键也是 Alt + B
-            if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type)) {
-                return;
-            }
-            if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey) && this.btn) {
-                ev.preventDefault();
-                ev.stopPropagation();
-                this.btn.click();
-            }
+        // 一级快捷键 已迁移为浏览器命令
+        // 由 CommandReceiver 分发为 EVT 事件，不再在网页里监听 keydown
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandQuickBookmark, () => {
+            this.triggerBookmark();
         });
-        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__.logErrorStatus.listen((status, url) => {
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_12__.logErrorStatus.listen((status, url) => {
             const id = this.workData?.body?.id;
             if (id && url.includes(id) && status === 429) {
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_状态码429的提示'), {
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码429的提示'), {
                     position: 'mouse',
                 });
             }
@@ -44773,20 +44878,20 @@ class QuickBookmark {
     likeBtn;
     obPixivBMKDiv; // 监视心形收藏按钮变化
     enablePageTypes = [
-        _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork,
-        _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel,
+        _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Artwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Novel,
     ];
     async init(toolbar, pixivBMKDiv, likeBtn) {
         // 没有 token 就不能进行收藏
-        if (!_Token__WEBPACK_IMPORTED_MODULE_3__.token.token) {
+        if (!_Token__WEBPACK_IMPORTED_MODULE_4__.token.token) {
             return;
         }
-        if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type)) {
+        if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type)) {
             return;
         }
         this.pixivBMKDiv = pixivBMKDiv;
         this.likeBtn = likeBtn;
-        this.isNovel = _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel;
+        this.isNovel = _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Novel;
         // 删除可能存在的旧的快速收藏按钮
         const oldBtn = toolbar.querySelector('#' + this.btnId);
         if (oldBtn) {
@@ -44804,7 +44909,7 @@ class QuickBookmark {
         this.isBookmarked = !!this.workData.body.bookmarkData;
         // 监听心形收藏按钮从未收藏到收藏的变化
         if (!this.isBookmarked) {
-            if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
+            if (!_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
                 // 桌面端
                 // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
                 this.obPixivBMKDiv = new MutationObserver((mutations) => {
@@ -44854,7 +44959,7 @@ class QuickBookmark {
             }
             else {
                 let pixivBMKBtn = this.pixivBMKDiv;
-                if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
+                if (!_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
                     pixivBMKBtn = this.pixivBMKDiv.querySelector('button');
                 }
                 this.addBookmark(pixivBMKBtn, this.likeBtn);
@@ -44862,7 +44967,7 @@ class QuickBookmark {
                 if (!pixivBMKBtn) {
                     this.sendDownload();
                 }
-                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_8__.showOneTimeMsg.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
+                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_9__.showOneTimeMsg.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             }
         });
     }
@@ -44870,22 +44975,22 @@ class QuickBookmark {
     // 点击快速收藏按钮时，下载器会点击 Pixiv 原本的收藏按钮，而后者也绑定了这个下载事件
     // 所以需要注意避免造成重复下载
     sendDownload() {
-        if (_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.isArtworkData(this.workData)) {
-            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__.downloadOnClickBookmark.send(this.workData.body.illustId);
+        if (_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.isArtworkData(this.workData)) {
+            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__.downloadOnClickBookmark.send(this.workData.body.illustId);
         }
         else {
-            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__.downloadOnClickBookmark.send(this.workData.body.id, 'novels');
+            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__.downloadOnClickBookmark.send(this.workData.body.id, 'novels');
         }
     }
     async getWorkData() {
         try {
-            const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId();
+            const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId();
             const type = this.isNovel ? 'novel' : 'artwork';
-            const cached = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__.cacheWorkData.get(id, type);
+            const cached = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__.cacheWorkData.get(id, type);
             if (!cached) {
                 // 如果缓存里没有这个作品的数据，则让缓存模块加载数据并返回，这样有可能减少一次网络请求
                 // 在页面初始化时，下载器可能有多个模块都需要获取作品数据。使用 getWorkDataAsync 方法可以避免重复请求
-                return await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_12__.cacheWorkData.getWorkDataAsync(id, type);
+                return await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__.cacheWorkData.getWorkDataAsync(id, type);
             }
             else {
                 // 如果缓存里有这个作品的数据，则不使用缓存的数据，因为作品的收藏状态可能已经发生了变化
@@ -44898,9 +45003,9 @@ class QuickBookmark {
     }
     async addBookmark(pixivBMKBtn, likeBtn) {
         const type = this.isNovel ? 'novels' : 'illusts';
-        const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId();
+        const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId();
         // 移动端不自动点赞和设置点赞按钮的颜色，因为切换作品后元素没有重新生成，样式会依旧存在
-        if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
+        if (!_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
             this.like(type, id, likeBtn);
         }
         if (this.isBookmarked) {
@@ -44913,14 +45018,14 @@ class QuickBookmark {
         this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect();
         // 然后再由下载器发送收藏请求
         // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_13__.Utils.sleep(100);
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_14__.Utils.sleep(100);
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.extractTags(this.workData));
         if (status === 403) {
             return;
         }
         if (status !== 429) {
             this.isBookmarked = true;
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'), { position: 'mouse' });
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已收藏'), { position: 'mouse' });
         }
     }
     async delBookmark() {
@@ -44929,9 +45034,9 @@ class QuickBookmark {
             this.workData = data;
             if (this.workData.body.bookmarkData) {
                 const bmkId = this.workData.body.bookmarkData.id;
-                await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(bmkId, this.isNovel ? 'novels' : 'illusts', _Token__WEBPACK_IMPORTED_MODULE_3__.token.token);
+                await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(bmkId, this.isNovel ? 'novels' : 'illusts', _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
                 this.isBookmarked = false;
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已取消收藏'), { position: 'mouse' });
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已取消收藏'), { position: 'mouse' });
             }
         }
     }
@@ -44939,7 +45044,7 @@ class QuickBookmark {
     // 没有点击点赞按钮，因此不会触发点赞按钮上的事件
     like(type, id, likeBtn) {
         try {
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_3__.token.token);
+            _API__WEBPACK_IMPORTED_MODULE_0__.API.addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
             likeBtn.style.color = '#0096fa';
         }
         catch (error) { }
@@ -44947,11 +45052,21 @@ class QuickBookmark {
     setBtnStyle() {
         if (this.isBookmarked) {
             this.btn.classList.add(this.redClass);
-            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消收藏AltB'));
+            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_取消收藏'));
         }
         else {
             this.btn.classList.remove(this.redClass);
-            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快速收藏AltB'));
+            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_快速收藏'));
+        }
+    }
+    /** 触发快速收藏（模拟点击快速收藏按钮）
+     * 需要当前作品工具栏、token 和作品数据均已就绪时才执行，避免点击尚未初始化的空 button */
+    triggerBookmark() {
+        if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type) || !this.workData) {
+            return;
+        }
+        if (this.btn) {
+            this.btn.click();
         }
     }
 }
@@ -50208,7 +50323,6 @@ class Settings {
         downloadOrderSortBy: 'ID',
         tipAltXToShowControlPanel: true,
         tipAltSToSelectWork: true,
-        tipAltQToQuickDownload: true,
         tipBookmarkButton: true,
         highlightFollowingUsers: true,
         exportIDList: false,
@@ -50333,6 +50447,7 @@ class Settings {
         autoExportSettingsStrategy: 'timed',
         autoExportSettingsInterval: 24,
         tipManuallyExcludeWorks: true,
+        tipAltWToExcludeWork: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -50605,8 +50720,8 @@ class Settings {
         this.setSetting('tipPreviewWork', true);
         this.setSetting('tipHotkeysViewLargeImage', true);
         this.setSetting('tipAltSToSelectWork', true);
+        this.setSetting('tipAltWToExcludeWork', true);
         this.setSetting('tipImageViewer', true);
-        this.setSetting('tipAltQToQuickDownload', true);
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipBookmarkManage', true);
         this.setSetting('tipOpenWikiLink', true);
@@ -51427,6 +51542,7 @@ class SettingsPanelHelp {
         const actions = [
             { id: 'wiki', textKey: '_使用手册', iconId: 'book' },
             { id: 'faq', textKey: '_常见问题', iconId: 'help' },
+            { id: 'shortcut', textKey: '_快捷键', iconId: 'shortcut' },
             { id: 'recentUpdates', textKey: '_最近更新', iconId: 'new-2' },
             { id: 'sponsorship', textKey: '_赞助我', iconId: 'heart-line' },
             { id: 'github', textKey: '_github', iconId: 'github' },
@@ -51495,6 +51611,11 @@ class SettingsPanelHelp {
                 });
                 return;
             }
+            case 'shortcut':
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键说明'), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键'),
+                });
+                return;
             case 'recentUpdates':
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showRecentUpdates');
                 return;
@@ -52854,27 +52975,14 @@ class SettingsPanelShell {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_7__.showOneTimeMsg.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_账户可能被封禁的警告'));
         });
-        // 快捷键 Alt + Z 点击默认的抓取按钮
-        window.addEventListener('keydown', (ev) => {
-            if (ev.altKey && ev.code === 'KeyZ') {
-                // 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
-                // 在不支持的页面里，没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮）
-                const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`;
-                const crawlBtn = shell.querySelector(selector);
-                if (crawlBtn) {
-                    crawlBtn.click();
-                }
-                else {
-                    _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_该页面里没有默认的抓取按钮'));
-                }
-            }
-        }, false);
-        // 快捷键 Alt + X 切换显示设置面板
-        window.addEventListener('keydown', (ev) => {
-            if (ev.altKey && ev.code === 'KeyX') {
-                this.toggle();
-            }
-        }, false);
+        // 一级快捷键 Alt + X / Alt + Z 已迁移为浏览器命令
+        // 由 CommandReceiver 把命令分发为下面的 EVT 事件，不再在网页里监听 keydown
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.commandToggleSettingsPanel, () => {
+            this.toggle();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.commandStartDefaultCrawl, () => {
+            this.clickDefaultCrawlBtn();
+        });
         shell.querySelectorAll('.centerWrap_close').forEach((button) => button.addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('closeCenterPanel');
             if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
@@ -52933,6 +53041,19 @@ class SettingsPanelShell {
         }
         else {
             _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('openCenterPanel');
+        }
+    }
+    /** 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
+     * 在不支持的页面里没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮） */
+    static clickDefaultCrawlBtn() {
+        const shell = this.get();
+        const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`;
+        const crawlBtn = shell.querySelector(selector);
+        if (crawlBtn) {
+            crawlBtn.click();
+        }
+        else {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_该页面里没有默认的抓取按钮'));
         }
     }
     /** 监听会影响内容高度的 DOM 变化 */
@@ -54342,6 +54463,14 @@ class States {
     indexRecord = {};
     /** 预览作品详细信息的面板是否显示 */
     previewWorkDetailInfoPanelIsShow = false;
+    /** 预览作品功能是否正在显示某个作品的预览 */
+    previewWorkIsShow = false;
+    /** 图片查看器（ImageViewer）是否正在显示 */
+    // 由 ImageViewer 模块修改它的值
+    imageViewerIsShow = false;
+    /** 原比例查看图片（ShowOriginSizeImage）是否正在显示 */
+    // 由 ShowOriginSizeImage 模块修改它的值
+    showOriginSizeImageIsShow = false;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;
@@ -74080,44 +74209,45 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _setting_SettingsPanelBootstrap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/SettingsPanelBootstrap */ "./src/ts/setting/SettingsPanelBootstrap.ts");
-/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
-/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
-/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
-/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
-/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _CommandReceiver__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CommandReceiver */ "./src/ts/CommandReceiver.ts");
+/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
+/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
+/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
+/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -74127,6 +74257,7 @@ __webpack_require__.r(__webpack_exports__);
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  */
+
 
 
 

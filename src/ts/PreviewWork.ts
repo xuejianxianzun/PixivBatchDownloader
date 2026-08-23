@@ -144,6 +144,7 @@ class PreviewWork {
 
         this.isReadyShow = false
         this._show = true
+        states.previewWorkIsShow = true
         this.showWrap(version)
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
@@ -162,6 +163,7 @@ class PreviewWork {
       this.isReadyShow = false
       this._show = false
       this.dontShowAgain = false
+      states.previewWorkIsShow = false
       this.wrap.style.display = 'none'
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
@@ -259,38 +261,6 @@ class PreviewWork {
           return
         }
 
-        // 当用户按下 Alt 时
-        if (ev.altKey) {
-          // 可以使用 Alt + P 快捷键来启用/禁用此功能
-          if (ev.code === 'KeyP') {
-            setSetting('PreviewWork', !settings.PreviewWork)
-            // 显示提示信息
-            if (settings.PreviewWork) {
-              const msg = 'Preview works - On'
-              toast.success(msg)
-            } else {
-              const msg = 'Preview works - Off'
-              toast.warning(msg)
-            }
-            return
-          } else if (ev.code === 'KeyC') {
-            // 使用快捷键 Alt + C 调用复制功能
-            if (this.show && this.workData) {
-              //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
-              ev.stopPropagation()
-              ev.preventDefault()
-              copyWorkInfo.receive(
-                {
-                  type: 'illusts',
-                  id: this.workData!.body.id,
-                },
-                this.index
-              )
-            }
-            return
-          }
-        }
-
         // 按翻页键时关闭当前预览
         // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
         // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
@@ -359,8 +329,7 @@ class PreviewWork {
         }
 
         // 预览作品时，可以使用快捷键 B 收藏这个作品
-        // 实际上 Alt + B 也会生效
-        if (ev.code === 'KeyB') {
+        if (!ev.altKey && ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
           addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
@@ -390,6 +359,29 @@ class PreviewWork {
         passive: false,
       }
     )
+
+    // 一级快捷键 切换预览功能（浏览器命令）
+    window.addEventListener(EVT.list.commandTogglePreviewWork, () => {
+      setSetting('PreviewWork', !settings.PreviewWork)
+      if (settings.PreviewWork) {
+        toast.success('Preview works - On')
+      } else {
+        toast.warning('Preview works - Off')
+      }
+    })
+
+    // 一级快捷键 复制作品信息（浏览器命令）
+    window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
+      if (this.show && this.workData) {
+        copyWorkInfo.receive(
+          {
+            type: 'illusts',
+            id: this.workData.body.id,
+          },
+          this.index
+        )
+      }
+    })
 
     const hiddenEvtList = [
       EVT.list.pageSwitch,

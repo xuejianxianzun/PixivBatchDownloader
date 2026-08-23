@@ -12,6 +12,7 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { Config } from './Config'
 import { toast } from './Toast'
+import { showOneTimeMsg } from './ShowOneTimeMsg'
 
 // 手动排除作品，图片作品和小说都可以排除
 class ExcludeWork {
@@ -114,17 +115,9 @@ class ExcludeWork {
       this.tempHide = false
     })
 
-    // 使用 Alt + E 快捷键来模拟点击控制按钮
-    window.addEventListener('keydown', (ev) => {
-      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.altKey && ev.code === 'KeyE') {
-        ev.preventDefault()
-        ev.stopPropagation()
-        this.controlBtn.click()
-      }
+    // 一级快捷键 Alt + W 已迁移为浏览器命令
+    window.addEventListener(EVT.list.commandToggleExcludeWork, () => {
+      this.toggleExcludeWork()
     })
 
     // 鼠标移动时保存鼠标的坐标
@@ -215,9 +208,6 @@ class ExcludeWork {
       'secondary',
       'danger'
     )
-    this.controlBtn.classList.add('has_tip')
-    this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_E')
-    lang.register(this.controlBtn)
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
@@ -252,6 +242,12 @@ class ExcludeWork {
 
         this.startExclude(ev)
         this.clearBtn.style.display = 'flex'
+        if (!Config.mobile) {
+          showOneTimeMsg.show(
+            'tipAltWToExcludeWork',
+            lang.transl('_快捷键ALTW手动排除作品')
+          )
+        }
       }
     } else {
       if (!this.pause) {
@@ -438,6 +434,11 @@ class ExcludeWork {
 
   private canExclude() {
     return this.start && !this.pause
+  }
+
+  /** 启动或暂停手动排除作品（模拟点击控制按钮） */
+  private toggleExcludeWork() {
+    this.controlBtn.click()
   }
 
   // 给这个作品添加排除标记

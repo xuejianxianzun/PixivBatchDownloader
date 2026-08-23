@@ -338,7 +338,6 @@ interface XzSetting {
   downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
   tipAltXToShowControlPanel: boolean
   tipAltSToSelectWork: boolean
-  tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
   exportIDList: boolean
@@ -415,6 +414,7 @@ interface XzSetting {
   autoExportSettingsStrategy: 'timed' | 'onSettingChange'
   autoExportSettingsInterval: number
   tipManuallyExcludeWorks: boolean
+  tipAltWToExcludeWork: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -919,7 +919,6 @@ class Settings {
     downloadOrderSortBy: 'ID',
     tipAltXToShowControlPanel: true,
     tipAltSToSelectWork: true,
-    tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
     exportIDList: false,
@@ -1046,6 +1045,7 @@ class Settings {
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
+    tipAltWToExcludeWork: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1381,8 +1381,8 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipAltWToExcludeWork', true)
     this.setSetting('tipImageViewer', true)
-    this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
     this.setSetting('tipOpenWikiLink', true)

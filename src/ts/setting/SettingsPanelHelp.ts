@@ -42,6 +42,7 @@ class SettingsPanelHelp {
     }[] = [
       { id: 'wiki', textKey: '_使用手册', iconId: 'book' },
       { id: 'faq', textKey: '_常见问题', iconId: 'help' },
+      { id: 'shortcut', textKey: '_快捷键', iconId: 'shortcut' },
       { id: 'recentUpdates', textKey: '_最近更新', iconId: 'new-2' },
       { id: 'sponsorship', textKey: '_赞助我', iconId: 'heart-line' },
       { id: 'github', textKey: '_github', iconId: 'github' },
@@ -120,6 +121,12 @@ class SettingsPanelHelp {
         })
         return
       }
+
+      case 'shortcut':
+        msgBox.show(lang.transl('_快捷键说明'), {
+          title: lang.transl('_快捷键'),
+        })
+        return
 
       case 'recentUpdates':
         EVT.fire('showRecentUpdates')

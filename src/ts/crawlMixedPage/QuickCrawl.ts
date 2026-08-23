@@ -1,8 +1,5 @@
-import { Config } from '../Config'
 import { EVT } from '../EVT'
-import { lang } from '../Language'
 import { pageType } from '../PageType'
-import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { IDData } from '../store/StoreType'
 import { Tools } from '../Tools'
 import { rightButtonManager } from '../RightButtonManager'
@@ -41,26 +38,16 @@ class QuickCrawl {
       'click',
       () => {
         this.sendDownload()
-        if (!Config.mobile) {
-          showOneTimeMsg.show(
-            'tipAltQToQuickDownload',
-            lang.transl('_快捷键ALTQ快速下载本页作品')
-          )
-        }
       },
       false
     )
 
-    // 使用快捷键 Alt + Q 启动快速抓取
-    window.addEventListener(
-      'keydown',
-      (ev) => {
-        if (this.show && ev.altKey && ev.code === 'KeyQ') {
-          this.sendDownload()
-        }
-      },
-      false
-    )
+    // 一级快捷键 已迁移为浏览器命令
+    window.addEventListener(EVT.list.commandQuickDownload, () => {
+      if (this.show) {
+        this.sendDownload()
+      }
+    })
 
     // 页面类型改变时设置按钮的显示隐藏
     window.addEventListener(EVT.list.pageSwitch, () => {

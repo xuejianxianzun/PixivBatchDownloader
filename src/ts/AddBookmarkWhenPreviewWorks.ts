@@ -56,12 +56,13 @@ class AddBookmarkWhenPreviewWorks {
           }
 
           // 点击收藏按钮时，触发收藏按钮的点击事件
-          if (clickBtn) {
-            const btn = useSVG.closest('button')
-            if (btn && clickBtn) {
-              btn.click()
-            }
-          }
+          // 注释掉了，因为不应该点击收藏按钮。原因是：下载器会先添加收藏（默认会附带标签），如果点击了收藏按钮，会导致触发一次收藏按钮原本的收藏事件，并且这次收藏没有附带标签，导致第一次收藏时附带的标签被覆盖掉了
+          // if (clickBtn) {
+          //   const btn = useSVG.closest('button')
+          //   if (btn && clickBtn) {
+          //     btn.click()
+          //   }
+          // }
         }
 
         // 排行榜页面的收藏按钮

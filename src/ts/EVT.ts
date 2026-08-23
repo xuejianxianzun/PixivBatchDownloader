@@ -199,6 +199,22 @@ class EVENT {
     excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
     /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
     manuallyExcludeWork: 'manuallyExcludeWork',
+    /** 浏览器命令：切换显示设置面板（对应一级快捷键 Alt + X） */
+    commandToggleSettingsPanel: 'commandToggleSettingsPanel',
+    /** 浏览器命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */
+    commandStartDefaultCrawl: 'commandStartDefaultCrawl',
+    /** 浏览器命令：启动或暂停手动选择作品（对应一级快捷键 Alt + S） */
+    commandToggleSelectWork: 'commandToggleSelectWork',
+    /** 浏览器命令：启动或暂停手动排除作品（对应一级快捷键 Alt + W） */
+    commandToggleExcludeWork: 'commandToggleExcludeWork',
+    /** 浏览器命令：启用或关闭预览作品功能（对应一级快捷键 Alt + P） */
+    commandTogglePreviewWork: 'commandTogglePreviewWork',
+    /** 浏览器命令：在作品页面里快速下载当前作品（对应一级快捷键 Alt + Q） */
+    commandQuickDownload: 'commandQuickDownload',
+    /** 浏览器命令：在作品页面里快速收藏当前作品（对应一级快捷键 Alt + B） */
+    commandQuickBookmark: 'commandQuickBookmark',
+    /** 浏览器命令：复制作品的图片和摘要信息（对应一级快捷键 Alt + C） */
+    commandCopyWorkInfo: 'commandCopyWorkInfo',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据

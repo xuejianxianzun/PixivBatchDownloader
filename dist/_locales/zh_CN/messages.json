@@ -1,5 +1,29 @@
 {
   "extDescription": {
     "message": "强大的 Pixiv 批量下载器。可以批量下载插画、漫画、动图、小说；可以过滤作品、设置文件名、分类保存；优化 Pixiv 的使用体验。"
+  },
+  "command_toggle_settings_panel": {
+    "message": "查看/关闭设置面板"
+  },
+  "command_start_default_crawl": {
+    "message": "点击默认的抓取按钮（开始抓取）"
+  },
+  "command_toggle_select_work": {
+    "message": "手动选择作品"
+  },
+  "command_toggle_exclude_work": {
+    "message": "手动排除作品"
+  },
+  "command_toggle_preview_work": {
+    "message": "启用/关闭预览作品功能"
+  },
+  "command_quick_download": {
+    "message": "在作品页面里，快速下载当前作品"
+  },
+  "command_quick_bookmark": {
+    "message": "在作品页面里，快速收藏当前作品"
+  },
+  "command_copy_work_info": {
+    "message": "复制作品的图片和摘要信息"
   }
 }

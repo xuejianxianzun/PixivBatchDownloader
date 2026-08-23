@@ -20,6 +20,32 @@ browser.runtime.onInstalled.addListener(() => {
   browser.storage.local.set({ batchNo: {}, idList: {} })
 })
 
+// 把浏览器命令（用户自定义的一级快捷键）转发到当前活动标签页的内容脚本
+// Chrome 的 onCommand 不提供触发时的标签页，所以这里主动查询活动标签页
+// 若标签页不是下载器已注入的 Pixiv / Pixivision 页面，或者没有内容脚本接收，则静默忽略，避免产生未处理的 Promise rejection
+browser.commands.onCommand.addListener(async (command: string) => {
+  try {
+    const [tab] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
+    if (!tab || !tab.id || !tab.url) {
+      return
+    }
+
+    if (!/pixiv\.net|pixivision\.net/.test(tab.url)) {
+      return
+    }
+
+    await browser.tabs.sendMessage(tab.id, {
+      msg: 'ppdCommand',
+      command,
+    })
+  } catch (error) {
+    // 发送失败时忽略（例如标签页没有注入内容脚本）
+  }
+})
+
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
 const dlData: DonwloadListData = {}
 // 当浏览器开始下载一个由前台传递的文件时，会把一些数据保存到 dlData 里
@@ -276,6 +302,7 @@ async function clearData() {
   setData({ batchNo, idList })
 }
 
-setInterval(() => {
+// 使用 10 秒钟的定时器，在每次 SW 被唤醒之后都有机会清理一次数据
+setTimeout(() => {
   clearData()
-}, 3600000)
+}, 10000)

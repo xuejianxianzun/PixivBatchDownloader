@@ -2087,7 +2087,33 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
     
      p-id="5097"
      id="path2"
-     style="stroke-width:0.894455" /></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
+     style="stroke-width:0.894455" /></symbol><symbol id="shortcut" viewBox="0 0 1024 1024"><defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="4.4414062"
+     inkscape:cx="127.88742"
+     inkscape:cy="128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     d="M 739.98667,582.17094 H 652.3419 V 441.82906 h 87.64477 A 158.09134,158.09134 0 0 0 897.85751,284.01333 158.09134,158.09134 0 0 0 739.98667,126.14249 158.09134,158.09134 0 0 0 582.17094,284.01333 V 371.6581 H 441.82906 V 284.01333 A 158.09134,158.09134 0 0 0 284.01333,126.14249 158.09134,158.09134 0 0 0 126.14249,284.01333 158.09134,158.09134 0 0 0 284.01333,441.82906 H 371.6581 V 582.17094 H 284.01333 A 158.09134,158.09134 0 0 0 126.14249,739.98667 158.09134,158.09134 0 0 0 284.01333,897.85751 158.09134,158.09134 0 0 0 441.82906,739.98667 V 652.3419 h 140.34188 v 87.64477 A 158.09134,158.09134 0 0 0 739.98667,897.85751 158.09134,158.09134 0 0 0 897.85751,739.98667 158.09134,158.09134 0 0 0 739.98667,582.17094 Z M 652.3419,283.95821 a 87.699902,87.699902 0 1 1 87.64477,87.75501 H 652.3419 v -87.69989 z m -368.32857,87.81015 a 87.699902,87.699902 0 1 1 87.64477,-87.6999 v 87.64476 H 284.01333 Z M 371.6581,740.04179 A 87.755025,87.755025 0 1 1 284.01333,652.39702 H 371.6581 Z M 441.82906,582.22607 V 441.82906 H 582.17094 V 582.17094 H 441.82906 Z M 740.04179,827.7417 c -48.45267,0 -87.69989,-39.30234 -87.69989,-87.64479 v -87.69989 h 87.64477 a 87.755025,87.755025 0 0 1 0,175.34468 z"
+     p-id="12140"
+    
+     id="path1"
+     style="stroke-width:0.861289"
+     inkscape:label="path1" /></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
      id="defs2" />
   <sodipodi:namedview
      id="namedview2"

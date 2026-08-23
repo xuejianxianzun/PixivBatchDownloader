@@ -86,6 +86,7 @@ class ShowOriginSizeImage {
 
   private set show(val: boolean) {
     this._show = val
+    states.showOriginSizeImageIsShow = val
     if (val) {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
@@ -240,14 +241,9 @@ class ShowOriginSizeImage {
         }
 
         if (ev.code === 'KeyC') {
+          // 按 C 下载当前显示的这张图片（不需要 Alt）
           ev.stopPropagation()
-          // 使用快捷键 Alt + C 调用复制功能
-          if (ev.altKey) {
-            ev.preventDefault()
-            this.copy(this.workId)
-          } else {
-            this.downloadImage(this.workId)
-          }
+          this.downloadImage(this.workId)
         }
 
         // 按 V 键关闭原图区域
@@ -272,6 +268,13 @@ class ShowOriginSizeImage {
       },
       true
     )
+
+    // 一级快捷键 复制当前作品的信息（浏览器命令）
+    window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
+      if (this.show) {
+        this.copy(this.workId)
+      }
+    })
   }
 
   private readyShow = (ev: MouseEvent) => {
@@ -527,7 +530,7 @@ class ShowOriginSizeImage {
     EVT.fire('crawlIdList', [idData])
   }
 
-  /** 使用快捷键 Alt + C 调用复制功能 */
+  /** 复制当前作品的信息 */
   private async copy(id: string) {
     const idData: IDData = {
       type: 'illusts',

@@ -44,6 +44,7 @@ type ConfigOptional = Partial<InitConfig>
 class ImageViewer {
   constructor(cfg: ConfigOptional) {
     this.cfg = Object.assign(this.cfg, cfg)
+    ImageViewer.current = this
     this.init()
   }
 
@@ -53,6 +54,13 @@ class ImageViewer {
 
   private show = false // 当前查看器实例是否处于显示状态
   private isOriginalSize = false // 是否原尺寸显示图片
+
+  /** 当前活动的图片查看器实例。因为 ImageViewer 每次都是 new 的，
+   * 用这个静态属性记录最新的实例，以便命令监听器能找到真正显示的那个 */
+  private static current: ImageViewer | undefined
+  /** 命令监听器是否已经被注册过。ImageViewer 会被多次 new，
+   * 用静态标记避免重复注册 commandCopyWorkInfo 的监听器 */
+  private static cmdListenerAdded = false
 
   // 图片查看器初始化时会获取作品数据
   private workData: ArtworkData | undefined
@@ -76,6 +84,9 @@ class ImageViewer {
     // 删除旧的图片查看器元素
     const oldViewerContainer = document.querySelector('.viewer-container')
     oldViewerContainer && oldViewerContainer.remove()
+    // 旧的查看器被移除，它已不再显示，复位显示标记
+    // （旧的实例不会触发 hide 事件，所以在这里主动复位，避免状态残留）
+    states.imageViewerIsShow = false
 
     const wrap = await this.createImageList()
     if (wrap) {
@@ -110,14 +121,6 @@ class ImageViewer {
           // 需要阻止冒泡，因为 L 也是查看日志的快捷键
           ev.stopPropagation()
           this.copyWorkLink()
-        }
-      } else {
-        // 需要 Alt 的快捷键
-        if (ev.code === 'KeyC') {
-          // 按 Alt + C 复制当前作品的信息
-          // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
-          ev.stopPropagation()
-          this.copy()
         }
       }
     })
@@ -163,8 +166,7 @@ class ImageViewer {
         }
 
         // 按 B 收藏当前作品
-        // 实际上 Alt + B 也会生效
-        if (ev.code === 'KeyB') {
+        if (!ev.altKey && ev.code === 'KeyB') {
           ev.stopPropagation()
           this.addBookmark()
           return
@@ -175,6 +177,19 @@ class ImageViewer {
         passive: false,
       }
     )
+
+    // 一级快捷键 复制当前作品的信息（浏览器命令）
+    // ImageViewer 会被多次 new，这里用静态标记保证命令监听器只注册一次，避免重复创建
+    if (!ImageViewer.cmdListenerAdded) {
+      ImageViewer.cmdListenerAdded = true
+      window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
+        const iv = ImageViewer.current
+        // 只有当前活动的查看器处于显示状态时才复制，避免旧的（已移除的）实例误触发
+        if (iv && iv.show) {
+          iv.copy()
+        }
+      })
+    }
   }
 
   // 图片查看器需要一个图片列表元素，创建缩略图列表
@@ -246,6 +261,7 @@ class ImageViewer {
     // 图片查看器显示之后
     this.viewerUl.addEventListener('shown', () => {
       this.show = true
+      states.imageViewerIsShow = true
       // 添加自定义的按钮
       this.addOneToOneBtn()
       this.addCopyWorkLinkBtn()
@@ -265,6 +281,7 @@ class ImageViewer {
     // 退出图片查看器时（可能尚未完全退出）
     this.viewerUl.addEventListener('hide', () => {
       this.show = false
+      states.imageViewerIsShow = false
     })
 
     // 查看每一张图片时，如果处于 1:1 模式，就把图片缩放到 100%
@@ -515,7 +532,7 @@ class ImageViewer {
   private addCopyBtn() {
     const li = document.createElement('li')
     li.setAttribute('role', 'button')
-    li.setAttribute('title', lang.transl('_复制摘要数据') + ' (Alt + C)')
+    li.setAttribute('title', lang.transl('_复制摘要数据'))
     li.classList.add(this.addBtnClass)
     li.textContent = '↓'
     li.id = 'imageViewerCopyBtn'

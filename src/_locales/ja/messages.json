@@ -1,5 +1,29 @@
 {
   "extDescription": {
     "message": "強力な Pixiv 一括ダウンローダーです。イラスト、マンガ、動くイラスト、小説をまとめてダウンロードでき、作品の絞り込み、ファイル名の設定、分類保存、Pixiv の使い勝手の向上に対応します。"
+  },
+  "command_toggle_settings_panel": {
+    "message": "設定パネルの表示/非表示を切り替え"
+  },
+  "command_start_default_crawl": {
+    "message": "既定のクロールボタンをクリック（クロール開始）"
+  },
+  "command_toggle_select_work": {
+    "message": "作品を手動で選択"
+  },
+  "command_toggle_exclude_work": {
+    "message": "作品を手動で除外"
+  },
+  "command_toggle_preview_work": {
+    "message": "作品プレビュー機能の有効/無効を切り替え"
+  },
+  "command_quick_download": {
+    "message": "作品ページで現在の作品をすばやくダウンロード"
+  },
+  "command_quick_bookmark": {
+    "message": "作品ページで現在の作品をすばやくブックマーク"
+  },
+  "command_copy_work_info": {
+    "message": "作品の画像と概要情報をコピー"
   }
 }

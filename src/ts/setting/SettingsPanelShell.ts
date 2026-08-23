@@ -205,28 +205,15 @@ class SettingsPanelShell {
       )
     })
 
-    // 快捷键 Alt + X 切换显示设置面板
-    window.addEventListener(
-      'keydown',
-      (ev) => {
-        if (ev.altKey && ev.code === 'KeyX') {
-          this.toggle()
-        }
+    // 一级快捷键 Alt + X / Alt + Z 已迁移为浏览器命令
+    // 由 CommandReceiver 把命令分发为下面的 EVT 事件，不再在网页里监听 keydown
+    window.addEventListener(EVT.list.commandToggleSettingsPanel, () => {
+      this.toggle()
+    })
 
-        // 快捷键 Alt + Z 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
-        // 在不支持的页面里没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮）
-        if (ev.altKey && ev.code === 'KeyZ') {
-          const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`
-          const crawlBtn = shell.querySelector(selector) as HTMLButtonElement
-          if (crawlBtn) {
-            crawlBtn.click()
-          } else {
-            toast.warning(lang.transl('_该页面里没有默认的抓取按钮'))
-          }
-        }
-      },
-      false
-    )
+    window.addEventListener(EVT.list.commandStartDefaultCrawl, () => {
+      this.clickDefaultCrawlBtn()
+    })
 
     shell.querySelectorAll('.centerWrap_close').forEach((button) =>
       button.addEventListener('click', () => {
@@ -303,6 +290,19 @@ class SettingsPanelShell {
       EVT.fire('closeCenterPanel')
     } else {
       EVT.fire('openCenterPanel')
+    }
+  }
+
+  /** 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
+   * 在不支持的页面里没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮） */
+  private static clickDefaultCrawlBtn() {
+    const shell = this.get()
+    const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`
+    const crawlBtn = shell.querySelector(selector) as HTMLButtonElement
+    if (crawlBtn) {
+      crawlBtn.click()
+    } else {
+      toast.warning(lang.transl('_该页面里没有默认的抓取按钮'))
     }
   }
 

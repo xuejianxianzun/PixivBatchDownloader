@@ -24,6 +24,44 @@
     },
     "default_title": "Powerful Pixiv Downloader"
   },
+  "commands": {
+    "toggle-settings-panel": {
+      "suggested_key": {
+        "default": "Alt+X"
+      },
+      "description": "__MSG_command_toggle_settings_panel__"
+    },
+    "start-default-crawl": {
+      "suggested_key": {
+        "default": "Alt+Z"
+      },
+      "description": "__MSG_command_start_default_crawl__"
+    },
+    "toggle-select-work": {
+      "suggested_key": {
+        "default": "Alt+S"
+      },
+      "description": "__MSG_command_toggle_select_work__"
+    },
+    "toggle-exclude-work": {
+      "suggested_key": {
+        "default": "Alt+W"
+      },
+      "description": "__MSG_command_toggle_exclude_work__"
+    },
+    "toggle-preview-work": {
+      "description": "__MSG_command_toggle_preview_work__"
+    },
+    "quick-download": {
+      "description": "__MSG_command_quick_download__"
+    },
+    "quick-bookmark": {
+      "description": "__MSG_command_quick_bookmark__"
+    },
+    "copy-work-info": {
+      "description": "__MSG_command_copy_work_info__"
+    }
+  },
   "content_scripts": [{
       "js": [
         "js/injectScript.js"

@@ -127,15 +127,9 @@ class SelectWork {
       }
     })
 
-    // 使用 Alt + S 快捷键来模拟点击控制按钮
-    window.addEventListener('keydown', (ev) => {
-      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.altKey && ev.code === 'KeyS') {
-        this.controlBtn.click()
-      }
+    // 一级快捷键 Alt + S 已迁移为浏览器命令
+    window.addEventListener(EVT.list.commandToggleSelectWork, () => {
+      this.toggleSelectWork()
     })
 
     // 鼠标移动时保存鼠标的坐标
@@ -241,9 +235,6 @@ class SelectWork {
       'secondary',
       'brand'
     )
-    this.controlBtn.classList.add('has_tip')
-    this.controlBtn.setAttribute('data-xztip', '_快捷键_Alt_S')
-    lang.register(this.controlBtn)
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
@@ -488,6 +479,11 @@ class SelectWork {
 
   private canSelect() {
     return this.start && !this.pause
+  }
+
+  /** 启动或暂停手动选择作品（模拟点击控制按钮） */
+  private toggleSelectWork() {
+    this.controlBtn.click()
   }
 
   // 抓取选择的作品，这会自动暂停手动选择作品
