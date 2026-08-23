@@ -253,7 +253,7 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
+        // 当用户按下 Ctrl 时，不启用下载器的快捷键，以避免快捷键冲突或重复生效
         // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
         if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
           return

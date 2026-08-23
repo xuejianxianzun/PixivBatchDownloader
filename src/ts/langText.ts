@@ -11348,6 +11348,14 @@ For example, exported crawl results include a timestamp in the file name. The pr
     '단축키 Alt + S',
     'Горячая клавиша Alt + S',
   ],
+  _该页面里没有默认的抓取按钮: [
+    `该页面里没有默认的抓取按钮`,
+    `該頁面裡沒有預設的抓取按鈕`,
+    `There is no default crawl button on this page`,
+    `このページにはデフォルトのクロールボタンはありません`,
+    `이 페이지에는 기본 크롤링 버튼이 없습니다`,
+    `На этой странице нет кнопки краулинга по умолчанию`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

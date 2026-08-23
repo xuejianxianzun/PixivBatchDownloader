@@ -8931,7 +8931,7 @@ class PreviewWork {
         });
         // 绑定按键
         window.addEventListener('keydown', (ev) => {
-            // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
+            // 当用户按下 Ctrl 时，不启用下载器的快捷键，以避免快捷键冲突或重复生效
             // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
             if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
@@ -19219,12 +19219,12 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
     matchIllustId = /id="illust:(\d+)"/g;
     matchNovelId = /id="novel:(\d+)"/g;
     addCrawlBtns() {
-        this.addInitPageBtn('crawlBtns', '_抓取应募作品', '', 'crawlApplicationWork', 'brand').addEventListener('click', () => {
-            this.scope = 'applications';
-            this.readyCrawl();
-        });
         this.addInitPageBtn('crawlBtns', '_抓取获奖作品', '', 'crawlWinningWork', 'brand').addEventListener('click', () => {
             this.scope = 'winning';
+            this.readyCrawl();
+        });
+        this.addInitPageBtn('crawlBtns', '_抓取应募作品', '', 'crawlApplicationWork', 'brand').addEventListener('click', () => {
+            this.scope = 'applications';
             this.readyCrawl();
         });
     }
@@ -42833,6 +42833,14 @@ For example, exported crawl results include a timestamp in the file name. The pr
         '단축키 Alt + S',
         'Горячая клавиша Alt + S',
     ],
+    _该页面里没有默认的抓取按钮: [
+        `该页面里没有默认的抓取按钮`,
+        `該頁面裡沒有預設的抓取按鈕`,
+        `There is no default crawl button on this page`,
+        `このページにはデフォルトのクロールボタンはありません`,
+        `이 페이지에는 기본 크롤링 버튼이 없습니다`,
+        `На этой странице нет кнопки краулинга по умолчанию`,
+    ],
 };
 
 
@@ -45594,7 +45602,7 @@ class CrawlNumber {
                 //   setSetting('crawlNumber', settings.crawlNumber)
                 // }
                 // 现在不限制最大值，即允许用户设置大于 max 的数字。
-                // 这是因为在排行榜页面里，max 的值可能会根据不同的分类而变化。例如在普通分类里 max 是 500, 在 R-18 分类里 max 是 100。
+                // 这是因为在排行榜页面里，max 的值会根据不同的分类而变化。例如在普通分类里 max 是 500, 在 R-18 分类里 max 是 100。
                 // 如果限制最大值为 max，那么当用户从普通分类里进入 R-18 分类时，500 会自动变成 100。之后即使返回普通分类，也还是 100。这会让用户困惑，因为数字自动变小了。
                 item.input.value = cfg.value.toString();
                 item.minBtn.textContent = cfg.min.toString();
@@ -52663,6 +52671,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -52844,6 +52854,22 @@ class SettingsPanelShell {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_7__.showOneTimeMsg.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_账户可能被封禁的警告'));
         });
+        // 快捷键 Alt + Z 点击默认的抓取按钮
+        window.addEventListener('keydown', (ev) => {
+            if (ev.altKey && ev.code === 'KeyZ') {
+                // 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
+                // 在不支持的页面里，没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮）
+                const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`;
+                const crawlBtn = shell.querySelector(selector);
+                if (crawlBtn) {
+                    crawlBtn.click();
+                }
+                else {
+                    _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_该页面里没有默认的抓取按钮'));
+                }
+            }
+        }, false);
+        // 快捷键 Alt + X 切换显示设置面板
         window.addEventListener('keydown', (ev) => {
             if (ev.altKey && ev.code === 'KeyX') {
                 this.toggle();
