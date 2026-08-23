@@ -250,8 +250,15 @@ class ShowOriginSizeImage {
           }
         }
 
-        // 按 B 键收藏这个作品（实际上 Alt + B 也会生效）
-        if (ev.code === 'KeyB') {
+        // 按 V 键关闭原图区域
+        if (!ev.altKey && ev.code === 'KeyV') {
+          ev.preventDefault()
+          ev.stopPropagation()
+          this.show = false
+        }
+
+        // 按 B 键收藏这个作品
+        if (!ev.altKey && ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
           addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)

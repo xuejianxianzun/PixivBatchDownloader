@@ -183,7 +183,25 @@ class PreviewWork {
   }
 
   private bindEvents() {
-    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string, ev: MouseEvent) => {
+      // 这个判断是为了处理这个边界情况：
+      // 在多图作品页面里，预览作品下方的某个缩略图时（必须是由 displayThumbnailListOnMultiImageWorkPage 生成的缩略图，因为它设置了 data-index，每个缩略图都有不同的索引）
+      // 在预览并切换图片的过程中，某张预览图（通常是横图）遮挡住了缩略图，这会触发 artworkThumbnail.onLeave 事件；
+      // 之后当预览图消失，或者显示了下一张预览图（并且这个预览图没有遮挡缩略图），就会导致鼠标重新落在下方的缩略图上，触发 artworkThumbnail.onEnter 事件。
+      // 这时如果不加以处理，预览图就会自动变成这张缩略图的预览图；但实际上应该保持用户刚才操作的结果，而不是让预览图突然变化。
+      // 使用 ev.relatedTarget 可以检查鼠标是否刚从预览容器 #previewWorkWrap 上离开。对于上面的情况：预览图原本覆盖在缩略图上，之后不再覆盖，导致鼠标重新落回缩略图上。现在会忽略该事件，不会导致预览图自动变化。
+      // 测试作品：https://www.pixiv.net/artworks/148063649
+      const enterFromPreview =
+        ev.relatedTarget instanceof Node && this.wrap.contains(ev.relatedTarget)
+      if (
+        enterFromPreview &&
+        this.show &&
+        id === this.workId &&
+        displayThumbnailListOnMultiImageWorkPage.checkLI(el)
+      ) {
+        return
+      }
+
       if (this.dontShowAgain || this.dontShowAfterPageSwitch) {
         return
       }
@@ -509,6 +527,11 @@ class PreviewWork {
     }
 
     const workId = this.workId
+    // 每次显示时都从 states.indexRecord 里获取 index。这样在其他模块切换作品后，再使用预览作品功能时，可以继承之前的 index
+    const lastIndex = states.indexRecord[workId]
+    if (lastIndex !== undefined) {
+      this.index = lastIndex
+    }
     const index = this.index
     const workData = this.workData
     const url = workData.body.urls[settings.prevWorkSize].replace(

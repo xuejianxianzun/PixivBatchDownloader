@@ -8872,7 +8872,21 @@ class PreviewWork {
         document.body.appendChild(this.wrap);
     }
     bindEvents() {
-        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_1__.artworkThumbnail.onEnter((el, id) => {
+        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_1__.artworkThumbnail.onEnter((el, id, ev) => {
+            // 这个判断是为了处理这个边界情况：
+            // 在多图作品页面里，预览作品下方的某个缩略图时（必须是由 displayThumbnailListOnMultiImageWorkPage 生成的缩略图，因为它设置了 data-index，每个缩略图都有不同的索引）
+            // 在预览并切换图片的过程中，某张预览图（通常是横图）遮挡住了缩略图，这会触发 artworkThumbnail.onLeave 事件；
+            // 之后当预览图消失，或者显示了下一张预览图（并且这个预览图没有遮挡缩略图），就会导致鼠标重新落在下方的缩略图上，触发 artworkThumbnail.onEnter 事件。
+            // 这时如果不加以处理，预览图就会自动变成这张缩略图的预览图；但实际上应该保持用户刚才操作的结果，而不是让预览图突然变化。
+            // 使用 ev.relatedTarget 可以检查鼠标是否刚从预览容器 #previewWorkWrap 上离开。对于上面的情况：预览图原本覆盖在缩略图上，之后不再覆盖，导致鼠标重新落回缩略图上。现在会忽略该事件，不会导致预览图自动变化。
+            // 测试作品：https://www.pixiv.net/artworks/148063649
+            const enterFromPreview = ev.relatedTarget instanceof Node && this.wrap.contains(ev.relatedTarget);
+            if (enterFromPreview &&
+                this.show &&
+                id === this.workId &&
+                _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                return;
+            }
             if (this.dontShowAgain || this.dontShowAfterPageSwitch) {
                 return;
             }
@@ -9143,6 +9157,11 @@ class PreviewWork {
             return;
         }
         const workId = this.workId;
+        // 每次显示时都从 states.indexRecord 里获取 index。这样在其他模块切换作品后，再使用预览作品功能时，可以继承之前的 index
+        const lastIndex = _store_States__WEBPACK_IMPORTED_MODULE_4__.states.indexRecord[workId];
+        if (lastIndex !== undefined) {
+            this.index = lastIndex;
+        }
         const index = this.index;
         const workData = this.workData;
         const url = workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.prevWorkSize].replace('p0', `p${index}`);
@@ -11794,8 +11813,14 @@ class ShowOriginSizeImage {
                     this.downloadImage(this.workId);
                 }
             }
-            // 按 B 键收藏这个作品（实际上 Alt + B 也会生效）
-            if (ev.code === 'KeyB') {
+            // 按 V 键关闭原图区域
+            if (!ev.altKey && ev.code === 'KeyV') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.show = false;
+            }
+            // 按 B 键收藏这个作品
+            if (!ev.altKey && ev.code === 'KeyB') {
                 ev.preventDefault();
                 ev.stopPropagation();
                 _AddBookmarkWhenPreviewWorks__WEBPACK_IMPORTED_MODULE_12__.addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true);
@@ -37240,37 +37265,37 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 <span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前查看的图片和作品信息<br>
-<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
         `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前查看的圖片和作品資訊<br>
-<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
         `When you are viewing the large image of a work, you can use these shortcuts:<br>
 <span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
 <span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently viewed image and work information<br>
-<span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
         `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
 <span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 現在表示している画像と作品情報をコピー<br>
-<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
         `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
 <span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
 <span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 현재 보고 있는 이미지와 작품 정보 복사<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
         `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее изображение и информацию о работе<br>
-<span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
     ],
     _定时抓取: [
         '定时抓取',

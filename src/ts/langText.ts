@@ -5780,37 +5780,37 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 <span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前查看的图片和作品信息<br>
-<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
     `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前查看的圖片和作品資訊<br>
-<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
     `When you are viewing the large image of a work, you can use these shortcuts:<br>
 <span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
 <span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
 <span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently viewed image and work information<br>
-<span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
     `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
 <span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
 <span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
 <span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 現在表示している画像と作品情報をコピー<br>
-<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
+<span class="blue">V</span>、<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
     `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
 <span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
 <span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
 <span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> 현재 보고 있는 이미지와 작품 정보 복사<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
     `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
 <span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
 <span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
 <span class="blue">Alt</span> + <span class="blue">C</span> Копировать текущее изображение и информацию о работе<br>
-<span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
+<span class="blue">V</span>, <span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
   ],
   _定时抓取: [
     '定时抓取',
