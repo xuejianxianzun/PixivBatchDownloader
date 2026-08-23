@@ -13,7 +13,6 @@ import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
-import { Config } from '../Config'
 import { nameRuleManager } from '../setting/NameRuleManager'
 
 class InitRankingArtworkPage extends InitPageBase {
