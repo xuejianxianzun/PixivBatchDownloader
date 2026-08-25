@@ -1806,30 +1806,6 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().action.onClicked.ad
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onInstalled.addListener(() => {
     webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.set({ batchNo: {}, idList: {} });
 });
-// 把浏览器命令（用户自定义的一级快捷键）转发到当前活动标签页的内容脚本
-// Chrome 的 onCommand 不提供触发时的标签页，所以这里主动查询活动标签页
-// 若标签页不是下载器已注入的 Pixiv / Pixivision 页面，或者没有内容脚本接收，则静默忽略，避免产生未处理的 Promise rejection
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().commands.onCommand.addListener(async (command) => {
-    try {
-        const [tab] = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.query({
-            active: true,
-            currentWindow: true,
-        });
-        if (!tab || !tab.id || !tab.url) {
-            return;
-        }
-        if (!/pixiv\.net|pixivision\.net/.test(tab.url)) {
-            return;
-        }
-        await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(tab.id, {
-            msg: 'ppdCommand',
-            command,
-        });
-    }
-    catch (error) {
-        // 发送失败时忽略（例如标签页没有注入内容脚本）
-    }
-});
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
 const dlData = {};
 /** 使用每个标签页的 tabId 作为索引，储存此标签页里当前下载任务的编号。用来判断不同批次的下载 */
@@ -2036,9 +2012,9 @@ async function clearData() {
     }
     setData({ batchNo, idList });
 }
-setTimeout(() => {
+setInterval(() => {
     clearData();
-}, 10000);
+}, 3600000);
 
 })();
 

@@ -11297,13 +11297,13 @@ For example, exported crawl results include a timestamp in the file name. The pr
     '크롤링 결과에서 제거됨',
     'Удалено из результатов сбора',
   ],
-  _快捷键ALTW手动排除作品: [
-    '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">W</span>）开始或暂停手动排除作品。',
-    '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">W</span>）開始或暫停手動排除作品。',
-    'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">W</span>) to start or pause manually excluding works.',
-    'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">W</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
-    '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">W</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
-    'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">W</span>), чтобы начать или приостановить ручное исключение работ。',
+  _快捷键ALTE手动排除作品: [
+    '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">E</span>）开始或暂停手动排除作品。',
+    '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">E</span>）開始或暫停手動排除作品。',
+    'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">E</span>) to start or pause manually excluding works.',
+    'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
+    '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
+    'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>), чтобы начать или приостановить ручное исключение работ。',
   ],
   _快捷键: [
     '快捷键',
@@ -11319,7 +11319,7 @@ For example, exported crawl results include a timestamp in the file name. The pr
 - <span class="blue">Alt</span> + <span class="blue">X</span> 打开/关闭设置面板<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 点击默认的抓取按钮（开始抓取）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 手动选择作品<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 手动排除作品<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 手动排除作品<br>
 - 未设置：启用/关闭预览作品功能（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
 - 未设置：在作品页面里，快速下载当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
 - 未设置：在作品页面里，快速收藏当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
@@ -11334,7 +11334,7 @@ Edge 浏览器可以使用这个网址：edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> 開啟/關閉設定面板<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 手動選擇作品<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 手動排除作品<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 手動排除作品<br>
 - 未設定：啟用/關閉預覽作品功能（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
 - 未設定：在作品頁面裡，快速下載目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
 - 未設定：在作品頁面裡，快速收藏目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
@@ -11349,7 +11349,7 @@ Edge 瀏覽器可以使用這個網址：edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> Open/close the settings panel<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> Click the default crawl button (start crawling)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> Manually select works<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> Manually exclude works<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> Manually exclude works<br>
 - Not set: enable/disable the work preview feature (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
 - Not set: on the artwork page, quickly download the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
 - Not set: on the artwork page, quickly bookmark the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
@@ -11364,7 +11364,7 @@ For Edge, you can use this URL: edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> 設定パネルの開閉<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 既定の取得ボタンをクリック（取得開始）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 作品を手動で選択<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 作品を手動で除外<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 作品を手動で除外<br>
 - 未設定：作品プレビュー機能の有効化/無効化（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">P</span> でした）<br>
 - 未設定：作品ページで、現在の作品をすばやくダウンロード（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">Q</span> でした）<br>
 - 未設定：作品ページで、現在の作品をすばやくブックマーク（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">B</span> でした）<br>
@@ -11379,7 +11379,7 @@ Edge ブラウザーはこの URL を使用できます：edge://extensions/shor
 - <span class="blue">Alt</span> + <span class="blue">X</span> 설정 패널 열기/닫기<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 기본 크롤링 버튼 클릭(크롤링 시작)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 작품 수동 선택<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 작품 수동 제외<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 작품 수동 제외<br>
 - 미설정: 작품 미리보기 기능 켜기/끄기(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">P</span> 였습니다)<br>
 - 미설정: 작품 페이지에서 현재 작품 빠르게 다운로드(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">Q</span> 였습니다)<br>
 - 미설정: 작품 페이지에서 현재 작품 빠르게 북마크(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">B</span> 였습니다)<br>
@@ -11394,7 +11394,7 @@ Edge 브라우저는 이 URL을 사용할 수 있습니다: edge://extensions/sh
 - <span class="blue">Alt</span> + <span class="blue">X</span> Открыть/закрыть панель настроек<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> Нажать кнопку сбора по умолчанию (начать сбор)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> Выбрать работы вручную<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> Исключить работы вручную<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> Исключить работы вручную<br>
 - Не назначено: включить/отключить функцию предпросмотра работ (прежнее сочетание этой функции — <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
 - Не назначено: на странице работы быстро загрузить текущую работу (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
 - Не назначено: на странице работы быстро добавить текущую работу в закладки (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">B</span>)<br>

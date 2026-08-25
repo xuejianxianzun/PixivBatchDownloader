@@ -414,7 +414,7 @@ interface XzSetting {
   autoExportSettingsStrategy: 'timed' | 'onSettingChange'
   autoExportSettingsInterval: number
   tipManuallyExcludeWorks: boolean
-  tipAltWToExcludeWork: boolean
+  tipAltEToExcludeWork: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -1045,7 +1045,7 @@ class Settings {
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
-    tipAltWToExcludeWork: true,
+    tipAltEToExcludeWork: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1381,7 +1381,7 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
-    this.setSetting('tipAltWToExcludeWork', true)
+    this.setSetting('tipAltEToExcludeWork', true)
     this.setSetting('tipImageViewer', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
@@ -1599,7 +1599,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

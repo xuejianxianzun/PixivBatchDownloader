@@ -1,29 +1,5 @@
 {
   "extDescription": {
     "message": "A powerful Pixiv batch downloader. It can batch download illustrations, manga, animated works, and novels; filter works, set file names, save by category, and improve the Pixiv experience."
-  },
-  "command_toggle_settings_panel": {
-    "message": "View/hide the settings panel"
-  },
-  "command_start_default_crawl": {
-    "message": "Click the default crawl button (start crawling)"
-  },
-  "command_toggle_select_work": {
-    "message": "Manually select works"
-  },
-  "command_toggle_exclude_work": {
-    "message": "Manually exclude works"
-  },
-  "command_toggle_preview_work": {
-    "message": "Enable/disable the work preview feature"
-  },
-  "command_quick_download": {
-    "message": "Quickly download the current work on a work page"
-  },
-  "command_quick_bookmark": {
-    "message": "Quickly bookmark the current work on a work page"
-  },
-  "command_copy_work_info": {
-    "message": "Copy the work's images and summary info"
   }
 }

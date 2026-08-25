@@ -2642,45 +2642,6 @@ var Colors;
 
 /***/ }),
 
-/***/ "./src/ts/CommandReceiver.ts":
-/*!***********************************!*\
-  !*** ./src/ts/CommandReceiver.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-
-
-// 浏览器命令名 -> EVT 事件名的映射
-// 下载器只根据稳定的命令名执行动作，不直接解析用户实际使用的按键
-const commandMap = {
-    'toggle-settings-panel': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleSettingsPanel,
-    'start-default-crawl': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandStartDefaultCrawl,
-    'toggle-select-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleSelectWork,
-    'toggle-exclude-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandToggleExcludeWork,
-    'toggle-preview-work': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandTogglePreviewWork,
-    'quick-download': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandQuickDownload,
-    'quick-bookmark': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandQuickBookmark,
-    'copy-work-info': _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.commandCopyWorkInfo,
-};
-// 统一的命令接收层：把 background 转发的浏览器命令分发为语义化 EVT 事件
-// 各功能模块通过监听对应的 EVT 事件来执行动作，而不是各自注册 runtime.onMessage
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg) => {
-    if (msg && msg.msg === 'ppdCommand' && typeof msg.command === 'string') {
-        const eventName = commandMap[msg.command];
-        if (eventName) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire(eventName);
-        }
-    }
-});
-
-
-/***/ }),
-
 /***/ "./src/ts/Config.ts":
 /*!**************************!*\
   !*** ./src/ts/Config.ts ***!
@@ -3912,21 +3873,21 @@ class EVENT {
         excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
         /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
         manuallyExcludeWork: 'manuallyExcludeWork',
-        /** 浏览器命令：切换显示设置面板（对应一级快捷键 Alt + X） */
+        /** 快捷键命令：切换显示设置面板（对应一级快捷键 Alt + X） */
         commandToggleSettingsPanel: 'commandToggleSettingsPanel',
-        /** 浏览器命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */
+        /** 快捷键命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */
         commandStartDefaultCrawl: 'commandStartDefaultCrawl',
-        /** 浏览器命令：启动或暂停手动选择作品（对应一级快捷键 Alt + S） */
+        /** 快捷键命令：启动或暂停手动选择作品（对应一级快捷键 Alt + S） */
         commandToggleSelectWork: 'commandToggleSelectWork',
-        /** 浏览器命令：启动或暂停手动排除作品（对应一级快捷键 Alt + W） */
+        /** 快捷键命令：启动或暂停手动排除作品（对应一级快捷键 Alt + W） */
         commandToggleExcludeWork: 'commandToggleExcludeWork',
-        /** 浏览器命令：启用或关闭预览作品功能（对应一级快捷键 Alt + P） */
+        /** 快捷键命令：启用或关闭预览作品功能（对应一级快捷键 Alt + P） */
         commandTogglePreviewWork: 'commandTogglePreviewWork',
-        /** 浏览器命令：在作品页面里快速下载当前作品（对应一级快捷键 Alt + Q） */
+        /** 快捷键命令：在作品页面里快速下载当前作品（对应一级快捷键 Alt + Q） */
         commandQuickDownload: 'commandQuickDownload',
-        /** 浏览器命令：在作品页面里快速收藏当前作品（对应一级快捷键 Alt + B） */
+        /** 快捷键命令：在作品页面里快速收藏当前作品（对应一级快捷键 Alt + B） */
         commandQuickBookmark: 'commandQuickBookmark',
-        /** 浏览器命令：复制作品的图片和摘要信息（对应一级快捷键 Alt + C） */
+        /** 快捷键命令：复制作品的图片和摘要信息（对应一级快捷键 Alt + C） */
         commandCopyWorkInfo: 'commandCopyWorkInfo',
     };
     fire(type, data) {
@@ -4145,7 +4106,7 @@ class ExcludeWork {
                 this.startExclude(ev);
                 this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipAltWToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTW手动排除作品'));
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipAltEToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTE手动排除作品'));
                 }
             };
         }
@@ -42829,13 +42790,13 @@ For example, exported crawl results include a timestamp in the file name. The pr
         '크롤링 결과에서 제거됨',
         'Удалено из результатов сбора',
     ],
-    _快捷键ALTW手动排除作品: [
-        '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">W</span>）开始或暂停手动排除作品。',
-        '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">W</span>）開始或暫停手動排除作品。',
-        'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">W</span>) to start or pause manually excluding works.',
-        'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">W</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
-        '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">W</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
-        'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">W</span>), чтобы начать или приостановить ручное исключение работ。',
+    _快捷键ALTE手动排除作品: [
+        '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">E</span>）开始或暂停手动排除作品。',
+        '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">E</span>）開始或暫停手動排除作品。',
+        'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">E</span>) to start or pause manually excluding works.',
+        'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
+        '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
+        'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>), чтобы начать или приостановить ручное исключение работ。',
     ],
     _快捷键: [
         '快捷键',
@@ -42851,7 +42812,7 @@ For example, exported crawl results include a timestamp in the file name. The pr
 - <span class="blue">Alt</span> + <span class="blue">X</span> 打开/关闭设置面板<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 点击默认的抓取按钮（开始抓取）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 手动选择作品<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 手动排除作品<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 手动排除作品<br>
 - 未设置：启用/关闭预览作品功能（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
 - 未设置：在作品页面里，快速下载当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
 - 未设置：在作品页面里，快速收藏当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
@@ -42866,7 +42827,7 @@ Edge 浏览器可以使用这个网址：edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> 開啟/關閉設定面板<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 手動選擇作品<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 手動排除作品<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 手動排除作品<br>
 - 未設定：啟用/關閉預覽作品功能（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
 - 未設定：在作品頁面裡，快速下載目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
 - 未設定：在作品頁面裡，快速收藏目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
@@ -42881,7 +42842,7 @@ Edge 瀏覽器可以使用這個網址：edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> Open/close the settings panel<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> Click the default crawl button (start crawling)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> Manually select works<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> Manually exclude works<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> Manually exclude works<br>
 - Not set: enable/disable the work preview feature (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
 - Not set: on the artwork page, quickly download the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
 - Not set: on the artwork page, quickly bookmark the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
@@ -42896,7 +42857,7 @@ For Edge, you can use this URL: edge://extensions/shortcuts<br>`,
 - <span class="blue">Alt</span> + <span class="blue">X</span> 設定パネルの開閉<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 既定の取得ボタンをクリック（取得開始）<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 作品を手動で選択<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 作品を手動で除外<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 作品を手動で除外<br>
 - 未設定：作品プレビュー機能の有効化/無効化（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">P</span> でした）<br>
 - 未設定：作品ページで、現在の作品をすばやくダウンロード（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">Q</span> でした）<br>
 - 未設定：作品ページで、現在の作品をすばやくブックマーク（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">B</span> でした）<br>
@@ -42911,7 +42872,7 @@ Edge ブラウザーはこの URL を使用できます：edge://extensions/shor
 - <span class="blue">Alt</span> + <span class="blue">X</span> 설정 패널 열기/닫기<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> 기본 크롤링 버튼 클릭(크롤링 시작)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> 작품 수동 선택<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> 작품 수동 제외<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> 작품 수동 제외<br>
 - 미설정: 작품 미리보기 기능 켜기/끄기(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">P</span> 였습니다)<br>
 - 미설정: 작품 페이지에서 현재 작품 빠르게 다운로드(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">Q</span> 였습니다)<br>
 - 미설정: 작품 페이지에서 현재 작품 빠르게 북마크(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">B</span> 였습니다)<br>
@@ -42926,7 +42887,7 @@ Edge 브라우저는 이 URL을 사용할 수 있습니다: edge://extensions/sh
 - <span class="blue">Alt</span> + <span class="blue">X</span> Открыть/закрыть панель настроек<br>
 - <span class="blue">Alt</span> + <span class="blue">Z</span> Нажать кнопку сбора по умолчанию (начать сбор)<br>
 - <span class="blue">Alt</span> + <span class="blue">S</span> Выбрать работы вручную<br>
-- <span class="blue">Alt</span> + <span class="blue">W</span> Исключить работы вручную<br>
+- <span class="blue">Alt</span> + <span class="blue">E</span> Исключить работы вручную<br>
 - Не назначено: включить/отключить функцию предпросмотра работ (прежнее сочетание этой функции — <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
 - Не назначено: на странице работы быстро загрузить текущую работу (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
 - Не назначено: на странице работы быстро добавить текущую работу в закладки (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
@@ -50447,7 +50408,7 @@ class Settings {
         autoExportSettingsStrategy: 'timed',
         autoExportSettingsInterval: 24,
         tipManuallyExcludeWorks: true,
-        tipAltWToExcludeWork: true,
+        tipAltEToExcludeWork: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -50720,7 +50681,7 @@ class Settings {
         this.setSetting('tipPreviewWork', true);
         this.setSetting('tipHotkeysViewLargeImage', true);
         this.setSetting('tipAltSToSelectWork', true);
-        this.setSetting('tipAltWToExcludeWork', true);
+        this.setSetting('tipAltEToExcludeWork', true);
         this.setSetting('tipImageViewer', true);
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipBookmarkManage', true);
@@ -74209,45 +74170,44 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _setting_SettingsPanelBootstrap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/SettingsPanelBootstrap */ "./src/ts/setting/SettingsPanelBootstrap.ts");
-/* harmony import */ var _CommandReceiver__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CommandReceiver */ "./src/ts/CommandReceiver.ts");
-/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
-/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
-/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
-/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
-/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
+/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
+/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
+/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -74257,7 +74217,6 @@ __webpack_require__.r(__webpack_exports__);
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  */
-
 
 
 

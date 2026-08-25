@@ -1,29 +1,5 @@
 {
   "extDescription": {
     "message": "강력한 Pixiv 일괄 다운로드 도구입니다. 일러스트, 만화, 동화를 일괄 다운로드할 수 있고, 작품 필터링, 파일명 설정, 분류 저장이 가능하며, Pixiv 사용 경험을 개선합니다."
-  },
-  "command_toggle_settings_panel": {
-    "message": "설정 패널 표시/숨김 전환"
-  },
-  "command_start_default_crawl": {
-    "message": "기본 크롤 버튼 클릭(크롤 시작)"
-  },
-  "command_toggle_select_work": {
-    "message": "작품 수동 선택"
-  },
-  "command_toggle_exclude_work": {
-    "message": "작품 수동 제외"
-  },
-  "command_toggle_preview_work": {
-    "message": "작품 미리보기 기능 켜기/끄기"
-  },
-  "command_quick_download": {
-    "message": "작품 페이지에서 현재 작품 빠르게 다운로드"
-  },
-  "command_quick_bookmark": {
-    "message": "작품 페이지에서 현재 작품 빠르게 북마크"
-  },
-  "command_copy_work_info": {
-    "message": "작품의 이미지와 요약 정보 복사"
   }
 }

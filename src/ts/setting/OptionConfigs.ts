@@ -53,7 +53,7 @@ type OptionMeta = {
   hideOnMobile?: boolean
   /** 是否在 pixivision 隐藏。只有需要隐藏时才会有这个属性。如果没有这个属性或者为 false，则表示在 pixivision 显示 */
   hideOnPixivision?: boolean
-  /** 添加该设置项时的时间戳。新增的设置需要添加这个属性，旧设置不需要这个属性，因为它是为了显示“new”角标而存在的，旧设置用不到 */
+  /** 添加该设置项时的时间戳。新增一个设置项时，使用当前时间戳作为这个属性的值。旧设置不需要这个属性，因为它是为了显示“new”角标而存在的，旧设置用不到 */
   addedAt?: number
 }
 

@@ -1,29 +1,5 @@
 {
   "extDescription": {
     "message": "強大的 Pixiv 批次下載器。可以批次下載插畫、漫畫、動畫；可以篩選作品、設定檔名、分類儲存；優化 Pixiv 的使用體驗。"
-  },
-  "command_toggle_settings_panel": {
-    "message": "查看/關閉設定面板"
-  },
-  "command_start_default_crawl": {
-    "message": "點擊預設的抓取按鈕（開始抓取）"
-  },
-  "command_toggle_select_work": {
-    "message": "手動選擇作品"
-  },
-  "command_toggle_exclude_work": {
-    "message": "手動排除作品"
-  },
-  "command_toggle_preview_work": {
-    "message": "啟用/關閉預覽作品功能"
-  },
-  "command_quick_download": {
-    "message": "在作品頁面裡，快速下載目前作品"
-  },
-  "command_quick_bookmark": {
-    "message": "在作品頁面裡，快速收藏目前作品"
-  },
-  "command_copy_work_info": {
-    "message": "複製作品的圖片和摘要資訊"
   }
 }
