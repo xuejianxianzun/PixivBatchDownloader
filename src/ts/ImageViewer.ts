@@ -178,7 +178,7 @@ class ImageViewer {
       }
     )
 
-    // 一级快捷键 复制当前作品的信息（浏览器命令）
+    // 一级快捷键 复制当前作品的信息
     // ImageViewer 会被多次 new，这里用静态标记保证命令监听器只注册一次，避免重复创建
     if (!ImageViewer.cmdListenerAdded) {
       ImageViewer.cmdListenerAdded = true
@@ -376,7 +376,7 @@ class ImageViewer {
       // 启动图片查看器
       showOneTimeMsg.show(
         'tipImageViewer',
-        lang.transl('_图片查看器的帮助'),
+        lang.transl('_图片查看器的快捷键列表'),
         lang.transl('_图片查看器')
       )
       this.myViewer.show()

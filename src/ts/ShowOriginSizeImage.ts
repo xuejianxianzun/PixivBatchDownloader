@@ -227,11 +227,11 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (!this.workId) {
+        if (!this.workId || !this.show) {
           return
         }
 
-        if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
           return
         }
 
@@ -241,20 +241,20 @@ class ShowOriginSizeImage {
         }
 
         if (ev.code === 'KeyC') {
-          // 按 C 下载当前显示的这张图片（不需要 Alt）
+          // 按 C 下载当前显示的这张图片
           ev.stopPropagation()
           this.downloadImage(this.workId)
         }
 
         // 按 V 键关闭原图区域
-        if (!ev.altKey && ev.code === 'KeyV') {
+        if (ev.code === 'KeyV') {
           ev.preventDefault()
           ev.stopPropagation()
           this.show = false
         }
 
         // 按 B 键收藏这个作品
-        if (!ev.altKey && ev.code === 'KeyB') {
+        if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
           addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
@@ -269,7 +269,7 @@ class ShowOriginSizeImage {
       true
     )
 
-    // 一级快捷键 复制当前作品的信息（浏览器命令）
+    // 一级快捷键 复制当前作品的信息
     window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
       if (this.show) {
         this.copy(this.workId)

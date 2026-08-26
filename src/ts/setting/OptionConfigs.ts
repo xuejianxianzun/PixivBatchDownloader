@@ -1407,6 +1407,17 @@ class OptionConfigs {
       addedAt: 1780444800000,
     },
     {
+      no: 107,
+      nameKey: '_自定义快捷键',
+      name: '',
+      categoryLevel1: 'general',
+      categoryLevel2: 'operation',
+      pinned: false,
+      searchWordKeys: ['_快捷键'],
+      searchWords: [],
+      addedAt: 1787655935527,
+    },
+    {
       no: 98,
       nameKey: '_颜色主题',
       name: '',

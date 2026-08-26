@@ -50,7 +50,7 @@ class CopyButtonOnWorkPage {
       this.copyWork()
     })
 
-    // 一级快捷键 复制当前作品的信息（浏览器命令）
+    // 一级快捷键 复制当前作品的信息
     // 当预览作品、图片查看器、原比例查看图片这三者之一正在显示时，
     // 由对应的模块负责复制（它们各自带 index），这里跳过以免重复复制
     window.addEventListener(EVT.list.commandCopyWorkInfo, () => {

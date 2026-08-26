@@ -123,7 +123,7 @@ class SettingsPanelHelp {
       }
 
       case 'shortcut':
-        msgBox.show(lang.transl('_快捷键说明'), {
+        msgBox.show(lang.transl('_快捷键列表的说明'), {
           title: lang.transl('_快捷键'),
         })
         return

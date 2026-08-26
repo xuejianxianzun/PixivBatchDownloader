@@ -570,6 +570,8 @@ body.mobile #rightButtonContainer {
   --settings-panel-border: #9dd4f9;
   --settings-panel-shadow: 0 0 25px #b4e0f5;
   --settings-panel-con-bg: #eee;
+  --settings-panel-table-header-bg: #f8f8f8;
+  --settings-panel-table-border: #e3e6e9;
   --settings-panel-head-bg: #fff;
   --settings-panel-head-border: #edf3f8;
   --settings-panel-brand-color: var(--theme-blue);
@@ -696,6 +698,8 @@ body.mobile #rightButtonContainer {
   --settings-panel-border: rgba(94, 172, 230, 0.45);
   --settings-panel-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
   --settings-panel-con-bg: rgba(18, 24, 33, 0.98);
+  --settings-panel-table-header-bg: rgba(255, 255, 255, 0.2);
+  --settings-panel-table-border: #888;
   --settings-panel-head-bg: rgba(25, 32, 42, 0.96);
   --settings-panel-head-border: rgba(255, 255, 255, 0.08);
   --settings-panel-brand-color: #edf1f5;
@@ -814,6 +818,8 @@ body.mobile #rightButtonContainer {
   --settings-panel-placeholder-text: #ddd;
   --settings-panel-head-bg: rgba(10, 18, 28, 0.2);
   --settings-panel-con-bg: rgba(10, 18, 28, 0.1);
+  --settings-panel-table-header-bg: rgba(255, 255, 255, 0.2);
+  --settings-panel-table-border: #e3e6e9;
   --settings-panel-head-border: rgba(255, 255, 255, 0.08);
   --settings-panel-brand-color: #fff;
   --settings-panel-top-btn-color: #fff;
@@ -1317,10 +1323,12 @@ body.mobile #rightButtonContainer {
   padding: 0px 6px;
   cursor: pointer;
 }
-.centerWrap .textButton.fireEvent {
+.centerWrap .textButton.borderButton {
+  line-height: var(--line-height);
   border: 1px solid var(--settings-panel-btn-secondary-border);
   border-radius: 6px;
   margin-right: 3px;
+  padding: 0px 6px;
 }
 .centerWrap .grayButton {
   background: #eee;
@@ -3866,6 +3874,92 @@ iframe[name='expandedFooter'] {
 .UseDifferentNameRuleIfWorkHasTagWarp .listWrap button.refresh svg {
   position: relative;
   top: 1px;
+}
+.hotkeyEditorWrap {
+  margin-top: 6px !important;
+}
+.hotkeyEditorWrap .hotkeyTable {
+  border: 1px solid var(--settings-panel-table-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.hotkeyEditorWrap .tableHeader,
+.hotkeyEditorWrap .settingItem {
+  display: grid;
+  grid-template-columns: 45% 30% 25%;
+}
+.hotkeyEditorWrap .tableHeader {
+  background: var(--settings-panel-table-header-bg);
+  color: var(--settings-panel-text);
+}
+.hotkeyEditorWrap .tableHeader .cell {
+  font-weight: bold;
+}
+.hotkeyEditorWrap .settingItem + .settingItem {
+  border-top: 1px solid var(--settings-panel-table-border);
+}
+.hotkeyEditorWrap .cell {
+  box-sizing: border-box;
+  padding: 6px 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  word-break: break-word;
+}
+.hotkeyEditorWrap .cell .label {
+  color: var(--settings-panel-text);
+  line-height: var(--line-height);
+}
+.hotkeyEditorWrap .cell .value {
+  line-height: var(--line-height);
+  font-family: var(--pixiv-font-family);
+}
+.hotkeyEditorWrap .cell .value.recording {
+  color: var(--settings-panel-search-border-focus);
+}
+.hotkeyEditorWrap .cellHotkey {
+  gap: 6px;
+}
+.hotkeyEditorWrap .cellAction {
+  padding-left: 0;
+}
+.hotkeyEditorWrap .btns {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2px;
+}
+.hotkeyEditorWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0px 3px;
+  cursor: pointer;
+  color: var(--settings-panel-clear-visible-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.hotkeyEditorWrap .textButton .icon {
+  font-size: 1.3em;
+}
+.hotkeyEditorWrap .textButton:hover,
+.hotkeyEditorWrap .textButton:focus {
+  color: var(--beautify-blue);
+}
+.hotkeyEditorWrap .textButton.reset {
+  margin-top: 6px;
+  color: var(--settings-panel-text);
+}
+.hotkeyEditorWrap .escCancel {
+  display: none;
+  justify-content: flex-start;
+  margin-top: 2px;
+  font-size: 0.9em;
+  color: #999;
+}
+.hotkeyEditorWrap .settingItem.recording .escCancel {
+  display: inline-flex;
 }
 .XZInputWrap {
   position: fixed;

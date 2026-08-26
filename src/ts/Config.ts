@@ -32,6 +32,8 @@ class Config {
   static readonly worksNumberLimit = 9999999999
   /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
   static readonly retryTime = 200000
+  static readonly isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+  static readonly isWin = /Win/.test(navigator.platform)
   /**浏览器是否处于移动端模式 */
   static readonly mobile = navigator.userAgent.includes('Mobile')
   /**检测 Firefox 浏览器 */

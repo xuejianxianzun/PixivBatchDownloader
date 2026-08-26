@@ -205,8 +205,6 @@ class SettingsPanelShell {
       )
     })
 
-    // 一级快捷键 Alt + X / Alt + Z 已迁移为浏览器命令
-    // 由 CommandReceiver 把命令分发为下面的 EVT 事件，不再在网页里监听 keydown
     window.addEventListener(EVT.list.commandToggleSettingsPanel, () => {
       this.toggle()
     })

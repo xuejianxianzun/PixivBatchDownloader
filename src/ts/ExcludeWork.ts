@@ -115,7 +115,6 @@ class ExcludeWork {
       this.tempHide = false
     })
 
-    // 一级快捷键 Alt + E 已迁移为浏览器命令
     window.addEventListener(EVT.list.commandToggleExcludeWork, () => {
       this.toggleExcludeWork()
     })

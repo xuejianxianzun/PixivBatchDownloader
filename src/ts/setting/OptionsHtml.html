@@ -1,4 +1,4 @@
-<!-- 设置项的编号是递增的，现在最大值是 106
+<!-- 设置项的编号是递增的，现在最大值是 107
 帮助按钮上的文字有两种：
 - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 - 如果帮助文字直接在设置面板里显示，则使用“_提示” -->
@@ -2370,28 +2370,28 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <div class="optionLine">
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       id="exportDownloadRecord"
       data-event="exportDownloadRecord"
       data-xztext="_导出"
     ></button>
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       id="importDownloadRecord"
       data-event="importDownloadRecord"
       data-xztext="_导入"
     ></button>
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       id="importDownloadRecordTXT"
       data-event="importDownloadRecordTXT"
       data-xztext="_导入txt"
     ></button>
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       id="clearDownloadRecord"
       data-event="clearDownloadRecord"
       data-xztext="_清除"
@@ -3865,6 +3865,20 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <span class="beautify_switch" tabindex="0"></span>
 </div>
 
+<div class="option" data-no="107">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_自定义快捷键"></span>
+  </a>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自定义快捷键"
+    data-msg="_自定义快捷键的说明"
+    data-xztext="_帮助"
+  ></button>
+  <slot data-name="hotkeysEditor"></slot>
+</div>
+
 <div class="option" data-no="98">
   <a
     href=""
@@ -3922,14 +3936,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <div class="optionLine">
       <button
         type="button"
-        class="textButton fireEvent"
+        class="textButton fireEvent borderButton"
         data-event="selectBG"
         id="selectBG"
         data-xztext="_选择文件"
       ></button>
       <button
         type="button"
-        class="textButton fireEvent"
+        class="textButton fireEvent borderButton"
         data-event="clearBG"
         id="clearBG"
         data-xztext="_清除"
@@ -4202,21 +4216,21 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <div class="optionLine">
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       data-event="exportSettings"
       id="exportSettings"
       data-xztext="_导出设置"
     ></button>
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       data-event="importSettings"
       id="importSettings"
       data-xztext="_导入设置"
     ></button>
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       data-event="resetSettings"
       id="resetSettings"
       data-xztext="_重置设置"
@@ -4226,7 +4240,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <div class="optionLine">
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       data-event="resetFollowingData"
       id="resetFollowingData"
       data-xztext="_清除下载器保存的关注数据"
@@ -4236,7 +4250,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <div class="optionLine">
     <button
       type="button"
-      class="textButton fireEvent"
+      class="textButton fireEvent borderButton"
       data-event="resetHelpTip"
       id="resetHelpTip"
       data-xztext="_重新显示帮助"

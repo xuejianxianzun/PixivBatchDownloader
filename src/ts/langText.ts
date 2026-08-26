@@ -6,6 +6,8 @@ import { Config } from './Config'
 // 属性名前面需要添加下划线
 // {} 是占位符
 // <br> 和 \n 是换行
+// 字符串优先使用模板字符串的反引号 ` 包裹（而非单引号 ' 或双引号 "），这样对于特殊字符不需要使用 \ 来转义
+export type LangTextKey = keyof typeof langText
 
 export const langText = {
   _只下载已收藏: [
@@ -1352,12 +1354,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   _github: ['Github', 'Github', 'Github', 'Github', 'Github', 'Github'],
   _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
   _快捷键ALTX显示隐藏设置面板: [
-    `你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">X</span>）显示或隐藏设置面板。`,
-    `你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">X</span>）顯示或隱藏設定面板。`,
-    `You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">X</span>) to show or hide the settings panel.`,
-    `ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">X</span>）を使用して、設定パネルを表示または非表示にできます。`,
-    `단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">X</span>）를 사용하여 설정 패널을 표시하거나 숨길 수 있습니다。`,
-    `Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">X</span>), чтобы показать или скрыть панель настроек.`,
+    `你可以使用快捷键显示或隐藏设置面板，默认是 <span class="blue">Alt</span> + <span class="blue">X</span>。`,
+    `你可以使用快捷鍵顯示或隱藏設定面板，預設是 <span class="blue">Alt</span> + <span class="blue">X</span>。`,
+    `You can use a hotkey to show or hide the settings panel. The default is <span class="blue">Alt</span> + <span class="blue">X</span>.`,
+    `ショートカットキーで設定パネルを表示または非表示にできます。デフォルトは <span class="blue">Alt</span> + <span class="blue">X</span> です。`,
+    `단축키로 설정 패널을 표시하거나 숨길 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">X</span>입니다.`,
+    `Вы можете использовать горячую клавишу для показа или скрытия панели настроек. По умолчанию <span class="blue">Alt</span> + <span class="blue">X</span>.`,
   ],
   _隐藏设置面板: [
     `隐藏设置面板`,
@@ -3570,73 +3572,109 @@ Note: This clears the downloader's download record, not the browser's download h
     `이미지 뷰어`,
     `Просмотрщик изображений`,
   ],
-  _图片查看器的帮助: [
-    `当你使用图片查看器时，可以使用这些快捷键：<br>
+  _图片查看器的快捷键列表: [
+    `当你使用图片查看器时，可以使用这些控制按键：<br>
 <span class="blue">←</span> 上一张图片<br>
 <span class="blue">→</span> 下一张图片<br>
 <span class="blue">↑</span> 增加缩放比例<br>
 <span class="blue">↓</span> 减小缩放比例<br>
-<span class="blue">F</span> 切换显示比例：100% 或自适应缩放<br>
 <span class="blue">Esc</span> 退出图片查看器<br>
-<br>
-另外，使用鼠标滚轮也可以切换图片或控制缩放，这取决于鼠标指针是否位于图片上：<br>
+使用鼠标滚轮也可以切换图片或控制缩放，这取决于鼠标指针是否位于图片上：<br>
 - 当鼠标滚轮在图片上滚动时，图片会放大或缩小；<br>
-- 当鼠标滚轮在图片外滚动时，会切换图片。`,
-    `當你使用圖片查看器時，可以使用這些快捷鍵：<br>
+- 当鼠标滚轮在图片外滚动时，会切换图片。<br>
+<br>
+另外，图片查看器底部还有一些功能按键，它们也有对应的快捷键：<br>
+<span class="blue">F</span>(ull) 切换显示比例：100% 或自适应缩放<br>
+<span class="blue">L</span>(ink) 复制作品链接<br>
+<span class="blue">B</span>(ookmark) 快速收藏当前作品<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 复制当前查看的图片和作品信息（你可以修改这个快捷键）<br>
+<span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+<span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>`,
+    `當你使用圖片檢視器時，可以使用這些控制按鍵：<br>
 <span class="blue">←</span> 上一張圖片<br>
 <span class="blue">→</span> 下一張圖片<br>
 <span class="blue">↑</span> 增加縮放比例<br>
 <span class="blue">↓</span> 減小縮放比例<br>
-<span class="blue">F</span> 切換顯示比例：100% 或自適應縮放<br>
-<span class="blue">Esc</span> 退出圖片查看器<br>
-<br>
-另外，使用滑鼠滾輪也可以切換圖片或控制縮放，這取決於滑鼠指標是否位於圖片上：<br>
+<span class="blue">Esc</span> 退出圖片檢視器<br>
+使用滑鼠滾輪也可以切換圖片或控制縮放，這取決於滑鼠指標是否位於圖片上：<br>
 - 當滑鼠滾輪在圖片上滾動時，圖片會放大或縮小；<br>
-- 當滑鼠滾輪在圖片外滾動時，會切換圖片。`,
-    `When using the image viewer, you can use these keyboard shortcuts:<br>
+- 當滑鼠滾輪在圖片外滾動時，會切換圖片。<br>
+<br>
+另外，圖片檢視器底部還有一些功能按鍵，它們也有對應的快捷鍵：<br>
+<span class="blue">F</span>(ull) 切換顯示比例：100% 或自動縮放<br>
+<span class="blue">L</span>(ink) 複製作品連結<br>
+<span class="blue">B</span>(ookmark) 快速收藏當前作品<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 複製當前查看的圖片和作品資訊（你可以修改這個快捷鍵）<br>
+<span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
+<span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>`,
+    `When using the image viewer, you can use these control keys:<br>
 <span class="blue">←</span> Previous image<br>
 <span class="blue">→</span> Next image<br>
-<span class="blue">↑</span> Increase zoom level<br>
-<span class="blue">↓</span> Decrease zoom level<br>
-<span class="blue">F</span> Toggle display scale: 100% or fit to screen<br>
-<span class="blue">Esc</span> Exit image viewer<br>
+<span class="blue">↑</span> Increase zoom<br>
+<span class="blue">↓</span> Decrease zoom<br>
+<span class="blue">Esc</span> Exit the image viewer<br>
+You can also use the mouse wheel to switch images or control zoom, depending on whether the mouse pointer is over the image:<br>
+- When the mouse wheel scrolls over the image, the image zooms in or out;<br>
+- When the mouse wheel scrolls outside the image, the image switches.<br>
 <br>
-Additionally, you can also use the mouse wheel to switch images or control zoom, depending on whether the mouse pointer is over the image:<br>
-- When scrolling the mouse wheel over the image, the image will zoom in or out;<br>
-- When scrolling the mouse wheel outside the image, it will switch to the next/previous image.`,
-    `画像ビューアを使用する際は、以下のショートカットキーが利用できます：<br>
+In addition, there are some function buttons at the bottom of the image viewer, each with its own hotkey:<br>
+<span class="blue">F</span>(ull) Toggle display scale: 100% or fit-to-screen<br>
+<span class="blue">L</span>(ink) Copy the work link<br>
+<span class="blue">B</span>(ookmark) Quickly bookmark the current work<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Copy the currently viewed image and work info (you can modify this hotkey)<br>
+<span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one is downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them are downloaded by default)<br>`,
+    `画像ビューアを使用しているとき、次の操作キーを使用できます：<br>
 <span class="blue">←</span> 前の画像<br>
 <span class="blue">→</span> 次の画像<br>
-<span class="blue">↑</span> ズーム倍率を上げる<br>
-<span class="blue">↓</span> ズーム倍率を下げる<br>
-<span class="blue">F</span> 表示倍率の切り替え：100% または画面に合わせる<br>
+<span class="blue">↑</span> 拡大率を上げる<br>
+<span class="blue">↓</span> 拡大率を下げる<br>
 <span class="blue">Esc</span> 画像ビューアを終了<br>
+マウスホイールでも画像の切り替えやズームの操作ができます。これはマウスポインタが画像の上にあるかどうかによります：<br>
+- マウスホイールが画像の上でスクロールされたときは、画像が拡大または縮小します；<br>
+- マウスホイールが画像の外でスクロールされたときは、画像が切り替わります。<br>
 <br>
-また、マウスホイールでも画像の切り替えやズームの制御が可能です。これはマウスポインタが画像上にあるかどうかによって異なります：<br>
-- 画像上でホイールをスクロールすると、画像が拡大または縮小します；<br>
-- 画像外でホイールをスクロールすると、画像が切り替わります。`,
-    `이미지 뷰어를 사용할 때 다음 단축키를 사용할 수 있습니다:<br>
+また、画像ビューアの下部にはいくつかの機能ボタンがあり、それぞれに対応するショートカットキーがあります：<br>
+<span class="blue">F</span>(ull) 表示倍率の切り替え：100% または画面に合わせて拡大<br>
+<span class="blue">L</span>(ink) 作品のリンクをコピー<br>
+<span class="blue">B</span>(ookmark) 現在の作品をすばやくブックマーク<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 現在表示している画像と作品情報をコピー（このショートカットは変更可能）<br>
+<span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚だけダウンロード）<br>
+<span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトで全てダウンロード）<br>`,
+    `이미지 뷰어를 사용할 때 다음 제어 키를 사용할 수 있습니다：<br>
 <span class="blue">←</span> 이전 이미지<br>
 <span class="blue">→</span> 다음 이미지<br>
 <span class="blue">↑</span> 확대 비율 증가<br>
-<span class="blue">↓</span> 축소 비율 감소<br>
-<span class="blue">F</span> 표시 비율 전환: 100% 또는 화면에 맞춤<br>
+<span class="blue">↓</span> 확대 비율 감소<br>
 <span class="blue">Esc</span> 이미지 뷰어 종료<br>
+마우스 휠로도 이미지를 전환하거나 확대/축소를 제어할 수 있으며, 이는 마우스 포인터가 이미지 위에 있는지 여부에 따라 다릅니다：<br>
+- 마우스 휠이 이미지 위에서 스크롤되면 이미지가 확대 또는 축소됩니다；<br>
+- 마우스 휠이 이미지 밖에서 스크롤되면 이미지가 전환됩니다.<br>
 <br>
-또한 마우스 휠을 사용해 이미지를 전환하거나 확대/축소를 제어할 수도 있습니다. 이는 마우스 포인터가 이미지 위에 있는지에 따라 다릅니다:<br>
-- 이미지 위에서 마우스 휠을 스크롤하면 이미지가 확대 또는 축소됩니다;<br>
-- 이미지 밖에서 마우스 휠을 스크롤하면 이미지가 전환됩니다.`,
-    `При использовании просмотрщика изображений вы можете использовать следующие горячие клавиши:<br>
+또한 이미지 뷰어 하단에는 몇 가지 기능 버튼이 있으며, 각각 해당하는 단축키가 있습니다：<br>
+<span class="blue">F</span>(ull) 표시 비율 전환：100% 또는 화면 맞춤<br>
+<span class="blue">L</span>(ink) 작품 링크 복사<br>
+<span class="blue">B</span>(ookmark) 현재 작품 빠른 북마크<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 현재 보고 있는 이미지와 작품 정보 복사(이 단축키는 수정할 수 있음)<br>
+<span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드(작품에 이미지가 여러 장 있으면 현재 이미지만 다운로드)<br>
+<span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드(작품에 이미지가 여러 장 있으면 기본적으로 모두 다운로드)<br>`,
+    `При использовании просмотрщика изображений можно использовать следующие клавиши управления:<br>
 <span class="blue">←</span> Предыдущее изображение<br>
 <span class="blue">→</span> Следующее изображение<br>
 <span class="blue">↑</span> Увеличить масштаб<br>
 <span class="blue">↓</span> Уменьшить масштаб<br>
-<span class="blue">F</span> Переключить масштаб отображения: 100% или по размеру экрана<br>
 <span class="blue">Esc</span> Выйти из просмотрщика изображений<br>
+Колесо мыши также можно использовать для переключения изображений или управления масштабом, в зависимости от того, находится ли указатель мыши над изображением:<br>
+- Когда колесо мыши прокручивается над изображением, изображение увеличивается или уменьшается;<br>
+- Когда колесо мыши прокручивается вне изображения, происходит переключение изображений.<br>
 <br>
-Кроме того, колёсико мыши также можно использовать для переключения изображений или управления масштабом, в зависимости от того, находится ли указатель мыши на изображении:<br>
-- При прокрутке колёсика мыши над изображением — изображение увеличивается или уменьшается;<br>
-- При прокрутке колёсика мыши вне изображения — происходит переключение изображений.`,
+Кроме того, в нижней части просмотрщика изображений есть несколько функциональных кнопок, у каждой из которых есть свой ярлык:<br>
+<span class="blue">F</span>(ull) Переключить масштаб отображения: 100% или вписать в экран<br>
+<span class="blue">L</span>(ink) Копировать ссылку на работу<br>
+<span class="blue">B</span>(ookmark) Быстро добавить текущую работу в закладки<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Копировать текущее изображение и информацию о работе (этот ярлык можно изменить)<br>
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, загружается только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить просматриваемую работу (если в работе несколько изображений, по умолчанию загружаются все)<br>`,
   ],
   _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
   _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
@@ -3659,7 +3697,6 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     '불러오기 (TXT)',
     'Импорт (TXT)',
   ],
-  _清除: ['清除', '清除', 'Clear', 'クリア', '비우기', 'Очистить'],
   _导入下载记录: [
     '导入下载记录',
     '匯入下載紀錄',
@@ -4066,12 +4103,12 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
     `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
   ],
   _快捷键ALTS手动选择作品: [
-    '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">S</span>）开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击"抓取选择的作品"。',
-    '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">S</span>）開始或暫停手動選擇作品。<br>選擇完畢之後，打開下載器面板，點擊「抓取選擇的作品」。',
-    'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">S</span>) to start or pause manually selecting works.<br>After you finish selecting, open the downloader panel and click "Crawl selected works".',
-    'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span>）を使用して、手動で作品を選択することを開始または一時停止できます。<br>選択が終わったら、ダウンローダーパネルを開き、「選択した作品をクロール」をクリックしてください。',
-    '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>）를 사용하여 수동으로 작품을 선택하는 것을 시작하거나 일시 중지할 수 있습니다。<br>선택을 마친 후, 다운로더 패널을 열고 "선택한 작품 긁어오기"를 클릭하세요。',
-    'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>), чтобы начать или приостановить ручной выбор работ.<br>После завершения выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
+    '你可以使用快捷键开始或暂停手动选择作品，默认是 <span class="blue">Alt</span> + <span class="blue">S</span>。<br>选择完毕之后，打开下载器面板，点击"抓取选择的作品"。',
+    '你可以使用快捷鍵開始或暫停手動選擇作品，預設是 <span class="blue">Alt</span> + <span class="blue">S</span>。<br>選擇完畢之後，開啟下載器面板，點擊「擷取選擇的作品」。',
+    'You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.<br>After selecting, open the downloader panel and click "Crawl selected works".',
+    'ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。<br>選択が終わったら、ダウンローダーのパネルを開き、「選ばれた作品をクロール」をクリックしてください。',
+    '단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.<br>선택을 마친 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭하세요.',
+    'Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
@@ -4124,7 +4161,7 @@ Additionally, you can also use the mouse wheel to switch images or control zoom,
   _手动排除作品的提示信息: [
     '你可以使用“手动排除作品”按钮标记你不想抓取的作品。下载器在抓取时会排除它们；如果已经抓取了它们，则会从抓取结果里移除它们。',
     '你可以使用「手動排除作品」按鈕標記你不想抓取的作品。下載器在抓取時會排除它們；如果已經抓取了它們，則會從抓取結果裡移除它們。',
-    'You can use the "Manually exclude" button to mark the works you don\'t want to crawl. The downloader excludes them during crawling; if they\'ve already been crawled, it removes them from the crawl results.',
+    `You can use the "Manually exclude" button to mark the works you don't want to crawl. The downloader excludes them during crawling; if they've already been crawled, it removes them from the crawl results.`,
     '「手動で作品を除外」ボタンで、クロールしたくない作品をマークできます。ダウンロードツールはクロール時にそれらを除外します；すでにクロール済みの場合は、クロール結果から削除します。',
     '「수동 제외」 버튼으로 크롤링하고 싶지 않은 작품을 표시할 수 있습니다. 다운로더는 크롤링 시 이들을 제외합니다; 이미 크롤링된 경우 크롤링 결과에서 제거합니다.',
     'С помощью кнопки «Ручное исключение» можно отметить работы, которые вы не хотите сканировать. Загрузчик исключает их при сканировании; если они уже просканированы, он удаляет их из результатов краулинга.',
@@ -5772,43 +5809,43 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下载当前查看的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前查看的作品（如果这个作品里有多张图片，默认会全部下载）<br>
-复制当前查看的图片和作品信息（该快捷键需要手动设置）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 复制当前查看的图片和作品信息（你可以修改这个快捷键）<br>
 <span class="blue">V</span>、<span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>`,
     `當你查看作品的大圖時，可以使用這些快捷鍵：<br>
 滑鼠滾輪：放大或縮小圖片<br>
 <span class="blue">B</span>(ookmark) 收藏查看的作品<br>
 <span class="blue">C</span>(urrent) 下載當前查看的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前查看的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
-複製當前查看的圖片和作品資訊（該快捷鍵需要手動設定）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 複製當前查看的圖片和作品資訊（你可以修改這個快捷鍵）<br>
 <span class="blue">V</span>、<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>`,
-    `When you are viewing the large image of a work, you can use these shortcuts:<br>
+    `When you view the large image of a work, you can use these hotkeys:<br>
 Mouse wheel: zoom in or out of the image<br>
 <span class="blue">B</span>(ookmark) Bookmark the work being viewed<br>
-<span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one will be downloaded)<br>
-<span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them will be downloaded by default)<br>
-Copy the currently viewed image and work information (this shortcut key needs to be set manually)<br>
-<span class="blue">V</span>, <span class="blue">Esc</span> Close the preview image. Also, clicking the left mouse button on the preview image also closes it<br>`,
-    `作品の大図を表示しているとき、これらのショートカットキーを使用できます：<br>
-マウスホイール：画像を拡大または縮小<br>
+<span class="blue">C</span>(urrent) Download the currently viewed image (if the work has multiple images, only the current one is downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently viewed work (if the work has multiple images, all of them are downloaded by default)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Copy the currently viewed image and work info (you can modify this hotkey)<br>
+<span class="blue">V</span>, <span class="blue">Esc</span> Close the preview. Also, clicking the left mouse button on the preview can also close it<br>`,
+    `作品の大きな画像を表示しているとき、これらのショートカットキーを使用できます：<br>
+マウスホイール：画像の拡大または縮小<br>
 <span class="blue">B</span>(ookmark) 表示中の作品をブックマーク<br>
-<span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚のみダウンロードします）<br>
-<span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードします）<br>
-現在表示している画像と作品情報をコピー（このショートカットキーは手動で設定する必要があります）<br>
-<span class="blue">V</span>、<span class="blue">Esc</span> プレビュー画像を閉じます。また、プレビュー画像上でマウスの左ボタンをクリックしても閉じます<br>`,
+<span class="blue">C</span>(urrent) 現在表示している画像をダウンロード（作品に複数の画像がある場合、現在の1枚だけダウンロード）<br>
+<span class="blue">D</span>(ownload) 現在表示している作品をダウンロード（作品に複数の画像がある場合、デフォルトで全てダウンロード）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 現在表示している画像と作品情報をコピー（このショートカットは変更可能）<br>
+<span class="blue">V</span>、<span class="blue">Esc</span> プレビューを閉じる。また、プレビュー上でマウスの左ボタンをクリックしてもプレビューを閉じられます<br>`,
     `작품의 큰 이미지를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
 마우스 휠：이미지 확대 또는 축소<br>
 <span class="blue">B</span>(ookmark) 보고 있는 작품 북마크<br>
-<span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드（작품에 이미지가 여러 장 있다면 현재 이미지만 다운로드합니다）<br>
-<span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드（작품에 이미지가 여러 장 있다면 기본적으로 모두 다운로드합니다）<br>
-현재 보고 있는 이미지와 작품 정보 복사（이 단축키는 수동으로 설정해야 합니다）<br>
-<span class="blue">V</span>, <span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫힙니다<br>`,
-    `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши：<br>
-Колесо мыши：увеличить или уменьшить изображение<br>
+<span class="blue">C</span>(urrent) 현재 보고 있는 이미지 다운로드(작품에 이미지가 여러 장 있으면 현재 이미지만 다운로드)<br>
+<span class="blue">D</span>(ownload) 현재 보고 있는 작품 다운로드(작품에 이미지가 여러 장 있으면 기본적으로 모두 다운로드)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 현재 보고 있는 이미지와 작품 정보 복사(이 단축키는 수정할 수 있음)<br>
+<span class="blue">V</span>, <span class="blue">Esc</span> 미리보기 닫기. 또한 미리보기에서 마우스 왼쪽 버튼을 클릭해도 미리보기를 닫을 수 있습니다<br>`,
+    `Когда вы просматриваете крупное изображение работы, можно использовать эти горячие клавиши:<br>
+Колесо мыши: увеличение или уменьшение изображения<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
-<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
-<span class="blue">D</span>(ownload) Загрузить просматриваемую работу целиком (если в работе несколько изображений, по умолчанию загружаются все)<br>
-Копировать текущее изображение и информацию о работе (эту клавишу нужно настроить вручную)<br>
-<span class="blue">V</span>, <span class="blue">Esc</span> Закрыть предпросмотр. Кроме того, щелчок левой кнопкой мыши по изображению предпросмотра также закрывает его<br>`,
+<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, загружается только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить просматриваемую работу (если в работе несколько изображений, по умолчанию загружаются все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Копировать текущее изображение и информацию о работе (этот ярлык можно изменить)<br>
+<span class="blue">V</span>, <span class="blue">Esc</span> Закрыть предпросмотр. Также предпросмотр можно закрыть, щёлкнув левой кнопкой мыши по нему<br>`,
   ],
   _定时抓取: [
     '定时抓取',
@@ -6453,14 +6490,6 @@ There is also a button at the bottom of the log area for manually exporting logs
     '특정 <span class="key">태그</span>가 있는 경우 작업에 다른 명명 규칙을 사용하십시오',
     'Используйте другое правило именования для работы, если она имеет определенные <span class="key">теги</span>',
   ],
-  _升级到manifest_v3的提示: [
-    '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
-    '下載器已升級到 Manifest V3。<br>如果你在下載時遇到問題，請開啟擴充套件管理頁面，重新載入本擴充套件。',
-    'Downloader has been upgraded to Manifest V3. <br>If you encounter problems when downloading, please open the extension management page and reload this extension.',
-    'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
-    '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
-    'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
-  ],
   _AI作品: [
     '<span class="key">AI</span> 作品',
     '<span class="key">AI</span> 作品',
@@ -7087,66 +7116,67 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
 <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
 <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
-复制当前预览的图片和作品信息（该快捷键需要手动设置）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 复制当前预览的图片和作品信息（你可以修改这个快捷键）<br>
 <span class="blue">Esc</span> 关闭预览图。另外，在预览图上点击鼠标左键也可以关闭预览图<br>
 <span class="blue">← ↑</span> 上一张图片<br>
 <span class="blue">→ ↓</span> 下一张图片<br>
 <span class="blue">空格键</span> 下一张图片<br>
-你可以随时在“预览作品”设置里查看这个快捷键列表`,
+你可以随时在"预览作品"设置里查看这个快捷键列表`,
     `當你查看預覽圖時，可以使用如下快捷鍵：<br>
 <span class="blue">V</span>(iew) 以 1:1 原始比例查看原圖<br>
 <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
 <span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
 <span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
-複製當前預覽的圖片和作品資訊（該快捷鍵需要手動設定）<br>
-<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點選滑鼠左鍵也可以關閉預覽圖<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 複製當前預覽的圖片和作品資訊（你可以修改這個快捷鍵）<br>
+<span class="blue">Esc</span> 關閉預覽圖。另外，在預覽圖上點擊滑鼠左鍵也可以關閉預覽圖<br>
 <span class="blue">← ↑</span> 上一張圖片<br>
 <span class="blue">→ ↓</span> 下一張圖片<br>
 <span class="blue">空格鍵</span> 下一張圖片<br>
 你可以隨時在「預覽作品」設定裡查看這個快捷鍵列表`,
-    `When you view the preview image, you can use the following keyboard shortcuts:<br>
-<span class="blue">V</span>(iew) View the original image at 1:1 actual size<br>
+    `When you view the preview, you can use these hotkeys:<br>
+<span class="blue">V</span>(iew) View the original image at 1:1 native ratio<br>
 <span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
-<span class="blue">C</span>(urrent) Download the currently previewed image (if this work contains multiple images, only the current one will be downloaded)<br>
-<span class="blue">D</span>(ownload) Download the currently previewed work (if this work contains multiple images, all of them will be downloaded by default)<br>
-Copy the currently previewed image and work information (this shortcut key needs to be set manually)<br>
-<span class="blue">Esc</span> Close the preview image. You can also close it by left-clicking the preview image<br>
+<span class="blue">C</span>(urrent) Download the currently previewed image (if the work has multiple images, only the current one is downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently previewed work (if the work has multiple images, all of them are downloaded by default)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Copy the currently previewed image and work info (you can modify this hotkey)<br>
+<span class="blue">Esc</span> Close the preview. Also, clicking the left mouse button on the preview can also close it<br>
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
-<span class="blue">Spacebar</span> Next image<br>
-You can view this list of keyboard shortcuts anytime in the "Preview work" settings`,
-    `プレビュー画像を表示しているとき、以下のショートカットキーを使用できます：<br>
-<span class="blue">V</span>(iew) オリジナル画像を 1:1 の実際のサイズで表示<br>
+<span class="blue">Space</span> Next image<br>
+You can view this hotkey list anytime in the "Preview work" settings`,
+    `プレビューを表示しているとき、次のショートカットキーを使用できます：<br>
+<span class="blue">V</span>(iew) 1:1 の元の比率で原画像を表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
-<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（この作品に複数の画像がある場合、現在の画像のみをダウンロードします）<br>
-<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（この作品に複数の画像がある場合、デフォルトで全てダウンロードします）<br>
-現在プレビュー中の画像と作品情報をコピー（このショートカットキーは手動で設定する必要があります）<br>
-<span class="blue">Esc</span> プレビュー画像を閉じる。また、プレビュー画像を左クリックしても閉じられます<br>
+<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（作品に複数の画像がある場合、現在の1枚だけダウンロード）<br>
+<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（作品に複数の画像がある場合、デフォルトで全てダウンロード）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 現在プレビュー中の画像と作品情報をコピー（このショートカットは変更可能）<br>
+<span class="blue">Esc</span> プレビューを閉じる。また、プレビュー上でマウスの左ボタンをクリックしてもプレビューを閉じられます<br>
 <span class="blue">← ↑</span> 前の画像<br>
 <span class="blue">→ ↓</span> 次の画像<br>
-<span class="blue">スペースバー</span> 次の画像<br>
-「プレビュー作品」の設定でこのショートカットキー一覧をいつでも確認できます`,
-    `<span class="blue">V</span>(iew) 1:1 실제 크기로 원본 이미지 보기<br>
+<span class="blue">スペースキー</span> 次の画像<br>
+このショートカット一覧は「作品をプレビュー」設定でいつでも確認できます`,
+    `미리보기를 볼 때 다음 단축키를 사용할 수 있습니다：<br>
+<span class="blue">V</span>(iew) 1:1 원본 비율로 원본 이미지 보기<br>
 <span class="blue">B</span>(ookmark) 미리보기 중인 작품 북마크<br>
-<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드（이 작품에 여러 이미지가 있으면 현재 이미지만 다운로드됩니다）<br>
-<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드（이 작품에 여러 이미지가 있으면 기본적으로 모두 다운로드됩니다）<br>
-현재 미리보기 중인 이미지와 작품 정보 복사（이 단축키는 수동으로 설정해야 합니다）<br>
-<span class="blue">Esc</span> 미리보기 이미지 닫기. 또한 미리보기 이미지를 마우스 왼쪽 버튼으로 클릭해도 닫을 수 있습니다<br>
+<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지 다운로드(작품에 이미지가 여러 장 있으면 현재 이미지만 다운로드)<br>
+<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품 다운로드(작품에 이미지가 여러 장 있으면 기본적으로 모두 다운로드)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 현재 미리보기 중인 이미지와 작품 정보 복사(이 단축키는 수정할 수 있음)<br>
+<span class="blue">Esc</span> 미리보기 닫기. 또한 미리보기에서 마우스 왼쪽 버튼을 클릭해도 미리보기를 닫을 수 있습니다<br>
 <span class="blue">← ↑</span> 이전 이미지<br>
 <span class="blue">→ ↓</span> 다음 이미지<br>
-<span class="blue">스페이스바</span> 다음 이미지<br>
-「미리보기 작품」 설정에서 이 단축키 목록을 언제든 확인할 수 있습니다`,
-    `Когда открыт предварительный просмотр, можно использовать следующие сочетания клавиш:<br>
-<span class="blue">V</span>(iew) Просмотр оригинального изображения в реальном размере 1:1<br>
+<span class="blue">스페이스키</span> 다음 이미지<br>
+이 단축키 목록은 언제든 "작품 미리보기" 설정에서 확인할 수 있습니다`,
+    `Когда вы просматриваете предпросмотр, можно использовать эти горячие клавиши:<br>
+<span class="blue">V</span>(iew) Просмотр оригинала в натуральном масштабе 1:1<br>
 <span class="blue">B</span>(ookmark) Добавить в закладки просматриваемую работу<br>
-<span class="blue">C</span>(urrent) Загрузить текущее просматриваемое изображение (если в работе несколько изображений, будет загружено только текущее)<br>
-<span class="blue">D</span>(ownload) Загрузить текущую просматриваемую работу (если в работе несколько изображений, по умолчанию будут загружены все)<br>
-Копировать текущее просматриваемое изображение и информацию о работе (эту клавишу нужно настроить вручную)<br>
-<span class="blue">Esc</span> Закрыть предварительный просмотр. Кроме того, закрыть его можно также нажав левую кнопку мыши на изображении<br>
+<span class="blue">C</span>(urrent) Загрузить текущее изображение предпросмотра (если в работе несколько изображений, загружается только текущее)<br>
+<span class="blue">D</span>(ownload) Загрузить просматриваемую работу предпросмотра (если в работе несколько изображений, по умолчанию загружаются все)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Копировать текущее изображение и информацию о работе (этот ярлык можно изменить)<br>
+<span class="blue">Esc</span> Закрыть предпросмотр. Также предпросмотр можно закрыть, щёлкнув левой кнопкой мыши по нему<br>
 <span class="blue">← ↑</span> Предыдущее изображение<br>
 <span class="blue">→ ↓</span> Следующее изображение<br>
 <span class="blue">Пробел</span> Следующее изображение<br>
-Вы можете в любой момент просмотреть этот список сочетаний клавиш в настройках «Предварительный просмотр работы»`,
+Этот список горячих клавиш можно в любой момент посмотреть в настройках «Предпросмотр работы»`,
   ],
   _导出收藏列表: [
     '导出收藏列表（JSON）',
@@ -7407,21 +7437,13 @@ PS: На странице профиля заблокированного пол
     '설정 항목을 제거합니다. ',
     'Удалить пункт настроек: ',
   ],
-  _显示日志: [
-    '显示日志',
-    '顯示日誌',
-    'Show Log',
-    'ログを表示',
-    '로그 표시',
-    'Показать журнал',
-  ],
-  _查看日志附带快捷键L: [
-    `查看日志（L）`,
-    `檢視日誌（L）`,
-    `View log (L)`,
-    `ログを表示（L）`,
-    `로그 보기 (L)`,
-    `Показать журнал (L)`,
+  _查看日志: [
+    `查看日志`,
+    `檢視日誌`,
+    `View log`,
+    `ログを表示`,
+    `로그 보기`,
+    `Показать журнал`,
   ],
   _隐藏日志区域: [
     `隐藏日志区域`,
@@ -7678,7 +7700,7 @@ Additionally, you can use these tags:`,
   _对复制的内容的说明: [
     `你可以根据自己的需要选择复制的内容。
 <br>
-在作品页面里，以及预览作品时，你可以按快捷键进行复制（该快捷键需要手动设置）。
+在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。
 <br>
 <br>
 <strong>每种格式的说明：</strong>
@@ -7740,7 +7762,7 @@ Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span>
 <br>`,
     `你可以根據自己的需要選擇複製的內容。
 <br>
-在作品頁面裡，以及預覽作品時，你可以按快捷鍵進行複製（該快捷鍵需要手動設定）。
+在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。
 <br>
 <br>
 <strong>每種格式的說明：</strong>
@@ -7802,7 +7824,7 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>`,
     `You can select the content to copy according to your own needs.
 <br>
-On the work page, and when previewing a work, you can use the shortcut key to copy (this shortcut key needs to be set manually).
+On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt</span> + <span class="blue">C</span> to copy.
 <br>
 <br>
 <strong>Explanation of each format:</strong>
@@ -7864,7 +7886,7 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>`,
     `自分のニーズに応じてコピーする内容を選択できます。
 <br>
-作品ページ内、および作品をプレビューする際は、ショートカットキーを押してコピーできます（このショートカットキーは手動で設定する必要があります）。
+作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt</span> + <span class="blue">C</span> を押してコピーできます。
 <br>
 <br>
 <strong>各フォーマットの説明：</strong>
@@ -7926,7 +7948,7 @@ Android の一部のアプリは <span class="blue">text/html</span> コンテ�
 <br>`,
     `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
 <br>
-작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키를 눌러 복사할 수 있습니다（이 단축키는 수동으로 설정해야 합니다）.
+작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt</span> + <span class="blue">C</span>를 눌러 복사할 수 있습니다.
 <br>
 <br>
 <strong>각 형식의 설명:</strong>
@@ -7988,7 +8010,7 @@ Android의 일부 앱은 <span class="blue">text/html</span> 콘텐츠를 붙여
 <br>`,
     `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
 <br>
-На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш для копирования (эту клавишу нужно настроить вручную).
+На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt</span> + <span class="blue">C</span> для копирования.
 <br>
 <br>
 <strong>Объяснение каждого формата:</strong>
@@ -11298,12 +11320,12 @@ For example, exported crawl results include a timestamp in the file name. The pr
     'Удалено из результатов сбора',
   ],
   _快捷键ALTE手动排除作品: [
-    '你可以使用快捷键（默认是 <span class="blue">Alt</span> + <span class="blue">E</span>）开始或暂停手动排除作品。',
-    '你可以使用快捷鍵（預設是 <span class="blue">Alt</span> + <span class="blue">E</span>）開始或暫停手動排除作品。',
-    'You can use the shortcut key (the default is <span class="blue">Alt</span> + <span class="blue">E</span>) to start or pause manually excluding works.',
-    'ショートカットキー（デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span>）を使用して、手動で作品を除外することを開始または一時停止できます。',
-    '단축키（기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>）를 사용하여 수동으로 작품을 제외하는 것을 시작하거나 일시 중지할 수 있습니다。',
-    'Вы можете использовать комбинацию клавиш (по умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>), чтобы начать или приостановить ручное исключение работ。',
+    '你可以使用快捷键开始或暂停手动排除作品，默认是 <span class="blue">Alt</span> + <span class="blue">E</span>。',
+    '你可以使用快捷鍵開始或暫停手動排除作品，預設是 <span class="blue">Alt</span> + <span class="blue">E</span>。',
+    'You can use a hotkey to start or pause manually excluding works. The default is <span class="blue">Alt</span> + <span class="blue">E</span>.',
+    'ショートカットキーで作品の手動除外を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span> です。',
+    '단축키로 작품 수동 제외를 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>입니다.',
+    'Вы можете использовать горячую клавишу, чтобы начать или приостановить ручное исключение работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>.',
   ],
   _快捷键: [
     '快捷键',
@@ -11313,97 +11335,81 @@ For example, exported crawl results include a timestamp in the file name. The pr
     '단축키',
     'Горячая клавиша',
   ],
-  _快捷键说明: [
-    `下载器有一些预设的快捷键，并且你可以修改大部分快捷键：<br>
-- <span class="blue">L</span> 查看/关闭日志区域（这个快捷键无法修改）<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> 打开/关闭设置面板<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> 点击默认的抓取按钮（开始抓取）<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> 手动选择作品<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> 手动排除作品<br>
-- 未设置：启用/关闭预览作品功能（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
-- 未设置：在作品页面里，快速下载当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
-- 未设置：在作品页面里，快速收藏当前作品（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
-- 未设置：复制作品的图片和摘要信息（该功能以前的快捷键是 <span class="blue">Alt</span> + <span class="blue">C</span>）<br>
+  _命令: ['命令', '命令', 'Command', 'コマンド', '명령', 'Команда'],
+  _操作: ['操作', '操作', 'Action', 'アクション', '작업', 'Действие'],
+  _快捷键列表的说明: [
+    `下载器有一些预设的快捷键：<br>
+<span class="blue">L</span>(og) 查看/关闭日志区域<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> 查看/关闭设置面板<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> 点击默认的抓取按钮（开始抓取）<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) 手动选择作品<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) 手动排除作品<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) 快速下载当前作品（只在作品页面里使用）<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) 快速收藏当前作品（只在作品页面里使用）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 复制作品的图片和摘要信息<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) 启用/关闭预览作品功能<br>
 <br>
-以前下载器的快捷键是不能修改的，现在可以在浏览器的扩展管理里修改了。但是由于浏览器限制了只能预设 4 个快捷键，所以有些功能以前有快捷键，但现在没有快捷键。如果你想修改或设置快捷键，可以这样做：<br>
-打开浏览器菜单，点击“扩展程序”进入扩展管理页面，然后点击“键盘快捷键”，找到这个扩展程序，即可设置快捷键。<br>
-Chrome 浏览器可以使用这个网址：chrome://extensions/shortcuts<br>
-Edge 浏览器可以使用这个网址：edge://extensions/shortcuts<br>`,
-    `下載器有一些預設的快捷鍵，並且你可以修改大部分快捷鍵：<br>
-- <span class="blue">L</span> 檢視/關閉日誌區域（這個快捷鍵無法修改）<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> 開啟/關閉設定面板<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> 手動選擇作品<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> 手動排除作品<br>
-- 未設定：啟用/關閉預覽作品功能（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">P</span>）<br>
-- 未設定：在作品頁面裡，快速下載目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">Q</span>）<br>
-- 未設定：在作品頁面裡，快速收藏目前作品（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">B</span>）<br>
-- 未設定：複製作品的圖片和摘要資訊（該功能以前的快捷鍵是 <span class="blue">Alt</span> + <span class="blue">C</span>）<br>
+如果你想修改这些快捷键，可以在下载器的"通用"-"操作方式"-"自定义快捷键"设置里进行修改。`,
+    `下載器有一些預設的快捷鍵：<br>
+<span class="blue">L</span>(og) 查看/關閉日誌區域<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> 查看/關閉設定面板<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) 手動選擇作品<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) 手動排除作品<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) 快速下載當前作品（只在作品頁面裡使用）<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) 快速收藏當前作品（只在作品頁面裡使用）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 複製作品的圖片和摘要資訊<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) 啟用/關閉預覽作品功能<br>
 <br>
-以前下載器的快捷鍵是不能修改的，現在可以在瀏覽器的擴充功能管理裡修改了。但是由於瀏覽器限制了只能預設 4 個快捷鍵，所以有些功能以前有快捷鍵，但現在沒有快捷鍵。如果你想修改或設定快捷鍵，可以這樣做：<br>
-開啟瀏覽器選單，點擊「擴充功能」進入擴充功能管理頁面，然後點擊「鍵盤快捷鍵」，找到這個擴充功能，即可設定快捷鍵。<br>
-Chrome 瀏覽器可以使用這個網址：chrome://extensions/shortcuts<br>
-Edge 瀏覽器可以使用這個網址：edge://extensions/shortcuts<br>`,
-    `The downloader has some preset keyboard shortcuts, and you can modify most of them:<br>
-- <span class="blue">L</span> View/open or close the log area (this shortcut cannot be changed)<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> Open/close the settings panel<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> Click the default crawl button (start crawling)<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> Manually select works<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> Manually exclude works<br>
-- Not set: enable/disable the work preview feature (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
-- Not set: on the artwork page, quickly download the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
-- Not set: on the artwork page, quickly bookmark the current work (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
-- Not set: copy the artwork's images and summary info (this feature's previous shortcut was <span class="blue">Alt</span> + <span class="blue">C</span>)<br>
+如果你想修改這些快捷鍵，可以在下載器的「通用」-「操作方式」-「自定義快速鍵」設置裡進行修改。`,
+    `The downloader has some preset hotkeys:<br>
+<span class="blue">L</span>(og) View/close the log area<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> View/close the settings panel<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> Click the default crawl button (start crawling)<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) Manually select works<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) Manually exclude works<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) Quickly download the current work (only used on work pages)<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) Quickly bookmark the current work (only used on work pages)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Copy the work's image and summary info<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) Enable/disable the preview-work feature<br>
 <br>
-Previously, the downloader's shortcuts could not be changed, but now you can modify them in the browser's extension management. However, because the browser limits you to preset only 4 shortcuts, some features used to have a shortcut but now don't. If you want to change or set a shortcut, you can do this:<br>
-Open the browser menu, click "Extensions" to enter the extension management page, then click "Keyboard shortcuts", find this extension, and you can set the shortcut.<br>
-For Chrome, you can use this URL: chrome://extensions/shortcuts<br>
-For Edge, you can use this URL: edge://extensions/shortcuts<br>`,
-    `ダウンローダーにはいくつかの既定のショートカットキーがあり、ほとんどのものは変更できます：<br>
-- <span class="blue">L</span> ログエリアの表示/非表示（このショートカットは変更できません）<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> 設定パネルの開閉<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> 既定の取得ボタンをクリック（取得開始）<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> 作品を手動で選択<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> 作品を手動で除外<br>
-- 未設定：作品プレビュー機能の有効化/無効化（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">P</span> でした）<br>
-- 未設定：作品ページで、現在の作品をすばやくダウンロード（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">Q</span> でした）<br>
-- 未設定：作品ページで、現在の作品をすばやくブックマーク（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">B</span> でした）<br>
-- 未設定：作品の画像と概要情報をコピー（この機能の以前のショートカットは <span class="blue">Alt</span> + <span class="blue">C</span> でした）<br>
+If you want to modify these hotkeys, you can do so in the downloader's "General" - "Operation" - "Custom hotkeys".`,
+    `ダウンローダーにはいくつかの既定のショートカットキーがあります：<br>
+<span class="blue">L</span>(og) ログ領域の表示/非表示<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> 設定パネルの表示/非表示<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> 既定のクロールボタンをクリック（クロール開始）<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) 作品を手動で選択<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) 作品を手動で除外<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) 現在の作品をすばやくダウンロード（作品ページでのみ使用）<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) 現在の作品をすばやくブックマーク（作品ページでのみ使用）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 作品の画像と概要情報をコピー<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) 作品プレビュー機能の有効/無効<br>
 <br>
-以前はダウンローダーのショートカットキーは変更できませんでしたが、現在はブラウザーの拡張機能管理から変更できるようになりました。ただし、ブラウザーでは既定のショートカットを 4 つまでしか設定できないため、以前ショートカットがあった機能の一部に現在ショートカットがありません。ショートカットを変更または設定したい場合は、以下の手順で行います：<br>
-ブラウザーのメニューを開き、「拡張機能」をクリックして拡張機能管理ページを開き、次に「キーボードショートカット」をクリックし、この拡張機能を見つけてショートカットを設定します。<br>
-Chrome ブラウザーはこの URL を使用できます：chrome://extensions/shortcuts<br>
-Edge ブラウザーはこの URL を使用できます：edge://extensions/shortcuts<br>`,
-    `다운로더에는 몇 가지 기본 단축키가 있으며, 대부분을 수정할 수 있습니다:<br>
-- <span class="blue">L</span> 로그 영역 보기/닫기(이 단축키는 수정할 수 없습니다)<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> 설정 패널 열기/닫기<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> 기본 크롤링 버튼 클릭(크롤링 시작)<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> 작품 수동 선택<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> 작품 수동 제외<br>
-- 미설정: 작품 미리보기 기능 켜기/끄기(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">P</span> 였습니다)<br>
-- 미설정: 작품 페이지에서 현재 작품 빠르게 다운로드(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">Q</span> 였습니다)<br>
-- 미설정: 작품 페이지에서 현재 작품 빠르게 북마크(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">B</span> 였습니다)<br>
-- 미설정: 작품의 이미지와 요약 정보 복사(이 기능의 이전 단축키는 <span class="blue">Alt</span> + <span class="blue">C</span> 였습니다)<br>
+これらのショートカットを変更したい場合は、ダウンローダーの「一般」-「操作方式」-「カスタムショートカット」で変更できます。`,
+    `다운로더에는 몇 가지 기본 단축키가 있습니다：<br>
+<span class="blue">L</span>(og) 로그 영역 보기/닫기<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> 설정 패널 보기/닫기<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> 기본 크롤링 버튼 클릭(크롤링 시작)<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) 작품 수동 선택<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) 작품 수동 제외<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) 현재 작품 빠른 다운로드(작품 페이지에서만 사용)<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) 현재 작품 빠른 북마크(작품 페이지에서만 사용)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) 작품 이미지와 요약 정보 복사<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) 작품 미리보기 기능 켜기/끄기<br>
 <br>
-이전에는 다운로더의 단축키를 수정할 수 없었지만, 이제는 브라우저의 확장 관리에서 수정할 수 있습니다. 하지만 브라우저에서는 기본 단축키를 4개까지만 설정할 수 있으므로, 이전에 단축키가 있던 일부 기능에 현재 단축키가 없습니다. 단축키를 수정하거나 설정하려면 다음과 같이 하세요:<br>
-브라우저 메뉴를 열고 "확장 프로그램"을 클릭하여 확장 관리 페이지로 들어간 다음, "키보드 단축키"를 클릭하여 이 확장 프로그램을 찾아 단축키를 설정합니다.<br>
-Chrome 브라우저는 이 URL을 사용할 수 있습니다: chrome://extensions/shortcuts<br>
-Edge 브라우저는 이 URL을 사용할 수 있습니다: edge://extensions/shortcuts<br>`,
-    `У загрузчика есть несколько предустановленных сочетаний клавиш, и большинство из них можно изменить:<br>
-- <span class="blue">L</span> Показать/скрыть область журнала (это сочетание нельзя изменить)<br>
-- <span class="blue">Alt</span> + <span class="blue">X</span> Открыть/закрыть панель настроек<br>
-- <span class="blue">Alt</span> + <span class="blue">Z</span> Нажать кнопку сбора по умолчанию (начать сбор)<br>
-- <span class="blue">Alt</span> + <span class="blue">S</span> Выбрать работы вручную<br>
-- <span class="blue">Alt</span> + <span class="blue">E</span> Исключить работы вручную<br>
-- Не назначено: включить/отключить функцию предпросмотра работ (прежнее сочетание этой функции — <span class="blue">Alt</span> + <span class="blue">P</span>)<br>
-- Не назначено: на странице работы быстро загрузить текущую работу (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">Q</span>)<br>
-- Не назначено: на странице работы быстро добавить текущую работу в закладки (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">B</span>)<br>
-- Не назначено: скопировать изображения и краткую информацию о работе (прежнее сочетание — <span class="blue">Alt</span> + <span class="blue">C</span>)<br>
+이 단축키를 수정하려면 다운로더의 "일반"-"조작 방식"-"사용자 정의 단축키"에서 수정할 수 있습니다.`,
+    `В загрузчике есть несколько предустановленных горячих клавиш:<br>
+<span class="blue">L</span>(og) Просмотр/закрытие области журнала<br>
+<span class="blue">Alt</span> + <span class="blue">X</span> Просмотр/закрытие панели настроек<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> Нажать кнопку краулинга по умолчанию (начать краулинг)<br>
+<span class="blue">Alt</span> + <span class="blue">S</span>(elect) Ручной выбор работ<br>
+<span class="blue">Alt</span> + <span class="blue">E</span>(xclude) Ручное исключение работ<br>
+<span class="blue">Alt</span> + <span class="blue">Q</span>(uick) Быстрая загрузка текущей работы (используется только на страницах работ)<br>
+<span class="blue">Alt</span> + <span class="blue">B</span>(ookmark) Быстрое добавление текущей работы в закладки (используется только на страницах работ)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span>(opy) Копировать изображение и краткую информацию о работе<br>
+<span class="blue">Alt</span> + <span class="blue">P</span>(review) Включить/отключить функцию предпросмотра работ<br>
 <br>
-Раньше сочетания клавиш загрузчика нельзя было изменить, но теперь это можно сделать в управлении расширениями браузера. Однако, поскольку браузер позволяет предустановить только 4 сочетания клавиш, некоторые функции, у которых раньше были сочетания, теперь их не имеют. Если вы хотите изменить или назначить сочетание клавиш, сделайте следующее:<br>
-Откройте меню браузера, нажмите "Расширения", чтобы перейти на страницу управления расширениями, затем нажмите "Клавиатурные сочетания", найдите это расширение и назначьте сочетание.<br>
-В Chrome можно использовать этот адрес: chrome://extensions/shortcuts<br>
-В Edge можно использовать этот адрес: edge://extensions/shortcuts<br>`,
+Если вы хотите изменить эти горячие клавиши, это можно сделать в разделе загрузчика «Общие» - «Способ работы» - «Пользовательские горячие клавиши».`,
   ],
   _该页面里没有默认的抓取按钮: [
     `该页面里没有默认的抓取按钮`,
@@ -11413,6 +11419,228 @@ Edge 브라우저는 이 URL을 사용할 수 있습니다: edge://extensions/sh
     `이 페이지에는 기본 크롤링 버튼이 없습니다`,
     `На этой странице нет кнопки краулинга по умолчанию`,
   ],
+  _自定义快捷键: [
+    `自定义快捷键`,
+    `自定義快速鍵`,
+    `Custom hotkeys`,
+    `カスタムショートカット`,
+    `사용자 정의 단축키`,
+    `Пользовательские горячие клавиши`,
+  ],
+  _自定义快捷键的说明: [
+    `你可以使用这些按键来作为快捷键：<br>
+- 数字 <span class="blue">0</span> - <span class="blue">9</span><br>
+- 字母 <span class="blue">A</span> - <span class="blue">Z</span><br>
+- 修饰键：<span class="blue">Ctrl</span>、<span class="blue">Alt</span>、<span class="blue">Shift</span>、<span class="blue">Meta</span><br>
+<br>
+详细说明：<br>
+- 数字和字母可以单独使用，所以你可以设置单键快捷键。例如快捷键 <span class="blue">L</span>。<br>
+- 你可以把任意多个修饰键组合起来使用，并且不能只使用修饰键。修饰键必须配合数字或字母一起使用。例如 <span class="blue">Alt</span> + <span class="blue">X</span>。<br>
+- <span class="blue">Ctrl</span> 的组合键里有很多是浏览器保留的功能键，所以无法设置为网页内的快捷键。这些组合有：<span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>，以及 <span class="blue">Ctrl</span> + 任意数字（<span class="blue">0</span> - <span class="blue">9</span>）。<br>
+- 修改快捷键之后会立即生效，无需刷新页面。<br>
+- 你可以修改下载器的一级快捷键；不支持修改二级快捷键（例如只能在"预览作品"时使用的快捷键）。`,
+    `你可以使用這些按鍵來作為快捷鍵：<br>
+- 數字 <span class="blue">0</span> - <span class="blue">9</span><br>
+- 字母 <span class="blue">A</span> - <span class="blue">Z</span><br>
+- 修飾鍵：<span class="blue">Ctrl</span>、<span class="blue">Alt</span>、<span class="blue">Shift</span>、<span class="blue">Meta</span><br>
+<br>
+詳細說明：<br>
+- 數字和字母可以單獨使用，所以你可以設定單鍵快捷鍵。例如快捷鍵 <span class="blue">L</span>。<br>
+- 你可以把任意多個修飾鍵組合起來使用，並且不能只使用修飾鍵。修飾鍵必須配合數字或字母一起使用。例如 <span class="blue">Alt</span> + <span class="blue">X</span>。<br>
+- <span class="blue">Ctrl</span> 的組合鍵裡有很多是瀏覽器保留的功能鍵，所以無法設定為網頁內的快捷鍵。這些組合有：<span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>，以及 <span class="blue">Ctrl</span> + 任意數字（<span class="blue">0</span> - <span class="blue">9</span>）。<br>
+- 修改快捷鍵之後會立即生效，無需重新整理頁面。<br>
+- 你可以修改下載器的一級快捷鍵；不支援修改二級快捷鍵（例如只能在「預覽作品」時使用的快捷鍵）。`,
+    `You can use these keys as hotkeys:<br>
+- Numbers <span class="blue">0</span> - <span class="blue">9</span><br>
+- Letters <span class="blue">A</span> - <span class="blue">Z</span><br>
+- Modifier keys: <span class="blue">Ctrl</span>, <span class="blue">Alt</span>, <span class="blue">Shift</span>, <span class="blue">Meta</span><br>
+<br>
+Details:<br>
+- Numbers and letters can be used on their own, so you can set a single-key hotkey. For example the hotkey <span class="blue">L</span>.<br>
+- You can combine any number of modifier keys, but you cannot use modifier keys alone. A modifier key must be used together with a number or letter. For example <span class="blue">Alt</span> + <span class="blue">X</span>.<br>
+- Many <span class="blue">Ctrl</span> combinations are browser-reserved function keys, so they cannot be set as in-page hotkeys. These combinations are: <span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>, and <span class="blue">Ctrl</span> + any number (<span class="blue">0</span> - <span class="blue">9</span>).<br>
+- Changes to hotkeys take effect immediately, no page refresh needed.<br>
+- You can modify the downloader's first-level hotkeys; second-level hotkeys (for example, those that only work when "previewing a work") are not supported.`,
+    `これらのキーをショートカットキーとして使用できます：<br>
+- 数字 <span class="blue">0</span> - <span class="blue">9</span><br>
+- アルファベット <span class="blue">A</span> - <span class="blue">Z</span><br>
+- 修飾キー：<span class="blue">Ctrl</span>、<span class="blue">Alt</span>、<span class="blue">Shift</span>、<span class="blue">Meta</span><br>
+<br>
+詳細：<br>
+- 数字とアルファベットは単独で使用できるため、単一キーのショートカットを設定できます。例えばショートカットキー <span class="blue">L</span>。<br>
+- 修飾キーは任意の数だけ組み合わせて使用できますが、修飾キーだけでは使用できません。修飾キーは必ず数字またはアルファベットと組み合わせて使用してください。例えば <span class="blue">Alt</span> + <span class="blue">X</span>。<br>
+- <span class="blue">Ctrl</span> の組み合わせの多くはブラウザー予約済みのファンクションキーであるため、ウェブページ内のショートカットとして設定できません。該当する組み合わせは：<span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>、および <span class="blue">Ctrl</span> + 任意の数字（<span class="blue">0</span> - <span class="blue">9</span>）。<br>
+- ショートカットを変更するとすぐに反映され、ページの再読み込みは不要です。<br>
+- ダウンローダーの一級ショートカットは変更できますが、二級ショートカット（例：「作品をプレビュー」時のみ使用できるもの）は変更できません。`,
+    `다음 키를 단축키로 사용할 수 있습니다：<br>
+- 숫자 <span class="blue">0</span> - <span class="blue">9</span><br>
+- 영문자 <span class="blue">A</span> - <span class="blue">Z</span><br>
+- 수정 키：<span class="blue">Ctrl</span>, <span class="blue">Alt</span>, <span class="blue">Shift</span>, <span class="blue">Meta</span><br>
+<br>
+자세한 설명：<br>
+- 숫자와 영문자는 단독으로 사용할 수 있으므로 단일 키 단축키를 설정할 수 있습니다. 예를 들어 단축키 <span class="blue">L</span>.<br>
+- 수정 키는 원하는 만큼 조합하여 사용할 수 있지만, 수정 키만으로는 사용할 수 없습니다. 수정 키는 반드시 숫자나 영문자와 함께 사용해야 합니다. 예를 들어 <span class="blue">Alt</span> + <span class="blue">X</span>.<br>
+- <span class="blue">Ctrl</span> 조합 중에는 브라우저가 예약한 기능 키가 많아, 웹 페이지 내 단축키로 설정할 수 없습니다. 해당 조합은：<span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>, 그리고 <span class="blue">Ctrl</span> + 임의의 숫자（<span class="blue">0</span> - <span class="blue">9</span>）.<br>
+- 단축키를 수정하면 즉시 적용되며 페이지 새로 고침이 필요 없습니다.<br>
+- 다운로더의 1단계 단축키는 수정할 수 있지만, 2단계 단축키(예: "작품 미리보기"에서만 사용할 수 있는 단축키)는 지원하지 않습니다.`,
+    `Вы можете использовать эти клавиши в качестве горячих клавиш:<br>
+- Цифры <span class="blue">0</span> - <span class="blue">9</span><br>
+- Буквы <span class="blue">A</span> - <span class="blue">Z</span><br>
+- Клавиши-модификаторы: <span class="blue">Ctrl</span>, <span class="blue">Alt</span>, <span class="blue">Shift</span>, <span class="blue">Meta</span><br>
+<br>
+Подробное описание:<br>
+- Цифры и буквы можно использовать по отдельности, поэтому можно задать горячую клавишу из одной клавиши. Например, горячая клавиша <span class="blue">L</span>.<br>
+- Клавиши-модификаторы можно комбинировать в любом количестве, но нельзя использовать только модификаторы. Модификатор должен использоваться вместе с цифрой или буквой. Например <span class="blue">Alt</span> + <span class="blue">X</span>.<br>
+- Многие сочетания с <span class="blue">Ctrl</span> зарезервированы браузером как функциональные клавиши, поэтому их нельзя назначить горячими клавишами внутри страницы. К таким сочетаниям относятся: <span class="blue">Ctrl</span> + <span class="blue">T</span> / <span class="blue">W</span> / <span class="blue">N</span> / <span class="blue">R</span> / <span class="blue">Q</span> / <span class="blue">P</span> / <span class="blue">L</span> / <span class="blue">K</span>, а также <span class="blue">Ctrl</span> + любая цифра（<span class="blue">0</span> - <span class="blue">9</span>）.<br>
+- Изменения горячих клавиш вступают в силу сразу, обновлять страницу не нужно.<br>
+- Вы можете изменять горячие клавиши первого уровня загрузчика; горячие клавиши второго уровня (например, используемые только при «предпросмотре работы») не поддерживаются.`,
+  ],
+  _查看关闭设置面板: [
+    `查看/关闭设置面板`,
+    `查看/關閉設定面板`,
+    `Show/hide settings panel`,
+    `設定パネルの表示/非表示`,
+    `설정 패널 표시/숨기기`,
+    `Показать/скрыть панель настроек`,
+  ],
+  _点击默认的抓取按钮: [
+    `点击默认的抓取按钮`,
+    `點擊預設的抓取按鈕`,
+    `Click the default crawl button`,
+    `デフォルトのクロールボタンをクリック`,
+    `기본 크롤링 버튼 클릭`,
+    `Нажать кнопку краулинга по умолчанию`,
+  ],
+  _查看关闭日志区域: [
+    `查看/关闭日志区域`,
+    `查看/關閉日誌區域`,
+    `Show/hide log area`,
+    `ログエリアの表示/非表示`,
+    `로그 영역 표시/숨기기`,
+    `Показать/скрыть область журнала`,
+  ],
+  _快捷键预览作品: [
+    `启用/关闭预览作品功能`,
+    `啟用/關閉預覽作品功能`,
+    `Enable/disable the preview work feature`,
+    `プレビュー作品機能の有効/無効`,
+    `미리보기 작품 기능 켜기/끄기`,
+    `Включить/выключить функцию предпросмотра работы`,
+  ],
+  _快捷键快速下载: [
+    `快速下载当前作品<br>（只在作品页面里使用）`,
+    `快速下載目前作品<br>（只在作品頁面裡使用）`,
+    `Quickly download the current work<br>(only works on a work page)`,
+    `現在の作品をすばやくダウンロード<br>（作品ページでのみ使用）`,
+    `현재 작품 빠른 다운로드<br>(작품 페이지에서만 사용)`,
+    `Быстрая загрузка текущей работы<br>(только на странице работы)`,
+  ],
+  _已删除: [`已删除`, `已刪除`, `Deleted`, `削除しました`, `삭제됨`, `Удалено`],
+  _已重置: [
+    `已重置`,
+    `已重設`,
+    `Reset`,
+    `リセットしました`,
+    `초기화됨`,
+    `Сброшено`,
+  ],
+  _快速收藏当前作品: [
+    `快速收藏当前作品<br>（只在作品页面里使用）`,
+    `快速收藏目前作品<br>（只在作品頁面裡使用）`,
+    `Quickly bookmark the current work<br>(only works on a work page)`,
+    `現在の作品をすばやくブックマーク<br>（作品ページでのみ使用）`,
+    `현재 작품 빠른 북마크<br>(작품 페이지에서만 사용)`,
+    `Быстрое добавление текущей работы в закладки<br>(только на странице работы)`,
+  ],
+  _复制作品信息: [
+    `复制作品信息`,
+    `複製作品資訊`,
+    `Copy work info`,
+    `作品情報をコピー`,
+    `작품 정보 복사`,
+    `Копировать информацию о работе`,
+  ],
+  _未设置: [
+    `未设置`,
+    `未設置`,
+    `Not set`,
+    `未設定`,
+    `설정 안 됨`,
+    `Не назначено`,
+  ],
+  _修改快捷键: [
+    `修改快捷键`,
+    `修改快速鍵`,
+    `Edit hotkey`,
+    `ショートカットを編集`,
+    `단축키 수정`,
+    `Изменить сочетание`,
+  ],
+  _删除快捷键: [
+    `删除快捷键`,
+    `刪除快速鍵`,
+    `Delete hotkey`,
+    `ショートカットを削除`,
+    `단축키 삭제`,
+    `Удалить сочетание`,
+  ],
+  _清除: [`清除`, `清除`, `Clear`, `クリア`, `지우기`, `Очистить`],
+  _请按下快捷键: [
+    `请按下快捷键`,
+    `請按下快速鍵`,
+    `Press a hotkey`,
+    `ショートカットを押してください`,
+    `단축키를 누르세요`,
+    `Нажмите сочетание клавиш`,
+  ],
+  _Esc取消: [
+    `Esc 取消`,
+    `Esc 取消`,
+    `Esc to cancel`,
+    `Esc でキャンセル`,
+    `Esc로 취소`,
+    `Esc для отмены`,
+  ],
+  _重置所有快捷键: [
+    `重置所有快捷键`,
+    `重設所有快速鍵`,
+    `Reset all hotkeys`,
+    `すべてのショートカットをリセット`,
+    `모든 단축키 초기화`,
+    `Сбросить все сочетания клавиш`,
+  ],
+  _重置所有快捷键的提示: [
+    `是否要重置所有快捷键？它们都将恢复为默认值。`,
+    `是否要重設所有快速鍵？它們都將恢復為預設值。`,
+    `Reset all hotkeys? They will be restored to defaults.`,
+    `すべてのショートカットをリセットしますか？デフォルトに戻ります。`,
+    `모든 단축키를 초기화할까요? 기본값으로 돌아갑니다.`,
+    `Сбросить все сочетания клавиш? Будут восстановлены значения по умолчанию.`,
+  ],
+  _快捷键冲突提示: [
+    `你要设置的快捷键已被“{}”占用。如果你依然想设置这个快捷键，请先修改或清除“{}”的快捷键。`,
+    `你要設定的快速鍵已被「{}」佔用。如果你仍想設定這個快速鍵，請先修改或清除「{}」的快速鍵。`,
+    `The hotkey "{}" is already in use. If you still want to set this hotkey, modify or clear "{}" first.`,
+    `「{}」はすでに使用されています。このショートカットを設定するには、まず「{}」を変更または削除してください。`,
+    `"{}" 단축키가 이미 사용 중입니다. 이 단축키를 설정하려면 먼저 "{}"를 수정하거나 삭제하세요.`,
+    `Сочетание клавиш "{}" уже используется. Если вы всё же хотите его назначить, сначала измените или удалите "{}".`,
+  ],
+  _快捷键被浏览器保留: [
+    `该组合是浏览器或系统保留快捷键，无法使用`,
+    `該組合是瀏覽器或系統保留快速鍵，無法使用`,
+    `This combination is reserved by the browser or system and cannot be used`,
+    `この組み合わせはブラウザまたはシステムで予約されており使用できません`,
+    `이 조합은 브라우저 또는 시스템에서 예약되어 사용할 수 없습니다`,
+    `Это сочетание зарезервировано браузером или системой и недоступно`,
+  ],
+  _快捷键需要主键: [
+    `快捷键必须包含数字或字母`,
+    `快速鍵必須包含數字或字母`,
+    `A hotkey must include a number or letter`,
+    `ショートカットには数字または文字が必要です`,
+    `단축키에는 숫자나 문자가 포함되어야 합니다`,
+    `Сочетание должно содержать цифру или букву`,
+  ],
+  _修改: [`修改`, `修改`, `Modify`, `変更`, `수정`, `Изменить`],
+  _已修改: [`已修改`, `已修改`, `Modified`, `変更済み`, `수정됨`, `Изменено`],
 }
-
-export type LangTextKey = keyof typeof langText

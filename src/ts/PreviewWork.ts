@@ -255,9 +255,7 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 当用户按下 Ctrl 时，不启用下载器的快捷键，以避免快捷键冲突或重复生效
-        // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
-        if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
           return
         }
 
@@ -329,7 +327,7 @@ class PreviewWork {
         }
 
         // 预览作品时，可以使用快捷键 B 收藏这个作品
-        if (!ev.altKey && ev.code === 'KeyB') {
+        if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
           addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
@@ -360,7 +358,7 @@ class PreviewWork {
       }
     )
 
-    // 一级快捷键 切换预览功能（浏览器命令）
+    // 一级快捷键 切换预览功能
     window.addEventListener(EVT.list.commandTogglePreviewWork, () => {
       setSetting('PreviewWork', !settings.PreviewWork)
       if (settings.PreviewWork) {
@@ -370,7 +368,7 @@ class PreviewWork {
       }
     })
 
-    // 一级快捷键 复制作品信息（浏览器命令）
+    // 一级快捷键 复制作品信息
     window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
       if (this.show && this.workData) {
         copyWorkInfo.receive(

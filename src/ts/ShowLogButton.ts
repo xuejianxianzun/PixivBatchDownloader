@@ -1,6 +1,7 @@
 import { lang } from './Language'
 import { toast } from './Toast'
 import { rightButtonManager } from './RightButtonManager'
+import { EVT } from './EVT'
 
 export interface LogAreaContext {
   getShow(): boolean
@@ -18,13 +19,13 @@ class ShowLogButton {
     this.ctx = ctx
     this.createBtn()
     this.bindBtnEvents()
-    this.bindKeydown()
+    this.bindCommand()
   }
 
   private createBtn() {
     this.showLogBtn = rightButtonManager.register({
       id: 'showLogBtn',
-      title: '_查看日志附带快捷键L',
+      title: '_查看日志',
       icon: 'list',
       order: 20,
     })
@@ -38,25 +39,9 @@ class ShowLogButton {
     })
   }
 
-  private bindKeydown() {
-    // 按快捷键 L 显示/隐藏日志区域
-    window.addEventListener('keydown', (ev) => {
-      if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.target) {
-        const target = ev.target as HTMLElement
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        ) {
-          return
-        }
-      }
-
-      ev.preventDefault()
+  private bindCommand() {
+    // 日志区域的快捷键（默认 L）由 HotkeyListener 统一捕获并派发 commandToggleLogArea
+    window.addEventListener(EVT.list.commandToggleLogArea, () => {
       this.toggleLog()
     })
   }

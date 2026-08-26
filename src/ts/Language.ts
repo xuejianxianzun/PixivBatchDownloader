@@ -120,10 +120,10 @@ class Lang {
 
   // translate
   public transl(name: LangTextKey, ...args: string[]) {
-    // if(name in langText === false){
-    //   console.warn(`Lang: not found:${name}`)
-    //   return name
-    // }
+    if (name in langText === false) {
+      console.warn(`LangText not found: ${name}`)
+      return name
+    }
     let content = langText[name][this.flagIndex.get(this.type)!]
     args.forEach((arg) => (content = content.replace('{}', arg)))
     return content

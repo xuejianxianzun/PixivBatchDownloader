@@ -200,7 +200,7 @@ class EVENT {
     /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
     manuallyExcludeWork: 'manuallyExcludeWork',
     /** 快捷键命令：切换显示日志区域（对应一级快捷键 L） */
-    commandToggleLogsArea: 'commandToggleLogsArea',
+    commandToggleLogArea: 'commandToggleLogArea',
     /** 快捷键命令：切换显示设置面板（对应一级快捷键 Alt + X） */
     commandToggleSettingsPanel: 'commandToggleSettingsPanel',
     /** 快捷键命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */

@@ -127,7 +127,6 @@ class SelectWork {
       }
     })
 
-    // 一级快捷键 Alt + S 已迁移为浏览器命令
     window.addEventListener(EVT.list.commandToggleSelectWork, () => {
       this.toggleSelectWork()
     })

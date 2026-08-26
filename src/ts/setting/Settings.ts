@@ -83,6 +83,98 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
+/** 一个快捷键组合。key 为 KeyboardEvent.code（如 'KeyX'、'Digit1'），未设置时为空字符串 */
+export interface HotkeyCombo {
+  key: string
+  ctrl: boolean
+  alt: boolean
+  shift: boolean
+  meta: boolean
+}
+
+/** 可被用户自定义的 9 个一级快捷键对应的命令名 */
+// 如果修改了一个命令的名字，那么需要处理对旧设置的兼容性。要避免一个命令同时存在新旧两个名字，因为这可能导致这个命令不能正常派发。
+export type HotkeyCommand =
+  | 'commandToggleSettingsPanel'
+  | 'commandStartDefaultCrawl'
+  | 'commandToggleLogArea'
+  | 'commandToggleSelectWork'
+  | 'commandToggleExcludeWork'
+  | 'commandTogglePreviewWork'
+  | 'commandQuickDownload'
+  | 'commandQuickBookmark'
+  | 'commandCopyWorkInfo'
+
+/** 命令名到快捷键组合的映射，用户未设置的命令不会出现在这里 */
+export type HotkeyMap = Partial<Record<HotkeyCommand, HotkeyCombo>>
+
+/** 一级快捷键的默认键位，供设置初始值与“重置为默认”使用 */
+export const defaultHotkeys: HotkeyMap = {
+  commandToggleSettingsPanel: {
+    key: 'KeyX',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandStartDefaultCrawl: {
+    key: 'KeyZ',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandToggleLogArea: {
+    key: 'KeyL',
+    ctrl: false,
+    alt: false,
+    shift: false,
+    meta: false,
+  },
+  commandToggleSelectWork: {
+    key: 'KeyS',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandToggleExcludeWork: {
+    key: 'KeyE',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandTogglePreviewWork: {
+    key: 'KeyP',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandQuickDownload: {
+    key: 'KeyQ',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandQuickBookmark: {
+    key: 'KeyB',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandCopyWorkInfo: {
+    key: 'KeyC',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+}
+
 type SettingValue =
   | string
   | number
@@ -93,6 +185,7 @@ type SettingValue =
   | { [key: number]: string }
   | Map<string, string>
   | { [key in PageName]: CrawlNumberConfig }
+  | HotkeyMap
 
 export interface SettingChangeData {
   name: SettingKeys
@@ -415,6 +508,8 @@ interface XzSetting {
   autoExportSettingsInterval: number
   tipManuallyExcludeWorks: boolean
   tipAltEToExcludeWork: boolean
+  /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
+  hotkeys: HotkeyMap
 }
 
 type SettingKeys = keyof XzSetting
@@ -1046,6 +1141,7 @@ class Settings {
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
     tipAltEToExcludeWork: true,
+    hotkeys: defaultHotkeys,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1599,7 +1695,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

@@ -238,10 +238,12 @@
     cursor: pointer;
 
     // 会触发事件的按钮，不同于显示帮助的按钮，需要为它们添加轻量级的按钮样式，方便用户识别
-    &.fireEvent {
+    &.borderButton {
+      line-height: var(--line-height);
       border: 1px solid var(--settings-panel-btn-secondary-border);
       border-radius: 6px;
       margin-right: 3px;
+      padding: 0px 6px;
     }
   }
 

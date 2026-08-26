@@ -14,6 +14,7 @@ import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -30,8 +31,6 @@ class QuickBookmark {
       }
     )
 
-    // 一级快捷键 已迁移为浏览器命令
-    // 由 CommandReceiver 分发为 EVT 事件，不再在网页里监听 keydown
     window.addEventListener(EVT.list.commandQuickBookmark, () => {
       this.triggerBookmark()
     })
@@ -288,6 +287,14 @@ class QuickBookmark {
    * 需要当前作品工具栏、token 和作品数据均已就绪时才执行，避免点击尚未初始化的空 button */
   private triggerBookmark() {
     if (!this.enablePageTypes.includes(pageType.type) || !this.workData) {
+      return
+    }
+
+    if (
+      states.previewWorkIsShow ||
+      states.imageViewerIsShow ||
+      states.showOriginSizeImageIsShow
+    ) {
       return
     }
 

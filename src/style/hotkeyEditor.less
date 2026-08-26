@@ -1,0 +1,112 @@
+.hotkeyEditorWrap {
+  margin-top: 6px !important;
+
+  // 整体外观：圆角 + 灰色外边框（不使用 table 元素，仅样式上像表格）
+  .hotkeyTable {
+    border: 1px solid var(--settings-panel-table-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  // 表头与每一行都采用相同的 3 列网格，保证列对齐
+  .tableHeader,
+  .settingItem {
+    display: grid;
+    grid-template-columns: 45% 30% 25%;
+  }
+
+  .tableHeader {
+    background: var(--settings-panel-table-header-bg);
+    color: var(--settings-panel-text);
+
+    .cell {
+      font-weight: bold;
+    }
+  }
+
+  // 行与行之间的横向分界线（无纵向分隔线）
+  .settingItem + .settingItem {
+    border-top: 1px solid var(--settings-panel-table-border);
+  }
+
+  // 单元格：内容居左、可换行、盒模型包含内边距
+  .cell {
+    box-sizing: border-box;
+    padding: 6px 8px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    word-break: break-word;
+
+    .label {
+      color: var(--settings-panel-text);
+      line-height: var(--line-height);
+    }
+
+    .value {
+      line-height: var(--line-height);
+      font-family: var(--pixiv-font-family);
+
+      // 录制态：用颜色提示用户正在等待按键
+      &.recording {
+        color: var(--settings-panel-search-border-focus);
+      }
+    }
+  }
+
+  .cellHotkey {
+    gap: 6px;
+  }
+
+  .cellAction {
+    padding-left: 0;
+  }
+
+  .btns {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 0px 3px;
+    cursor: pointer;
+    color: var(--settings-panel-clear-visible-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      font-size: 1.3em;
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--beautify-blue);
+    }
+
+    &.reset {
+      margin-top: 6px;
+      color: var(--settings-panel-text);
+    }
+  }
+
+  // Esc 取消按钮：默认隐藏，进入录制态时显示
+  .escCancel {
+    display: none;
+    justify-content: flex-start;
+    margin-top: 2px;
+    font-size: 0.9em;
+    color: #999;
+  }
+
+  .settingItem.recording {
+    .escCancel {
+      display: inline-flex;
+    }
+  }
+}

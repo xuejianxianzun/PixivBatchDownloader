@@ -42,7 +42,6 @@ class QuickCrawl {
       false
     )
 
-    // 一级快捷键 已迁移为浏览器命令
     window.addEventListener(EVT.list.commandQuickDownload, () => {
       if (this.show) {
         this.sendDownload()
