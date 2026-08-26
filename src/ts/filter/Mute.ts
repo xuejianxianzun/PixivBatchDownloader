@@ -67,10 +67,10 @@ class Mute {
       if (showTips && (this.userList.length > 0 || this.tagList.length > 0)) {
         let msg = lang.transl('_屏蔽设定') + ': <br>'
         if (this.userList.length > 0) {
-          msg += `Users: ${this.userList.join(',')}<br>`
+          msg += `${lang.transl('_用户')}: ${this.userList.join(',')}<br>`
         }
         if (this.tagList.length > 0) {
-          msg += `Tags: ${this.tagList.join(',')}<br>`
+          msg += `${lang.transl('_标签')}: ${this.tagList.join(',')}<br>`
         }
         log.warning(msg)
       }

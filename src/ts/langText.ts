@@ -117,7 +117,7 @@ export const langText = {
   _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로', 'Горизонтальный'],
   _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로', 'Вертикальный'],
   _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형', 'Квадрат(1:1)'],
-  _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 ', 'Соотношение'],
+  _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비', 'Соотношение'],
   _宽高比的提示: [
     `宽高比是宽度除以高度得到的数字。<br>宽高比小于 1 时，图片是竖图。<br>宽高比大于 1 时，图片是横图。<br>宽高比越大，图片越扁长。`,
     `寬高比是寬度除以高度得到的數字。<br>寬高比小於 1 時，圖片是豎圖。<br>寬高比大於 1 時，圖片是橫圖。<br>寬高比越大，圖片越扁長。`,
@@ -228,7 +228,7 @@ export const langText = {
   ],
   _本次任务已全部完成: [
     '本次任务已全部完成。',
-    '本次工作已全部完成。',
+    '本次任務已全部完成。',
     'This task has been completed.',
     'この作業は完了しました。',
     '이 작업은 완료되었습니다.',
@@ -236,7 +236,7 @@ export const langText = {
   ],
   _本次任务条件: [
     '本次任务条件: ',
-    '本次工作條件：',
+    '本次任務條件：',
     'This task condition: ',
     'この作業の条件：',
     '이 작업 조건: ',
@@ -245,7 +245,7 @@ export const langText = {
   _参数不合法本次操作已取消: [
     '参数不合法，本次操作已取消。',
     '參數不合法，本次動作已取消。',
-    'Parameter is not legal, this operation has been canceled.',
+    'The parameter is invalid, so this operation has been canceled.',
     'パラメータは有効ではありません。この操作はキャンセルされました。',
     '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
     'Параметр не является разрешенным, операция отменена.',
@@ -261,10 +261,10 @@ export const langText = {
   _向下获取所有作品: [
     '向下获取所有作品',
     '向下取得所有作品',
-    'download all the work from this page.',
-    'このページからすべての作品をダウンロードする。',
-    '모든 작품 다운로드',
-    'загрузить все работы с этой страницы',
+    'Download all works from this page',
+    'このページからすべての作品をダウンロードする',
+    '이 페이지에서 모든 작품 가져오기',
+    'Загрузить все работы с этой страницы',
   ],
   _抓取多少作品的提示: [
     `你可以设置抓取多少个作品。
@@ -572,7 +572,7 @@ And so on.
     `Crawl all pages`,
     `すべてのページをクロール`,
     `모든 페이지 크롤링`,
-    `Скраулить все страницы`,
+    `Собрать все страницы`,
   ],
   _下载x个相关作品: [
     '下载 {} 个相关作品',
@@ -580,7 +580,7 @@ And so on.
     'download {} related works.',
     '関連作品 {} 枚をダウンロードする。',
     '관련 작품 {}개를 다운로드',
-    'скачать {} связанные работы',
+    'скачать {} связанных работ',
   ],
   _下载所有相关作品: [
     '下载所有相关作品',
@@ -588,7 +588,7 @@ And so on.
     'download all related works.',
     '関連作品をすべてダウンロードする。',
     '모든 관련 작품 다운로드',
-    'скачать все соответствующие работы.',
+    'скачать все связанные работы.',
   ],
   _下载推荐作品: [
     '下载推荐作品',
@@ -602,7 +602,7 @@ And so on.
     '下载排行榜前 {} 个作品',
     '下載排行榜前 {} 個作品',
     'download the top {} works in the ranking list',
-    'ランク前 {} 位の作品をダウンロードする。',
+    'ランキング上位 {} 位の作品をダウンロードする。',
     '랭킹 목록 상위 {}개의 작품 다운로드',
     'загрузить лучшие {} работы в рейтинговом списке',
   ],
@@ -620,7 +620,7 @@ And so on.
     'download {} pages from this page',
     'このページから {} ページをダウンロードする',
     '이 페이지부터 {} 페이지 다운로드',
-    'Начать загрузку с страниц этой {} страницы',
+    'Начать загрузку {} страниц с этой страницы',
   ],
   _从本页开始抓取x页: [
     `从本页开始抓取 {} 页`,
@@ -628,7 +628,7 @@ And so on.
     `Start crawling from this page for {} pages`,
     `このページから {} ページをクロール開始`,
     `이 페이지부터 {} 페이지 크롤링 시작`,
-    `Начиная с этой страницы, скраулить {} страниц`,
+    `Начиная с этой страницы, собрать {} страниц`,
   ],
   _抓取x页_每页最多含有50个作品: [
     `抓取 {} 页（每页最多含有 50 个作品）`,
@@ -636,7 +636,7 @@ And so on.
     `Crawl {} pages (up to 50 works per page)`,
     `{} ページをクロール（1ページあたり最大50作品）`,
     `{} 페이지 크롤링 (페이지당 최대 50개 작품)`,
-    `Скраулить {} страниц (максимум 50 работ на страницу)`,
+    `Собрать {} страниц (максимум 50 работ на страницу)`,
   ],
   _从本页开始下载x个: [
     '从本页开始下载 {} 个作品',
@@ -644,7 +644,7 @@ And so on.
     'Download {} works from this page.',
     'このページから {} 枚の作品をダウンロード。',
     '이 페이지부터 {}개의 작품 다운로드',
-    'Загрузить {} работы с этой страницы.',
+    'Загрузить {} работ с этой страницы.',
   ],
   _从本页开始抓取x个: [
     `从本页开始抓取 {} 个作品`,
@@ -652,11 +652,11 @@ And so on.
     `Start crawling from this page for {} works`,
     `このページから {} 件の作品をクロール開始`,
     `이 페이지부터 {}개 작품 크롤링 시작`,
-    `Начиная с этой страницы, скраулить {} работ`,
+    `Начиная с этой страницы, собрать {} работ`,
   ],
   _任务开始: [
     '任务开始',
-    '工作開始',
+    '任務開始',
     'Task starts',
     '作業が開始されます',
     '작업 시작',
@@ -681,7 +681,7 @@ And so on.
   _多图下载设置: [
     '多图下载设置',
     '多圖下載設定',
-    'Download multi-image works',
+    'Multi-image download settings',
     '複数画像設定',
     '여러 이미지 작품 다운로드',
     'Загрузить работы с несколькими изображениями',
@@ -1011,7 +1011,6 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     '今は　{}　枚の削除された作品があります',
     '현재 {}개의 삭제된 작품이 있습니다',
     'В настоящее время существует {} удалённых работ',
-    'В настоящее время существует {} работ',
   ],
   _当前有x个用户: [
     '当前有 {} 个用户',
@@ -1035,7 +1034,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     'crawled {} users',
     'クロールされた {} ユーザー',
     '{}명의 유저를 긁어왔습니다',
-    'Сканированные {} пользователи',
+    'Сканировано {} пользователей',
   ],
   _排行榜进度: [
     '已抓取本页面第 {} 部分',
@@ -1048,15 +1047,15 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   _新作品进度: [
     '已抓取本页面 {} 个作品',
     '已擷取本頁面 {} 個作品',
-    'This page has been crawled {} works',
+    'Crawled {} works on this page',
     'このページの {} つの作品をクロールしました',
     '이 페이지의 {}개의 작품을 긁어왔습니다',
-    'На этой странице было просканированно {} работ',
+    'На этой странице было просканировано {} работ',
   ],
   _抓取多少个作品: [
     '抓取本页面 {} 个作品',
     '擷取本頁面 {} 個作品',
-    'Crawl this page {} works',
+    'Crawl {} works on this page',
     'このページの {} つの作品をクロールします',
     '이 페이지의 {}개의 작품 긁어오기',
     'Сканировать на этой странице {} работ',
@@ -1123,11 +1122,11 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `All works in this crawl are series novels, and there are no standalone novels to download, so the crawl result is 0.`,
     `今回のクロール対象の作品はすべてシリーズ小説で、単発小説は存在しないため、クロール結果は 0 件です。`,
     `이번 크롤링의 모든 작품이 시리즈 소설이며, 단편 소설은 없으므로 크롤링 결과는 0입니다.`,
-    `Все работы в этом краулинге являются сериями романов, отдельных романов для скачивания нет, поэтому результат краулинга — 0.`,
+    `Все работы в этом сканировании являются сериями романов, отдельных романов для скачивания нет, поэтому результат сканирования — 0.`,
   ],
   _当前任务尚未完成: [
     '当前任务尚未完成',
-    '目前工作尚未完成',
+    '目前任務尚未完成',
     'The current task has not yet been completed',
     '現在の作業はまだ完了していません',
     '현재 작업이 아직 완료되지 않았습니다',
@@ -1135,11 +1134,11 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _当前任务尚未完成2: [
     '当前任务尚未完成，请等待完成后再下载。',
-    '目前工作尚未完成，請等待完成後再下載。',
-    'The current task has not yet been completed',
+    '目前任務尚未完成，請等待完成後再下載。',
+    'The current task has not yet been completed. Please wait for it to finish before downloading.',
     '現在の作業はまだ完了していません、完了するまでお待ちください',
     '현재 작업이 아직 완료되지 않았습니다, 완료될 때까지 기다려주세요.',
-    'Текущее задание еще не выполнено',
+    'Текущее задание еще не выполнено. Дождитесь его завершения перед загрузкой.',
   ],
   _下载器正忙忽略本次操作: [
     `下载器正忙，忽略本次操作`,
@@ -1168,7 +1167,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   _无权访问: [
     '无权访问 {}，跳过该作品。',
     '沒有權限存取 {}，跳過該作品。',
-    'No access {}, skip.',
+    'No access to {}, skipping.',
     '{} のアクセス権限がありません、作品を無視する。',
     '{}에 접근 권한이 없습니다, 이 작업을 건너뜁니다.',
     'Нет доступа {}, пропуск.',
@@ -1311,7 +1310,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _抓取图片网址遇到中断: [
     '当前任务已中断!',
-    '目前工作已中斷！',
+    '目前任務已中斷！',
     'The current task has been interrupted.',
     '現在の作業が中断されました。',
     '현재 작업이 중단되었습니다!',
@@ -1380,18 +1379,18 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   _共抓取到n个文件: [
     '共抓取到 {} 个文件',
     '共擷取到 {} 個檔案',
-    'Crawl a total of {} files',
+    'Crawled a total of {} files',
     '合計 {} つのファイルがあります',
     '총 {}개의 파일을 긁어왔습니다',
-    'Всего просканированно {} файлов',
+    'Всего просканировано {} файлов',
   ],
   _共抓取到n个作品: [
     '共抓取到 {} 个作品',
     '共擷取到 {} 個作品',
-    'Crawl a total of {} works',
+    'Crawled a total of {} works',
     '合計 {} つの作品があります',
     '총 {}개의 작품을 긁어왔습니다',
-    'Всего просканированно {} работ',
+    'Всего просканировано {} работ',
   ],
   _共抓取到n个作品产生了n个抓取结果: [
     `共抓取到 {} 个作品，产生了 {} 个抓取结果`,
@@ -1399,7 +1398,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `Crawled a total of {} works, producing {} crawl results`,
     `合計 {} 件の作品をクロールし、{} 件のクロール結果を生成しました`,
     `총 {}개의 작품을 크롤링하여 {}개의 크롤링 결과가 생성되었습니다`,
-    `Всего скраулено {} работ, сгенерировано {} результатов краулинга`,
+    `Всего собрано {} работ, сгенерировано {} результатов сканирования`,
   ],
   _图像作品的命名规则: [
     `图像作品的<span class="key">命名</span>规则`,
@@ -1415,7 +1414,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `<span class="key">Naming</span> rule for novels`,
     `小説の<span class="key">命名</span>ルール`,
     `소설의 <span class="key">명명</span> 규칙`,
-    `Правило <span class="key">именования</span> для novel`,
+    `Правило <span class="key">именования</span> для новеллы`,
   ],
   _命名规则: [
     '命名规则',
@@ -1445,14 +1444,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `每个文件的 ID。图片文件会附带序号，如 <span class="blue">85633671_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
     `每個檔案的 ID。圖片檔案會附帶序號，例如 <span class="blue">85633671_p0</span>；小說檔案沒有序號。注意：這不是作品 ID，而是檔案 ID。如果一個作品裡含有多張圖片，每張圖片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,
     `The ID of each file. Image files include a sequence number, such as <span class="blue">85633671_p0</span>; novel files do not have a sequence number. Note: this is not the work ID, but the file ID. If a work contains multiple images, the {id} for each image is different, for example <span class="blue">85633671_p1</span> and <span class="blue">85633671_p2</span>.`,
-    `各ファイルの ID です。image ファイルには連番が付きます。たとえば <span class="blue">85633671_p0</span> のようになります。novel ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の image が含まれている場合、各 image の {id} はそれぞれ異なります。たとえば <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span> です。`,
-    `각 파일의 ID입니다. image 파일에는 <span class="blue">85633671_p0</span> 처럼 일련번호가 붙습니다. novel 파일에는 일련번호가 없습니다. 주의: 이것은 work ID가 아니라 파일 ID입니다. 하나의 work에 여러 장의 image가 들어 있으면 각 image의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">85633671_p1</span>, <span class="blue">85633671_p2</span> 입니다.`,
-    `ID каждого файла. У файлов image есть порядковый номер, например <span class="blue">85633671_p0</span>; у файлов novel порядкового номера нет. Обратите внимание: это не ID work, а ID файла. Если work содержит несколько image, то {id} у каждой image будет разным, например <span class="blue">85633671_p1</span> и <span class="blue">85633671_p2</span>.`,
+    `各ファイルの ID です。画像ファイルには連番が付きます。たとえば <span class="blue">85633671_p0</span> のようになります。小説ファイルには連番はありません。注意: これは作品 ID ではなく、ファイル ID です。1つの作品に複数の画像が含まれている場合、各画像の {id} はそれぞれ異なります。たとえば <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span> です。`,
+    `각 파일의 ID입니다. 이미지 파일에는 <span class="blue">85633671_p0</span> 처럼 일련번호가 붙습니다. 소설 파일에는 일련번호가 없습니다. 주의: 이것은 작품 ID가 아니라 파일 ID입니다. 하나의 작품에 여러 장의 이미지가 들어 있으면 각 이미지의 {id} 는 서로 다릅니다. 예를 들면 <span class="blue">85633671_p1</span>, <span class="blue">85633671_p2</span> 입니다.`,
+    `ID каждого файла. У файлов изображений есть порядковый номер, например <span class="blue">85633671_p0</span>; у файлов новеллы порядкового номера нет. Обратите внимание: это не ID работы, а ID файла. Если работа содержит несколько изображений, то {id} у каждого изображения будет разным, например <span class="blue">85633671_p1</span> и <span class="blue">85633671_p2</span>.`,
   ],
   _命名标记title: [
     '作品标题',
     '作品標題',
-    'Works title',
+    'Work title',
     '作品のタイトル',
     '작품 제목',
     'Название работ',
@@ -1487,7 +1486,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `The width and height of the original image. For example: <span class="blue">600x900</span>. Novel works do not have this property, and the downloader will ignore it.`,
     `原画像の幅と高さ。例：<span class="blue">600x900</span>。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。`,
     `원본 이미지의 너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.`,
-    `Ширина и высота оригинального изображения. Например: <span class="blue">600x900</span>. Романы не имеют этого свойства, и загрузчик будет игнорировать его。`,
+    `Ширина и высота оригинального изображения. Например: <span class="blue">600x900</span>. Романы не имеют этого свойства, и загрузчик будет игнорировать его.`,
   ],
   _命名标记char_count: [
     `小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。`,
@@ -1535,7 +1534,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; otherwise, ignore it.`,
     `作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。それ以外の場合はそれを無視します。`,
     `작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。그렇지 않으면 이를 무시합니다。`,
-    `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте его。`,
+    `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте его.`,
   ],
   _命名标记like: [
     'Like count，作品的点赞数。',
@@ -1543,7 +1542,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     'Like count.',
     'Like count。',
     '좋아요 수',
-    'Колличество лайков',
+    'Количество лайков',
   ],
   _命名标记view: [
     'View count，作品的浏览量。',
@@ -1551,7 +1550,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     'View count.',
     'View count。',
     '조회수',
-    'Колличество просмотров',
+    'Количество просмотров',
   ],
   _命名标记pid: [
     `作品的数字 ID，不包括序号，例如 <span class="blue">85633671</span>。`,
@@ -1615,7 +1614,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `The tag list of the work, without translated tags`,
     `翻訳タグなしの作品のタグリスト`,
     `번역 태그 없이 작품의 태그 목록만 포함`,
-    `Список тегов work без переведённых тегов`,
+    `Список тегов работы без переведённых тегов`,
   ],
   _命名标记tags_transl_only: [
     '翻译后的标签列表',
@@ -1647,7 +1646,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `The ranking of the work in the leaderboard. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used on the leaderboard page, and will be ignored on other pages.`,
     `作品のランキングボードでの順位。例：<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングボードページでのみ使用可能で、他のページでは無視されます。`,
     `작품의 랭킹 보드 순위. 예: <span class="blue">#1</span>、<span class="blue">#2</span> …… 랭킹 보드 페이지에서만 사용할 수 있으며, 다른 페이지에서는 무시됩니다。`,
-    `Рейтинг работы в лидерборде. Например <span class="blue">#1</span>, <span class="blue">#2</span> ... Можно использовать только на странице лидерборда, на других страницах будет игнорироваться。`,
+    `Рейтинг работы в лидерборде. Например <span class="blue">#1</span>, <span class="blue">#2</span> ... Можно использовать только на странице лидерборда, на других страницах будет игнорироваться.`,
   ],
   _命名标记type: [
     `输出作品类型。插画输出 <span class="blue">Illustration</span>, 漫画输出 <span class="blue">Manga</span>, 动图输出 <span class="blue">Ugoira</span>, 小说输出 <span class="blue">Novel</span>。`,
@@ -1711,7 +1710,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `If the works on the page belong to the same tag, the downloader will output this tag; otherwise, ignore it. It usually has a value when you are on these pages: searching for a certain tag, viewing works under a certain tag category on the user page, viewing works under a certain tag category in your own bookmarks.`,
     `ページ内の作品が同じタグに属する場合、ダウンロードツールはこのタグを出力します。それ以外の場合はそれを無視します。通常、これらのページにいる場合に値があります：特定のタグを検索する場合、ユーザーページで特定のタグカテゴリの下の作品を表示する場合、自分のブックマークで特定のタグカテゴリの下の作品を表示する場合。`,
     `페이지의 작품이 동일한 태그에 속하면 다운로더가 이 태그를 출력합니다. 그렇지 않으면 이를 무시합니다. 일반적으로 이러한 페이지에 있을 때 값이 있습니다: 특정 태그 검색 시, 사용자 페이지에서 특정 태그 카테고리 아래 작품 보기, 자신의 북마크에서 특정 태그 카테고리 아래 작품 보기。`,
-    `Если работы на странице принадлежат одному и тому же тегу, загрузчик выведет этот тег; в противном случае игнорируйте его. Обычно имеет значение, когда вы находитесь на этих страницах: при поиске определенного тега, просмотре работ под определенной категорией тега на странице пользователя, просмотре работ под определенной категорией тега в своих закладках。`,
+    `Если работы на странице принадлежат одному и тому же тегу, загрузчик выведет этот тег; в противном случае игнорируйте его. Обычно имеет значение, когда вы находитесь на этих страницах: при поиске определенного тега, просмотре работ под определенной категорией тега на странице пользователя, просмотре работ под определенной категорией тега в своих закладках.`,
   ],
   _命名标记seriesTitle: [
     '系列标题。当作品属于一个系列时可用。',
@@ -1839,7 +1838,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     'There are currently no crawl results available. You can click the "Start crawl" button on supported pages to create download tasks.',
     '現在利用可能なクロール結果はありません。対応ページで「クロールを開始する」ボタンをクリックすると、ダウンロードタスクを作成できます。',
     '현재 사용 가능한 크롤링 결과가 없습니다. 지원되는 페이지에서 "긁어오기 시작" 버튼을 클릭하여 다운로드 작업을 만들 수 있습니다.',
-    'Сейчас нет доступных результатов краулинга. На поддерживаемых страницах нажмите кнопку "Начать вытаскивание", чтобы создать задачи загрузки.',
+    'Сейчас нет доступных результатов сканирования. На поддерживаемых страницах нажмите кнопку "Начать сканирование", чтобы создать задачи загрузки.',
   ],
   _下载进度: [
     '下载进度',
@@ -2024,9 +2023,9 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
     <br>`,
 
-    `<strong>Предупреждение</strong>: Частый и масштабный краулинг (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
+    `<strong>Предупреждение</strong>: Частый и масштабный сканирование (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
     <br>
-    Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость краулинга. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
+    Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость сканирования. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
     <br>
     Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
     В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
@@ -2266,7 +2265,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _手动删除作品: [
     '手动删除作品',
     '手動刪除作品',
-    'Manually delete the work',
+    'Manually delete works',
     '作品を手動で削除する',
     '수동으로 작품 지우기',
     'Вручную удалить работу',
@@ -2282,7 +2281,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _退出手动删除: [
     '退出手动删除',
     '結束手動刪除',
-    'Exit manually delete',
+    'Exit manual delete mode',
     '削除モードを終了する',
     '수동 지우기 종료',
     'Выйти из ручного удаления',
@@ -2290,7 +2289,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _抓取本页作品: [
     '抓取本页作品',
     '擷取本頁作品',
-    'Crawl this page works',
+    'Crawl works on this page',
     'このページをクロールする',
     '이 페이지의 작품 긁어오기',
     'Просканировать работы с этой страницы',
@@ -2298,7 +2297,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _抓取本页作品Title: [
     '抓取本页列表中的所有作品',
     '擷取本頁清單中的所有作品',
-    'Crawl this page works',
+    'Crawl all works on this page',
     'このページの全ての作品をクロールする',
     '이 페이지의 모든 작품 긁어오기',
     'Просканировать работы с этой страницы',
@@ -2306,26 +2305,26 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _抓取本排行榜作品: [
     '抓取本排行榜作品',
     '擷取本排行榜作品',
-    `Crawl this ranking's works`,
+    'Crawl works on this ranking',
     'このリストの作品をクロールする',
-    '이 목록의 작품 긁어오기',
-    'Просканировать работы из этого списка',
+    '이 랭킹의 작품 긁어오기',
+    'Просканировать работы из этого рейтинга',
   ],
   _抓取本排行榜作品Title: [
     '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
     '擷取本排行榜的所有作品，包括現在尚未載入出來的。',
-    'Crawl all of the works in this list, including those that are not yet loaded.',
-    'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
-    '아직 불러오지 않은 작품을 포함하여, 이 목록의 모든 작품을 긁어옵니다.',
-    'Просмотреть все работы в этом списке, включая те, которые еще не загружены.',
+    'Crawl all of the works in this ranking, including those that are not yet loaded.',
+    'まだ読み込まれていないものを含めて、このランキングの作品をクロールする',
+    '아직 불러오지 않은 작품을 포함하여, 이 랭킹의 모든 작품을 긁어옵니다.',
+    'Просканировать все работы в этом рейтинге, включая те, которые еще не загружены.',
   ],
   _抓取首次登场的作品: [
     '抓取首次登场作品',
     '擷取首次登場作品',
     'Crawl the debut works',
-    '初登場作品をダウンロードする',
+    '初登場作品をクロールする',
     '데뷔작 긁어오기',
-    'Просканировать по дебютные работы',
+    'Просканировать дебютные работы',
   ],
   _抓取首次登场的作品Title: [
     '只下载首次登场的作品',
@@ -2341,15 +2340,15 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     'Crawl images on this page',
     'ページの画像をクロールする',
     '페이지의 이미지 긁어오기',
-    'Просканировать по изображение страницы',
+    'Просканировать изображения этой страницы',
   ],
   _抓取相似图片: [
     '抓取相似图片',
     '擷取相似圖片',
-    'Crawl similar works',
-    '類似の作品をクロールする',
-    '비슷한 작품 긁어오기',
-    'Просканировать похожие работы',
+    'Crawl similar images',
+    '類似の画像をクロールする',
+    '비슷한 이미지 긁어오기',
+    'Просканировать похожие изображения',
   ],
   _想要获取多少个作品: [
     '您想要获取多少个作品？',
@@ -2370,35 +2369,35 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _下载大家的新作品: [
     '下载大家的新作品',
     '下載大家的新作品',
-    `Download everyone's new work`,
+    `Download everyone's new works`,
     'みんなの新作をダウンロードする',
     '모두의 새 작품 다운로드',
-    'Вседа загружать новые работы',
+    'Скачать новые работы всех',
   ],
   _屏蔽设定: [
-    '屏蔽設定',
+    '屏蔽设置',
     '封鎖設定',
     'Mute settings',
     'ミュート設定',
     '차단 설정',
-    'Настройки защиты',
+    'Настройки блокировки',
   ],
-  _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
+  _举报: ['举报', '檢舉', 'Report', '報告', '신고', 'Пожаловаться'],
   _输入id进行抓取: [
     '输入 ID 进行抓取',
     '輸入 ID 進行擷取',
-    'Type ID to crawl',
-    'IDを入力してダウンロードする',
-    '유형 ID 긁어오기',
-    'Введите ID для вытаскивания',
+    'Enter ID to crawl',
+    'IDを入力してクロールする',
+    'ID를 입력하여 긁어오기',
+    'Введите ID для сканирования',
   ],
   _输入id进行抓取的提示文字: [
     '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
     '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
     'Enter work IDs. For multiple IDs, separate them with newlines (one ID per line).',
-    'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
-    '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
-    'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
+    '作品IDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
+    '작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
+    'Пожалуйста, введите идентификатор работы. Если идентификаторов несколько, то по одному идентификатору на строку.',
   ],
   _输入的ID视为图像ID: [
     '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
@@ -2419,10 +2418,10 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _开始抓取: [
     '开始抓取',
     '開始擷取',
-    'Start crawl',
+    'Start crawling',
     'クロールを開始する',
     '긁어오기 시작',
-    'Начать вытаскивание',
+    'Начать сканирование',
   ],
   _开始抓取等待队列里的作品: [
     `开始抓取等待队列里的作品`,
@@ -2430,12 +2429,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `Start crawling the works in the waiting queue`,
     `待機キューの作品のクロールを開始`,
     `대기 큐에 있는 작품 크롤링 시작`,
-    `Начать краулинг работ из очереди ожидания`,
+    `Начать сканирование работ из очереди ожидания`,
   ],
   _给未分类作品添加添加tag: [
     '给未分类的作品添加标签',
     '幫未分類的作品加入標籤',
-    'Add tag to uncategorized work',
+    'Add tag to uncategorized works',
     '未分類の作品にタグを追加',
     '분류되지 않은 작품에 태그 추가',
     'Добавить метку к неклассифицированной работе',
@@ -2443,7 +2442,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _id不合法: [
     'id不合法',
     'id 不合法',
-    'id is illegal',
+    'id is invalid',
     'id が不正な',
     '올바르지 않은 ID',
     'Это ID неверно',
@@ -2489,9 +2488,9 @@ Note: Even if you disable this setting, some quick download methods will always 
     `crawl이 완료된 후 자동으로 다운로드를 시작합니다. 다운로드 버튼을 클릭할 필요가 없습니다.<br>
 <br>
 주의: 이 설정을 꺼도 일부 빠른 다운로드 방법은 항상 자동으로 다운로드를 시작합니다. 예를 들어 작품 썸네일의 다운로드 버튼을 클릭하거나, 수동으로 선택한 작품을 다운로드하는 경우입니다.`,
-    `После завершения crawl загрузка начинается автоматически — нажимать кнопку загрузки не нужно.<br>
+    `После завершения сканирования загрузка начинается автоматически — нажимать кнопку загрузки не нужно.<br>
 <br>
-Обратите внимание: даже если вы отключите эту настройку, некоторые способы быстрой загрузки всегда будут запускаться автоматически. Например, при нажатии кнопки загрузки на миниатюре work или при загрузке work, выбранных вручную.`,
+Обратите внимание: даже если вы отключите эту настройку, некоторые способы быстрой загрузки всегда будут запускаться автоматически. Например, при нажатии кнопки загрузки на миниатюре работы или при загрузке работ, выбранных вручную.`,
   ],
   _转换任务提示: [
     '正在转换 {} 个文件',
@@ -2506,7 +2505,7 @@ Note: Even if you disable this setting, some quick download methods will always 
     '最近更新',
     `What's new`,
     '最近更新する',
-    '새로운 기능',
+    '최근 업데이트',
     'Что нового',
   ],
   _确定: ['确定', '確定', 'Ok', '確定', '확인', 'Ок'],
@@ -2564,7 +2563,7 @@ Note: Even if you disable this setting, some quick download methods will always 
     `You can enter a work ID to crawl works with IDs larger than it (new works) or smaller than it (old works)`,
     `作品 ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます`,
     `작품 ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다`,
-    `Вы можете ввести ID работы, чтобы скраулить работы с ID больше него (новые работы) или меньше него (старые работы)`,
+    `Вы можете ввести ID работы, чтобы собрать работы с ID больше него (новые работы) или меньше него (старые работы)`,
   ],
   _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
   _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
@@ -2877,7 +2876,7 @@ Note: Even if you disable this setting, some quick download methods will always 
     'Color images',
     'カラーイメージ',
     '컬러 이미지',
-    'Цветная картинки',
+    'Цветные картинки',
   ],
   _黑白图片: [
     '黑白图片',
@@ -2934,7 +2933,7 @@ Note: Even if you disable this setting, some quick download methods will always 
   _不保存图片因为体积: [
     '{} 没有被保存，因为它的体积不符合设定。',
     '{} 並未儲存，因為它的大小不符合設定。',
-    '{} was not saved because its size do not match the settings.',
+    '{} was not saved because its size does not match the settings.',
     '{} はファイルサイズが設定に合わないため、保存されていません。',
     '{} 크기가 설정에 맞지 않아, 저장되지 않았습니다.',
     '{} не был(и) сохранен(ы), потому что его размер не соответствует настройкам.',
@@ -3059,7 +3058,7 @@ Note: Even if you disable this setting, some quick download methods will always 
     `소설 내 이미지 다운로드 실패`,
     `Не удалось скачать изображения в романе`,
   ],
-  _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
+  _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Описание`],
   _本次合并包含的章节: [
     `本次合并包含的章节`,
     `本次合併包含的章節`,
@@ -3204,13 +3203,13 @@ Note: Even if you disable this setting, some quick download methods will always 
     '收藏本頁面的所有作品',
     'Bookmark all works on this page',
     'この頁の全ての作品をブックマークに追加します',
-    '이 페이지의 북마크된 모든 작품 다운로드',
+    '이 페이지의 모든 작품 북마크',
     'Перенести в закладки все работы на этой странице',
   ],
   _输出内容太多已经为你保存到文件: [
     '因为输出内容太多，已经为您保存到文件。',
     '因為輸出內容太多，已經為你儲存到檔案。',
-    'Because the output is too much, it has been saved to a file.',
+    'Because the output is too large, it has been saved to a file.',
     '出力内容が多いため、TXT ファイルに保存しました。',
     '출력 내용이 너무 많아, 파일로 저장했습니다.',
     'Так как выход слишком большой, он был сохранен в файл',
@@ -3237,7 +3236,7 @@ Note: Even if you disable this setting, some quick download methods will always 
     `This feature relies on the download records saved by the downloader itself.<br>If you enable this feature, the downloader will check the download record before downloading each file. If it is a duplicate file, the downloader will skip it (will not download it).<br>This feature takes effect during the download phase. If you want to skip already downloaded files during the crawling phase, you can enable another feature: "Do not crawl downloaded works".<br><br>This feature has two strategies for determining duplicate files:<br>- Loose: Default value. This mode only compares the work ID and upload date, and does not compare the filename. If you want to still skip previously downloaded files after modifying the naming rule, you can choose the "Loose" mode.<br>- Strict: This mode compares three conditions: the work's ID, upload date, and filename. If all three conditions are the same, it is considered a duplicate file.`,
     `この機能はダウンローダーが自身で保存したダウンロード記録に依存します。<br>この機能を有効にすると、ダウンローダーは各ファイルをダウンロードする前にダウンロード記録を確認し、重複ファイルの場合はスキップします（ダウンロードしません）。<br>この機能はダウンロード段階で有効になります。クローリング時にすでにダウンロード済みのファイルをスキップしたい場合は、別の機能「ダウンロード済みの作品をクロールしない」を有効にできます。<br><br>この機能には重複ファイルを判断する2つの戦略があります：<br>- 緩やか：デフォルト値。このモードは作品IDとアップロード日のみ比較し、ファイル名は比較しません。命名規則を変更した後も以前にダウンロードしたファイルをスキップしたい場合は、「緩やか」モードを選択できます。<br>- 厳格：このモードは3つの条件を比較します：作品のID、アップロード日、ファイル名。3つの条件がすべて同じ場合、重複ファイルとみなされます。`,
     `이 기능은 다운로더가 자체적으로 저장한 다운로드 기록에 의존합니다.<br>이 기능을 활성화하면 다운로더는 각 파일을 다운로드하기 전에 다운로드 기록을 확인하고, 중복 파일인 경우 건너뜁니다(다운로드하지 않습니다).<br>이 기능은 다운로드 단계에서 적용됩니다. 크롤링 시 이미 다운로드된 파일을 건너뛰고 싶다면 다른 기능 "다운로드된 작품을 크롤링하지 않음"을 활성화할 수 있습니다.<br><br>이 기능에는 중복 파일을 판단하는 두 가지 전략이 있습니다:<br>- 느슨함: 기본값. 이 모드는 작품 ID와 업로드 날짜만 비교하며 파일명은 비교하지 않습니다. 파일명 규칙을 수정한 후에도 이전에 다운로드한 파일을 계속 건너뛰고 싶다면 "느슨함" 모드를 선택할 수 있습니다.<br>- 엄격함: 이 모드는 세 가지 조건을 비교합니다: 작품의 ID, 업로드 날짜, 파일명. 세 조건이 모두 동일하면 중복 파일로 간주합니다.`,
-    `Эта функция зависит от записей загрузки, сохранённых самим загрузчиком.<br>Если вы включите эту функцию, загрузчик будет проверять запись загрузки перед загрузкой каждого файла. Если это повторяющийся файл, загрузчик пропустит его (не будет скачивать).<br>Эта функция действует на этапе загрузки. Если вы хотите пропускать уже загруженные файлы уже на этапе краулинга, вы можете включить другую функцию: «Не краулить загруженные работы».<br><br>У этой функции есть две стратегии определения повторяющихся файлов:<br>- Слабая: значение по умолчанию. Этот режим сравнивает только ID произведения и дату загрузки, не сравнивая имя файла. Если вы хотите по-прежнему пропускать ранее загруженные файлы после изменения правила именования, выберите режим «Слабая».<br>- Строгая: этот режим сравнивает три условия: ID произведения, дату загрузки и имя файла. Если все три условия совпадают, файл считается повторяющимся.`,
+    `Эта функция зависит от записей загрузки, сохранённых самим загрузчиком.<br>Если вы включите эту функцию, загрузчик будет проверять запись загрузки перед загрузкой каждого файла. Если это повторяющийся файл, загрузчик пропустит его (не будет скачивать).<br>Эта функция действует на этапе загрузки. Если вы хотите пропускать уже загруженные файлы уже на этапе сканирования, вы можете включить другую функцию: «Не сканировать загруженные работы».<br><br>У этой функции есть две стратегии определения повторяющихся файлов:<br>- Слабая: значение по умолчанию. Этот режим сравнивает только ID произведения и дату загрузки, не сравнивая имя файла. Если вы хотите по-прежнему пропускать ранее загруженные файлы после изменения правила именования, выберите режим «Слабая».<br>- Строгая: этот режим сравнивает три условия: ID произведения, дату загрузки и имя файла. Если все три условия совпадают, файл считается повторяющимся.`,
   ],
   _策略: [
     '策略：',
@@ -3325,7 +3324,7 @@ Note: This clears the downloader's download record, not the browser's download h
     'Saving crawl results',
     'クロール結果を保存しています',
     '긁어오기 결과 저장 중',
-    'Сохранение результатов вытаскивания',
+    'Сохранение результатов сканирования',
   ],
   _已保存抓取结果: [
     '已保存抓取结果',
@@ -3333,7 +3332,7 @@ Note: This clears the downloader's download record, not the browser's download h
     'Crawl results saved',
     'クロール結果を保存しました',
     '긁어오기 결과가 저장되었습니다',
-    'Сохранение результатов вытаскивания',
+    'Сохранение результатов сканирования',
   ],
   _正在恢复抓取结果: [
     '正在恢复抓取结果',
@@ -3341,7 +3340,7 @@ Note: This clears the downloader's download record, not the browser's download h
     'Restoring crawl results',
     'クロール結果を再開しています',
     '긁어오기 결과 복구 중',
-    'Восстановление результатов вытаскивания',
+    'Восстановление результатов сканирования',
   ],
   _已恢复抓取结果: [
     '已恢复抓取结果',
@@ -3349,7 +3348,7 @@ Note: This clears the downloader's download record, not the browser's download h
     'Crawl results resumed',
     'クロール結果を再開しました',
     '긁어오기 결과가 복구되었습니다',
-    'Результаты вытаскивания восстановлены',
+    'Результаты сканирования восстановлены',
   ],
   _清空已保存的抓取结果: [
     '清空已保存的抓取结果',
@@ -3357,7 +3356,7 @@ Note: This clears the downloader's download record, not the browser's download h
     'Clear saved crawl results',
     'セーブしたクロール結果をクリアします',
     '저장된 긁어오기 결과 비우기',
-    'Очистить сохраненные результаты вытаскивания',
+    'Очистить сохраненные результаты сканирования',
   ],
   _数据清除完毕: [
     '数据清除完毕',
@@ -3373,7 +3372,7 @@ Note: This clears the downloader's download record, not the browser's download h
     `Cleared the crawl results saved for this URL`,
     `この URL に保存されたクロール結果をクリアしました`,
     `이 URL에 저장된 크롤링 결과가 지워졌습니다`,
-    `Очищены результаты краулинга, сохранённые для этого URL`,
+    `Очищены результаты сканирования, сохранённые для этого URL`,
   ],
   _已跳过n个文件: [
     '已跳过 {} 个文件',
@@ -3495,10 +3494,10 @@ Note: This clears the downloader's download record, not the browser's download h
   _标签分隔符号提示: [
     '只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>',
     '只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>',
-    'Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>',
-    '次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{ tags_transl_only }</スパン>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。',
-    '이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only }</스팬>. <br>권장 기호 <span class="blue"> , # ^ & _</span>',
-    'Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only </промежуток>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
+    'Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>',
+    '次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。',
+    '이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>',
+    'Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
   ],
   _导出csv: [
     '导出 CSV 文件',
@@ -3527,7 +3526,7 @@ Note: This clears the downloader's download record, not the browser's download h
   _导入成功: [
     '导入成功',
     '匯入成功',
-    'Import successfully',
+    'Import successful',
     'インポート成功',
     '가져오기 성공',
     'Импорт успешен',
@@ -3535,7 +3534,7 @@ Note: This clears the downloader's download record, not the browser's download h
   _导出成功: [
     '导出成功',
     '匯出成功',
-    'Export successfully',
+    'Export successful',
     'エクスポート成功',
     '내보내기 성공',
     'Импорт успешен',
@@ -3716,7 +3715,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   _数据较多需要花费一些时间: [
     '数据较多，需要花费一些时间',
     '資料較多，需要花費一些時間',
-    'A lot of data, it will take some time',
+    'There is a lot of data, so it will take some time',
     'データ量が多いので少し時間がかかります',
     '데이터가 많아 시간이 좀 걸립니다',
     'Много данных, это займет некоторое время',
@@ -3740,8 +3739,8 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   ],
   _命名标记taskDate: [
     '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>。',
-    '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
-    'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
+    '本次任務擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
+    'The time when the task crawl was completed. For example: <span class="blue">2020-10-21</span>',
     'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
     '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
     'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
@@ -3795,7 +3794,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'Bookmark works',
     '作品をブックマークする',
     '북마크 작품',
-    'Закладки работают',
+    'Закладки работ',
   ],
   _下载之后收藏作品: [
     '下载之后<span class="key">收藏</span>作品',
@@ -3803,7 +3802,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     '<span class="key">Bookmark</span> works after downloading',
     'ダウンロードした作品を<span class="key">ブックマーク</span>する',
     '다운로드 후 작품 <span class="key">북마크</span>',
-    '<span class="key">Закладка</span> работает после загрузки',
+    '<span class="key">Закладка</span> работ после загрузки',
   ],
   _下载之后收藏作品的提示: [
     '下载文件之后，自动收藏这个作品。',
@@ -3900,7 +3899,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'User block list',
     'ユーザーブロックリスト',
     '유저 차단 목록',
-    'Блок списка пользователей',
+    'Список заблокированных пользователей',
   ],
   _用户屏蔽名单的说明: [
     `不下载这些用户的作品。需要输入用户 id。<br>
@@ -3908,7 +3907,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `不下載這些使用者的作品。需要輸入使用者 id。<br>
     若有多個使用者 id，使用半形逗號（,）分隔。`,
     `The works of these users will not be downloaded. Need to type the user ID.<br>
-    If there are multiple user ID, use comma (,) separated.`,
+    If there are multiple user IDs, use a comma (,) to separate them.`,
     `これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。<br>
     複数のユーザ ID は "," で区切ってください。`,
     `이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>
@@ -3985,10 +3984,10 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   _清除下载器保存的关注数据: [
     '清除下载器保存的关注数据',
     '清除下載器保存的關注資料',
-    'Clear the following data saved by the Downloader',
+    'Clear the follow data saved by the Downloader',
     'ダウンローダーが保存したフォローのデータをクリア',
     '다운로더가 저장한 팔로우 데이터 초기화',
-    'Сброс данных подписки, сохраненных загрузчиком',
+    'Очистить данные подписки, сохраненные загрузчиком',
   ],
   _是否清除下载器保存的关注数据: [
     `下载器会在本地缓存你关注的用户，用于高亮显示关注的用户名等功能。\n如果有需要，你可以清除缓存的数据，下载器会在一段时间后重新获取最新数据。\n确定要执行此操作吗？`,
@@ -4004,7 +4003,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'Cleared',
     'クリアされました',
     '초기화됨',
-    'Очистить',
+    'Очищено',
   ],
   _日均收藏数量: [
     '日均收藏数量',
@@ -4060,7 +4059,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `Start crawling user list`,
     `ユーザーリストのクローリングを開始`,
     `사용자 목록 크롤링 시작`,
-    `Начать краулинг списка пользователей`,
+    `Начать сканирование списка пользователей`,
   ],
   _用户数量为0: [
     `用户数量为 0`,
@@ -4108,7 +4107,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.<br>After selecting, open the downloader panel and click "Crawl selected works".',
     'ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。<br>選択が終わったら、ダウンローダーのパネルを開き、「選ばれた作品をクロール」をクリックしてください。',
     '단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.<br>선택을 마친 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭하세요.',
-    'Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
+    'Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.<br>После выбора откройте панель загрузчика и нажмите «Сканировать выбранные работы».',
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
@@ -4116,7 +4115,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'Crawl selected works',
     '選ばれた作品をクロール',
     '선택된 작품 긁어오기',
-    'Стащить выбранные работы',
+    'Сканировать выбранные работы',
   ],
   _抓取选择的作品2: [
     '抓取选择的作品 {}',
@@ -4124,7 +4123,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'Crawl selected works {}',
     '選ばれた作品をクロール {}',
     '선택된 작품 긁어오기 {}',
-    'Стащить выбранные работы',
+    'Сканировать выбранные работы {}',
   ],
   _清空选择的作品: [
     '清空选择的作品',
@@ -4137,15 +4136,15 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   _暂停选择: [
     '暂停选择',
     '暫停選擇',
-    'Pause select',
+    'Pause selection',
     '選択を一時停止',
     '선택 일시중지',
-    'Остановить выбора',
+    'Остановить выбор',
   ],
   _继续选择: [
     '继续选择',
     '繼續選擇',
-    'Continue select',
+    'Continue selection',
     '選択を続ける',
     '선택 이어하기',
     'Продолжить выбор',
@@ -4164,7 +4163,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `You can use the "Manually exclude" button to mark the works you don't want to crawl. The downloader excludes them during crawling; if they've already been crawled, it removes them from the crawl results.`,
     '「手動で作品を除外」ボタンで、クロールしたくない作品をマークできます。ダウンロードツールはクロール時にそれらを除外します；すでにクロール済みの場合は、クロール結果から削除します。',
     '「수동 제외」 버튼으로 크롤링하고 싶지 않은 작품을 표시할 수 있습니다. 다운로더는 크롤링 시 이들을 제외합니다; 이미 크롤링된 경우 크롤링 결과에서 제거합니다.',
-    'С помощью кнопки «Ручное исключение» можно отметить работы, которые вы не хотите сканировать. Загрузчик исключает их при сканировании; если они уже просканированы, он удаляет их из результатов краулинга.',
+    'С помощью кнопки «Ручное исключение» можно отметить работы, которые вы не хотите сканировать. Загрузчик исключает их при сканировании; если они уже просканированы, он удаляет их из результатов сканирования.',
   ],
   _暂停排除: [
     '暂停排除',
@@ -4220,7 +4219,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
     '선택된 작품을 아직 긁어오지 않았습니다. 지금 현재 페이지를 떠나면 선택된 작품이 비워집니다.',
-    'Выбранная работа не была стащена. Если вы покинете эту страницу, выбранная вами работа будет очищена.',
+    'Выбранная работа не была просканирована. Если вы покинете эту страницу, выбранная вами работа будет очищена.',
   ],
   _排除了所有作品类型: [
     '排除了所有作品类型',
@@ -4310,7 +4309,7 @@ How it works: When the downloader generates file names for multi-image works, it
 Как использовать:<br>
 Сначала задайте здесь правило для этого уровня папки. Внимание: в этой настройке нужно указать только папку, которая будет дополнительно добавляться для работ с несколькими изображениями. Не вводите здесь полное правило названий.<br>
 При настройке правила папки можно использовать маркеры из правил названий или добавлять свои символы.<br>
-Значение по умолчанию <span class="blue">{pid}</span> создаст этот уровень папки с использованием ID work. Если вы хотите создавать этот уровень папки по названию work, укажите <span class="blue">{title}</span>.<br>
+Значение по умолчанию <span class="blue">{pid}</span> создаст этот уровень папки с использованием ID работы. Если вы хотите создавать этот уровень папки по названию работы, укажите <span class="blue">{title}</span>.<br>
 <br>
 Затем вам нужно изменить настройку "Правила названий для графических работ" в разделе «Именование / Имена папок и файлов» и вставить <span class="blue">/{multi_image_folder}/</span> в том месте, где вы хотите добавить этот уровень папки. Это обозначает правило папки, заданное здесь.<br>
 <br>
@@ -4365,7 +4364,7 @@ How it works: When the downloader generates file names for multi-image works, it
     `Crawling progress`,
     `クローリング進捗`,
     `크롤링 진행`,
-    `Прогресс краулинга`,
+    `Прогресс сканирования`,
   ],
   _待处理: [
     '待处理',
@@ -4767,7 +4766,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 <br>
 使い方：<br>
 まずこの設定に対象のタグを入力してください。複数のタグがある場合は英語のカンマ <span class="blue">,</span> で区切ります。<br>
-タグリストは 2 つ設定できます：<span class="blue">{match_tag_folder1}</span> と <span class="blue">{match_tag_folder2}</span>。これはよくある使い方に対応しています。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。例えば <span class="blue">{match_tag_folder1}</span> に作品名 <span class="blue">GenshinImpact</span> を設定し、<span class="blue">{match_tag_folder2}</span> にキャラクター名 <span class="blue">フリーナ</span> を設定します。work に両方のタグが含まれている場合、ダウンローダーはその work に 2 階層のフォルダーを追加します：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
+タグリストは 2 つ設定できます：<span class="blue">{match_tag_folder1}</span> と <span class="blue">{match_tag_folder2}</span>。これはよくある使い方に対応しています。あるキャラクターが特定の作品に属している場合、2 階層のフォルダーを作成します。1 階層目が作品名、2 階層目がキャラクター名です。例えば <span class="blue">{match_tag_folder1}</span> に作品名 <span class="blue">GenshinImpact</span> を設定し、<span class="blue">{match_tag_folder2}</span> にキャラクター名 <span class="blue">フリーナ</span> を設定します。作品に両方のタグが含まれている場合、ダウンローダーはその作品に 2 階層のフォルダーを追加します：<span class="blue">GenshinImpact/フリーナ/</span>。<br>
 もちろん、この用途が不要であれば最初のタグリストだけを使えばかまいません。<br>
 <br>
 タグリストを設定したら、「命名 / フォルダーとファイルの名前」にある「命名ルール」設定も変更する必要があります。フォルダーを追加したい場所に特定のトークンとスラッシュを挿入してください。<span class="blue">/{match_tag_folder1}/</span> は最初のタグリストのマッチ結果を表し、<span class="blue">/{match_tag_folder2}/</span> は 2 番目のタグリストのマッチ結果を表します。<br>
@@ -4778,7 +4777,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 これらの表記ゆれの別名を <span class="blue">GenshinImpact</span> に設定すれば、この設定では <span class="blue">GenshinImpact</span> だけを使ってすべての表記ゆれにマッチさせることができます。<br>
 <br>
 マッチ方式：<br>
-ダウンローダーは work のタグリストの中から設定したタグを検索します。タグの別名が優先して使用されます。<br>
+ダウンローダーは作品のタグリストの中から設定したタグを検索します。タグの別名が優先して使用されます。<br>
 マッチモードは完全一致で、大文字と小文字は区別しません。<span class="blue">A</span> を設定した場合、<span class="blue">a</span> や <span class="blue">A</span> にはマッチしますが、<span class="blue">abc</span> にはマッチしません。<br>
 設定した各タグリストに対して、ダウンローダーは順番に検索します。最初のタグから検索し、見つからなければ次のタグを検索します。最初にマッチしたタグが見つかった時点で検索を止め、命名ルール内の対応するトークン（<span class="blue">{match_tag_folder1}</span> または <span class="blue">{match_tag_folder2}</span>）をそのタグで置き換えます。<br>
 設定したタグがひとつもマッチしなかった場合、ダウンローダーは対応するトークンを無視します。<br>`,
@@ -4801,11 +4800,11 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 매칭 방식은 완전 일치이며 대소문자를 구분하지 않습니다. <span class="blue">A</span> 를 설정하면 <span class="blue">a</span> 나 <span class="blue">A</span> 에는 매칭되지만 <span class="blue">abc</span> 에는 매칭되지 않습니다.<br>
 설정한 각 태그 목록에 대해 다운로더는 순서대로 검색합니다. 첫 번째 태그부터 검색하고 찾지 못하면 두 번째 태그를 검색하는 식입니다. 처음으로 매칭되는 태그를 찾으면 검색을 멈추고 명명 규칙의 해당 토큰(<span class="blue">{match_tag_folder1}</span> 또는 <span class="blue">{match_tag_folder2}</span>)을 그 태그로 교체합니다.<br>
 설정한 태그가 하나도 매칭되지 않으면 다운로더는 해당 토큰을 무시합니다.<br>`,
-    `Если work содержит заданный вами тег, он будет использован для создания папки.<br>
+    `Если работа содержит заданный вами тег, он будет использован для создания папки.<br>
 <br>
 Как использовать:<br>
 Сначала введите нужные теги в этой настройке. Если тегов несколько, разделите их английской запятой <span class="blue">,</span>.<br>
-Можно задать 2 списка тегов: <span class="blue">{match_tag_folder1}</span> и <span class="blue">{match_tag_folder2}</span>. Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создайте два уровня папок — первый для названия произведения, второй для имени персонажа. Например, задайте название произведения <span class="blue">GenshinImpact</span> в <span class="blue">{match_tag_folder1}</span>, а имя персонажа <span class="blue">フリーナ</span> — в <span class="blue">{match_tag_folder2}</span>. Если work содержит оба тега, загрузчик добавит для неё два уровня папок: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
+Можно задать 2 списка тегов: <span class="blue">{match_tag_folder1}</span> и <span class="blue">{match_tag_folder2}</span>. Это сделано для удобного решения распространённой задачи: если персонаж принадлежит определённому произведению, создайте два уровня папок — первый для названия произведения, второй для имени персонажа. Например, задайте название произведения <span class="blue">GenshinImpact</span> в <span class="blue">{match_tag_folder1}</span>, а имя персонажа <span class="blue">フリーナ</span> — в <span class="blue">{match_tag_folder2}</span>. Если работа содержит оба тега, загрузчик добавит для неё два уровня папок: <span class="blue">GenshinImpact/フリーナ/</span>.<br>
 Конечно, если такой необходимости нет, можно использовать только первый список тегов.<br>
 <br>
 После настройки списков тегов нужно также изменить "Правило именования" в разделе «Именование / Имена папок и файлов»: вставьте нужные токены и слэши туда, где требуется добавить папку. <span class="blue">/{match_tag_folder1}/</span> обозначает результат совпадения первого списка тегов, <span class="blue">/{match_tag_folder2}/</span> — второго.<br>
@@ -4816,7 +4815,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 Задайте псевдоним для этих вариантов как <span class="blue">GenshinImpact</span>, и тогда в этой настройке достаточно использовать только <span class="blue">GenshinImpact</span>, чтобы сопоставить все варианты.<br>
 <br>
 Принцип совпадения:<br>
-Загрузчик ищет заданные вами теги в списке тегов work, при этом псевдонимы тегов имеют приоритет.<br>
+Загрузчик ищет заданные вами теги в списке тегов работы, при этом псевдонимы тегов имеют приоритет.<br>
 Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
 Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
 Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
@@ -4860,15 +4859,15 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     'Crawl ID range',
     'ID 範囲をクロール',
     'ID 범위 긁어오기',
-    'Стащить диапазон идентификаторов',
+    'Сканировать диапазон идентификаторов',
   ],
   _抓取id区间说明: [
     '你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。',
     '你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要抓取很多 ID，請考慮拆分成多個任務。我建議每批抓取的 ID 數量不要超過 100,000 個。',
-    'You can set a range of work ID and grab all works in this range (including the begin and end ID). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.',
+    'You can set a range of work IDs and crawl all works in this range (including the beginning and end IDs). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.',
     '作品 ID の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 ID と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。<br>多数の ID をクロールする必要がある場合は、複数のタスクに分割することを検討してください。 バッチごとにクロールする ID は 100,000 未満にすることをお勧めします。',
     '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.',
-    'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.',
+    'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов сканирования, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.',
   ],
   _抓取id区间起点: [
     '请输入开始的 ID: ',
@@ -4881,7 +4880,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
   _抓取id区间终点: [
     '请输入结束的 ID: ',
     '請輸入結束的 ID: ',
-    'Please type  in the ending ID: ',
+    'Please type in the ending ID: ',
     '終了 ID を入力してください: ',
     '끝 ID를 입력해주세요: ',
     'Пожалуйста, введите конечный идентификатор: ',
@@ -4988,7 +4987,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
   _在搜索页面添加快捷搜索区域的说明: [
     `在搜索页面（/tags/）的顶部，下载器可以显示一些收藏数量标签，例如“10000users入り”，点击就可以把它添加到搜索的标签的后面。`,
     `在搜尋頁面（/tags/）的頂部，下載器可以顯示一些收藏數量標籤，例如“10000users入り”，點選就可以把它新增到搜尋的標籤的後面。`,
-    `At the top of the search page (/tags/), the downloader can display some bookmarks tags, such as "10000users入り", and you can click it to add it after the searched tag.`,
+    `At the top of the search page (/tags/), the downloader can display some bookmark tags, such as "10000users入り", and you can click it to add it after the searched tag.`,
     `検索ページの上部 (/tags/) に、ダウンローダーは「10000users入り」などのお気に入りのタグをいくつか表示し、それをクリックして検索したタグの後に追加することができます。`,
     `검색 페이지 상단(/tags/)에서 다운로더는 "10000users入り"와 같은 즐겨찾는 태그를 표시할 수 있으며, 이를 클릭하면 검색한 태그 뒤에 추가할 수 있습니다.`,
     `В верхней части страницы поиска (/tags/) загрузчик может отображать некоторые избранные теги, например «10000users入り», и вы можете щелкнуть по нему, чтобы добавить его после искомого тега.`,
@@ -5115,7 +5114,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
     'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
     'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
     '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
-    'Пожалуйста, введите список тегов, которые вы хотите просмотреть. Используйте разрывы строк между несколькими тегами',
+    'Пожалуйста, введите список тегов, которые вы хотите сканировать. Используйте разрывы строк между несколькими тегами',
   ],
   _抓取标签列表的文件夹提示: [
     '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
@@ -5123,7 +5122,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
     'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
     'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
     '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
-    'При сканировании списка тегов вы можете использовать теги {page_tag} или {page_title}, чтобы получить теги, которые в данный момент просматриваются, и использовать их для создания папок. Например: {page_tag}/{id}',
+    'При сканировании списка тегов вы можете использовать теги {page_tag} или {page_title}, чтобы получить теги, которые в данный момент сканируются, и использовать их для создания папок. Например: {page_tag}/{id}',
   ],
   _停止抓取标签列表: [
     '停止抓取标签列表',
@@ -5188,7 +5187,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
     '<span class="key">Preview</span> works',
     '作品の<span class="key">プレビュー</span>',
     '작품 <span class="key">미리보기</span>',
-    '<span class="key">Превью</span> работает',
+    '<span class="key">Превью</span> работ',
   ],
   _预览作品的说明: [
     `当鼠标放在图片的缩略图上时，下载器可以显示更大的图片。`,
@@ -5278,7 +5277,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
     'Format error',
     'フォーマットエラー',
     '형식 오류',
-    'Ошибка форматантирования',
+    'Ошибка формата',
   ],
   _下载数量错误: [
     '下载的页数（作品）数量设置错误',
@@ -5291,7 +5290,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
   _默认下载多页: [
     '开始抓取, 如有多页，默认会下载全部。',
     '開始擷取，如有多頁，預設會下載全部。',
-    'Start crawl, if there are multiple pages, the default will be downloaded.',
+    'Start crawling. If there are multiple pages, all will be downloaded by default.',
     'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
     '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
     'Начать сканирование, если есть несколько страниц, все будут загружены по умолчанию.',
@@ -5409,27 +5408,27 @@ This setting does not apply to collection files generated after merging a novel 
     `이 설정을 켜면 조건에 맞는 파일은 폴더를 만들지 않고, 브라우저의 다운로드 폴더에 바로 저장됩니다.<br>
 <br>
 하위 옵션:<br>
-- 일러스트 또는 만화에서 이미지 1장을 다운로드할 때: 이 work에서 이미지를 1장만 다운로드했다면, 그 이미지용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
-- 일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때: 이 work에서 이미지를 여러 장 다운로드했다면, 그 이미지들용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
-- Ugoira: Ugoira work용 폴더를 만들지 않습니다.<br>
-- 소설: 단일 novel work용 폴더를 만들지 않습니다.<br>
+- 일러스트 또는 만화에서 이미지 1장을 다운로드할 때: 이 작품에서 이미지를 1장만 다운로드했다면, 그 이미지용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- 일러스트 또는 만화에서 여러 장의 이미지를 다운로드할 때: 이 작품에서 이미지를 여러 장 다운로드했다면, 그 이미지들용 폴더를 만들지 않습니다. 각 work마다 따로 계산됩니다.<br>
+- Ugoira: Ugoira 작품용 폴더를 만들지 않습니다.<br>
+- 소설: 단일 소설 작품용 폴더를 만들지 않습니다.<br>
 <br>
 안내:<br>
-모든 하위 옵션을 켜면 어떤 work도 폴더를 만들지 않습니다.<br>
-이 설정은 시리즈 novel을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "명명 / 폴더와 파일 이름" 에서 "
-시리즈 novel 병합 시 명명 규칙" 을 수정하면 됩니다。`,
+모든 하위 옵션을 켜면 어떤 작품도 폴더를 만들지 않습니다.<br>
+이 설정은 시리즈 소설을 병합한 뒤 생성되는 모음 파일에는 적용되지 않습니다. 모음 파일도 폴더를 만들지 않게 하려면 "명명 / 폴더와 파일 이름" 에서 "
+시리즈 소설 병합 시 명명 규칙" 을 수정하면 됩니다。`,
     `После включения этой настройки для подходящих файлов папки создаваться не будут, и они будут сохраняться прямо в папку загрузок браузера.<br>
 <br>
 Подпункты:<br>
 - При скачивании 1 изображения из иллюстрации или манги: если вы скачали только 1 изображение из этой работы, папка для него создаваться не будет. Каждая работа считается отдельно.<br>
 - При скачивании нескольких изображений из иллюстрации или манги: если вы скачали несколько изображений из этой работы, папка для этих изображений создаваться не будет. Каждая работа считается отдельно.<br>
 - Ugoira: для работ Ugoira папка создаваться не будет.<br>
-- Novel: для отдельной работы-романа папка создаваться не будет.<br>
+- Роман: для отдельной работы-романа папка создаваться не будет.<br>
 <br>
 Подсказка:<br>
 Если вы включите все подпункты, папки не будут создаваться ни для каких работ.<br>
-Эта настройка не применяется к файлам-сборникам, созданным после объединения серии novel. Если вы хотите, чтобы для файлов-сборников тоже не создавались папки, можно изменить "
-Правила названий при объединении серии novel" в разделе «Именование / Имена папок и файлов».`,
+Эта настройка не применяется к файлам-сборникам, созданным после объединения серии романа. Если вы хотите, чтобы для файлов-сборников тоже не создавались папки, можно изменить "
+Правила названий при объединении серии романа" в разделе «Именование / Имена папок и файлов».`,
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -5705,7 +5704,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     `작품 총 수가 0입니다. 페이지에 표시된 작품 총 수가 0인지 확인해 주세요.<br>
 페이지에 표시된 작품 수가 0보다 크다면 Pixiv가 이번 크롤링을 거부한 것일 수 있습니다. 몇 분 후에 다시 시도해 보세요.`,
     `Общее количество работ равно 0. Пожалуйста, проверьте, действительно ли на странице отображается общее количество работ равное 0.<br>
-Если на странице показано больше 0 работ, возможно, Pixiv отклонил эту попытку краулинга. Подождите несколько минут и попробуйте снова.`,
+Если на странице показано больше 0 работ, возможно, Pixiv отклонил эту попытку сканирования. Подождите несколько минут и попробуйте снова.`,
   ],
   _优化预览作品功能: [
     '优化“预览作品”功能',
@@ -5885,7 +5884,7 @@ Mouse wheel: zoom in or out of the image<br>
     `Recommended usage: Incrementally crawl new works. For example, on the new works page of followed users, or on the search page, set the number of crawl pages to 2, then start timed crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not crawl downloaded works" and "Do not download duplicate files" features to improve efficiency.`,
     `おすすめの使い方：新作を増分クロールします。例えばフォローしているユーザーの新作ページや検索ページで、クロールページ数を2に設定し、定時クロールを開始します。これによりダウンローダーが新作を自動的にダウンロードできます。<br>効率を高めるため、「ダウンロード済みの作品をクロールしない」と「重複ファイルをダウンロードしない」機能を有効にすることをおすすめします。`,
     `추천 사용법: 증분으로 새 작품을 크롤링합니다. 예를 들어 팔로우한 사용자의 새 작품 페이지나 검색 페이지에서 크롤링 페이지 수를 2로 설정한 후 정기 크롤링을 시작하세요. 이렇게 하면 다운로더가 새 작품을 자동으로 다운로드할 수 있습니다.<br>효율성을 높이기 위해 "다운로드된 작품을 크롤링하지 않음"과 "중복 파일 다운로드하지 않음" 기능을 활성화하는 것을 권장합니다.`,
-    `Рекомендуемый способ использования: Инкрементный краулинг новых работ. Например, на странице новых работ отслеживаемых пользователей или на странице поиска установите количество страниц для краулинга равным 2, а затем запустите периодический краулинг. Таким образом загрузчик сможет автоматически скачивать новые работы.<br>Рекомендуется включить функции «Не краулить загруженные работы» и «Не загружать повторяющиеся файлы» для повышения эффективности.`,
+    `Рекомендуемый способ использования: Инкрементный сканирование новых работ. Например, на странице новых работ отслеживаемых пользователей или на странице поиска установите количество страниц для сканирования равным 2, а затем запустите периодический сканирование. Таким образом загрузчик сможет автоматически скачивать новые работы.<br>Рекомендуется включить функции «Не сканировать загруженные работы» и «Не загружать повторяющиеся файлы» для повышения эффективности.`,
   ],
   _定时抓取已启动的提示2: [
     '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
@@ -6003,9 +6002,9 @@ Mouse wheel: zoom in or out of the image<br>
   _未知错误: [
     '未知错误。',
     '未知錯誤。',
-    'unknown mistake.',
-    '未知の間違い。',
-    '알 수 없는 실수.',
+    'Unknown error.',
+    '未知のエラー。',
+    '알 수 없는 오류.',
     'неизвестная ошибка',
   ],
   _请刷新页面: [
@@ -6042,7 +6041,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _当作品数量超过指定数量时启用: [
     '当作品数量超过指定数量时启用：',
-    '當作品數量超過指定數量时啟用：',
+    '當作品數量超過指定數量時啟用：',
     'Enabled when the number of works exceeds the specified number: ',
     '作品数が規定数を超えた場合に有効：',
     '작품 수가 지정된 수를 초과하면 활성화됩니다: ',
@@ -6139,10 +6138,10 @@ Mouse wheel: zoom in or out of the image<br>
   _日期时间格式错误: [
     '日期时间格式错误',
     '日期時間格式錯誤',
-    'wrong datetime format',
+    'Invalid datetime format',
     '間違った日時形式',
     '잘못된 날짜/시간 형식',
-    'неправильный формат даты',
+    'неправильный формат даты и времени',
   ],
   _添加了对此页面类型的支持: [
     '添加了对此页面类型的支持：',
@@ -6307,10 +6306,10 @@ Mouse wheel: zoom in or out of the image<br>
   _重试收藏成功: [
     '重试收藏成功。',
     '重試收藏成功。',
-    'Retry bookmark successfully.',
-    'ブックマークを再試行します。',
-    '북마크를 다시 시도하십시오.',
-    'Повторите попытку закладки.',
+    'Retry bookmark successful.',
+    'ブックマークの再試行に成功しました。',
+    '북마크 재시도 성공.',
+    'Закладка успешно повторена.',
   ],
   _出现错误请稍后重试: [
     '出现错误，请稍后重试。',
@@ -6494,9 +6493,9 @@ There is also a button at the bottom of the log area for manually exporting logs
     '<span class="key">AI</span> 作品',
     '<span class="key">AI</span> 作品',
     '<span class="key">AI</span> works',
-    '<span class="key">AI</span>が働く',
-    '<span class="key">AI</span> 작동',
-    '<span class="key">ИИ</span> работает',
+    '<span class="key">AI</span> 作品',
+    '<span class="key">AI</span> 작품',
+    '<span class="key">ИИ</span> работы',
   ],
   _AI生成: [
     'AI 生成',
@@ -6526,8 +6525,8 @@ There is also a button at the bottom of the log area for manually exporting logs
     '早期作品没有标记，无法判断',
     '早期作品沒有標記，無法判斷',
     'Early works are not marked and cannot be judged',
-    '初期の作品は採点せず、審査不可',
-    '초기 작품은 표시되지 않으며 평가할 수 없습니다.',
+    '初期の作品にはタグがなく、判定できません',
+    '초기 작품에는 태그가 없어 판단할 수 없습니다.',
     'Ранние работы не отмечены и не могут быть оценены',
   ],
   _用户可以选择是否下载AI生成的作品: [
@@ -6583,8 +6582,8 @@ There is also a button at the bottom of the log area for manually exporting logs
     '作品 ID',
     'Work ID',
     '作品ID',
-    'ID 아이디',
-    'РРабочий идентификатор',
+    '작품 ID',
+    'Рабочий идентификатор',
   ],
   _收藏时间: [
     '收藏时间',
@@ -6592,7 +6591,7 @@ There is also a button at the bottom of the log area for manually exporting logs
     'Bookmark time',
     'ブックマーク時間',
     '북마크 시간',
-    'время сбора',
+    'время закладки',
   ],
   _收藏数量2: [
     '收藏数量',
@@ -6600,7 +6599,7 @@ There is also a button at the bottom of the log area for manually exporting logs
     'Bookmark count',
     'ブックマークの数',
     '북마크 수',
-    'Колличество закладок',
+    'Количество закладок',
   ],
   _重新显示帮助: [
     '重新显示帮助',
@@ -6671,7 +6670,7 @@ There is also a button at the bottom of the log area for manually exporting logs
     '已更新關注使用者列表',
     'The list of following users has been updated',
     'フォローしているユーザーのリストが更新されました',
-    '다음 사용자 목록이 업데이트되었습니다',
+    '팔로우한 사용자 목록이 업데이트되었습니다',
     'Список следующих пользователей обновлен',
   ],
   _移动端浏览器可能不会建立文件夹的说明: [
@@ -6693,10 +6692,10 @@ There is also a button at the bottom of the log area for manually exporting logs
   _批量收藏作品时减慢速度: [
     '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
     '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
-    'Slow down when batch bookmarking works to reduce chance of 429 errors',
-    'バッチブックマークが機能すると、429 エラーの可能性を減らすために速度が低下します。',
-    '429 오류 가능성을 줄이기 위해 일괄 북마크가 작동할 때 속도를 늦춥니다.',
-    'Замедлите работу, когда пакетная закладка работает, чтобы уменьшить вероятность ошибки 429',
+    'Slow down when batch bookmarking works to reduce the chance of 429 errors',
+    '一括ブックマーク時に速度を落とし、429 エラーの発生確率を減らします。',
+    '일괄 북마크 시 속도를 늦춰 429 오류 발생 확률을 줄입니다.',
+    'При пакетном добавлении в закладки замедляйтесь, чтобы снизить вероятность ошибки 429.',
   ],
   _停止抓取: [
     '停止抓取',
@@ -6791,7 +6790,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     'Only a crawl will be run, no download will be started. <br>Most filters are ignored.',
     'この時点ではフェッチのみが実行され、ダウンロードは開始されません。 <br>ほとんどのフィルターは無視されます。',
     '지금은 가져오기만 실행되고 다운로드는 시작되지 않습니다. <br>대부분의 필터는 무시됩니다.',
-    'В этот раз будет запущена только выборка, загрузка не начнется. <br>Большинство фильтров игнорируются.',
+    'В этот раз будет запущена только сканирование, загрузка не начнется. <br>Большинство фильтров игнорируются.',
   ],
   _导入的用户ID数量: [
     '导入的用户 ID 数量：',
@@ -7011,7 +7010,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     'Show <span class="key">thumbnail</span> list on multi-image work pages',
     '複数画像作品ページで<span class="key">サムネイル</span>一覧を表示',
     '멀티 이미지 작품 페이지에서 <span class="key">썸네일</span> 목록을 표시',
-    'На рабочей странице с несколькими изображениями отобразите список <span class="key">эскизов</span>',
+    'На странице работы с несколькими изображениями отображайте список <span class="key">миниатюр</span>',
   ],
   _在多图作品页面里显示缩略图列表的说明: [
     `在多图作品页面里（/artworks/)，下载器可以显示每一张图片的预览图。`,
@@ -7021,7 +7020,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     `여러 이미지로 구성된 아트워크 페이지(/artworks/)에서 다운로더는 각 이미지의 미리보기를 표시할 수 있습니다.`,
     `На странице с несколькими изображениями (/artworks/) загрузчик может отображать предварительный просмотр каждого изображения.`,
   ],
-  _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
+  _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Отправить'],
   _已导出被删除的作品的ID列表: [
     '已导出被删除的作品的 ID 列表',
     '已匯出被刪除的作品的 ID 列表',
@@ -7036,15 +7035,15 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     `On your bookmarks page, the Downloader's "Home / Additional Features" area has some features to help you manage your bookmarks.`,
     'ブックマーク ページのダウンローダーの「ホーム / 追加機能」エリアには、ブックマークの管理に役立つ機能がいくつかあります。',
     '북마크 페이지에서 다운로더의 "홈 / 추가 기능" 영역에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
-    'На странице закладок в разделе «Главная / Дополнительные функции» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
+    'На странице закладок в разделе «Главная / Дополнительные функции» загрузчика есть некоторые функции, которые помогут вам управлять своими закладками.',
   ],
   _预览作品的详细信息: [
     '预览作品的<span class="key">详细</span>信息',
     '預覽作品時的<span class="key">詳細</span>資料',
     'Preview the <span class="key">details</span> of the work',
-    'プレビュー作品の<span class="key">詳細</span>です',
+    '作品の<span class="key">詳細</span>をプレビュー',
     '작품의 <span class="key">상세한 정보</span>를 미리보다',
-    'Подробности <span class="key">предварительного показа</span>',
+    'Предпросмотр <span class="key">подробностей</span> работы',
   ],
   _预览作品的详细信息的说明: [
     '鼠标放在作品缩略图上即可查看作品数据',
@@ -7052,15 +7051,15 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     'Mouse over the thumbnail of the work to view the work data',
     '作品のサムネイルにマウスをかざすだけで作品データを見ることができます',
     '마우스를 작품 썸네일 위에 놓으면 작품 데이터를 볼 수 있다',
-    'Данные о работе можно увидеть с помощью мыши на сокращённом графике',
+    'Наведите мышь на миниатюру работы, чтобы увидеть данные о ней.',
   ],
   _显示区域宽度: [
     '显示区域宽度',
     '顯示區域寬度',
     'Display area width',
-    '表示領域幅です',
-    '영역 너비 보이기',
-    'Покажи ширину зоны',
+    '表示領域幅',
+    '표시 영역 너비',
+    'Ширина области отображения',
   ],
   _写入剪贴板失败: [
     '写入剪贴板失败',
@@ -7340,24 +7339,24 @@ This is because when continuously downloading many files (especially novels), yo
 이는 많은 파일(특히 소설)을 연속으로 다운로드하면 Pixiv 계정이 경고되거나 차단될 수 있기 때문입니다. 간격 시간을 설정하면 이 문제를 완화할 수 있습니다.<br>`,
     `Запускать загрузку через определенные интервалы времени.<br>
 Если установить время интервала на 0, загрузчик не добавит задержку.<br>
-Если установить на 1 секунду (значение по умолчанию), то максимум 3600 результатов захвата будет загружено в час (не считая дополнительные файлы для загрузки, такие как обложки романов и встроенные изображения).<br>
+Если установить на 1 секунду (значение по умолчанию), то максимум 3600 результатов сканирования будет загружено в час (не считая дополнительные файлы для загрузки, такие как обложки романов и встроенные изображения).<br>
 Это потому, что при непрерывной загрузке множества файлов (особенно романов) ваш аккаунт Pixiv может быть предупрежден или заблокирован. Установка интервала времени может смягчить эту проблему.<br>`,
   ],
   _从页面上移除他们的作品: [
     '从页面上移除他们的作品',
     '從頁面上移除他們的作品',
-    'Remove their work from the page',
+    'Remove their works from the page',
     'ページから作品を削除する',
-    '페이지에서 해당 작업을 제거합니다.',
+    '페이지에서 해당 작품을 제거합니다.',
     'Удалить их работу со страницы',
   ],
   _移除了用户xxx的作品: [
     '移除了用户 {} 的作品',
     '移除了使用者 {} 的作品',
-    'Removed work from user {}',
+    'Removed works from user {}',
     'ユーザー {} の作品を削除しました',
-    '사용자 {} 의 작업이 제거되었습니다.',
-    'Удалена работа пользователя {}',
+    '사용자 {} 의 작품이 제거되었습니다.',
+    'Удалены работы пользователя {}',
   ],
   _用户屏蔽名单的说明2: [
     `下载器不会抓取“用户屏蔽名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。<br>
@@ -7426,7 +7425,7 @@ PS: На странице профиля заблокированного пол
     '支援抓取“好P友”頁面裡的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
     'Supports crawling works from the "My pixiv" page:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
     '「マイピクの作品」ページからの作品のクロールをサポートします:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
-    '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>https://www.pixiv.net/mypixiv_new_illust.php',
+    '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
     'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
   ],
   _移除设置项: [
@@ -7523,7 +7522,7 @@ PS: На странице профиля заблокированного пол
     `💡This task requires crawling a large number of works. You may consider using an alt account for crawling and downloading to reduce the risk of your main account being banned. <br>You can view the relevant instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Using Secondary Account for Downloading</a>`,
     `💡今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">小号でダウンロード</a>`,
     `💡이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">작은 계정으로 다운로드</a>`,
-    `💡Эта задача требует загрузки большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для загрузки и скачивания, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
+    `💡Эта задача требует сканирования большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для сканирования и загрузки, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
   ],
   _复制按钮: [
     `<span class="key">复制</span>按钮`,
@@ -7639,7 +7638,7 @@ Additionally, you can use these tags:`,
     `When copying, the webpage needs to be in a focused state.`,
     `コピーする際は、ウェブページがフォーカス状態である必要があります。`,
     `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
-    `При копировании веб-страница должна находиться в состоянии фокуса。`,
+    `При копировании веб-страница должна находиться в состоянии фокуса.`,
   ],
   _复制作品链接: [
     `复制作品链接`,
@@ -8320,19 +8319,19 @@ If you want to use this feature, please note:
   ],
   _你屏蔽了这个用户: [
     `你屏蔽了这个用户`,
-    `你靜音了這個用戶`,
+    `你隱藏了這個用戶`,
     `You muted this user`,
     `このユーザーをミュートしました`,
     `이 사용자를 음소거했습니다`,
-    `Вы заглушили этого пользователя`,
+    `Вы заблокировали этого пользователя`,
   ],
   _你屏蔽了它的标签: [
     `你屏蔽了它的标签`,
-    `你靜音了它的標籤`,
+    `你隱藏了它的標籤`,
     `You muted its tags`,
     `この作品のタグをミュートしました`,
     `이 작품의 태그를 음소거했습니다`,
-    `Вы заглушили его теги`,
+    `Вы заблокировали его теги`,
   ],
   _它不是首次登场的作品: [
     `它不是首次登场的作品`,
@@ -8356,7 +8355,7 @@ If you want to use this feature, please note:
     `Note: This task follows the "Number of pages to crawl" setting and starts crawling from the current page (which may not be page 1).`,
     `注意：このタスクは「クロールするページ数」の設定に従い、現在のページ（1ページ目ではない可能性があります）からクロールを開始します。`,
     `주의: 이 작업은 "크롤링할 페이지 수" 설정을 따르며, 현재 페이지(1페이지가 아닐 수 있음)부터 크롤링을 시작합니다.`,
-    `Примечание: Эта задача следует настройке «Количество страниц для краулинга» и начинается с текущей страницы (которая может не быть первой).`,
+    `Примечание: Эта задача следует настройке «Количество страниц для сканирования» и начинается с текущей страницы (которая может не быть первой).`,
   ],
   _添加为公开关注的提示: [
     `由于当前页面显示的是公开关注，所以下载器也会把用户添加为公开关注。`,
@@ -8364,7 +8363,7 @@ If you want to use this feature, please note:
     `Since the current page displays public follows, the downloader will also add users as public follows.`,
     `現在のページが公開フォロー表示のため、ダウンロードツールもユーザーを公開フォローとして追加します。`,
     `현재 페이지가 공개 팔로우를 표시하므로, 다운로더도 사용자를 공개 팔로우로 추가합니다.`,
-    `Поскольку текущая страница отображает публичные подписки, загрузчик также добавит пользователей как публичные подписки。`,
+    `Поскольку текущая страница отображает публичные подписки, загрузчик также добавит пользователей как публичные подписки.`,
   ],
   _添加为非公开关注的提示: [
     `由于当前页面显示的是非公开关注，所以下载器也会把用户添加为非公开关注。`,
@@ -8372,7 +8371,7 @@ If you want to use this feature, please note:
     `Since the current page displays private follows, the downloader will also add users as private follows.`,
     `現在のページが非公開フォロー表示のため、ダウンロードツールもユーザーを非公開フォローとして追加します。`,
     `현재 페이지가 비공개 팔로우를 표시하므로, 다운로더도 사용자를 비공개 팔로우로 추가합니다.`,
-    `Поскольку текущая страница отображает приватные подписки, загрузчик также добавит пользователей как приватные подписки。`,
+    `Поскольку текущая страница отображает приватные подписки, загрузчик также добавит пользователей как приватные подписки.`,
   ],
   _筛选不活跃的用户: [
     `筛选不活跃的用户`,
@@ -8444,7 +8443,7 @@ If you want to use this feature, please note:
     `When crawling works, if a novel belongs to a series, automatically crawl all novels in that series and merge them.`,
     `作品をクロールする際、小説がシリーズに属する場合、そのシリーズ内のすべての小説を自動的にクロールしてマージします。`,
     `작품을 크롤링할 때, 소설이 특정 시리즈에 속하면 해당 시리즈의 모든 소설을 자동으로 크롤링하여 병합합니다.`,
-    `При краулинге работ, если роман принадлежит серии, автоматически краулить все романы в этой серии и объединять их.`,
+    `При сканировании работ, если роман принадлежит серии, автоматически сканировать все романы в этой серии и объединять их.`,
   ],
   _不再单独下载系列里的小说: [
     `不再单独下载系列里的小说`,
@@ -8484,7 +8483,7 @@ If you want to use this feature, please note:
     `This crawling merged a total of {} series novels`,
     `今回のクロールで合計 {} 個のシリーズ小説がマージされました`,
     `이번 크롤링에서 총 {} 개의 시리즈 소설이 병합되었습니다`,
-    `В этом краулинге было объединено всего {} серий романов`,
+    `В этом сканировании было объединено всего {} серий романов`,
   ],
   _本次抓取一共合并了x个系列小说包含y篇小说: [
     `本次抓取一共合并了 {} 个系列小说，包含 {} 篇小说`,
@@ -8492,7 +8491,7 @@ If you want to use this feature, please note:
     `This crawl merged a total of {} novel series, containing {} novels`,
     `今回のクロールで合計 {} 個のシリーズ小説をマージしました。{} 件の小説を含みます`,
     `이번 크롤링에서 총 {}개의 시리즈 소설을 병합했습니다. {}편의 소설을 포함합니다`,
-    `В этом крауле всего было объединено {} серий романов, содержащих {} романов`,
+    `В этом сканировании всего было объединено {} серий романов, содержащих {} романов`,
   ],
   _由于这个系列小说里的图片体积很大所以分割成了x个文件: [
     `由于这个系列小说里的图片体积很大，所以分割成了 {} 个文件`,
@@ -8508,7 +8507,7 @@ If you want to use this feature, please note:
     `Note: There is a series currently being merged, and it will continue working until the merge is complete. If you no longer need it, you can refresh this page`,
     `注意：シリーズが1つマージ中です。マージが完了するまで作業を続けます。それが必要なくなったら、このページを更新できます`,
     `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
-    `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если он вам больше не нужен, вы можете обновить эту страницу`,
+    `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если она вам больше не нужна, вы можете обновить эту страницу`,
   ],
   _合并系列小说时的命名规则: [
     `合并系列小说时的<span class="key">命名</span>规则`,
@@ -8558,7 +8557,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `Series ID, it is a number.`,
     `シリーズ ID、数値です。`,
     `시리즈 ID, 숫자입니다。`,
-    `ID серии, это число。`,
+    `ID серии, это число.`,
   ],
   _系列小说的命名标记_user: [
     `用户名（作者的名字）`,
@@ -8606,7 +8605,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `If this series is restricted, output its age restriction, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; otherwise, ignore this tag.`,
     `このシリーズが制限級の場合、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。それ以外の場合はこのタグを無視します。`,
     `이 시리즈가 제한 등급이면 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。그렇지 않으면 이 태그를 무시합니다。`,
-    `Если эта серия ограничена, выведите её возрастное ограничение, разделённое на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте этот тег。`,
+    `Если эта серия ограничена, выведите её возрастное ограничение, разделённое на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте этот тег.`,
   ],
   _系列小说的命名标记_AI: [
     `如果这个系列是 AI 生成的，则输出 <span class="blue">AI</span>，否则忽略这个标记。`,
@@ -8614,7 +8613,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `If this series is AI-generated, output <span class="blue">AI</span>; otherwise, ignore this tag.`,
     `このシリーズがAI生成の場合、<span class="blue">AI</span>を出力します。それ以外の場合はこのタグを無視します。`,
     `이 시리즈가 AI 생성이라면 <span class="blue">AI</span>를 출력하며, 그렇지 않으면 이 태그를 무시합니다。`,
-    `Если эта серия сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте этот тег。`,
+    `Если эта серия сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте этот тег.`,
   ],
   _系列小说的命名标记_lang: [
     `这个系列的语言代码，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：这并不总是准确的，因为有些作者没有设置正确的语言。`,
@@ -8630,7 +8629,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `The total number of bookmarks for all novels in this series, it is a number.`,
     `このシリーズ内のすべての小説のブックマーク数の合計、数値です。`,
     `이 시리즈의 모든 소설의 북마크 수의 합계, 숫자입니다。`,
-    `Общее количество закладок для всех романов в этой серии, это число。`,
+    `Общее количество закладок для всех романов в этой серии, это число.`,
   ],
   _系列小说的命名标记_total: [
     `这个系列里一共含有多少篇小说，是数字。`,
@@ -8646,7 +8645,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `The total word count of all novels in this series, it is a number.`,
     `このシリーズ内のすべての小説の総文字数、数値です。`,
     `이 시리즈의 모든 소설의 총 글자 수, 숫자입니다。`,
-    `Общее количество слов во всех романах этой серии, это число。`,
+    `Общее количество слов во всех романах этой серии, это число.`,
   ],
   _系列小说的命名标记_create_date: [
     `这个系列的创建时间，例如 <span class="blue">2025-01-01</span>。`,
@@ -8678,7 +8677,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `The ID of the first novel in this series, it is a number.`,
     `このシリーズの最初の小説の ID、数値です。`,
     `이 시리즈의 첫 번째 소설의 ID, 숫자입니다。`,
-    `ID первого романа в этой серии, это число。`,
+    `ID первого романа в этой серии, это число.`,
   ],
   _系列小说的命名标记_latest_id: [
     `这个系列里最后一篇小说的 ID，是数字。`,
@@ -8686,7 +8685,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `The ID of the last novel in this series, it is a number.`,
     `このシリーズの最後の小説の ID、数値です。`,
     `이 시리즈의 마지막 소설의 ID, 숫자입니다。`,
-    `ID последнего романа в этой серии, это число。`,
+    `ID последнего романа в этой серии, это число.`,
   ],
   _系列小说的命名标记_tags: [
     `这个系列小说的标签列表。注意这是系列的标签，而非系列里每一篇小说的标签。`,
@@ -8824,6 +8823,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     '대쉬보드',
     `Дашборд`,
   ],
+  _用户: ['用户', '使用者', 'User', 'ユーザー', '사용자', 'Пользователь'],
   _标签: ['标签', '標籤', 'Tags', 'タグ', '태그', 'Теги'],
   _应募作品: [
     '应募作品',
@@ -8895,7 +8895,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `Find deactivated users`,
     `退会済みユーザーを検索`,
     `탈퇴한 사용자 찾기`,
-    `Поиск деактивированных/удалённых пользователей`,
+    `Поиск деактивированных пользователей`,
   ],
   _检查是否有已注销的用户的说明: [
     `该功能会检查你的关注列表，找出现在比之前少了哪些用户，然后检查他们是否注销了账号。<br>
@@ -8926,7 +8926,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   _检查用户x是否已注销: [
     `检查用户 {} 是否已注销`,
     `檢查用戶 {} 是否已註銷`,
-    `Check if user {} has deactivated`,
+    `Check if user {} is deactivated`,
     `ユーザー {} が退会済みか確認`,
     `사용자 {} 가 탈퇴했는지 확인`,
     `Проверить, деактивирован ли пользователь {}`,
@@ -8934,7 +8934,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   _该用户已注销: [
     `该用户已注销`,
     `該用戶已註銷`,
-    `This user has deactivated`,
+    `This user is deactivated`,
     `このユーザーは退会済みです`,
     `이 사용자는 탈퇴했습니다`,
     `Этот пользователь деактивирован`,
@@ -8942,7 +8942,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   _该用户未注销: [
     `该用户未注销`,
     `該用戶未註銷`,
-    `This user has not deactivated`,
+    `This user is not deactivated`,
     `このユーザーは退会していません`,
     `이 사용자는 탈퇴하지 않았습니다`,
     `Этот пользователь не деактивирован`,
@@ -8977,7 +8977,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `When the downloader outputs logs at the top of the page, you can control whether the log area is shown or hidden by default.`,
     `ダウンロードツールがページ上部にログを出力する際、ログ領域のデフォルト表示（表示／非表示）を制御できます。`,
     `다운로더가 페이지 상단에 로그를 출력할 때, 로그 영역의 기본 표시 또는 숨김을 제어할 수 있습니다。`,
-    `Когда загрузчик выводит логи в верхней части страницы, вы можете управлять, будет ли область журнала отображаться или скрываться по умолчанию。`,
+    `Когда загрузчик выводит логи в верхней части страницы, вы можете управлять, будет ли область журнала отображаться или скрываться по умолчанию.`,
   ],
   _显示: [`显示`, `顯示`, `Show`, `表示`, `표시`, `Показать`],
   _隐藏: [`隐藏`, `隱藏`, `Hide`, `非表示`, `숨기기`, `Скрыть`],
@@ -9058,10 +9058,10 @@ After crawling is complete, you can start the normal download to save the standa
 따라서 크롤링 단계에서는 다운로더가 시리즈 소설만 저장하고 단편 소설은 저장하지 않은 것처럼 보일 수 있습니다. 이는 정상입니다. 왜냐하면 별도로 처리되기 때문입니다.<br>
 크롤링 완료 후 정상적인 다운로드를 시작하면 단편 소설이 저장됩니다.`,
     `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
-Для серий романов загрузчик во время краулинга сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
-Для отдельных романов загрузчик не будет скачивать их во время краулинга, а сохранит в результаты краулинга.<br>
-Поэтому на этапе краулинга вы можете увидеть, что загрузчик сохранил только серии романов и не сохранил ни одного отдельного романа. Это нормально, поскольку они обрабатываются отдельно.<br>
-После завершения краулинга начните обычную загрузку — отдельные романы будут сохранены.`,
+Для серий романов загрузчик во время сканирования сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
+Для отдельных романов загрузчик не будет скачивать их во время сканирования, а сохранит в результаты сканирования.<br>
+Поэтому на этапе сканирования вы можете увидеть, что загрузчик сохранил только серии романов и не сохранил ни одного отдельного романа. Это нормально, поскольку они обрабатываются отдельно.<br>
+После завершения сканирования начните обычную загрузку — отдельные романы будут сохранены.`,
   ],
   _提示只会收藏单篇小说: [
     `这个页面里可能有系列小说。下载器会跳过系列小说，只收藏单篇小说。`,
@@ -9113,7 +9113,7 @@ The matching mode is "any one", meaning as long as the title contains any one of
 매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 해당 작품을 크롤링합니다.`,
     `Вы можете потребовать, чтобы в названии работы обязательно содержались определённые символы. Без учёта регистра.<br>
 Можно задать несколько строк, разделяя их запятыми (,).<br>
-Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и загрузчик будет краулить эту работу.`,
+Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и загрузчик будет сканировать эту работу.`,
   ],
   _标题不能含有: [
     `<span class="key">标题</span>不能含有`,
@@ -9146,7 +9146,7 @@ Exclusion takes priority over inclusion.`,
 제외 조건의 우선순위가 포함 조건보다 높습니다.`,
     `Вы можете потребовать, чтобы в названии работы не содержались определённые символы. Без учёта регистра.<br>
 Можно задать несколько строк, разделяя их запятыми (,).<br>
-Режим соответствия — «любой», то есть если в названии присутствует хотя бы одна из указанных строк, загрузчик не будет краулить эту работу.<br>
+Режим соответствия — «любой», то есть если в названии присутствует хотя бы одна из указанных строк, загрузчик не будет сканировать эту работу.<br>
 Условия исключения имеют приоритет над условиями включения.`,
   ],
   _系列标题不能含有: [
@@ -9272,7 +9272,7 @@ ${Config.originalTags.join(',')}`,
     `Crawl conditions are incorrect`,
     `クロール条件が正しくありません`,
     `크롤링 조건이 올바르지 않습니다`,
-    `Условия краулинга неверны`,
+    `Условия сканирования неверны`,
   ],
   _取消抓取因为某些抓取条件不正确: [
     `❌取消抓取，因为某些抓取条件不正确`,
@@ -9280,7 +9280,7 @@ ${Config.originalTags.join(',')}`,
     `❌Cancel crawling because some crawl conditions are incorrect`,
     `❌クロールをキャンセルしました。一部のクロール条件が正しくありません`,
     `❌크롤링 취소: 일부 크롤링 조건이 올바르지 않습니다`,
-    `❌Краулинг отменён, поскольку некоторые условия краулинга некорректны`,
+    `❌Сканирование отменено, поскольку некоторые условия сканирования некорректны`,
   ],
   _抓取线程为x: [
     `抓取线程：{}`,
@@ -9288,7 +9288,7 @@ ${Config.originalTags.join(',')}`,
     `Crawl threads: {}`,
     `クロールスレッド数: {}`,
     `크롤링 스레드: {}`,
-    `Потоков краулинга: {}`,
+    `Потоков сканирования: {}`,
   ],
   _由于有系列小说所以抓取线程被限制为1: [
     `由于这次抓取的内容里含有系列小说，所以抓取线程被限制为 1，以避免同时发送太多请求。`,
@@ -9296,7 +9296,7 @@ ${Config.originalTags.join(',')}`,
     `Because the content of this crawl contains novel series, the crawl threads have been limited to 1 to avoid sending too many requests at the same time.`,
     `今回のクロール内容にシリーズ小説が含まれているため、同時リクエストが多すぎるのを避けるためクロールスレッドを1に制限しました。`,
     `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
-    `Поскольку содержимое этого краулинга включает серии романов, количество потоков краулинга было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
+    `Поскольку содержимое этого сканирования включает серии романов, количество потоков сканирования было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
   ],
   _对于某种错误下载器会重试一定次数: [
     `对于 {} 错误，下载器会重试一定次数`,
@@ -9383,7 +9383,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `Do not crawl <span class="key">already downloaded</span> works`,
     `<span class="key">ダウンロード済み</span>の作品をクロールしない`,
     `<span class="key">이미 다운로드한</span> 작품 크롤링 안 함`,
-    `Не краулить <span class="key">уже скачанные</span> работы`,
+    `Не сканировать <span class="key">уже скачанные</span> работы`,
   ],
   _不抓取下载过的作品的说明: [
     `如果下载器里有这个作品的下载记录，就不会抓取它。`,
@@ -9391,7 +9391,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `If the downloader has a download record for this work, it will not be crawled.`,
     `ダウンロードツールにこの作品のダウンロード記録がある場合、クロールしません。`,
     `다운로더에 이 작품의 다운로드 기록이 있으면 크롤링하지 않습니다.`,
-    `Если в загрузчике есть запись о скачивании этой работы, она не будет скраулена.`,
+    `Если в загрузчике есть запись о скачивании этой работы, она не будет сканирована.`,
   ],
   _不抓取下载过的作品的帮助信息: [
     `该功能依赖下载器自己保存的下载记录。<br>如果你启用了该功能，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。这样可以减少不必要的抓取，节约时间。<br>这个功能也有助于增量更新，因为你可以只抓取没有下载过的作品。<br><br>另外，在合并系列小说时，启用该设置可以跳过有下载记录的小说，只合并系列里新增的小说。不过需要注意的是，以前下载器在合并系列小说时不会保存每篇小说的下载记录，所以它们可能依然会被下载一次，之后就可以不再重复下载了。`,
@@ -9399,7 +9399,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `This feature relies on the download records saved by the downloader itself.<br>If you enable this feature, the downloader will first check whether each work has a download record before crawling it. If it does, it will not crawl it. This can reduce unnecessary crawling and save time.<br>This feature also helps with incremental updates, as you can crawl only works that have not been downloaded before.<br><br>Additionally, when merging series novels, enabling this setting allows skipping novels that have download records and only merging newly added novels in the series. However, note that previously the downloader did not save download records for each individual novel when merging series novels, so they may still be downloaded once, after which they will no longer be repeatedly downloaded.`,
     `この機能はダウンローダーが自身で保存したダウンロード記録に依存します。<br>この機能を有効にすると、ダウンローダーは各作品をクロールする前にダウンロード記録があるかどうかを最初に確認し、記録があればクロールしません。これにより不要なクローリングを減らし、時間を節約できます。<br>この機能は増分更新にも役立ちます。ダウンロードされていない作品のみをクロールできるためです。<br><br>また、シリーズ小説をマージする際、この設定を有効にすると、ダウンロード記録のある小説をスキップし、シリーズ内の新規追加された小説のみをマージできます。ただし、以前はダウンローダーがシリーズ小説をマージする際に各小説のダウンロード記録を保存していなかったため、それらが一度ダウンロードされる可能性があり、その後は繰り返しダウンロードされなくなります。`,
     `이 기능은 다운로더가 자체적으로 저장한 다운로드 기록에 의존합니다.<br>이 기능을 활성화하면 다운로더는 각 작품을 크롤링하기 전에 먼저 다운로드 기록이 있는지 확인하고, 기록이 있으면 크롤링하지 않습니다. 이렇게 하면 불필요한 크롤링을 줄이고 시간을 절약할 수 있습니다.<br>이 기능은 또한 증분 업데이트에 도움이 되며, 다운로드되지 않은 작품만 크롤링할 수 있기 때문입니다.<br><br>또한 시리즈 소설을 병합할 때 이 설정을 활성화하면 다운로드 기록이 있는 소설을 건너뛰고 시리즈에 새로 추가된 소설만 병합할 수 있습니다. 다만 이전에는 다운로더가 시리즈 소설을 병합할 때 각 소설의 다운로드 기록을 저장하지 않았기 때문에, 한 번 다운로드될 수 있으며 그 후에는 반복 다운로드되지 않습니다.`,
-    `Эта функция зависит от записей загрузки, сохранённых самим загрузчиком.<br>Если вы включите эту функцию, загрузчик перед краулингом каждого произведения сначала проверит, есть ли у него запись о загрузке. Если есть — не будет его краулить. Это позволяет уменьшить ненужный краулинг и сэкономить время.<br>Эта функция также помогает с инкрементными обновлениями, поскольку вы можете краулить только те произведения, которые ещё не были загружены.<br><br>Кроме того, при объединении серийных новелл включение этой настройки позволяет пропускать новеллы с записями о загрузке и объединять только новые добавленные новеллы в серии. Однако следует отметить, что раньше загрузчик при объединении серийных новелл не сохранял записи о загрузке для каждой отдельной новеллы, поэтому они всё равно могут быть загружены один раз, после чего больше не будут повторно загружаться.`,
+    `Эта функция зависит от записей загрузки, сохранённых самим загрузчиком.<br>Если вы включите эту функцию, загрузчик перед сканированием каждого произведения сначала проверит, есть ли у него запись о загрузке. Если есть — не будет его сканировать. Это позволяет уменьшить ненужное сканирование и сэкономить время.<br>Эта функция также помогает с инкрементными обновлениями, поскольку вы можете сканировать только те произведения, которые ещё не были загружены.<br><br>Кроме того, при объединении серийных новелл включение этой настройки позволяет пропускать новеллы с записями о загрузке и объединять только новые добавленные новеллы в серии. Однако следует отметить, что раньше загрузчик при объединении серийных новелл не сохранял записи о загрузке для каждой отдельной новеллы, поэтому они всё равно могут быть загружены один раз, после чего больше не будут повторно загружаться.`,
   ],
   _提示合并系列小说时可以跳过已合并的小说: [
     `💡提示：在合并系列小说时，如果你启用了“不抓取下载过的作品”，下载器会跳过有下载记录的小说，只合并没有下载记录的小说。<br>从 18.7.0 版本（2026 年 4 月）开始，当你合并系列小说时，下载器会为里面的每篇小说都生成下载记录（就像你单独下载过它们一样）。所以当你再次合并同一个系列时，如果启用了“不抓取下载过的作品”，下载器就可以跳过以前合并过的小说，只合并新增的小说。`,
@@ -9407,7 +9407,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `💡Tip: When merging series novels, if you have enabled "Do not crawl downloaded works", the downloader will skip novels that have download records and only merge novels that do not have download records.<br>Starting from version 18.7.0 (April 2026), when you merge series novels, the downloader will generate download records for every novel inside (as if you had downloaded them individually). So when you merge the same series again, if "Do not crawl downloaded works" is enabled, the downloader can skip previously merged novels and only merge newly added novels.`,
     `💡ヒント: シリーズ小説をマージする際、「ダウンロード済みの作品をクロールしない」を有効にしている場合、ダウンローダーはダウンロード記録のある小説をスキップし、ダウンロード記録のない小説のみをマージします。<br>バージョン 18.7.0（2026年4月）以降、シリーズ小説をマージする際、ダウンローダーは内部の各小説に対してダウンロード記録を生成します（個別にダウンロードしたかのように）。したがって、同じシリーズを再度マージする際、「ダウンロード済みの作品をクロールしない」が有効であれば、以前にマージした小説をスキップし、新しく追加された小説のみをマージできます。`,
     `💡팁: 시리즈 소설을 병합할 때 "다운로드된 작품을 크롤링하지 않음"을 활성화한 경우, 다운로더는 다운로드 기록이 있는 소설을 건너뛰고 다운로드 기록이 없는 소설만 병합합니다.<br>18.7.0 버전(2026년 4월)부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 "다운로드된 작품을 크롤링하지 않음"이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.`,
-    `💡Подсказка: При объединении серийных новелл, если вы включили «Не краулить загруженные работы», загрузчик пропустит новеллы с записями о загрузке и объединит только новеллы без записей о загрузке.<br>Начиная с версии 18.7.0 (апрель 2026), при объединении серийных новелл загрузчик будет генерировать запись о загрузке для каждой новеллы внутри (как будто вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включено «Не краулить загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые добавленные новеллы.`,
+    `💡Подсказка: При объединении серийных новелл, если вы включили «Не сканировать загруженные работы», загрузчик пропустит новеллы с записями о загрузке и объединит только новеллы без записей о загрузке.<br>Начиная с версии 18.7.0 (апрель 2026), при объединении серийных новелл загрузчик будет генерировать запись о загрузке для каждой новеллы внутри (как будто вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включено «Не сканировать загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые добавленные новеллы.`,
   ],
   _提示可以只合并部分小说: [
     `💡提示：在系列小说页面里，你可以只合并部分小说。方法是先使用“手动选择作品”功能选择部分小说，然后点击“合并系列小说”按钮。`,
@@ -9456,7 +9456,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `The download records here refer to the downloader's own saved download records, not the browser's download history. Every time you successfully download a work using the downloader, a download record is created. Each record saves the work's ID, upload date, and filename.<br>Some features of the downloader rely on download records, such as: Do not crawl downloaded works, Do not download duplicate files, Show border on downloaded works.<br><br>Buttons:<br>- Export: Click this button to export the downloader's download records. This allows you to back up the records or import them in another browser to sync the download records.<br>- Import: Click this button to select a previously exported download record file and merge it into the existing download records. If necessary, you can also create a download record for files already downloaded on your hard drive and then import it. For the specific method, click the name of this setting and check the detailed instructions in the Wiki.<br>- Clear: Click this button to clear the downloader's download records.<br><br>Additional notes:<br>- The downloader's download records are stored in the browser's IndexedDB. Clearing the browser's download history will not affect the downloader's download records, so you can safely clear the browser's download history.<br>- <strong>Note:</strong> When you clear browser data, clearing "Cookies and other site data" will cause the downloader's download records to be cleared! If necessary, you can export the downloader's download records before cleaning the data and import them afterward.<br>- This is not a reliable feature. The downloader does not have permission to read files on the hard drive and can only rely on its own saved download records. If you delete downloaded files, the downloader will not know and will still consider the files as downloaded. In this case, features that rely on download records may produce false judgments, so you can turn off these features as needed.`,
     `ここでのダウンロード記録とは、ダウンローダーが保存した自身のダウンロード記録を指し、ブラウザのダウンロード履歴ではありません。ダウンローダーを使用して作品を正常にダウンロードするたびに、ダウンロード記録が生成されます。各記録には作品の ID、アップロード日、ファイル名が保存されます。<br>ダウンローダーの一部の機能はダウンロード記録に依存しています。例えば：ダウンロード済みの作品をクロールしない、重複ファイルをダウンロードしない、ダウンロード済みの作品に枠を表示。<br><br>ボタン：<br>- エクスポート：このボタンをクリックすると、ダウンローダーのダウンロード記録をエクスポートできます。これにより記録をバックアップしたり、他のブラウザにインポートしてダウンロード記録を同期したりできます。<br>- インポート：このボタンをクリックすると、以前にエクスポートしたダウンロード記録ファイルを選択し、既存のダウンロード記録にマージできます。必要に応じて、ハードディスク上にすでにダウンロードされているファイル用のダウンロード記録を作成してインポートすることもできます。具体的な方法は、この設定の名前をクリックして Wiki の詳細説明を確認してください。<br>- クリア：このボタンをクリックすると、ダウンローダーのダウンロード記録を消去できます。<br><br>補足説明：<br>- ダウンローダーのダウンロード記録はブラウザの IndexedDB に保存されます。ブラウザのダウンロード履歴を消去してもダウンローダーのダウンロード記録には影響しないので、ブラウザのダウンロード履歴を安心して消去できます。<br>- <strong>注意：</strong>ブラウザのデータを消去する際、「Cookie およびその他のサイトデータ」を消去すると、ダウンローダーのダウンロード記録が消去されます！必要に応じて、データをクリアする前にダウンローダーのダウンロード記録をエクスポートし、後でインポートしてください。<br>- これは信頼できる機能ではありません。ダウンローダーはハードディスク上のファイルを読み取る権限がなく、自分で保存したダウンロード記録にのみ依存します。ダウンロード済みのファイルを削除した場合、ダウンローダーはそれを知らず、依然としてファイルがダウンロードされたとみなします。この場合、ダウンロード記録に依存する機能が誤った判断をする可能性があるため、必要に応じてこれらの機能をオフにしてください。`,
     `여기서의 다운로드 기록은 다운로더가 저장한 자체 다운로드 기록을 의미하며, 브라우저의 다운로드 기록이 아닙니다. 다운로더를 사용하여 작품을 성공적으로 다운로드할 때마다 다운로드 기록이 생성됩니다. 각 기록에는 해당 작품의 ID, 업로드 날짜, 파일명이 저장됩니다.<br>다운로더의 일부 기능은 다운로드 기록에 의존합니다. 예: 다운로드된 작품을 크롤링하지 않음, 중복 파일 다운로드하지 않음, 다운로드된 작품에 테두리 표시.<br><br>버튼:<br>- 내보내기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 내보낼 수 있습니다. 이렇게 하면 기록을 백업하거나 다른 브라우저에서 가져와 다운로드 기록을 동기화할 수 있습니다.<br>- 가져오기: 이 버튼을 클릭하면 이전에 내보낸 다운로드 기록 파일을 선택하여 기존 다운로드 기록에 병합할 수 있습니다. 필요하다면 하드 디스크에 이미 다운로드된 파일에 대한 다운로드 기록을 만들어 가져올 수도 있습니다. 구체적인 방법은 이 설정 이름을 클릭하여 Wiki에서 자세한 설명을 확인하세요.<br>- 지우기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 지울 수 있습니다.<br><br>추가 설명:<br>- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록을 지워도 다운로더의 다운로드 기록에는 영향을 주지 않으므로 브라우저 다운로드 기록을 안심하고 지울 수 있습니다.<br>- <strong>주의:</strong> 브라우저 데이터를 지울 때 "쿠키 및 기타 사이트 데이터"를 지우면 다운로더의 다운로드 기록이 지워집니다! 필요하다면 데이터를 정리하기 전에 다운로더의 다운로드 기록을 내보내고 나중에 가져오세요.<br>- 이는 신뢰할 수 있는 기능이 아닙니다. 다운로더는 하드 디스크의 파일을 읽을 권한이 없으며, 자신이 저장한 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 이를 알지 못하고 여전히 파일이 다운로드된 것으로 간주합니다. 이 경우 다운로드 기록에 의존하는 기능이 오판할 수 있으므로, 필요에 따라 이러한 기능을 끌 수 있습니다.`,
-    `Здесь под записями загрузки подразумеваются собственные записи загрузки, сохранённые загрузчиком, а не история загрузок браузера. Каждый раз, когда вы успешно загружаете произведение с помощью загрузчика, создаётся одна запись загрузки. Каждая запись сохраняет ID произведения, дату загрузки и имя файла.<br>Некоторые функции загрузчика зависят от записей загрузки, например: не краулить загруженные работы, не загружать повторяющиеся файлы, показывать рамку на загруженных работах.<br><br>Кнопки:<br>- Экспорт: нажатие этой кнопки позволяет экспортировать записи загрузки загрузчика, что позволяет создавать резервную копию записей или импортировать их в другом браузере для синхронизации записей загрузки.<br>- Импорт: нажатие этой кнопки позволяет выбрать ранее экспортированный файл записей загрузки и объединить его с существующими записями. При необходимости вы также можете создать запись загрузки для уже загруженных на жёсткий диск файлов и импортировать её. Подробный способ можно узнать, нажав на название этой настройки и проверив подробные инструкции в Wiki.<br>- Очистить: нажатие этой кнопки позволяет очистить записи загрузки загрузчика.<br><br>Дополнительные пояснения:<br>- Записи загрузки загрузчика хранятся в IndexedDB браузера. Очистка истории загрузок браузера не влияет на записи загрузки загрузчика, поэтому вы можете спокойно очищать историю загрузок браузера.<br>- <strong>Внимание:</strong> При очистке данных браузера очистка «Cookies и другие данные сайтов» приведёт к удалению записей загрузки загрузчика! При необходимости вы можете экспортировать записи загрузки загрузчика перед очисткой данных, а затем импортировать их обратно.<br>- Это не надёжная функция. Загрузчик не имеет разрешения на чтение файлов на жёстком диске и может полагаться только на свои собственные сохранённые записи загрузки. Если вы удалите загруженные файлы, загрузчик об этом не узнает и по-прежнему будет считать, что файлы загружены. В таком случае функции, зависящие от записей загрузки, могут давать ложные срабатывания, поэтому вы можете отключить эти функции по мере необходимости.`,
+    `Здесь под записями загрузки подразумеваются собственные записи загрузки, сохранённые загрузчиком, а не история загрузок браузера. Каждый раз, когда вы успешно загружаете произведение с помощью загрузчика, создаётся одна запись загрузки. Каждая запись сохраняет ID произведения, дату загрузки и имя файла.<br>Некоторые функции загрузчика зависят от записей загрузки, например: не сканировать загруженные работы, не загружать повторяющиеся файлы, показывать рамку на загруженных работах.<br><br>Кнопки:<br>- Экспорт: нажатие этой кнопки позволяет экспортировать записи загрузки загрузчика, что позволяет создавать резервную копию записей или импортировать их в другом браузере для синхронизации записей загрузки.<br>- Импорт: нажатие этой кнопки позволяет выбрать ранее экспортированный файл записей загрузки и объединить его с существующими записями. При необходимости вы также можете создать запись загрузки для уже загруженных на жёсткий диск файлов и импортировать её. Подробный способ можно узнать, нажав на название этой настройки и проверив подробные инструкции в Wiki.<br>- Очистить: нажатие этой кнопки позволяет очистить записи загрузки загрузчика.<br><br>Дополнительные пояснения:<br>- Записи загрузки загрузчика хранятся в IndexedDB браузера. Очистка истории загрузок браузера не влияет на записи загрузки загрузчика, поэтому вы можете спокойно очищать историю загрузок браузера.<br>- <strong>Внимание:</strong> При очистке данных браузера очистка «Cookies и другие данные сайтов» приведёт к удалению записей загрузки загрузчика! При необходимости вы можете экспортировать записи загрузки загрузчика перед очисткой данных, а затем импортировать их обратно.<br>- Это не надёжная функция. Загрузчик не имеет разрешения на чтение файлов на жёстком диске и может полагаться только на свои собственные сохранённые записи загрузки. Если вы удалите загруженные файлы, загрузчик об этом не узнает и по-прежнему будет считать, что файлы загружены. В таком случае функции, зависящие от записей загрузки, могут давать ложные срабатывания, поэтому вы можете отключить эти функции по мере необходимости.`,
   ],
   _缩略图上按钮的位置: [
     `缩略图上按钮的<span class="key">位置</span>`,
@@ -9482,7 +9482,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `Do not crawl the <span class="key">last few</span> images of multi-image works`,
     `複数画像作品で<span class="key">後ろの数枚</span>の画像をクロールしない`,
     `다중 이미지 작품에서 <span class="key">뒤의 몇 장</span> 이미지를 크롤링하지 않음`,
-    `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
+    `Не сканировать <span class="key">последние несколько</span> изображений в многоизображных работах`,
   ],
   _多图作品不抓取后几张图片的说明: [
     `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。如果你不想抓取这些图片，可以使用这个设置来排除最后一张或多张图片。<br><br>
@@ -9500,9 +9500,9 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `자주 있는 사용 상황: 어떤 작가의 작품은 마지막 한 장이나 몇 장의 이미지가 홍보용 이미지이거나 모자이크가 있는 이미지일 수 있습니다. 이런 이미지를 크롤링하고 싶지 않다면 이 설정으로 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
 주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 첫 번째 이미지를 남깁니다.<br><br>
 여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
-    `Частый сценарий использования: у некоторых художников последние одно или несколько изображений в work являются рекламными изображениями или изображениями с мозаичной цензурой. Если вы не хотите обрабатывать такие изображения, используйте эту настройку, чтобы исключить последнее одно или несколько изображений.<br><br>
-Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит первое изображение, а не исключит весь work целиком.<br><br>
-Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
+    `Частый сценарий использования: у некоторых художников последние одно или несколько изображений в работе являются рекламными изображениями или изображениями с мозаичной цензурой. Если вы не хотите обрабатывать такие изображения, используйте эту настройку, чтобы исключить последнее одно или несколько изображений.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в работе, загрузчик сохранит первое изображение, а не исключит всю работу целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для работы с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
   ],
   _多图作品不抓取前几张图片: [
     `多图作品不抓取<span class="key">前几张</span>图片`,
@@ -9510,7 +9510,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `Do not crawl the <span class="key">first few</span> images of multi-image works`,
     `複数画像作品で<span class="key">最初の数枚</span>の画像をクロールしない`,
     `다중 이미지 작품에서 <span class="key">앞의 몇 장</span> 이미지를 크롤링하지 않음`,
-    `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
+    `Не сканировать <span class="key">первые несколько</span> изображений в многоизображных работах`,
   ],
   _多图作品不抓取前几张图片的说明: [
     `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。如果你想跳过第一张，从第二张开始抓取，就可以启用这个设置。<br><br>
@@ -9528,9 +9528,9 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `자주 있는 사용 상황: 어떤 작가의 작품은 첫 번째 이미지에는 글자가 있고 두 번째 이미지에는 없을 수 있습니다. 또는 첫 번째 이미지는 전체이용가이고 두 번째 이미지는 R-18일 수도 있습니다. 첫 번째 이미지를 건너뛰고 두 번째 이미지부터 크롤링하고 싶다면 이 설정을 켜면 됩니다.<br><br>
 주의: 설정한 숫자가 작품 안의 이미지 수보다 크면 다운로더는 작품 전체를 제외하지 않고 마지막 이미지를 남깁니다.<br><br>
 여러 장의 이미지가 있는 작품에서 "앞/뒤 몇 장만 크롤링" 조건과 "앞/뒤 몇 장은 크롤링하지 않음" 조건은 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다. 즉, 어떤 이미지가 두 조건을 모두 만족하면 다운로더는 그 이미지를 크롤링하지 않습니다.`,
-    `Частый сценарий использования: у некоторых художников в work на первом изображении есть текст, а на втором нет; или первое изображение для всех возрастов, а второе уже R-18. Если вы хотите пропустить первое изображение и начать обработку со второго, включите эту настройку.<br><br>
-Обратите внимание: если указанное вами число больше количества изображений в work, загрузчик сохранит последнее изображение, а не исключит весь work целиком.<br><br>
-Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для work с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
+    `Частый сценарий использования: у некоторых художников в работе на первом изображении есть текст, а на втором нет; или первое изображение для всех возрастов, а второе уже R-18. Если вы хотите пропустить первое изображение и начать обработку со второго, включите эту настройку.<br><br>
+Обратите внимание: если указанное вами число больше количества изображений в работе, загрузчик сохранит последнее изображение, а не исключит всю работу целиком.<br><br>
+Условия "обрабатывать только первые/последние несколько изображений" и "не обрабатывать первые/последние несколько изображений" для работы с несколькими изображениями можно использовать одновременно. У "не обрабатывать" приоритет выше: если изображение одновременно подходит под оба условия, загрузчик не будет его обрабатывать.`,
   ],
   _多图作品只抓取前几张图片: [
     `多图作品只抓取<span class="key">前几张</span>图片`,
@@ -9573,7 +9573,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
     `일반적인 사용 시나리오: 일부 사용자가 Koikatsu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br><br>
     팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
-    `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatsu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br><br>
+    `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatsu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы сканировать только последнюю одну или несколько картинок.<br><br>
     Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
   ],
   _设置的值不正确需要是数字: [
@@ -9626,12 +9626,12 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `Открепить`,
   ],
   _提示可以在release页面查看更新日志: [
-    `你可以在本项目的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 页面</a> 查看更新日志（中文）。`,
-    `你可以在本項目的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 頁面</a> 查看更新日誌（中文）。`,
-    `You can view the update log (Chinese) on this project's <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases page</a>.`,
-    `本プロジェクトの <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases ページ</a> で更新ログ（中国語）を確認できます。`,
-    `본 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 업데이트 로그(중국어)를 확인할 수 있습니다.`,
-    `Вы можете просмотреть журнал обновлений (на китайском) на странице <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases</a> этого проекта.`,
+    `你可以在本项目的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 页面</a> 查看每个版本的更新日志（中文）。`,
+    `你可以在本專案的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 頁面</a> 查看每個版本的更新日誌（中文）。`,
+    `You can view the changelog (in Chinese) for each version on the <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases page</a> of this project.`,
+    `本プロジェクトの <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases ページ</a> で、各バージョンの更新履歴（中国語）を確認できます。`,
+    `이 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 각 버전의 업데이트 기록(중국어)을 볼 수 있습니다.`,
+    `Журнал изменений (на китайском) для каждой версии можно посмотреть на <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">странице GitHub Releases</a> этого проекта.`,
   ],
   _不预览这个作品因为它含有你排除的标签: [
     `不预览这个作品，因为它含有你排除的标签`,
@@ -9757,13 +9757,13 @@ Tip: Click a token name to copy it.<br>`,
 - 通常の文字や記号。トークンの間に通常の文字を追加できます。例：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 フォルダー作成の説明：<br>
-- 各 work ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{pid}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{pid}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
-- AI 生成の work を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
-- work の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+- 各 作品 ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{pid}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{pid}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
+- AI 生成の 作品 を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 作品 の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 ヒント：<br>
 - * 一部のトークンは常に使えるわけではなく、空文字列になることがあります。その場合、ダウンローダーはそれを無視します。<br>
-- フォルダー名に work の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 image の ID は異なるため、<span class="blue name">{id}</span> を使うと image ごとにフォルダーが作られてしまいます。<br>
+- フォルダー名に 作品 の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 画像 の ID は異なるため、<span class="blue name">{id}</span> を使うと 画像 ごとにフォルダーが作られてしまいます。<br>
 - ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の両方を含める必要があります。<br>
 <br>
 命名トークン一覧：<br>
@@ -9774,13 +9774,13 @@ Tip: Click a token name to copy it.<br>`,
 - 일반 문자와 기호. 토큰 사이에 일반 문자를 추가할 수 있습니다. 예：<span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 폴더 생성 설명：<br>
-- 각 work마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. work ID <span class="blue name">{pid}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{pid}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
-- AI로 생성된 work를 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
-- work 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
+- 각 작품마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. 작품 ID <span class="blue name">{pid}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{pid}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
+- AI로 생성된 작품을 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 작품 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 팁：<br>
 - * 일부 토큰은 항상 사용 가능한 것은 아니며, 빈 문자열이 될 수 있습니다. 이 경우 다운로더는 해당 토큰을 무시합니다.<br>
-- 폴더 이름에 work의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 image마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 image마다 폴더가 생성됩니다.<br>
+- 폴더 이름에 작품의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 이미지마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 이미지마다 폴더가 생성됩니다.<br>
 - 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{pid}</span> 과 <span class="blue name">{p}</span> 을 모두 포함해야 합니다.<br>
 <br>
 명명 토큰 목록：<br>
@@ -9791,13 +9791,13 @@ Tip: Click a token name to copy it.<br>`,
 - Обычные символы и знаки. Между токенами можно вставлять обычные символы, например: <span class="blue">pixiv/{id}-title {title}-user {user}</span><br>
 <br>
 Пояснения по созданию папок:<br>
-- Если вы хотите создать папку для каждой work, добавьте уровень папки перед именем файла. Использование ID work <span class="blue name">{pid}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
-- Если вы хотите поместить work, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
-- Если вы хотите создавать папки по типу work, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
+- Если вы хотите создать папку для каждой работы, добавьте уровень папки перед именем файла. Использование ID работы <span class="blue name">{pid}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
+- Если вы хотите поместить работы, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- Если вы хотите создавать папки по типу работы, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Советы:<br>
 - * Некоторые токены доступны не всегда и могут быть пустой строкой — загрузчик будет их игнорировать.<br>
-- Если вы хотите использовать ID work в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждой image свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждой image.<br>
+- Если вы хотите использовать ID работы в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждого изображения свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждого изображения.<br>
 - Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
 <br>
 Список токенов именования:<br>
@@ -9814,8 +9814,8 @@ Tip: Click a token name to copy it.<br>`,
 <span class="blue name">{follow_artwork}</span> 画像作品の命名ルールに従います。これはデフォルト値でもあり、小説が画像作品と同じ命名ルールを使うことを意味します。小説に独自の命名ルールを設定したい場合は、このトークンを削除して、必要に応じてルールを設定してください。`,
     `소설에서 사용할 수 있는 명명 토큰은 이미지 작품과 동일하며, 특별한 토큰이 하나 있습니다：<br>
 <span class="blue name">{follow_artwork}</span> 이미지 작품의 명명 규칙을 따릅니다. 이것은 기본값이기도 하며, 소설이 이미지 작품과 동일한 명명 규칙을 사용한다는 뜻입니다. 소설에 별도의 명명 규칙을 설정하고 싶다면 이 토큰을 제거하고 원하는 대로 규칙을 설정하세요.`,
-    `Для novel доступны те же токены именования, что и для работ с изображениями, плюс один специальный токен:<br>
-<span class="blue name">{follow_artwork}</span> следует правилу именования работ с изображениями. Это также значение по умолчанию, означающее, что novel использует то же правило именования, что и работы с изображениями. Если вы хотите задать для novel отдельное правило именования, удалите этот токен и настройте правило по своему усмотрению.`,
+    `Для романов доступны те же токены именования, что и для работ с изображениями, плюс один специальный токен:<br>
+<span class="blue name">{follow_artwork}</span> следует правилу именования работ с изображениями. Это также значение по умолчанию, означающее, что роман использует то же правило именования, что и работы с изображениями. Если вы хотите задать для романа отдельное правило именования, удалите этот токен и настройте правило по своему усмотрению.`,
   ],
   _标签别名: [
     `标签<span class="key">别名</span>`,
@@ -9871,7 +9871,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 <br>
 Вложенные параметры:<br>
 - Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
-Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах work на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
+Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах работы на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
 <br>
 Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
   ],
@@ -10571,7 +10571,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   Используется для преобразования Ugoira в изображения APNG<br>
   <br>
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
-  Используется для создания EPUB-файлов для novel<br>
+  Используется для создания EPUB-файлов для романов<br>
   <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   Используется для чтения и записи ZIP-файлов<br>
@@ -11111,158 +11111,7 @@ You can choose between two export strategies:<br>
     `설정이 변경될 때마다 즉시 내보내기`,
     `Экспортировать сразу после каждого изменения настроек`,
   ],
-  _版本更新说明19_3_0: [
-    `<strong>⚙️行为变更：当你修改了下载器的设置之后，所有 Pixiv 标签页里的设置都会同步变化</strong><br>
-用户经常会打开多个 Pixiv.net 标签页。之前当你在一个标签页里修改了设置之后，其他标签页里的设置不会变化。现在，其他标签页默认会同步变化，所以所有标签页都会使用相同的设置。<br>
-⚠️这是一个行为变更。如果你想保持以前的行为，可以在下面的设置里选择旧版行为。<br>
-<strong>✨新增设置：当你修改设置时，其他标签页是否同步变化</strong><br>
-这个设置位于“通用”-“管理设置”分类里。你可以选择“同步变化”（默认值）或者“保持不变”（旧版行为）。<br>
-<strong>✨新增设置：自动导出设置</strong><br>
-这个设置位于“通用”-“管理设置”分类里，用来自动备份设置。默认未启用。<br>
-你可以选择两种策略：<br>
-1. 定时导出（默认每隔 24 小时导出一次）<br>
-2. 每当设置变化后立即导出<br>
-另外，现在下载器导出设置时，会建立 <span class="blue">PPD Settings</span> 文件夹来统一存放设置文件。<br>
-<strong>✨“用户阻止名单”改名为“用户屏蔽名单”，并添加了“快捷屏蔽用户”的功能</strong><br>
-对“快捷屏蔽用户”功能的说明：<br>
-当你启用了“用户屏蔽名单”功能之后，把鼠标指针移动到任意用户的名字上，下载器就会显示屏蔽他的按钮，点击即可添加屏蔽。<br>
-以前屏蔽用户时，你需要手动复制他的 ID 并添加到输入框里，现在方便多了。<br>
-<strong>✨在“保存作品简介”设置里，你可以选择为哪些类型的作品保存简介</strong><br>
-你可以选择作品类型：插画、漫画、动图、小说。<br>
-<strong>📝下载器导出的一些文件的名字里可能含有时间戳，现在我修改了时间字符串的格式</strong><br>
-例如在导出抓取结果时，文件名里会包含时间戳。之前的格式是这样的：<span class="blue">2026／3／26 20：58：54</span>，现在改成这样：<span class="blue">2026-08-08 00-30-34</span>，看起来更自然。<br>
-<strong>🐞修复问题：当标签别名里含有特殊字符时，可能会导致该功能出现异常</strong><br>
-<strong>🐞修复问题：当用户启用了“点击收藏按钮时下载作品”功能时，在排行榜页面里无效</strong><br>
-
-<strong>🐞修复问题：一些用户名里含有特殊的窄空格字符，导致 Firefox 浏览器无法下载他们的作品</strong><br>
-<strong>🐞修复问题：当“置顶的设置”区域的高度不足时，命名规则的加载列表显示不完整</strong><br>
-<strong>🐞修复其他一些问题</strong>`,
-    `<strong>⚙️行為變更：當你修改下載器的設定後，所有 Pixiv 分頁裡的設定都會同步變化</strong><br>
-使用者經常會開啟多個 Pixiv.net 分頁。以前當你在一個分頁裡修改設定後，其他分頁裡的設定不會變化。現在，其他分頁預設會同步變化，因此所有分頁都會使用相同的設定。<br>
-⚠️這是一項行為變更。如果你想保持以前的行為，可以在下面的設定裡選擇舊版行為。<br>
-<strong>✨新增設定：當你修改設定時，其他分頁是否同步變化</strong><br>
-這個設定位於「通用」-「管理設定」分類裡。你可以選擇「同步變化」（預設值）或「保持不變」（舊版行為）。<br>
-<strong>✨新增設定：自動匯出設定</strong><br>
-這個設定位於「通用」-「管理設定」分類裡，用來自動備份設定。預設未啟用。<br>
-你可以選擇兩種策略：<br>
-1. 定時匯出（預設每隔 24 小時匯出一次）<br>
-2. 每當設定變化後立即匯出<br>
-另外，現在下載器匯出設定時，會建立 <span class="blue">PPD Settings</span> 資料夾來統一存放設定檔案。<br>
-<strong>✨「使用者阻止名單」改名為「使用者封鎖名單」，並新增了「快速封鎖使用者」功能</strong><br>
-「快速封鎖使用者」功能說明：<br>
-當你啟用了「使用者封鎖名單」功能後，把滑鼠指標移到任意使用者的名字上，下載器就會顯示封鎖他的按鈕，點擊即可新增封鎖。<br>
-以前封鎖使用者時，你需要手動複製他的 ID 並新增到輸入框裡，現在方便多了。<br>
-<strong>✨在「儲存作品簡介」設定裡，你可以選擇為哪些類型的作品儲存簡介</strong><br>
-你可以選擇作品類型：插畫、漫畫、動圖、小說。<br>
-<strong>📝下載器匯出的一些檔案名稱裡可能含有時間戳，現在我修改了時間字串的格式</strong><br>
-例如在匯出抓取結果時，檔案名稱裡會包含時間戳。以前的格式是：<span class="blue">2026／3／26 20：58：54</span>，現在改成：<span class="blue">2026-08-08 00-30-34</span>，看起來更自然。<br>
-<strong>🐞修復問題：當標籤別名裡含有特殊字元時，可能會導致該功能出現異常</strong><br>
-<strong>🐞修復問題：當使用者啟用了「點擊收藏按鈕時下載作品」功能時，該功能在排行榜頁面裡無效</strong><br>
-
-<strong>🐞修復問題：一些使用者名稱裡含有特殊的窄空格字元，導致 Firefox 瀏覽器無法下載他們的作品</strong><br>
-<strong>🐞修復問題：當「置頂的設定」區域高度不足時，命名規則的載入列表顯示不完整</strong><br>
-<strong>🐞修復其他一些問題</strong>`,
-    `<strong>⚙️Behavior change: Settings now synchronize across all Pixiv tabs when you change them</strong><br>
-Users often open multiple Pixiv.net tabs. Previously, changing settings in one tab did not change settings in other tabs. Now, settings synchronize across other tabs by default, so all tabs use the same settings.<br>
-⚠️This is a behavior change. If you want to keep the previous behavior, select the legacy behavior in the setting below.<br>
-<strong>✨New setting: Whether settings synchronize across other tabs when you change them</strong><br>
-This setting is in the "General" - "Manage settings" category. You can choose "Synchronize changes" (default) or "Keep unchanged" (legacy behavior).<br>
-<strong>✨New setting: Automatically export settings</strong><br>
-This setting is in the "General" - "Manage settings" category and automatically backs up settings. It is disabled by default.<br>
-You can choose between two strategies:<br>
-1. Timed export (exports once every 24 hours by default)<br>
-2. Export immediately whenever settings change<br>
-In addition, the downloader now creates a <span class="blue">PPD Settings</span> folder to store exported settings files.<br>
-<strong>✨"User deny list" was renamed to "User block list", and "Quickly block users" was added</strong><br>
-About "Quickly block users":<br>
-After enabling "User block list", move your pointer over any user's name and the downloader shows a button for blocking that user. Click it to add the block.<br>
-Previously, blocking a user required manually copying their ID and adding it to the input field. It is much more convenient now.<br>
-<strong>✨In the "Save work description" setting, you can choose which types of works have their descriptions saved</strong><br>
-You can choose these work types: illustrations, manga, Ugoira, and novels.<br>
-<strong>📝Some file names exported by the downloader may include timestamps. The time string format has now been changed</strong><br>
-For example, exported crawl results include a timestamp in the file name. The previous format was <span class="blue">2026／3／26 20：58：54</span>; it is now <span class="blue">2026-08-08 00-30-34</span>, which looks more natural.<br>
-<strong>🐞Fixed: Special characters in tag aliases could cause this feature to malfunction</strong><br>
-<strong>🐞Fixed: "Download works when clicking the bookmark button" did not work on ranking pages</strong><br>
-
-<strong>🐞Fixed: Special narrow-space characters in some user names prevented Firefox from downloading their works</strong><br>
-<strong>🐞Fixed: The naming-rule load list was incomplete when the "Pinned settings" area was not tall enough</strong><br>
-<strong>🐞Fixed several other issues</strong>`,
-    `<strong>⚙️動作変更：ダウンローダーの設定を変更すると、すべての Pixiv タブの設定も同期して変更されるようになりました</strong><br>
-ユーザーは複数の Pixiv.net タブを開くことがよくあります。以前は、1 つのタブで設定を変更しても、他のタブの設定は変わりませんでした。現在は、他のタブの設定もデフォルトで同期して変更されるため、すべてのタブで同じ設定が使われます。<br>
-⚠️これは動作変更です。以前の動作を維持したい場合は、下記の設定で旧バージョンの動作を選択してください。<br>
-<strong>✨新しい設定：設定を変更したときに、他のタブの設定も同期して変更するかどうか</strong><br>
-この設定は「一般」-「設定の管理」カテゴリにあります。「同期する」（デフォルト）または「変更しない」（旧バージョンの動作）を選択できます。<br>
-<strong>✨新しい設定：設定を自動的にエクスポート</strong><br>
-この設定は「一般」-「設定の管理」カテゴリにあり、設定を自動的にバックアップします。デフォルトでは無効です。<br>
-次の 2 つの方法を選択できます。<br>
-1. 定期エクスポート（デフォルトでは 24 時間ごとに 1 回エクスポート）<br>
-2. 設定が変更されるたびにすぐエクスポート<br>
-また、設定をエクスポートするときに、エクスポートした設定ファイルをまとめて保存するための <span class="blue">PPD Settings</span> フォルダーが作成されるようになりました。<br>
-<strong>✨「ユーザー拒否リスト」を「ユーザーブロックリスト」に改称し、「ユーザーをすばやくブロック」機能を追加</strong><br>
-「ユーザーをすばやくブロック」機能について：<br>
-「ユーザーブロックリスト」を有効にした後、任意のユーザー名にマウスポインターを合わせると、ダウンローダーにそのユーザーをブロックするボタンが表示されます。クリックするとブロックに追加できます。<br>
-以前は、ユーザーをブロックするには ID を手動でコピーして入力欄に追加する必要がありましたが、これでより便利になりました。<br>
-<strong>✨「作品の説明を保存」設定で、説明を保存する作品の種類を選択できるようになりました</strong><br>
-選択できる作品の種類：イラスト、マンガ、うごイラ、小説。<br>
-<strong>📝ダウンローダーがエクスポートする一部のファイル名にはタイムスタンプが含まれます。時刻文字列の形式を変更しました</strong><br>
-たとえば、クロール結果をエクスポートすると、ファイル名にタイムスタンプが含まれます。以前の形式は <span class="blue">2026／3／26 20：58：54</span> でしたが、現在は <span class="blue">2026-08-08 00-30-34</span> になり、より自然に見えます。<br>
-<strong>🐞修正：タグエイリアスに特殊文字が含まれていると、この機能が異常になることがある問題</strong><br>
-<strong>🐞修正：「ブックマークボタンをクリックしたときに作品をダウンロード」機能がランキングページで動作しない問題</strong><br>
-
-<strong>🐞修正：一部のユーザー名に特殊な狭いスペース文字が含まれていると、Firefox で作品をダウンロードできない問題</strong><br>
-<strong>🐞修正：「固定した設定」エリアの高さが不足していると、命名規則の読み込みリストが不完全に表示される問題</strong><br>
-<strong>🐞その他のいくつかの問題を修正</strong>`,
-    `<strong>⚙️동작 변경: 다운로더 설정을 변경하면 모든 Pixiv 탭의 설정도 동기화되어 변경됩니다</strong><br>
-사용자는 여러 Pixiv.net 탭을 자주 엽니다. 이전에는 한 탭에서 설정을 변경해도 다른 탭의 설정은 변경되지 않았습니다. 이제 다른 탭의 설정도 기본적으로 동기화되어 변경되므로, 모든 탭에서 같은 설정을 사용합니다.<br>
-⚠️이는 동작 변경입니다. 이전 동작을 유지하려면 아래 설정에서 이전 버전의 동작을 선택하세요.<br>
-<strong>✨새 설정: 설정을 변경할 때 다른 탭의 설정도 동기화할지 여부</strong><br>
-이 설정은 "일반" - "설정 관리" 분류에 있습니다. "변경 사항 동기화"(기본값) 또는 "변경하지 않음"(이전 버전의 동작)을 선택할 수 있습니다.<br>
-<strong>✨새 설정: 설정 자동 내보내기</strong><br>
-이 설정은 "일반" - "설정 관리" 분류에 있으며 설정을 자동으로 백업합니다. 기본적으로 꺼져 있습니다.<br>
-두 가지 전략을 선택할 수 있습니다.<br>
-1. 일정 내보내기(기본값: 24시간마다 한 번 내보내기)<br>
-2. 설정이 변경될 때마다 즉시 내보내기<br>
-또한 이제 설정을 내보낼 때 내보낸 설정 파일을 한곳에 저장하는 <span class="blue">PPD Settings</span> 폴더를 만듭니다.<br>
-<strong>✨"사용자 거부 목록"의 이름을 "사용자 차단 목록"으로 변경하고 "빠르게 사용자 차단" 기능 추가</strong><br>
-"빠르게 사용자 차단" 기능 설명:<br>
-"사용자 차단 목록" 기능을 켠 후 아무 사용자 이름 위에 마우스 포인터를 올리면 다운로더에 해당 사용자를 차단하는 버튼이 표시됩니다. 클릭하면 차단에 추가됩니다.<br>
-이전에는 사용자를 차단하려면 ID를 직접 복사하여 입력란에 추가해야 했지만, 이제 훨씬 편리해졌습니다.<br>
-<strong>✨"작품 설명 저장" 설정에서 어떤 종류의 작품 설명을 저장할지 선택할 수 있습니다</strong><br>
-선택할 수 있는 작품 유형: 일러스트, 만화, Ugoira, 소설.<br>
-<strong>📝다운로더에서 내보낸 일부 파일 이름에는 타임스탬프가 포함될 수 있습니다. 이제 시간 문자열 형식을 변경했습니다</strong><br>
-예를 들어 크롤 결과를 내보낼 때 파일 이름에 타임스탬프가 포함됩니다. 이전 형식은 <span class="blue">2026／3／26 20：58：54</span>였지만, 이제 <span class="blue">2026-08-08 00-30-34</span>로 변경되어 더 자연스럽게 보입니다.<br>
-<strong>🐞수정: 태그 별칭에 특수 문자가 있으면 이 기능이 비정상적으로 작동할 수 있는 문제</strong><br>
-<strong>🐞수정: "북마크 버튼을 클릭할 때 작품 다운로드" 기능이 랭킹 페이지에서 작동하지 않는 문제</strong><br>
-
-<strong>🐞수정: 일부 사용자 이름의 특수한 좁은 공백 문자 때문에 Firefox에서 작품을 다운로드할 수 없는 문제</strong><br>
-<strong>🐞수정: "고정한 설정" 영역의 높이가 부족할 때 명명 규칙 불러오기 목록이 불완전하게 표시되는 문제</strong><br>
-<strong>🐞기타 몇 가지 문제 수정</strong>`,
-    `<strong>⚙️Изменение поведения: после изменения настроек загрузчика настройки синхронизируются во всех вкладках Pixiv</strong><br>
-Пользователи часто открывают несколько вкладок Pixiv.net. Раньше изменение настроек в одной вкладке не меняло настройки в других вкладках. Теперь настройки в других вкладках по умолчанию синхронизируются, поэтому во всех вкладках используются одинаковые настройки.<br>
-⚠️Это изменение поведения. Если вы хотите сохранить прежнее поведение, выберите поведение предыдущих версий в настройке ниже.<br>
-<strong>✨Новая настройка: Синхронизировать ли настройки в других вкладках при изменении настроек</strong><br>
-Эта настройка находится в категории «Общее» - «Управление настройками». Можно выбрать «Синхронизировать изменения» (по умолчанию) или «Не изменять» (поведение предыдущих версий).<br>
-<strong>✨Новая настройка: Автоматический экспорт настроек</strong><br>
-Эта настройка находится в категории «Общее» - «Управление настройками» и автоматически создаёт резервные копии настроек. По умолчанию она отключена.<br>
-Можно выбрать одну из двух стратегий:<br>
-1. Экспорт по расписанию (по умолчанию один раз в 24 часа)<br>
-2. Экспортировать сразу после каждого изменения настроек<br>
-Кроме того, при экспорте настроек загрузчик теперь создаёт папку <span class="blue">PPD Settings</span>, в которой хранятся экспортированные файлы настроек.<br>
-<strong>✨«Список блокировки пользователей» переименован в «Список заблокированных пользователей», также добавлена функция «Быстрая блокировка пользователей»</strong><br>
-О функции «Быстрая блокировка пользователей»:<br>
-После включения функции «Список заблокированных пользователей» наведите указатель мыши на имя любого пользователя. Загрузчик покажет кнопку блокировки этого пользователя; нажмите её, чтобы добавить блокировку.<br>
-Раньше для блокировки пользователя нужно было вручную скопировать его ID и добавить в поле ввода, теперь это стало намного удобнее.<br>
-<strong>✨В настройке «Сохранять описание работы» можно выбрать типы работ, для которых сохраняется описание</strong><br>
-Можно выбрать следующие типы работ: иллюстрации, манга, Ugoira, романы.<br>
-<strong>📝Имена некоторых файлов, экспортируемых загрузчиком, могут содержать отметку времени. Теперь формат строки времени изменён</strong><br>
-Например, при экспорте результатов сбора данных имя файла содержит отметку времени. Раньше формат был таким: <span class="blue">2026／3／26 20：58：54</span>, а теперь такой: <span class="blue">2026-08-08 00-30-34</span>, что выглядит естественнее.<br>
-<strong>🐞Исправлено: специальные символы в псевдонимах тегов могли вызывать сбои этой функции</strong><br>
-<strong>🐞Исправлено: функция «Скачивать работы при нажатии кнопки закладки» не работала на страницах рейтинга</strong><br>
-
-<strong>🐞Исправлено: специальные узкие пробельные символы в некоторых именах пользователей не позволяли Firefox скачивать их работы</strong><br>
-<strong>🐞Исправлено: список загрузки правил именования отображался не полностью, когда область «Закрепленные настройки» была недостаточно высокой</strong><br>
-<strong>🐞Исправлено несколько других проблем</strong>`,
-  ],
+  _版本更新说明: [`1`, `1`, `1`, `1`, `1`, `1`],
   _用户的约稿页面: [
     '用户的约稿页面',
     '用戶的約稿頁面',
