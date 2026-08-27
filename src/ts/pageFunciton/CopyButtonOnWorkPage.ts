@@ -91,7 +91,11 @@ class CopyButtonOnWorkPage {
     copyWorkInfo.receive(idData)
 
     const msg = `${lang.transl('_显示复制按钮的提示')}`
-    showOneTimeMsg.show('tipCopyWorkInfoButton', msg, lang.transl('_复制按钮'))
+    showOneTimeMsg.show(
+      'tipCopyWorkInfoButton',
+      msg,
+      lang.transl('_复制作品信息')
+    )
   }
 }
 

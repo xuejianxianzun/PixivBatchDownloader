@@ -4553,6 +4553,14 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     '업데이트에 성공하였습니다.',
     'обновление завершено',
   ],
+  _在作品缩略图上显示图片查看器按钮: [
+    '在作品缩略图上显示<span class="key">图片查看器</span>按钮',
+    '在作品縮圖上顯示<span class="key">圖片查看器</span>按鈕',
+    'Show <span class="key">Image viewer</span> button on thumbnail',
+    '作品のサムネイルに<span class="key">画像ビューア</span>ボタンを表示',
+    '작품 썸네일에 <span class="key">이미지 뷰어</span> 버튼 표시',
+    'Показать кнопку <span class="key">Просмотрщик изображений</span> на миниатюре',
+  ],
   _在作品缩略图上显示放大按钮: [
     '在作品缩略图上显示<span class="key">放大</span>按钮',
     '在作品縮圖上顯示<span class="key">放大</span>按鈕',
@@ -7532,6 +7540,14 @@ PS: На странице профиля заблокированного пол
     `<span class="key">복사</span> 버튼`,
     `<span class="key">Копировать</span> кнопку`,
   ],
+  _复制作品信息带高亮关键字: [
+    `<span class="key">复制</span>作品信息`,
+    `<span class="key">複製</span>作品資訊`,
+    `<span class="key">Copy</span> work info`,
+    `<span class="key">コピー</span>作品情報`,
+    `<span class="key">복사</span> 작품 정보`,
+    `<span class="key">Копировать</span> информацию о работе`,
+  ],
   _在缩略图上显示复制按钮: [
     `在作品缩略图上显示<span class="key">复制</span>按钮`,
     `在作品縮略圖上顯示<span class="key">複製</span>按鈕`,
@@ -7697,9 +7713,9 @@ Additionally, you can use these tags:`,
     `Копировать текст`,
   ],
   _对复制的内容的说明: [
-    `你可以根据自己的需要选择复制的内容。
+    `在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。
 <br>
-在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。
+你可以根据自己的需要选择复制的内容。
 <br>
 <br>
 <strong>每种格式的说明：</strong>
@@ -7759,9 +7775,9 @@ Android 应用：
 <br>
 Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span> 内容，但图片可能无法显示。
 <br>`,
-    `你可以根據自己的需要選擇複製的內容。
+    `在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。
 <br>
-在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。
+你可以根據自己的需要選擇複製的內容。
 <br>
 <br>
 <strong>每種格式的說明：</strong>
@@ -7821,9 +7837,9 @@ Android 應用：
 <br>
 Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span> 內容，但圖片可能無法顯示。
 <br>`,
-    `You can select the content to copy according to your own needs.
-<br>
-On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt</span> + <span class="blue">C</span> to copy.
+    `On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt</span> + <span class="blue">C</span> to copy.
+    <br>
+    You can select the content to copy according to your own needs.
 <br>
 <br>
 <strong>Explanation of each format:</strong>
@@ -7883,9 +7899,9 @@ Android apps:
 <br>
 Some apps on Android can paste <span class="blue">text/html</span> content, but the images may not display.
 <br>`,
-    `自分のニーズに応じてコピーする内容を選択できます。
+    `作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt</span> + <span class="blue">C</span> を押してコピーできます。
 <br>
-作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt</span> + <span class="blue">C</span> を押してコピーできます。
+自分のニーズに応じてコピーする内容を選択できます。
 <br>
 <br>
 <strong>各フォーマットの説明：</strong>
@@ -7945,9 +7961,9 @@ Android アプリ：
 <br>
 Android の一部のアプリは <span class="blue">text/html</span> コンテンツを貼り付けられますが、画像が表示されない場合があります。
 <br>`,
-    `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
+    `작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt</span> + <span class="blue">C</span>를 눌러 복사할 수 있습니다.
 <br>
-작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt</span> + <span class="blue">C</span>를 눌러 복사할 수 있습니다.
+자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
 <br>
 <br>
 <strong>각 형식의 설명:</strong>
@@ -8007,9 +8023,9 @@ Android 앱:
 <br>
 Android의 일부 앱은 <span class="blue">text/html</span> 콘텐츠를 붙여넣을 수 있지만, 이미지가 표시되지 않을 수 있습니다.
 <br>`,
-    `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
+    `На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt</span> + <span class="blue">C</span> для копирования.
 <br>
-На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt</span> + <span class="blue">C</span> для копирования.
+Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
 <br>
 <br>
 <strong>Объяснение каждого формата:</strong>

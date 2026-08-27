@@ -105,7 +105,7 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     btn.classList.add(this.btnFlag, 'btnOnThumb')
     // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
     btn.style.display = 'flex'
-    // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
+    // 根据“在作品缩略图上显示图片查看器按钮”的位置设置，将按钮显示在左侧或右侧
     if (settings.magnifierPosition === 'left') {
       btn.style.left = `-${this.btnSize}px`
       btn.style.right = 'unset'

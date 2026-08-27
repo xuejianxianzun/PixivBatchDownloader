@@ -1228,14 +1228,14 @@ class OptionConfigs {
     },
     {
       no: 83,
-      nameKey: '_在作品缩略图上显示放大按钮',
+      nameKey: '_在作品缩略图上显示图片查看器按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
       pinned: false,
       hideOnPixivision: true,
       hideOnMobile: true,
-      searchWordKeys: ['_放大镜', '_图片查看器'],
+      searchWordKeys: ['_放大镜', '_图片查看器', '_在作品缩略图上显示放大按钮'],
       searchWords: [],
     },
     {
@@ -1297,13 +1297,13 @@ class OptionConfigs {
     },
     {
       no: 89,
-      nameKey: '_复制按钮',
+      nameKey: '_复制作品信息带高亮关键字',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'other',
       pinned: false,
       hideOnPixivision: true,
-      searchWordKeys: [],
+      searchWordKeys: ['_复制按钮'],
       searchWords: [],
     },
     {
