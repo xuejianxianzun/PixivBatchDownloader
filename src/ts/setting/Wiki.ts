@@ -95,6 +95,7 @@ class Wiki {
             'scheduleCrawling',
             'cancelScheduledCrawling',
             'manuallySelectWork',
+            'selectAllWorks',
             'crawlSelectedWork',
             'clearSelectedWork',
             'excludeWork',

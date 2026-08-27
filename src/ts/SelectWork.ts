@@ -11,6 +11,7 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
+import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -70,6 +71,7 @@ class SelectWork {
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
   private crawlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
+  private selectAllBtn: HTMLButtonElement = document.createElement('button') // 全选当前显示的作品的按钮
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
@@ -237,6 +239,19 @@ class SelectWork {
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
+    // 全选当前显示的作品。这个按钮始终显示，不依赖手动选择作品模式
+    this.selectAllBtn = Tools.addBtn(
+      'selectWorkBtns',
+      '_全选当前显示的作品',
+      '',
+      'selectAllWorks',
+      'secondary',
+      'brand'
+    )
+    this.selectAllBtn.addEventListener('click', () => {
+      this.selectAll()
+    })
+
     this.crawlBtn = Tools.addBtn(
       'selectWorkBtns',
       '_抓取选择的作品',
@@ -306,7 +321,8 @@ class SelectWork {
 
   // 在选择作品的数量改变时，在抓取按钮上显示作品数量
   private updateCrawlBtn() {
-    this.crawlBtn.style.display = this.start ? 'flex' : 'none'
+    this.crawlBtn.style.display =
+      this.idList.length > 0 || this.start ? 'flex' : 'none'
     if (this.idList.length > 0) {
       lang.updateText(
         this.crawlTextSpan,
@@ -332,7 +348,7 @@ class SelectWork {
     }
 
     // 添加这个 id，或从列表里移除它（toggle）
-    const added = workSelection.addSelectId(id, type, seriesTitle)
+    const added = workSelection.toggleSelectId(id, type, seriesTitle)
     if (added) {
       this.crawled = false
       this.addSelectedFlag(el, id, type)
@@ -340,6 +356,40 @@ class SelectWork {
       this.removeSelectedFlag(id)
     }
     this.updateCrawlBtn()
+  }
+
+  /** 全选当前页面上显示的所有作品。
+   * 仅添加，不反选，也不改变或退出任何模式状态（手动选择/排除等）。
+   * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。 */
+  private selectAll() {
+    const elements =
+      document.querySelectorAll<HTMLElement>('.ppd-workThumbnail')
+    for (const el of elements) {
+      // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
+
+      const id = el.dataset.workid
+      const type = el.dataset.worktype as IDTypeString | undefined
+      // 只处理带有完整数据的元素。系列作品（novelSeries）的缩略图没有这两个属性，会被跳过
+      if (!id || !type) {
+        continue
+      }
+
+      workSelection.addSelectId(id, type)
+      this.crawled = false
+      this.addSelectedFlag(el, id, type)
+    }
+
+    if (this.idList.length > 0) {
+      // 有已选择的作品时，显示抓取按钮和清空按钮
+      this.updateCrawlBtn()
+      this.clearBtn.style.display = 'flex'
+      toast.success(lang.transl('_已全选'))
+    } else {
+      toast.warning(lang.transl('_没有找到任何作品'))
+    }
   }
 
   private clickThumbnail(
@@ -504,18 +554,38 @@ class SelectWork {
     id: string,
     type: IDTypeString = 'illusts'
   ) {
-    const i = document.createElement('i')
-    i.classList.add(this.selectedWorkFlagClass)
-    i.dataset.id = id
-    i.dataset.type = type
-    i.innerHTML = this.svg
+    // 同一个作品可能有多个缩略图元素，所以要在每个缩略图上都添加标记
+    let allThisIdWorks = document.querySelectorAll<HTMLElement>(
+      `.ppd-workThumbnail[data-workid='${id}'][data-worktype='${type}']`
+    )
+    // 如果没有找到缩略图元素，可能是因为 type 是系列小说。系列小说没有上面的两个 data 属性
+    if (allThisIdWorks.length === 0) {
+      allThisIdWorks = [wrap] as any
+    }
 
-    wrap.insertAdjacentElement('afterbegin', i)
+    for (const el of allThisIdWorks) {
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
 
-    // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-    const position = window.getComputedStyle(wrap)['position']
-    if (!this.positionValue.includes(position)) {
-      wrap.style.position = 'relative'
+      // 如果这个缩略图里已经存在标记，就不需要重复添加
+      const existingFlag = el.querySelector(`.${this.selectedWorkFlagClass}`)
+      if (existingFlag) {
+        continue
+      }
+
+      const i = document.createElement('i')
+      i.classList.add(this.selectedWorkFlagClass)
+      i.dataset.id = id
+      i.dataset.type = type
+      i.innerHTML = this.svg
+      el.insertAdjacentElement('afterbegin', i)
+
+      // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+      const position = window.getComputedStyle(el)['position']
+      if (!this.positionValue.includes(position)) {
+        el.style.position = 'relative'
+      }
     }
   }
 
@@ -526,16 +596,6 @@ class SelectWork {
     }
 
     for (const { id, type } of this.idList) {
-      if (this.getSelectedFlag(id)) {
-        // 如果这个作品的标记依旧存在，就不需要重新添加
-        /**
-         * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
-         * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
-         * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
-         */
-        return
-      }
-
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
         el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`)
@@ -551,15 +611,15 @@ class SelectWork {
   }
 
   private getSelectedFlag(id: string) {
-    return document.querySelector(
+    return document.querySelectorAll(
       `.${this.selectedWorkFlagClass}[data-id='${id}']`
     )
   }
 
   // 清空指定作品的标记
   private removeSelectedFlag(id: string) {
-    const el = this.getSelectedFlag(id)
-    el && el.remove()
+    const els = this.getSelectedFlag(id)
+    els.forEach((el) => el.remove())
   }
 
   // 清空所有标记

@@ -900,8 +900,9 @@ class FileName {
         // 另外，我考虑过只对多图作品强制要求保留 id，单图作品则不强制保留 id（这样它的文件名里能保留更多字符）。因为单图作品只有 1 个文件，不会重名。但实际情况更复杂：如果没有 id 或者 pid 的话，多个单图作品之间的文件名依然可能会重复（例如一些作品含有相同的 title），所以我最终决定无论单图还是多图作品都强制保留 id。
         // 在文件名末尾添加省略号告诉用户这里被截断了。使用 … 而非三个点 ...，因为 ... 不能用在路径结尾，会导致文件名不合法
         if (id && subString.includes(id) === false) {
-          const str = '-' + id+ '…'
-          subString = subString.substring(0, subString.length - str.length) + str
+          const str = '-' + id + '…'
+          subString =
+            subString.substring(0, subString.length - str.length) + str
         }
         allPart[i] = subString
       } else {

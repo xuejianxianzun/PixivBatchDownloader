@@ -3932,6 +3932,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -4151,7 +4153,7 @@ class ExcludeWork {
             }
         }
         // 添加这个 id，或从列表里移除它（toggle）
-        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addExcludeId(id, type, seriesTitle);
+        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleExcludeId(id, type, seriesTitle);
         if (added) {
             this.addExcludedFlag(el, id, type);
             // 如果这个作品已经被抓取，则从抓取结果里移除它
@@ -4273,16 +4275,32 @@ class ExcludeWork {
     }
     // 给这个作品添加排除标记
     addExcludedFlag(wrap, id, type = 'illusts') {
-        const i = document.createElement('i');
-        i.classList.add(this.excludedWorkFlagClass);
-        i.dataset.id = id;
-        i.dataset.type = type;
-        i.innerHTML = this.svg;
-        wrap.insertAdjacentElement('afterbegin', i);
-        // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-        const position = window.getComputedStyle(wrap)['position'];
-        if (!this.positionValue.includes(position)) {
-            wrap.style.position = 'relative';
+        // 同一个作品可能有多个缩略图元素，所以要在每个缩略图上都添加标记
+        let allThisIdWorks = document.querySelectorAll(`.ppd-workThumbnail[data-workid='${id}'][data-worktype='${type}']`);
+        // 如果没有找到缩略图元素，可能是因为 type 是系列小说。系列小说没有上面的两个 data 属性
+        if (allThisIdWorks.length === 0) {
+            allThisIdWorks = [wrap];
+        }
+        for (const el of allThisIdWorks) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            // 如果这个作品的标记已经存在，就不需要重复添加
+            const existingFlag = el.querySelector(`.${this.excludedWorkFlagClass}`);
+            if (existingFlag) {
+                return;
+            }
+            const i = document.createElement('i');
+            i.classList.add(this.excludedWorkFlagClass);
+            i.dataset.id = id;
+            i.dataset.type = type;
+            i.innerHTML = this.svg;
+            el.insertAdjacentElement('afterbegin', i);
+            // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+            const position = window.getComputedStyle(el)['position'];
+            if (!this.positionValue.includes(position)) {
+                el.style.position = 'relative';
+            }
         }
     }
     // 重新添加被排除的作品上的标记
@@ -4291,10 +4309,6 @@ class ExcludeWork {
             return;
         }
         for (const { id, type } of _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.excludeIdList) {
-            if (this.getExcludedFlag(id)) {
-                // 如果这个作品的标记依旧存在，就不需要重新添加
-                return;
-            }
             let el;
             if (type === 'novels') {
                 el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`);
@@ -4309,12 +4323,12 @@ class ExcludeWork {
         }
     }
     getExcludedFlag(id) {
-        return document.querySelector(`.${this.excludedWorkFlagClass}[data-id='${id}']`);
+        return document.querySelectorAll(`.${this.excludedWorkFlagClass}[data-id='${id}']`);
     }
     // 清空指定作品的标记
     removeExcludedFlag(id) {
-        const el = this.getExcludedFlag(id);
-        el && el.remove();
+        const els = this.getExcludedFlag(id);
+        els.forEach((el) => el.remove());
     }
     // 清空所有标记
     removeAllExcludedFlag() {
@@ -5256,7 +5270,8 @@ class FileName {
                 // 在文件名末尾添加省略号告诉用户这里被截断了。使用 … 而非三个点 ...，因为 ... 不能用在路径结尾，会导致文件名不合法
                 if (id && subString.includes(id) === false) {
                     const str = '-' + id + '…';
-                    subString = subString.substring(0, subString.length - str.length) + str;
+                    subString =
+                        subString.substring(0, subString.length - str.length) + str;
                 }
                 allPart[i] = subString;
             }
@@ -10408,6 +10423,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -10469,6 +10486,7 @@ class SelectWork {
     crawlBtn = document.createElement('button'); // 抓取选择的作品的按钮，并且会退出选择模式
     crawlTextSpan = document.createElement('span'); // 按钮里的文字
     clearBtn = document.createElement('button'); // 清空选择的作品的按钮
+    selectAllBtn = document.createElement('button'); // 全选当前显示的作品的按钮
     selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
     positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
     // 储存当前页面的作品列表容器
@@ -10585,6 +10603,11 @@ class SelectWork {
         this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_手动选择作品', '', 'manuallySelectWork', 'secondary', 'brand');
         this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
+        // 全选当前显示的作品。这个按钮始终显示，不依赖手动选择作品模式
+        this.selectAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_全选当前显示的作品', '', 'selectAllWorks', 'secondary', 'brand');
+        this.selectAllBtn.addEventListener('click', () => {
+            this.selectAll();
+        });
         this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', '_抓取选择的作品', '', 'crawlSelectedWork', 'secondary', 'brand');
         this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
@@ -10635,7 +10658,8 @@ class SelectWork {
     }
     // 在选择作品的数量改变时，在抓取按钮上显示作品数量
     updateCrawlBtn() {
-        this.crawlBtn.style.display = this.start ? 'flex' : 'none';
+        this.crawlBtn.style.display =
+            this.idList.length > 0 || this.start ? 'flex' : 'none';
         if (this.idList.length > 0) {
             _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品2', this.idList.length.toString());
             this.clearBtn.style.display = 'flex';
@@ -10656,7 +10680,7 @@ class SelectWork {
             }
         }
         // 添加这个 id，或从列表里移除它（toggle）
-        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type, seriesTitle);
+        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleSelectId(id, type, seriesTitle);
         if (added) {
             this.crawled = false;
             this.addSelectedFlag(el, id, type);
@@ -10665,6 +10689,36 @@ class SelectWork {
             this.removeSelectedFlag(id);
         }
         this.updateCrawlBtn();
+    }
+    /** 全选当前页面上显示的所有作品。
+     * 仅添加，不反选，也不改变或退出任何模式状态（手动选择/排除等）。
+     * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。 */
+    selectAll() {
+        const elements = document.querySelectorAll('.ppd-workThumbnail');
+        for (const el of elements) {
+            // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            const id = el.dataset.workid;
+            const type = el.dataset.worktype;
+            // 只处理带有完整数据的元素。系列作品（novelSeries）的缩略图没有这两个属性，会被跳过
+            if (!id || !type) {
+                continue;
+            }
+            _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type);
+            this.crawled = false;
+            this.addSelectedFlag(el, id, type);
+        }
+        if (this.idList.length > 0) {
+            // 有已选择的作品时，显示抓取按钮和清空按钮
+            this.updateCrawlBtn();
+            this.clearBtn.style.display = 'flex';
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已全选'));
+        }
+        else {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到任何作品'));
+        }
     }
     clickThumbnail(el, id, ev, type) {
         if (!this.canSelect()) {
@@ -10791,16 +10845,32 @@ class SelectWork {
     }
     // 给这个作品添加标记
     addSelectedFlag(wrap, id, type = 'illusts') {
-        const i = document.createElement('i');
-        i.classList.add(this.selectedWorkFlagClass);
-        i.dataset.id = id;
-        i.dataset.type = type;
-        i.innerHTML = this.svg;
-        wrap.insertAdjacentElement('afterbegin', i);
-        // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-        const position = window.getComputedStyle(wrap)['position'];
-        if (!this.positionValue.includes(position)) {
-            wrap.style.position = 'relative';
+        // 同一个作品可能有多个缩略图元素，所以要在每个缩略图上都添加标记
+        let allThisIdWorks = document.querySelectorAll(`.ppd-workThumbnail[data-workid='${id}'][data-worktype='${type}']`);
+        // 如果没有找到缩略图元素，可能是因为 type 是系列小说。系列小说没有上面的两个 data 属性
+        if (allThisIdWorks.length === 0) {
+            allThisIdWorks = [wrap];
+        }
+        for (const el of allThisIdWorks) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            // 如果这个作品的标记已经存在，就不需要重复添加
+            const existingFlag = el.querySelector(`.${this.selectedWorkFlagClass}`);
+            if (existingFlag) {
+                return;
+            }
+            const i = document.createElement('i');
+            i.classList.add(this.selectedWorkFlagClass);
+            i.dataset.id = id;
+            i.dataset.type = type;
+            i.innerHTML = this.svg;
+            el.insertAdjacentElement('afterbegin', i);
+            // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+            const position = window.getComputedStyle(el)['position'];
+            if (!this.positionValue.includes(position)) {
+                el.style.position = 'relative';
+            }
         }
     }
     // 重新添加被选择的作品上的标记
@@ -10809,15 +10879,6 @@ class SelectWork {
             return;
         }
         for (const { id, type } of this.idList) {
-            if (this.getSelectedFlag(id)) {
-                // 如果这个作品的标记依旧存在，就不需要重新添加
-                /**
-                 * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
-                 * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
-                 * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
-                 */
-                return;
-            }
             let el;
             if (type === 'novels') {
                 el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`);
@@ -10832,12 +10893,12 @@ class SelectWork {
         }
     }
     getSelectedFlag(id) {
-        return document.querySelector(`.${this.selectedWorkFlagClass}[data-id='${id}']`);
+        return document.querySelectorAll(`.${this.selectedWorkFlagClass}[data-id='${id}']`);
     }
     // 清空指定作品的标记
     removeSelectedFlag(id) {
-        const el = this.getSelectedFlag(id);
-        el && el.remove();
+        const els = this.getSelectedFlag(id);
+        els.forEach((el) => el.remove());
     }
     // 清空所有标记
     removeAllSelectedFlag() {
@@ -14181,7 +14242,7 @@ class WorkSelection {
         return list.findIndex((item) => item.id === id && item.type === type);
     }
     /** 添加或移除一个被手动选择的作品。返回 true 表示已添加，false 表示已移除（toggle） */
-    addSelectId(id, type, title) {
+    toggleSelectId(id, type, title) {
         const index = this.findIndex(this.selectIdList, id, type);
         if (index !== -1) {
             // 已存在则移除。即对同一个作品多次点击时，会切换它的添加/移除状态
@@ -14198,11 +14259,50 @@ class WorkSelection {
         return true;
     }
     /** 添加或移除一个被排除的作品。返回 true 表示已添加，false 表示已移除（toggle） */
-    addExcludeId(id, type, title) {
+    toggleExcludeId(id, type, title) {
         const index = this.findIndex(this.excludeIdList, id, type);
         if (index !== -1) {
             // 已存在则移除。即对同一个作品多次点击时，会切换它的添加/移除状态
             this.excludeIdList.splice(index, 1);
+            return false;
+        }
+        // 如果它已经被选择，则从选择列表里移除（后执行的操作获胜）
+        const selectIndex = this.findIndex(this.selectIdList, id, type);
+        if (selectIndex !== -1) {
+            this.selectIdList.splice(selectIndex, 1);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('selectWorkRemovedExternally', id);
+        }
+        this.excludeIdList.push({ id, type, title });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('manuallyExcludeWork', { id, type });
+        return true;
+    }
+    /** 仅添加一个被手动选择的作品，不进行 toggle（反选）操作。
+     * 若该 id 已存在于选择列表，则直接返回 false，不做任何修改。
+     * 若该 id 已存在于排除列表，则从排除列表里移除它（后执行的操作获胜）。
+     * 返回 true 表示确实新增了一个 id。 */
+    addSelectId(id, type, title) {
+        const index = this.findIndex(this.selectIdList, id, type);
+        if (index !== -1) {
+            // 已存在则直接返回，不重复添加
+            return false;
+        }
+        // 如果它已经被排除，则从排除列表里移除（后执行的操作获胜）
+        const excludeIndex = this.findIndex(this.excludeIdList, id, type);
+        if (excludeIndex !== -1) {
+            this.excludeIdList.splice(excludeIndex, 1);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('excludeWorkRemovedExternally', id);
+        }
+        this.selectIdList.push({ id, type, title });
+        return true;
+    }
+    /** 仅添加一个被排除的作品，不进行 toggle（反选）操作。
+     * 若该 id 已存在于排除列表，则直接返回 false，不做任何修改。
+     * 若该 id 已存在于选择列表，则从选择列表里移除它（后执行的操作获胜）。
+     * 返回 true 表示确实新增了一个 id。 */
+    addExcludeId(id, type, title) {
+        const index = this.findIndex(this.excludeIdList, id, type);
+        if (index !== -1) {
+            // 已存在则直接返回，不重复添加
             return false;
         }
         // 如果它已经被选择，则从选择列表里移除（后执行的操作获胜）
@@ -14307,7 +14407,7 @@ class WorkThumbnail {
     /**为作品缩略图绑定事件 */
     // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
     // isSeries: 这个 id 是否是系列 id。默认为否，即 id 默认为单个作品的 id。
-    // 因为小说的系列经常和单篇小说混在同一个列表里，所以为小说的系列添加了这个标记。
+    // 因为小说的系列经常和单篇小说混在同一个列表里，所以为小说系列添加了这个标记。
     // 但实际上效果不太好，因为缩略图元素被添加到页面上之后可能会变化，导致 isSeries 状态可能不再准确
     // 所以如果需要判断 isSeries 的话，最好在执行回调时再判断一次
     bindEvents(el, id, type, isSeries = false) {
@@ -14326,7 +14426,10 @@ class WorkThumbnail {
         }
         // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
         el.dataset.mouseover = '1';
-        // 对于非系列作品（即单个作品）的缩略图，添加更多自定义数据属性
+        // 在缩略图上添加一些自定义数据属性
+        // 注意：我没有为系列小说添加这些数据，原因是：
+        // 1. 系列作品不属于单个作品
+        // 2. 有时一个缩略图元素里可能同时含有小说的链接和系列的链接。此时只添加小说的数据
         if (!isSeries) {
             el.dataset.workid = id;
             el.dataset.worktype = type;
@@ -35707,6 +35810,30 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         '선택된 작품 비우기',
         'Очистить выбранные работы',
     ],
+    _全选当前显示的作品: [
+        '全选当前显示的作品',
+        '全選目前顯示的作品',
+        'Select all displayed works',
+        '現在表示されている作品をすべて選ぶ',
+        '표시된 작품 모두 선택',
+        'Выбрать все отображаемые работы',
+    ],
+    _已全选: [
+        '已全选',
+        '已全選',
+        'Selected all',
+        'すべて選択しました',
+        '전체 선택됨',
+        'Все выбраны',
+    ],
+    _没有找到任何作品: [
+        '没有找到任何作品',
+        '沒有找到任何作品',
+        'No works found',
+        '作品が見つかりませんでした',
+        '작품을 찾을 수 없습니다',
+        'Работы не найдены',
+    ],
     _暂停选择: [
         '暂停选择',
         '暫停選擇',
@@ -54187,6 +54314,7 @@ class Wiki {
                         'scheduleCrawling',
                         'cancelScheduledCrawling',
                         'manuallySelectWork',
+                        'selectAllWorks',
                         'crawlSelectedWork',
                         'clearSelectedWork',
                         'excludeWork',

@@ -74,7 +74,11 @@ class WorkSelection {
   }
 
   /** 添加或移除一个被手动选择的作品。返回 true 表示已添加，false 表示已移除（toggle） */
-  public addSelectId(id: string, type: IDTypeString, title?: string): boolean {
+  public toggleSelectId(
+    id: string,
+    type: IDTypeString,
+    title?: string
+  ): boolean {
     const index = this.findIndex(this.selectIdList, id, type)
     if (index !== -1) {
       // 已存在则移除。即对同一个作品多次点击时，会切换它的添加/移除状态
@@ -94,11 +98,60 @@ class WorkSelection {
   }
 
   /** 添加或移除一个被排除的作品。返回 true 表示已添加，false 表示已移除（toggle） */
-  public addExcludeId(id: string, type: IDTypeString, title?: string): boolean {
+  public toggleExcludeId(
+    id: string,
+    type: IDTypeString,
+    title?: string
+  ): boolean {
     const index = this.findIndex(this.excludeIdList, id, type)
     if (index !== -1) {
       // 已存在则移除。即对同一个作品多次点击时，会切换它的添加/移除状态
       this.excludeIdList.splice(index, 1)
+      return false
+    }
+
+    // 如果它已经被选择，则从选择列表里移除（后执行的操作获胜）
+    const selectIndex = this.findIndex(this.selectIdList, id, type)
+    if (selectIndex !== -1) {
+      this.selectIdList.splice(selectIndex, 1)
+      EVT.fire('selectWorkRemovedExternally', id)
+    }
+
+    this.excludeIdList.push({ id, type, title })
+    EVT.fire('manuallyExcludeWork', { id, type })
+    return true
+  }
+
+  /** 仅添加一个被手动选择的作品，不进行 toggle（反选）操作。
+   * 若该 id 已存在于选择列表，则直接返回 false，不做任何修改。
+   * 若该 id 已存在于排除列表，则从排除列表里移除它（后执行的操作获胜）。
+   * 返回 true 表示确实新增了一个 id。 */
+  public addSelectId(id: string, type: IDTypeString, title?: string): boolean {
+    const index = this.findIndex(this.selectIdList, id, type)
+    if (index !== -1) {
+      // 已存在则直接返回，不重复添加
+      return false
+    }
+
+    // 如果它已经被排除，则从排除列表里移除（后执行的操作获胜）
+    const excludeIndex = this.findIndex(this.excludeIdList, id, type)
+    if (excludeIndex !== -1) {
+      this.excludeIdList.splice(excludeIndex, 1)
+      EVT.fire('excludeWorkRemovedExternally', id)
+    }
+
+    this.selectIdList.push({ id, type, title })
+    return true
+  }
+
+  /** 仅添加一个被排除的作品，不进行 toggle（反选）操作。
+   * 若该 id 已存在于排除列表，则直接返回 false，不做任何修改。
+   * 若该 id 已存在于选择列表，则从选择列表里移除它（后执行的操作获胜）。
+   * 返回 true 表示确实新增了一个 id。 */
+  public addExcludeId(id: string, type: IDTypeString, title?: string): boolean {
+    const index = this.findIndex(this.excludeIdList, id, type)
+    if (index !== -1) {
+      // 已存在则直接返回，不重复添加
       return false
     }
 

@@ -13,6 +13,7 @@ import { pageType } from './PageType'
 import { Config } from './Config'
 import { toast } from './Toast'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
+import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 手动排除作品，图片作品和小说都可以排除
 class ExcludeWork {
@@ -291,7 +292,7 @@ class ExcludeWork {
     }
 
     // 添加这个 id，或从列表里移除它（toggle）
-    const added = workSelection.addExcludeId(id, type, seriesTitle)
+    const added = workSelection.toggleExcludeId(id, type, seriesTitle)
     if (added) {
       this.addExcludedFlag(el, id, type)
       // 如果这个作品已经被抓取，则从抓取结果里移除它
@@ -446,18 +447,39 @@ class ExcludeWork {
     id: string,
     type: IDTypeString = 'illusts'
   ) {
-    const i = document.createElement('i')
-    i.classList.add(this.excludedWorkFlagClass)
-    i.dataset.id = id
-    i.dataset.type = type
-    i.innerHTML = this.svg
+    // 同一个作品可能有多个缩略图元素，所以要在每个缩略图上都添加标记
+    let allThisIdWorks = document.querySelectorAll<HTMLElement>(
+      `.ppd-workThumbnail[data-workid='${id}'][data-worktype='${type}']`
+    )
+    // 如果没有找到缩略图元素，可能是因为 type 是系列小说。系列小说没有上面的两个 data 属性
+    if (allThisIdWorks.length === 0) {
+      allThisIdWorks = [wrap] as any
+    }
 
-    wrap.insertAdjacentElement('afterbegin', i)
+    for (const el of allThisIdWorks) {
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
+      
+      // 如果这个缩略图里已经存在标记，就不需要重复添加
+      const existingFlag = el.querySelector(`.${this.excludedWorkFlagClass}`)
+      if (existingFlag) {
+        continue
+      }
 
-    // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-    const position = window.getComputedStyle(wrap)['position']
-    if (!this.positionValue.includes(position)) {
-      wrap.style.position = 'relative'
+      const i = document.createElement('i')
+      i.classList.add(this.excludedWorkFlagClass)
+      i.dataset.id = id
+      i.dataset.type = type
+      i.innerHTML = this.svg
+
+      el.insertAdjacentElement('afterbegin', i)
+
+      // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+      const position = window.getComputedStyle(el)['position']
+      if (!this.positionValue.includes(position)) {
+        el.style.position = 'relative'
+      }
     }
   }
 
@@ -468,11 +490,6 @@ class ExcludeWork {
     }
 
     for (const { id, type } of workSelection.excludeIdList) {
-      if (this.getExcludedFlag(id)) {
-        // 如果这个作品的标记依旧存在，就不需要重新添加
-        return
-      }
-
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
         el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`)
@@ -488,15 +505,15 @@ class ExcludeWork {
   }
 
   private getExcludedFlag(id: string) {
-    return document.querySelector(
+    return document.querySelectorAll(
       `.${this.excludedWorkFlagClass}[data-id='${id}']`
     )
   }
 
   // 清空指定作品的标记
   private removeExcludedFlag(id: string) {
-    const el = this.getExcludedFlag(id)
-    el && el.remove()
+    const els = this.getExcludedFlag(id)
+    els.forEach((el) => el.remove())
   }
 
   // 清空所有标记
