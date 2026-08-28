@@ -73,9 +73,6 @@ class PreviewWork {
   // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
   private dontShowAgain = false
 
-  // 是否允许预览区域遮挡作品缩略图
-  private allowOverThumb = true
-
   // 当前预览图是否遮挡了作品缩略图
   private overThumb = false
 
@@ -288,7 +285,7 @@ class PreviewWork {
         // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
         const activeEl = document.activeElement
         if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
-          ;(activeEl as HTMLElement).blur()
+          ; (activeEl as HTMLElement).blur()
         }
 
         // 预览作品时，可以使用快捷键 D 下载这个作品
@@ -595,7 +592,7 @@ class PreviewWork {
       }
     } else if (w > h) {
       // 横图
-      if (this.allowOverThumb) {
+      if (settings.allowPreviewCoverThumbnail) {
         // 如果允许预览图覆盖在作品缩略图上，则预览图的最大宽度可以等于视口宽度
         if (w > innerWidth) {
           cfg.width = innerWidth

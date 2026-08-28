@@ -168,6 +168,7 @@ class FormSettings {
       'downloadIntervalSwitch',
       'saveAllSeriesNovelsIfOneMatches',
       'autoExportSettings',
+      'allowPreviewCoverThumbnail',
     ],
     radio: [
       'novelSaveAs',

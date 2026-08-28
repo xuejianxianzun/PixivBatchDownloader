@@ -358,6 +358,8 @@ interface XzSetting {
   showDownloadBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
+  /** 是否允许预览区域遮挡作品缩略图，这样预览图可以显示的更大 */
+  allowPreviewCoverThumbnail: boolean
   showPreviewWorkTip: boolean
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
@@ -955,6 +957,7 @@ class Settings {
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
     prevWorkSize: 'regular',
+    allowPreviewCoverThumbnail: false,
     previewWorkWait: 400,
     showPreviewWorkTip: true,
     showOriginImage: true,
@@ -1695,7 +1698,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

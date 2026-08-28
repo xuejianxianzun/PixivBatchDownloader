@@ -122,6 +122,7 @@ export interface FormType extends HTMLFormElement {
   copyImageSize: HTMLInputElement
   showCopyBtnOnThumb: HTMLInputElement
   prevWorkSize: HTMLInputElement
+  allowPreviewCoverThumbnail: HTMLInputElement
   previewWorkWait: HTMLInputElement
   showPreviewWorkTip: HTMLInputElement
   showOriginImage: HTMLInputElement
