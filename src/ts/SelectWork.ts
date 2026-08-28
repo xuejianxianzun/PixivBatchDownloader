@@ -100,8 +100,12 @@ class SelectWork {
     })
 
     novelThumbnail.onClick(
-      (el: HTMLElement, id: string, ev: Event, isSeries: boolean) => {
-        const type: IDTypeString = isSeries ? 'novelSeries' : 'novels'
+      (
+        el: HTMLElement,
+        id: string,
+        ev: Event,
+        type: 'novels' | 'novelSeries'
+      ) => {
         this.clickThumbnail(el, id, ev, type)
       }
     )
@@ -336,19 +340,10 @@ class SelectWork {
   }
 
   private addId(el: HTMLElement, id: string, type: IDTypeString) {
-    let seriesTitle = ''
-    if (type === 'novelSeries') {
-      const aList = el.querySelectorAll(`a[href*="${id}"]`)
-      for (const a of aList) {
-        if (a.textContent) {
-          seriesTitle = a.textContent
-          break
-        }
-      }
-    }
-
     // 添加这个 id，或从列表里移除它（toggle）
-    const added = workSelection.toggleSelectId(id, type, seriesTitle)
+    const title =
+      type === 'novelSeries' ? Tools.getSeriesTitleFromElement(el, id) : ''
+    const added = workSelection.toggleSelectId(id, type, title)
     if (added) {
       this.crawled = false
       this.addSelectedFlag(el, id, type)
@@ -370,14 +365,26 @@ class SelectWork {
         continue
       }
 
-      const id = el.dataset.workid
-      const type = el.dataset.worktype as IDTypeString | undefined
-      // 只处理带有完整数据的元素。系列作品（novelSeries）的缩略图没有这两个属性，会被跳过
+      let id = el.dataset.workid
+      let type = el.dataset.worktype as IDTypeString
       if (!id || !type) {
         continue
       }
 
-      workSelection.addSelectId(id, type)
+      // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+      if (type === 'novels' || type === 'novelSeries') {
+        const idData = Tools.getNovelOrSeriesIDData(el)
+        if (idData) {
+          id = idData.id
+          type = idData.type
+        } else {
+          continue
+        }
+      }
+
+      const title =
+        type === 'novelSeries' ? Tools.getSeriesTitleFromElement(el, id) : ''
+      workSelection.addSelectId(id, type, title)
       this.crawled = false
       this.addSelectedFlag(el, id, type)
     }
@@ -426,10 +433,23 @@ class SelectWork {
       )
     }
 
+    // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+    if (type === 'novels' || type === 'novelSeries') {
+      const idData = Tools.getNovelOrSeriesIDData(el)
+      if (idData) {
+        id = idData.id
+        type = idData.type
+      } else {
+        id = ''
+      }
+    }
+
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
     ev.preventDefault()
     ev.stopPropagation()
-    this.addId(el, id, type)
+
+    // 仅当有 id 时才添加到选择列表里
+    id && this.addId(el, id, type)
   }
 
   private clickElement(el: HTMLElement, ev: Event) {

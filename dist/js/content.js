@@ -4010,8 +4010,7 @@ class ExcludeWork {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__.artworkThumbnail.onClick((el, id, ev) => {
             this.clickThumbnail(el, id, ev, 'illusts');
         });
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__.novelThumbnail.onClick((el, id, ev, isSeries) => {
-            const type = isSeries ? 'novelSeries' : 'novels';
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__.novelThumbnail.onClick((el, id, ev, type) => {
             this.clickThumbnail(el, id, ev, type);
         });
         document.body.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile ? 'touchend' : 'click', (ev) => {
@@ -4185,10 +4184,22 @@ class ExcludeWork {
         if (!id || id === '0') {
             id = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.findWorkIdFromElement(el, type === 'novels' ? 'novels' : 'illusts');
         }
+        // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+        if (type === 'novels' || type === 'novelSeries') {
+            const idData = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelOrSeriesIDData(el);
+            if (idData) {
+                id = idData.id;
+                type = idData.type;
+            }
+            else {
+                id = '';
+            }
+        }
         // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续排除
         ev.preventDefault();
         ev.stopPropagation();
-        this.addId(el, id, type);
+        // 仅当有 id 时才添加到选择列表里
+        id && this.addId(el, id, type);
     }
     clickElement(el, ev) {
         if (!this.canExclude()) {
@@ -7949,7 +7960,7 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                         // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
                         const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findSeriesIdFromElement(el, 'novels');
                         if (seriesId) {
-                            this.bindEvents(el, seriesId, 'novels', true);
+                            this.bindEvents(el, seriesId, 'novelSeries');
                             this.addSelectorData(el, selector);
                         }
                     }
@@ -10510,8 +10521,7 @@ class SelectWork {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_7__.artworkThumbnail.onClick((el, id, ev) => {
             this.clickThumbnail(el, id, ev, 'illusts');
         });
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_8__.novelThumbnail.onClick((el, id, ev, isSeries) => {
-            const type = isSeries ? 'novelSeries' : 'novels';
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_8__.novelThumbnail.onClick((el, id, ev, type) => {
             this.clickThumbnail(el, id, ev, type);
         });
         document.body.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile ? 'touchend' : 'click', (ev) => {
@@ -10675,13 +10685,7 @@ class SelectWork {
     addId(el, id, type) {
         let seriesTitle = '';
         if (type === 'novelSeries') {
-            const aList = el.querySelectorAll(`a[href*="${id}"]`);
-            for (const a of aList) {
-                if (a.textContent) {
-                    seriesTitle = a.textContent;
-                    break;
-                }
-            }
+            seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id);
         }
         // 添加这个 id，或从列表里移除它（toggle）
         const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleSelectId(id, type, seriesTitle);
@@ -10704,13 +10708,27 @@ class SelectWork {
             if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
-            const id = el.dataset.workid;
-            const type = el.dataset.worktype;
-            // 只处理带有完整数据的元素。系列作品（novelSeries）的缩略图没有这两个属性，会被跳过
+            let id = el.dataset.workid;
+            let type = el.dataset.worktype;
             if (!id || !type) {
                 continue;
             }
-            _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type);
+            // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+            if (type === 'novels' || type === 'novelSeries') {
+                const idData = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelOrSeriesIDData(el);
+                if (idData) {
+                    id = idData.id;
+                    type = idData.type;
+                }
+                else {
+                    continue;
+                }
+            }
+            let seriesTitle = '';
+            if (type === 'novelSeries') {
+                seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id);
+            }
+            _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type, seriesTitle);
             this.crawled = false;
             this.addSelectedFlag(el, id, type);
         }
@@ -10745,10 +10763,22 @@ class SelectWork {
         if (!id || id === '0') {
             id = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.findWorkIdFromElement(el, type === 'novels' ? 'novels' : 'illusts');
         }
+        // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+        if (type === 'novels' || type === 'novelSeries') {
+            const idData = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelOrSeriesIDData(el);
+            if (idData) {
+                id = idData.id;
+                type = idData.type;
+            }
+            else {
+                id = '';
+            }
+        }
         // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
         ev.preventDefault();
         ev.stopPropagation();
-        this.addId(el, id, type);
+        // 仅当有 id 时才添加到选择列表里
+        id && this.addId(el, id, type);
     }
     clickElement(el, ev) {
         if (!this.canSelect()) {
@@ -10964,8 +10994,10 @@ class ShowBorderOnDownloadedWorks {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_0__.artworkThumbnail.onFound((el, id) => {
             this.addWork(el, id, 'illusts');
         });
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_3__.novelThumbnail.onFound((el, id) => {
-            this.addWork(el, id, 'novels');
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_3__.novelThumbnail.onFound((el, id, type) => {
+            if (type === 'novels') {
+                this.addWork(el, id, 'novels');
+            }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.settingInitialized, () => {
             this.ready = true;
@@ -13045,7 +13077,7 @@ class Tools {
             return this.getNovelId(a.href);
         }
     }
-    /**从 DOM 元素中获取系列的 id **/
+    /**从 DOM 元素中获取系列的 id。如果找不到则返回空字符串 **/
     static findSeriesIdFromElement(el, type = 'illusts') {
         if (!el) {
             return '';
@@ -13076,6 +13108,44 @@ class Tools {
         }
         // 如果链接符合 type，则提取系列 id
         return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(a.href, 'series');
+    }
+    /** 从元素里查找系列的超链接，进而提取系列标题。如果找不到则返回空字符串 */
+    static getSeriesTitleFromElement(el, seriesId) {
+        const aList = el.querySelectorAll(`a[href*="/series/${seriesId}"]`);
+        for (const a of aList) {
+            if (a.textContent) {
+                return a.textContent;
+            }
+        }
+        return '';
+    }
+    /** 传入一个小说或系列小说的 DOM 元素，重新对它进行检查，返回该元素现在的真实 IDData。
+     *
+     * 优先查找小说 ID，其次查找系列小说 ID，否则返回 null */
+    static getNovelOrSeriesIDData(el) {
+        if (!el) {
+            return null;
+        }
+        const novelLink = el.querySelector(`a[href*="/novel/show.php?id="]`);
+        if (novelLink) {
+            const novelId = Tools.getNovelId(novelLink.href);
+            // 小说 id 仍然存在，返回小说 IDData
+            if (novelId) {
+                return {
+                    type: 'novels',
+                    id: novelId,
+                };
+            }
+        }
+        // 没有找到有效的小说 id 时，查找系列 id
+        const seriesId = Tools.findSeriesIdFromElement(el, 'novels');
+        if (seriesId) {
+            return {
+                type: 'novelSeries',
+                id: seriesId,
+            };
+        }
+        return null;
     }
     static userIDRegExp = /\/users\/(\d+)/;
     static getUserID(url) {
@@ -14398,11 +14468,16 @@ class WorkThumbnail {
     }
     /**为作品缩略图绑定事件 */
     // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
-    // isSeries: 这个 id 是否是系列 id。默认为否，即 id 默认为单个作品的 id。
-    // 因为小说的系列经常和单篇小说混在同一个列表里，所以为小说系列添加了这个标记。
-    // 但实际上效果不太好，因为缩略图元素被添加到页面上之后可能会变化，导致 isSeries 状态可能不再准确
-    // 所以如果需要判断 isSeries 的话，最好在执行回调时再判断一次
-    bindEvents(el, id, type, isSeries = false) {
+    // 注意：在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。所以在执行小说作品的回调时可以考虑重新获取 id 和 type
+    // 这种情况的例子：在首页的小说分类-“追更列表中的作品”列表里：
+    // https://www.pixiv.net/following/watchlist/novels
+    // 每个列表项的元素在最开始同时有 2 种目标链接：
+    // 1. 系列里最新一篇小说的链接
+    // 2. 系列链接
+    // 所以 novelThumbnail 会为它绑定小说的 id 和类型
+    // 但之后这个元素的内容可能会自动变化。如果看到它底部的按钮是“阅读后续（#1）”，那么它就只剩下系列链接了，这时其上绑定的小说 id 和类型就不符合实际情况了
+    // 所以在实际使用时应该从它里面获取正确的系列 id 和类型
+    bindEvents(el, id, type) {
         // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
         // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
         // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
@@ -14419,26 +14494,21 @@ class WorkThumbnail {
         // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
         el.dataset.mouseover = '1';
         // 在缩略图上添加一些自定义数据属性
-        // 注意：我没有为系列小说添加这些数据，原因是：
-        // 1. 系列作品不属于单个作品
-        // 2. 有时一个缩略图元素里可能同时含有小说的链接和系列的链接。此时只添加小说的数据
-        if (!isSeries) {
-            el.dataset.workid = id;
-            el.dataset.worktype = type;
-        }
+        el.dataset.workid = id;
+        el.dataset.worktype = type;
         el.classList.add(this.className);
         if (this.cacheFound) {
-            this.foundElements.push({ el, id, isSeries });
+            this.foundElements.push({ el, id, type });
         }
-        this.foundCallback.forEach((cb) => cb(el, id, isSeries));
+        this.foundCallback.forEach((cb) => cb(el, id, type));
         el.addEventListener('mouseenter', (ev) => {
-            this.enterCallback.forEach((cb) => cb(el, id, ev, isSeries));
+            this.enterCallback.forEach((cb) => cb(el, id, ev, type));
         });
         el.addEventListener('mouseleave', (ev) => {
-            this.leaveCallback.forEach((cb) => cb(el, ev, isSeries));
+            this.leaveCallback.forEach((cb) => cb(el, ev));
         });
         el.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 'touchend' : 'click', (ev) => {
-            this.clickCallback.forEach((cb) => cb(el, id, ev, isSeries));
+            this.clickCallback.forEach((cb) => cb(el, id, ev, type));
         }, false);
         // 查找作品缩略图右下角的收藏按钮
         const bmkBtn = this.findBookmarkBtn(el);
@@ -14474,12 +14544,12 @@ class WorkThumbnail {
      *
      * @id 作品 id（在移动端页面里，此时传递的 id 可能是空字符串 ''）
      *
-     * @isSeries 这个 id 是否是系列 id
+     * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
      */
     onFound(cb) {
         this.foundCallback.push(cb);
         // 对已找到的元素立即执行一次回调，避免因注册时机晚而遗漏
-        this.foundElements.forEach(({ el, id, isSeries }) => cb(el, id, isSeries));
+        this.foundElements.forEach(({ el, id, type }) => cb(el, id, type));
     }
     /**添加鼠标进入作品缩略图时的回调。
      *
@@ -14491,7 +14561,7 @@ class WorkThumbnail {
      *
      * @ev Event 对象
      *
-     * @isSeries 这个 id 是否是系列 id
+     * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
      */
     onEnter(cb) {
         this.enterCallback.push(cb);
@@ -14503,8 +14573,6 @@ class WorkThumbnail {
      * @el 作品缩略图的元素
      *
      * @ev Event 对象
-     *
-     * @isSeries 这个 id 是否是系列 id
      *
      * 没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
      */
@@ -14521,7 +14589,7 @@ class WorkThumbnail {
      *
      * @ev Event 对象
      *
-     * @isSeries 这个 id 是否是系列 id
+     * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
      */
     onClick(cb) {
         this.clickCallback.push(cb);
@@ -15175,7 +15243,7 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
     doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
     // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
     bindEvents() {
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_2__.novelThumbnail.onEnter((el, id, ev, isSeries) => {
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_2__.novelThumbnail.onEnter((el, id) => {
             this.currentId = id;
             this.workEL = el;
             this.showAllBtn();
@@ -15215,8 +15283,8 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
                 if (!this.currentId) {
                     return;
                 }
-                // 定义点击每个按钮时的具体逻辑
-                this.clickBtn(config);
+                // 定义点击每个按钮时的具体逻辑。实际上现在只有下载按钮，所以直接调用下载逻辑
+                this.clickBtn();
             });
         });
     }
@@ -15233,40 +15301,15 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
         document.body.appendChild(btn);
         return btn;
     }
-    async clickBtn(config) {
-        // 下载小说
-        // 在点击之前，novelThumbnail 就已经获取了小说 id 或系列 id
-        // 但是现在需要重新检查一次对应的 id 是否还存在于缩略图元素里
-        // 这是因为有时页面元素会变化
-        // 例如，在 pixiv 的小说首页的“追更列表中的作品”里，如果一篇小说属于某个系列，那么这里的元素一开始同时有最新一篇小说的链接和其系列链接的，novelThumbnail 会保存小说的 id
-        // 但是之后 pixiv 会把这个元素（阅读最新话）替换成只有系列链接的元素（阅读后续），这时就不能使用之前保存的小说 id 了
-        // 如果小说 id 不存在了，就改为获取系列 id
-        const novelLink = this.workEL?.querySelector(`a[href*="/novel/show.php?id=${this.currentId}"]`);
-        if (novelLink) {
-            // 小说 id 仍然存在
-            // 下载单篇小说
-            const idData = {
-                type: 'novels',
-                id: this.currentId,
-            };
-            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
+    clickBtn() {
+        // 点击下载按钮时，重新获取当前作品的 id 和类型，并触发抓取事件
+        const idData = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getNovelOrSeriesIDData(this.workEL);
+        // 如果找不到小说 id，也找不到系列 id，则不下载
+        if (!idData) {
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有找到可下载的作品'));
             return;
         }
-        else {
-            // 查找系列 id
-            const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.findSeriesIdFromElement(this.workEL, 'novels');
-            if (seriesId) {
-                // 自动合并系列小说
-                const idData = {
-                    type: 'novelSeries',
-                    id: seriesId,
-                };
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
-                return;
-            }
-        }
-        // 如果找不到小说 id，也找不到系列 id，则不下载
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有找到可下载的作品'));
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
     showAllBtn() {
         if (this.doNotShowBtn) {
@@ -33119,22 +33162,6 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `命名規則`,
         `명명 규칙`,
         `Правила названий`,
-    ],
-    _添加命名标记前缀: [
-        `添加命名标记<span class="key">前缀</span>`,
-        `加入命名標記<span class="key">前綴</span>`,
-        `Add named tag <span class="key">prefix</span>`,
-        `<span class="key">前に</span>タグの名前を追加`,
-        `명명된 태그 추가 <span class="key">접두사</span>`,
-        `Добавить именованный тег <span class="key">префикс</span>`,
-    ],
-    _添加字段名称提示: [
-        `例如，在用户名前面添加“user_”标记`,
-        `例如，在使用者名稱前面加入「user_」標記。`,
-        `For example, add the 'user_' tag in front of the username`,
-        `たとえば、ユーザー名の前に 「user_」タグを追加します。`,
-        `예: 유저명 앞에 'user_' 태그 추가`,
-        `Например, добавьте тег 'user_' перед именем пользователя`,
     ],
     _命名标记id: [
         `每个文件的 ID。图片文件会附带序号，如 <span class="blue">85633671_p0</span>；小说文件没有序号。注意：这不是作品 ID，而是文件 ID。如果一个作品里含有多张图片，每张图片的 {id} 都是不同的，例如 <span class="blue">85633671_p1</span>、<span class="blue">85633671_p2</span>。`,

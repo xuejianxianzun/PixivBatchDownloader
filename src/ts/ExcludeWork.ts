@@ -94,8 +94,12 @@ class ExcludeWork {
     })
 
     novelThumbnail.onClick(
-      (el: HTMLElement, id: string, ev: Event, isSeries: boolean) => {
-        const type: IDTypeString = isSeries ? 'novelSeries' : 'novels'
+      (
+        el: HTMLElement,
+        id: string,
+        ev: Event,
+        type: 'novels' | 'novelSeries'
+      ) => {
         this.clickThumbnail(el, id, ev, type)
       }
     )
@@ -336,10 +340,23 @@ class ExcludeWork {
       )
     }
 
+    // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+    if (type === 'novels' || type === 'novelSeries') {
+      const idData = Tools.getNovelOrSeriesIDData(el)
+      if (idData) {
+        id = idData.id
+        type = idData.type
+      } else {
+        id = ''
+      }
+    }
+
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续排除
     ev.preventDefault()
     ev.stopPropagation()
-    this.addId(el, id, type)
+
+    // 仅当有 id 时才添加到选择列表里
+    id && this.addId(el, id, type)
   }
 
   private clickElement(el: HTMLElement, ev: Event) {

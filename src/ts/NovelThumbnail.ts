@@ -212,7 +212,7 @@ class NovelThumbnail extends WorkThumbnail {
               'novels'
             )
             if (seriesId) {
-              this.bindEvents(el as HTMLElement, seriesId, 'novels', true)
+              this.bindEvents(el as HTMLElement, seriesId, 'novelSeries')
               this.addSelectorData(el as HTMLElement, selector)
             }
           }

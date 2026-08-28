@@ -42,9 +42,13 @@ class ShowBorderOnDownloadedWorks {
       this.addWork(el, id, 'illusts')
     })
 
-    novelThumbnail.onFound((el: HTMLElement, id: string) => {
-      this.addWork(el, id, 'novels')
-    })
+    novelThumbnail.onFound(
+      (el: HTMLElement, id: string, type: 'novels' | 'novelSeries') => {
+        if (type === 'novels') {
+          this.addWork(el, id, 'novels')
+        }
+      }
+    )
 
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.ready = true

@@ -202,7 +202,7 @@ class Tools {
     }
   }
 
-  /**从 DOM 元素中获取系列的 id **/
+  /**从 DOM 元素中获取系列的 id。如果找不到则返回空字符串 **/
   static findSeriesIdFromElement(
     el: HTMLElement,
     type: 'illusts' | 'novels' = 'illusts'
@@ -235,6 +235,51 @@ class Tools {
     }
     // 如果链接符合 type，则提取系列 id
     return Utils.getURLPathField(a.href, 'series')
+  }
+
+  /** 从元素里查找系列的超链接，进而提取系列标题。如果找不到则返回空字符串 */
+  static getSeriesTitleFromElement(el: HTMLElement, seriesId: string): string {
+    const aList = el.querySelectorAll(`a[href*="/series/${seriesId}"]`)
+    for (const a of aList) {
+      if (a.textContent) {
+        return a.textContent
+      }
+    }
+    return ''
+  }
+
+  /** 传入一个小说或系列小说的 DOM 元素，重新对它进行检查，返回该元素现在的真实 IDData。
+   *
+   * 优先查找小说 ID，其次查找系列小说 ID，否则返回 null */
+  static getNovelOrSeriesIDData(el?: HTMLElement): IDData | null {
+    if (!el) {
+      return null
+    }
+
+    const novelLink = el.querySelector<HTMLAnchorElement>(
+      `a[href*="/novel/show.php?id="]`
+    )
+    if (novelLink) {
+      const novelId = Tools.getNovelId(novelLink.href)
+      // 小说 id 仍然存在，返回小说 IDData
+      if (novelId) {
+        return {
+          type: 'novels',
+          id: novelId,
+        }
+      }
+    }
+
+    // 没有找到有效的小说 id 时，查找系列 id
+    const seriesId = Tools.findSeriesIdFromElement(el, 'novels')
+    if (seriesId) {
+      return {
+        type: 'novelSeries',
+        id: seriesId,
+      }
+    }
+
+    return null
   }
 
   static readonly userIDRegExp = /\/users\/(\d+)/
