@@ -2088,7 +2088,10 @@ class BG {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'bgDisplay') {
-                this.setBGAll();
+                const delay = data.value ? 300 : 0;
+                setTimeout(() => {
+                    this.setBGAll();
+                }, delay);
             }
             if (data.name === 'bgOpacity') {
                 this.setBGAll();
@@ -10683,12 +10686,9 @@ class SelectWork {
         }
     }
     addId(el, id, type) {
-        let seriesTitle = '';
-        if (type === 'novelSeries') {
-            seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id);
-        }
         // 添加这个 id，或从列表里移除它（toggle）
-        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleSelectId(id, type, seriesTitle);
+        const title = type === 'novelSeries' ? _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id) : '';
+        const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleSelectId(id, type, title);
         if (added) {
             this.crawled = false;
             this.addSelectedFlag(el, id, type);
@@ -10724,11 +10724,8 @@ class SelectWork {
                     continue;
                 }
             }
-            let seriesTitle = '';
-            if (type === 'novelSeries') {
-                seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id);
-            }
-            _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type, seriesTitle);
+            const title = type === 'novelSeries' ? _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getSeriesTitleFromElement(el, id) : '';
+            _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.addSelectId(id, type, title);
             this.crawled = false;
             this.addSelectedFlag(el, id, type);
         }
