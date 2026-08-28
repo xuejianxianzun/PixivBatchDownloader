@@ -324,6 +324,11 @@ class ExcludeWork {
       return
     }
 
+    // 如果点击的是多图作品页面里的作品缩略图，则不排除这个作品
+    if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+      return
+    }
+
     if (!id || id === '0') {
       id = Tools.findWorkIdFromElement(
         el,
@@ -460,7 +465,7 @@ class ExcludeWork {
       if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
         continue
       }
-      
+
       // 如果这个缩略图里已经存在标记，就不需要重复添加
       const existingFlag = el.querySelector(`.${this.excludedWorkFlagClass}`)
       if (existingFlag) {

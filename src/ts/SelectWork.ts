@@ -409,6 +409,11 @@ class SelectWork {
       return
     }
 
+    // 如果点击的是多图作品页面里的作品缩略图，则不选择这个作品
+    if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+      return
+    }
+
     // 真实点击的元素
     // console.log(ev.target)
     // 绑定了这个事件的元素

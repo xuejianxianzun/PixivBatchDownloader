@@ -3,13 +3,7 @@ import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
-import {
-  WorkTypeString,
-  Result,
-  IDData,
-  IDTypeString,
-  WorkType,
-} from './store/StoreType'
+import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
 import { Utils } from './utils/Utils'
 import { ppdTask } from './PPDTask'
 import { DateFormat } from './utils/DateFormat'
@@ -1238,23 +1232,6 @@ class Tools {
         return lang.transl('_AI生成')
       default:
         return lang.transl('_AI作品') + ' ' + lang.transl('_未知')
-    }
-  }
-
-  static getWorkTypeText(workType: WorkType) {
-    switch (workType) {
-      case -1:
-        return lang.transl('_图像作品')
-      case 0:
-        return lang.transl('_插画')
-      case 1:
-        return lang.transl('_漫画')
-      case 2:
-        return lang.transl('_动图')
-      case 3:
-        return lang.transl('_小说')
-      default:
-        return lang.transl('_未知')
     }
   }
 

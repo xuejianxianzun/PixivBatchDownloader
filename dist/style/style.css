@@ -3366,41 +3366,6 @@ iframe[name='expandedFooter'] {
   height: 0 !important;
   opacity: 0 !important;
 }
-#viewerWarpper {
-  position: relative;
-  margin: 0;
-  margin-top: 40px;
-  padding: 40px 10px;
-  display: none;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-#viewerWarpper ul {
-  max-height: 68vh;
-  overflow: auto;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-wrap: wrap;
-}
-#viewerWarpper li {
-  display: flex;
-  flex-basis: 23%;
-  height: 200px;
-  margin: 1.4% 1%;
-  justify-content: center;
-  flex-shrink: 0;
-}
-#viewerWarpper li img {
-  object-fit: contain;
-  max-width: 100%;
-  cursor: pointer;
-}
-#viewerWarpper li a {
-  display: none;
-}
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;
 }
@@ -4048,6 +4013,158 @@ iframe[name='expandedFooter'] {
   font-size: 14px;
   padding: 2px 5px;
 }
+:root {
+  --thumbnailListSelectorEl-color: #0096fa;
+}
+#viewerWarpper {
+  position: relative;
+  margin: 0;
+  margin-top: 40px;
+  padding: 40px 10px;
+  display: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+#viewerWarpper ul {
+  max-height: 68vh;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#viewerWarpper li {
+  display: flex;
+  flex-basis: 23%;
+  height: 200px;
+  margin: 1.4% 1%;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#viewerWarpper li img {
+  object-fit: contain;
+  max-width: 100%;
+  cursor: pointer;
+}
+#viewerWarpper li a {
+  display: none;
+}
+#viewerWarpper .thumbnailListToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#viewerWarpper .thumbnailListToolbar button {
+  margin: 0;
+}
+#viewerWarpper .thumbnailListToolbarLeft,
+#viewerWarpper .thumbnailListToolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#viewerWarpper .thumbnailListClearBtn {
+  background-color: var(--btn-bg-warning);
+}
+#viewerWarpper .thumbnailListHelpBtn {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+#viewerWarpper .thumbnailSelectedFlag {
+  position: absolute;
+  z-index: 1000;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  font-size: 54px;
+  border-radius: 50%;
+  text-align: center;
+  pointer-events: none;
+}
+#viewerWarpper .thumbnailSelectedFlag .icon {
+  color: var(--beautify-blue);
+  vertical-align: baseline;
+  border-radius: 50%;
+  background-color: yellow;
+  box-shadow: 0px 0px 6px yellow;
+}
+#viewerWarpper .thumbnailSelectedFlag::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background-color: #fff;
+  left: 12px;
+  top: 12px;
+  z-index: -1;
+}
+.theme-white .thumbnailListHelpBtn span {
+  color: #666;
+}
+.theme-white .thumbnailListHelpBtn span:hover {
+  color: #333;
+}
+.theme-dark .thumbnailListHelpBtn span {
+  color: #aaa;
+}
+.theme-dark .thumbnailListHelpBtn span:hover {
+  color: #ddd;
+}
+#thumbnailListSelectorEl {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--thumbnailListSelectorEl-color);
+  display: none;
+  pointer-events: none;
+}
+#thumbnailListSelectorEl::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 200vw;
+  left: -100vw;
+  top: 10px;
+  height: 1px;
+  background-image: linear-gradient(to right, var(--thumbnailListSelectorEl-color) 0%, var(--thumbnailListSelectorEl-color) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+  animation: moveRight 2s linear infinite;
+}
+#thumbnailListSelectorEl::after {
+  content: '';
+  display: block;
+  position: absolute;
+  height: 200vh;
+  top: -100vh;
+  left: 10px;
+  width: 1px;
+  background-image: linear-gradient(to bottom, var(--thumbnailListSelectorEl-color) 0%, var(--thumbnailListSelectorEl-color) 50%, transparent 50%);
+  background-size: 1px 8px;
+  background-repeat: repeat-y;
+  animation: moveBottom 1s linear infinite;
+}
 .xz_PreviewWorkDetailPanel {
   background: #fff;
   box-shadow: 0 0 15px var(--box-shadow-blue);
@@ -4261,6 +4378,10 @@ body[data-page-type='9'] .xzTipPanelWrap {
   --box-shadow-blue: #2ca6df;
   --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
+  --btn-bg-brand: #0ea8ef;
+  --btn-bg-success: #14ad27;
+  --btn-bg-warning: #e49d00;
+  --btn-bg-danger: #f33939;
   --pixiv-font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   --mobile-font-family: sans-serif;
   --line-height: 26px;

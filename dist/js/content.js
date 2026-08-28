@@ -4178,6 +4178,13 @@ class ExcludeWork {
         if (target && (target.nodeName === 'svg' || target.nodeName === 'path')) {
             return;
         }
+        // 如果点击的是多图作品页面里的作品缩略图，则不排除这个作品，并且阻止缩略图上绑定的“点击打开图片查看器”的操作
+        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            console.log('点击的是多图作品页面里的作品缩略图，不排除这个作品');
+            ev.preventDefault();
+            ev.stopPropagation();
+            return;
+        }
         if (!id || id === '0') {
             id = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.findWorkIdFromElement(el, type === 'novels' ? 'novels' : 'illusts');
         }
@@ -4285,10 +4292,10 @@ class ExcludeWork {
             if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
-            // 如果这个作品的标记已经存在，就不需要重复添加
+            // 如果这个缩略图里已经存在标记，就不需要重复添加
             const existingFlag = el.querySelector(`.${this.excludedWorkFlagClass}`);
             if (existingFlag) {
-                return;
+                continue;
             }
             const i = document.createElement('i');
             i.classList.add(this.excludedWorkFlagClass);
@@ -10730,6 +10737,10 @@ class SelectWork {
         if (target && (target.nodeName === 'svg' || target.nodeName === 'path')) {
             return;
         }
+        // 如果点击的是多图作品页面里的作品缩略图，则不选择这个作品
+        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            return;
+        }
         // 真实点击的元素
         // console.log(ev.target)
         // 绑定了这个事件的元素
@@ -10855,10 +10866,10 @@ class SelectWork {
             if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
-            // 如果这个作品的标记已经存在，就不需要重复添加
+            // 如果这个缩略图里已经存在标记，就不需要重复添加
             const existingFlag = el.querySelector(`.${this.selectedWorkFlagClass}`);
             if (existingFlag) {
-                return;
+                continue;
             }
             const i = document.createElement('i');
             i.classList.add(this.selectedWorkFlagClass);
@@ -13900,22 +13911,6 @@ class Tools {
                 return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_AI生成');
             default:
                 return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_AI作品') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_未知');
-        }
-    }
-    static getWorkTypeText(workType) {
-        switch (workType) {
-            case -1:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_图像作品');
-            case 0:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_插画');
-            case 1:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_漫画');
-            case 2:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_动图');
-            case 3:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_小说');
-            default:
-                return _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_未知');
         }
     }
     /**移除 Pixiv 高级会员的广告横幅元素 */
@@ -30109,6 +30104,23 @@ class Filter {
     showTip() {
         return _ShowEnabledFilter__WEBPACK_IMPORTED_MODULE_12__.showEnabledFilter.showTip();
     }
+    /** 根据作品类型的数字生成其文本描述，用于显示提示信息 */
+    getWorkTypeText(workType) {
+        switch (workType) {
+            case -1:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图像作品');
+            case 0:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_插画');
+            case 1:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_漫画');
+            case 2:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_动图');
+            case 3:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_小说');
+            default:
+                return _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_未知');
+        }
+    }
     /**检查作品是否符合过滤器的要求，返回值 false 表示不保留这个作品，true 表示保留这个作品 */
     // 注意：这是一个异步函数，所以要使用 await 获取检查结果
     // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
@@ -30124,7 +30136,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品类型') +
                 ': ' +
-                _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.getWorkTypeText(option.workType), 'excludeWorkByWorkType' + option.workType);
+                this.getWorkTypeText(option.workType), 'excludeWorkByWorkType' + option.workType);
             return false;
         }
         if (!this.checkDownTypeByAge(option.xRestrict)) {
@@ -35817,6 +35829,65 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         '現在表示されている作品をすべて選ぶ',
         '표시된 작품 모두 선택',
         'Выбрать все отображаемые работы',
+    ],
+    _全选图片: [
+        '全选图片',
+        '全選圖片',
+        'Select all images',
+        'すべての画像を選択',
+        '모든 이미지 선택',
+        'Выбрать все изображения',
+    ],
+    _全选: [
+        '全选',
+        '全選',
+        'Select all',
+        'すべて選択',
+        '모두 선택',
+        'Выбрать все',
+    ],
+    _手动选择图片: [
+        '手动选择图片',
+        '手動選擇圖片',
+        'Select images manually',
+        '画像を手動で選択',
+        '이미지를 수동으로 선택',
+        'Выбрать изображения вручную',
+    ],
+    _清空已选择的图片: [
+        '清空已选择的图片',
+        '清空已選擇的圖片',
+        'Clear selected images',
+        '選択した画像をクリア',
+        '선택한 이미지 지우기',
+        'Очистить выбранные изображения',
+    ],
+    _清空: ['清空', '清空', 'Clear', 'クリア', '지우기', 'Очистить'],
+    _为多图作品里的图片选择帮助: [
+        `如果你只需要下载这个作品里的部分图片，可以使用这些按钮。<br><br>
+    点击“手动选择图片”按钮可以进入/退出手动选择模式。在手动选择模式里，点击一张图片即可选择它，再次点击可以取消选择它。<br>
+    当你完成选择之后，点击该区域右侧的“下载”按钮即可下载已选择的图片。<br>
+    提示：如果在没有选择任何图片的情况下点击“下载”按钮，下载器会下载所有图片。`,
+        `如果你只需要下載這個作品裡的部分圖片，可以使用這些按鈕。<br><br>
+    點擊「手動選擇圖片」按鈕可以進入/退出手動選擇模式。在手動選擇模式裡，點擊一張圖片即可選擇它，再次點擊可以取消選擇它。<br>
+    當你完成選擇之後，點擊該區域右側的「下載」按鈕即可下載已選擇的圖片。<br>
+    提示：如果在沒有選擇任何圖片的情況下點擊「下載」按鈕，下載器會下載所有圖片。`,
+        `If you only need to download some of the images in this work, you can use these buttons.<br><br>
+    Click the "Manually select images" button to enter/exit manual selection mode. In manual selection mode, click an image to select it, and click it again to deselect it.<br>
+    After you finish selecting, click the "Download" button on the right side of this area to download the selected images.<br>
+    Tip: If you click the "Download" button without selecting any images, the downloader will download all images.`,
+        `この作品の中の一部の画像だけをダウンロードしたい場合は、これらのボタンを使うことができます。<br><br>
+    「画像を手動で選択」ボタンをクリックすると、手動選択モードに入る/退出できます。手動選択モードでは、画像をクリックすると選択され、もう一度クリックすると選択が解除されます。<br>
+    選択が完了したら、このエリアの右側にある「ダウンロード」ボタンをクリックして、選択した画像をダウンロードします。<br>
+    ヒント：画像を1つも選択せずに「ダウンロード」ボタンをクリックすると、ダウンロードツールはすべての画像をダウンロードします。`,
+        `이 작품 안의 일부 이미지만 다운로드하고 싶다면, 이 버튼들을 사용할 수 있습니다。<br><br>
+    "이미지를 수동으로 선택" 버튼을 클릭하면 수동 선택 모드로 들어가거나 나올 수 있습니다. 수동 선택 모드에서는 이미지를 클릭하면 선택되고, 다시 클릭하면 선택이 해제됩니다。<br>
+    선택을 마친 후에는 이 영역 오른쪽의 "다운로드" 버튼을 클릭하여 선택한 이미지를 다운로드합니다。<br>
+    팁: 이미지를 하나도 선택하지 않은 상태에서 "다운로드" 버튼을 클릭하면, 다운로더가 모든 이미지를 다운로드합니다。`,
+        `Если вам нужно загрузить только часть изображений этой работы, вы можете использовать эти кнопки.<br><br>
+    Нажмите кнопку «Выбрать изображения вручную», чтобы войти в режим ручного выбора / выйти из него. В режиме ручного выбора нажмите на изображение, чтобы выбрать его, и нажмите ещё раз, чтобы отменить выбор.<br>
+    Когда вы закончите выбор, нажмите кнопку «Загрузить» в правой части этой области, чтобы загрузить выбранные изображения.<br>
+    Подсказка: если нажать кнопку «Загрузить», не выбрав ни одного изображения, загрузчик загрузит все изображения.`,
     ],
     _已全选: [
         '已全选',
@@ -44566,6 +44637,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 
 
 
@@ -44575,15 +44648,48 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/**在多图作品页面里显示缩略图列表 */
+
+
+/**在多图作品页面里显示缩略图列表，并支持选择其中的部分图片进行下载 */
 class DisplayThumbnailListOnMultiImageWorkPage {
     constructor() {
         this.bindEvents();
     }
     wrapperID = 'viewerWarpper';
     insertTarget = 'main figcaption';
+    toolbarID = 'thumbnailListToolbar';
+    selectorID = 'thumbnailListSelectorEl';
+    selectedFlagClass = 'thumbnailSelectedFlag';
+    /**选中标记里使用的 svg 图标，复用「手动选择作品」的图标 */
+    selectFlagSvg = '<svg class="icon" aria-hidden="true"><use xlink:href="#select"></use></svg>';
     waitTimer;
+    // 选择图片相关的状态
+    /**是否处于手动选择图片的状态 */
+    selecting = false;
+    /**已选择的图片数据。每次 init 时重置为 undefined */
+    idData = undefined;
+    /**当前作品的 id */
+    workId = '';
+    /**当前作品的类型（插画/漫画/动图） */
+    workType = 'illusts';
+    /** 这个作品里含有多少张图片。注意它不是索引，所以是从 1 开始的 */
+    pageCount = 1;
+    // 操作栏按钮
+    manualSelectBtn;
+    selectAllBtn;
+    clearBtn;
+    helpBtn;
+    downloadBtn;
+    // 光标跟随的选择标记
+    selectorEl;
+    /**光标位置（始终跟踪，用于显示/定位选择标记） */
+    left = 0;
+    top = 0;
+    /**选择标记的一半宽度，用于使其居中对齐光标 */
+    half = 10;
     bindEvents() {
+        // 持续跟踪光标位置，便于进入手动选择模式时让标记出现在当前光标处
+        window.addEventListener('mousemove', this.onMouseMove, true);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, () => {
             this.init();
         });
@@ -44603,6 +44709,10 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted) {
             return;
         }
+        // 每次进入页面都重置选择状态并退出选择模式
+        this.selecting = false;
+        this.idData = undefined;
+        this.hideSelector();
         window.setTimeout(() => {
             this.display();
         }, 0);
@@ -44623,6 +44733,8 @@ class DisplayThumbnailListOnMultiImageWorkPage {
         if (wrap) {
             wrap.style.display = 'block';
             target.insertAdjacentElement('afterbegin', wrap);
+            // 添加操作栏（全选 / 手动选择 / 清空 / 帮助 / 下载）
+            this.addToolbar(wrap);
             // 为每个缩略图添加事件
             const images = wrap.querySelectorAll('li img');
             images.forEach((img) => {
@@ -44643,6 +44755,8 @@ class DisplayThumbnailListOnMultiImageWorkPage {
                     _store_States__WEBPACK_IMPORTED_MODULE_8__.states.indexRecord[id] = index;
                 });
             });
+            // 在容器上绑定捕获阶段的点击监听：进入手动选择模式后，拦截对图片的点击（阻止打开查看器），改为切换选中状态
+            wrap.addEventListener('click', (ev) => this.onWrapClick(ev), true);
         }
     }
     remove() {
@@ -44654,7 +44768,14 @@ class DisplayThumbnailListOnMultiImageWorkPage {
         // 获取作品数据
         const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted;
         const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.getWorkDataAsync(id, 'artwork', unlisted);
+        if (!workData) {
+            return;
+        }
         const body = workData.body;
+        // 保存作品 id 与类型，供选择/下载时使用
+        this.workId = id;
+        this.workType = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getWorkTypeString(body.illustType);
+        this.pageCount = body.pageCount || 1;
         // 这个作品里至少有 2 张图片才会创建缩略图
         if (body.pageCount >= 2) {
             // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
@@ -44679,6 +44800,225 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             return warpper;
         }
     }
+    /**在操作栏里添加选择/下载相关的按钮，并绑定事件 */
+    addToolbar(wrap) {
+        const toolbarHTML = `
+      <div class="thumbnailListToolbar" id="${this.toolbarID}">
+  <div class="thumbnailListToolbarLeft">
+    <button
+      class="blueTextBtn hasRippleAnimation"
+      id="thumbnailListManualSelect"
+      type="button"
+    >
+      <span data-xztext="_手动选择图片"></span><span class="ripple"></span>
+    </button>
+    <button
+      class="blueTextBtn hasRippleAnimation"
+      id="thumbnailListSelectAll"
+      type="button"
+    >
+      <span data-xztext="_全选"></span><span class="ripple"></span>
+    </button>
+    <button
+      class="blueTextBtn hasRippleAnimation thumbnailListClearBtn"
+      id="thumbnailListClear"
+      type="button"
+    >
+      <span data-xztext="_清空"></span><span class="ripple"></span>
+    </button>
+    <button class="thumbnailListHelpBtn" id="thumbnailListHelp" type="button">
+      <span data-xztext="_帮助"></span><span class="ripple"></span>
+    </button>
+  </div>
+  <div class="thumbnailListToolbarRight">
+    <button
+      class="blueTextBtn hasRippleAnimation"
+      id="thumbnailListDownload"
+      type="button"
+    >
+      <span data-xztext="_下载"></span><span class="ripple"></span>
+    </button>
+  </div>
+</div>
+`;
+        wrap.insertAdjacentHTML('afterbegin', toolbarHTML);
+        // 应用 i18n
+        const spans = wrap.querySelectorAll(`#${this.toolbarID} span[data-xztext]`);
+        spans.forEach((span) => _Language__WEBPACK_IMPORTED_MODULE_9__.lang.register(span));
+        // 获取按钮引用
+        this.selectAllBtn = wrap.querySelector('#thumbnailListSelectAll');
+        this.manualSelectBtn = wrap.querySelector('#thumbnailListManualSelect');
+        this.clearBtn = wrap.querySelector('#thumbnailListClear');
+        this.helpBtn = wrap.querySelector('#thumbnailListHelp');
+        this.downloadBtn = wrap.querySelector('#thumbnailListDownload');
+        // 绑定事件
+        this.selectAllBtn.addEventListener('click', () => this.selectAllImages());
+        this.manualSelectBtn.addEventListener('click', () => this.toggleSelecting());
+        this.clearBtn.addEventListener('click', () => this.clearSelected());
+        this.helpBtn.addEventListener('click', () => this.showHelp());
+        this.downloadBtn.addEventListener('click', () => this.downloadSelected());
+    }
+    /**确保 idData 已存在，并建立基础的 id 与 type */
+    ensureIdData() {
+        if (!this.idData) {
+            this.idData = {
+                id: this.workId,
+                type: this.workType,
+                downloadIndexes: [],
+            };
+        }
+    }
+    /**全选：选择所有图片 */
+    selectAllImages() {
+        this.ensureIdData();
+        this.idData.downloadIndexes = this.getAllIndexes();
+        this.updateImageFlags();
+    }
+    /**切换手动选择模式 */
+    toggleSelecting() {
+        this.selecting = !this.selecting;
+        if (this.selecting) {
+            this.showSelector();
+            this.manualSelectBtn?.classList.add('active');
+        }
+        else {
+            this.hideSelector();
+            this.manualSelectBtn?.classList.remove('active');
+        }
+    }
+    /**清空：重置 idData 并移除所有选择标记（不退出选择模式） */
+    clearSelected() {
+        this.idData = undefined;
+        this.updateImageFlags();
+    }
+    /**显示帮助信息 */
+    showHelp() {
+        _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_为多图作品里的图片选择帮助'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_手动选择图片'),
+        });
+    }
+    /**下载：根据选择情况构造 idData 并触发抓取 */
+    downloadSelected() {
+        let dataToSend;
+        if (this.idData &&
+            this.idData.downloadIndexes &&
+            this.idData.downloadIndexes.length > 0) {
+            // 有已选择的图片，使用带 downloadIndexes 的数据（只下载选中的图片）
+            dataToSend = this.idData;
+        }
+        else {
+            // 没有选择任何图片（或未开始选择）：构造不含 downloadIndexes 的临时数据，下载作品里的全部图片
+            dataToSend = {
+                id: this.workId,
+                type: this.workType,
+            };
+        }
+        _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('crawlIdList', [dataToSend]);
+        // 退出选择模式
+        this.exitSelecting();
+    }
+    /**退出手动选择模式 */
+    exitSelecting() {
+        this.selecting = false;
+        this.hideSelector();
+        this.manualSelectBtn?.classList.remove('active');
+    }
+    /**容器上的捕获阶段点击监听。进入手动选择模式后，拦截图片点击、切换选中状态并阻止打开查看器 */
+    onWrapClick(ev) {
+        if (!this.selecting) {
+            return;
+        }
+        // 只有点击在缩略图（li.xz-thumb-li）上时才处理，操作栏按钮的点击不拦截
+        const li = ev.target.closest(`li.${_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI}`);
+        if (!li) {
+            return;
+        }
+        const index = Number.parseInt(li.dataset.index);
+        if (Number.isNaN(index)) {
+            return;
+        }
+        // 阻止事件继续下传到 img 上的查看器监听，并阻止默认行为
+        ev.stopPropagation();
+        ev.preventDefault();
+        this.toggleSelectImage(index);
+    }
+    /**切换单张图片的选中状态 */
+    toggleSelectImage(index) {
+        this.ensureIdData();
+        const list = this.idData.downloadIndexes;
+        const i = list.indexOf(index);
+        if (i === -1) {
+            list.push(index);
+        }
+        else {
+            list.splice(i, 1);
+        }
+        this.updateImageFlags();
+    }
+    /**获取当前作品里所有图片的 index */
+    getAllIndexes() {
+        const indexes = [];
+        for (let i = 0; i < this.pageCount; i++) {
+            indexes.push(i);
+        }
+        return indexes;
+    }
+    /**根据 idData.downloadIndexes，为列表里的图片同步选择标记 */
+    updateImageFlags() {
+        const lis = document.querySelectorAll(`#${this.wrapperID} li.${_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI}`);
+        const selected = this.idData?.downloadIndexes;
+        lis.forEach((li) => {
+            const index = Number.parseInt(li.dataset.index);
+            const isSelected = selected ? selected.includes(index) : false;
+            this.setFlag(li, isSelected);
+        });
+    }
+    /**为单个缩略图添加或移除选择标记 */
+    setFlag(li, selected) {
+        const existing = li.querySelector(`.${this.selectedFlagClass}`);
+        if (selected && !existing) {
+            const i = document.createElement('i');
+            i.classList.add(this.selectedFlagClass);
+            // 选中标记复用「手动选择作品」的图标（一个对号的 svg 符号）
+            i.innerHTML = this.selectFlagSvg;
+            li.insertAdjacentElement('afterbegin', i);
+            // 如果容器没有定位，会导致标记位置异常。修复此问题
+            const position = window.getComputedStyle(li)['position'];
+            if (!['relative', 'absolute', 'fixed'].includes(position)) {
+                li.style.position = 'relative';
+            }
+        }
+        else if (!selected && existing) {
+            existing.remove();
+        }
+    }
+    /**显示光标跟随的选择标记 */
+    showSelector() {
+        if (!this.selectorEl) {
+            this.selectorEl = document.createElement('div');
+            this.selectorEl.id = this.selectorID;
+            document.body.appendChild(this.selectorEl);
+        }
+        this.selectorEl.style.display = 'flex';
+        // 立即定位到当前光标处（避免初始显示在左上角），并居中对齐光标
+        this.selectorEl.style.left = this.left - this.half + 'px';
+        this.selectorEl.style.top = this.top - this.half + 'px';
+    }
+    /**隐藏光标跟随的选择标记 */
+    hideSelector() {
+        if (this.selectorEl) {
+            this.selectorEl.style.display = 'none';
+        }
+    }
+    /**跟踪光标位置；进入手动选择模式时让选择标记跟随光标并居中对齐 */
+    onMouseMove = (ev) => {
+        this.left = ev.clientX;
+        this.top = ev.clientY;
+        if (this.selecting && this.selectorEl) {
+            this.selectorEl.style.left = this.left - this.half + 'px';
+            this.selectorEl.style.top = this.top - this.half + 'px';
+        }
+    };
     /**检查目标元素是否是 ImageViewer 生成的 li 元素，以便进行特殊处理 */
     checkLI(el) {
         return el?.classList.contains(_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI);
