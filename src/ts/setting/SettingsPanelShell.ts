@@ -62,7 +62,7 @@ class SettingsPanelShell {
                 </button>
               </label>
 
-              <button class="centerWrap_top_btn settingsPanel_expandAll" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开/折叠所有区域">
+              <button class="centerWrap_top_btn settingsPanel_expandAll" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
                 <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
                   <use xlink:href="#arrow-up"></use>
                 </svg>
