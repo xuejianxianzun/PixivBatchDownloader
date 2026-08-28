@@ -97,6 +97,16 @@ class ConvertUgoira {
 
         const imageBitmapList = await this.getImageBitmapList(file, id)
 
+        // WebM worker 会转移 ImageBitmap 的所有权。不能把已经转移的对象
+        // 留在缓存里，否则同一作品继续转换其他格式时会复用失效对象。
+        if (
+          type === 'webm' &&
+          typeof Worker !== 'undefined' &&
+          typeof OffscreenCanvas !== 'undefined'
+        ) {
+          this.imageBitmapCache.delete(id)
+        }
+
         try {
           // await Utils.sleep(1000)
           // console.count('测试转换错误')
@@ -125,7 +135,7 @@ class ConvertUgoira {
     this.count = this._count - 1
   }
 
-  // 转换成 WebM
+  /** 转换成 WebM */
   public async webm(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
     // WebM 视频的帧延迟不能大于 32767 ms，否则就无法转换成功
     // 其他格式没有这个问题
@@ -148,30 +158,38 @@ class ConvertUgoira {
     // 这不是 bug，而是视频编码的常见兼容性问题（H.264/H.265 也有类似要求）。
     // 播放器渲染链路（尤其是某些内置解码器 + Renderer）处理 padding 不够完美时，就会露出绿线。
 
-    const blob = await this.start(file, info, 'webm', id)
-    this.clearCache(id)
-    return blob
+    try {
+      return await this.start(file, info, 'webm', id)
+    } finally {
+      this.clearCache(id)
+    }
   }
 
-  // 转换成 WebP
+  /** 转换成 WebP */
   public async webp(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
-    const blob = await this.start(file, info, 'webp', id)
-    this.clearCache(id)
-    return blob
+    try {
+      return await this.start(file, info, 'webp', id)
+    } finally {
+      this.clearCache(id)
+    }
   }
 
-  // 转换成 GIF
+  /** 转换成 GIF */
   public async gif(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
-    const blob = await this.start(file, info, 'gif', id)
-    this.clearCache(id)
-    return blob
+    try {
+      return await this.start(file, info, 'gif', id)
+    } finally {
+      this.clearCache(id)
+    }
   }
 
-  // 转换成 APNG
+  /** 转换成 APNG */
   public async apng(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
-    const blob = await this.start(file, info, 'png', id)
-    this.clearCache(id)
-    return blob
+    try {
+      return await this.start(file, info, 'png', id)
+    } finally {
+      this.clearCache(id)
+    }
   }
 
   /** 从转换中列表移除 id，并在一定时间后清理不再使用的 ImageBitmap 缓存 */
