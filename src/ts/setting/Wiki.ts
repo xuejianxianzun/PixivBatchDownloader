@@ -294,6 +294,20 @@ class Wiki {
       toast.success(msg)
       this.setOptionLink()
     })
+
+    // 输出所有页面和按钮的 wiki 结构
+    ppdTask.register(13, 'Output Wiki structure', () => {
+      const msg = lang.transl('_导出成功')
+      toast.success(msg)
+      const types = ['option', 'button'] as const
+      for (const type of types) {
+        const result = this.outputAllPages(type)
+        const blob = Utils.json2Blob(result)
+        const url = URL.createObjectURL(blob)
+        Utils.downloadFile(url, `wiki_${type}_structure.json`)
+        console.log(type, result)
+      }
+    })
   }
 
   /** 从 optionConfigs.categorySchema 里复制分类层级结构到 optionsSchema 里，并从 optionConfigs.optionsByCategory 里获取每个二级分类里的 ids */
@@ -326,38 +340,6 @@ class Wiki {
         level2,
       }
     }
-  }
-
-  /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
-  private outputAllPages(type: 'option' | 'button') {
-    const result = []
-    const level0Key = this.Level0Keys[type]
-    const source = type === 'option' ? this.optionsSchema : this.buttonsSchema
-    for (const [level1Key, level1Config] of Object.entries(source)) {
-      const level1Id = level1Config.id
-      const level1NameKey = level1Config.nameKey as LangTextKey
-      const level2Configs = level1Config.level2
-
-      for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
-        const level2 = level2Config as Level2
-        const level2Id = level2.id
-        const level2NameKey = level2.nameKey
-        const ids = level2.ids
-
-        // 保存每个页面的多语言名称，以及里面的 id 列表
-        const page_zh_cn = `${langText[level0Key][0]}-${langText[level1NameKey][0]}/${langText[level2NameKey][0]}`
-        const page_en = `${langText[level0Key][2]}-${langText[level1NameKey][2]}/${langText[level2NameKey][2]}`
-        result.push({
-          page: {
-            'zh-cn': page_zh_cn.replaceAll(' ', '-'),
-            en: page_en.replaceAll(' ', '-'),
-          },
-          ids,
-        })
-      }
-    }
-
-    console.log(type, result)
   }
 
   // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
@@ -463,6 +445,38 @@ class Wiki {
     }
 
     return ''
+  }
+
+  /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
+  private outputAllPages(type: 'option' | 'button') {
+    const result = []
+    const level0Key = this.Level0Keys[type]
+    const source = type === 'option' ? this.optionsSchema : this.buttonsSchema
+    for (const [level1Key, level1Config] of Object.entries(source)) {
+      const level1Id = level1Config.id
+      const level1NameKey = level1Config.nameKey as LangTextKey
+      const level2Configs = level1Config.level2
+
+      for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
+        const level2 = level2Config as Level2
+        const level2Id = level2.id
+        const level2NameKey = level2.nameKey
+        const ids = level2.ids
+
+        // 保存每个页面的多语言名称，以及里面的 id 列表
+        const page_zh_cn = `${langText[level0Key][0]}-${langText[level1NameKey][0]}/${langText[level2NameKey][0]}`
+        const page_en = `${langText[level0Key][2]}-${langText[level1NameKey][2]}/${langText[level2NameKey][2]}`
+        result.push({
+          page: {
+            'zh-cn': page_zh_cn.replaceAll(' ', '-'),
+            en: page_en.replaceAll(' ', '-'),
+          },
+          ids,
+        })
+      }
+    }
+
+    return result
   }
 }
 

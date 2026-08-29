@@ -14781,54 +14781,6 @@ const workToolBar = new WorkToolBar();
 
 /***/ }),
 
-/***/ "./src/ts/buttonsOnThumb/ButtonsConfig.ts":
-/*!************************************************!*\
-  !*** ./src/ts/buttonsOnThumb/ButtonsConfig.ts ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   ButtonsConfig: () => (/* binding */ ButtonsConfig)
-/* harmony export */ });
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-
-class ButtonsConfig {
-    btnsConfig = [
-        {
-            name: 'zoomBtnOnThumb',
-            order: 1,
-            icon: 'zoom',
-            btn: document.createElement('button'),
-            title: '_图片查看器',
-            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.magnifier,
-        },
-        {
-            name: 'copyBtnOnThumb',
-            order: 2,
-            icon: 'copy',
-            btn: document.createElement('button'),
-            title: '_复制图片和摘要',
-            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.showCopyBtnOnThumb,
-        },
-        {
-            name: 'downloadBtnOnThumb',
-            order: 3,
-            icon: 'download',
-            btn: document.createElement('button'),
-            title: '_下载',
-            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.showDownloadBtnOnThumb,
-        },
-    ];
-    btnSize = 32;
-    margin = 8;
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts":
 /*!*******************************************************!*\
   !*** ./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts ***!
@@ -14843,7 +14795,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ButtonsOnThumbConfig */ "./src/ts/buttonsOnThumb/ButtonsOnThumbConfig.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
@@ -14861,7 +14813,7 @@ __webpack_require__.r(__webpack_exports__);
 // 对于单图作品，下载器会直接显示按钮
 // 对于多图作品，当用户点击“查看全部”按钮显示所有图片时，下载器才会显示按钮
 // 对于动图作品，不会显示这些按钮
-class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_6__.ButtonsConfig {
+class ButtonsOnArtworkPage extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_6__.ButtonsOnThumbConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
@@ -15029,7 +14981,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ButtonsOnThumbConfig */ "./src/ts/buttonsOnThumb/ButtonsOnThumbConfig.ts");
 
 
 
@@ -15041,7 +14993,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 在图片作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_8__.ButtonsConfig {
+class ButtonsOnArtworkThumbOnPC extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_8__.ButtonsOnThumbConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
@@ -15211,7 +15163,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ButtonsOnThumbConfig */ "./src/ts/buttonsOnThumb/ButtonsOnThumbConfig.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 
@@ -15224,7 +15176,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 在小说作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5__.ButtonsConfig {
+class ButtonsOnNovelThumbOnPC extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODULE_5__.ButtonsOnThumbConfig {
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
@@ -15357,6 +15309,54 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
     }
 }
 new ButtonsOnNovelThumbOnPC();
+
+
+/***/ }),
+
+/***/ "./src/ts/buttonsOnThumb/ButtonsOnThumbConfig.ts":
+/*!*******************************************************!*\
+  !*** ./src/ts/buttonsOnThumb/ButtonsOnThumbConfig.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ButtonsOnThumbConfig: () => (/* binding */ ButtonsOnThumbConfig)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+class ButtonsOnThumbConfig {
+    btnsConfig = [
+        {
+            name: 'zoomBtnOnThumb',
+            order: 1,
+            icon: 'zoom',
+            btn: document.createElement('button'),
+            title: '_图片查看器',
+            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.magnifier,
+        },
+        {
+            name: 'copyBtnOnThumb',
+            order: 2,
+            icon: 'copy',
+            btn: document.createElement('button'),
+            title: '_复制图片和摘要',
+            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.showCopyBtnOnThumb,
+        },
+        {
+            name: 'downloadBtnOnThumb',
+            order: 3,
+            icon: 'download',
+            btn: document.createElement('button'),
+            title: '_下载',
+            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.showDownloadBtnOnThumb,
+        },
+    ];
+    btnSize = 32;
+    margin = 8;
+}
+
 
 
 /***/ }),
@@ -35649,7 +35649,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
         `Функция <span class="key">закладок</span> загрузчика (✩)`,
     ],
-    _收藏设置的说明: [
+    _下载器的收藏功能的说明: [
         `当你使用下载器的收藏功能时，可以设置是否添加作品本身的标签，以及是否公开。`,
         `當你使用下載器的收藏功能時，可以設定是否新增作品本身的標籤，以及是否公開。`,
         `When using the downloader's bookmark feature, you can choose whether to add the work's own tags and make the bookmark public.`,
@@ -55049,6 +55049,19 @@ class Wiki {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
             this.setOptionLink();
         });
+        // 输出所有页面和按钮的 wiki 结构
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(13, 'Output Wiki structure', () => {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            const types = ['option', 'button'];
+            for (const type of types) {
+                const result = this.outputAllPages(type);
+                const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(result);
+                const url = URL.createObjectURL(blob);
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `wiki_${type}_structure.json`);
+                console.log(type, result);
+            }
+        });
     }
     /** 从 optionConfigs.categorySchema 里复制分类层级结构到 optionsSchema 里，并从 optionConfigs.optionsByCategory 里获取每个二级分类里的 ids */
     initOptionsSchema() {
@@ -55076,34 +55089,6 @@ class Wiki {
                 level2,
             };
         }
-    }
-    /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
-    outputAllPages(type) {
-        const result = [];
-        const level0Key = this.Level0Keys[type];
-        const source = type === 'option' ? this.optionsSchema : this.buttonsSchema;
-        for (const [level1Key, level1Config] of Object.entries(source)) {
-            const level1Id = level1Config.id;
-            const level1NameKey = level1Config.nameKey;
-            const level2Configs = level1Config.level2;
-            for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
-                const level2 = level2Config;
-                const level2Id = level2.id;
-                const level2NameKey = level2.nameKey;
-                const ids = level2.ids;
-                // 保存每个页面的多语言名称，以及里面的 id 列表
-                const page_zh_cn = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][0]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][0]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][0]}`;
-                const page_en = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][2]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][2]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][2]}`;
-                result.push({
-                    page: {
-                        'zh-cn': page_zh_cn.replaceAll(' ', '-'),
-                        en: page_en.replaceAll(' ', '-'),
-                    },
-                    ids,
-                });
-            }
-        }
-        console.log(type, result);
     }
     // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
     useLang() {
@@ -55188,6 +55173,34 @@ class Wiki {
             }
         }
         return '';
+    }
+    /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
+    outputAllPages(type) {
+        const result = [];
+        const level0Key = this.Level0Keys[type];
+        const source = type === 'option' ? this.optionsSchema : this.buttonsSchema;
+        for (const [level1Key, level1Config] of Object.entries(source)) {
+            const level1Id = level1Config.id;
+            const level1NameKey = level1Config.nameKey;
+            const level2Configs = level1Config.level2;
+            for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
+                const level2 = level2Config;
+                const level2Id = level2.id;
+                const level2NameKey = level2.nameKey;
+                const ids = level2.ids;
+                // 保存每个页面的多语言名称，以及里面的 id 列表
+                const page_zh_cn = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][0]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][0]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][0]}`;
+                const page_en = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][2]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][2]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][2]}`;
+                result.push({
+                    page: {
+                        'zh-cn': page_zh_cn.replaceAll(' ', '-'),
+                        en: page_en.replaceAll(' ', '-'),
+                    },
+                    ids,
+                });
+            }
+        }
+        return result;
     }
 }
 const wiki = new Wiki();

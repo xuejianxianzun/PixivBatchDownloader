@@ -3,13 +3,13 @@ import { settings } from '../setting/Settings'
 import { novelThumbnail } from '../NovelThumbnail'
 import { Config } from '../Config'
 import { lang } from '../Language'
-import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
+import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
 import { Tools } from '../Tools'
 import { toast } from '../Toast'
 
 // 在小说作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnNovelThumbOnPC extends ButtonsConfig {
+class ButtonsOnNovelThumbOnPC extends ButtonsOnThumbConfig {
   constructor() {
     super()
     if (Config.mobile) {

@@ -5,7 +5,7 @@ import { pageType } from '../PageType'
 import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { settings } from '../setting/Settings'
-import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
+import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
 import { lang } from '../Language'
 import { ImageViewer } from '../ImageViewer'
 import { copyWorkInfo } from '../CopyWorkInfo'
@@ -14,7 +14,7 @@ import { copyWorkInfo } from '../CopyWorkInfo'
 // 对于单图作品，下载器会直接显示按钮
 // 对于多图作品，当用户点击“查看全部”按钮显示所有图片时，下载器才会显示按钮
 // 对于动图作品，不会显示这些按钮
-class ButtonsOnArtworkPage extends ButtonsConfig {
+class ButtonsOnArtworkPage extends ButtonsOnThumbConfig {
   constructor() {
     super()
     if (Config.mobile) {

@@ -3908,7 +3908,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
     `Функция <span class="key">закладок</span> загрузчика (✩)`,
   ],
-  _收藏设置的说明: [
+  _下载器的收藏功能的说明: [
     `当你使用下载器的收藏功能时，可以设置是否添加作品本身的标签，以及是否公开。`,
     `當你使用下載器的收藏功能時，可以設定是否新增作品本身的標籤，以及是否公開。`,
     `When using the downloader's bookmark feature, you can choose whether to add the work's own tags and make the bookmark public.`,
