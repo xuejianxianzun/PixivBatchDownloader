@@ -195,71 +195,35 @@ class DisplayThumbnailListOnMultiImageWorkPage {
 
   /**在操作栏里添加选择/下载相关的按钮，并绑定事件 */
   private addToolbar(wrap: HTMLElement) {
-    const toolbarHTML = `
-      <div class="thumbnailListToolbar" id="${this.toolbarID}">
-  <div class="thumbnailListToolbarLeft">
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListManualSelect"
-      type="button"
-    >
-      <span data-xztext="_手动选择图片"></span><span class="ripple"></span>
-    </button>
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListSelectAll"
-      type="button"
-    >
-      <span data-xztext="_全选"></span><span class="ripple"></span>
-    </button>
-    <button
-      class="blueTextBtn hasRippleAnimation thumbnailListClearBtn"
-      id="thumbnailListClear"
-      type="button"
-    >
-      <span data-xztext="_清空"></span><span class="ripple"></span>
-    </button>
-    <button class="thumbnailListHelpBtn" id="thumbnailListHelp" type="button">
-      <span data-xztext="_帮助"></span><span class="ripple"></span>
-    </button>
-  </div>
-  <div class="thumbnailListToolbarRight">
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListDownload"
-      type="button"
-    >
-      <span data-xztext="_下载"></span><span class="ripple"></span>
-    </button>
-  </div>
+    const toolbarHTML = `<div class="thumbnailListToolbar" id="${this.toolbarID}">
+  <div class="thumbnailListToolbarLeft"></div>
+  <div class="thumbnailListToolbarRight"></div>
 </div>
 `
     wrap.insertAdjacentHTML('afterbegin', toolbarHTML)
+    const left = wrap.querySelector<HTMLElement>('.thumbnailListToolbarLeft')!
+    const right = wrap.querySelector<HTMLElement>('.thumbnailListToolbarRight')!
 
-    // 应用 i18n
-    const spans = wrap.querySelectorAll<HTMLElement>(
-      `#${this.toolbarID} span[data-xztext]`
+    // 添加按钮
+    this.manualSelectBtn = Tools.addBlueTextBtn(
+      'thumbnailListManualSelect',
+      '_手动选择图片'
     )
-    spans.forEach((span) => lang.register(span))
-
-    // 获取按钮引用
-    this.selectAllBtn = wrap.querySelector(
-      '#thumbnailListSelectAll'
-    ) as HTMLButtonElement
-    this.manualSelectBtn = wrap.querySelector(
-      '#thumbnailListManualSelect'
-    ) as HTMLButtonElement
-    this.clearBtn = wrap.querySelector(
-      '#thumbnailListClear'
-    ) as HTMLButtonElement
-    this.helpBtn = wrap.querySelector('#thumbnailListHelp') as HTMLButtonElement
-    this.downloadBtn = wrap.querySelector(
-      '#thumbnailListDownload'
-    ) as HTMLButtonElement
+    this.selectAllBtn = Tools.addBlueTextBtn('thumbnailListSelectAll', '_全选')
+    this.clearBtn = Tools.addBlueTextBtn('thumbnailListClear', '_清空')
+    this.clearBtn.classList.add('thumbnailListClearBtn')
+    this.helpBtn = Tools.addTextBtn('thumbnailListHelp', '_帮助')
+    this.helpBtn.classList.add('thumbnailListHelpBtn')
+    this.downloadBtn = Tools.addBlueTextBtn('thumbnailListDownload', '_下载')
+    left.appendChild(this.manualSelectBtn)
+    left.appendChild(this.selectAllBtn)
+    left.appendChild(this.clearBtn)
+    left.appendChild(this.helpBtn)
+    right.appendChild(this.downloadBtn)
 
     // 绑定事件
-    this.selectAllBtn.addEventListener('click', () => this.selectAllImages())
     this.manualSelectBtn.addEventListener('click', () => this.toggleSelecting())
+    this.selectAllBtn.addEventListener('click', () => this.selectAllImages())
     this.clearBtn.addEventListener('click', () => this.clearSelected())
     this.helpBtn.addEventListener('click', () => this.showHelp())
     this.downloadBtn.addEventListener('click', () => this.downloadSelected())

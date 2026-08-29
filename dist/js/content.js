@@ -13351,6 +13351,30 @@ class Tools {
         // this.saveButtonsHtml(id, text, btn)
         return btn;
     }
+    /** 生成显示在网页上的蓝底白字按钮。可选是否注册到 wiki，默认不注册，因为这些按钮的功能大多比较简单，不需要在 wiki 里显示详细说明。 */
+    static addBlueTextBtn(id, text, registerToWiki = false) {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.classList.add('blueTextBtn', 'hasRippleAnimation');
+        btn.type = 'button';
+        btn.innerHTML = `<span data-xztext="${text}"></span><span class="ripple"></span>`;
+        // 生成的 btn 代码例如：
+        // <button id="${id}" class="blueTextBtn hasRippleAnimation" type="button"><span data-xztext="${text}"></span><span class="ripple"></span></button>
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
+        if (registerToWiki) {
+            _setting_Wiki__WEBPACK_IMPORTED_MODULE_3__.wiki.registerBtn(btn);
+        }
+        return btn;
+    }
+    /** 添加简单的文本按钮。button 元素里使用一个 span 元素来显示文字。没有附带样式类名，所以调用方需要自己设置样式 */
+    static addTextBtn(id, text) {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.type = 'button';
+        btn.innerHTML = `<span data-xztext="${text}"></span>`;
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
+        return btn;
+    }
     /**获取页面标题 */
     static getPageTitle() {
         // 删除下载器在标题上添加的状态，以及剩余文件数量的数字
@@ -16802,11 +16826,9 @@ const vipSearchOptimize = new VipSearchOptimize();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Wiki */ "./src/ts/setting/Wiki.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -16831,7 +16853,7 @@ class CrawlRecommendWorks {
     timer;
     IDList = [];
     async foundTarget() {
-        if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
+        if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork) {
             return;
         }
         const titleBar = document.querySelector(this.checkSelector);
@@ -16840,7 +16862,7 @@ class CrawlRecommendWorks {
             window.clearTimeout(this.timer);
             // 等待一段时间再获取作品超链接，因为立刻获取的话可能还未生成
             // 其实在 PC 端页面是可以立即获取到的，但是在移动端页面需要等待较长时间，500ms 不够用
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 1000 : 100);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 1000 : 100);
             this.readyCrawl();
         }
     }
@@ -16848,7 +16870,7 @@ class CrawlRecommendWorks {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, async () => {
             // 页面切换后，页面元素可能还没来得及变化，所以需要等待一段时间后再开始查找
             // 如果立即查找，那么经常会查找到已经存在的推荐列表，于是就会立即停止查找
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(600);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(600);
             this.found = false;
             this.IDList = [];
             window.clearTimeout(this.timer);
@@ -16878,17 +16900,8 @@ class CrawlRecommendWorks {
         if (!target) {
             return;
         }
-        const btnHtml = `<button
-  class="blueTextBtn hasRippleAnimation"
-  id="downloadRecommendedWorks"
-  type="button">
-  <span data-xztext="_下载推荐作品"></span><span class="ripple"></span>
-</button>`;
-        document.body.insertAdjacentHTML('beforeend', btnHtml);
-        const btn = document.querySelector('#downloadRecommendedWorks');
-        const span = btn.querySelector('span');
-        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(span);
-        _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__.wiki.registerBtn(btn);
+        const btn = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBlueTextBtn('downloadRecommendedWorks', '_下载推荐作品', true);
+        document.body.appendChild(btn);
         btn.addEventListener('click', () => {
             // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [...this.IDList]);
@@ -45012,56 +45025,29 @@ class DisplayThumbnailListOnMultiImageWorkPage {
     addToolbar(wrap) {
         const toolbarHTML = `
       <div class="thumbnailListToolbar" id="${this.toolbarID}">
-  <div class="thumbnailListToolbarLeft">
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListManualSelect"
-      type="button"
-    >
-      <span data-xztext="_手动选择图片"></span><span class="ripple"></span>
-    </button>
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListSelectAll"
-      type="button"
-    >
-      <span data-xztext="_全选"></span><span class="ripple"></span>
-    </button>
-    <button
-      class="blueTextBtn hasRippleAnimation thumbnailListClearBtn"
-      id="thumbnailListClear"
-      type="button"
-    >
-      <span data-xztext="_清空"></span><span class="ripple"></span>
-    </button>
-    <button class="thumbnailListHelpBtn" id="thumbnailListHelp" type="button">
-      <span data-xztext="_帮助"></span><span class="ripple"></span>
-    </button>
-  </div>
-  <div class="thumbnailListToolbarRight">
-    <button
-      class="blueTextBtn hasRippleAnimation"
-      id="thumbnailListDownload"
-      type="button"
-    >
-      <span data-xztext="_下载"></span><span class="ripple"></span>
-    </button>
-  </div>
+  <div class="thumbnailListToolbarLeft"></div>
+  <div class="thumbnailListToolbarRight"></div>
 </div>
 `;
         wrap.insertAdjacentHTML('afterbegin', toolbarHTML);
-        // 应用 i18n
-        const spans = wrap.querySelectorAll(`#${this.toolbarID} span[data-xztext]`);
-        spans.forEach((span) => _Language__WEBPACK_IMPORTED_MODULE_9__.lang.register(span));
-        // 获取按钮引用
-        this.selectAllBtn = wrap.querySelector('#thumbnailListSelectAll');
-        this.manualSelectBtn = wrap.querySelector('#thumbnailListManualSelect');
-        this.clearBtn = wrap.querySelector('#thumbnailListClear');
-        this.helpBtn = wrap.querySelector('#thumbnailListHelp');
-        this.downloadBtn = wrap.querySelector('#thumbnailListDownload');
+        const left = wrap.querySelector('.thumbnailListToolbarLeft');
+        const right = wrap.querySelector('.thumbnailListToolbarRight');
+        // 添加按钮
+        this.manualSelectBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBlueTextBtn('thumbnailListManualSelect', '_手动选择图片');
+        this.selectAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBlueTextBtn('thumbnailListSelectAll', '_全选');
+        this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBlueTextBtn('thumbnailListClear', '_清空');
+        this.clearBtn.classList.add('thumbnailListClearBtn');
+        this.helpBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addTextBtn('thumbnailListHelp', '_帮助');
+        this.helpBtn.classList.add('thumbnailListHelpBtn');
+        this.downloadBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBlueTextBtn('thumbnailListDownload', '_下载');
+        left.appendChild(this.manualSelectBtn);
+        left.appendChild(this.selectAllBtn);
+        left.appendChild(this.clearBtn);
+        left.appendChild(this.helpBtn);
+        right.appendChild(this.downloadBtn);
         // 绑定事件
-        this.selectAllBtn.addEventListener('click', () => this.selectAllImages());
         this.manualSelectBtn.addEventListener('click', () => this.toggleSelecting());
+        this.selectAllBtn.addEventListener('click', () => this.selectAllImages());
         this.clearBtn.addEventListener('click', () => this.clearSelected());
         this.helpBtn.addEventListener('click', () => this.showHelp());
         this.downloadBtn.addEventListener('click', () => this.downloadSelected());

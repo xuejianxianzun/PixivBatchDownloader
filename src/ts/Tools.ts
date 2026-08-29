@@ -530,6 +530,34 @@ class Tools {
     return btn
   }
 
+  /** 生成显示在网页上的蓝底白字按钮。可选是否注册到 wiki，默认不注册，因为这些按钮的功能大多比较简单，不需要在 wiki 里显示详细说明。 */
+  static addBlueTextBtn(id: string, text: string, registerToWiki = false) {
+    const btn = document.createElement('button')
+    btn.id = id
+    btn.classList.add('blueTextBtn', 'hasRippleAnimation')
+    btn.type = 'button'
+    btn.innerHTML = `<span data-xztext="${text}"></span><span class="ripple"></span>`
+
+    // 生成的 btn 代码例如：
+    // <button id="${id}" class="blueTextBtn hasRippleAnimation" type="button"><span data-xztext="${text}"></span><span class="ripple"></span></button>
+
+    lang.register(btn)
+    if (registerToWiki) {
+      wiki.registerBtn(btn)
+    }
+    return btn
+  }
+
+  /** 添加简单的文本按钮。button 元素里使用一个 span 元素来显示文字。没有附带样式类名，所以调用方需要自己设置样式 */
+  static addTextBtn(id: string, text: string) {
+    const btn = document.createElement('button')
+    btn.id = id
+    btn.type = 'button'
+    btn.innerHTML = `<span data-xztext="${text}"></span>`
+    lang.register(btn)
+    return btn
+  }
+
   /**获取页面标题 */
   static getPageTitle() {
     // 删除下载器在标题上添加的状态，以及剩余文件数量的数字
