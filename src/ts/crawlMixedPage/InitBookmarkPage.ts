@@ -92,7 +92,8 @@ class InitBookmarkPage extends InitPageBase {
     window.setTimeout(() => {
       showOneTimeMsg.show(
         'tipBookmarkManage',
-        lang.transl('_在收藏页面里提示有辅助功能可用')
+        lang.transl('_在收藏页面里提示有辅助功能可用'),
+        lang.transl('_有附加功能可用')
       )
     }, 1000)
 

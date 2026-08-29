@@ -169,7 +169,8 @@ class QuickBookmark {
 
         showOneTimeMsg.show(
           'tipBookmarkButton',
-          lang.transl('_下载器的收藏按钮默认会添加作品的标签')
+          lang.transl('_下载器的收藏按钮默认会添加作品的标签'),
+          lang.transl('_下载器的收藏功能')
         )
       }
     })

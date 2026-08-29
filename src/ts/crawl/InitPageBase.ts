@@ -231,7 +231,8 @@ abstract class InitPageBase {
 
     showOneTimeMsg.show(
       'tipCloseAskFileSaveLocationOnce',
-      lang.transl('_建议您关闭询问文件保存位置')
+      lang.transl('_建议您关闭询问文件保存位置'),
+      lang.transl('_下载提示')
     )
 
     log.success('🚀' + lang.transl('_开始抓取'))
@@ -302,7 +303,8 @@ abstract class InitPageBase {
 
       showOneTimeMsg.show(
         'tipCloseAskFileSaveLocationOnce',
-        lang.transl('_建议您关闭询问文件保存位置')
+        lang.transl('_建议您关闭询问文件保存位置'),
+        lang.transl('_下载提示')
       )
 
       log.success('🚀' + lang.transl('_开始抓取'))

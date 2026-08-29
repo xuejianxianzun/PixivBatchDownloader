@@ -304,7 +304,8 @@ class SelectWork {
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltSToSelectWork',
-            lang.transl('_快捷键ALTS手动选择作品')
+            lang.transl('_快捷键ALTS手动选择作品'),
+            lang.transl('_手动选择作品')
           )
         }
       }

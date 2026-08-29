@@ -1286,7 +1286,7 @@ class OptionConfigs {
     },
     {
       no: 88,
-      nameKey: '_收藏设置',
+      nameKey: '_下载器的收藏功能',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'other',

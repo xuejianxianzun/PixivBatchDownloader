@@ -93,7 +93,8 @@ class ShowOriginSizeImage {
       if (!Config.mobile) {
         showOneTimeMsg.show(
           'tipHotkeysViewLargeImage',
-          lang.transl('_查看作品大图时的快捷键')
+          lang.transl('_查看作品大图时的快捷键'),
+          lang.transl('_查看作品原图')
         )
       }
 

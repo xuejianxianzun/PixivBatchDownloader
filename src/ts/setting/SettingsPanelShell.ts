@@ -200,7 +200,8 @@ class SettingsPanelShell {
     window.addEventListener(EVT.list.settingInitialized, () => {
       showOneTimeMsg.show(
         'tipHowToUse',
-        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告')
+        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告'),
+        lang.transl('_使用说明')
       )
     })
 
@@ -218,7 +219,8 @@ class SettingsPanelShell {
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltXToShowControlPanel',
-            lang.transl('_快捷键ALTX显示隐藏设置面板')
+            lang.transl('_快捷键ALTX显示隐藏设置面板'),
+            lang.transl('_快捷键提示')
           )
         }
       })

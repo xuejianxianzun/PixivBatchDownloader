@@ -249,7 +249,8 @@ class ExcludeWork {
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltEToExcludeWork',
-            lang.transl('_快捷键ALTE手动排除作品')
+            lang.transl('_快捷键ALTE手动排除作品'),
+            lang.transl('_手动排除作品')
           )
         }
       }
