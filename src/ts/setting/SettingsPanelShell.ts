@@ -163,10 +163,9 @@ class SettingsPanelShell {
     fillIcon: string,
     hidden = false
   ) {
+    const hiddenStr = hidden ? 'hidden' : ''
     return `
-    <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${
-      hidden ? 'hidden' : ''
-    }>
+    <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
       <span class="settingsPanel_navIconWrap" aria-hidden="true">
         <svg class="icon settingsPanel_navIcon settingsPanel_navIconLine">
           <use xlink:href="#${lineIcon}"></use>
@@ -215,7 +214,7 @@ class SettingsPanelShell {
 
     shell.querySelectorAll('.centerWrap_close').forEach((button) =>
       button.addEventListener('click', () => {
-        EVT.fire('closeCenterPanel')
+        EVT.fire('closeSettingsPanel')
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltXToShowControlPanel',
@@ -234,22 +233,14 @@ class SettingsPanelShell {
       )
 
     window.addEventListener(EVT.list.crawlStart, () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     })
 
-    for (const ev of [EVT.list.crawlComplete, EVT.list.resume]) {
-      window.addEventListener(ev, () => {
-        if (!states.quickCrawl && store.result.length > 0) {
-          this.show()
-        }
-      })
-    }
-
-    window.addEventListener(EVT.list.openCenterPanel, () => {
+    window.addEventListener(EVT.list.openSettingsPanel, () => {
       this.show()
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeSettingsPanel, () => {
       this.close()
     })
 
@@ -263,7 +254,7 @@ class SettingsPanelShell {
 
     document.addEventListener('click', () => {
       if (getComputedStyle(shell).display !== 'none') {
-        EVT.fire('closeCenterPanel')
+        EVT.fire('closeSettingsPanel')
       }
     })
   }
@@ -272,12 +263,12 @@ class SettingsPanelShell {
     const shell = this.get()
     shell.style.display = 'flex'
     this.updateHeight()
-    EVT.fire('centerPanelOpened')
+    EVT.fire('settingsPanelOpened')
   }
 
   private static close() {
     this.get().style.display = 'none'
-    EVT.fire('centerPanelClosed')
+    EVT.fire('settingsPanelClosed')
   }
 
   private static toggle() {
@@ -285,9 +276,9 @@ class SettingsPanelShell {
     const nowDisplay = shell.style.display
     nowDisplay === 'flex' ? this.close() : this.show()
     if (nowDisplay === 'flex') {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     } else {
-      EVT.fire('openCenterPanel')
+      EVT.fire('openSettingsPanel')
     }
   }
 

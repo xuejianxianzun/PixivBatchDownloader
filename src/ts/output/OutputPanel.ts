@@ -51,7 +51,7 @@ class OutputPanel {
       }
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeSettingsPanel, () => {
       this.close()
     })
 

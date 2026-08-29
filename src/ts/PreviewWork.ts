@@ -285,7 +285,7 @@ class PreviewWork {
         // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
         const activeEl = document.activeElement
         if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
-          ; (activeEl as HTMLElement).blur()
+          ;(activeEl as HTMLElement).blur()
         }
 
         // 预览作品时，可以使用快捷键 D 下载这个作品
@@ -380,7 +380,7 @@ class PreviewWork {
 
     const hiddenEvtList = [
       EVT.list.pageSwitch,
-      EVT.list.centerPanelOpened,
+      EVT.list.settingsPanelOpened,
       EVT.list.showOriginSizeImage,
     ]
     hiddenEvtList.forEach((evt) => {

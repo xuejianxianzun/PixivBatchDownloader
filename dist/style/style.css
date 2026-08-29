@@ -549,7 +549,7 @@
 .rightButton .icon {
   vertical-align: middle;
 }
-#openCenterPanelBtn {
+#openSettingsPanelBtn {
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }

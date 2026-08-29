@@ -42,7 +42,7 @@ class Tip {
     }
   }
 
-  // 显示中间面板上的提示。参数 mouse 指示鼠标是移入还是移出，并包含鼠标坐标
+  // 显示设置面板上的提示。参数 mouse 指示鼠标是移入还是移出，并包含鼠标坐标
   private showTip(text: string | undefined, mouse: MouseArg) {
     if (!text) {
       throw new Error('No tip text.')

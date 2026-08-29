@@ -92,14 +92,14 @@ class EVENT {
     convertChange: 'convertChange',
     /** 当动图转换成功时触发 */
     convertSuccess: 'convertSuccess',
-    /** 指示打开中间面板 */
-    openCenterPanel: 'openCenterPanel',
-    /** 指示关闭中间面板 */
-    closeCenterPanel: 'closeCenterPanel',
-    /** 中间面板已打开 */
-    centerPanelOpened: 'centerPanelOpened',
-    /** 中间面板已关闭 */
-    centerPanelClosed: 'centerPanelClosed',
+    /** 指示打开设置面板 */
+    openSettingsPanel: 'openSettingsPanel',
+    /** 指示关闭设置面板 */
+    closeSettingsPanel: 'closeSettingsPanel',
+    /** 设置面板已打开 */
+    settingsPanelOpened: 'settingsPanelOpened',
+    /** 设置面板已关闭 */
+    settingsPanelClosed: 'settingsPanelClosed',
     /** 当清除多图作品时触发 */
     clearMultiple: 'clearMultiple',
     /** 当清除动图作品时触发 */
@@ -247,10 +247,10 @@ class EVENT {
       | 'importSettings'
       | 'resetHelpTip'
       | 'convertSuccess'
-      | 'openCenterPanel'
-      | 'closeCenterPanel'
-      | 'centerPanelOpened'
-      | 'centerPanelClosed'
+      | 'openSettingsPanel'
+      | 'closeSettingsPanel'
+      | 'settingsPanelOpened'
+      | 'settingsPanelClosed'
       | 'clearMultiple'
       | 'clearUgoira'
       | 'worksUpdate'

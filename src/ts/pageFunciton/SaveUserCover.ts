@@ -15,7 +15,7 @@ class SaveUserCover {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveUserCover, () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       this.saveUserCover()
     })
   }

@@ -857,24 +857,24 @@ class OptionConfigs {
 
     // 下载
     {
-      no: 51,
-      nameKey: '_同时下载数量',
-      name: '',
-      categoryLevel1: 'download',
-      categoryLevel2: 'behavior',
-      pinned: false,
-      hideOnPixivision: true,
-      searchWordKeys: ['_并发'],
-      searchWords: [],
-    },
-    {
       no: 52,
-      nameKey: '_自动开始下载',
+      nameKey: '_抓取完成后自动开始下载',
       name: '',
       categoryLevel1: 'download',
       categoryLevel2: 'behavior',
       pinned: false,
       searchWordKeys: [],
+      searchWords: [],
+    },
+    {
+      no: 51,
+      nameKey: '_同时下载多少个文件',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'behavior',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_并发', '_下载线程数量'],
       searchWords: [],
     },
     {

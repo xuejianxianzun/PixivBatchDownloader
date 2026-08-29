@@ -243,6 +243,7 @@ interface XzSetting {
   needTag: string[]
   notNeedTag: string[]
   autoStartDownload: boolean
+  autoStartDownloadForQuickDownload: boolean
   downloadThread: number
   userSetName: string
   userSetNameForNovel: string
@@ -788,6 +789,7 @@ class Settings {
     needTag: [],
     notNeedTag: [],
     autoStartDownload: true,
+    autoStartDownloadForQuickDownload: true,
     downloadThread: 3,
     userSetName: Config.defaultNameRuleForArtwork,
     userSetNameForNovel: Config.defaultNameRuleForNovel,
@@ -1698,7 +1700,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

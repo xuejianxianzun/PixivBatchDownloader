@@ -15,7 +15,7 @@
 - `src/ts/content.ts`：前台内容脚本入口。很多模块通过“仅导入即注册”的方式挂载功能。
 - `src/ts/serviceWorker/background.ts`：后台 service worker 入口。
 - `src/ts/injectScript.ts`：注入脚本入口。
-- `src/ts/setting/SettingsPanelBootstrap.ts`：设置面板（下载器的 UI 界面）的入口。用户可以在设置面板上查看和修改设置、启动抓取和下载流程。
+- `src/ts/setting/SettingsPanelBootstrap.ts`：设置面板（下载器的 UI 界面）的入口。用户可以在设置面板上查看和修改设置、启动抓取和下载流程。设置面板有时也被叫做“下载面板”。
 - `src/ts/PageType.ts`：区分不同类型的页面。很多功能都会根据页面类型进行分别处理。
 - `src/ts/crawl*/`：初始化每种页面里的抓取逻辑。其中，`crawlArtworkPage` 文件夹里的模块用于抓取只有图像作品的页面；`crawlNovelPage` 文件夹里的模块用于抓取只有小说作品的页面；`crawlMixedPage` 抓取同时具有图像作品和小说作品的页面。
 - `src/ts/store/`：保存运行时数据、储存抓取结果、类型定义。

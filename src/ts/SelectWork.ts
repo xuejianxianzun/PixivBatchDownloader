@@ -118,11 +118,11 @@ class SelectWork {
       true
     )
 
-    window.addEventListener(EVT.list.openCenterPanel, () => {
+    window.addEventListener(EVT.list.openSettingsPanel, () => {
       this.tempHide = true
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeSettingsPanel, () => {
       this.tempHide = false
     })
 
@@ -542,7 +542,7 @@ class SelectWork {
     this.bindEscEvent = this.escEvent.bind(this)
     window.addEventListener('keydown', this.bindEscEvent)
 
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
   }
 
   private pauseSelect() {

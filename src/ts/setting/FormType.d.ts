@@ -43,6 +43,7 @@ export interface FormType extends HTMLFormElement {
   needTag: HTMLInputElement
   notNeedTag: HTMLInputElement
   autoStartDownload: HTMLInputElement
+  autoStartDownloadForQuickDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
   userSetNameForNovel: HTMLInputElement

@@ -119,9 +119,11 @@ class DownloadControl {
       window.addEventListener(ev, (ev) => {
         // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
         this.pause = ev.type === 'resume'
-        // 让开始下载的方法进入任务队列，以便让监听上述事件的其他部分的代码先执行完毕
+        //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
+        const openPanel = ev.type !== 'resultChange'
+        // 让开始下载的方法进入事件队列，以便让其他模块里监听上述事件的代码先执行完毕
         window.setTimeout(() => {
-          this.readyDownload()
+          this.readyDownload(openPanel)
         }, 0)
       })
     }
@@ -408,8 +410,8 @@ class DownloadControl {
     }
   }
 
-  // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
-  private readyDownload() {
+  /** 抓取完毕之后更新状态，并决定是否立即开始下载 */
+  private readyDownload(openPanel = true) {
     if (states.busy) {
       return
     }
@@ -432,26 +434,37 @@ class DownloadControl {
 
     this.setDownloadThread()
 
+    // 是否自动开始下载
+
     // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
       settings.previewResult
     ) {
-      // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
-      // 允许快速抓取发起的下载请求自动开始下载
-      // 允许由抓取标签列表功能发起的下载请求自动开始下载
+      // 对于普通下载任务，阻止自动下载
       if (!states.quickCrawl && !states.crawlTagList) {
+        openPanel && EVT.fire('openSettingsPanel')
         return
       }
     }
 
-    // 自动开始下载的情况
-    if (
-      settings.autoStartDownload ||
-      states.quickCrawl ||
-      states.crawlTagList
-    ) {
-      this.startDownload()
+    // 处理快速下载任务
+    if (states.quickCrawl || states.crawlTagList) {
+      if (settings.autoStartDownloadForQuickDownload) {
+        this.startDownload()
+      } else {
+        // 如果快速下载任务被设置为不自动开始下载，则打开设置面板，告诉用户抓取已经完成，并且可以手动开始下载
+        // 如果快速下载任务可以自动开始下载，则不需要打开设置面板，这样减少了对用户的打扰。而且快速下载任务的抓取结果通常是小批量的，可以很快下载完毕，所以不需要打开设置面板来查看下载进度。
+        openPanel && EVT.fire('openSettingsPanel')
+      }
+    } else {
+      // 处理普通下载任务
+      if (settings.autoStartDownload) {
+        this.startDownload()
+      }
+
+      // 普通下载任务总是会打开设置面板
+      openPanel && EVT.fire('openSettingsPanel')
     }
   }
 

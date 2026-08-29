@@ -53,7 +53,7 @@ class CrawlTagList {
       'secondary',
       'brand'
     ).addEventListener('click', () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       this.toggleWrap(true)
       // 跳转到页面顶部，否则用户可能看不到输入区域
       window.scrollTo(0, 0)

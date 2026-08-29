@@ -223,7 +223,7 @@ class InitDashboardPage extends InitPageBase {
       return
     }
     this.busy = true
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
 
     this.reset()
 

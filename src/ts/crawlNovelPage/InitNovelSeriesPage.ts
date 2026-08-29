@@ -36,7 +36,7 @@ class InitNovelSeriesPage extends InitPageBase {
       'mergeSeriesNovel',
       'brand'
     ).addEventListener('click', async () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       const seriesId = Tools.getSeriesId()
       let seriseTitle = ''
       // 尝试获取系列标题

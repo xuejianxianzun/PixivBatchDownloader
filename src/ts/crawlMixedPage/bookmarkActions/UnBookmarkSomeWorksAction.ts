@@ -21,7 +21,7 @@ class UnBookmarkSomeWorksAction extends BookmarkPageBatchActionBase<WorkBookmark
       const title = lang.transl(option.title)
       log.warning(title)
       toast.warning(title)
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
 
       void this.run({
         crawlNumber: option.crawlNumber,

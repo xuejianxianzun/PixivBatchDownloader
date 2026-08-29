@@ -17,7 +17,7 @@ class OpenSettingsPanel {
 
   private addBtn() {
     this.btn = rightButtonManager.register({
-      id: 'openCenterPanelBtn',
+      id: 'openSettingsPanelBtn',
       title: '_显示设置面板',
       icon: 'open',
       order: 10,
@@ -29,19 +29,19 @@ class OpenSettingsPanel {
     this.btn.addEventListener('click', (e) => {
       e.stopPropagation()
       if (this.panelOpened) {
-        EVT.fire('closeCenterPanel')
+        EVT.fire('closeSettingsPanel')
       } else {
-        EVT.fire('openCenterPanel')
+        EVT.fire('openSettingsPanel')
       }
     })
 
-    window.addEventListener(EVT.list.centerPanelOpened, () => {
+    window.addEventListener(EVT.list.settingsPanelOpened, () => {
       this.panelOpened = true
       this.btn.dataset.xztitle = '_隐藏设置面板'
       this.btn.title = lang.transl('_隐藏设置面板')
     })
 
-    window.addEventListener(EVT.list.centerPanelClosed, () => {
+    window.addEventListener(EVT.list.settingsPanelClosed, () => {
       this.panelOpened = false
       this.btn.dataset.xztitle = '_显示设置面板'
       this.btn.title = lang.transl('_显示设置面板')

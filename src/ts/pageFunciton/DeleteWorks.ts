@@ -204,7 +204,7 @@ class DeleteWorks {
     if (this.delMode) {
       lang.updateText(span!, '_退出手动删除')
       await Utils.sleep(100)
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     } else {
       lang.updateText(span!, '_手动删除作品')
     }

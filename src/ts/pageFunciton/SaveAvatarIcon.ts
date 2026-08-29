@@ -16,7 +16,7 @@ class SaveAvatarIcon {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveAvatarIcon, () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       this.saveAvatarIcon()
     })
   }

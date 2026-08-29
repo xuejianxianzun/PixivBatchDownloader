@@ -115,7 +115,7 @@ class InitHomePage extends InitPageBase {
   }
 
   private async inputIDList() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     this.checkPageType()
 
     const input = new Input({
@@ -154,7 +154,7 @@ class InitHomePage extends InitPageBase {
   }
 
   private async crawlIdRange() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     this.checkPageType()
 
     let start = 0
@@ -258,7 +258,7 @@ class InitHomePage extends InitPageBase {
   }
 
   private async importIDList() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
 
     await this.awaitClickBtn()
 

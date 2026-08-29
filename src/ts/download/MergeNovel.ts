@@ -131,7 +131,7 @@ class MergeNovel {
     }
 
     this.logMergeStart(link)
-    this.closeCenterPanelOnSeriesPage()
+    this.closeSettingsPanelOnSeriesPage()
 
     const gotNovelIds = await this.tryGetNovelIds(link)
     if (!gotNovelIds) {
@@ -214,12 +214,12 @@ class MergeNovel {
     }
   }
 
-  /** 在系列页里启动合并时关闭中间面板。 */
-  private closeCenterPanelOnSeriesPage() {
+  /** 在系列页里启动合并时关闭设置面板。 */
+  private closeSettingsPanelOnSeriesPage() {
     // 在系列小说页面里执行时，关闭设置面板
     // 在其他页面类型里不关闭设置面板，因为在其他页面里可能需要合并多个系列小说，会导致多次关闭设置面板。这可能会影响用户正常使用设置面板
     if (pageType.type === pageType.list.NovelSeries) {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     }
   }
 

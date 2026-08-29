@@ -14,7 +14,7 @@ class FindBookmark404Action extends Bookmark404ActionBase {
       toast.show(title, {
         position: 'topCenter',
       })
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
 
       this.reset()
 

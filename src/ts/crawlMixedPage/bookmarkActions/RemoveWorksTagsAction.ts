@@ -28,7 +28,7 @@ class RemoveWorksTagsAction extends BookmarkPageBatchActionBase<WorkBookmarkData
       log.warning(msg)
       log.warning(lang.transl('_它们会变成未分类状态'))
       toast.warning(msg)
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
 
       void this.run({
         crawlNumber: options.crawlNumber,

@@ -63,6 +63,7 @@ class FormSettings {
       'r18Folder',
       'sizeSwitch',
       'autoStartDownload',
+      'autoStartDownloadForQuickDownload',
       'previewResult',
       'deduplication',
       'bmkAfterDL',
