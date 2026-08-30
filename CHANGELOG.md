@@ -1,9 +1,9 @@
 # CHANGLOG
 
-在 Pixiv 的 console 里隐藏这些脚本的消息：
+在 Pixiv 的 console 里隐藏这些脚本的输出：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
-## next
+## 19.4.0
 
 本次更新的主要改动：
 - 添加了全选作品、手动排除作品的功能
@@ -11,8 +11,9 @@
 - 在网页右侧添加了查看日志的按钮
 - 可以自定义快捷键了
 - 优化了一些语言的文本
+- 其他优化
 
-### ℹ️帮助：如何关闭“快捷屏蔽用户”功能
+### ℹ️提示：如何关闭“快捷屏蔽用户”功能
 
 上个版本我添加了“快捷屏蔽用户”功能，一些用户不知道如何关闭它。该功能只有当你启用了“用户屏蔽名单”之后才会生效，并且它的开关就在“用户屏蔽名单”里。
 
@@ -92,6 +93,12 @@ PS：在下载器不支持的页面里没有这个按钮，此时快捷键没有
 其实这个查看原图的功能就是“在缩略图上长按鼠标右键时显示大图”，只不过添加了一个新的调用方式。
 
 另外我为查看原图功能添加了新的快捷键：按 `B` 可以收藏这个作品；按 `V` 可以关闭原图。
+
+### 🐞修复问题：转换动图为 WebM 格式时，有极少数作品会转换失败
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/673
+
+下载器在转换 WebM 时会向 worker 发送数据，之前没有把 ImageBitmap 作为 transferable 对象传递，这会导致 ImageBitmap 被浏览器再次复制，可能会导致内存溢出。现在修复。另外对 GIF 格式也应用了同样的优化。
 
 ### 😊优化一处体验：在排行榜页面里，“抓取多少作品”的数量不会自动变化了
 

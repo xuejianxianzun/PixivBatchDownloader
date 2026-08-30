@@ -2838,6 +2838,13 @@ class ConvertUgoira {
                 this.convertingIds.add(id);
                 window.clearTimeout(this.clearCacheTimers.get(id));
                 const imageBitmapList = await this.getImageBitmapList(file, id);
+                // WebM worker 会转移 ImageBitmap 的所有权。不能把已经转移的对象
+                // 留在缓存里，否则同一作品继续转换其他格式时会复用失效对象。
+                if (type === 'webm' &&
+                    typeof Worker !== 'undefined' &&
+                    typeof OffscreenCanvas !== 'undefined') {
+                    this.imageBitmapCache.delete(id);
+                }
                 try {
                     // await Utils.sleep(1000)
                     // console.count('测试转换错误')
@@ -2867,7 +2874,7 @@ class ConvertUgoira {
     complete() {
         this.count = this._count - 1;
     }
-    // 转换成 WebM
+    /** 转换成 WebM */
     async webm(file, info, id) {
         // WebM 视频的帧延迟不能大于 32767 ms，否则就无法转换成功
         // 其他格式没有这个问题
@@ -2888,27 +2895,39 @@ class ConvertUgoira {
         // 3. 最后一行（或填充区域）没有有效像素数据，在解码/渲染时就表现为绿色条。
         // 这不是 bug，而是视频编码的常见兼容性问题（H.264/H.265 也有类似要求）。
         // 播放器渲染链路（尤其是某些内置解码器 + Renderer）处理 padding 不够完美时，就会露出绿线。
-        const blob = await this.start(file, info, 'webm', id);
-        this.clearCache(id);
-        return blob;
+        try {
+            return await this.start(file, info, 'webm', id);
+        }
+        finally {
+            this.clearCache(id);
+        }
     }
-    // 转换成 WebP
+    /** 转换成 WebP */
     async webp(file, info, id) {
-        const blob = await this.start(file, info, 'webp', id);
-        this.clearCache(id);
-        return blob;
+        try {
+            return await this.start(file, info, 'webp', id);
+        }
+        finally {
+            this.clearCache(id);
+        }
     }
-    // 转换成 GIF
+    /** 转换成 GIF */
     async gif(file, info, id) {
-        const blob = await this.start(file, info, 'gif', id);
-        this.clearCache(id);
-        return blob;
+        try {
+            return await this.start(file, info, 'gif', id);
+        }
+        finally {
+            this.clearCache(id);
+        }
     }
-    // 转换成 APNG
+    /** 转换成 APNG */
     async apng(file, info, id) {
-        const blob = await this.start(file, info, 'png', id);
-        this.clearCache(id);
-        return blob;
+        try {
+            return await this.start(file, info, 'png', id);
+        }
+        finally {
+            this.clearCache(id);
+        }
     }
     /** 从转换中列表移除 id，并在一定时间后清理不再使用的 ImageBitmap 缓存 */
     clearCache(id) {
@@ -3227,7 +3246,7 @@ class ToWebM {
             });
         });
     }
-    // 使用 worker 进行绘制和 WebM 编码，避免在主线程上执行 canvas.toDataURL 和 Whammy 编码
+    /** 使用 worker 进行绘制和 WebM 编码，避免在主线程上执行 canvas.toDataURL 和 Whammy 编码 */
     encodeInWorker(ImageBitmapList, info) {
         return new Promise((resolve, reject) => {
             const id = Date.now() + Math.random();
@@ -3251,6 +3270,8 @@ class ToWebM {
                 }
             };
             this.worker.addEventListener('message', handler);
+            // ImageBitmap 是可转移对象。若不提供 transfer list，浏览器会尝试复制
+            // 所有帧的像素数据；大体积动图会因此触发 DataCloneError: out of memory。
             this.worker.postMessage({
                 id,
                 bitmaps: ImageBitmapList,
@@ -3258,7 +3279,7 @@ class ToWebM {
                 width: ImageBitmapList[0].width,
                 height: ImageBitmapList[0].height,
                 quality: 0.9,
-            });
+            }, ImageBitmapList);
         });
     }
 }
@@ -46836,7 +46857,7 @@ class ButtonConfigs {
             categoryLevel2: 'FollowingPage',
         },
         // extraFeatures - UserRequest
-        // 把该按钮在 wiki 里所属的页面设置为用户页面。这是有意的
+        // 把该按钮在 wiki 里所属的页面设置为用户页面，即 extraFeatures - UserPage。这是有意的
         {
             id: 'bookmarkAllRequestWorks',
             nameKey: '_收藏所有约稿作品',
@@ -55566,7 +55587,7 @@ class Wiki {
         if (!_ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.checkButtonRegistered(btn.id)) {
             if (!this.warnLoggedIds.has(btn.id)) {
                 this.warnLoggedIds.add(btn.id);
-                console.warn(`Wiki: 按钮 ${btn.id} 未在 ButtonConfigs 里配置 wiki 分类，长按将无法生成链接`);
+                console.error(`Wiki: 按钮 ${btn.id} 未在 ButtonConfigs 里配置 wiki 分类，长按将无法生成链接`);
             }
         }
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async (ev) => {
@@ -55623,7 +55644,7 @@ class Wiki {
                 const level2NameKey = level2.nameKey;
                 const ids = level2.ids;
                 // 保存这个二级分类里每个 id 的名称 key 和多语言名称
-                // 这里保存下载器支持的所有语言分类的名称，包括 wiki 里未实装的语言。这样有利于在 Wiki 上显示其他语言的需求。
+                // 这里保存下载器支持的所有语言分类的名称，包括 wiki 里未实装的语言。这样有利于以后在 Wiki 上显示其他语言的需求
                 const names = [];
                 const listSource = type === 'option' ? _OptionConfigs__WEBPACK_IMPORTED_MODULE_7__.optionConfigs.options : _ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.buttonList;
                 for (const id of ids) {

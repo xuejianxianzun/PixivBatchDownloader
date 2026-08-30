@@ -603,7 +603,7 @@
                   this.frames.length
               )
               this.activeWorkers.push(worker)
-              return worker.postMessage(task)
+              return worker.postMessage(task, [task.data.buffer])
             }
             GIF.prototype.getContextData = function (ctx) {
               return ctx.getImageData(
