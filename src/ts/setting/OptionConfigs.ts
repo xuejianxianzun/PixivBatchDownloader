@@ -591,7 +591,7 @@ class OptionConfigs {
       categoryLevel2: 'strategy',
       pinned: false,
       hideOnPixivision: true,
-      searchWordKeys: ['_用户阻止名单', '_黑名单'],
+      searchWordKeys: ['_用户阻止名单', '_黑名单', '_屏蔽用户'],
       searchWords: [],
     },
     {

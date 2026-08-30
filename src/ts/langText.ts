@@ -2423,7 +2423,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `대기 큐에 있는 작품 크롤링 시작`,
     `Начать сканирование работ из очереди ожидания`,
   ],
-  _给未分类作品添加添加tag: [
+  _给未分类作品添加tag: [
     `给未分类的作品添加标签`,
     `幫未分類的作品加入標籤`,
     `Add tag to uncategorized works`,
@@ -3964,6 +3964,14 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `ユーザー<span class="key">ブロック</span>リスト`,
     `사용자 <span class="key">차단</span> 목록`,
     `Список <span class="key">заблокированных</span> пользователей`,
+  ],
+  _屏蔽用户: [
+    `屏蔽用户`,
+    `封鎖使用者`,
+    `Block user`,
+    `ユーザーをブロック`,
+    `사용자 차단`,
+    `Заблокировать пользователя`,
   ],
   _快捷屏蔽用户: [
     `快捷屏蔽用户`,
@@ -7361,7 +7369,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
 <span class="blue">Space</span> Next image<br>
-You can view this hotkey list anytime in the "Preview work" settings`,
+You can view this hotkey list anytime in the "Preview works" settings`,
     `プレビューを表示しているとき、次のショートカットキーを使用できます：<br>
 <span class="blue">V</span>(iew) 1:1 の元の比率で原画像を表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>

@@ -291,7 +291,7 @@ class PageType {
       },
       {
         type: PageName.AreaRanking,
-        url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
+        url: 'https://www.pixiv.net/ranking_area.php?type=detail&no=1',
       },
       {
         type: PageName.ArtworkRanking,

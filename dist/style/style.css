@@ -2019,9 +2019,6 @@ body.mobile #rightButtonContainer {
   grid-column: 1 / -1;
   margin-top: 0;
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_btns + .centerWrap_btns {
-  margin-top: 14px;
-}
 .centerWrap .centerWrap_con .settingForm .progressTip {
   font-size: 15px;
 }
@@ -2570,6 +2567,9 @@ body.mobile #rightButtonContainer {
   transition: opacity 0.16s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .centerWrap .centerWrap_con .settingsPanel_panelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   padding: 15px 20px;
 }
 .centerWrap .centerWrap_con .settingsPanel_titleContent {

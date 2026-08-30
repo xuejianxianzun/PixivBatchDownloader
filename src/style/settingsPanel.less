@@ -1115,11 +1115,6 @@
         }
       }
 
-      // 多个按钮块上下堆叠时（抓取 / 手动选择 / 手动排除），彼此之间留出间距
-      .centerWrap_btns + .centerWrap_btns {
-        margin-top: 14px;
-      }
-
       .progressTip {
         font-size: 15px;
       }
@@ -1796,6 +1791,9 @@
     }
 
     .settingsPanel_panelContent {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       padding: 15px 20px;
     }
 

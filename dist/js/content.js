@@ -8411,7 +8411,7 @@ class PageType {
             },
             {
                 type: PageName.AreaRanking,
-                url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
+                url: 'https://www.pixiv.net/ranking_area.php?type=detail&no=1',
             },
             {
                 type: PageName.ArtworkRanking,
@@ -19262,7 +19262,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         const URLUserID = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLPathField(window.location.pathname, 'users');
         const ownPage = URLUserID && URLUserID === _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID;
         if (ownPage) {
-            new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_8__.BookmarksAddTag(this.addInitPageBtn('otherBtns', '_给未分类作品添加添加tag', '', 'addTagToUnmarkedWork', 'brand'));
+            new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_8__.BookmarksAddTag(this.addInitPageBtn('otherBtns', '_给未分类作品添加tag', '', 'addTagToUnmarkedWork', 'brand'));
             new _bookmarkActions_RemoveWorksTagsAction__WEBPACK_IMPORTED_MODULE_17__.RemoveWorksTagsAction(this.addInitPageBtn('otherBtns', '_移除本页面中所有作品的标签', '', 'removeTagsFromAllWorksOnPage', 'warning'), {
                 title: '_移除本页面中所有作品的标签',
                 crawlNumber: 1,
@@ -34177,7 +34177,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `대기 큐에 있는 작품 크롤링 시작`,
         `Начать сканирование работ из очереди ожидания`,
     ],
-    _给未分类作品添加添加tag: [
+    _给未分类作品添加tag: [
         `给未分类的作品添加标签`,
         `幫未分類的作品加入標籤`,
         `Add tag to uncategorized works`,
@@ -35718,6 +35718,14 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `ユーザー<span class="key">ブロック</span>リスト`,
         `사용자 <span class="key">차단</span> 목록`,
         `Список <span class="key">заблокированных</span> пользователей`,
+    ],
+    _屏蔽用户: [
+        `屏蔽用户`,
+        `封鎖使用者`,
+        `Block user`,
+        `ユーザーをブロック`,
+        `사용자 차단`,
+        `Заблокировать пользователя`,
     ],
     _快捷屏蔽用户: [
         `快捷屏蔽用户`,
@@ -39110,7 +39118,7 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 <span class="blue">← ↑</span> Previous image<br>
 <span class="blue">→ ↓</span> Next image<br>
 <span class="blue">Space</span> Next image<br>
-You can view this hotkey list anytime in the "Preview work" settings`,
+You can view this hotkey list anytime in the "Preview works" settings`,
         `プレビューを表示しているとき、次のショートカットキーを使用できます：<br>
 <span class="blue">V</span>(iew) 1:1 の元の比率で原画像を表示<br>
 <span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
@@ -45023,8 +45031,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
     }
     /**在操作栏里添加选择/下载相关的按钮，并绑定事件 */
     addToolbar(wrap) {
-        const toolbarHTML = `
-      <div class="thumbnailListToolbar" id="${this.toolbarID}">
+        const toolbarHTML = `<div class="thumbnailListToolbar" id="${this.toolbarID}">
   <div class="thumbnailListToolbarLeft"></div>
   <div class="thumbnailListToolbarRight"></div>
 </div>
@@ -46293,6 +46300,580 @@ class AutoExportSettings {
     }
 }
 new AutoExportSettings();
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/ButtonConfigs.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/setting/ButtonConfigs.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   buttonConfigs: () => (/* binding */ buttonConfigs)
+/* harmony export */ });
+/** 保存所有按钮以及分类的元数据。Wiki.ts 会根据这里的配置自动生成按钮的 Wiki 链接结构 */
+class ButtonConfigs {
+    /** 所有一级分类和二级分类的 schema 信息 */
+    categorySchema = {
+        startCrawl: {
+            id: 'startCrawl',
+            order: 0,
+            nameKey: '_开始抓取',
+            level2: {
+                General: {
+                    id: 'General',
+                    order: 0,
+                    nameKey: '_通用',
+                },
+                HomePage: {
+                    id: 'HomePage',
+                    order: 1,
+                    nameKey: '_首页',
+                },
+                WorkPage: {
+                    id: 'WorkPage',
+                    order: 2,
+                    nameKey: '_作品页面',
+                },
+                NovelSeriesPage: {
+                    id: 'NovelSeriesPage',
+                    order: 3,
+                    nameKey: '_系列小说页面',
+                },
+                SearchPage: {
+                    id: 'SearchPage',
+                    order: 4,
+                    nameKey: '_搜索页面',
+                },
+                Ranking: {
+                    id: 'Ranking',
+                    order: 5,
+                    nameKey: '_排行榜',
+                },
+                Discover: {
+                    id: 'Discover',
+                    order: 6,
+                    nameKey: '_发现',
+                },
+                FollowingPage: {
+                    id: 'FollowingPage',
+                    order: 7,
+                    nameKey: '_关注页面',
+                },
+                ContestPage: {
+                    id: 'ContestPage',
+                    order: 8,
+                    nameKey: '_比赛页面',
+                },
+                Dashboard: {
+                    id: 'Dashboard',
+                    order: 9,
+                    nameKey: '_仪表盘',
+                },
+                BookmarkDetails: {
+                    id: 'BookmarkDetails',
+                    order: 10,
+                    nameKey: '_书签详情',
+                },
+                pixivision: {
+                    id: 'pixivision',
+                    order: 11,
+                    nameKey: '_pixivision',
+                },
+                UserRequest: {
+                    id: 'UserRequest',
+                    order: 12,
+                    nameKey: '_用户的约稿页面',
+                },
+            },
+        },
+        downloadArea: {
+            id: 'downloadArea',
+            order: 1,
+            nameKey: '_下载区域',
+            level2: {
+                CrawlResults: {
+                    id: 'CrawlResults',
+                    order: 0,
+                    nameKey: '_抓取结果',
+                },
+                DownloadControl: {
+                    id: 'DownloadControl',
+                    order: 1,
+                    nameKey: '_下载控制',
+                },
+            },
+        },
+        extraFeatures: {
+            id: 'extraFeatures',
+            order: 2,
+            nameKey: '_附加功能',
+            level2: {
+                HomePage: {
+                    id: 'HomePage',
+                    order: 0,
+                    nameKey: '_首页',
+                },
+                UserPage: {
+                    id: 'UserPage',
+                    order: 1,
+                    nameKey: '_用户页面',
+                },
+                SearchPage: {
+                    id: 'SearchPage',
+                    order: 2,
+                    nameKey: '_搜索页面',
+                },
+                BookmarkPage: {
+                    id: 'BookmarkPage',
+                    order: 3,
+                    nameKey: '_书签页面',
+                },
+                FollowingPage: {
+                    id: 'FollowingPage',
+                    order: 4,
+                    nameKey: '_关注页面',
+                },
+            },
+        },
+    };
+    /** 所有按钮的元数据列表 */
+    buttonList = [
+        // startCrawl - General
+        {
+            id: 'startCrawling',
+            nameKey: '_开始抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'stopCrawling',
+            nameKey: '_停止抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'scheduleCrawling',
+            nameKey: '_定时抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'cancelScheduledCrawling',
+            nameKey: '_取消定时抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'manuallySelectWork',
+            nameKey: '_手动选择作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'selectAllWorks',
+            nameKey: '_全选当前显示的作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'crawlSelectedWork',
+            nameKey: '_抓取选择的作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'clearSelectedWork',
+            nameKey: '_清空选择的作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'excludeWork',
+            nameKey: '_手动排除作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        {
+            id: 'clearExcludedWork',
+            nameKey: '_清空排除的作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'General',
+        },
+        // startCrawl - HomePage
+        {
+            id: 'crawlById',
+            nameKey: '_输入id进行抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'HomePage',
+        },
+        {
+            id: 'crawlIdRange',
+            nameKey: '_抓取id区间',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'HomePage',
+        },
+        {
+            id: 'importIDList',
+            nameKey: '_导入ID列表',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'HomePage',
+        },
+        // startCrawl - WorkPage
+        {
+            id: 'startCrawlingFromCurrentPageNew',
+            nameKey: '_从本页开始抓取new',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'WorkPage',
+        },
+        {
+            id: 'startCrawlingFromCurrentPageOld',
+            nameKey: '_从本页开始抓取old',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'WorkPage',
+        },
+        {
+            id: 'crawlRelatedWork',
+            nameKey: '_抓取相关作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'WorkPage',
+        },
+        {
+            id: 'downloadRecommendedWorks',
+            nameKey: '_下载推荐作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'WorkPage',
+        },
+        // startCrawl - NovelSeriesPage
+        {
+            id: 'crawlSeriesNovel',
+            nameKey: '_抓取系列小说',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'NovelSeriesPage',
+        },
+        {
+            id: 'mergeSeriesNovel',
+            nameKey: '_合并系列小说',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'NovelSeriesPage',
+        },
+        // startCrawl - SearchPage
+        {
+            id: 'crawlTagList',
+            nameKey: '_抓取标签列表',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'SearchPage',
+        },
+        {
+            id: 'filterResults',
+            nameKey: '_在结果中筛选',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'SearchPage',
+        },
+        {
+            id: 'clearMultiImageWork',
+            nameKey: '_清除多图作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'SearchPage',
+        },
+        {
+            id: 'clearUgoiraWork',
+            nameKey: '_清除动图作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'SearchPage',
+        },
+        {
+            id: 'manuallyDeleteWork',
+            nameKey: '_手动删除作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'SearchPage',
+        },
+        // startCrawl - Ranking
+        {
+            id: 'crawlRankingWork',
+            nameKey: '_抓取本排行榜作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'Ranking',
+        },
+        {
+            id: 'crawlDebutWork',
+            nameKey: '_抓取首次登场的作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'Ranking',
+        },
+        {
+            id: 'crawlCurrentPageWork',
+            nameKey: '_抓取本页作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'Ranking',
+        },
+        // startCrawl - Discover
+        {
+            id: 'crawlCurrentWork',
+            nameKey: '_抓取当前作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'Discover',
+        },
+        // startCrawl - FollowingPage
+        {
+            id: 'startCrawlingInFollowingPage',
+            nameKey: '_开始抓取',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'FollowingPage',
+        },
+        // startCrawl - ContestPage
+        {
+            id: 'crawlApplicationWork',
+            nameKey: '_抓取应募作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'ContestPage',
+        },
+        {
+            id: 'crawlWinningWork',
+            nameKey: '_抓取获奖作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'ContestPage',
+        },
+        // startCrawl - Dashboard
+        {
+            id: 'exportDashboardData',
+            nameKey: '_导出作品数据CSV',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'Dashboard',
+        },
+        // startCrawl - BookmarkDetails
+        {
+            id: 'crawlSimilarImage',
+            nameKey: '_抓取相似图片',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'BookmarkDetails',
+        },
+        // startCrawl - pixivision
+        {
+            id: 'crawlImagesOnThisPage',
+            nameKey: '_抓取该页面的图片',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'pixivision',
+        },
+        // startCrawl - UserRequest
+        {
+            id: 'startCrawlRequestWorks',
+            nameKey: '_抓取约稿作品',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'UserRequest',
+        },
+        // downloadArea - CrawlResults
+        {
+            id: 'importCrawlResults',
+            nameKey: '_导入抓取结果',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'CrawlResults',
+        },
+        {
+            id: 'exportCrawlResultsJSON',
+            nameKey: '_导出抓取结果',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'CrawlResults',
+        },
+        {
+            id: 'exportCrawlResultsCSV',
+            nameKey: '_导出csv',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'CrawlResults',
+        },
+        {
+            id: 'previewFileName',
+            nameKey: '_预览文件名',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'CrawlResults',
+        },
+        {
+            id: 'copyURLs',
+            nameKey: '_复制url',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'CrawlResults',
+        },
+        // downloadArea - DownloadControl
+        {
+            id: 'startDownload',
+            nameKey: '_开始下载',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'DownloadControl',
+        },
+        {
+            id: 'pauseDownload',
+            nameKey: '_暂停下载',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'DownloadControl',
+        },
+        {
+            id: 'stopDownload',
+            nameKey: '_停止下载',
+            categoryLevel1: 'downloadArea',
+            categoryLevel2: 'DownloadControl',
+        },
+        // extraFeatures - HomePage
+        {
+            id: 'clearSavedCrawlResult',
+            nameKey: '_清空已保存的抓取结果',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'HomePage',
+        },
+        // extraFeatures - UserPage
+        {
+            id: 'saveUserAvatar',
+            nameKey: '_保存用户头像',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'UserPage',
+        },
+        {
+            id: 'saveUserAvatarAsIcon',
+            nameKey: '_保存用户头像为图标',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'UserPage',
+        },
+        {
+            id: 'saveUserCoverImage',
+            nameKey: '_保存用户封面',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'UserPage',
+        },
+        {
+            id: 'bookmarkAllWorksOnPage',
+            nameKey: '_收藏本页面的所有作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'UserPage',
+        },
+        // extraFeatures - SearchPage
+        {
+            id: 'bookmarkAllWorksOnSearchPage',
+            nameKey: '_收藏本页面的所有作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'SearchPage',
+        },
+        // extraFeatures - BookmarkPage
+        {
+            id: 'addTagToUnmarkedWork',
+            nameKey: '_给未分类作品添加tag',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'removeTagsFromAllWorksOnPage',
+            nameKey: '_移除本页面中所有作品的标签',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'removeTagsFromAllWorks',
+            nameKey: '_移除所有作品的标签',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'unBookmarkWorksOnThisPage',
+            nameKey: '_取消收藏本页面的所有作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'unBookmarkAllWorks',
+            nameKey: '_取消收藏所有作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'findBookmark404Works',
+            nameKey: '_查找所有已被删除的作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'unBookmarkAll404Works',
+            nameKey: '_取消收藏所有已被删除的作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'exportBookmarkList',
+            nameKey: '_导出收藏列表',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        {
+            id: 'importBookmarkList',
+            nameKey: '_导入收藏列表',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'BookmarkPage',
+        },
+        // extraFeatures - FollowingPage
+        {
+            id: 'exportFollowingListCSV',
+            nameKey: '_导出关注列表CSV',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        {
+            id: 'exportFollowingListJSON',
+            nameKey: '_导出关注列表JSON',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        {
+            id: 'batchFollowUser',
+            nameKey: '_批量关注用户',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        {
+            id: 'findDeactivatedUsers',
+            nameKey: '_查找已注销的用户',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        // extraFeatures - UserRequest
+        // 把该按钮在 wiki 里所属的页面设置为用户页面。这是有意的
+        {
+            id: 'bookmarkAllRequestWorks',
+            nameKey: '_收藏所有约稿作品',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'UserPage',
+        },
+    ];
+    /** 把所有按钮按照分类层级进行组织，初始化时根据 buttonList 自动生成 */
+    buttonsByCategory = this.getButtonsByCategory();
+    /** 根据 buttonList 自动聚合出每个分类里的按钮 id 列表 */
+    getButtonsByCategory() {
+        const buttonsByCategory = {};
+        for (const button of this.buttonList) {
+            if (!buttonsByCategory[button.categoryLevel1]) {
+                buttonsByCategory[button.categoryLevel1] = {};
+            }
+            if (!buttonsByCategory[button.categoryLevel1][button.categoryLevel2]) {
+                buttonsByCategory[button.categoryLevel1][button.categoryLevel2] = {
+                    ids: [],
+                };
+            }
+            buttonsByCategory[button.categoryLevel1][button.categoryLevel2].ids.push(button.id);
+        }
+        return buttonsByCategory;
+    }
+    /** 检查按钮 id 是否已配置 wiki 分类。注册 wiki 事件的按钮如果未配置，会无法生成链接，开发期通过此方法提醒 */
+    checkButtonRegistered(id) {
+        for (const button of this.buttonList) {
+            if (button.id === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+const buttonConfigs = new ButtonConfigs();
+
 
 
 /***/ }),
@@ -48818,7 +49399,7 @@ class OptionConfigs {
             categoryLevel2: 'strategy',
             pinned: false,
             hideOnPixivision: true,
-            searchWordKeys: ['_用户阻止名单', '_黑名单'],
+            searchWordKeys: ['_用户阻止名单', '_黑名单', '_屏蔽用户'],
             searchWords: [],
         },
         {
@@ -54800,7 +55381,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _OptionConfigs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./OptionConfigs */ "./src/ts/setting/OptionConfigs.ts");
-/* harmony import */ var _langText__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../langText */ "./src/ts/langText.ts");
+/* harmony import */ var _ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ButtonConfigs */ "./src/ts/setting/ButtonConfigs.ts");
+/* harmony import */ var _langText__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../langText */ "./src/ts/langText.ts");
+
 
 
 
@@ -54811,9 +55394,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /** 为每个设置和按钮创建其在 Wiki 上的 URL */
-// 当修改了按钮时，需要同步更新 buttonsSchema 里的配置；
-// 当修改了设置时，不需要修改 optionsSchema 里的配置，而是修改 optionConfigs.ts 里的配置。optionsSchema 会在初始化时根据 optionConfigs.ts 里的配置自动生成。
-// PS：Wiki 里除了设置和按钮还有其他页面，那些页面与这里无关。
+// PS：Wiki 里除了设置页面、按钮页面之外还有其他页面，那些页面与这里无关。
 class Wiki {
     constructor() {
         this.bindEvents();
@@ -54827,185 +55408,14 @@ class Wiki {
         option: '_设置',
         button: '_按钮_复数',
     };
-    /** 保存了所有按钮的配置 */
-    buttonsSchema = {
-        startCrawl: {
-            id: 'startCrawl',
-            nameKey: '_开始抓取',
-            level2: {
-                General: {
-                    id: 'General',
-                    nameKey: '_通用',
-                    ids: [
-                        'startCrawling',
-                        'stopCrawling',
-                        'scheduleCrawling',
-                        'cancelScheduledCrawling',
-                        'manuallySelectWork',
-                        'selectAllWorks',
-                        'crawlSelectedWork',
-                        'clearSelectedWork',
-                        'excludeWork',
-                        'clearExcludedWork',
-                    ],
-                },
-                HomePage: {
-                    id: 'HomePage',
-                    nameKey: '_首页',
-                    ids: ['crawlById', 'crawlIdRange', 'importIDList'],
-                },
-                WorkPage: {
-                    id: 'WorkPage',
-                    nameKey: '_作品页面',
-                    ids: [
-                        'startCrawlingFromCurrentPageNew',
-                        'startCrawlingFromCurrentPageOld',
-                        'crawlRelatedWork',
-                        'downloadRecommendedWorks',
-                    ],
-                },
-                NovelSeriesPage: {
-                    id: 'NovelSeriesPage',
-                    nameKey: '_系列小说页面',
-                    ids: ['crawlSeriesNovel', 'mergeSeriesNovel'],
-                },
-                SearchPage: {
-                    id: 'SearchPage',
-                    nameKey: '_搜索页面',
-                    ids: [
-                        'crawlTagList',
-                        'filterResults',
-                        'clearMultiImageWork',
-                        'clearUgoiraWork',
-                        'manuallyDeleteWork',
-                    ],
-                },
-                Ranking: {
-                    id: 'Ranking',
-                    nameKey: '_排行榜',
-                    ids: ['crawlRankingWork', 'crawlDebutWork'],
-                },
-                Discover: {
-                    id: 'Discover',
-                    nameKey: '_发现',
-                    ids: ['crawlCurrentWork'],
-                },
-                FollowingPage: {
-                    id: 'FollowingPage',
-                    nameKey: '_关注页面',
-                    ids: ['startCrawlingInFollowingPage'],
-                },
-                ContestPage: {
-                    id: 'ContestPage',
-                    nameKey: '_比赛页面',
-                    ids: ['crawlApplicationWork', 'crawlWinningWork'],
-                },
-                Dashboard: {
-                    id: 'Dashboard',
-                    nameKey: '_仪表盘',
-                    ids: ['exportDashboardData'],
-                },
-                BookmarkDetails: {
-                    id: 'BookmarkDetails',
-                    nameKey: '_书签详情',
-                    ids: ['crawlSimilarImage'],
-                },
-                pixivision: {
-                    id: 'pixivision',
-                    nameKey: '_pixivision',
-                    ids: ['crawlImagesOnThisPage'],
-                },
-                UserRequest: {
-                    id: 'UserRequest',
-                    nameKey: '_用户的约稿页面',
-                    ids: ['startCrawlRequestWorks'],
-                },
-            },
-        },
-        downloadArea: {
-            id: 'downloadArea',
-            nameKey: '_下载区域',
-            level2: {
-                CrawlResults: {
-                    id: 'CrawlResults',
-                    nameKey: '_抓取结果',
-                    ids: [
-                        'importCrawlResults',
-                        'exportCrawlResultsJSON',
-                        'exportCrawlResultsCSV',
-                        'previewFileName',
-                        'copyURLs',
-                    ],
-                },
-                DownloadControl: {
-                    id: 'DownloadControl',
-                    nameKey: '_下载控制',
-                    ids: ['startDownload', 'pauseDownload', 'stopDownload'],
-                },
-            },
-        },
-        extraFeatures: {
-            id: 'extraFeatures',
-            nameKey: '_附加功能',
-            level2: {
-                HomePage: {
-                    id: 'HomePage',
-                    nameKey: '_首页',
-                    ids: ['clearSavedCrawlResult'],
-                },
-                UserPage: {
-                    id: 'UserPage',
-                    nameKey: '_用户页面',
-                    ids: [
-                        'saveUserAvatar',
-                        'saveUserAvatarAsIcon',
-                        'saveUserCoverImage',
-                        'bookmarkAllWorksOnPage',
-                    ],
-                },
-                SearchPage: {
-                    id: 'SearchPage',
-                    nameKey: '_搜索页面',
-                    ids: ['bookmarkAllWorksOnSearchPage'],
-                },
-                BookmarkPage: {
-                    id: 'BookmarkPage',
-                    nameKey: '_书签页面',
-                    ids: [
-                        'addTagToUnmarkedWork',
-                        'removeTagsFromAllWorksOnPage',
-                        'removeTagsFromAllWorks',
-                        'unBookmarkWorksOnThisPage',
-                        'unBookmarkAllWorks',
-                        'findBookmark404Works',
-                        'unBookmarkAll404Works',
-                        'exportBookmarkList',
-                        'importBookmarkList',
-                    ],
-                },
-                FollowingPage: {
-                    id: 'FollowingPage',
-                    nameKey: '_关注页面',
-                    ids: [
-                        'exportFollowingListCSV',
-                        'exportFollowingListJSON',
-                        'batchFollowUser',
-                        'findDeactivatedUsers',
-                    ],
-                },
-                UserRequest: {
-                    id: 'UserRequest',
-                    nameKey: '_用户的约稿页面',
-                    ids: ['bookmarkAllRequestWorks'],
-                },
-            },
-        },
-    };
+    /** 保存了所有按钮的配置。在初始化时根据 ButtonConfigs 里的配置自动生成 */
+    buttonsSchema = {};
     /** 保存了所有设置项的配置。在初始化时生成 */
     optionsSchema = {};
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.initOptionsSchema();
+            this.initButtonsSchema();
             this.setOptionLink();
             // 调试用
             // console.log('OptionsSchema initialized', this.optionsSchema)
@@ -55028,7 +55438,7 @@ class Wiki {
             }
         });
         // 切换 Wiki 网址为本地调试的网址或者线上网址
-        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(3, 'Switch Wiki Home', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(3, 'Switch wiki Home', () => {
             (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('debugForWiki', !_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki);
             const msg = `debugForWiki: ${_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki}`;
             console.log(msg);
@@ -55036,15 +55446,15 @@ class Wiki {
             this.setOptionLink();
         });
         // 输出所有页面和按钮的 wiki 结构
-        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(13, 'Output Wiki structure', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(13, 'Output wiki data source', () => {
             const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
             const types = ['option', 'button'];
             for (const type of types) {
-                const result = this.outputAllPages(type);
+                const result = this.outputDataSource(type);
                 const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(result);
                 const url = URL.createObjectURL(blob);
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `wiki_${type}_structure.json`);
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `${type}s_data.json`);
                 console.log(type, result);
             }
         });
@@ -55076,6 +55486,33 @@ class Wiki {
             };
         }
     }
+    /** 从 buttonConfigs 里复制分类层级结构到 buttonsSchema 里，并从 buttonsByCategory 里获取每个二级分类里的 ids */
+    initButtonsSchema() {
+        // 遍历每个一级分类
+        for (const [level1Key, level1Config] of Object.entries(_ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.categorySchema)) {
+            const level1Id = level1Config.id;
+            const level1NameKey = level1Config.nameKey;
+            const level2Configs = level1Config.level2;
+            // 组装二级分类的数据
+            const level2 = {};
+            for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
+                const level2Id = level2Config.id;
+                const level2NameKey = level2Config.nameKey;
+                const ids = _ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.buttonsByCategory[level1Id][level2Id].ids;
+                level2[level2Key] = {
+                    id: level2Id,
+                    nameKey: level2NameKey,
+                    ids,
+                };
+            }
+            // 把一级分类和二级分类的数据保存到 buttonsSchema 里
+            this.buttonsSchema[level1Key] = {
+                id: level1Id,
+                nameKey: level1NameKey,
+                level2,
+            };
+        }
+    }
     // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
     useLang() {
         if (_Language__WEBPACK_IMPORTED_MODULE_1__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_1__.lang.type === 'zh-tw') {
@@ -55088,9 +55525,9 @@ class Wiki {
         const langFlag = this.useLang();
         switch (langFlag) {
             case 'zh-cn':
-                return _langText__WEBPACK_IMPORTED_MODULE_8__.langText[key][0];
+                return _langText__WEBPACK_IMPORTED_MODULE_9__.langText[key][0];
             case 'en':
-                return _langText__WEBPACK_IMPORTED_MODULE_8__.langText[key][2];
+                return _langText__WEBPACK_IMPORTED_MODULE_9__.langText[key][2];
         }
     }
     resetHomeConfig() {
@@ -55121,12 +55558,23 @@ class Wiki {
             }
         });
     }
+    /** 已警告过未配置分类的按钮 id，避免重复输出警告 */
+    warnLoggedIds = new Set();
     /** 为每个功能按钮绑定事件，长按时生成 Wiki 链接并打开 */
     registerBtn(btn) {
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async () => {
+        // 检查按钮是否已在 ButtonConfigs 里配置 wiki 分类。如果未配置，长按时无法生成链接，这里输出警告以提醒开发者补充配置
+        if (!_ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.checkButtonRegistered(btn.id)) {
+            if (!this.warnLoggedIds.has(btn.id)) {
+                this.warnLoggedIds.add(btn.id);
+                console.warn(`Wiki: 按钮 ${btn.id} 未在 ButtonConfigs 里配置 wiki 分类，长按将无法生成链接`);
+            }
+        }
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async (ev) => {
             const link = await this.link('button', btn.id);
             if (!link) {
                 _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到对应的链接') + `: ${btn.id}`);
+                ev.preventDefault();
+                ev.stopImmediatePropagation();
                 return;
             }
             window.open(link, '_blank');
@@ -55160,8 +55608,8 @@ class Wiki {
         }
         return '';
     }
-    /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
-    outputAllPages(type) {
+    /** 调试用的辅助函数，用来输出所有设置项和按钮的 wiki 数据源 */
+    outputDataSource(type) {
         const result = [];
         const level0Key = this.Level0Keys[type];
         const source = type === 'option' ? this.optionsSchema : this.buttonsSchema;
@@ -55174,19 +55622,47 @@ class Wiki {
                 const level2Id = level2.id;
                 const level2NameKey = level2.nameKey;
                 const ids = level2.ids;
-                // 保存每个页面的多语言名称，以及里面的 id 列表
-                const page_zh_cn = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][0]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][0]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][0]}`;
-                const page_en = `${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level0Key][2]}-${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level1NameKey][2]}/${_langText__WEBPACK_IMPORTED_MODULE_8__.langText[level2NameKey][2]}`;
+                // 保存这个二级分类里每个 id 的名称 key 和多语言名称
+                // 这里保存下载器支持的所有语言分类的名称，包括 wiki 里未实装的语言。这样有利于在 Wiki 上显示其他语言的需求。
+                const names = [];
+                const listSource = type === 'option' ? _OptionConfigs__WEBPACK_IMPORTED_MODULE_7__.optionConfigs.options : _ButtonConfigs__WEBPACK_IMPORTED_MODULE_8__.buttonConfigs.buttonList;
+                for (const id of ids) {
+                    const item = listSource.find((i) => i.no === id || i.id === id);
+                    if (item) {
+                        const nameKey = item.nameKey;
+                        names.push({
+                            id,
+                            nameKey,
+                            name: {
+                                'zh-cn': _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][0]),
+                                'zh-tw': _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][1]),
+                                en: _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][2]),
+                                ja: _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][3]),
+                                ko: _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][4]),
+                                ru: _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_langText__WEBPACK_IMPORTED_MODULE_9__.langText[nameKey][5]),
+                            },
+                        });
+                    }
+                }
                 result.push({
                     page: {
-                        'zh-cn': page_zh_cn.replaceAll(' ', '-'),
-                        en: page_en.replaceAll(' ', '-'),
+                        'zh-cn': this.getPagePath(level0Key, level1NameKey, level2NameKey, 0),
+                        'zh-tw': this.getPagePath(level0Key, level1NameKey, level2NameKey, 1),
+                        en: this.getPagePath(level0Key, level1NameKey, level2NameKey, 2),
+                        ja: this.getPagePath(level0Key, level1NameKey, level2NameKey, 3),
+                        ko: this.getPagePath(level0Key, level1NameKey, level2NameKey, 4),
+                        ru: this.getPagePath(level0Key, level1NameKey, level2NameKey, 5),
                     },
                     ids,
+                    names,
                 });
             }
         }
         return result;
+    }
+    getPagePath(lv0, lv1, lv2, index) {
+        const path = `${_langText__WEBPACK_IMPORTED_MODULE_9__.langText[lv0][index]}-${_langText__WEBPACK_IMPORTED_MODULE_9__.langText[lv1][index]}/${_langText__WEBPACK_IMPORTED_MODULE_9__.langText[lv2][index]}`;
+        return path.replaceAll(' ', '-');
     }
 }
 const wiki = new Wiki();

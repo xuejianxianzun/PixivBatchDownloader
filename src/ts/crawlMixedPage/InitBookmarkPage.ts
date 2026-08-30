@@ -105,7 +105,7 @@ class InitBookmarkPage extends InitPageBase {
       new BookmarksAddTag(
         this.addInitPageBtn(
           'otherBtns',
-          '_给未分类作品添加添加tag',
+          '_给未分类作品添加tag',
           '',
           'addTagToUnmarkedWork',
           'brand'

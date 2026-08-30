@@ -6,13 +6,13 @@ import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
 import { setSetting, settings, OptionCategoryLevel1 } from './Settings'
 import { optionConfigs } from './OptionConfigs'
+import { buttonConfigs, ButtonCategoryLevel1 } from './ButtonConfigs'
 import { langText, LangTextKey } from '../langText'
 
-type ButtonsLevel1 = 'startCrawl' | 'downloadArea' | 'extraFeatures'
 type ButtonsSchema = {
-  [key in ButtonsLevel1]: {
+  [key in ButtonCategoryLevel1]: {
     /** 一级分类的 ID */
-    id: ButtonsLevel1
+    id: ButtonCategoryLevel1
     /** 一级分类的名称的 i18n 的 key */
     nameKey: LangTextKey
     /** 二级分类 */
@@ -61,9 +61,7 @@ type Level2 = {
 type AvailableLanguages = 'zh-cn' | 'en'
 
 /** 为每个设置和按钮创建其在 Wiki 上的 URL */
-// 当修改了按钮时，需要同步更新 buttonsSchema 里的配置；
-// 当修改了设置时，不需要修改 optionsSchema 里的配置，而是修改 optionConfigs.ts 里的配置。optionsSchema 会在初始化时根据 optionConfigs.ts 里的配置自动生成。
-// PS：Wiki 里除了设置和按钮还有其他页面，那些页面与这里无关。
+// PS：Wiki 里除了设置页面、按钮页面之外还有其他页面，那些页面与这里无关。
 class Wiki {
   constructor() {
     this.bindEvents()
@@ -80,180 +78,8 @@ class Wiki {
     button: '_按钮_复数' as const,
   }
 
-  /** 保存了所有按钮的配置 */
-  private buttonsSchema: ButtonsSchema = {
-    startCrawl: {
-      id: 'startCrawl',
-      nameKey: '_开始抓取',
-      level2: {
-        General: {
-          id: 'General',
-          nameKey: '_通用',
-          ids: [
-            'startCrawling',
-            'stopCrawling',
-            'scheduleCrawling',
-            'cancelScheduledCrawling',
-            'manuallySelectWork',
-            'selectAllWorks',
-            'crawlSelectedWork',
-            'clearSelectedWork',
-            'excludeWork',
-            'clearExcludedWork',
-          ],
-        },
-        HomePage: {
-          id: 'HomePage',
-          nameKey: '_首页',
-          ids: ['crawlById', 'crawlIdRange', 'importIDList'],
-        },
-        WorkPage: {
-          id: 'WorkPage',
-          nameKey: '_作品页面',
-          ids: [
-            'startCrawlingFromCurrentPageNew',
-            'startCrawlingFromCurrentPageOld',
-            'crawlRelatedWork',
-            'downloadRecommendedWorks',
-          ],
-        },
-        NovelSeriesPage: {
-          id: 'NovelSeriesPage',
-          nameKey: '_系列小说页面',
-          ids: ['crawlSeriesNovel', 'mergeSeriesNovel'],
-        },
-        SearchPage: {
-          id: 'SearchPage',
-          nameKey: '_搜索页面',
-          ids: [
-            'crawlTagList',
-            'filterResults',
-            'clearMultiImageWork',
-            'clearUgoiraWork',
-            'manuallyDeleteWork',
-          ],
-        },
-        Ranking: {
-          id: 'Ranking',
-          nameKey: '_排行榜',
-          ids: ['crawlRankingWork', 'crawlDebutWork'],
-        },
-        Discover: {
-          id: 'Discover',
-          nameKey: '_发现',
-          ids: ['crawlCurrentWork'],
-        },
-        FollowingPage: {
-          id: 'FollowingPage',
-          nameKey: '_关注页面',
-          ids: ['startCrawlingInFollowingPage'],
-        },
-        ContestPage: {
-          id: 'ContestPage',
-          nameKey: '_比赛页面',
-          ids: ['crawlApplicationWork', 'crawlWinningWork'],
-        },
-        Dashboard: {
-          id: 'Dashboard',
-          nameKey: '_仪表盘',
-          ids: ['exportDashboardData'],
-        },
-        BookmarkDetails: {
-          id: 'BookmarkDetails',
-          nameKey: '_书签详情',
-          ids: ['crawlSimilarImage'],
-        },
-        pixivision: {
-          id: 'pixivision',
-          nameKey: '_pixivision',
-          ids: ['crawlImagesOnThisPage'],
-        },
-        UserRequest: {
-          id: 'UserRequest',
-          nameKey: '_用户的约稿页面',
-          ids: ['startCrawlRequestWorks'],
-        },
-      },
-    },
-    downloadArea: {
-      id: 'downloadArea',
-      nameKey: '_下载区域',
-      level2: {
-        CrawlResults: {
-          id: 'CrawlResults',
-          nameKey: '_抓取结果',
-          ids: [
-            'importCrawlResults',
-            'exportCrawlResultsJSON',
-            'exportCrawlResultsCSV',
-            'previewFileName',
-            'copyURLs',
-          ],
-        },
-        DownloadControl: {
-          id: 'DownloadControl',
-          nameKey: '_下载控制',
-          ids: ['startDownload', 'pauseDownload', 'stopDownload'],
-        },
-      },
-    },
-    extraFeatures: {
-      id: 'extraFeatures',
-      nameKey: '_附加功能',
-      level2: {
-        HomePage: {
-          id: 'HomePage',
-          nameKey: '_首页',
-          ids: ['clearSavedCrawlResult'],
-        },
-        UserPage: {
-          id: 'UserPage',
-          nameKey: '_用户页面',
-          ids: [
-            'saveUserAvatar',
-            'saveUserAvatarAsIcon',
-            'saveUserCoverImage',
-            'bookmarkAllWorksOnPage',
-          ],
-        },
-        SearchPage: {
-          id: 'SearchPage',
-          nameKey: '_搜索页面',
-          ids: ['bookmarkAllWorksOnSearchPage'],
-        },
-        BookmarkPage: {
-          id: 'BookmarkPage',
-          nameKey: '_书签页面',
-          ids: [
-            'addTagToUnmarkedWork',
-            'removeTagsFromAllWorksOnPage',
-            'removeTagsFromAllWorks',
-            'unBookmarkWorksOnThisPage',
-            'unBookmarkAllWorks',
-            'findBookmark404Works',
-            'unBookmarkAll404Works',
-            'exportBookmarkList',
-            'importBookmarkList',
-          ],
-        },
-        FollowingPage: {
-          id: 'FollowingPage',
-          nameKey: '_关注页面',
-          ids: [
-            'exportFollowingListCSV',
-            'exportFollowingListJSON',
-            'batchFollowUser',
-            'findDeactivatedUsers',
-          ],
-        },
-        UserRequest: {
-          id: 'UserRequest',
-          nameKey: '_用户的约稿页面',
-          ids: ['bookmarkAllRequestWorks'],
-        },
-      },
-    },
-  }
+  /** 保存了所有按钮的配置。在初始化时根据 ButtonConfigs 里的配置自动生成 */
+  private buttonsSchema: ButtonsSchema = {} as any
 
   /** 保存了所有设置项的配置。在初始化时生成 */
   private optionsSchema: OptionsSchema = {} as any
@@ -261,6 +87,7 @@ class Wiki {
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.initOptionsSchema()
+      this.initButtonsSchema()
       this.setOptionLink()
 
       // 调试用
@@ -287,7 +114,7 @@ class Wiki {
     })
 
     // 切换 Wiki 网址为本地调试的网址或者线上网址
-    ppdTask.register(3, 'Switch Wiki Home', () => {
+    ppdTask.register(3, 'Switch wiki Home', () => {
       setSetting('debugForWiki', !settings.debugForWiki)
       const msg = `debugForWiki: ${settings.debugForWiki}`
       console.log(msg)
@@ -296,15 +123,15 @@ class Wiki {
     })
 
     // 输出所有页面和按钮的 wiki 结构
-    ppdTask.register(13, 'Output Wiki structure', () => {
+    ppdTask.register(13, 'Output wiki data source', () => {
       const msg = lang.transl('_导出成功')
       toast.success(msg)
       const types = ['option', 'button'] as const
       for (const type of types) {
-        const result = this.outputAllPages(type)
+        const result = this.outputDataSource(type)
         const blob = Utils.json2Blob(result)
         const url = URL.createObjectURL(blob)
-        Utils.downloadFile(url, `wiki_${type}_structure.json`)
+        Utils.downloadFile(url, `${type}s_data.json`)
         console.log(type, result)
       }
     })
@@ -335,6 +162,38 @@ class Wiki {
 
       // 把一级分类和二级分类的数据保存到 optionsSchema 里
       this.optionsSchema[level1Key as OptionCategoryLevel1] = {
+        id: level1Id,
+        nameKey: level1NameKey,
+        level2,
+      }
+    }
+  }
+
+  /** 从 buttonConfigs 里复制分类层级结构到 buttonsSchema 里，并从 buttonsByCategory 里获取每个二级分类里的 ids */
+  private initButtonsSchema() {
+    // 遍历每个一级分类
+    for (const [level1Key, level1Config] of Object.entries(
+      buttonConfigs.categorySchema
+    )) {
+      const level1Id = level1Config.id
+      const level1NameKey = level1Config.nameKey
+      const level2Configs = level1Config.level2
+
+      // 组装二级分类的数据
+      const level2: ButtonsSchema[ButtonCategoryLevel1]['level2'] = {} as any
+      for (const [level2Key, level2Config] of Object.entries(level2Configs)) {
+        const level2Id = level2Config.id
+        const level2NameKey = level2Config.nameKey
+        const ids = buttonConfigs.buttonsByCategory[level1Id][level2Id].ids
+        level2[level2Key] = {
+          id: level2Id,
+          nameKey: level2NameKey,
+          ids,
+        }
+      }
+
+      // 把一级分类和二级分类的数据保存到 buttonsSchema 里
+      this.buttonsSchema[level1Key as ButtonCategoryLevel1] = {
         id: level1Id,
         nameKey: level1NameKey,
         level2,
@@ -395,12 +254,27 @@ class Wiki {
     })
   }
 
+  /** 已警告过未配置分类的按钮 id，避免重复输出警告 */
+  private warnLoggedIds = new Set<string>()
+
   /** 为每个功能按钮绑定事件，长按时生成 Wiki 链接并打开 */
   public registerBtn(btn: HTMLButtonElement) {
-    Utils.longPress(btn, async () => {
+    // 检查按钮是否已在 ButtonConfigs 里配置 wiki 分类。如果未配置，长按时无法生成链接，这里输出警告以提醒开发者补充配置
+    if (!buttonConfigs.checkButtonRegistered(btn.id)) {
+      if (!this.warnLoggedIds.has(btn.id)) {
+        this.warnLoggedIds.add(btn.id)
+        console.error(
+          `Wiki: 按钮 ${btn.id} 未在 ButtonConfigs 里配置 wiki 分类，长按将无法生成链接`
+        )
+      }
+    }
+
+    Utils.longPress(btn, async (ev: MouseEvent) => {
       const link = await this.link('button', btn.id)
       if (!link) {
         toast.error(lang.transl('_没有找到对应的链接') + `: ${btn.id}`)
+        ev.preventDefault()
+        ev.stopImmediatePropagation()
         return
       }
       window.open(link, '_blank')
@@ -447,8 +321,8 @@ class Wiki {
     return ''
   }
 
-  /** 调试用的辅助函数，用来输出所有页面的名字和里面的 id 列表 */
-  private outputAllPages(type: 'option' | 'button') {
+  /** 调试用的辅助函数，用来输出所有设置项和按钮的 wiki 数据源 */
+  private outputDataSource(type: 'option' | 'button') {
     const result = []
     const level0Key = this.Level0Keys[type]
     const source = type === 'option' ? this.optionsSchema : this.buttonsSchema
@@ -463,20 +337,70 @@ class Wiki {
         const level2NameKey = level2.nameKey
         const ids = level2.ids
 
-        // 保存每个页面的多语言名称，以及里面的 id 列表
-        const page_zh_cn = `${langText[level0Key][0]}-${langText[level1NameKey][0]}/${langText[level2NameKey][0]}`
-        const page_en = `${langText[level0Key][2]}-${langText[level1NameKey][2]}/${langText[level2NameKey][2]}`
+        // 保存这个二级分类里每个 id 的名称 key 和多语言名称
+        // 这里保存下载器支持的所有语言分类的名称，包括 wiki 里未实装的语言。这样有利于以后在 Wiki 上显示其他语言的需求
+        const names: {
+          id: any
+          nameKey: LangTextKey
+          name: {}
+        }[] = []
+        const listSource =
+          type === 'option' ? optionConfigs.options : buttonConfigs.buttonList
+        for (const id of ids) {
+          const item = listSource.find((i: any) => i.no === id || i.id === id)
+          if (item) {
+            const nameKey = item.nameKey as LangTextKey
+            names.push({
+              id,
+              nameKey,
+              name: {
+                'zh-cn': Utils.htmlToText(langText[nameKey][0]),
+                'zh-tw': Utils.htmlToText(langText[nameKey][1]),
+                en: Utils.htmlToText(langText[nameKey][2]),
+                ja: Utils.htmlToText(langText[nameKey][3]),
+                ko: Utils.htmlToText(langText[nameKey][4]),
+                ru: Utils.htmlToText(langText[nameKey][5]),
+              },
+            })
+          }
+        }
+
         result.push({
           page: {
-            'zh-cn': page_zh_cn.replaceAll(' ', '-'),
-            en: page_en.replaceAll(' ', '-'),
+            'zh-cn': this.getPagePath(
+              level0Key,
+              level1NameKey,
+              level2NameKey,
+              0
+            ),
+            'zh-tw': this.getPagePath(
+              level0Key,
+              level1NameKey,
+              level2NameKey,
+              1
+            ),
+            en: this.getPagePath(level0Key, level1NameKey, level2NameKey, 2),
+            ja: this.getPagePath(level0Key, level1NameKey, level2NameKey, 3),
+            ko: this.getPagePath(level0Key, level1NameKey, level2NameKey, 4),
+            ru: this.getPagePath(level0Key, level1NameKey, level2NameKey, 5),
           },
           ids,
+          names,
         })
       }
     }
 
     return result
+  }
+
+  private getPagePath(
+    lv0: LangTextKey,
+    lv1: LangTextKey,
+    lv2: LangTextKey,
+    index: number
+  ) {
+    const path = `${langText[lv0][index]}-${langText[lv1][index]}/${langText[lv2][index]}`
+    return path.replaceAll(' ', '-')
   }
 }
 
