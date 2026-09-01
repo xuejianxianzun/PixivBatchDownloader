@@ -357,7 +357,7 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
-  prevWorkSize: 'original' | 'regular'
+  prevWorkSize: 'original' | 'regular' | 'small'
   previewWorkWait: number
   /** 是否允许预览区域遮挡作品缩略图，这样预览图可以显示的更大 */
   allowPreviewCoverThumbnail: boolean
