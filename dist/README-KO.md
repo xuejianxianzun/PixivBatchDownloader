@@ -14,6 +14,7 @@
 - [소개](#소개)
 - [온라인 설치](#온라인-설치)
 - [오프라인 설치](#오프라인-설치)
+- [Android에서 설치](#android에서-설치)
 - [사용 방법](#사용-방법)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
@@ -67,12 +68,17 @@ Firefox 브라우저는 **[Add-Ons](https://addons.mozilla.org/firefox/addon/pow
 Wiki 페이지를 확인하세요:
 [오프라인 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
-Android에서 이 확장 프로그램을 사용하려면 Wiki 페이지를 확인하세요:
-[Microsoft Edge Canary 브라우저에 설치](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+# Android에서 설치
+
+Android 브라우저에 이 확장 프로그램을 설치하려면 Quetta 브라우저를 권장합니다. Chromium 코어 기반의 모바일 브라우저로, Chrome Web Store에서 온라인으로 확장 프로그램을 설치할 수 있어 매우 편리합니다.
 
 # 사용 방법
 
-이 다운로드기는 Pixiv.net 페이지에서 동작합니다. Pixiv를 둘러보는 동안 언제든지 다운로드기 패널을 열어 현재 페이지의 작품을 일괄 다운로드할 수 있습니다.
+이 다운로드기는 Pixiv.net 페이지에서 동작합니다. Pixiv를 둘러보는 동안 언제든지 다운로드기 패널을 열어 사용할 수 있습니다.
+
+참고:
+- 이 확장 프로그램을 설치한 후, 이미 열려 있는 Pixiv 탭이 있다면 해당 탭에서 확장 프로그램이 동작하도록 새로고침해야 합니다.
+- Pixiv.net 이외의 웹 페이지에서는 확장 프로그램 아이콘을 클릭해도 다운로드기 패널이 표시되지 않습니다. 이는 정상입니다. 이 확장 프로그램은 Pixiv.net에서만 동작하기 때문입니다.
 
 # Wiki
 
