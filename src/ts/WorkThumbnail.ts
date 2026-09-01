@@ -92,21 +92,44 @@ abstract class WorkThumbnail {
     id: string | '',
     type: 'illusts' | 'novels' | 'novelSeries'
   ) {
+    if (!id) {
+      return
+    }
+
+    // 是否已经绑定过事件了
+    let binded = false
+    let bindedEl = el
+
     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
     // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
     // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
     if (el.dataset.mouseover) {
-      return
+      binded = true
     }
 
     if (el.parentElement && el.parentElement.dataset.mouseover) {
-      return
+      binded = true
+      bindedEl = el.parentElement
     }
 
     if (
       el.firstElementChild &&
       (el.firstElementChild as HTMLElement).dataset.mouseover
     ) {
+      binded = true
+      bindedEl = el.firstElementChild as HTMLElement
+    }
+
+    if (el.querySelector('[data-mouseover="1"]')) {
+      binded = true
+      bindedEl = el.querySelector('[data-mouseover="1"]') as HTMLElement
+    }
+
+    if (binded) {
+      // 在移动端页面里，Pixiv 可能会修改绑定过的元素，导致下载器为其添加的 className 被移除，需要重新添加
+      if (bindedEl.classList.contains(this.className) === false) {
+        bindedEl.classList.add(this.className)
+      }
       return
     }
 

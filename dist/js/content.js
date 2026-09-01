@@ -1827,8 +1827,23 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
-            // 移动端的作品选择器就这一个
-            this.selectors = ['.works-item-illust'];
+            // 移动端的作品选择器
+            this.selectors = [
+                '.works-item-illust',
+                '.works-item',
+                // 首页底部用大尺寸展示的作品
+                '[data-ga4-label="work_content"]',
+                '[data-ga4-label="thumbnail"]',
+                // 不要使用下面这个选择器，因为它过于宽泛了，经常是其他缩略图元素的子元素，容易造成重复绑定
+                // [data-ga4-label="thumbnail_link"]
+                // 发现页面
+                'a.gtm-illust-recommend-thumbnail-link',
+                // 排行榜里的插画
+                '[data-tx]',
+                // 动态页面
+                '.stacclist .illust',
+            ];
+            this.selectors.push(...this.requestPageSelectorsOnMobile);
         }
         else {
             this.selectors = [
@@ -1882,15 +1897,53 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         this.createObserver(document.body);
         // 立即查找一次元素
         this.findThumbnail(document.body);
-        // 之后在某些页面里定时查找
-        const findOnPageType = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request];
+        // 在某些页面里循环查找
         window.setInterval(() => {
-            if (document.hidden === false && findOnPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type)) {
+            if (this.loopFind()) {
                 this.findThumbnail(document.body);
             }
         }, 1000);
     }
     selectors = [];
+    // 移动端的约稿页面里的图像作品
+    requestPageSelectorsOnMobile = [
+        '.gtm-request-creator-recommend-post-link-work[data-ga4-label="thumbnail_link"]',
+        '.gtm-complete-request-portal-work-link-illust[data-ga4-label="thumbnail_link"]',
+        '.gtm-commission-portal-follow-work[data-ga4-label="thumbnail_link"]',
+        '.gtm-commission-portal-new-work[data-ga4-label="thumbnail_link"]',
+        '.gtm-complete-request-portal-work-link-manga[data-ga4-label="thumbnail_link"]',
+        '.gtm-complete-request-complete-work-link-illust-recommend-all[data-ga4-label="thumbnail_link"]',
+        '.gtm-complete-request-complete-work-link-manga-recommend-all[data-ga4-label="thumbnail_link"]',
+        '.gtm-complete-request-complete-work-link-ugoira-recommend-all[data-ga4-label="thumbnail_link"]',
+    ];
+    // 需要循环查找的页面类型。需要使用循环查找来处理的情况有：
+    // 这些页面里的作品出现的比较晚，一开始查找不到
+    // 下载器绑定一次之后，这些缩略图的元素可能被 pixiv 再次修改，导致绑定失效，需要重新添加相关标记
+    loopFindPageTypeOnPC = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request];
+    loopFindPageTypeOnMobile = [
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Bookmark,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Following,
+    ];
+    /** 决定是否在当前页面里循环查找 */
+    loopFind() {
+        if (document.hidden) {
+            return false;
+        }
+        // PC 端页面
+        if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
+            return this.loopFindPageTypeOnPC.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type);
+        }
+        if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
+            return this.loopFindPageTypeOnMobile.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type);
+        }
+        return false;
+    }
     findThumbnail(parent) {
         // pathname 里有 /novel 的页面里也可能有图像作品，所以这个条件不启用
         // if(window.location.pathname.includes('/novel')){
@@ -1980,17 +2033,29 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Contest) {
                 continue;
             }
+            // 处理移动端页面里的缩略图选择器
+            if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
+                if (selector === '[data-ga4-label="thumbnail_link"]' &&
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                    continue;
+                }
+            }
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findWorkIdFromElement(el, 'illusts');
                 if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
                     // 在移动端页面里，即使没有找到作品 id，也要执行回调函数
                     // 因为此时可能内部的 A 标签还未生成，所以会获取不到 id
-                    // 而之后下载器只会监听新添加的缩略图容器，不会监听内部添加 A 标签的事件，
-                    // 所以以后也不会监听到它。那么只能先为它绑定事件，
                     // 等到点击下载按钮时再尝试获取 id
                     this.bindEvents(el, id, 'illusts');
                     this.addSelectorData(el, selector);
+                    // 在移动端的约稿页面里，需要把这些 a 标签的宽高设为 100%，否则它们的尺寸是 0
+                    if (this.requestPageSelectorsOnMobile.includes(selector)) {
+                        el.style.display = 'block';
+                        el.style.width = '100%';
+                        el.style.height = '100%';
+                        el.style.zIndex = '2';
+                    }
                 }
                 else {
                     // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
@@ -7836,8 +7901,21 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
     constructor() {
         super();
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
-            // 移动端的作品选择器就这一个
-            this.selectors = ['.works-item-novel'];
+            // 移动端的作品选择器
+            this.selectors = [
+                '.works-item-novel',
+                '.novel-series-thumbnail',
+                '.works-item-novel-editor-recommend',
+                // 首页底部用大尺寸展示的作品
+                '[data-ga4-label="work_content"]',
+                // 小说搜索页面
+                '[data-ga4-label="works_content"] .col-span-full',
+                // 小说的发现页面、排行榜页面
+                'div[class*="style_works-item-novel__"]>a',
+                // 约稿页面里的小说
+                '.gtm-complete-request-portal-work-link-novel[data-gtm-user-id]',
+                '.gtm-complete-request-complete-work-link-novels-recommend-all[data-gtm-user-id]',
+            ];
         }
         else {
             this.selectors = [
@@ -7969,28 +8047,20 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
             }
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findWorkIdFromElement(el, 'novels');
-                // 在移动端页面里，此时获取的可能是 '0'
-                // 依然绑定
-                if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
+                // 分为两种情况：单篇小说 和 系列小说
+                // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
+                // 优先查找单篇小说的链接，因为很多时候是在展示单篇小说，至于它的系列页面链接只是附带的
+                if (id) {
+                    // 单篇小说
                     this.bindEvents(el, id, 'novels');
+                    this.addSelectorData(el, selector);
                 }
                 else {
-                    // 在桌面版页面里，只有查找到 id 时才会执行回调函数
-                    // 分为两种情况：单篇小说 和 系列小说
-                    // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
-                    // 优先查找单篇小说的链接，因为很多时候是在展示单篇小说，至于它的系列页面链接只是附带的
-                    if (id) {
-                        // 单篇小说
-                        this.bindEvents(el, id, 'novels');
+                    // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
+                    const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findSeriesIdFromElement(el, 'novels');
+                    if (seriesId) {
+                        this.bindEvents(el, seriesId, 'novelSeries');
                         this.addSelectorData(el, selector);
-                    }
-                    else {
-                        // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
-                        const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findSeriesIdFromElement(el, 'novels');
-                        if (seriesId) {
-                            this.bindEvents(el, seriesId, 'novelSeries');
-                            this.addSelectorData(el, selector);
-                        }
                     }
                 }
             }
@@ -8158,66 +8228,68 @@ __webpack_require__.r(__webpack_exports__);
 // 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
 var PageName;
 (function (PageName) {
-    /** 不支持的页面 */
+    /** 数字 -1：不支持的页面 */
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
-    /** 主页 */
+    /** 数字 0：主页 */
     PageName[PageName["Home"] = 0] = "Home";
-    /** 插画详情页面 */
+    /** 数字 1：插画详情页面 */
     PageName[PageName["Artwork"] = 1] = "Artwork";
-    /** 用户主页 */
+    /** 数字 2：用户主页 */
     PageName[PageName["UserHome"] = 2] = "UserHome";
-    // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
+    /** 数字 3：BookmarkLegacy 页面类型  */
+    // 它已经不存在了，但是必须保留它以避免兼容性问题
     // 因为有些设置是使用页面类型的数字编号作为键名的
     // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
     // 这会导致从设置项里取值时，会取到错误的值
-    /** 旧版收藏页面，现已被 Bookmark 页面取代 */
+    /** 数字 3：旧版收藏页面，现已被 Bookmark 页面取代 */
     PageName[PageName["BookmarkLegacy"] = 3] = "BookmarkLegacy";
-    /** 收藏页面 */
+    /** 数字 4：收藏页面 */
     PageName[PageName["Bookmark"] = 4] = "Bookmark";
-    /** 插画搜索页面 */
+    /** 数字 5：插画搜索页面 */
     PageName[PageName["ArtworkSearch"] = 5] = "ArtworkSearch";
-    /** 地区排行榜 */
+    /** 数字 6：地区排行榜 */
     PageName[PageName["AreaRanking"] = 6] = "AreaRanking";
-    /** 插画排行榜 */
+    /** 数字 7：插画排行榜 */
     PageName[PageName["ArtworkRanking"] = 7] = "ArtworkRanking";
+    /** 数字 8：Pixivision */
     PageName[PageName["Pixivision"] = 8] = "Pixivision";
-    /** 收藏后的详情页面，现在基本不会用到 */
+    /** 数字 9：收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
-    /** 已关注用户的新作品 - 插画 */
+    /** 数字 10：已关注用户的新作品 - 插画 */
     PageName[PageName["NewArtworkFromFollowing"] = 10] = "NewArtworkFromFollowing";
-    /** 发现页面 */
+    /** 数字 11：发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
-    /** 大家的新作 - 插画 */
+    /** 数字 12：大家的新作 - 插画 */
     PageName[PageName["NewArtworkFromAllUsers"] = 12] = "NewArtworkFromAllUsers";
-    /** 小说详情页面 */
+    /** 数字 13：小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
-    /** 小说系列作品目录页 */
+    /** 数字 14：小说系列作品目录页 */
     PageName[PageName["NovelSeries"] = 14] = "NovelSeries";
-    /** 小说搜索页面 */
+    /** 数字 15：小说搜索页面 */
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
-    /** 小说排行榜 */
+    /** 数字 16：小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
-    /** 已关注用户的新作品 - 小说 */
+    /** 数字 17：已关注用户的新作品 - 小说 */
     PageName[PageName["NewNovelFromFollowing"] = 17] = "NewNovelFromFollowing";
-    /** 大家的新作 - 小说 */
+    /** 数字 18：大家的新作 - 小说 */
     PageName[PageName["NewNovelFromAllUsers"] = 18] = "NewNovelFromAllUsers";
-    /** 插画系列作品目录页 */
+    /** 数字 19：插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
-    /** 关注的用户 */
+    /** 数字 20：关注的用户 */
     PageName[PageName["Following"] = 20] = "Following";
-    /** 约稿 */
+    /** 数字 21：约稿 */
     PageName[PageName["Request"] = 21] = "Request";
-    /** 不公开的作品 */
+    /** 数字 22：不公开的作品 */
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
-    /** 发现页面 - 推荐用户 */
+    /** 数字 23：发现页面 - 推荐用户 */
     PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
-    /** 数据分析（我的作品） */
+    /** 数字 24：数据分析（我的作品） */
     PageName[PageName["Dashboard"] = 24] = "Dashboard";
-    /** 比赛页面 */
+    /** 数字 25：比赛页面 */
     PageName[PageName["Contest"] = 25] = "Contest";
-    /** 搜索用户 */
+    /** 数字 26：搜索用户 */
     PageName[PageName["SearchUsers"] = 26] = "SearchUsers";
-    /** 用户主页里的约稿分类页面 */
+    /** 数字 27：用户主页里的约稿分类页面 */
     PageName[PageName["UserRequest"] = 27] = "UserRequest";
 })(PageName || (PageName = {}));
 // 获取页面类型
@@ -8225,6 +8297,7 @@ class PageType {
     constructor() {
         this.type = this.getType();
         document.body.dataset.pageType = this.type.toString();
+        document.body.dataset.pageTypeName = PageName[this.type];
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.checkTypeChange();
         });
@@ -8247,6 +8320,8 @@ class PageType {
             '/novel',
             '/cate_r18.php',
             '/novel/cate_r18.php',
+            // 注意：这个 /discover 是移动端首页里才有的“发现”分类。它不是 /discovery 页面
+            '/discover',
         ];
         if (window.location.hostname === 'www.pixiv.net' &&
             homePathList.includes(path)) {
@@ -8379,6 +8454,7 @@ class PageType {
         const old = this.type;
         this.type = this.getType();
         document.body.dataset.pageType = this.type.toString();
+        document.body.dataset.pageTypeName = PageName[this.type];
         if (this.type !== old) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitchedTypeChange', this.type);
         }
@@ -14534,17 +14610,36 @@ class WorkThumbnail {
     // 但之后这个元素的内容可能会自动变化。如果看到它底部的按钮是“阅读后续（#1）”，那么它就只剩下系列链接了，这时其上绑定的小说 id 和类型就不符合实际情况了
     // 所以在实际使用时应该从它里面获取正确的系列 id 和类型
     bindEvents(el, id, type) {
+        if (!id) {
+            return;
+        }
+        // 是否已经绑定过事件了
+        let binded = false;
+        let bindedEl = el;
         // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
         // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
         // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
         if (el.dataset.mouseover) {
-            return;
+            binded = true;
         }
         if (el.parentElement && el.parentElement.dataset.mouseover) {
-            return;
+            binded = true;
+            bindedEl = el.parentElement;
         }
         if (el.firstElementChild &&
             el.firstElementChild.dataset.mouseover) {
+            binded = true;
+            bindedEl = el.firstElementChild;
+        }
+        if (el.querySelector('[data-mouseover="1"]')) {
+            binded = true;
+            bindedEl = el.querySelector('[data-mouseover="1"]');
+        }
+        if (binded) {
+            // 在移动端页面里，Pixiv 可能会修改绑定过的元素，导致下载器为其添加的 className 被移除，需要重新添加
+            if (bindedEl.classList.contains(this.className) === false) {
+                bindedEl.classList.add(this.className);
+            }
             return;
         }
         // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
@@ -15434,6 +15529,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
+
 
 
 
@@ -15461,7 +15562,14 @@ class DownloadBtnOnThumbOnMobile {
             }
             const btn = this.addBtn(el);
             btn.addEventListener('click', (ev) => {
-                if (!id) {
+                // 阻止事件冒泡和默认行为，避免点击按钮时触发缩略图的点击事件，导致跳转到作品详情页
+                ev.stopPropagation();
+                ev.preventDefault();
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('clickBtnOnThumb');
+                // 在移动端的某些页面里，一开始可能获取不到作品 id，或者是错误的 '0'，所以在点击按钮时再尝试获取 id
+                // 例如大家的新作品页面：
+                // https://www.pixiv.net/new_illust.php
+                if (!id || id === '0') {
                     id = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.findWorkIdFromElement(el, 'illusts');
                 }
                 if (!id) {
@@ -15477,6 +15585,19 @@ class DownloadBtnOnThumbOnMobile {
                     IDData.downloadIndexes = [_index];
                 }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
+            });
+        });
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_6__.novelThumbnail.onFound((el, id) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showDownloadBtnOnThumb) {
+                return;
+            }
+            const btn = this.addBtn(el);
+            btn.addEventListener('click', (ev) => {
+                // 阻止事件冒泡和默认行为，避免点击按钮时触发缩略图的点击事件，导致跳转到作品详情页
+                ev.stopPropagation();
+                ev.preventDefault();
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('clickBtnOnThumb');
+                this.clickNovelBtn(el);
             });
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
@@ -15501,6 +15622,16 @@ class DownloadBtnOnThumbOnMobile {
         btn.style.display = 'flex';
         target.appendChild(btn);
         return btn;
+    }
+    clickNovelBtn(el) {
+        // 点击小说上的下载按钮时，重新获取当前作品的 id 和类型，并触发抓取事件
+        const idData = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getNovelOrSeriesIDData(el);
+        // 如果找不到小说 id，也找不到系列 id，则不下载
+        if (!idData) {
+            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_没有找到可下载的作品'));
+            return;
+        }
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
     setPageCountStyle(value) {
         // 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡
