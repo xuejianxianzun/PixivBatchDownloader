@@ -756,7 +756,8 @@ class PreviewWork {
     ) {
       if (workData.body.illustType === 2) {
         // 在预览动图时不使用 small 尺寸，因为动图的源文件没有区分 regular 和 small 档位。把 small 视为 regular 档位
-        const previewUgoiraSize = settings.prevWorkSize === 'original' ? 'original' : 'regular'
+        const previewUgoiraSize =
+          settings.prevWorkSize === 'original' ? 'original' : 'regular'
         this.previewUgoira = new PreviewUgoira(
           workData.body.id,
           this.wrap,
