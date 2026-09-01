@@ -105,6 +105,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/673
 
 下载器在转换 WebM 时会向 worker 发送数据，之前没有把 ImageBitmap 作为 transferable 对象传递，这会导致 ImageBitmap 被浏览器再次复制，可能会导致内存溢出。现在修复。另外对 GIF 格式也应用了同样的优化。
 
+### 🐞修复问题：当下载器移除被屏蔽的用户的作品时，在移动端的一些页面上，不能移除小说作品
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/675
+
 ### 😊优化一处体验：在排行榜页面里，“抓取多少作品”的数量不会自动变化了
 
 在排行榜页面里，抓取数量的最大值会根据不同的分类而变化。例如在普通分类里 max 是 500, 在 R-18 分类里 max 是 100。
