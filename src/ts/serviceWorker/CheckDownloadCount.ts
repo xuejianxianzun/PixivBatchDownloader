@@ -15,6 +15,8 @@ interface LastCheckData {
 // 已知问题：查询下载记录时，Chrome 可以查询所有下载记录，但 Firefox 只会从活跃的下载记录里查询。
 // 如果一些下载记录的时间较久，且文件已经不存在，那么 Firefox 通常不会返回它们，所以下载器查询不到这些记录
 // 这意味着在 Firefox 上，查询结果的数量比实际数量少
+// Firefox Android 不支持 downloads.search 方法（MDN 兼容性表中已标记为不支持，调用时会抛出 "Not implemented" 错误）
+// 所以在 Firefox Android 上会跳过此检查，该提醒功能不可用，但不影响下载
 const lastCheckKey = 'lastDownloadCountCheck'
 const limit = 2000
 const interval = 24 * 60 * 60 * 1000
@@ -43,6 +45,12 @@ async function queryDownloadCount() {
     // 无论是否触发警告，都保存本次检查时间戳
     await saveLastCheckTime()
   } catch (error) {
+    // Firefox Android 不支持 downloads.search，调用时会抛出 "Not implemented" 错误
+    // 此时跳过此检查，并保存检查时间戳，避免每次后台启动都重复报错
+    if (error instanceof Error && error.message.includes('Not implemented')) {
+      await saveLastCheckTime()
+      return
+    }
     console.error('检查下载记录数量时出错', error)
   }
 }

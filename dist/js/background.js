@@ -1232,6 +1232,110 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
+/***/ "./src/ts/Config.ts":
+/*!**************************!*\
+  !*** ./src/ts/Config.ts ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Config: () => (/* binding */ Config)
+/* harmony export */ });
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+
+// 定义一些预设配置和运行时的常量
+// 用户无法通过设置面板修改这里的配置
+class Config {
+    /**程序名 */
+    static appName = 'Powerful Pixiv Downloader';
+    /**下载器储存设置时使用的 key name */
+    static settingStoreName = 'xzSetting';
+    /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
+    static outputMax = 5000;
+    /**同时下载的文件数量的最大值 */
+    static downloadThreadMax = 6;
+    /**下载某个文件出错时，最大重试次数 */
+    static retryMax = 10;
+    /**作品类型所对应的字符串名称 */
+    static worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
+    /**下载器可以把动图保存为的所有格式，也是扩展名 */
+    static allUgoiraFormats = [
+        'webm',
+        'webp',
+        'gif',
+        'apng',
+        'zip',
+        'ugoira',
+    ];
+    /**下载器可以把小说保存为的所有格式，也是扩展名 */
+    static allNovelFormats = ['txt', 'epub'];
+    /**按收藏数量过滤作品时，预设的最大收藏数量 */
+    static BookmarkCountLimit = 9999999;
+    /**Pixiv 作品总数量上限 */
+    static worksNumberLimit = 9999999999;
+    /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
+    static retryTime = 200000;
+    static isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+    static isWin = /Win/.test(navigator.platform);
+    /**浏览器是否处于移动端模式 */
+    static mobile = navigator.userAgent.includes('Mobile');
+    /**检测 Firefox 浏览器 */
+    static isFirefox = navigator.userAgent.includes('Firefox');
+    /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */
+    static downloadsAPIDisabled = this.isFirefox && this.mobile;
+    static sendBlob = this.isFirefox;
+    /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
+     * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。
+     * 我试了转换为 ArrayBuffer 同样不能传递，估计是因为不能被 JSON 序列化导致的。
+     * 所以需要转换为 dataURL 再发送
+     */
+    static sendDataURL = !this.isFirefox && (webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().extension).inIncognitoContext;
+    /**ImageViewer 生成的 li 元素的 className */
+    static ImageViewerLI = 'xz-thumb-li';
+    /** 图像作品的默认命名规则 */
+    static defaultNameRuleForArtwork = 'pixiv/{user}-{user_id}/{id}-{title}';
+    /** 小说的默认命名规则 */
+    static defaultNameRuleForNovel = '{follow_artwork}';
+    static whatIsNewFlagDefault = 'xuejian&saber';
+    /** 如果作品含有这些标签，就认为它是原创作品 */
+    static originalTags = [
+        '原创',
+        '原創',
+        '創作',
+        'オリジナル',
+        'Original',
+        'original',
+        'Creation',
+        'creation',
+        '창작',
+        '오리지널',
+        'Asli',
+        'ออริจินัล',
+        'Оригинал',
+    ];
+    /** 如果作品含有这些标签，就认为它是 AI 生成的作品 */
+    static AITags = [
+        'AI生成',
+        'AI-generated',
+        'AIイラスト',
+        'AI生成作品',
+        'AI 画作',
+        'AI生成イラスト',
+        'AI 생성',
+        'сгенерированный ИИ',
+        'สร้างโดย AI',
+        'Janaan AI',
+    ];
+    static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/serviceWorker/CheckDownloadCount.ts":
 /*!****************************************************!*\
   !*** ./src/ts/serviceWorker/CheckDownloadCount.ts ***!
@@ -1249,6 +1353,8 @@ __webpack_require__.r(__webpack_exports__);
 // 已知问题：查询下载记录时，Chrome 可以查询所有下载记录，但 Firefox 只会从活跃的下载记录里查询。
 // 如果一些下载记录的时间较久，且文件已经不存在，那么 Firefox 通常不会返回它们，所以下载器查询不到这些记录
 // 这意味着在 Firefox 上，查询结果的数量比实际数量少
+// Firefox Android 不支持 downloads.search 方法（MDN 兼容性表中已标记为不支持，调用时会抛出 "Not implemented" 错误）
+// 所以在 Firefox Android 上会跳过此检查，该提醒功能不可用，但不影响下载
 const lastCheckKey = 'lastDownloadCountCheck';
 const limit = 2000;
 const interval = 24 * 60 * 60 * 1000;
@@ -1273,6 +1379,12 @@ async function queryDownloadCount() {
         await saveLastCheckTime();
     }
     catch (error) {
+        // Firefox Android 不支持 downloads.search，调用时会抛出 "Not implemented" 错误
+        // 此时跳过此检查，并保存检查时间戳，避免每次后台启动都重复报错
+        if (error instanceof Error && error.message.includes('Not implemented')) {
+            await saveLastCheckTime();
+            return;
+        }
         console.error('检查下载记录数量时出错', error);
     }
 }
@@ -1789,6 +1901,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CheckDownloadCount__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CheckDownloadCount */ "./src/ts/serviceWorker/CheckDownloadCount.ts");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -1872,6 +1986,9 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
                     tabId: tabId,
                     uuid: false,
                 };
+            })
+                .catch((error) => {
+                console.error('downloads.download 失败', error);
             });
         }
     }
@@ -1914,7 +2031,9 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
             },
             err: '',
         };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(tabId, data);
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(tabId, data).catch((error) => {
+            console.error('回发 downloaded 消息失败', error);
+        });
     }
     if (msg.msg === 'clearDownloadsTempData') {
         if (sender.tab?.id) {
@@ -1955,46 +2074,49 @@ function revokeBlobURL(url) {
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/;
 // 监听下载变化事件
 // 每个下载会触发两次 onChanged 事件
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.onChanged.addListener(async function (detail) {
-    // 根据 detail.id 取出保存的数据
-    const _dlData = dlData[detail.id];
-    if (_dlData) {
-        let msg = '';
-        let err = '';
-        // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
-        if (detail.filename && detail.filename.current) {
-            const changedName = detail.filename.current;
-            if (changedName.match(UUIDRegexp) !== null) {
-                // 文件名是 UUID
-                _dlData.uuid = true;
+// Firefox Android 不支持 downloads API（注册监听器时会抛出 "Not implemented" 错误），所以不注册该监听器
+if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.downloadsAPIDisabled) {
+    webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.onChanged.addListener(async function (detail) {
+        // 根据 detail.id 取出保存的数据
+        const _dlData = dlData[detail.id];
+        if (_dlData) {
+            let msg = '';
+            let err = '';
+            // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
+            if (detail.filename && detail.filename.current) {
+                const changedName = detail.filename.current;
+                if (changedName.match(UUIDRegexp) !== null) {
+                    // 文件名是 UUID
+                    _dlData.uuid = true;
+                }
+                _dlData.browserSetFilename = changedName;
             }
-            _dlData.browserSetFilename = changedName;
-        }
-        if (detail.state && detail.state.current === 'complete') {
-            msg = 'downloaded';
-        }
-        if (detail.error && detail.error.current) {
-            msg = 'download_err';
-            err = detail.error.current;
-            // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-            const idIndex = idList[_dlData.tabId].findIndex((val) => val === _dlData.id);
-            idList[_dlData.tabId][idIndex] = '';
-            setData({ idList });
-        }
-        if (msg) {
-            // 返回信息
-            if (!_dlData.noReply) {
-                webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
+            if (detail.state && detail.state.current === 'complete') {
+                msg = 'downloaded';
             }
-            // 吊销前后台生成的 blob URL
-            revokeBlobURL(_dlData?.blobURLFront);
-            revokeBlobURL(_dlData?.blobURLBack);
-            // 删除保存的数据
-            delete dlData[detail.id];
-            dlData[detail.id] = null;
+            if (detail.error && detail.error.current) {
+                msg = 'download_err';
+                err = detail.error.current;
+                // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
+                const idIndex = idList[_dlData.tabId].findIndex((val) => val === _dlData.id);
+                idList[_dlData.tabId][idIndex] = '';
+                setData({ idList });
+            }
+            if (msg) {
+                // 返回信息
+                if (!_dlData.noReply) {
+                    webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
+                }
+                // 吊销前后台生成的 blob URL
+                revokeBlobURL(_dlData?.blobURLFront);
+                revokeBlobURL(_dlData?.blobURLBack);
+                // 删除保存的数据
+                delete dlData[detail.id];
+                dlData[detail.id] = null;
+            }
         }
-    }
-});
+    });
+}
 // 清除不需要的数据，避免数据体积越来越大
 async function clearData() {
     for (const key of Object.keys(idList)) {

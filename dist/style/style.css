@@ -4391,7 +4391,6 @@ body[data-page-type='9'] .xzTipPanelWrap {
   --settings-panel-bg-white: #fff;
   --settings-panel-bg-dark: #161a1f;
   --settings-panel-bg-xzbg: #0a121c;
-  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
   --white-30: rgba(255, 255, 255, 0.3);
   --text-shadow-on-xzbg: #003247 0px 0px 2px;
   --settings-panel-text: #444;
@@ -4746,7 +4745,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   opacity: 0.4;
 }
 .xzBG .xzbgMask {
-  background-color: var(--mask-on-xzbg);
+  background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   z-index: -1;
   left: 0;

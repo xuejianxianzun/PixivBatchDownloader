@@ -1489,6 +1489,10 @@ class Tools {
   static chooseDownloadMethod(
     bool: boolean
   ): 'downloadsAPI' | 'anchorDownload' {
+    // Firefox Android 不支持 downloads API，强制使用 a 标签下载
+    if (Config.downloadsAPIDisabled) {
+      return 'anchorDownload'
+    }
     return bool ? 'downloadsAPI' : 'anchorDownload'
   }
 }

@@ -208,12 +208,17 @@ class DownloadControl {
 
       // 文件下载成功
       if (msg.msg === 'downloaded') {
-        URL.revokeObjectURL(msg.data.blobURLFront)
+        try {
+          URL.revokeObjectURL(msg.data.blobURLFront)
 
-        // 发送下载成功的事件
-        EVT.fire('downloadSuccess', msg.data)
+          // 发送下载成功的事件
+          EVT.fire('downloadSuccess', msg.data)
 
-        this.downloadOrSkipAFile(msg.data)
+          this.downloadOrSkipAFile(msg.data)
+        } catch (error) {
+          // 捕获此分支内的异常，避免事件监听器或推进逻辑的错误导致任务卡住却没有提示
+          console.error('downloaded 分支执行出错', error)
+        }
         // console.log('downloaded', msg.data.id )
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
@@ -639,16 +644,21 @@ class DownloadControl {
   private downloadOrSkipAFile(data: DonwloadSuccessData | DonwloadSkipData) {
     const task = this.taskList[data.id]
 
-    // 更改这个任务状态为“已完成”
-    downloadStates.setState(task.index, 1)
+    try {
+      // 更改这个任务状态为“已完成”
+      downloadStates.setState(task.index, 1)
 
-    // 统计已下载数量
-    this.setDownloaded()
+      // 统计已下载数量
+      this.setDownloaded()
 
-    // 是否继续下载
-    const no = task.progressBarIndex
-    if (this.checkContinueDownload()) {
-      this.createDownload(no)
+      // 是否继续下载
+      const no = task.progressBarIndex
+      if (this.checkContinueDownload()) {
+        this.createDownload(no)
+      }
+    } catch (error) {
+      // 捕获推进任务时的异常，避免任务卡住却没有提示
+      console.error('downloadOrSkipAFile 执行出错', error)
     }
   }
 

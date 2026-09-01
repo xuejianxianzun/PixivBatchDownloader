@@ -38,6 +38,8 @@ class Config {
   static readonly mobile = navigator.userAgent.includes('Mobile')
   /**检测 Firefox 浏览器 */
   static readonly isFirefox = navigator.userAgent.includes('Firefox')
+  /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */
+  static readonly downloadsAPIDisabled = this.isFirefox && this.mobile
   static readonly sendBlob = this.isFirefox
   /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
    * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。

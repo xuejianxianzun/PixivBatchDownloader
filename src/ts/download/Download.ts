@@ -733,15 +733,24 @@ class Download {
     }
 
     // 使用 a.download 来下载文件时，不调用 downloads API
-    if (settings.rememberTheLastSaveLocation) {
+    // Firefox Android 不支持 downloads API，所以也必须使用这种方式下载
+    if (settings.rememberTheLastSaveLocation || Config.downloadsAPIDisabled) {
       // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
       // 此时如果带有路径符号 /，会被浏览器自动替换成下划线 _
       // 所以我直接去掉了路径部分，只保留了文件名
       const lastName = fileName.split('/').pop()
       Utils.downloadFile(blobURL, lastName!)
       // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
+      // 注意：这个分支不需要把文件数据发送给后台，只传递 id 等信息即可
+      // 如果继续携带 blob 字段，在 Firefox Android 上可能因为消息体积过大或无法序列化 Blob 而发送失败，导致下载任务卡住
       sendData.msg = 'save_work_file_a_download'
-      browser.runtime.sendMessage(sendData)
+      sendData.blob = undefined
+      sendData.dataURL = undefined
+      sendData.blobURL = ''
+      browser.runtime.sendMessage(sendData).catch((error) => {
+        // 消息发送失败时打印错误，避免下载任务卡住却没有提示
+        console.error('发送 save_work_file_a_download 消息失败', error)
+      })
       return
     }
 

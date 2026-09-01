@@ -1155,7 +1155,7 @@ class MergeNovel {
     await SendDownload.noReply(
       blob,
       name,
-      settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI',
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation),
       'uniquify'
     )
 

@@ -3,9 +3,9 @@
 在 Pixiv 的 console 里隐藏这些脚本的输出：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
-## 19.4.0
+## 19.4.0 2026-09-01
 
-本次更新的主要改动：
+本次更新的主要内容：
 - 添加了全选作品、手动排除作品的功能
 - 可以抓取用户主页里的约稿作品了
 - 优化了预览作品功能
@@ -108,6 +108,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/673
 ### 🐞修复问题：当下载器移除被屏蔽的用户的作品时，在移动端的一些页面上，不能移除小说作品
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/675
+
+### 🐞修复问题：在手机版 Firefox 上无法保存文件
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/526
+
+笔记：notes/解决移动版 Firefox 的兼容性问题.md
 
 ### 😊优化一处体验：在排行榜页面里，“抓取多少作品”的数量不会自动变化了
 

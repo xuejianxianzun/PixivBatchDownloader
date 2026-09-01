@@ -2699,6 +2699,8 @@ class Config {
     static mobile = navigator.userAgent.includes('Mobile');
     /**检测 Firefox 浏览器 */
     static isFirefox = navigator.userAgent.includes('Firefox');
+    /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */
+    static downloadsAPIDisabled = this.isFirefox && this.mobile;
     static sendBlob = this.isFirefox;
     /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
      * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。
@@ -14183,6 +14185,10 @@ class Tools {
     }
     /** 传入一个布尔值来决定使用哪种下载方式。true 为 downloadsAPI，false 为 anchorDownload */
     static chooseDownloadMethod(bool) {
+        // Firefox Android 不支持 downloads API，强制使用 a 标签下载
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadsAPIDisabled) {
+            return 'anchorDownload';
+        }
         return bool ? 'downloadsAPI' : 'anchorDownload';
     }
 }
@@ -24233,15 +24239,24 @@ class Download {
             dataURL,
         };
         // 使用 a.download 来下载文件时，不调用 downloads API
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.rememberTheLastSaveLocation) {
+        // Firefox Android 不支持 downloads API，所以也必须使用这种方式下载
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.rememberTheLastSaveLocation || _Config__WEBPACK_IMPORTED_MODULE_12__.Config.downloadsAPIDisabled) {
             // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
             // 此时如果带有路径符号 /，会被浏览器自动替换成下划线 _
             // 所以我直接去掉了路径部分，只保留了文件名
             const lastName = fileName.split('/').pop();
             _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(blobURL, lastName);
             // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
+            // 注意：这个分支不需要把文件数据发送给后台，只传递 id 等信息即可
+            // 如果继续携带 blob 字段，在 Firefox Android 上可能因为消息体积过大或无法序列化 Blob 而发送失败，导致下载任务卡住
             sendData.msg = 'save_work_file_a_download';
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+            sendData.blob = undefined;
+            sendData.dataURL = undefined;
+            sendData.blobURL = '';
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData).catch((error) => {
+                // 消息发送失败时打印错误，避免下载任务卡住却没有提示
+                console.error('发送 save_work_file_a_download 消息失败', error);
+            });
             return;
         }
         // 发送给浏览器下载
@@ -24452,10 +24467,16 @@ class DownloadControl {
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
-                URL.revokeObjectURL(msg.data.blobURLFront);
-                // 发送下载成功的事件
-                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadSuccess', msg.data);
-                this.downloadOrSkipAFile(msg.data);
+                try {
+                    URL.revokeObjectURL(msg.data.blobURLFront);
+                    // 发送下载成功的事件
+                    _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadSuccess', msg.data);
+                    this.downloadOrSkipAFile(msg.data);
+                }
+                catch (error) {
+                    // 捕获此分支内的异常，避免事件监听器或推进逻辑的错误导致任务卡住却没有提示
+                    console.error('downloaded 分支执行出错', error);
+                }
                 // console.log('downloaded', msg.data.id )
             }
             else if (msg.msg === 'download_err') {
@@ -24748,14 +24769,20 @@ class DownloadControl {
     }
     downloadOrSkipAFile(data) {
         const task = this.taskList[data.id];
-        // 更改这个任务状态为“已完成”
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(task.index, 1);
-        // 统计已下载数量
-        this.setDownloaded();
-        // 是否继续下载
-        const no = task.progressBarIndex;
-        if (this.checkContinueDownload()) {
-            this.createDownload(no);
+        try {
+            // 更改这个任务状态为“已完成”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(task.index, 1);
+            // 统计已下载数量
+            this.setDownloaded();
+            // 是否继续下载
+            const no = task.progressBarIndex;
+            if (this.checkContinueDownload()) {
+                this.createDownload(no);
+            }
+        }
+        catch (error) {
+            // 捕获推进任务时的异常，避免任务卡住却没有提示
+            console.error('downloadOrSkipAFile 执行出错', error);
         }
     }
     // 当一个文件下载成功或失败之后，检查是否还有后续下载任务
@@ -24893,6 +24920,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -24958,7 +24987,9 @@ class DownloadInterval {
             if (this.checkDisable()) {
                 // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
                 // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation) {
+                // Firefox Android 上也会强制使用 a 标签下载，所以同样需要添加延迟
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation ||
+                    _Config__WEBPACK_IMPORTED_MODULE_6__.Config.downloadsAPIDisabled) {
                     await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(200);
                 }
                 // 放行
@@ -27552,7 +27583,7 @@ class MergeNovel {
         // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
         // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
         const blob = await jepub.generate('blob', (metadata) => { });
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, name, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI', 'uniquify');
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_18__.SendDownload.noReply(blob, name, _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation), 'uniquify');
         // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
         if (complete && this.sizeLog.length > 1) {
             _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_由于这个系列小说里的图片体积很大所以分割成了x个文件', this.sizeLog.length.toString()));
@@ -28707,7 +28738,7 @@ class SaveWorkDescription {
                 }
             }
         }
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, txtName, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI');
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, txtName, _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.chooseDownloadMethod(!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation));
         const msg = `✅${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介2')}: ${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);

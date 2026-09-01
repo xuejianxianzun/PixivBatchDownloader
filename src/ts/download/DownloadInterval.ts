@@ -4,6 +4,7 @@ import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
+import { Config } from '../Config'
 
 class DownloadInterval {
   constructor() {
@@ -77,7 +78,11 @@ class DownloadInterval {
       if (this.checkDisable()) {
         // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
         // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
-        if (settings.rememberTheLastSaveLocation) {
+        // Firefox Android 上也会强制使用 a 标签下载，所以同样需要添加延迟
+        if (
+          settings.rememberTheLastSaveLocation ||
+          Config.downloadsAPIDisabled
+        ) {
           await Utils.sleep(200)
         }
         // 放行
