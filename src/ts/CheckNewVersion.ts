@@ -3,6 +3,8 @@ import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 
 // 从 GitHub 的 Releases 里检查是否有新版本
+// 这个模块目前没有被使用，而且它也从未被在线版本使用。
+// 之前它只在离线安装的版本里使用，当时离线版本有单独的分支，后来取消了，所以这个模块也就没有被使用了。
 class CheckNewVersion {
   constructor() {
     this.checkNew()
