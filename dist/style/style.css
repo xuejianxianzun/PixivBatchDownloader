@@ -2475,9 +2475,6 @@ body.mobile #rightButtonContainer {
   position: absolute;
   inset: 0;
 }
-.centerWrap .centerWrap_con .settingsPanel_navIconFill {
-  display: none;
-}
 .centerWrap .centerWrap_con .settingsPanel_navText {
   flex: 1;
   min-width: 0;

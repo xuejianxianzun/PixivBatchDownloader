@@ -102,14 +102,14 @@ class SettingsPanelShell {
         <div class="centerWrap_con">
           <aside class="settingsPanel_sidebar beautify_scrollbar">
             <nav class="settingsPanel_nav">
-              ${this.createNavItem('home', '_首页_Home', 'home-line', 'home-fill')}
-              ${this.createNavItem('crawl', '_抓取', 'filter-line', 'filter-filling')}
-              ${this.createNavItem('naming', '_命名', 'rename-line', 'rename-fill')}
-              ${this.createNavItem('download', '_下载', 'download-line', 'download-fill')}
-              ${this.createNavItem('enhance', '_增强', 'magic-line', 'magic-fill')}
-              ${this.createNavItem('general', '_通用', 'setting-line', 'setting-fill')}
-              ${this.createNavItem('help', '_帮助', 'book-line', 'book-fill')}
-              ${this.createNavItem('search', '_搜索', 'search-line', 'search-fill', true)}
+              ${this.createNavItem('home', '_首页_Home', 'home-line')}
+              ${this.createNavItem('crawl', '_抓取', 'filter-line')}
+              ${this.createNavItem('naming', '_命名', 'rename-line')}
+              ${this.createNavItem('download', '_下载', 'download-line')}
+              ${this.createNavItem('enhance', '_增强', 'magic-line')}
+              ${this.createNavItem('general', '_通用', 'setting-line')}
+              ${this.createNavItem('help', '_帮助', 'help')}
+              ${this.createNavItem('search', '_搜索', 'search-line', true)}
             </nav>
 
             <div class="settingsPanel_downloadSummary" id="settingsPanelDownloadSummary">
@@ -172,18 +172,14 @@ class SettingsPanelShell {
     page: string,
     textKey: string,
     lineIcon: string,
-    fillIcon: string,
     hidden = false
   ) {
     const hiddenStr = hidden ? 'hidden' : ''
     return `
     <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
       <span class="settingsPanel_navIconWrap" aria-hidden="true">
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconLine">
+        <svg class="icon settingsPanel_navIcon">
           <use xlink:href="#${lineIcon}"></use>
-        </svg>
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconFill">
-          <use xlink:href="#${fillIcon}"></use>
         </svg>
       </span>
       <span class="settingsPanel_navText" data-xztext="${textKey}"></span>

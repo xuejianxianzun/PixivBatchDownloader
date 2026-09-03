@@ -44114,6 +44114,28 @@ Details:<br>
 - Если включить этот переключатель, предварительное изображение будет стараться сохранить исходный размер (не уменьшаться), но может перекрывать миниатюру. Подсказка: в этом случае вы можете нажать на миниатюру, чтобы она исчезла.<br>
 - Если выключить этот переключатель, предварительное изображение обычно отображается меньше, чтобы не перекрывать миниатюру.`,
     ],
+    _隐私政策: [
+        `隐私政策`,
+        `隱私權政策`,
+        `Privacy Policy`,
+        `プライバシーポリシー`,
+        `개인정보 처리방침`,
+        `Политика конфиденциальности`,
+    ],
+    _隐私政策的说明: [
+        `我们非常重视您的隐私和数据安全。本扩展的全部处理均在本机完成，不与任何第三方共享数据，不包含广告、统计或追踪代码。<br>
+您可以在 GitHub 上查看本扩展的源代码，以及完整的隐私协议：`,
+        `我們非常重視您的隱私和資料安全。本擴充套件程式的所有處理均在本機完成，不會與任何第三方分享資料，也不包含廣告、統計或追蹤程式碼。<br>
+您可以在 GitHub 上查看本擴充套件程式的程式碼，以及完整的隱私權政策：`,
+        `We take your privacy and data security very seriously. All processing performed by this extension is done locally on your device. It does not share data with any third party and contains no advertising, statistics, or tracking code.<br>
+You can view the source code of this extension and the full privacy policy on GitHub:`,
+        `私たちは、お客様のプライバシーとデータの安全性を非常に重視しています。この拡張機能によるすべての処理は、お使いの端末上でローカルに行われます。第三者とデータを共有することはなく、広告・統計・トラッキングコードも含まれていません。<br>
+GitHub でこの拡張機能のソースコードと完全なプライバシーポリシーを確認できます：`,
+        `저희는 사용자의 개인정보와 데이터 보안을 매우 중요하게 생각합니다. 이 확장 프로그램의 모든 처리는 사용자 기기에서 로컬로 수행되며, 제3자와 데이터를 공유하지 않고 광고·통계·추적 코드를 포함하지 않습니다.<br>
+GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처리방침을 확인할 수 있습니다:`,
+        `Мы очень серьезно относимся к вашей конфиденциальности и безопасности данных. Вся обработка данных выполняется этим расширением локально на вашем устройстве. Расширение не передает данные третьим лицам и не содержит рекламы, статистики или кода отслеживания.<br>
+Вы можете просмотреть исходный код этого расширения и полную политику конфиденциальности на GitHub:`,
+    ],
 };
 
 
@@ -53939,6 +53961,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SettingsPanelTipCard */ "./src/ts/setting/SettingsPanelTipCard.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -53974,6 +53998,7 @@ class SettingsPanelHelp {
             { id: 'faq', textKey: '_常见问题', iconId: 'help' },
             { id: 'shortcut', textKey: '_快捷键', iconId: 'shortcut' },
             { id: 'recentUpdates', textKey: '_最近更新', iconId: 'new-2' },
+            { id: 'privacyPolicy', textKey: '_隐私政策', iconId: 'privacy-policy' },
             { id: 'sponsorship', textKey: '_赞助我', iconId: 'heart-line' },
             { id: 'github', textKey: '_github', iconId: 'github' },
             { id: 'discord', textKey: '_Discord', iconId: 'discord' },
@@ -54049,6 +54074,11 @@ class SettingsPanelHelp {
             case 'recentUpdates':
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showRecentUpdates');
                 return;
+            case 'privacyPolicy':
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.show(this.getPrivacyPolicyText(), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_隐私政策'),
+                });
+                return;
             case 'github':
                 _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_GitHub说明'), {
                     title: 'GitHub',
@@ -54088,6 +54118,16 @@ class SettingsPanelHelp {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resetHelpTip');
                 return;
         }
+    }
+    getPrivacyPolicyText() {
+        const linkEN = 'https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/Privacy%20Policy.md';
+        const linkCN = 'https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/Privacy%20Policy-ZH-CN.md';
+        const title = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_隐私政策');
+        let link = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.createLinkHTML(linkEN, title);
+        if (_Language__WEBPACK_IMPORTED_MODULE_2__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_2__.lang.type === 'zh-tw') {
+            link = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.createLinkHTML(linkCN, title);
+        }
+        return _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_隐私政策的说明') + link;
     }
     playRipple(button) {
         if (!button.querySelector('.ripple')) {
@@ -55324,14 +55364,14 @@ class SettingsPanelShell {
         <div class="centerWrap_con">
           <aside class="settingsPanel_sidebar beautify_scrollbar">
             <nav class="settingsPanel_nav">
-              ${this.createNavItem('home', '_首页_Home', 'home-line', 'home-fill')}
-              ${this.createNavItem('crawl', '_抓取', 'filter-line', 'filter-filling')}
-              ${this.createNavItem('naming', '_命名', 'rename-line', 'rename-fill')}
-              ${this.createNavItem('download', '_下载', 'download-line', 'download-fill')}
-              ${this.createNavItem('enhance', '_增强', 'magic-line', 'magic-fill')}
-              ${this.createNavItem('general', '_通用', 'setting-line', 'setting-fill')}
-              ${this.createNavItem('help', '_帮助', 'book-line', 'book-fill')}
-              ${this.createNavItem('search', '_搜索', 'search-line', 'search-fill', true)}
+              ${this.createNavItem('home', '_首页_Home', 'home-line')}
+              ${this.createNavItem('crawl', '_抓取', 'filter-line')}
+              ${this.createNavItem('naming', '_命名', 'rename-line')}
+              ${this.createNavItem('download', '_下载', 'download-line')}
+              ${this.createNavItem('enhance', '_增强', 'magic-line')}
+              ${this.createNavItem('general', '_通用', 'setting-line')}
+              ${this.createNavItem('help', '_帮助', 'help')}
+              ${this.createNavItem('search', '_搜索', 'search-line', true)}
             </nav>
 
             <div class="settingsPanel_downloadSummary" id="settingsPanelDownloadSummary">
@@ -55384,16 +55424,13 @@ class SettingsPanelShell {
     static get() {
         return this.init();
     }
-    static createNavItem(page, textKey, lineIcon, fillIcon, hidden = false) {
+    static createNavItem(page, textKey, lineIcon, hidden = false) {
         const hiddenStr = hidden ? 'hidden' : '';
         return `
     <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
       <span class="settingsPanel_navIconWrap" aria-hidden="true">
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconLine">
+        <svg class="icon settingsPanel_navIcon">
           <use xlink:href="#${lineIcon}"></use>
-        </svg>
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconFill">
-          <use xlink:href="#${fillIcon}"></use>
         </svg>
       </span>
       <span class="settingsPanel_navText" data-xztext="${textKey}"></span>
