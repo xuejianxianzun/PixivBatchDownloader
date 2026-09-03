@@ -3255,7 +3255,7 @@ body.mobile #rightButtonContainer {
 }
 .logContent span {
   line-height: 1.4;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .logContent br {
   display: inline;
@@ -3360,6 +3360,7 @@ body.mobile #rightButtonContainer {
   line-height: 1.7;
   color: #474747;
   text-align: left;
+  overflow-wrap: break-word;
 }
 .xz_msg_box .content button {
   border: revert;
@@ -3965,7 +3966,7 @@ iframe[name='expandedFooter'] {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .hotkeyEditorWrap .cell .label {
   color: var(--settings-panel-text);
@@ -4033,6 +4034,7 @@ iframe[name='expandedFooter'] {
   flex-direction: column;
   background-color: #fff;
   box-shadow: 0 0 15px var(--box-shadow-blue);
+  box-sizing: border-box;
   padding: 20px 20px;
   max-width: 90vw;
   height: max-content;
@@ -4068,8 +4070,16 @@ iframe[name='expandedFooter'] {
 .XZInputWrap .XZInputContainer textarea.XZInput {
   height: auto;
 }
-.XZInputWrap .XZInputContainer .XZInputButton {
+.XZInputWrap .XZInputContainer .XZInputButtons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
   margin-left: 10px;
+}
+.XZInputWrap .XZInputContainer .XZInputButtons .XZInputButton + .XZInputButton {
+  margin-left: 10px;
+}
+.XZInputWrap .XZInputContainer .XZInputButton {
   flex-shrink: 0;
   background-color: #0096fa;
   color: #fff;
@@ -4103,6 +4113,24 @@ iframe[name='expandedFooter'] {
 .mobile.XZInputWrap .XZInputInstruction {
   margin: 0px 0 8px 0;
   line-height: 22px;
+}
+.mobile.XZInputWrap .XZInputContainer {
+  flex-direction: column;
+  align-items: stretch;
+}
+.mobile.XZInputWrap .XZInputContainer .XZInput {
+  width: 100%;
+  flex-basis: auto;
+}
+.mobile.XZInputWrap .XZInputContainer .XZInputButtons {
+  margin-left: 0;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+.mobile.XZInputWrap .XZInputContainer .XZInputButtons button {
+  height: 28px;
+  line-height: 28px;
+  padding: 0px 20px;
 }
 .mobile.XZInputWrap .XZInput {
   font-size: 14px;
@@ -4315,7 +4343,7 @@ iframe[name='expandedFooter'] {
 }
 .xz_PreviewWorkDetailPanel .content .tags span {
   padding: 0 4px 0 0;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .xz_PreviewWorkDetailPanel .content .tags .origin a {
   color: #3d7699;
@@ -4670,7 +4698,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   padding: 6px 8px;
   border-radius: 5px;
   line-height: 20px;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   display: none;
 }
 #xzMaskWrap {
@@ -4940,8 +4968,6 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
 }
 body.mobile .ppd-workThumbnail {
   position: relative;
-  /* 必须 */
   overflow: visible !important;
-  /* 尽量让伪元素可见 */
   z-index: 1;
 }

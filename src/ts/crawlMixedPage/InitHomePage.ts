@@ -121,7 +121,7 @@ class InitHomePage extends InitPageBase {
     const input = new Input({
       width: 400,
       type: 'textarea',
-      rows: 10,
+      rows: 6,
       instruction:
         lang.transl('_输入id进行抓取的提示文字') +
         '<br><br>' +

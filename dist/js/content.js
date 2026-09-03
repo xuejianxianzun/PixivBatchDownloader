@@ -6984,8 +6984,10 @@ class Input {
     <div class="XZInputContainer">
       <input type="text" class="XZInput" value="default" placeholder="tip" />
       <textarea class="XZInput" placeholder="tip">default</textarea>
-      <button class="XZInputButton">Submit</button>
-      <button class="XZInputButton cancel">Cancel</button>
+      <div class="XZInputButtons">
+        <button class="XZInputButton cancel" id="input1691811888224CancelBtn">Cancel</button>
+        <button class="XZInputButton" id="input1691811888224SubmitBtn">Submit</button>
+      </div>
     </div>
   </div>`;
     create(option) {
@@ -7007,7 +7009,11 @@ class Input {
         const input = document.createElement(option.type);
         input.classList.add('XZInput');
         input.setAttribute('placeholder', option.placeholder);
-        input.style.flexBasis = option.width + 'px';
+        // 桌面端：输入框用 flex-basis 指定宽度
+        // 移动端：输入框会撑满整个容器宽度（按钮被移到下一行），无需 flex-basis
+        if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            input.style.flexBasis = option.width + 'px';
+        }
         if (option.type === 'input') {
             input.setAttribute('type', 'text');
             input.setAttribute('value', option.value);
@@ -7017,30 +7023,49 @@ class Input {
             input.setAttribute('rows', option.rows.toString());
         }
         container.append(input);
-        const submitButton = document.createElement('button');
-        submitButton.classList.add('XZInputButton', 'hasRippleAnimation');
-        submitButton.innerHTML = `
-      <span>${option.submitButtonText}</span>
-      <span class="ripple"></span>
-    `;
-        container.append(submitButton);
+        // 两个按钮放入同一个容器，便于在移动端将它们换行到输入框下方
+        const buttonsWrap = document.createElement('div');
+        buttonsWrap.classList.add('XZInputButtons');
+        // 按钮顺序：取消在左、提交在右（网页/浏览器与移动端平台惯例）。
+        // 注意 wrap 的宽度测量只累加按钮宽度，不依赖顺序；间距用通用兄弟选择器，也不依赖顺序。
         const cancelButton = document.createElement('button');
         cancelButton.classList.add('XZInputButton', 'cancel', 'hasRippleAnimation');
         cancelButton.innerHTML = `
       <span>${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消')}</span>
       <span class="ripple"></span>
     `;
-        container.append(cancelButton);
+        cancelButton.id = `${this.id}CancelBtn`;
+        buttonsWrap.append(cancelButton);
+        const submitButton = document.createElement('button');
+        submitButton.classList.add('XZInputButton', 'hasRippleAnimation');
+        submitButton.innerHTML = `
+      <span>${option.submitButtonText}</span>
+      <span class="ripple"></span>
+    `;
+        submitButton.id = `${this.id}SubmitBtn`;
+        buttonsWrap.append(submitButton);
+        container.append(buttonsWrap);
         wrap.append(container);
         // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
+        // 移动端：按钮在输入框下方，wrap 宽度只需要等于输入框的宽度
         wrap.style.opacity = '0';
         document.body.append(wrap);
-        // 根据按钮宽度，重设 wrap 宽度
-        const submitRect = submitButton.getClientRects();
-        const cancelRect = cancelButton.getClientRects();
-        // 14 是按钮的 margin-left 值
-        wrap.style.width =
-            option.width + 14 + submitRect[0].width + 14 + cancelRect[0].width + 'px';
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            wrap.style.width = option.width + 'px';
+        }
+        else {
+            // 根据按钮宽度，重设 wrap 宽度
+            const submitRect = submitButton.getClientRects();
+            const cancelRect = cancelButton.getClientRects();
+            // 14 是按钮的 margin-left 值
+            wrap.style.width =
+                option.width +
+                    14 +
+                    submitRect[0].width +
+                    14 +
+                    cancelRect[0].width +
+                    'px';
+        }
         wrap.style.opacity = '1';
         input.focus();
         if (option.value) {
@@ -20523,7 +20548,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         const input = new _Input__WEBPACK_IMPORTED_MODULE_13__.Input({
             width: 400,
             type: 'textarea',
-            rows: 10,
+            rows: 6,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_输入id进行抓取的提示文字') +
                 '<br><br>' +
                 _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.type === 'illusts'
