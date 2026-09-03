@@ -1,17 +1,13 @@
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
-/**作品类型的数字表示。
+/** 指示一个作品的类型
  *
- * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
- *
- * 0 插画
- * 1 漫画
- * 2 动图
- * 3 小说
- * undefined 不能确定其类型，或者是系列小说这样不属于单个作品的类型
+ * illusts 插画
+ * manga 漫画
+ * ugoira 动图
+ * novels 小说
+ * unknown 不能确定其类型
  */
-export type WorkType = -1 | 0 | 1 | 2 | 3 | undefined
-
 export type WorkTypeString =
   | 'illusts'
   | 'manga'
@@ -19,8 +15,14 @@ export type WorkTypeString =
   | 'novels'
   | 'unknown'
 
-// IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里
-export type IDTypeString = WorkTypeString | 'novelSeries'
+/** IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里 */
+export type IDTypeString =
+  | 'illusts'
+  | 'manga'
+  | 'ugoira'
+  | 'novels'
+  | 'unknown'
+  | 'novelSeries'
 
 export interface IDData {
   /** 可能是作品的 id，也可能是系列 id，取决于 type 是不是 novelSeries */
@@ -30,7 +32,9 @@ export interface IDData {
   title?: string
   /** 仅对图像作品有效。这个索引列表用于指定只下载其中一张或多张指定的图片。索引从 0 开始。
    *
-   * 默认值是 undefined，即下载作品里的所有图片。只有当用户通过某些方式操作时才会设置具体的值 */
+   * 默认值是 undefined，即下载作品里的所有图片。只有当用户通过某些方式操作时才会设置具体的值
+   *
+   * 如果它是空数组，那么不会下载任何图片。所以尽量不要传递空数组。 */
   downloadIndexes?: number[]
 }
 

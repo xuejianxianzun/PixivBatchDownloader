@@ -3,13 +3,7 @@ import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
-import {
-  WorkTypeString,
-  Result,
-  IDData,
-  IDTypeString,
-  WorkType,
-} from './store/StoreType'
+import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
 import { Utils } from './utils/Utils'
 import { ppdTask } from './PPDTask'
 import { DateFormat } from './utils/DateFormat'
@@ -208,7 +202,7 @@ class Tools {
     }
   }
 
-  /**从 DOM 元素中获取系列的 id **/
+  /**从 DOM 元素中获取系列的 id。如果找不到则返回空字符串 **/
   static findSeriesIdFromElement(
     el: HTMLElement,
     type: 'illusts' | 'novels' = 'illusts'
@@ -243,6 +237,51 @@ class Tools {
     return Utils.getURLPathField(a.href, 'series')
   }
 
+  /** 从元素里查找系列的超链接，进而提取系列标题。如果找不到则返回空字符串 */
+  static getSeriesTitleFromElement(el: HTMLElement, seriesId: string): string {
+    const aList = el.querySelectorAll(`a[href*="/series/${seriesId}"]`)
+    for (const a of aList) {
+      if (a.textContent) {
+        return a.textContent
+      }
+    }
+    return ''
+  }
+
+  /** 传入一个小说或系列小说的 DOM 元素，重新对它进行检查，返回该元素现在的真实 IDData。
+   *
+   * 优先查找小说 ID，其次查找系列小说 ID，否则返回 null */
+  static getNovelOrSeriesIDData(el?: HTMLElement): IDData | null {
+    if (!el) {
+      return null
+    }
+
+    const novelLink = el.querySelector<HTMLAnchorElement>(
+      `a[href*="/novel/show.php?id="]`
+    )
+    if (novelLink) {
+      const novelId = Tools.getNovelId(novelLink.href)
+      // 小说 id 仍然存在，返回小说 IDData
+      if (novelId) {
+        return {
+          type: 'novels',
+          id: novelId,
+        }
+      }
+    }
+
+    // 没有找到有效的小说 id 时，查找系列 id
+    const seriesId = Tools.findSeriesIdFromElement(el, 'novels')
+    if (seriesId) {
+      return {
+        type: 'novelSeries',
+        id: seriesId,
+      }
+    }
+
+    return null
+  }
+
   static readonly userIDRegExp = /\/users\/(\d+)/
   static getUserID(url: string) {
     const test = url.match(this.userIDRegExp)
@@ -255,7 +294,7 @@ class Tools {
   // 获取当前页面的用户 id
   // 这是一个不够可靠的 api
   // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
-  static getCurrentPageUserID() {
+  static getCurrentPageUserId() {
     const newRegExp = /\/users\/(\d+)/ // 获取 /users/ 后面连续的数字部分，也就是用户的 id
 
     // 列表页里从 url 中获取
@@ -491,6 +530,34 @@ class Tools {
     return btn
   }
 
+  /** 生成显示在网页上的蓝底白字按钮。可选是否注册到 wiki，默认不注册，因为这些按钮的功能大多比较简单，不需要在 wiki 里显示详细说明。 */
+  static addBlueTextBtn(id: string, text: string, registerToWiki = false) {
+    const btn = document.createElement('button')
+    btn.id = id
+    btn.classList.add('blueTextBtn', 'hasRippleAnimation')
+    btn.type = 'button'
+    btn.innerHTML = `<span data-xztext="${text}"></span><span class="ripple"></span>`
+
+    // 生成的 btn 代码例如：
+    // <button id="${id}" class="blueTextBtn hasRippleAnimation" type="button"><span data-xztext="${text}"></span><span class="ripple"></span></button>
+
+    lang.register(btn)
+    if (registerToWiki) {
+      wiki.registerBtn(btn)
+    }
+    return btn
+  }
+
+  /** 添加简单的文本按钮。button 元素里使用一个 span 元素来显示文字。没有附带样式类名，所以调用方需要自己设置样式 */
+  static addTextBtn(id: string, text: string) {
+    const btn = document.createElement('button')
+    btn.id = id
+    btn.type = 'button'
+    btn.innerHTML = `<span data-xztext="${text}"></span>`
+    lang.register(btn)
+    return btn
+  }
+
   /**获取页面标题 */
   static getPageTitle() {
     // 删除下载器在标题上添加的状态，以及剩余文件数量的数字
@@ -522,7 +589,7 @@ class Tools {
       pageType.type === pageType.list.Bookmark ||
       pageType.type === pageType.list.Following
     ) {
-      return this.getCurrentPageUserID()
+      return this.getCurrentPageUserId()
     } else if (
       pageType.type === pageType.list.Artwork ||
       pageType.type === pageType.list.BookmarkDetail
@@ -1241,23 +1308,6 @@ class Tools {
     }
   }
 
-  static getWorkTypeText(workType: WorkType) {
-    switch (workType) {
-      case -1:
-        return lang.transl('_图像作品')
-      case 0:
-        return lang.transl('_插画')
-      case 1:
-        return lang.transl('_漫画')
-      case 2:
-        return lang.transl('_动图')
-      case 3:
-        return lang.transl('_小说')
-      default:
-        return lang.transl('_未知')
-    }
-  }
-
   /**移除 Pixiv 高级会员的广告横幅元素 */
   static hiddenPremiumAD() {
     const ads = document.querySelectorAll(
@@ -1439,6 +1489,10 @@ class Tools {
   static chooseDownloadMethod(
     bool: boolean
   ): 'downloadsAPI' | 'anchorDownload' {
+    // Firefox Android 不支持 downloads API，强制使用 a 标签下载
+    if (Config.downloadsAPIDisabled) {
+      return 'anchorDownload'
+    }
     return bool ? 'downloadsAPI' : 'anchorDownload'
   }
 }
@@ -1453,7 +1507,7 @@ ppdTask.register(24, 'Tools.getLoggedUserID', () => {
   alert(Tools.getLoggedUserID())
 })
 ppdTask.register(25, 'Tools.getCurrentPageUserID', () => {
-  alert(Tools.getCurrentPageUserID())
+  alert(Tools.getCurrentPageUserId())
 })
 ppdTask.register(26, 'Tools.isPremium', () => {
   alert(Tools.isPremium())

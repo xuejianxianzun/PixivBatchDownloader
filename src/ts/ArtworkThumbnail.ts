@@ -10,8 +10,23 @@ class ArtworkThumbnail extends WorkThumbnail {
     super()
 
     if (Config.mobile) {
-      // 移动端的作品选择器就这一个
-      this.selectors = ['.works-item-illust']
+      // 移动端的作品选择器
+      this.selectors = [
+        '.works-item-illust',
+        '.works-item',
+        // 首页底部用大尺寸展示的作品
+        '[data-ga4-label="work_content"]',
+        '[data-ga4-label="thumbnail"]',
+        // 不要使用下面这个选择器，因为它过于宽泛了，经常是其他缩略图元素的子元素，容易造成重复绑定
+        // [data-ga4-label="thumbnail_link"]
+        // 发现页面
+        'a.gtm-illust-recommend-thumbnail-link',
+        // 排行榜里的插画
+        '[data-tx]',
+        // 动态页面
+        '.stacclist .illust',
+      ]
+      this.selectors.push(...this.requestPageSelectorsOnMobile)
     } else {
       this.selectors = [
         // 下面是通用的选择器
@@ -52,6 +67,8 @@ class ArtworkThumbnail extends WorkThumbnail {
         // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
         'div[style="width:184px"]>div:first-child',
         'div[style="width: 184px;"]>div:first-child',
+        // 约稿页面里的图像作品
+        'ul li>div>div:first-child',
       ]
       // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
       // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -64,16 +81,61 @@ class ArtworkThumbnail extends WorkThumbnail {
 
     // 立即查找一次元素
     this.findThumbnail(document.body)
-    // 之后在某些页面里定时查找
-    const findOnPageType = [pageType.list.Request]
+
+    // 在某些页面里循环查找
     window.setInterval(() => {
-      if (document.hidden === false && findOnPageType.includes(pageType.type)) {
+      if (this.loopFind()) {
         this.findThumbnail(document.body)
       }
     }, 1000)
   }
 
   protected readonly selectors: string[] = []
+
+  // 移动端的约稿页面里的图像作品
+  private requestPageSelectorsOnMobile = [
+    '.gtm-request-creator-recommend-post-link-work[data-ga4-label="thumbnail_link"]',
+    '.gtm-complete-request-portal-work-link-illust[data-ga4-label="thumbnail_link"]',
+    '.gtm-commission-portal-follow-work[data-ga4-label="thumbnail_link"]',
+    '.gtm-commission-portal-new-work[data-ga4-label="thumbnail_link"]',
+    '.gtm-complete-request-portal-work-link-manga[data-ga4-label="thumbnail_link"]',
+    '.gtm-complete-request-complete-work-link-illust-recommend-all[data-ga4-label="thumbnail_link"]',
+    '.gtm-complete-request-complete-work-link-manga-recommend-all[data-ga4-label="thumbnail_link"]',
+    '.gtm-complete-request-complete-work-link-ugoira-recommend-all[data-ga4-label="thumbnail_link"]',
+  ]
+
+  // 需要循环查找的页面类型。需要使用循环查找来处理的情况有：
+  // 这些页面里的作品出现的比较晚，一开始查找不到
+  // 下载器绑定一次之后，这些缩略图的元素可能被 pixiv 再次修改，导致绑定失效，需要重新添加相关标记
+  private loopFindPageTypeOnPC = [pageType.list.Request]
+  private loopFindPageTypeOnMobile = [
+    pageType.list.Artwork,
+    pageType.list.Request,
+    pageType.list.ArtworkRanking,
+    pageType.list.UserHome,
+    pageType.list.Bookmark,
+    pageType.list.NewArtworkFromFollowing,
+    pageType.list.NewArtworkFromAllUsers,
+    pageType.list.ArtworkSearch,
+    pageType.list.Following,
+  ]
+
+  /** 决定是否在当前页面里循环查找 */
+  private loopFind() {
+    if (document.hidden) {
+      return false
+    }
+
+    // PC 端页面
+    if (!Config.mobile) {
+      return this.loopFindPageTypeOnPC.includes(pageType.type)
+    }
+
+    if (Config.mobile) {
+      return this.loopFindPageTypeOnMobile.includes(pageType.type)
+    }
+    return false
+  }
 
   protected findThumbnail(parent: HTMLElement) {
     // pathname 里有 /novel 的页面里也可能有图像作品，所以这个条件不启用
@@ -145,6 +207,14 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
+      // 只在用户主页的约稿分类页面里使用
+      if (
+        selector === 'ul li>div>div:first-child' &&
+        pageType.type !== pageType.list.UserRequest
+      ) {
+        continue
+      }
+
       // 这些选择器只在新版首页使用
       if (
         pageType.type !== pageType.list.Home &&
@@ -194,23 +264,39 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      const elements = parent.querySelectorAll(selector)
+      // 处理移动端页面里的缩略图选择器
+      if (Config.mobile) {
+        if (
+          selector === '[data-ga4-label="thumbnail_link"]' &&
+          pageType.type === pageType.list.Home
+        ) {
+          continue
+        }
+      }
+
+      const elements = parent.querySelectorAll<HTMLElement>(selector)
       for (const el of elements) {
-        const id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
+        const id = Tools.findWorkIdFromElement(el, 'illusts')
 
         if (Config.mobile) {
           // 在移动端页面里，即使没有找到作品 id，也要执行回调函数
           // 因为此时可能内部的 A 标签还未生成，所以会获取不到 id
-          // 而之后下载器只会监听新添加的缩略图容器，不会监听内部添加 A 标签的事件，
-          // 所以以后也不会监听到它。那么只能先为它绑定事件，
           // 等到点击下载按钮时再尝试获取 id
-          this.bindEvents(el as HTMLElement, id, 'illusts')
-          this.addSelectorData(el as HTMLElement, selector)
+          this.bindEvents(el, id, 'illusts')
+          this.addSelectorData(el, selector)
+
+          // 在移动端的约稿页面里，需要把这些 a 标签的宽高设为 100%，否则它们的尺寸是 0
+          if (this.requestPageSelectorsOnMobile.includes(selector)) {
+            el.style.display = 'block'
+            el.style.width = '100%'
+            el.style.height = '100%'
+            el.style.zIndex = '2'
+          }
         } else {
           // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
           if (id) {
-            this.bindEvents(el as HTMLElement, id, 'illusts')
-            this.addSelectorData(el as HTMLElement, selector)
+            this.bindEvents(el, id, 'illusts')
+            this.addSelectorData(el, selector)
           }
         }
       }

@@ -1,5 +1,6 @@
 @import './deleteWorks.less';
 @import './selectWork.less';
+@import './excludeWork.less';
 @import './search.less';
 @import './rightButtons.less';
 @import './settingsPanel.less';
@@ -15,7 +16,9 @@
 @import './DoNotDownloadLastFewImages.less';
 @import './UseDifferentNameRuleIfWorkHasTagWarp.less';
 @import './checkTag.less';
+@import './hotkeyEditor.less';
 @import './input.less';
+@import './DisplayThumbnailListOnMultiImageWorkPage.less';
 @import './previewWorkDetailPanel.less';
 // @import './userFloatingPanel.less';
 // @import './showLargerThumbnails.less';
@@ -34,6 +37,10 @@
   --box-shadow-blue: #2ca6df;
   --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   --dark-box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px;
+  --btn-bg-brand: #0ea8ef;
+  --btn-bg-success: #14ad27;
+  --btn-bg-warning: #e49d00;
+  --btn-bg-danger: #f33939;
   --pixiv-font-family:
     'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -50,8 +57,6 @@
   // 启用背景图片之后，面板的背景颜色
   --settings-panel-bg-xzbg: rgb(10, 18, 28);
   // 启用背景图片之后，背景图片层会显示在面板和内容区域中间
-  // 启用背景图片之后，把整个内容区域的背景颜色设置为半透明的黑色遮罩，降低背景图片的亮度，使得文字更清晰易读。
-  --mask-on-xzbg: rgba(10, 18, 28, 0.3);
   --white-30: rgba(255, 255, 255, 0.3);
   --text-shadow-on-xzbg: #003247 0px 0px 2px;
   --settings-panel-text: #444;
@@ -99,6 +104,10 @@
   margin-right: 8px !important;
 }
 
+.pl0 {
+  padding-left: 0 !important;
+}
+
 .p0 {
   padding: 0 !important;
 }
@@ -106,6 +115,7 @@
 .pr4 {
   padding-right: 4px !important;
 }
+
 .w20 {
   width: 20px !important;
   min-width: 20px !important;
@@ -304,7 +314,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   padding: 6px 8px;
   border-radius: 5px;
   line-height: 20px;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   display: none;
 }
 
@@ -499,8 +509,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   opacity: 0.4;
 }
 
+// 在某些文字很多的区域里（如日志区域、消息框），额外添加一层半透明的黑色遮罩。这样当用户启用了背景图片之后，遮罩会进一步降低背景图片的亮度，使得文字更清晰易读。
 .xzBG .xzbgMask {
-  background-color: var(--mask-on-xzbg);
+  background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   z-index: -1;
   left: 0;
@@ -613,5 +624,16 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
   100% {
     transform: scale(4);
     opacity: 0;
+  }
+}
+
+body.mobile {
+  // 在移动端页面里，为查找到的缩略图元素添加相对定位，以便让下载按钮显示在正确的位置。
+  // 在移动端，按钮是始终显示的，所以必须添加定位，否则按钮会显示在错误的位置，或者看不到。
+  // 在 PC 端，缩略图上的按钮默认是不显示的，所以无需添加定位。
+  .ppd-workThumbnail {
+    position: relative;
+    overflow: visible !important;
+    z-index: 1;
   }
 }

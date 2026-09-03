@@ -15,13 +15,13 @@ class SaveUserCover {
 
   private bindEvents() {
     window.addEventListener(EVT.list.saveUserCover, () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       this.saveUserCover()
     })
   }
 
   private async saveUserCover() {
-    const userId = Tools.getCurrentPageUserID()
+    const userId = Tools.getCurrentPageUserId()
     const userProfile = await API.getUserProfile(userId)
     const bgData = userProfile.body.background
     if (bgData === null) {

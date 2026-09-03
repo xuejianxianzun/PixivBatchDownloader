@@ -8,6 +8,7 @@ import { exportLog } from './ExportLog'
 import { showLogButton } from './ShowLogButton'
 import { ppdTask } from './PPDTask'
 import { bg } from './BG'
+import { lang } from './Language'
 
 class Log {
   constructor() {
@@ -43,12 +44,24 @@ class Log {
   /**最新的日志区域里的日志条数。刷新的日志不会计入；换行标签也不会计入（虽然连续的换行会产生空行，看起来有一行空白，但这只是某一条日志内部的换行，所以不会增加日志条数） */
   private count = 0
 
+  /**所有日志区域和操作按钮的容器 */
+  private logArea = document.createElement('div')
+  /**日志区域容器的 ID */
+  private readonly logAreaID = 'logArea'
+  /**日志操作按钮的容器 */
+  private logButtons = document.createElement('div')
+  /**日志操作按钮容器的 ID */
+  private readonly logButtonsID = 'logButtons'
+
   private logWrap = document.createElement('div') // 日志容器的区域，当日志条数很多时，会产生多个日志容器
   private activeLogWrapID = 'logWrap' // 当前活跃的日志容器的 id，也是最新的一个日志容器
   private logContent = document.createElement('div') // 日志的主体区域，始终指向最新的那个日志容器内部
+
   private readonly logContentClassName = 'logContent' // 日志主体区域的类名
   private readonly logWrapClassName = 'logWrap' // 日志容器的类名，只负责样式
-  private readonly logWrapFlag = 'logWrapFlag' // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名（为了应用其样式）。
+  private readonly logWrapFlag = 'logWrapFlag' // 日志容器的标志，当需要查找所有日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名（为了应用其样式）。
+
+  // 当有多个日志区域时，所有区域都具有 .logWrap 和 .logWrapFlag，但只有最新的一个日志区域拥有 #logWrap。旧的日志区域的 #logWrap 会被移除，给新的日志区域使用。
 
   /**储存会刷新的日志所使用的元素（插槽），可以传入 key 来区分多个刷新区域 */
   // 每个刷新区域使用一个 span 元素，里面的文本会变化
@@ -188,24 +201,44 @@ class Log {
       this.isVisible = false
 
       // 判断这是不是第一个日志区域
-      const exist = document.querySelector('.' + this.logWrapFlag)
-      const isFirst = exist === null
+      const logArea = document.getElementById(this.logAreaID)
+      const isFirst = logArea === null
 
       const logWrap = document.createElement('div')
       logWrap.id = this.activeLogWrapID
       logWrap.classList.add(this.logWrapClassName, this.logWrapFlag)
-      const xzbgMask = document.createElement('div')
-      xzbgMask.classList.add('xzbgMask')
-      logWrap.append(xzbgMask)
       const logContent = document.createElement('div')
       logContent.classList.add(this.logContentClassName, 'beautify_scrollbar')
       if (Config.mobile) {
         logWrap.classList.add('mobile')
       }
       logWrap.append(logContent)
+
+      if (isFirst) {
+        this.logArea = document.createElement('div')
+        this.logArea.id = this.logAreaID
+        this.logArea.classList.add('logArea')
+        if (Config.mobile) {
+          this.logArea.classList.add('mobile')
+        }
+        this.logButtons = this.createLogButtons()
+        this.logArea.append(this.logButtons)
+        const xzbgMask = document.createElement('div')
+        xzbgMask.classList.add('xzbgMask')
+        this.logArea.append(xzbgMask)
+        document.body.insertAdjacentElement('beforebegin', this.logArea)
+        theme.register(this.logArea)
+        bg.useBG(this.logArea)
+      } else {
+        this.logArea = logArea as HTMLDivElement
+        this.logButtons = document.getElementById(
+          this.logButtonsID
+        ) as HTMLDivElement
+      }
+      this.logButtons.insertAdjacentElement('beforebegin', logWrap)
+
       this.logWrap = logWrap
       this.logContent = logContent
-      bg.useBG(this.logWrap)
 
       // 点击日志区域两侧的空白处，可以隐藏日志区域
       logWrap.addEventListener('click', (ev) => {
@@ -223,12 +256,6 @@ class Log {
         this.mouseover = false
       })
       // 当用户切换到其他标签页或其他应用程序时（不论是使用鼠标还是快捷键），浏览器都会自动触发 mouseleave 事件，所以 mouseover 会自动变成 false。
-
-      // 添加到 body 前面
-      document.body.insertAdjacentElement('beforebegin', this.logWrap)
-      theme.register(this.logWrap)
-      // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
-      // bg.useBG(this.wrap, 0.9)
 
       // 如果这是第一个日志区域，则为其应用“日志区域的默认可见性”设置
       if (isFirst) {
@@ -249,6 +276,34 @@ class Log {
     }
   }
 
+  /**创建日志操作按钮 */
+  private createLogButtons() {
+    const logButtons = document.createElement('div')
+    logButtons.id = this.logButtonsID
+    logButtons.classList.add('logButtons')
+    const exportLogBtn = document.createElement('button')
+    exportLogBtn.type = 'button'
+    exportLogBtn.id = 'exportLogBtn'
+    exportLogBtn.classList.add('logActionBtn')
+    exportLogBtn.dataset.xztext = '_导出日志2'
+    const hideLogBtn = document.createElement('button')
+    hideLogBtn.type = 'button'
+    hideLogBtn.id = 'hideLogBtn'
+    hideLogBtn.classList.add('logActionBtn')
+    hideLogBtn.dataset.xztext = '_隐藏日志区域'
+    logButtons.append(exportLogBtn, hideLogBtn)
+    lang.register(logButtons)
+
+    exportLogBtn.addEventListener('click', () => {
+      EVT.fire('forceExportLogs')
+    })
+    hideLogBtn.addEventListener('click', () => {
+      this.hideAll()
+    })
+
+    return logButtons
+  }
+
   private scrollToBottom(el: HTMLElement) {
     if (this.show && this.toBottom && !this.mouseover) {
       el.scrollTop = el.scrollHeight
@@ -257,8 +312,7 @@ class Log {
   }
 
   public removeAll() {
-    const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`)
-    allLogWrap.forEach((wrap) => wrap.remove())
+    document.getElementById(this.logAreaID)?.remove()
 
     this.count = 0
     this.show = false
@@ -266,7 +320,13 @@ class Log {
   }
 
   public showAll() {
-    const allLogWrap = document.querySelectorAll(
+    const logArea = document.getElementById(this.logAreaID)
+    if (!logArea) {
+      return
+    }
+
+    logArea.style.display = 'block'
+    const allLogWrap = logArea.querySelectorAll(
       `.${this.logWrapFlag}`
     ) as NodeListOf<HTMLDListElement>
     allLogWrap.forEach((wrap) => {
@@ -282,10 +342,10 @@ class Log {
   }
 
   public hideAll() {
-    const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`)
-    allLogWrap.forEach(
-      (wrap) => ((wrap as HTMLDListElement).style.display = 'none')
-    )
+    const logArea = document.getElementById(this.logAreaID)
+    if (logArea) {
+      logArea.style.display = 'none'
+    }
   }
 
   /** 调试用：连续输出大量日志

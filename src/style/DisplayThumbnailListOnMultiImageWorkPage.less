@@ -1,0 +1,196 @@
+:root {
+  --thumbnailListSelectorEl-color: #0096fa;
+}
+
+#viewerWarpper {
+  position: relative;
+  margin: 0;
+  margin-top: 40px;
+  padding: 40px 10px;
+  display: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+
+  ul {
+    // 这个高度是为了在有 3 排缩略图时可以全部显示，不会出现滚动条
+    // 对于全是竖图的作品，就是当图片数量为 9 - 12 时
+    // 例如：https://www.pixiv.net/artworks/136489375
+    // 不过只在我的电脑上测试过，我的浏览器最大化时，页面的 vh 是 1017。
+    // 如果某些用户的 vh 比较小（可能是分辨率低，或者浏览器是窗口化的），那么依然可能会出现滚动条
+    // 不过在逻辑分辨率为 1080p 的屏幕上应该都没问题
+    max-height: 68vh;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  li {
+    display: flex;
+    flex-basis: 23%;
+    height: 200px;
+    margin: 1.4% 1%;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      object-fit: contain;
+      max-width: 100%;
+      cursor: pointer;
+    }
+
+    a {
+      display: none;
+    }
+  }
+
+  // 图片选择操作栏
+  .thumbnailListToolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    button {
+      margin: 0;
+    }
+  }
+
+  .thumbnailListToolbarLeft,
+  .thumbnailListToolbarRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  // 清空按钮：覆盖 blueTextBtn 的蓝色背景，使用警告色
+  .thumbnailListClearBtn {
+    background-color: var(--btn-bg-warning);
+  }
+
+  // 帮助按钮：纯文字，无蓝底
+  .thumbnailListHelpBtn {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+
+  // 已选择图片的标记：借用「手动选择作品」的选中样式（.selectedWorkFlag）
+  .thumbnailSelectedFlag {
+    position: absolute;
+    z-index: 1000;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    font-size: 54px;
+    border-radius: 50%;
+    text-align: center;
+    pointer-events: none;
+
+    .icon {
+      color: var(--beautify-blue);
+      vertical-align: baseline;
+      border-radius: 50%;
+      background-color: yellow;
+      box-shadow: 0px 0px 6px yellow;
+    }
+
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+      background-color: #fff;
+      left: 12px;
+      top: 12px;
+      z-index: -1;
+    }
+  }
+}
+
+.theme-white .thumbnailListHelpBtn span {
+  color: #666;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.theme-dark .thumbnailListHelpBtn span {
+  color: #aaa;
+
+  &:hover {
+    color: #ddd;
+  }
+}
+
+// 手动选择模式下的光标跟随标记：全局选择器，因为它被添加到 body 而非 #viewerWarpper 内部。
+// 样式借用「手动选择作品」的 #selectWorkEl（蓝色圆点 + 横竖虚线动画）。
+#thumbnailListSelectorEl {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--thumbnailListSelectorEl-color);
+  display: none;
+  pointer-events: none;
+
+  // 手动选择标记的横线伪元素
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 200vw;
+    left: -100vw;
+    top: 10px;
+    height: 1px;
+    background-image: linear-gradient(
+      to right,
+      var(--thumbnailListSelectorEl-color) 0%,
+      var(--thumbnailListSelectorEl-color) 50%,
+      transparent 50%
+    );
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    animation: moveRight 2s linear infinite;
+  }
+
+  // 手动选择标记的竖线伪元素
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 200vh;
+    top: -100vh;
+    left: 10px;
+    width: 1px;
+    background-image: linear-gradient(
+      to bottom,
+      var(--thumbnailListSelectorEl-color) 0%,
+      var(--thumbnailListSelectorEl-color) 50%,
+      transparent 50%
+    );
+    background-size: 1px 8px;
+    background-repeat: repeat-y;
+    animation: moveBottom 1s linear infinite;
+  }
+}

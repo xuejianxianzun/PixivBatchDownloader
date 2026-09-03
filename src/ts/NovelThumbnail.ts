@@ -10,8 +10,21 @@ class NovelThumbnail extends WorkThumbnail {
     super()
 
     if (Config.mobile) {
-      // 移动端的作品选择器就这一个
-      this.selectors = ['.works-item-novel']
+      // 移动端的作品选择器
+      this.selectors = [
+        '.works-item-novel',
+        '.novel-series-thumbnail',
+        '.works-item-novel-editor-recommend',
+        // 首页底部用大尺寸展示的作品
+        '[data-ga4-label="work_content"]',
+        // 小说搜索页面
+        '[data-ga4-label="works_content"] .col-span-full',
+        // 小说的发现页面、排行榜页面
+        'div[class*="style_works-item-novel__"]>a',
+        // 约稿页面里的小说
+        '.gtm-complete-request-portal-work-link-novel[data-gtm-user-id]',
+        '.gtm-complete-request-complete-work-link-novels-recommend-all[data-gtm-user-id]',
+      ]
     } else {
       this.selectors = [
         'li[size="1"]>div',
@@ -176,8 +189,8 @@ class NovelThumbnail extends WorkThumbnail {
           continue
         }
       }
-      let elements: HTMLElement[] | NodeListOf<Element> =
-        parent.querySelectorAll(selector)
+      let elements: HTMLElement[] | NodeListOf<HTMLElement> =
+        parent.querySelectorAll<HTMLElement>(selector)
       // 处理特殊的动态添加的元素
       // 有些动态添加的元素不能被选择器选中
 
@@ -191,30 +204,20 @@ class NovelThumbnail extends WorkThumbnail {
       }
 
       for (const el of elements) {
-        const id = Tools.findWorkIdFromElement(el as HTMLElement, 'novels')
-        // 在移动端页面里，此时获取的可能是 '0'
-        // 依然绑定
-        if (Config.mobile) {
-          this.bindEvents(el as HTMLElement, id, 'novels')
+        const id = Tools.findWorkIdFromElement(el, 'novels')
+        // 分为两种情况：单篇小说 和 系列小说
+        // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
+        // 优先查找单篇小说的链接，因为很多时候是在展示单篇小说，至于它的系列页面链接只是附带的
+        if (id) {
+          // 单篇小说
+          this.bindEvents(el, id, 'novels')
+          this.addSelectorData(el, selector)
         } else {
-          // 在桌面版页面里，只有查找到 id 时才会执行回调函数
-          // 分为两种情况：单篇小说 和 系列小说
-          // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
-          // 优先查找单篇小说的链接，因为很多时候是在展示单篇小说，至于它的系列页面链接只是附带的
-          if (id) {
-            // 单篇小说
-            this.bindEvents(el as HTMLElement, id, 'novels')
-            this.addSelectorData(el as HTMLElement, selector)
-          } else {
-            // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
-            const seriesId = Tools.findSeriesIdFromElement(
-              el as HTMLElement,
-              'novels'
-            )
-            if (seriesId) {
-              this.bindEvents(el as HTMLElement, seriesId, 'novels', true)
-              this.addSelectorData(el as HTMLElement, selector)
-            }
+          // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
+          const seriesId = Tools.findSeriesIdFromElement(el, 'novels')
+          if (seriesId) {
+            this.bindEvents(el, seriesId, 'novelSeries')
+            this.addSelectorData(el, selector)
           }
         }
       }

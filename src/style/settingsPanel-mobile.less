@@ -1,12 +1,17 @@
 .centerWrap.mobile {
   width: calc(100vw - 32px);
+  max-width: 720px;
+  min-height: 0;
+  max-height: calc(90vh);
   left: 50%;
   top: 5vh;
-  max-height: calc(80vh);
   transform: translateX(-50%);
   font-size: 15px;
   font-family: var(--mobile-font-family);
   overflow: auto;
+  // 外壳自身也是滚动容器，触底时不要把 overscroll 继续上抛给页面，
+  // 避免和移动端浏览器的动态工具栏手势竞争
+  overscroll-behavior: contain;
 
   p {
     line-height: 32px;
@@ -22,18 +27,33 @@
   }
 
   .centerWrap_head {
-    padding: 12px;
+    padding: 6px;
     flex-direction: column;
     align-items: stretch;
 
-    .settingsPanel_headerMain,
-    .settingsPanel_headerActions {
+    // headerMain 固定 32px 高；brand 靠左（margin-right: auto），
+    // 其余按钮组成一组靠右显示
+    .settingsPanel_headerMain {
+      height: 32px;
       min-height: 32px;
-      justify-content: space-between;
+      gap: 0px;
+
+      .settingsPanel_brand {
+        margin-right: auto;
+      }
+
+      .centerWrap_top_btn {
+        width: 28px;
+        height: 32px;
+      }
     }
 
+    // 搜索栏隐藏时，headerActions 内没有可见内容。
+    // 若保留 min-height / padding-top，空容器仍会占据约 32px 高度形成空白区域，
+    // 所以这里全部归零；显示搜索栏时由 .visible 提供与 headerMain 的间距
     .settingsPanel_headerActions {
-      padding-top: 10px;
+      min-height: 0;
+      padding-top: 0;
     }
 
     .settingsPanel_headerSearch {
@@ -42,9 +62,39 @@
     }
   }
 
+  .settingsPanel_logo {
+    width: 22px;
+    height: 22px;
+  }
+
+  .settingsPanel_brand {
+    gap: 4px;
+  }
+
+  .settingsPanel_brandName {
+    font-size: 14px;
+  }
+
+  // 默认隐藏搜索栏。
+  // 点击右侧“搜索”按钮后会添加 .visible 类，使其恢复显示并自动 focus 输入框
+  .settingsPanel_headerSearch {
+    display: none;
+
+    &.visible {
+      display: flex;
+      margin-top: 4px;
+    }
+  }
+
   .settingsPanel_searchBar {
     width: 100%;
     max-width: none;
+    height: 30px;
+  }
+
+  .settingsPanel_expandAll {
+    width: 32px;
+    height: 32px;
   }
 
   .settingsPanel_headerMinor,
@@ -56,10 +106,23 @@
     display: inline-flex;
   }
 
+  .centerWrap_searchBtnMobile {
+    display: inline-flex;
+  }
+
+  // 移动端顶栏使用自己的“展开/折叠所有区域”按钮（位于搜索与关闭按钮之间），
+  // 并隐藏 headerActions 里的 PC 实例，避免其单独出现在折叠后的第二行
+  .centerWrap_expandAll_mobile {
+    display: inline-flex;
+  }
+
+  .centerWrap_expandAll_pc {
+    display: none;
+  }
+
   .centerWrap_con {
     padding: 0;
     flex-direction: column;
-    max-height: calc(80vh - 120px);
 
     .settingsPanel_sidebar {
       width: 100%;
@@ -68,7 +131,7 @@
 
       .settingsPanel_nav {
         margin: 6px 0;
-        gap: 6px;
+        gap: 4px;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
@@ -78,17 +141,27 @@
         flex: 0 1 auto;
         width: auto;
         max-width: 100%;
-        min-height: 42px;
-        padding: 8px 12px;
+        min-height: 30px;
         justify-content: center;
-        gap: 6px;
+        padding: 4px 6px;
+        gap: 4px;
+      }
+
+      .settingsPanel_navIconWrap {
+        width: 24px;
+        height: 24px;
+
+        .settingsPanel_navIcon {
+          font-size: 24px;
+        }
       }
 
       .settingsPanel_navText {
         flex: none;
         min-width: 0;
-        font-size: 17px;
-        min-height: 26px;
+        font-size: 15px;
+        min-height: 24px;
+        line-height: 24px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -107,22 +180,35 @@
     }
 
     .settingForm {
+      .settingsPanel_titleSection,
+      .settingsPanel_panelSection {
+        margin-top: 12px;
+      }
+
+      .settingsPanel_sectionHeader {
+        padding: 6px 10px;
+
+        .settingsPanel_sectionTitle {
+          font-size: 15px;
+        }
+      }
+
       .settingsPanel_panelContent {
         padding: 10px 12px;
       }
 
       .centerWrap_btns {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        .settingsPanelActionBtn {
+          font-size: 15px;
+          line-height: 20px;
+          padding: 5px 7px;
+        }
       }
 
       .setinput_style {
         font-size: 15px !important;
-      }
-
-      .centerWrap_btns button {
-        font-size: 15px;
-        line-height: 24px;
-        padding: 7px 10px;
       }
 
       // 在移动端里，“必须包含标签”的 input 输入框独占一行，否则其宽度太小了
@@ -166,8 +252,8 @@
     .settingsPanel_downloadSummary {
       margin-top: 0px;
       margin-bottom: 10px;
-      padding: 12px 12px;
-      width: 98%;
+      padding: 6px 8px;
+      width: 80%;
       border-top: none;
       background: var(--settings-panel-surface-bg);
       border-radius: 12px;
@@ -204,14 +290,48 @@
   }
 }
 
-@media (max-width: 414px) {
-  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
-    padding: 10px 6px;
+// 对于网页逻辑宽度较大的移动端设备，优化最大宽度和内容区域两侧的 padding，使界面更美观和实用。
+@media (min-width: 400px) {
+  .centerWrap.mobile {
+    max-width: 380px;
+  }
+
+  // 当页面宽度较大时，增加内容区域两侧的 padding，使内容不至于太靠边
+  .centerWrap.mobile .centerWrap_con .settingsPanel_main {
+    padding: 0 1.4vw;
   }
 }
 
-@media (max-width: 388px) {
-  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
-    padding: 12px 6px;
+@media (min-width: 500px) {
+  .centerWrap.mobile {
+    max-width: 460px;
+  }
+
+  .centerWrap.mobile .centerWrap_con .settingsPanel_main {
+    padding: 0 2vw;
+  }
+}
+
+@media (min-width: 600px) {
+  .centerWrap.mobile {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 768px) {
+  .centerWrap.mobile {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 848px) {
+  .centerWrap.mobile {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 900px) {
+  .centerWrap.mobile {
+    max-width: 720px;
   }
 }

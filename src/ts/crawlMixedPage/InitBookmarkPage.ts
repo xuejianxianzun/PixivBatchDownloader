@@ -92,7 +92,8 @@ class InitBookmarkPage extends InitPageBase {
     window.setTimeout(() => {
       showOneTimeMsg.show(
         'tipBookmarkManage',
-        lang.transl('_在收藏页面里提示有辅助功能可用')
+        lang.transl('_在收藏页面里提示有辅助功能可用'),
+        lang.transl('_有附加功能可用')
       )
     }, 1000)
 
@@ -104,7 +105,7 @@ class InitBookmarkPage extends InitPageBase {
       new BookmarksAddTag(
         this.addInitPageBtn(
           'otherBtns',
-          '_给未分类作品添加添加tag',
+          '_给未分类作品添加tag',
           '',
           'addTagToUnmarkedWork',
           'brand'
@@ -273,7 +274,7 @@ class InitBookmarkPage extends InitPageBase {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
-        Tools.getCurrentPageUserID(),
+        Tools.getCurrentPageUserId(),
         this.type,
         store.tag,
         this.offset,

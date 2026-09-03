@@ -1,4 +1,5 @@
 import { API } from '../API'
+import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { lang } from '../Language'
 import { token } from '../Token'
@@ -13,6 +14,7 @@ import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -29,20 +31,8 @@ class QuickBookmark {
       }
     )
 
-    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
-    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，保留了 Ctrl + B
-    // PS: B 是 Pixiv 自身的收藏按钮的快捷键。快速收藏按钮的快捷键是 Alt + B，不会冲突
-    window.addEventListener('keydown', (ev) => {
-      // 防止影响其他页面，因为图片查看器的收藏按钮快捷键也是 Alt + B
-      if (!this.enablePageTypes.includes(pageType.type)) {
-        return
-      }
-
-      if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey) && this.btn) {
-        ev.preventDefault()
-        ev.stopPropagation()
-        this.btn.click()
-      }
+    window.addEventListener(EVT.list.commandQuickBookmark, () => {
+      this.triggerBookmark()
     })
 
     logErrorStatus.listen((status: number, url: string) => {
@@ -179,7 +169,8 @@ class QuickBookmark {
 
         showOneTimeMsg.show(
           'tipBookmarkButton',
-          lang.transl('_下载器的收藏按钮默认会添加作品的标签')
+          lang.transl('_下载器的收藏按钮默认会添加作品的标签'),
+          lang.transl('_下载器的收藏功能')
         )
       }
     })
@@ -286,10 +277,30 @@ class QuickBookmark {
   private setBtnStyle() {
     if (this.isBookmarked) {
       this.btn.classList.add(this.redClass)
-      this.btn.setAttribute('title', lang.transl('_取消收藏AltB'))
+      this.btn.setAttribute('title', lang.transl('_取消收藏'))
     } else {
       this.btn.classList.remove(this.redClass)
-      this.btn.setAttribute('title', lang.transl('_快速收藏AltB'))
+      this.btn.setAttribute('title', lang.transl('_快速收藏'))
+    }
+  }
+
+  /** 触发快速收藏（模拟点击快速收藏按钮）
+   * 需要当前作品工具栏、token 和作品数据均已就绪时才执行，避免点击尚未初始化的空 button */
+  private triggerBookmark() {
+    if (!this.enablePageTypes.includes(pageType.type) || !this.workData) {
+      return
+    }
+
+    if (
+      states.previewWorkIsShow ||
+      states.imageViewerIsShow ||
+      states.showOriginSizeImageIsShow
+    ) {
+      return
+    }
+
+    if (this.btn) {
+      this.btn.click()
     }
   }
 }

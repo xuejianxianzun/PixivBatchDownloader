@@ -144,7 +144,7 @@ class InitArtworkPage extends InitPageBase {
   }
 
   protected async getIdList() {
-    const userId = Tools.getCurrentPageUserID()
+    const userId = Tools.getCurrentPageUserId()
     const checkUser = await this.checkUserId(userId)
     if (!checkUser) {
       return this.getIdListFinished()

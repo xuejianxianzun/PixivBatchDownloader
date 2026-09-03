@@ -73,7 +73,7 @@ class InitNovelPage extends InitPageBase {
   protected async getIdList() {
     let type: userWorksType[] = ['novels']
     let idList = await API.getUserWorksByType(
-      Tools.getCurrentPageUserID(),
+      Tools.getCurrentPageUserId(),
       type
     )
 

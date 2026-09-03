@@ -14,6 +14,7 @@ English |
 - [Introduction](#introduction)
 - [Online Installation](#online-installation)
 - [Offline Installation](#offline-installation)
+- [Install on Android](#install-on-android)
 - [How to use](#how-to-use)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
@@ -67,12 +68,17 @@ Firefox browsers can install this extension from **[Add-Ons](https://addons.mozi
 Please check the Wiki page:
 [Offline Installation](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
-If you want to use this extension on Android, please check the Wiki page:
-[Install on Microsoft Edge Canary Browser](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+# Install on Android
+
+If you want to install this extension in a browser on Android, we recommend using the Quetta browser. It is a mobile browser with the Chromium core, and you can install extensions online from the Chrome Web Store — very convenient.
 
 # How to use
 
-This downloader runs on Pixiv.net pages. When you browse Pixiv, you can open the downloader panel at any time to batch download the works on the current page.
+This downloader runs on Pixiv.net pages. When you browse Pixiv, you can open the downloader panel at any time to use it.
+
+Note:
+- After you install this extension, if you have any Pixiv tabs already open, you need to refresh them so that the extension can run on those tabs.
+- On web pages other than Pixiv.net, clicking the extension icon will not show the downloader panel. This is normal, because the extension only runs on Pixiv.net.
 
 # Wiki
 

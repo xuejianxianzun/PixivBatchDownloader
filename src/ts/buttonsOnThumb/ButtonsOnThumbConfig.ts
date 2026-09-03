@@ -10,10 +10,8 @@ type BtnConfig = {
   show: () => boolean
 }
 
-type BtnList = BtnConfig[]
-
-class ButtonsConfig {
-  protected readonly btnsConfig: BtnList = [
+class ButtonsOnThumbConfig {
+  protected readonly btnsConfig: BtnConfig[] = [
     {
       name: 'zoomBtnOnThumb',
       order: 1,
@@ -44,4 +42,4 @@ class ButtonsConfig {
   protected readonly margin = 8
 }
 
-export { ButtonsConfig, BtnConfig, BtnList }
+export { ButtonsOnThumbConfig, BtnConfig }

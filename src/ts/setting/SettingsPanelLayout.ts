@@ -5,6 +5,7 @@ import { OptionCategoryLevel1 } from './Settings'
 import { FormType } from './FormType'
 import { SettingsPanelHelp } from './SettingsPanelHelp'
 import { FoldableSection, PageId, pageIds } from './SettingsPanelTypes'
+import { settingsPanelTipCard } from './SettingsPanelTipCard'
 
 type SettingsPanelLayoutResult = {
   pageEls: Map<PageId, HTMLDivElement>
@@ -76,11 +77,15 @@ class SettingsPanelLayout {
   private otherBtnsVisibilityObserver?: MutationObserver
 
   public build(): SettingsPanelLayoutResult {
-    const crawlBtnsBlock = this.createSlotBlock([
-      'stopCrawl',
-      'crawlBtns',
-      'selectWorkBtns',
-    ])
+    const crawlBtnsBlock = this.createSlotBlock(['stopCrawl', 'crawlBtns'])
+    // 手动选择、手动排除各自独占一行，不与抓取按钮并排
+    const selectWorkBtnsBlock = this.createSlotBlock(['selectWorkBtns'])
+    const excludeWorkBtnsBlock = this.createSlotBlock(['excludeWorkBtns'])
+    // 在手动排除按钮底部添加一个提示卡片
+    const card = settingsPanelTipCard.use('tipManuallyExcludeWorks')
+    if (card) {
+      excludeWorkBtnsBlock.append(card)
+    }
     const otherBtnsBlock = this.createSlotBlock(['otherBtns'])
     const downloadBtnsBlock = this.createSlotBlock([
       'exportResult',
@@ -134,6 +139,8 @@ class SettingsPanelLayout {
 
     this.buildHomePage(
       crawlBtnsBlock,
+      selectWorkBtnsBlock,
+      excludeWorkBtnsBlock,
       otherBtnsBlock,
       downloadBtnsBlock,
       downloadEmptyHint,
@@ -171,6 +178,8 @@ class SettingsPanelLayout {
 
   private buildHomePage(
     crawlBtnsBlock: HTMLDivElement,
+    selectWorkBtnsBlock: HTMLDivElement,
+    excludeWorkBtnsBlock: HTMLDivElement,
     otherBtnsBlock: HTMLDivElement,
     downloadBtnsBlock: HTMLDivElement,
     downloadEmptyHint: HTMLDivElement,
@@ -181,19 +190,10 @@ class SettingsPanelLayout {
 
     const homeTipsWrap = document.createElement('div')
     homeTipsWrap.className = 'settingsPanel_helpTips settingsPanel_homeTips'
-    homeTipsWrap.innerHTML = `
-    <div class="settingsPanel_tipCard" id="tipCloseAskFileSaveLocation">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent">
-          <span data-xztext="_建议您关闭询问文件保存位置"></span>
-          <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-          </button>
-        </span>
-      </div>
-    </div>
-    `
+    const card = settingsPanelTipCard.use('tipCloseAskFileSaveLocation')
+    if (card) {
+      homeTipsWrap.append(card)
+    }
     home.append(homeTipsWrap)
 
     const pinnedSection = this.createSection({
@@ -217,7 +217,12 @@ class SettingsPanelLayout {
       stickyEligible: false,
       type: 'panel',
     })
-    crawlBlock.content.append(crawlBtnsBlock)
+    // 抓取、手动选择、手动排除各自独占一行
+    crawlBlock.content.append(
+      crawlBtnsBlock,
+      selectWorkBtnsBlock,
+      excludeWorkBtnsBlock
+    )
     home.append(crawlBlock.root)
 
     const downloadBlock = this.createSection({

@@ -1,9 +1,8 @@
 import { Tools } from './Tools'
-import { Colors } from './Colors'
 import { lang } from './Language'
 import { EVT } from './EVT'
-import { states } from './store/States'
-import { IDData, IDTypeString } from './store/StoreType'
+import { workSelection } from './WorkSelection'
+import { IDTypeString } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
@@ -12,24 +11,20 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
-import { rightButtonManager } from './RightButtonManager'
+import { tapDetector } from './utils/TapDetector'
+import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
     // 符合条件时才会创建“手动选择作品”的按钮
     // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
-    if (!this.created && Utils.isPixiv()) {
-      this.created = true
+    if (Utils.isPixiv()) {
       this.selector = this.createSelectorEl()
       this.addBtn()
-      this.addRightBtn()
       this.bindEvents()
-      this.toggleRightBtn()
     }
   }
-
-  private created = false
 
   private selector?: HTMLElement // 用于选择作品的指示器
   private selectorId = 'selectWorkEl'
@@ -44,27 +39,23 @@ class SelectWork {
   private disablePageList = [pageType.list.Unlisted]
 
   get start() {
-    return this._start
+    return workSelection.selectActive
   }
 
   set start(bool: boolean) {
-    this._start = bool
-    states.selectWork = bool
-    this.updateSelectorEl()
-    this.updateControlBtn()
+    if (bool) {
+      workSelection.enterSelectMode()
+    } else {
+      workSelection.exitSelectMode()
+    }
   }
 
   get pause() {
-    return this._pause
+    return workSelection.selectPaused
   }
 
   set pause(bool: boolean) {
-    this._pause = bool
-    if (bool) {
-      states.selectWork = false
-    }
-    this.updateSelectorEl()
-    this.updateControlBtn()
+    workSelection.setSelectPaused(bool)
   }
 
   get tempHide() {
@@ -81,6 +72,7 @@ class SelectWork {
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
   private crawlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
+  private selectAllBtn: HTMLButtonElement = document.createElement('button') // 全选当前显示的作品的按钮
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
@@ -89,40 +81,14 @@ class SelectWork {
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
 
-  private _idList: IDData[] = []
-
-  /** 当前已手动选择的作品 id 列表。其他模块可读取这个列表。 */
-  public get idList() {
-    return this._idList
+  /** 当前已手动选择的作品 id 列表 */
+  private get idList() {
+    return workSelection.selectIdList
   }
 
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
 
-  // 定制：在一些页面类型上启用“全选”、“退出选择”功能
-  private selectAllPageType = [
-    pageType.list.UserHome,
-    pageType.list.NewNovelFromFollowing,
-    pageType.list.NewArtworkFromFollowing,
-  ]
-  private selectAllBtn!: HTMLButtonElement
-  private exitSelectBtn!: HTMLButtonElement
-
-  private addRightBtn() {
-    this.selectAllBtn = rightButtonManager.register({
-      id: 'selectAllBtn',
-      title: '_全选',
-      icon: 'selectAll',
-      order: 21,
-    })
-
-    this.exitSelectBtn = rightButtonManager.register({
-      id: 'exitSelectBtn',
-      title: '_退出全选',
-      icon: 'cancel_selectAll',
-      order: 22,
-    })
-  }
   private readonly svg = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#select"></use>
 </svg>`
@@ -135,8 +101,12 @@ class SelectWork {
     })
 
     novelThumbnail.onClick(
-      (el: HTMLElement, id: string, ev: Event, isSeries: boolean) => {
-        const type: IDTypeString = isSeries ? 'novelSeries' : 'novels'
+      (
+        el: HTMLElement,
+        id: string,
+        ev: Event,
+        type: 'novels' | 'novelSeries'
+      ) => {
         this.clickThumbnail(el, id, ev, type)
       }
     )
@@ -149,11 +119,11 @@ class SelectWork {
       true
     )
 
-    window.addEventListener(EVT.list.openCenterPanel, () => {
+    window.addEventListener(EVT.list.openSettingsPanel, () => {
       this.tempHide = true
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeSettingsPanel, () => {
       this.tempHide = false
     })
 
@@ -164,22 +134,8 @@ class SelectWork {
       }
     })
 
-    // 可以使用 Alt + S 快捷键来模拟点击控制按钮
-    window.addEventListener('keydown', (ev) => {
-      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.altKey && ev.code === 'KeyS') {
-        this.controlBtn.click()
-      }
-    })
-
-    // 定制：使用 Alt + A 快捷键来全选
-    window.addEventListener('keydown', (ev) => {
-      if (ev.altKey && ev.code === 'KeyA') {
-        this.selectAllBtn.click()
-      }
+    window.addEventListener(EVT.list.commandToggleSelectWork, () => {
+      this.toggleSelectWork()
     })
 
     // 鼠标移动时保存鼠标的坐标
@@ -228,107 +184,27 @@ class SelectWork {
       })
     })
 
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      this.toggleRightBtn()
+    // 当“手动选择作品”或“手动排除作品”的状态变化时，同步 UI
+    window.addEventListener(EVT.list.workSelectionChange, () => {
+      this.updateSelectorEl()
+      this.updateControlBtn()
     })
 
-    this.selectAllBtn.addEventListener('click', () => {
-      this.selectAll()
-    })
-
-    // 退出手动选择模式，并取消所有选择的作品
-    this.exitSelectBtn.addEventListener('click', () => {
-      this.clearIdList()
-      this.start = false
-    })
-  }
-
-  private toggleRightBtn() {
-    const enable = this.selectAllPageType.includes(pageType.type)
-    if (enable) {
-      rightButtonManager.show(this.selectAllBtn)
-      rightButtonManager.show(this.exitSelectBtn)
-    } else {
-      rightButtonManager.hide(this.selectAllBtn)
-      rightButtonManager.hide(this.exitSelectBtn)
-    }
-  }
-
-  // 选择当前页面上所有作品
-  private selectAll() {
-    if (!this.selectAllPageType.includes(pageType.type)) {
-      return msgBox.error('全选功能不支持当前页面类型')
-    }
-    // 根据页面类型，获取页面上所有作品的缩略图元素
-    let works: NodeListOf<HTMLElement> =
-      [] as unknown as NodeListOf<HTMLElement>
-    // 在画师主页里
-    if (pageType.type === pageType.list.UserHome) {
-      works = document.querySelectorAll('li[size="1"]')
-    }
-    // 在已关注用户的最新作品-插画里
-    if (pageType.type === pageType.list.NewArtworkFromFollowing) {
-      const newPage = !document.querySelector('h1')
-      const selector = newPage
-        ? 'li[size="1"]'
-        : '#js-mount-point-latest-following>div>div'
-      works = document.querySelectorAll(selector)
-    }
-    // 在已关注用户的最新作品-小说里
-    if (pageType.type === pageType.list.NewNovelFromFollowing) {
-      const newPage = !document.querySelector('h1')
-      const selector = newPage
-        ? 'li[size="1"]'
-        : '#js-mount-point-latest-following>div>div'
-      works = document.querySelectorAll(selector)
-    }
-    if (works.length === 0) {
-      return msgBox.error(
-        '没有找到作品，可能是没有作品，或者页面改版过，请联系开发人员。'
-      )
-    }
-
-    this.startSelect()
-    this.clearBtn.style.display = 'block'
-    // 查找每个作品的 id 数据
-    for (const el of works) {
-      const a = el.querySelector('a') as HTMLAnchorElement
-      if (!a || !a.href) {
-        continue
+    // 当一个作品被排除、并且它之前被选择时，移除其选择标记
+    window.addEventListener(
+      EVT.list.selectWorkRemovedExternally,
+      (ev: CustomEventInit) => {
+        const id = ev.detail.data as string
+        this.removeSelectedFlag(id)
+        this.updateCrawlBtn()
       }
-
-      const idData: IDData = {
-        id: '',
-        type: 'illusts',
-      }
-      if (a.href.includes('/artworks/')) {
-        const id = Tools.getIllustId(a.href)
-        if (id) {
-          idData.id = id
-        }
-      }
-      if (a.href.includes('/novel/')) {
-        const id = Tools.getNovelId(a.href)
-        if (id) {
-          console.log(id)
-          idData.id = id
-          idData.type = 'novels'
-        }
-      }
-
-      if (!idData.id) {
-        continue
-      }
-
-      this.crawled = false
-      this.addId(el, idData.id, idData.type)
-    }
+    )
   }
 
   private clearIdList() {
     // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
     this.removeAllSelectedFlag()
-    this._idList.length = 0
+    workSelection.clearSelect()
     this.updateCrawlBtn()
   }
 
@@ -351,8 +227,15 @@ class SelectWork {
 
     // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
     if (show) {
-      this.selector.style.left = this.left - this.half + 'px'
-      this.selector.style.top = this.top - this.half + 'px'
+      if (Config.mobile) {
+        // 在移动端，由于没有鼠标事件，所以选择器不会跟随鼠标或点击位置。它可能出现在边缘位置，导致状态指示不明显；并且不同情况下出现的位置也可能不一致
+        // 所以在移动端，让选择器始终显示在屏幕中央位置，使其更明显，位置也固定
+        this.selector.style.left = window.innerWidth / 2 - this.half + 'px'
+        this.selector.style.top = window.innerHeight / 2 - this.half + 'px'
+      } else {
+        this.selector.style.left = this.left - this.half + 'px'
+        this.selector.style.top = this.top - this.half + 'px'
+      }
     }
   }
 
@@ -360,7 +243,7 @@ class SelectWork {
     this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
       '_手动选择作品',
-      'Alt + S',
+      '',
       'manuallySelectWork',
       'secondary',
       'brand'
@@ -368,19 +251,17 @@ class SelectWork {
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
-    this.clearBtn = Tools.addBtn(
+    // 全选当前显示的作品。这个按钮始终显示，不依赖手动选择作品模式
+    this.selectAllBtn = Tools.addBtn(
       'selectWorkBtns',
-      '_清空选择的作品',
+      '_全选当前显示的作品',
       '',
-      'clearSelectedWork',
+      'selectAllWorks',
       'secondary',
-      'danger'
+      'brand'
     )
-    this.clearBtn.style.display = 'none'
-    this.clearBtn.addEventListener('click', () => {
-      this.clearIdList()
-      this.clearBtn.style.display = 'none'
-      this.crawlBtn.style.display = 'none'
+    this.selectAllBtn.addEventListener('click', () => {
+      this.selectAll()
     })
 
     this.crawlBtn = Tools.addBtn(
@@ -396,6 +277,21 @@ class SelectWork {
       this.sendDownload()
     })
     this.crawlTextSpan = this.crawlBtn.querySelector('span')!
+
+    this.clearBtn = Tools.addBtn(
+      'selectWorkBtns',
+      '_清空选择的作品',
+      '',
+      'clearSelectedWork',
+      'secondary',
+      'danger'
+    )
+    this.clearBtn.style.display = 'none'
+    this.clearBtn.addEventListener('click', () => {
+      this.clearIdList()
+      this.clearBtn.style.display = 'none'
+      this.crawlBtn.style.display = 'none'
+    })
   }
 
   // 切换控制按钮的文字和点击事件
@@ -416,7 +312,8 @@ class SelectWork {
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltSToSelectWork',
-            lang.transl('_快捷键ALTS手动选择作品')
+            lang.transl('_快捷键ALTS手动选择作品'),
+            lang.transl('_手动选择作品')
           )
         }
       }
@@ -437,7 +334,8 @@ class SelectWork {
 
   // 在选择作品的数量改变时，在抓取按钮上显示作品数量
   private updateCrawlBtn() {
-    this.crawlBtn.style.display = this.start ? 'flex' : 'none'
+    this.crawlBtn.style.display =
+      this.idList.length > 0 || this.start ? 'flex' : 'none'
     if (this.idList.length > 0) {
       lang.updateText(
         this.crawlTextSpan,
@@ -451,37 +349,70 @@ class SelectWork {
   }
 
   private addId(el: HTMLElement, id: string, type: IDTypeString) {
-    const index = this.idList.findIndex((item) => {
-      return item.id === id && item.type === type
-    })
-
-    if (index === -1) {
-      // 如果是系列 id，则尝试从 A 标签里获取系列标题
-      let seriesTitle = ''
-      if (type === 'novelSeries') {
-        const aList = el.querySelectorAll(`a[href*="${id}"]`)
-        for (const a of aList) {
-          if (a.textContent) {
-            seriesTitle = a.textContent
-            break
-          }
-        }
-      }
-
-      // 添加这个 id
-      this.idList.push({
-        id,
-        type,
-        title: seriesTitle,
-      })
+    // 添加这个 id，或从列表里移除它（toggle）
+    const title =
+      type === 'novelSeries' ? Tools.getSeriesTitleFromElement(el, id) : ''
+    const added = workSelection.toggleSelectId(id, type, title)
+    if (added) {
       this.crawled = false
-      this.addSelectedFlag(el, id)
+      this.addSelectedFlag(el, id, type)
     } else {
-      // id 已存在，则删除
-      this.idList.splice(index, 1)
       this.removeSelectedFlag(id)
     }
     this.updateCrawlBtn()
+  }
+
+  /** 全选当前页面上显示的所有作品。
+   * 仅添加，不反选，也不改变或退出任何模式状态（手动选择/排除等）。
+   * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。
+   * 供“开始抓取”区域的“全选当前显示的作品”按钮、以及网页右侧的“全选”按钮调用。 */
+  public selectAll() {
+    const elements =
+      document.querySelectorAll<HTMLElement>('.ppd-workThumbnail')
+    for (const el of elements) {
+      // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
+
+      let id = el.dataset.workid
+      let type = el.dataset.worktype as IDTypeString
+      if (!id || !type) {
+        continue
+      }
+
+      // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+      if (type === 'novels' || type === 'novelSeries') {
+        const idData = Tools.getNovelOrSeriesIDData(el)
+        if (idData) {
+          id = idData.id
+          type = idData.type
+        } else {
+          continue
+        }
+      }
+
+      const title =
+        type === 'novelSeries' ? Tools.getSeriesTitleFromElement(el, id) : ''
+      workSelection.addSelectId(id, type, title)
+      this.crawled = false
+      this.addSelectedFlag(el, id, type)
+    }
+
+    if (this.idList.length > 0) {
+      // 有已选择的作品时，显示抓取按钮和清空按钮
+      this.updateCrawlBtn()
+      this.clearBtn.style.display = 'flex'
+      toast.success(lang.transl('_已全选'))
+    } else {
+      toast.warning(lang.transl('_没有找到任何作品'))
+    }
+  }
+
+  /** 退出手动选择模式，并取消所有选择的作品（供网页右侧的“退出全选”按钮调用） */
+  public exitSelect() {
+    this.clearIdList()
+    this.start = false
   }
 
   private clickThumbnail(
@@ -501,6 +432,11 @@ class SelectWork {
       return
     }
 
+    // 如果点击的是多图作品页面里的作品缩略图，则不选择这个作品
+    if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+      return
+    }
+
     // 真实点击的元素
     // console.log(ev.target)
     // 绑定了这个事件的元素
@@ -513,14 +449,33 @@ class SelectWork {
       )
     }
 
+    // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+    if (type === 'novels' || type === 'novelSeries') {
+      const idData = Tools.getNovelOrSeriesIDData(el)
+      if (idData) {
+        id = idData.id
+        type = idData.type
+      } else {
+        id = ''
+      }
+    }
+
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
     ev.preventDefault()
     ev.stopPropagation()
-    this.addId(el, id, type)
+
+    // 仅当有 id 时才添加到选择列表里
+    id && this.addId(el, id, type)
   }
 
   private clickElement(el: HTMLElement, ev: Event) {
     if (!this.canSelect()) {
+      return
+    }
+
+    // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+    // 否则用户从作品链接上开始滑动页面，会在滑动结束后误选这个作品
+    if (Config.mobile && !tapDetector.isTap()) {
       return
     }
 
@@ -544,8 +499,10 @@ class SelectWork {
         el.nodeName === 'circle'
       ) {
         a = el.closest('a')
-        // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
-        addFlagTarget = a!.parentElement!
+        if (a) {
+          // 当在播放图标上点击时，把插入目标点设置为 a 的父元素，而非 svg 元素，否则会导致已选择的标记无法显示
+          addFlagTarget = a!.parentElement!
+        }
       }
     }
 
@@ -599,19 +556,15 @@ class SelectWork {
   // 开始或继续选择
   private startSelect() {
     this.start = true
-
-    if (this.pause) {
-      // 如果之前暂停了，则继续选择。不清空之前的结果
-      this.pause = false
-    } else {
-      // 如果是全新开始的选择，则清空之前的结果
-      this.clearIdList()
-    }
+    // 进入选择模式时，确保处于“活动中、未暂停”的状态。
+    // 不在这里清空已选择的作品，选择的列表会一直保留，直到用户点击“清空选择的作品”按钮为止。
+    // 这样可以避免切换到“手动排除作品”模式再切回来时，之前选择的作品被误清空。
+    this.pause = false
 
     this.bindEscEvent = this.escEvent.bind(this)
     window.addEventListener('keydown', this.bindEscEvent)
 
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
   }
 
   private pauseSelect() {
@@ -622,6 +575,11 @@ class SelectWork {
 
   private canSelect() {
     return this.start && !this.pause
+  }
+
+  /** 启动或暂停手动选择作品（模拟点击控制按钮） */
+  private toggleSelectWork() {
+    this.controlBtn.click()
   }
 
   // 抓取选择的作品，这会自动暂停手动选择作品
@@ -638,18 +596,43 @@ class SelectWork {
   }
 
   // 给这个作品添加标记
-  private addSelectedFlag(wrap: HTMLElement, id: string) {
-    const i = document.createElement('i')
-    i.classList.add(this.selectedWorkFlagClass)
-    i.dataset.id = id
-    i.innerHTML = this.svg
+  private addSelectedFlag(
+    wrap: HTMLElement,
+    id: string,
+    type: IDTypeString = 'illusts'
+  ) {
+    // 同一个作品可能有多个缩略图元素，所以要在每个缩略图上都添加标记
+    let allThisIdWorks = document.querySelectorAll<HTMLElement>(
+      `.ppd-workThumbnail[data-workid='${id}'][data-worktype='${type}']`
+    )
+    // 如果没有找到缩略图元素，可能是因为 type 是系列小说。系列小说没有上面的两个 data 属性
+    if (allThisIdWorks.length === 0) {
+      allThisIdWorks = [wrap] as any
+    }
 
-    wrap.insertAdjacentElement('afterbegin', i)
+    for (const el of allThisIdWorks) {
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
 
-    // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-    const position = window.getComputedStyle(wrap)['position']
-    if (!this.positionValue.includes(position)) {
-      wrap.style.position = 'relative'
+      // 如果这个缩略图里已经存在标记，就不需要重复添加
+      const existingFlag = el.querySelector(`.${this.selectedWorkFlagClass}`)
+      if (existingFlag) {
+        continue
+      }
+
+      const i = document.createElement('i')
+      i.classList.add(this.selectedWorkFlagClass)
+      i.dataset.id = id
+      i.dataset.type = type
+      i.innerHTML = this.svg
+      el.insertAdjacentElement('afterbegin', i)
+
+      // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+      const position = window.getComputedStyle(el)['position']
+      if (!this.positionValue.includes(position)) {
+        el.style.position = 'relative'
+      }
     }
   }
 
@@ -660,16 +643,6 @@ class SelectWork {
     }
 
     for (const { id, type } of this.idList) {
-      if (this.getSelectedFlag(id)) {
-        // 如果这个作品的标记依旧存在，就不需要重新添加
-        /**
-         * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
-         * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
-         * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
-         */
-        return
-      }
-
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
         el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`)
@@ -679,21 +652,21 @@ class SelectWork {
 
       if (el) {
         // 如果在当前页面查找到了选择的作品，就给它添加标记
-        this.addSelectedFlag(el, id)
+        this.addSelectedFlag(el, id, type)
       }
     }
   }
 
   private getSelectedFlag(id: string) {
-    return document.querySelector(
+    return document.querySelectorAll(
       `.${this.selectedWorkFlagClass}[data-id='${id}']`
     )
   }
 
   // 清空指定作品的标记
   private removeSelectedFlag(id: string) {
-    const el = this.getSelectedFlag(id)
-    el && el.remove()
+    const els = this.getSelectedFlag(id)
+    els.forEach((el) => el.remove())
   }
 
   // 清空所有标记

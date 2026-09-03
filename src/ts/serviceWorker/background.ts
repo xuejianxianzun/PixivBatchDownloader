@@ -2,6 +2,7 @@ import './ManageFollowing'
 import './CheckDownloadCount'
 import { DonwloadListData, SendToBackEndData } from '../download/DownloadType'
 import browser from 'webextension-polyfill'
+import { Config } from '../Config'
 
 // 当点击扩展图标时，显示/隐藏下载面板
 browser.action.onClicked.addListener(function (tab) {
@@ -109,6 +110,9 @@ browser.runtime.onMessage.addListener(async function (
             uuid: false,
           }
         })
+        .catch((error) => {
+          console.error('downloads.download 失败', error)
+        })
     }
   }
 
@@ -154,7 +158,9 @@ browser.runtime.onMessage.addListener(async function (
       },
       err: '',
     }
-    browser.tabs.sendMessage(tabId, data)
+    browser.tabs.sendMessage(tabId, data).catch((error) => {
+      console.error('回发 downloaded 消息失败', error)
+    })
   }
 
   if (msg.msg === 'clearDownloadsTempData') {
@@ -209,54 +215,57 @@ const UUIDRegexp =
 
 // 监听下载变化事件
 // 每个下载会触发两次 onChanged 事件
-browser.downloads.onChanged.addListener(async function (detail) {
-  // 根据 detail.id 取出保存的数据
-  const _dlData = dlData[detail.id]
-  if (_dlData) {
-    let msg = ''
-    let err = ''
+// Firefox Android 不支持 downloads API（注册监听器时会抛出 "Not implemented" 错误），所以不注册该监听器
+if (!Config.downloadsAPIDisabled) {
+  browser.downloads.onChanged.addListener(async function (detail) {
+    // 根据 detail.id 取出保存的数据
+    const _dlData = dlData[detail.id]
+    if (_dlData) {
+      let msg = ''
+      let err = ''
 
-    // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
-    if (detail.filename && detail.filename.current) {
-      const changedName = detail.filename.current
-      if (changedName.match(UUIDRegexp) !== null) {
-        // 文件名是 UUID
-        _dlData.uuid = true
+      // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
+      if (detail.filename && detail.filename.current) {
+        const changedName = detail.filename.current
+        if (changedName.match(UUIDRegexp) !== null) {
+          // 文件名是 UUID
+          _dlData.uuid = true
+        }
+
+        _dlData.browserSetFilename = changedName
       }
 
-      _dlData.browserSetFilename = changedName
-    }
-
-    if (detail.state && detail.state.current === 'complete') {
-      msg = 'downloaded'
-    }
-
-    if (detail.error && detail.error.current) {
-      msg = 'download_err'
-      err = detail.error.current
-      // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-      const idIndex = idList[_dlData.tabId].findIndex(
-        (val) => val === _dlData.id
-      )
-      idList[_dlData.tabId][idIndex] = ''
-      setData({ idList })
-    }
-
-    if (msg) {
-      // 返回信息
-      if (!_dlData.noReply) {
-        browser.tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err })
+      if (detail.state && detail.state.current === 'complete') {
+        msg = 'downloaded'
       }
 
-      // 吊销前后台生成的 blob URL
-      revokeBlobURL(_dlData?.blobURLFront)
-      revokeBlobURL(_dlData?.blobURLBack)
-      // 删除保存的数据
-      delete dlData[detail.id]
-      dlData[detail.id] = null
+      if (detail.error && detail.error.current) {
+        msg = 'download_err'
+        err = detail.error.current
+        // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
+        const idIndex = idList[_dlData.tabId].findIndex(
+          (val) => val === _dlData.id
+        )
+        idList[_dlData.tabId][idIndex] = ''
+        setData({ idList })
+      }
+
+      if (msg) {
+        // 返回信息
+        if (!_dlData.noReply) {
+          browser.tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err })
+        }
+
+        // 吊销前后台生成的 blob URL
+        revokeBlobURL(_dlData?.blobURLFront)
+        revokeBlobURL(_dlData?.blobURLBack)
+        // 删除保存的数据
+        delete dlData[detail.id]
+        dlData[detail.id] = null
+      }
     }
-  }
-})
+  })
+}
 
 // 清除不需要的数据，避免数据体积越来越大
 async function clearData() {

@@ -10,6 +10,7 @@
   flex-direction: column;
   background-color: #fff;
   box-shadow: 0 0 15px var(--box-shadow-blue);
+  box-sizing: border-box;
   padding: 20px 20px;
   max-width: 90vw;
   height: max-content;
@@ -49,8 +50,19 @@
       height: auto;
     }
 
-    .XZInputButton {
+    .XZInputButtons {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
       margin-left: 10px;
+
+      // 按钮之间的距离
+      .XZInputButton + .XZInputButton {
+        margin-left: 10px;
+      }
+    }
+
+    .XZInputButton {
       flex-shrink: 0;
       background-color: #0096fa;
       color: #fff;
@@ -91,6 +103,30 @@
   .XZInputInstruction {
     margin: 0px 0 8px 0;
     line-height: 22px;
+  }
+
+  // 移动端：输入框独占一行（撑满容器宽度），提交/取消按钮换到下一行
+  .XZInputContainer {
+    flex-direction: column;
+    align-items: stretch;
+
+    .XZInput {
+      width: 100%;
+      // 纵向排列时 flex-basis 会作用于高度，需重置为 auto（宽度由 width: 100% 控制）
+      flex-basis: auto;
+    }
+
+    .XZInputButtons {
+      margin-left: 0;
+      margin-top: 10px;
+      justify-content: flex-end;
+
+      button {
+        height: 28px;
+        line-height: 28px;
+        padding: 0px 20px;
+      }
+    }
   }
 
   .XZInput {

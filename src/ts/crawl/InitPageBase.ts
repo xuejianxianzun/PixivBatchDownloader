@@ -14,6 +14,8 @@ import { mute } from '../filter/Mute'
 import { IDData } from '../store/StoreType'
 import './StopCrawl'
 import '../SelectWork'
+import '../SelectWorkRightButtons'
+import '../ExcludeWork'
 import { destroyManager } from '../pageFunciton/DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
@@ -230,13 +232,12 @@ abstract class InitPageBase {
 
     showOneTimeMsg.show(
       'tipCloseAskFileSaveLocationOnce',
-      lang.transl('_建议您关闭询问文件保存位置')
+      lang.transl('_建议您关闭询问文件保存位置'),
+      lang.transl('_下载提示')
     )
 
     log.success('🚀' + lang.transl('_开始抓取'))
-    toast.show(lang.transl('_开始抓取'), {
-      position: 'center',
-    })
+    toast.show(lang.transl('_开始抓取'))
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
@@ -303,7 +304,8 @@ abstract class InitPageBase {
 
       showOneTimeMsg.show(
         'tipCloseAskFileSaveLocationOnce',
-        lang.transl('_建议您关闭询问文件保存位置')
+        lang.transl('_建议您关闭询问文件保存位置'),
+        lang.transl('_下载提示')
       )
 
       log.success('🚀' + lang.transl('_开始抓取'))
@@ -734,16 +736,16 @@ abstract class InitPageBase {
       log.success('✅' + lang.transl('_抓取完毕'))
       log.log('')
 
-      // 在这里触发 exportLog 属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来导出日志
+      // 在这里触发导出日志属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来允许自动导出日志
       if (settings.exportLogTiming === 'downloadComplete') {
         setTimeout(() => {
-          EVT.fire('exportLog')
+          EVT.fire('exportLogsTiming')
         }, 0)
       }
       return
     }
 
-    const msg = lang.transl('_抓取结果为零请检查筛选条件')
+    const msg = lang.transl('_抓取结果为零的提示')
     log.error(msg)
     log.log('')
     if (!states.timedCrawlMode) {

@@ -8,17 +8,15 @@ import { Utils } from './utils/Utils'
 import { PreviewUgoira } from './PreviewUgoira'
 import { toast } from './Toast'
 import { lang } from './Language'
-import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
 import { Tools } from './Tools'
-import { bookmark } from './Bookmark'
-import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
 import { filter } from './filter/Filter'
+import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -74,9 +72,6 @@ class PreviewWork {
 
   // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
   private dontShowAgain = false
-
-  // 是否允许预览区域遮挡作品缩略图
-  private allowOverThumb = true
 
   // 当前预览图是否遮挡了作品缩略图
   private overThumb = false
@@ -146,6 +141,7 @@ class PreviewWork {
 
         this.isReadyShow = false
         this._show = true
+        states.previewWorkIsShow = true
         this.showWrap(version)
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
@@ -164,6 +160,7 @@ class PreviewWork {
       this.isReadyShow = false
       this._show = false
       this.dontShowAgain = false
+      states.previewWorkIsShow = false
       this.wrap.style.display = 'none'
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
@@ -185,7 +182,25 @@ class PreviewWork {
   }
 
   private bindEvents() {
-    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string, ev: MouseEvent) => {
+      // 这个判断是为了处理这个边界情况：
+      // 在多图作品页面里，预览作品下方的某个缩略图时（必须是由 displayThumbnailListOnMultiImageWorkPage 生成的缩略图，因为它设置了 data-index，每个缩略图都有不同的索引）
+      // 在预览并切换图片的过程中，某张预览图（通常是横图）遮挡住了缩略图，这会触发 artworkThumbnail.onLeave 事件；
+      // 之后当预览图消失，或者显示了下一张预览图（并且这个预览图没有遮挡缩略图），就会导致鼠标重新落在下方的缩略图上，触发 artworkThumbnail.onEnter 事件。
+      // 这时如果不加以处理，预览图就会自动变成这张缩略图的预览图；但实际上应该保持用户刚才操作的结果，而不是让预览图突然变化。
+      // 使用 ev.relatedTarget 可以检查鼠标是否刚从预览容器 #previewWorkWrap 上离开。对于上面的情况：预览图原本覆盖在缩略图上，之后不再覆盖，导致鼠标重新落回缩略图上。现在会忽略该事件，不会导致预览图自动变化。
+      // 测试作品：https://www.pixiv.net/artworks/148063649
+      const enterFromPreview =
+        ev.relatedTarget instanceof Node && this.wrap.contains(ev.relatedTarget)
+      if (
+        enterFromPreview &&
+        this.show &&
+        id === this.workId &&
+        displayThumbnailListOnMultiImageWorkPage.checkLI(el)
+      ) {
+        return
+      }
+
       if (this.dontShowAgain || this.dontShowAfterPageSwitch) {
         return
       }
@@ -237,42 +252,8 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
-        // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
-        if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
           return
-        }
-
-        // 当用户按下 Alt 时
-        if (ev.altKey) {
-          // 可以使用 Alt + P 快捷键来启用/禁用此功能
-          if (ev.code === 'KeyP') {
-            setSetting('PreviewWork', !settings.PreviewWork)
-            // 显示提示信息
-            if (settings.PreviewWork) {
-              const msg = 'Preview works - On'
-              toast.success(msg)
-            } else {
-              const msg = 'Preview works - Off'
-              toast.warning(msg)
-            }
-            return
-          } else if (ev.code === 'KeyC') {
-            // 使用快捷键 Alt + C 调用复制功能
-            if (this.show && this.workData) {
-              //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
-              ev.stopPropagation()
-              ev.preventDefault()
-              copyWorkInfo.receive(
-                {
-                  type: 'illusts',
-                  id: this.workData!.body.id,
-                },
-                this.index
-              )
-            }
-            return
-          }
         }
 
         // 按翻页键时关闭当前预览
@@ -335,12 +316,18 @@ class PreviewWork {
           ])
         }
 
+        // 预览作品时，可以使用快捷键 V 调用查看原图的功能
+        if (ev.code === 'KeyV') {
+          ev.preventDefault()
+          ev.stopPropagation()
+          EVT.fire('callShowOriginSizeImage', this.workData!.body.id)
+        }
+
         // 预览作品时，可以使用快捷键 B 收藏这个作品
-        // 实际上 Alt + B 也会生效
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          this.addBookmark()
+          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
         }
 
         // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片
@@ -368,9 +355,32 @@ class PreviewWork {
       }
     )
 
+    // 一级快捷键 切换预览功能
+    window.addEventListener(EVT.list.commandTogglePreviewWork, () => {
+      setSetting('PreviewWork', !settings.PreviewWork)
+      if (settings.PreviewWork) {
+        toast.success('Preview works - On')
+      } else {
+        toast.warning('Preview works - Off')
+      }
+    })
+
+    // 一级快捷键 复制作品信息
+    window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
+      if (this.show && this.workData) {
+        copyWorkInfo.receive(
+          {
+            type: 'illusts',
+            id: this.workData.body.id,
+          },
+          this.index
+        )
+      }
+    })
+
     const hiddenEvtList = [
       EVT.list.pageSwitch,
-      EVT.list.centerPanelOpened,
+      EVT.list.settingsPanelOpened,
       EVT.list.showOriginSizeImage,
     ]
     hiddenEvtList.forEach((evt) => {
@@ -504,6 +514,11 @@ class PreviewWork {
     }
 
     const workId = this.workId
+    // 每次显示时都从 states.indexRecord 里获取 index。这样在其他模块切换作品后，再使用预览作品功能时，可以继承之前的 index
+    const lastIndex = states.indexRecord[workId]
+    if (lastIndex !== undefined) {
+      this.index = lastIndex
+    }
     const index = this.index
     const workData = this.workData
     const url = workData.body.urls[settings.prevWorkSize].replace(
@@ -577,7 +592,7 @@ class PreviewWork {
       }
     } else if (w > h) {
       // 横图
-      if (this.allowOverThumb) {
+      if (settings.allowPreviewCoverThumbnail) {
         // 如果允许预览图覆盖在作品缩略图上，则预览图的最大宽度可以等于视口宽度
         if (w > innerWidth) {
           cfg.width = innerWidth
@@ -740,11 +755,14 @@ class PreviewWork {
       this.index === index
     ) {
       if (workData.body.illustType === 2) {
+        // 在预览动图时不使用 small 尺寸，因为动图的源文件没有区分 regular 和 small 档位。把 small 视为 regular 档位
+        const previewUgoiraSize =
+          settings.prevWorkSize === 'original' ? 'original' : 'regular'
         this.previewUgoira = new PreviewUgoira(
           workData.body.id,
           this.wrap,
           this.img,
-          settings.prevWorkSize,
+          previewUgoiraSize,
           cfg.width,
           cfg.height - tipHeight
         )
@@ -825,57 +843,6 @@ class PreviewWork {
         }
         img.src = url
       }
-    }
-  }
-
-  private async addBookmark() {
-    if (this.workData?.body.illustId === undefined) {
-      return
-    }
-
-    toast.show(lang.transl('_收藏'), {
-      bgColor: Colors.bgBlue,
-    })
-
-    const status = await bookmark.add(
-      this.workData.body.illustId,
-      'illusts',
-      Tools.extractTags(this.workData!)
-    )
-
-    if (status === 200) {
-      toast.success(lang.transl('_已收藏'))
-
-      // 将作品缩略图上的收藏按钮变成红色
-      const allSVG = this.workEL!.querySelectorAll('svg')
-      if (allSVG.length > 0) {
-        // 如果有多个 svg，一般最后一个是收藏按钮
-        let useSVG = allSVG[allSVG.length - 1]
-
-        // 但有些特殊情况是第一个
-        if (pageType.type === pageType.list.Request) {
-          useSVG = allSVG[0]
-        }
-
-        // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
-        // 区别是收藏按钮在 button 元素里
-        const btnSVG = this.workEL!.querySelector('button svg') as SVGSVGElement
-        if (btnSVG) {
-          useSVG = btnSVG
-        }
-
-        useSVG.style.color = 'rgb(255, 64, 96)'
-        const allPath = useSVG.querySelectorAll('path')
-        for (const path of allPath) {
-          path.style.fill = 'currentcolor'
-        }
-      }
-    }
-
-    // 排行榜页面的收藏按钮
-    const btn = this.workEL!.querySelector('._one-click-bookmark')
-    if (btn) {
-      btn.classList.add('on')
     }
   }
 

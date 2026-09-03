@@ -1,5 +1,5 @@
 import { DonwloadSkipData, DonwloadSuccessData } from './download/DownloadType'
-import { IDData, Result } from './store/StoreType'
+import { IDData, IDTypeString, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
@@ -92,14 +92,14 @@ class EVENT {
     convertChange: 'convertChange',
     /** 当动图转换成功时触发 */
     convertSuccess: 'convertSuccess',
-    /** 指示打开中间面板 */
-    openCenterPanel: 'openCenterPanel',
-    /** 指示关闭中间面板 */
-    closeCenterPanel: 'closeCenterPanel',
-    /** 中间面板已打开 */
-    centerPanelOpened: 'centerPanelOpened',
-    /** 中间面板已关闭 */
-    centerPanelClosed: 'centerPanelClosed',
+    /** 指示打开设置面板 */
+    openSettingsPanel: 'openSettingsPanel',
+    /** 指示关闭设置面板 */
+    closeSettingsPanel: 'closeSettingsPanel',
+    /** 设置面板已打开 */
+    settingsPanelOpened: 'settingsPanelOpened',
+    /** 设置面板已关闭 */
+    settingsPanelClosed: 'settingsPanelClosed',
     /** 当清除多图作品时触发 */
     clearMultiple: 'clearMultiple',
     /** 当清除动图作品时触发 */
@@ -161,6 +161,8 @@ class EVENT {
     /** 点击了下载器在作品缩略图上添加的按钮时触发 */
     /** 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题 */
     clickBtnOnThumb: 'clickBtnOnThumb',
+    /** 请求显示原比例图片时触发 */
+    callShowOriginSizeImage: 'callShowOriginSizeImage',
     /** 显示原比例图片时触发 */
     showOriginSizeImage: 'showOriginSizeImage',
     /** 语言类型改变时触发 */
@@ -181,12 +183,40 @@ class EVENT {
     followingUsersChange: 'followingUsersChange',
     /**网络请求错误，并且有状态码 */
     requestStatusError: 'requestStatusError',
-    /** 触发导出日志的事件 */
-    exportLog: 'exportLog',
+    /** 当下载器完成了某些任务时，提示可以导出日志（因为此时的日志内容已经生成完毕） */
+    exportLogsTiming: 'exportLogsTiming',
+    /** 当用户点击“导出日志”按钮时，直接导出当前的日志内容。这与设置项“导出日志”无关 */
+    forceExportLogs: 'forceExportLogs',
     /** 显示最近更新 */
     showRecentUpdates: 'showRecentUpdates',
     /** 重置下载器保存的关注数据 */
     resetFollowingData: 'resetFollowingData',
+    /** 当“手动选择作品”或“手动排除作品”的状态发生变化时触发，用于两个模块同步 UI */
+    workSelectionChange: 'workSelectionChange',
+    /** 当一个作品被排除、且它已在“手动选择作品”列表里时触发，通知 SelectWork 移除其标记 */
+    selectWorkRemovedExternally: 'selectWorkRemovedExternally',
+    /** 当一个作品被选择、且它已在“排除作品”列表里时触发，通知 ExcludeWork 移除其标记 */
+    excludeWorkRemovedExternally: 'excludeWorkRemovedExternally',
+    /** 当“手动排除作品”功能添加了一个作品时触发，会传递其 id 和 type */
+    manuallyExcludeWork: 'manuallyExcludeWork',
+    /** 快捷键命令：切换显示日志区域（对应一级快捷键 L） */
+    commandToggleLogArea: 'commandToggleLogArea',
+    /** 快捷键命令：切换显示设置面板（对应一级快捷键 Alt + X） */
+    commandToggleSettingsPanel: 'commandToggleSettingsPanel',
+    /** 快捷键命令：点击默认的抓取按钮（对应一级快捷键 Alt + Z） */
+    commandStartDefaultCrawl: 'commandStartDefaultCrawl',
+    /** 快捷键命令：启动或暂停手动选择作品（对应一级快捷键 Alt + S） */
+    commandToggleSelectWork: 'commandToggleSelectWork',
+    /** 快捷键命令：启动或暂停手动排除作品（对应一级快捷键 Alt + E） */
+    commandToggleExcludeWork: 'commandToggleExcludeWork',
+    /** 快捷键命令：启用或关闭预览作品功能（对应一级快捷键 Alt + P） */
+    commandTogglePreviewWork: 'commandTogglePreviewWork',
+    /** 快捷键命令：在作品页面里快速下载当前作品（对应一级快捷键 Alt + Q） */
+    commandQuickDownload: 'commandQuickDownload',
+    /** 快捷键命令：在作品页面里快速收藏当前作品（对应一级快捷键 Alt + B） */
+    commandQuickBookmark: 'commandQuickBookmark',
+    /** 快捷键命令：复制作品的图片和摘要信息（对应一级快捷键 Alt + C） */
+    commandCopyWorkInfo: 'commandCopyWorkInfo',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -217,10 +247,10 @@ class EVENT {
       | 'importSettings'
       | 'resetHelpTip'
       | 'convertSuccess'
-      | 'openCenterPanel'
-      | 'closeCenterPanel'
-      | 'centerPanelOpened'
-      | 'centerPanelClosed'
+      | 'openSettingsPanel'
+      | 'closeSettingsPanel'
+      | 'settingsPanelOpened'
+      | 'settingsPanelClosed'
       | 'clearMultiple'
       | 'clearUgoira'
       | 'worksUpdate'
@@ -254,7 +284,8 @@ class EVENT {
       | 'cancelTimedCrawl'
       | 'sendBrowserDownload'
       | 'followingUsersChange'
-      | 'exportLog'
+      | 'exportLogsTiming'
+      | 'forceExportLogs'
       | 'showRecentUpdates'
       | 'resetFollowingData'
       | 'settingsStored'
@@ -303,6 +334,25 @@ class EVENT {
     data: {
       x: number
       y: number
+    }
+  ): void
+
+  public fire(type: 'workSelectionChange'): void
+
+  // 需要传递作品 id 的事件
+  public fire(
+    type:
+      | 'selectWorkRemovedExternally'
+      | 'excludeWorkRemovedExternally'
+      | 'callShowOriginSizeImage',
+    data: string
+  ): void
+
+  public fire(
+    type: 'manuallyExcludeWork',
+    data: {
+      id: string
+      type: IDTypeString
     }
   ): void
 

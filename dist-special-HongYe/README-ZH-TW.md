@@ -14,6 +14,7 @@
 - [簡介](#簡介)
 - [線上安裝](#線上安裝)
 - [離線安裝](#離線安裝)
+- [在 Android 上安裝](#在-android-上安裝)
 - [如何使用](#如何使用)
 - [Wiki](#wiki)
 - [鳴謝](#鳴謝)
@@ -69,12 +70,17 @@ Firefox 瀏覽器可從 **[Add-Ons](https://addons.mozilla.org/firefox/addon/pow
 請查看 Wiki 頁面：
 [離線安裝](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
-如果你想在 Android 上使用這個擴展，請查看 Wiki 頁面：
-[在 Microsoft Edge Canary 瀏覽器上安裝](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/MicrosoftEdgeCanary)
+# 在 Android 上安裝
+
+如果你想在 Android 上的瀏覽器裡安裝這個擴充功能，推薦使用 Quetta 瀏覽器。它是一個 Chromium 內核的行動端瀏覽器，可以從 Chrome Web Store 線上安裝擴充功能，非常方便。
 
 # 如何使用
 
-這個下載器運行在 Pixiv.net 的網頁上。當你瀏覽 Pixiv 時，可以隨時打開下載器的面板來批次下載該頁面的作品。
+這個下載器運行在 Pixiv.net 的網頁上。當你瀏覽 Pixiv 時，可以隨時打開下載器的面板來使用它。
+
+注意：
+- 當你安裝這個擴充功能之後，如果有已經開啟的 Pixiv 分頁，需要重新整理它們，這樣擴充功能才能運行在這些分頁上。
+- 在 Pixiv.net 之外的其他網頁上，點擊擴充功能圖示不會顯示下載器的面板，這是正常的，因為它只運行在 Pixiv.net 上。
 
 # Wiki
 

@@ -40,7 +40,7 @@ class ImportBookmarkListAction {
     log.success('🚀' + tip)
     log.log(lang.transl('_作品数量') + ` ${loadedJSON.length}`)
 
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
 
     let oldList: BookmarkResult[] = []
     if (loadedJSON.length > 200) {

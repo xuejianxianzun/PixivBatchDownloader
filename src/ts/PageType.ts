@@ -7,65 +7,68 @@ import { Utils } from './utils/Utils'
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
 // 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
 enum PageName {
-  /** 不支持的页面 */
+  /** -1 不支持的页面 */
   Unsupported = -1,
-  /** 主页 */
+  /** 0 主页 */
   Home,
-  /** 插画详情页面 */
+  /** 1 插画详情页面 */
   Artwork,
-  /** 用户主页 */
+  /** 2 用户主页 */
   UserHome,
-  // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
+  /** 3 旧版收藏页面，现已被 Bookmark 页面取代  */
+  // 它已经不存在了，但是必须保留它以避免兼容性问题
   // 因为有些设置是使用页面类型的数字编号作为键名的
   // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
   // 这会导致从设置项里取值时，会取到错误的值
-  /** 旧版收藏页面，现已被 Bookmark 页面取代 */
   BookmarkLegacy,
-  /** 收藏页面 */
+  /** 4 收藏页面 */
   Bookmark,
-  /** 插画搜索页面 */
+  /** 5 插画搜索页面 */
   ArtworkSearch,
-  /** 地区排行榜 */
+  /** 6 地区排行榜 */
   AreaRanking,
-  /** 插画排行榜 */
+  /** 7 插画排行榜 */
   ArtworkRanking,
+  /** 8 Pixivision */
   Pixivision,
-  /** 收藏后的详情页面，现在基本不会用到 */
+  /** 9 收藏后的详情页面，现在基本不会用到 */
   BookmarkDetail,
-  /** 已关注用户的新作品 - 插画 */
+  /** 10 已关注用户的新作品 - 插画 */
   NewArtworkFromFollowing,
-  /** 发现页面 */
+  /** 11 发现页面 */
   Discover,
-  /** 大家的新作 - 插画 */
+  /** 12 大家的新作 - 插画 */
   NewArtworkFromAllUsers,
-  /** 小说详情页面 */
+  /** 13 小说详情页面 */
   Novel,
-  /** 小说系列作品目录页 */
+  /** 14 小说系列作品目录页 */
   NovelSeries,
-  /** 小说搜索页面 */
+  /** 15 小说搜索页面 */
   NovelSearch,
-  /** 小说排行榜 */
+  /** 16 小说排行榜 */
   NovelRanking,
-  /** 已关注用户的新作品 - 小说 */
+  /** 17 已关注用户的新作品 - 小说 */
   NewNovelFromFollowing,
-  /** 大家的新作 - 小说 */
+  /** 18 大家的新作 - 小说 */
   NewNovelFromAllUsers,
-  /** 插画系列作品目录页 */
+  /** 19 插画系列作品目录页 */
   ArtworkSeries,
-  /** 关注的用户 */
+  /** 20 关注的用户 */
   Following,
-  /** 约稿 */
+  /** 21 约稿 */
   Request,
-  /** 不公开的作品 */
+  /** 22 不公开的作品 */
   Unlisted,
-  /** 发现页面 - 推荐用户 */
+  /** 23 发现页面 - 推荐用户 */
   DiscoverUsers,
-  /** 数据分析（我的作品） */
+  /** 24 数据分析（我的作品） */
   Dashboard,
-  /** 比赛页面 */
+  /** 25 比赛页面 */
   Contest,
-  /** 搜索用户 */
+  /** 26 搜索用户 */
   SearchUsers,
+  /** 27 用户主页里的约稿分类页面 */
+  UserRequest,
 }
 
 // 获取页面类型
@@ -73,6 +76,7 @@ class PageType {
   constructor() {
     this.type = this.getType()
     document.body.dataset.pageType = this.type.toString()
+    document.body.dataset.pageTypeName = PageName[this.type]
 
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.checkTypeChange()
@@ -100,6 +104,8 @@ class PageType {
       '/novel',
       '/cate_r18.php',
       '/novel/cate_r18.php',
+      // 注意：这个 /discover 是移动端首页里才有的“发现”分类。它不是 /discovery 页面
+      '/discover',
     ]
 
     if (
@@ -119,9 +125,27 @@ class PageType {
         path.includes('/followers')
       ) {
         return PageName.Following
-      } else {
+      }
+
+      // 在用户的约稿分类页面里，有些 path 里的内容不是约稿作品,而是约稿方案等内容。
+      // 只有下面列出的 path 会被视为用户约稿页面进行处理
+      if (
+        path.endsWith('/request') ||
+        path.endsWith('/request/artworks') ||
+        path.endsWith('/request/novels') ||
+        path.endsWith('/request/sent') ||
+        path.endsWith('/request/sent/artworks') ||
+        path.endsWith('/request/sent/novels')
+      ) {
+        return PageName.UserRequest
+      }
+
+      // 在剩余的 path 里，排除了不需要支持的、但含有 /request 的 path，剩下的才是用户主页
+      if (!path.includes('/request')) {
         return PageName.UserHome
       }
+
+      return PageName.Unsupported
     } else if (path.includes('/bookmarks/')) {
       return PageName.Bookmark
     } else if (url.includes('/tags/')) {
@@ -182,7 +206,15 @@ class PageType {
     } else if (path.startsWith('/user/') && path.includes('/series/')) {
       return PageName.ArtworkSeries
     } else if (path.startsWith('/request')) {
-      return PageName.Request
+      // 在约稿页面里，只适配部分特定 path。因为其他一些页面里显示的不是作品内容（可能是约稿方案之类），不需要支持
+      if (
+        path === '/request' ||
+        path.includes('/request/creators') ||
+        path.includes('/request/complete')
+      ) {
+        return PageName.Request
+      }
+      return PageName.Unsupported
     } else if (path.includes('/unlisted')) {
       return PageName.Unlisted
     } else if (path.includes('/dashboard')) {
@@ -207,6 +239,7 @@ class PageType {
     const old = this.type
     this.type = this.getType()
     document.body.dataset.pageType = this.type.toString()
+    document.body.dataset.pageTypeName = PageName[this.type]
 
     if (this.type !== old) {
       EVT.fire('pageSwitchedTypeChange', this.type)
@@ -263,7 +296,7 @@ class PageType {
       },
       {
         type: PageName.AreaRanking,
-        url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
+        url: 'https://www.pixiv.net/ranking_area.php?type=detail&no=1',
       },
       {
         type: PageName.ArtworkRanking,
@@ -348,6 +381,10 @@ class PageType {
       {
         type: PageName.Contest,
         url: 'https://www.pixiv.net/contest/gf2',
+      },
+      {
+        type: PageName.UserRequest,
+        url: 'https://www.pixiv.net/users/42787448/request',
       },
     ]
 

@@ -18,6 +18,7 @@ import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
+import { toast } from '../Toast'
 
 enum ListType {
   UserHome,
@@ -94,10 +95,14 @@ class InitUserPage extends InitPageBase {
       'bookmarkAllWorksOnPage',
       'brand'
     )
-    this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
     bookmarkAllBtn.addEventListener('click', async () => {
-      // 获取该用户的所有作品的 id 列表
+      if (states.busy) {
+        toast.error(lang.transl('_当前任务尚未完成'))
+        return
+      }
+
+      // 获取这一页里所有作品的 id 列表
       // 模拟了抓取流程，以获取相同的 id 列表
       EVT.fire('bookmarkModeStart')
       store.tag = Tools.getTagFromURL()
@@ -105,27 +110,11 @@ class InitUserPage extends InitPageBase {
       this.readyGetIdList()
     })
 
-    window.addEventListener(EVT.list.getIdListFinished, this.sendBookmarkIdList)
-  }
-
-  private sendBookmarkIdList = () => {
-    if (states.bookmarkMode) {
-      // 将 id 的 type 设置为 illusts 或 novels
-      const list: IDList[] = []
-      for (const data of store.idList) {
-        if (data.type === 'novels') {
-          list.push(data as IDList)
-        } else {
-          list.push({
-            type: 'illusts',
-            id: data.id,
-          })
-        }
-      }
-
-      store.idList = [] // 清空这次抓取到的 id 列表
-      this.bookmarkAll.sendIdList(list)
-    }
+    this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
+    window.addEventListener(
+      EVT.list.getIdListFinished,
+      this.bookmarkAll.getBookmarkIdList
+    )
   }
 
   protected getWantPage() {
@@ -197,7 +186,7 @@ class InitUserPage extends InitPageBase {
 
   // 获取用户某些类型的作品的 id 列表
   protected async getIdList() {
-    const userId = Tools.getCurrentPageUserID()
+    const userId = Tools.getCurrentPageUserId()
     const checkUser = await this.checkUserId(userId)
     if (!checkUser) {
       return this.getIdListFinished()
@@ -284,7 +273,7 @@ class InitUserPage extends InitPageBase {
     const maxRequest = 1000
     for (const iterator of new Array(maxRequest)) {
       let data = await API.getUserWorksByTypeWithTag(
-        Tools.getCurrentPageUserID(),
+        Tools.getCurrentPageUserId(),
         type,
         store.tag,
         offset,
@@ -354,7 +343,7 @@ class InitUserPage extends InitPageBase {
 
     window.removeEventListener(
       EVT.list.getIdListFinished,
-      this.sendBookmarkIdList
+      this.bookmarkAll.getBookmarkIdList
     )
   }
 }

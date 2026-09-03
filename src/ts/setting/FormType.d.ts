@@ -43,6 +43,7 @@ export interface FormType extends HTMLFormElement {
   needTag: HTMLInputElement
   notNeedTag: HTMLInputElement
   autoStartDownload: HTMLInputElement
+  autoStartDownloadForQuickDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
   userSetNameForNovel: HTMLInputElement
@@ -122,6 +123,7 @@ export interface FormType extends HTMLFormElement {
   copyImageSize: HTMLInputElement
   showCopyBtnOnThumb: HTMLInputElement
   prevWorkSize: HTMLInputElement
+  allowPreviewCoverThumbnail: HTMLInputElement
   previewWorkWait: HTMLInputElement
   showPreviewWorkTip: HTMLInputElement
   showOriginImage: HTMLInputElement

@@ -86,9 +86,12 @@ class CrawlNumber {
             v = cfg.min
           }
         } else {
-          // 如果 max 不是 -1，则取值范围为 min 到 max 之间
-          if (v < cfg.min || v > cfg.max) {
+          // 如果 max 不是 -1，则检查其最小值和最大值是否合法
+          if (v < cfg.min) {
             v = cfg.min
+          }
+          if (v > cfg.max) {
+            v = cfg.max
           }
         }
         item.input.value = v.toString()
@@ -131,7 +134,8 @@ class CrawlNumber {
   // 执行时机：初始化时、页面切换后、重置设置后
   private setOption() {
     const cfg = this.getCfg()
-    ;[this.work, this.page].forEach((item) => {
+    const array = [this.work, this.page]
+    array.forEach((item) => {
       const no = Number.parseInt(item.self.dataset.no!)
       if (cfg[item.name]) {
         hideOptions.showOption([no])
@@ -175,10 +179,13 @@ class CrawlNumber {
         }
 
         // 如果默认的最大值不是 -1 而是具体的数字，并且之前保存的值大于当前页面的最大值，则将其改为当前页面的最大值
-        if (max !== -1 && cfg.value > max) {
-          cfg.value = max
-          setSetting('crawlNumber', settings.crawlNumber)
-        }
+        // if (max !== -1 && cfg.value > max) {
+        //   cfg.value = max
+        //   setSetting('crawlNumber', settings.crawlNumber)
+        // }
+        // 现在不限制最大值，即允许用户设置大于 max 的数字。
+        // 这是因为在排行榜页面里，max 的值会根据不同的分类而变化。例如在普通分类里 max 是 500, 在 R-18 分类里 max 是 100。
+        // 如果限制最大值为 max，那么当用户从普通分类里进入 R-18 分类时，500 会自动变成 100。之后即使返回普通分类，也还是 100。这会让用户困惑，因为数字自动变小了。
 
         item.input.value = cfg.value.toString()
         item.minBtn.textContent = cfg.min.toString()

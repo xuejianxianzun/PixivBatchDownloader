@@ -27,7 +27,7 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
       return
     }
 
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     const msg = lang.transl('_导出收藏列表')
     log.log(msg)
     log.log('')

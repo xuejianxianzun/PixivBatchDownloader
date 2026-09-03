@@ -61,6 +61,7 @@ body[data-page-type='0'] {
   // 需要解除宽度限制
   .bgPpJb,
   div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+  div.gtm-toppage-thumbnail-r18-illustration-recommend-tag-zone > div > div,
   .bYCbxa,
   .cwAKCq {
     width: auto !important;
@@ -177,6 +178,7 @@ body[data-page-type='0'] {
   /* img */
   /* div[width="184"] a div img */
   div[width='184'] a div img,
+  section ul > div > div,
   .jercGe {
     position: relative;
     width: auto !important;
@@ -465,13 +467,6 @@ body[data-page-type='2'] {
     width: 92vw;
   }
 
-  // ul
-  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .buGhFj {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
   .jELUak {
     align-items: center;
   }
@@ -569,6 +564,7 @@ body[data-page-type='5'] {
     mask-image: none;
     padding-left: 72px;
   }
+
   nav[data-ga4-label='tags_carousel'] > div > div:first-child > div {
     display: none;
   }
@@ -1070,5 +1066,71 @@ body[data-page-type='23'] {
   div[type='illust'] > div {
     width: auto !important;
     height: auto !important;
+  }
+}
+
+// SearchUsers 搜索用户页面
+// https://www.pixiv.net/search/users?s_mode=s_usr&nick=vivi&i=1&comment=&p=1
+body[data-page-type='26'] {
+  // 解除列表容器的宽度限制
+  .sectionParentDiv {
+    width: 92vw;
+  }
+
+  // 这个页面里左侧是用户信息，右侧是用户的插画
+  // 这个选择器解除右侧插画区域的宽度限制
+  .sectionParentDiv > div > li > div > div:nth-child(2) {
+    width: 100%;
+  }
+
+  // ul 元素
+  .sectionParentDiv > div > li > div > div:nth-child(2) ul {
+    width: 100%;
+    max-width: 70vw;
+    padding-right: 0;
+    overflow: auto;
+  }
+
+  // div
+  // 解除作品缩略图元素里 div 的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .sectionParentDiv > div > li > div > div:nth-child(2) ul > div > div > div,
+  div[size='184'],
+  div[size='184'] > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  div[size='184'] img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
+}
+
+// UserRequest 用户主页里的约稿分类页面
+// https://www.pixiv.net/users/42787448/request
+// 这个测试网址里同时有创作的约稿、向别人发起的约稿，比较齐全
+body[data-page-type='27'] {
+  /* 图像作品列表容器取消宽度限制 */
+  .userHomeWrapper,
+  .userHomeULParent {
+    width: 92vw;
+    max-width: unset;
+  }
+
+  .userHomeULParent ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* img */
+  a[data-gtm-value] img {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
   }
 }

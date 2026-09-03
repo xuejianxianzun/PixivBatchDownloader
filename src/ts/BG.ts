@@ -86,7 +86,12 @@ class BG {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name === 'bgDisplay') {
-        this.setBGAll()
+        // 当背景图片从禁用改为启用时，添加 300 ms 的延迟。
+        // 这是因为背景图片设置项里的内容展开时，会导致设置面板的高度增加。如果立即显示背景图片的话，它会有一次抖动来适应高度变化。添加延迟之后就不会抖动了，当然显示的时机也会稍微延后。
+        const delay = data.value ? 300 : 0
+        setTimeout(() => {
+          this.setBGAll()
+        }, delay)
       }
 
       if (data.name === 'bgOpacity') {
@@ -251,7 +256,7 @@ class BG {
   }
 
   // 其他模块可以调用这个方法，为一个元素添加背景层
-  // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户用户设置的不透明度
+  // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户设置的不透明度
   public useBG(wrap: HTMLElement, opacity?: number) {
     if (this.bgUrl) {
       this.readySet(wrap, opacity)

@@ -42,23 +42,23 @@ class InitContestPage extends InitPageBase {
   protected addCrawlBtns() {
     this.addInitPageBtn(
       'crawlBtns',
-      '_抓取应募作品',
-      '',
-      'crawlApplicationWork',
-      'brand'
-    ).addEventListener('click', () => {
-      this.scope = 'applications'
-      this.readyCrawl()
-    })
-
-    this.addInitPageBtn(
-      'crawlBtns',
       '_抓取获奖作品',
       '',
       'crawlWinningWork',
       'brand'
     ).addEventListener('click', () => {
       this.scope = 'winning'
+      this.readyCrawl()
+    })
+
+    this.addInitPageBtn(
+      'crawlBtns',
+      '_抓取应募作品',
+      '',
+      'crawlApplicationWork',
+      'brand'
+    ).addEventListener('click', () => {
+      this.scope = 'applications'
       this.readyCrawl()
     })
   }

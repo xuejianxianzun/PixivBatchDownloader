@@ -33,10 +33,14 @@ class Config {
   static readonly worksNumberLimit = 9999999999
   /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
   static readonly retryTime = 200000
+  static readonly isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+  static readonly isWin = /Win/.test(navigator.platform)
   /**浏览器是否处于移动端模式 */
   static readonly mobile = navigator.userAgent.includes('Mobile')
   /**检测 Firefox 浏览器 */
   static readonly isFirefox = navigator.userAgent.includes('Firefox')
+  /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */
+  static readonly downloadsAPIDisabled = this.isFirefox && this.mobile
   static readonly sendBlob = this.isFirefox
   /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
    * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。

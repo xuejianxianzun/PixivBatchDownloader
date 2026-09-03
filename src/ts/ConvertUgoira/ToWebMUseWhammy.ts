@@ -82,7 +82,7 @@ class ToWebM {
     })
   }
 
-  // 使用 worker 进行绘制和 WebM 编码，避免在主线程上执行 canvas.toDataURL 和 Whammy 编码
+  /** 使用 worker 进行绘制和 WebM 编码，避免在主线程上执行 canvas.toDataURL 和 Whammy 编码 */
   private encodeInWorker(
     ImageBitmapList: ImageBitmap[],
     info: UgoiraInfo
@@ -108,14 +108,19 @@ class ToWebM {
       }
 
       this.worker.addEventListener('message', handler)
-      this.worker.postMessage({
-        id,
-        bitmaps: ImageBitmapList,
-        delays: info.frames!.map((frame) => frame.delay),
-        width: ImageBitmapList[0].width,
-        height: ImageBitmapList[0].height,
-        quality: 0.9,
-      })
+      // ImageBitmap 是可转移对象。若不提供 transfer list，浏览器会尝试复制
+      // 所有帧的像素数据；大体积动图会因此触发 DataCloneError: out of memory。
+      this.worker.postMessage(
+        {
+          id,
+          bitmaps: ImageBitmapList,
+          delays: info.frames!.map((frame) => frame.delay),
+          width: ImageBitmapList[0].width,
+          height: ImageBitmapList[0].height,
+          quality: 0.9,
+        },
+        ImageBitmapList
+      )
     })
   }
 }

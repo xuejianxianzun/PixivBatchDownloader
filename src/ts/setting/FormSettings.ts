@@ -63,6 +63,7 @@ class FormSettings {
       'r18Folder',
       'sizeSwitch',
       'autoStartDownload',
+      'autoStartDownloadForQuickDownload',
       'previewResult',
       'deduplication',
       'bmkAfterDL',
@@ -168,6 +169,7 @@ class FormSettings {
       'downloadIntervalSwitch',
       'saveAllSeriesNovelsIfOneMatches',
       'autoExportSettings',
+      'allowPreviewCoverThumbnail',
     ],
     radio: [
       'novelSaveAs',

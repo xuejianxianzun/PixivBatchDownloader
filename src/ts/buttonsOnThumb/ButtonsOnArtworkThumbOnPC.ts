@@ -7,11 +7,11 @@ import { IDData } from '../store/StoreType'
 import { copyWorkInfo } from '../CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { lang } from '../Language'
-import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
+import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
 
 // 在图片作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
-class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
+class ButtonsOnArtworkThumbOnPC extends ButtonsOnThumbConfig {
   constructor() {
     super()
     if (Config.mobile) {

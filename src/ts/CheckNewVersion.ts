@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill'
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 
-// 检查新版本
+// 从 GitHub 的 Releases 里检查是否有新版本
 class CheckNewVersion {
   constructor() {
     this.checkNew()

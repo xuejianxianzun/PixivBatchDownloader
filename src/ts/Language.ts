@@ -120,10 +120,10 @@ class Lang {
 
   // translate
   public transl(name: LangTextKey, ...args: string[]) {
-    // if(name in langText === false){
-    //   console.warn(`Lang: not found:${name}`)
-    //   return name
-    // }
+    if (name in langText === false) {
+      console.warn(`LangText not found: ${name}`)
+      return name
+    }
     let content = langText[name][this.flagIndex.get(this.type)!]
     args.forEach((arg) => (content = content.replace('{}', arg)))
     return content
@@ -171,6 +171,11 @@ class Lang {
     ) as NodeListOf<HTMLElement>
     for (const el of tipEl) {
       el.dataset.tip = this.transl(el.dataset.xztip! as any)
+    }
+    // 元素自身存在 xztip 标记的情况
+    const tip = wrap.dataset.xztip
+    if (tip) {
+      wrap.dataset.tip = this.transl(tip as any)
     }
 
     // 设置 placeholder

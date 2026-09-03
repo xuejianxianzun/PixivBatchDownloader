@@ -4,6 +4,7 @@ import { ppdTask } from './PPDTask'
 import { setSetting, settings } from './setting/Settings'
 import { toast } from './Toast'
 import { Utils } from './utils/Utils'
+import { tapDetector } from './utils/TapDetector'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
@@ -37,8 +38,11 @@ abstract class WorkThumbnail {
   protected bookmarkBtnCallback: Function[] = []
 
   /** 缓存所有已找到的缩略图元素及其参数，用于新注册的回调补充执行 */
-  private foundElements: { el: HTMLElement; id: string; isSeries: boolean }[] =
-    []
+  private foundElements: {
+    el: HTMLElement
+    id: string
+    type: 'illusts' | 'novels' | 'novelSeries'
+  }[] = []
   /** 在初始化 1 秒钟之后，停止缓存已找到的缩略图元素。这是因为其他模块注册 OnFound 回调的时机应该不会晚于 1 秒钟，所以之后就不需要再缓存了，以避免内存增加和泄露的风险 */
   protected cacheFound = true
 
@@ -75,60 +79,90 @@ abstract class WorkThumbnail {
 
   /**为作品缩略图绑定事件 */
   // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
-  // isSeries: 这个 id 是否是系列 id。默认为否，即 id 默认为单个作品的 id。
-  // 因为小说的系列经常和单篇小说混在同一个列表里，所以为小说的系列添加了这个标记。
-  // 但实际上效果不太好，因为缩略图元素被添加到页面上之后可能会变化，导致 isSeries 状态可能不再准确
-  // 所以如果需要判断 isSeries 的话，最好在执行回调时再判断一次
+  // 注意：在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。所以在执行小说作品的回调时可以考虑重新获取 id 和 type
+  // 这种情况的例子：在首页的小说分类-“追更列表中的作品”列表里：
+  // https://www.pixiv.net/following/watchlist/novels
+  // 每个列表项的元素在最开始同时有 2 种目标链接：
+  // 1. 系列里最新一篇小说的链接
+  // 2. 系列链接
+  // 所以 novelThumbnail 会为它绑定小说的 id 和类型
+  // 但之后这个元素的内容可能会自动变化。如果看到它底部的按钮是“阅读后续（#1）”，那么它就只剩下系列链接了，这时其上绑定的小说 id 和类型就不符合实际情况了
+  // 所以在实际使用时应该从它里面获取正确的系列 id 和类型
   protected bindEvents(
     el: HTMLElement,
     id: string | '',
-    type: 'illusts' | 'novels',
-    isSeries = false
+    type: 'illusts' | 'novels' | 'novelSeries'
   ) {
+    if (!id) {
+      return
+    }
+
+    // 是否已经绑定过事件了
+    let binded = false
+    let bindedEl = el
+
     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
     // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
     // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
     if (el.dataset.mouseover) {
-      return
+      binded = true
     }
 
     if (el.parentElement && el.parentElement.dataset.mouseover) {
-      return
+      binded = true
+      bindedEl = el.parentElement
     }
 
     if (
       el.firstElementChild &&
       (el.firstElementChild as HTMLElement).dataset.mouseover
     ) {
+      binded = true
+      bindedEl = el.firstElementChild as HTMLElement
+    }
+
+    if (el.querySelector('[data-mouseover="1"]')) {
+      binded = true
+      bindedEl = el.querySelector('[data-mouseover="1"]') as HTMLElement
+    }
+
+    if (binded) {
+      // 在移动端页面里，Pixiv 可能会修改绑定过的元素，导致下载器为其添加的 className 被移除，需要重新添加
+      if (bindedEl.classList.contains(this.className) === false) {
+        bindedEl.classList.add(this.className)
+      }
       return
     }
 
     // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
     el.dataset.mouseover = '1'
-    // 对于非系列作品（即单个作品）的缩略图，添加更多自定义数据属性
-    if (!isSeries) {
-      el.dataset.workid = id
-      el.dataset.worktype = type
-    }
+    // 在缩略图上添加一些自定义数据属性
+    el.dataset.workid = id
+    el.dataset.worktype = type
     el.classList.add(this.className)
 
     if (this.cacheFound) {
-      this.foundElements.push({ el, id, isSeries })
+      this.foundElements.push({ el, id, type })
     }
-    this.foundCallback.forEach((cb) => cb(el, id, isSeries))
+    this.foundCallback.forEach((cb) => cb(el, id, type))
 
     el.addEventListener('mouseenter', (ev) => {
-      this.enterCallback.forEach((cb) => cb(el, id, ev, isSeries))
+      this.enterCallback.forEach((cb) => cb(el, id, ev, type))
     })
 
     el.addEventListener('mouseleave', (ev) => {
-      this.leaveCallback.forEach((cb) => cb(el, ev, isSeries))
+      this.leaveCallback.forEach((cb) => cb(el, ev))
     })
 
     el.addEventListener(
       Config.mobile ? 'touchend' : 'click',
       (ev) => {
-        this.clickCallback.forEach((cb) => cb(el, id, ev, isSeries))
+        // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+        // 否则用户从缩略图上开始滑动页面时，在滑动结束后会误触这里的点击回调（例如选择作品）
+        if (Config.mobile && !tapDetector.isTap()) {
+          return
+        }
+        this.clickCallback.forEach((cb) => cb(el, id, ev, type))
       },
       false
     )
@@ -137,6 +171,10 @@ abstract class WorkThumbnail {
     const bmkBtn = this.findBookmarkBtn(el)
     if (!!bmkBtn) {
       bmkBtn.addEventListener(Config.mobile ? 'touchend' : 'click', (ev) => {
+        // 同上：滑动页面时，不把 touchend 当作对收藏按钮的点击
+        if (Config.mobile && !tapDetector.isTap()) {
+          return
+        }
         this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
       })
     }
@@ -169,12 +207,12 @@ abstract class WorkThumbnail {
    *
    * @id 作品 id（在移动端页面里，此时传递的 id 可能是空字符串 ''）
    *
-   * @isSeries 这个 id 是否是系列 id
+   * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
    */
   public onFound(cb: Function) {
     this.foundCallback.push(cb)
     // 对已找到的元素立即执行一次回调，避免因注册时机晚而遗漏
-    this.foundElements.forEach(({ el, id, isSeries }) => cb(el, id, isSeries))
+    this.foundElements.forEach(({ el, id, type }) => cb(el, id, type))
   }
 
   /**添加鼠标进入作品缩略图时的回调。
@@ -187,7 +225,7 @@ abstract class WorkThumbnail {
    *
    * @ev Event 对象
    *
-   * @isSeries 这个 id 是否是系列 id
+   * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
    */
   public onEnter(cb: Function) {
     this.enterCallback.push(cb)
@@ -200,8 +238,6 @@ abstract class WorkThumbnail {
    * @el 作品缩略图的元素
    *
    * @ev Event 对象
-   *
-   * @isSeries 这个 id 是否是系列 id
    *
    * 没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
    */
@@ -219,7 +255,7 @@ abstract class WorkThumbnail {
    *
    * @ev Event 对象
    *
-   * @isSeries 这个 id 是否是系列 id
+   * @type 作品类型（'illusts' | 'novels' | 'novelSeries'）
    */
   public onClick(cb: Function) {
     this.clickCallback.push(cb)

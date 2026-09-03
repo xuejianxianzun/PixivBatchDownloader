@@ -115,13 +115,13 @@ class InitHomePage extends InitPageBase {
   }
 
   private async inputIDList() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     this.checkPageType()
 
     const input = new Input({
       width: 400,
       type: 'textarea',
-      rows: 10,
+      rows: 6,
       instruction:
         lang.transl('_输入id进行抓取的提示文字') +
         '<br><br>' +
@@ -154,7 +154,7 @@ class InitHomePage extends InitPageBase {
   }
 
   private async crawlIdRange() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     this.checkPageType()
 
     let start = 0
@@ -258,7 +258,7 @@ class InitHomePage extends InitPageBase {
   }
 
   private async importIDList() {
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
 
     await this.awaitClickBtn()
 

@@ -104,7 +104,7 @@ class RemoveBlockedUsersWork {
       if (document.readyState !== 'complete') {
         return
       }
-      currentUserID = Tools.getCurrentPageUserID()
+      currentUserID = Tools.getCurrentPageUserId()
     }
 
     const allUserLink = document.body.querySelectorAll(
@@ -163,6 +163,12 @@ class RemoveBlockedUsersWork {
     // 在搜索页面里的小说分类页面里使用
     'div[data-mouseover]',
     'div.col-span-6',
+    // 在移动端的首页-小说分类里使用
+    '.works-grid-list .list-item',
+    // 在移动端的小说搜索页面里使用
+    '[data-ga4-label="works_content"] .w-full',
+    // 在移动端的小说排行榜页面里使用
+    '.style_is-list__S9eCL',
   ]
 
   private findContainerEl(link: HTMLAnchorElement) {

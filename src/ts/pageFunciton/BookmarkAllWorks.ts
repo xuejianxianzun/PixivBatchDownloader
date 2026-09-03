@@ -8,10 +8,11 @@ import { Tools } from '../Tools'
 import { msgBox } from '../MsgBox'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
+import { store } from '../store/Store'
 
-// 一键收藏所有作品
+// 收藏本页面的所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
-// 一次任务里要么全部传递插画，要么全部传递小说，不要混合
 type WorkType = 'illusts' | 'novels'
 
 export interface IDList {
@@ -43,37 +44,73 @@ class BookmarkAllWorks {
 
   private tipWrap: HTMLElement = document.createElement('button')
   private textSpan: HTMLSpanElement = document.createElement('span')
+  private matchArtwork = /\/artworks\/(\d*)/
+  private matchNovel = /\?id=(\d*)/
 
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
-  // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
-  // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
   public sendWorkList(
     list: NodeListOf<HTMLElement> | HTMLElement[],
     type?: WorkType
   ) {
     this.reset()
 
-    type =
-      type ??
-      (window.location.pathname.includes('/novel') ? 'novels' : 'illusts')
-
-    const regExp = type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
     for (const el of list) {
       const a = el.querySelector('a')
-      if (a) {
-        // "https://www.pixiv.net/artworks/82618568"
-        // "https://www.pixiv.net/novel/show.php?id=12350618"
-        const test = regExp.exec(a.href)
-        if (test && test.length > 1) {
-          this.idList.push({
-            type,
-            id: test[1],
-          })
+      if (!a || !a.href) {
+        continue
+      }
+
+      const url = a.href
+      // 如果没有传递 type，则根据链接的网址判断 type
+      // "https://www.pixiv.net/artworks/82618568"
+      // "https://www.pixiv.net/novel/show.php?id=12350618"
+      if (!type) {
+        if (url.includes('/artworks/')) {
+          type = 'illusts'
+        } else if (url.includes('/novel/')) {
+          type = 'novels'
+        } else {
+          continue
         }
+      }
+
+      // 提取 id
+      const regExp = type === 'illusts' ? this.matchArtwork : this.matchNovel
+      const test = regExp.exec(url)
+      if (test && test.length > 1) {
+        this.idList.push({
+          type,
+          id: test[1],
+        })
       }
     }
 
     this.startBookmark()
+  }
+
+  /** 把 store.idList 转换为 BookmarkAllWorks 可用的 id 列表 */
+  public getBookmarkIdList = () => {
+    if (states.bookmarkMode) {
+      // 将 id 的 type 设置为 illusts 或 novels
+      const list: IDList[] = []
+      for (const data of store.idList) {
+        if (data.type === 'novelSeries') {
+          continue
+        }
+
+        if (data.type === 'novels') {
+          list.push(data as IDList)
+        } else {
+          list.push({
+            type: 'illusts',
+            id: data.id,
+          })
+        }
+      }
+
+      store.idList = [] // 清空这次抓取到的 id 列表
+      this.sendIdList(list)
+    }
   }
 
   // 直接传递 id 列表
@@ -94,6 +131,7 @@ class BookmarkAllWorks {
   private async startBookmark() {
     if (this.idList.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
+      EVT.fire('bookmarkModeEnd')
       return
     }
 

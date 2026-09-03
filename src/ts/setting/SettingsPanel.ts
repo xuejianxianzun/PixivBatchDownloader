@@ -1,4 +1,6 @@
 import { EVT } from '../EVT'
+import { lang } from '../Language'
+import { toast } from '../Toast'
 import { OptionCategoryLevel1 } from './Settings'
 import { FormType } from './FormType'
 import { SettingsPanelDownloadSummary } from './SettingsPanelDownloadSummary'
@@ -26,7 +28,7 @@ class SettingsPanel {
   private stickyEls!: Map<PageId, HTMLButtonElement>
   private navEls!: Map<PageId, HTMLButtonElement>
   private foldableSections!: Map<string, FoldableSection>
-  private expandAllBtn!: HTMLButtonElement
+  private expandAllBtns: HTMLButtonElement[] = []
   private homePinnedContent!: HTMLDivElement
   private downloadSummary!: SettingsPanelDownloadSummary
   private searchPanel!: SettingsPanelSearch
@@ -96,13 +98,15 @@ class SettingsPanel {
     this.foldableSections = layout.foldableSections
     this.canonicalContainers = layout.canonicalContainers
     this.homePinnedContent = layout.homePinnedContent
-    this.expandAllBtn = this.centerPanel.querySelector(
-      '#settingsPanelToggleExpand'
-    ) as HTMLButtonElement
+    this.expandAllBtns = Array.from(
+      this.centerPanel.querySelectorAll<HTMLButtonElement>(
+        '.settingsPanel_expandAll'
+      )
+    )
     this.sectionController.connect({
       foldableSections: this.foldableSections,
       stickyEls: this.stickyEls,
-      expandAllBtn: this.expandAllBtn,
+      expandAllBtns: this.expandAllBtns,
     })
     this.searchPanel = new SettingsPanelSearch({
       root: layout.searchRoot,
@@ -171,8 +175,13 @@ class SettingsPanel {
 
     this.navigationController.bindEvents()
 
-    this.expandAllBtn.addEventListener('click', () =>
-      this.sectionController.toggleAllSections()
+    this.expandAllBtns.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const allExpanded = this.sectionController.toggleAllSections()
+        toast.show(
+          lang.transl(allExpanded ? '_已展开所有区域' : '_已折叠所有区域')
+        )
+      })
     )
 
     this.main.addEventListener('scroll', () =>

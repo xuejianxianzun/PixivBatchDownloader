@@ -27,6 +27,9 @@ import {
   RankingNovelData,
   DashboardData,
   ContestData,
+  UserRequestPageInfo,
+  UserRequestSentPageInfo,
+  RequestWorksData,
 } from './crawl/CrawlResult'
 
 import {
@@ -137,7 +140,7 @@ class API {
   /** 获取收藏数据
    * 这个 api 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
   static async getBookmarkData(
-    userID: string,
+    userId: string,
     type: 'illusts' | 'novels' = 'illusts',
     tag: string,
     offset: number,
@@ -147,7 +150,7 @@ class API {
     work_tag: string = '',
     bm: string = ''
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${userID}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+    const url = `https://www.pixiv.net/ajax/user/${userId}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
     }&order=${order}&mode=${mode}&work_tag=${work_tag}&bm=${bm}&rdm=${Math.random()}`
 
@@ -597,7 +600,7 @@ class API {
    * show: true 为公开关注，false 为非公开关注
    * recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值 */
   static async addFollowingUser(
-    userID: string,
+    userId: string,
     token: string,
     show = true,
     recaptcha_enterprise_score_token = ''
@@ -611,7 +614,7 @@ class API {
         'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
         'x-csrf-token': token,
       },
-      body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+      body: `mode=add&type=user&user_id=${userId}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
     }
 
     try {
@@ -639,6 +642,105 @@ class API {
     }
     const url = `https://www.pixiv.net/ajax/${typePath}contest/${name}/entries?order=${order}&p=${p}`
     return this.fetch(url)
+  }
+
+  /** 获取用户主页的约稿分类页面里的数据 */
+  static async getUserRequestPageInfo(
+    userId: string
+  ): Promise<UserRequestPageInfo> {
+    const url = `https://www.pixiv.net/ajax/commission/page/users/${userId}/request?lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 获取该用户接收到的、且已创作完成的约稿 ID（注意这不是作品 ID）。这些 ID 是倒序排列的，近期的约稿作品排在前面。
+   *
+   * @param type 指定返回图像作品、小说作品或全部作品的约稿 ID。默认返回全部作品的约稿 ID。
+   *
+   * @param total 指定返回的约稿 ID 的总数。默认会返回所有约稿 ID。如果传入了 total，则最多返回 total 个约稿 ID（也可能更少，因为 total 可能大于约稿 ID 总数）。
+   */
+  static async getUserRequestIds(
+    userId: string,
+    type: 'artworks' | 'novels' | 'all' = 'all',
+    total = 999999
+  ): Promise<string[]> {
+    const info = await this.getUserRequestPageInfo(userId)
+    const typeIds =
+      type === 'artworks'
+        ? info.body.page.postArtworkRequestIds
+        : type === 'novels'
+          ? info.body.page.postNovelRequestIds
+          : [
+              ...info.body.page.postArtworkRequestIds,
+              ...info.body.page.postNovelRequestIds,
+            ]
+
+    // 如果 total 小于等于 0，则返回所有约稿 ID。这主要是针对抓取数量设置为 -1 的情况
+    if (total <= 0) {
+      return typeIds
+    }
+    return typeIds.slice(0, total)
+  }
+
+  /** 获取用户“约到的稿”页面里的数据 */
+  static async getUserRequestSentPageInfo(
+    userId: string
+  ): Promise<UserRequestSentPageInfo> {
+    const url = `https://www.pixiv.net/ajax/commission/page/users/${userId}/request/sent?lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 获取该用户发出的约稿 ID（注意这不是作品 ID）。这些 ID 是倒序排列的，近期的约稿作品排在前面。
+   *
+   * @param type 指定返回图像作品、小说作品或全部作品的约稿 ID。默认返回全部作品的约稿 ID。
+   *
+   * @param total 指定返回的约稿 ID 的总数。默认会返回所有约稿 ID。如果传入了 total，则最多返回 total 个约稿 ID（也可能更少，因为 total 可能大于约稿 ID 总数）。
+   */
+  static async getUserRequestSentIds(
+    userId: string,
+    type: 'artworks' | 'novels' | 'all' = 'all',
+    total = 999999
+  ): Promise<string[]> {
+    const info = await this.getUserRequestSentPageInfo(userId)
+    const typeIds =
+      type === 'artworks'
+        ? info.body.page.sentArtworkRequestIds
+        : type === 'novels'
+          ? info.body.page.sentNovelRequestIds
+          : [
+              ...info.body.page.sentArtworkRequestIds,
+              ...info.body.page.sentNovelRequestIds,
+            ]
+
+    // 如果 total 小于等于 0，则返回所有约稿 ID。这主要是针对抓取数量设置为 -1 的情况
+    if (total <= 0) {
+      return typeIds
+    }
+    return typeIds.slice(0, total)
+  }
+
+  /** 传入约稿 ID 列表，获取对应的作品数据（注意这是粗略数据，不是最详细的数据） */
+  static async getRequestWorksData(
+    requestIds: string[]
+  ): Promise<RequestWorksData> {
+    const requestIdsParam = requestIds
+      .map((id) => `requestIds[]=${id}`)
+      .join('&')
+    const url = `https://www.pixiv.net/ajax/commission/requests?${requestIdsParam}&lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 传入约稿 ID 列表，获取对应的作品 ID 列表 */
+  static async getRequestWorksIdList(requestIds: string[]): Promise<IDData[]> {
+    const idList: IDData[] = []
+    const requestWorksData = await this.getRequestWorksData(requestIds)
+    for (const work of requestWorksData.body.thumbnails.illust) {
+      idList.push({ id: work.id, type: 'illusts' })
+    }
+    for (const work of requestWorksData.body.thumbnails.novel) {
+      idList.push({ id: work.id, type: 'novels' })
+    }
+
+    return idList
   }
 }
 

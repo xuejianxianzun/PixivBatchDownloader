@@ -3,7 +3,9 @@ import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { LangTextKey } from '../langText'
 import { msgBox } from '../MsgBox'
+import { settingsPanelTipCard } from './SettingsPanelTipCard'
 
+// 构造设置面板里的帮助页面
 class SettingsPanelHelp {
   constructor(root: HTMLDivElement) {
     this.root = root
@@ -19,28 +21,14 @@ class SettingsPanelHelp {
   private render() {
     const tipsWrap = document.createElement('div')
     tipsWrap.className = 'settingsPanel_helpTips'
-    tipsWrap.innerHTML = `
-    <div class="settingsPanel_tipCard" id="tipPinOption">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent" data-xztext="_提示可以置顶选项"></span>
-        <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-          <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-        </button>
-      </div>
-    </div>
-    <div class="settingsPanel_tipCard" id="tipOpenWikiLinkWrap">
-      <svg class="icon settingsPanel_tipIcon" aria-hidden="true"><use xlink:href="#light-line"></use></svg>
-      <div class="settingsPanel_tipText">
-        <span class="settingsPanel_tipTextContent">
-          <span data-xztext="_提示查看wiki页面"></span>
-          <button class="settingsPanel_tipConfirm" type="button" data-xztitle="_已确认">
-            <svg class="icon" aria-hidden="true"><use xlink:href="#yes"></use></svg>
-          </button>
-        </span>
-      </div>
-    </div>
-    `
+    const cards = ['tipPinOption', 'tipOpenWikiLink']
+    cards.forEach((key) => {
+      const tipCard = settingsPanelTipCard.use(key)
+      if (tipCard) {
+        tipsWrap.append(tipCard)
+      }
+    })
+
     this.root.append(tipsWrap)
 
     this.actionsWrap = document.createElement('div')
@@ -54,6 +42,7 @@ class SettingsPanelHelp {
     }[] = [
       { id: 'wiki', textKey: '_使用手册', iconId: 'book' },
       { id: 'faq', textKey: '_常见问题', iconId: 'help' },
+      { id: 'shortcut', textKey: '_快捷键', iconId: 'shortcut' },
       { id: 'recentUpdates', textKey: '_最近更新', iconId: 'new-2' },
       { id: 'sponsorship', textKey: '_赞助我', iconId: 'heart-line' },
       { id: 'github', textKey: '_github', iconId: 'github' },
@@ -132,6 +121,12 @@ class SettingsPanelHelp {
         })
         return
       }
+
+      case 'shortcut':
+        msgBox.show(lang.transl('_快捷键列表的说明'), {
+          title: lang.transl('_快捷键'),
+        })
+        return
 
       case 'recentUpdates':
         EVT.fire('showRecentUpdates')

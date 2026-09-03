@@ -41,9 +41,6 @@ class States {
   /**抓取标签列表时使用的标记 */
   public crawlTagList = false
 
-  /**是否处于手动选择作品状态 */
-  public selectWork = false
-
   /**是否处于下载中 */
   public downloading = false
 
@@ -73,6 +70,17 @@ class States {
 
   /** 预览作品详细信息的面板是否显示 */
   public previewWorkDetailInfoPanelIsShow = false
+
+  /** 预览作品功能是否正在显示某个作品的预览 */
+  public previewWorkIsShow = false
+
+  /** 图片查看器（ImageViewer）是否正在显示 */
+  // 由 ImageViewer 模块修改它的值
+  public imageViewerIsShow = false
+
+  /** 原比例查看图片（ShowOriginSizeImage）是否正在显示 */
+  // 由 ShowOriginSizeImage 模块修改它的值
+  public showOriginSizeImageIsShow = false
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {

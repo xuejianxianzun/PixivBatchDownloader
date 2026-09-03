@@ -5,7 +5,7 @@ import { pageType } from '../PageType'
 import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { settings } from '../setting/Settings'
-import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
+import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
 import { lang } from '../Language'
 import { ImageViewer } from '../ImageViewer'
 import { copyWorkInfo } from '../CopyWorkInfo'
@@ -14,7 +14,7 @@ import { copyWorkInfo } from '../CopyWorkInfo'
 // 对于单图作品，下载器会直接显示按钮
 // 对于多图作品，当用户点击“查看全部”按钮显示所有图片时，下载器才会显示按钮
 // 对于动图作品，不会显示这些按钮
-class ButtonsOnArtworkPage extends ButtonsConfig {
+class ButtonsOnArtworkPage extends ButtonsOnThumbConfig {
   constructor() {
     super()
     if (Config.mobile) {
@@ -105,7 +105,7 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     btn.classList.add(this.btnFlag, 'btnOnThumb')
     // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
     btn.style.display = 'flex'
-    // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
+    // 根据“在作品缩略图上显示图片查看器按钮”的位置设置，将按钮显示在左侧或右侧
     if (settings.magnifierPosition === 'left') {
       btn.style.left = `-${this.btnSize}px`
       btn.style.right = 'unset'

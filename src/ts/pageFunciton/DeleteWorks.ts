@@ -11,6 +11,7 @@ import { toast } from '../Toast'
 
 class DeleteWorks {
   constructor(worksSelectors: string) {
+    // .searchList
     this.worksSelector = worksSelectors
 
     this.icon = this.createDeleteIcon()
@@ -79,6 +80,25 @@ class DeleteWorks {
         this.moveEvent(ev)
       },
       true
+    )
+
+    // 当用户使用“手动排除作品”功能排除了一个作品时，自动删除页面上对应的作品元素
+    window.addEventListener(
+      EVT.list.manuallyExcludeWork,
+      (ev: CustomEventInit) => {
+        const id = ev.detail.data.id as string
+        const type = ev.detail.data.type as string
+        if (id && type !== 'novels' && type !== 'novelSeries') {
+          const selector = `${this.worksSelector}[data-id="${id}"]`
+          const el = document.querySelector(selector) as HTMLElement | null
+          if (el) {
+            el.remove()
+            this.showWorksCount()
+            // 触发此事件是为了让搜索页面的模块（InitSearchArtworkPage）执行 deleteWork 方法，保持数据一致性
+            EVT.fire('deleteWork', el)
+          }
+        }
+      }
     )
   }
 
@@ -184,7 +204,7 @@ class DeleteWorks {
     if (this.delMode) {
       lang.updateText(span!, '_退出手动删除')
       await Utils.sleep(100)
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     } else {
       lang.updateText(span!, '_手动删除作品')
     }

@@ -119,9 +119,11 @@ class DownloadControl {
       window.addEventListener(ev, (ev) => {
         // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
         this.pause = ev.type === 'resume'
-        // 让开始下载的方法进入任务队列，以便让监听上述事件的其他部分的代码先执行完毕
+        //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
+        const openPanel = ev.type !== 'resultChange'
+        // 让开始下载的方法进入事件队列，以便让其他模块里监听上述事件的代码先执行完毕
         window.setTimeout(() => {
-          this.readyDownload()
+          this.readyDownload(openPanel)
         }, 0)
       })
     }
@@ -206,12 +208,17 @@ class DownloadControl {
 
       // 文件下载成功
       if (msg.msg === 'downloaded') {
-        URL.revokeObjectURL(msg.data.blobURLFront)
+        try {
+          URL.revokeObjectURL(msg.data.blobURLFront)
 
-        // 发送下载成功的事件
-        EVT.fire('downloadSuccess', msg.data)
+          // 发送下载成功的事件
+          EVT.fire('downloadSuccess', msg.data)
 
-        this.downloadOrSkipAFile(msg.data)
+          this.downloadOrSkipAFile(msg.data)
+        } catch (error) {
+          // 捕获此分支内的异常，避免事件监听器或推进逻辑的错误导致任务卡住却没有提示
+          console.error('downloaded 分支执行出错', error)
+        }
         // console.log('downloaded', msg.data.id )
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
@@ -408,8 +415,8 @@ class DownloadControl {
     }
   }
 
-  // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
-  private readyDownload() {
+  /** 抓取完毕之后更新状态，并决定是否立即开始下载 */
+  private readyDownload(openPanel = true) {
     if (states.busy) {
       return
     }
@@ -432,26 +439,37 @@ class DownloadControl {
 
     this.setDownloadThread()
 
+    // 是否自动开始下载
+
     // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
       settings.previewResult
     ) {
-      // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
-      // 允许快速抓取发起的下载请求自动开始下载
-      // 允许由抓取标签列表功能发起的下载请求自动开始下载
+      // 对于普通下载任务，阻止自动下载
       if (!states.quickCrawl && !states.crawlTagList) {
+        openPanel && EVT.fire('openSettingsPanel')
         return
       }
     }
 
-    // 自动开始下载的情况
-    if (
-      settings.autoStartDownload ||
-      states.quickCrawl ||
-      states.crawlTagList
-    ) {
-      this.startDownload()
+    // 处理快速下载任务
+    if (states.quickCrawl || states.crawlTagList) {
+      if (settings.autoStartDownloadForQuickDownload) {
+        this.startDownload()
+      } else {
+        // 如果快速下载任务被设置为不自动开始下载，则打开设置面板，告诉用户抓取已经完成，并且可以手动开始下载
+        // 如果快速下载任务可以自动开始下载，则不需要打开设置面板，这样减少了对用户的打扰。而且快速下载任务的抓取结果通常是小批量的，可以很快下载完毕，所以不需要打开设置面板来查看下载进度。
+        openPanel && EVT.fire('openSettingsPanel')
+      }
+    } else {
+      // 处理普通下载任务
+      if (settings.autoStartDownload) {
+        this.startDownload()
+      }
+
+      // 普通下载任务总是会打开设置面板
+      openPanel && EVT.fire('openSettingsPanel')
     }
   }
 
@@ -499,6 +517,9 @@ class DownloadControl {
 
     if (Config.mobile) {
       log.warning(lang.transl('_移动端浏览器可能不会建立文件夹的说明'))
+      if (Config.isFirefox) {
+        log.warning(lang.transl('_在移动版Firefox上提示无法可靠的批量下载'))
+      }
     }
   }
 
@@ -626,16 +647,21 @@ class DownloadControl {
   private downloadOrSkipAFile(data: DonwloadSuccessData | DonwloadSkipData) {
     const task = this.taskList[data.id]
 
-    // 更改这个任务状态为“已完成”
-    downloadStates.setState(task.index, 1)
+    try {
+      // 更改这个任务状态为“已完成”
+      downloadStates.setState(task.index, 1)
 
-    // 统计已下载数量
-    this.setDownloaded()
+      // 统计已下载数量
+      this.setDownloaded()
 
-    // 是否继续下载
-    const no = task.progressBarIndex
-    if (this.checkContinueDownload()) {
-      this.createDownload(no)
+      // 是否继续下载
+      const no = task.progressBarIndex
+      if (this.checkContinueDownload()) {
+        this.createDownload(no)
+      }
+    } catch (error) {
+      // 捕获推进任务时的异常，避免任务卡住却没有提示
+      console.error('downloadOrSkipAFile 执行出错', error)
     }
   }
 

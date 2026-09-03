@@ -9,6 +9,7 @@ import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { states } from '../store/States'
 import { store } from '../store/Store'
 import { theme } from '../Theme'
+import { toast } from '../Toast'
 
 /** 设置面板的外壳 */
 // - 负责 shell HTML 渲染
@@ -40,6 +41,18 @@ class SettingsPanelShell {
               <span class="settingsPanel_brandName">${Config.appName}</span>
             </div>
 
+            <button class="centerWrap_top_btn centerWrap_searchBtnMobile" id="settingsPanelMobileSearchBtn" type="button" data-xztitle="_搜索">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#search-in-searchbar"></use>
+              </svg>
+            </button>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_mobile" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
+
             <button class="centerWrap_top_btn centerWrap_close centerWrap_close_mobile" type="button" data-xztitle="_关闭">
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#close"></use>
@@ -60,13 +73,13 @@ class SettingsPanelShell {
                   </svg>
                 </button>
               </label>
-
-              <button class="centerWrap_top_btn settingsPanel_expandAll" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开/折叠所有区域">
-                <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
-                  <use xlink:href="#arrow-up"></use>
-                </svg>
-              </button>
             </div>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_pc" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
 
             <div class="settingsPanel_headerMinor">
               <button class="centerWrap_top_btn settingsPanel_sponsorBtn" id="settingsPanelSponsor" type="button" data-xztitle="_赞助我">
@@ -162,10 +175,9 @@ class SettingsPanelShell {
     fillIcon: string,
     hidden = false
   ) {
+    const hiddenStr = hidden ? 'hidden' : ''
     return `
-    <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${
-      hidden ? 'hidden' : ''
-    }>
+    <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
       <span class="settingsPanel_navIconWrap" aria-hidden="true">
         <svg class="icon settingsPanel_navIcon settingsPanel_navIconLine">
           <use xlink:href="#${lineIcon}"></use>
@@ -200,31 +212,52 @@ class SettingsPanelShell {
     window.addEventListener(EVT.list.settingInitialized, () => {
       showOneTimeMsg.show(
         'tipHowToUse',
-        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告')
+        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告'),
+        lang.transl('_使用说明')
       )
     })
 
-    window.addEventListener(
-      'keydown',
-      (ev) => {
-        if (ev.altKey && ev.code === 'KeyX') {
-          this.toggle()
-        }
-      },
-      false
-    )
+    window.addEventListener(EVT.list.commandToggleSettingsPanel, () => {
+      this.toggle()
+    })
+
+    window.addEventListener(EVT.list.commandStartDefaultCrawl, () => {
+      this.clickDefaultCrawlBtn()
+    })
 
     shell.querySelectorAll('.centerWrap_close').forEach((button) =>
       button.addEventListener('click', () => {
-        EVT.fire('closeCenterPanel')
+        EVT.fire('closeSettingsPanel')
         if (!Config.mobile) {
           showOneTimeMsg.show(
             'tipAltXToShowControlPanel',
-            lang.transl('_快捷键ALTX显示隐藏设置面板')
+            lang.transl('_快捷键ALTX显示隐藏设置面板'),
+            lang.transl('_快捷键提示')
           )
         }
       })
     )
+
+    if (Config.mobile) {
+      const mobileSearchBtn = shell.querySelector(
+        '#settingsPanelMobileSearchBtn'
+      ) as HTMLButtonElement | null
+      const headerSearch = shell.querySelector(
+        '.settingsPanel_headerSearch'
+      ) as HTMLElement | null
+      const searchInput = shell.querySelector(
+        '#settingsPanelSearchInput'
+      ) as HTMLInputElement | null
+      if (mobileSearchBtn && headerSearch) {
+        mobileSearchBtn.addEventListener('click', () => {
+          const willShow = !headerSearch.classList.contains('visible')
+          headerSearch.classList.toggle('visible', willShow)
+          if (willShow) {
+            searchInput?.focus()
+          }
+        })
+      }
+    }
 
     shell
       .querySelector('#settingsPanelSponsor')
@@ -235,22 +268,14 @@ class SettingsPanelShell {
       )
 
     window.addEventListener(EVT.list.crawlStart, () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     })
 
-    for (const ev of [EVT.list.crawlComplete, EVT.list.resume]) {
-      window.addEventListener(ev, () => {
-        if (!states.quickCrawl && store.result.length > 0) {
-          this.show()
-        }
-      })
-    }
-
-    window.addEventListener(EVT.list.openCenterPanel, () => {
+    window.addEventListener(EVT.list.openSettingsPanel, () => {
       this.show()
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeSettingsPanel, () => {
       this.close()
     })
 
@@ -264,7 +289,7 @@ class SettingsPanelShell {
 
     document.addEventListener('click', () => {
       if (getComputedStyle(shell).display !== 'none') {
-        EVT.fire('closeCenterPanel')
+        EVT.fire('closeSettingsPanel')
       }
     })
   }
@@ -273,12 +298,12 @@ class SettingsPanelShell {
     const shell = this.get()
     shell.style.display = 'flex'
     this.updateHeight()
-    EVT.fire('centerPanelOpened')
+    EVT.fire('settingsPanelOpened')
   }
 
   private static close() {
     this.get().style.display = 'none'
-    EVT.fire('centerPanelClosed')
+    EVT.fire('settingsPanelClosed')
   }
 
   private static toggle() {
@@ -286,9 +311,22 @@ class SettingsPanelShell {
     const nowDisplay = shell.style.display
     nowDisplay === 'flex' ? this.close() : this.show()
     if (nowDisplay === 'flex') {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
     } else {
-      EVT.fire('openCenterPanel')
+      EVT.fire('openSettingsPanel')
+    }
+  }
+
+  /** 点击“开始抓取”区域里的默认抓取按钮（通常是“开始抓取”）
+   * 在不支持的页面里没有这个按钮（因为此时只有“手动选择作品”按钮，它不是主按钮） */
+  private static clickDefaultCrawlBtn() {
+    const shell = this.get()
+    const selector = `slot[data-name="crawlBtns"] button[data-btn-emphasis="primary"]`
+    const crawlBtn = shell.querySelector(selector) as HTMLButtonElement
+    if (crawlBtn) {
+      crawlBtn.click()
+    } else {
+      toast.warning(lang.transl('_该页面里没有默认的抓取按钮'))
     }
   }
 
@@ -340,11 +378,20 @@ class SettingsPanelShell {
       return
     }
 
-    shell.style.height = 'auto'
-    // 最小高度为 60vh，最大高度为 84vh。如果内容高度处于这个范围内，则使用内容高度
-    const minHeight = window.innerHeight * 0.6
-    const maxHeight = window.innerHeight * 0.84
-    shell.style.height = `${Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight)}px`
+    // 优先使用 visualViewport.height 而不是 window.innerHeight：
+    // 在移动端浏览器上，innerHeight / vh 都是「地址栏隐藏后的最大视口」固定值，
+    // 地址栏显隐不会改变它们。
+    // visualViewport.height 反映用户当前实际可见的视口（已扣除浏览器 UI），
+    // 地址栏显隐时会动态变化——这是唯一能反映「地址栏显隐后还有多少可用高度」的 API。
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
+    // 最小高度为 60vh，最大高度在 PC 端是 84vh，移动端为 90vh。这个最大高度是在 .centerWrap 的样式里定义的
+    const minHeight = viewportHeight * 0.6
+    const maxHeight = viewportHeight * (Config.mobile ? 0.9 : 0.84)
+    let useHeight = Math.min(
+      Math.max(shell.scrollHeight + 2, minHeight),
+      maxHeight
+    )
+    shell.style.height = `${useHeight}px`
   }
 }
 

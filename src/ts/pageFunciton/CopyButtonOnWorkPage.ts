@@ -7,6 +7,7 @@ import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
 import { copyWorkInfo } from '../CopyWorkInfo'
 import { Config } from '../Config'
+import { states } from '../store/States'
 
 // 在作品页面里添加复制按钮
 class CopyButtonOnWorkPage {
@@ -46,30 +47,21 @@ class CopyButtonOnWorkPage {
     }
 
     btn.addEventListener('click', () => {
-      const isNovel = pageType.type === pageType.list.Novel
-      const idData: IDData = {
-        id: isNovel ? Tools.getNovelId() : Tools.getIllustId(),
-        type: isNovel ? 'novels' : 'illusts',
-      }
-      copyWorkInfo.receive(idData)
-
-      const msg = `${lang.transl('_显示复制按钮的提示')}`
-      showOneTimeMsg.show(
-        'tipCopyWorkInfoButton',
-        msg,
-        lang.transl('_复制按钮')
-      )
+      this.copyWork()
     })
 
-    // 使用快捷键 Alt + C 点击复制按钮
-    window.addEventListener('keydown', (ev) => {
-      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+    // 一级快捷键 复制当前作品的信息
+    // 当预览作品、图片查看器、原比例查看图片这三者之一正在显示时，
+    // 由对应的模块负责复制（它们各自带 index），这里跳过以免重复复制
+    window.addEventListener(EVT.list.commandCopyWorkInfo, () => {
+      if (
+        states.previewWorkIsShow ||
+        states.imageViewerIsShow ||
+        states.showOriginSizeImageIsShow
+      ) {
         return
       }
-
-      if (ev.code === 'KeyC' && ev.altKey) {
-        btn && btn.click()
-      }
+      this.copyWork()
     })
 
     window.addEventListener(EVT.list.pageSwitch, () => {
@@ -87,6 +79,23 @@ class CopyButtonOnWorkPage {
 </svg>`
     btn.dataset.xztitle = '_复制摘要数据'
     return btn
+  }
+
+  /** 复制当前作品页面的作品信息 */
+  private copyWork() {
+    const isNovel = pageType.type === pageType.list.Novel
+    const idData: IDData = {
+      id: isNovel ? Tools.getNovelId() : Tools.getIllustId(),
+      type: isNovel ? 'novels' : 'illusts',
+    }
+    copyWorkInfo.receive(idData)
+
+    const msg = `${lang.transl('_显示复制按钮的提示')}`
+    showOneTimeMsg.show(
+      'tipCopyWorkInfoButton',
+      msg,
+      lang.transl('_复制作品信息')
+    )
   }
 }
 

@@ -39,6 +39,7 @@ body[data-page-type='0'] {
 }
 body[data-page-type='0'] .bgPpJb,
 body[data-page-type='0'] div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+body[data-page-type='0'] div.gtm-toppage-thumbnail-r18-illustration-recommend-tag-zone > div > div,
 body[data-page-type='0'] .bYCbxa,
 body[data-page-type='0'] .cwAKCq {
   width: auto !important;
@@ -112,6 +113,7 @@ body[data-page-type='0'] div[width='184'] {
   height: auto !important;
 }
 body[data-page-type='0'] div[width='184'] a div img,
+body[data-page-type='0'] section ul > div > div,
 body[data-page-type='0'] .jercGe {
   position: relative;
   width: auto !important;
@@ -313,10 +315,6 @@ body[data-page-type='2'] .gmoaNn {
 body[data-page-type='2'] .fKsmTC,
 body[data-page-type='2'] .gYUunk {
   width: 92vw;
-}
-body[data-page-type='2'] .buGhFj {
-  display: flex;
-  flex-wrap: wrap;
 }
 body[data-page-type='2'] .jELUak {
   align-items: center;
@@ -713,4 +711,50 @@ body[data-page-type='23'] .worksUL > div > div > div,
 body[data-page-type='23'] div[type='illust'] > div {
   width: auto !important;
   height: auto !important;
+}
+body[data-page-type='26'] {
+  /* img */
+}
+body[data-page-type='26'] .sectionParentDiv {
+  width: 92vw;
+}
+body[data-page-type='26'] .sectionParentDiv > div > li > div > div:nth-child(2) {
+  width: 100%;
+}
+body[data-page-type='26'] .sectionParentDiv > div > li > div > div:nth-child(2) ul {
+  width: 100%;
+  max-width: 70vw;
+  padding-right: 0;
+  overflow: auto;
+}
+body[data-page-type='26'] .sectionParentDiv > div > li > div > div:nth-child(2) ul > div > div > div,
+body[data-page-type='26'] div[size='184'],
+body[data-page-type='26'] div[size='184'] > div {
+  width: auto !important;
+  height: auto !important;
+}
+body[data-page-type='26'] div[size='184'] img {
+  width: auto !important;
+  height: auto !important;
+  max-height: 540px;
+}
+body[data-page-type='27'] {
+  /* 图像作品列表容器取消宽度限制 */
+  /* img */
+}
+body[data-page-type='27'] .userHomeWrapper,
+body[data-page-type='27'] .userHomeULParent {
+  width: 92vw;
+  max-width: unset;
+}
+body[data-page-type='27'] .userHomeULParent ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body[data-page-type='27'] a[data-gtm-value] img {
+  position: relative;
+  width: auto !important;
+  height: auto !important;
+  max-height: 540px;
 }

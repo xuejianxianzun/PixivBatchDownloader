@@ -14,6 +14,7 @@
 - [简介](#简介)
 - [在线安装](#在线安装)
 - [离线安装](#离线安装)
+- [在 Android 上安装](#在-android-上安装)
 - [如何使用](#如何使用)
 - [Wiki](#wiki)
 - [鸣谢](#鸣谢)
@@ -72,12 +73,17 @@ Firefox 浏览器可以从 **[Add-Ons](https://addons.mozilla.org/firefox/addon/
 请查看 Wiki 页面：
 [离线安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
-如果你想在 Android 上使用这个扩展，请查看 Wiki 页面：
-[在 Microsoft Edge Canary 浏览器上安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85/MicrosoftEdgeCanary)
+# 在 Android 上安装
+
+如果你想在 Android 上的浏览器里安装这个扩展，推荐使用 Quetta 浏览器。它是一个 Chromium 内核的移动端浏览器，可以从 Chrome Web Store 在线安装扩展程序，非常方便。
 
 # 如何使用
 
-这个下载器运行在 Pixiv.net 的网页上。当你浏览 Pixiv 时，可以随时打开下载器的面板来批量下载该页面里的作品。
+这个下载器运行在 Pixiv.net 的网页上。当你浏览 Pixiv 时，可以随时打开下载器的面板来使用它。
+
+注意：
+- 当你安装这个扩展之后，如果有已经打开的 Pixiv 标签页，需要刷新它们，这样扩展才能运行在这些标签页上。
+- 在 Pixiv.net 之外的其他网页上，点击扩展图标不会显示下载器的面板，这是正常的，因为它只运行在 Pixiv.net 上。
 
 # Wiki
 

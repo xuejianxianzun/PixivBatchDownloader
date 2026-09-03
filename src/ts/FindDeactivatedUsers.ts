@@ -27,7 +27,7 @@ class FindDeactivatedUsers {
 
   public async check() {
     const tip = lang.transl('_查找已注销的用户')
-    EVT.fire('closeCenterPanel')
+    EVT.fire('closeSettingsPanel')
     toast.show(tip)
     log.warning('🚀' + tip)
     log.log(lang.transl('_检查是否有已注销的用户的说明'))

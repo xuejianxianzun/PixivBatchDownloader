@@ -6,12 +6,13 @@ import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { workPublishTime } from './WorkPublishTime'
-import { IDTypeString, WorkType } from '../store/StoreType'
+import { IDTypeString } from '../store/StoreType'
 import { Config } from '../Config'
 import { downloadRecord, DownloadRecordType } from '../download/DownloadRecord'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
+import { workSelection } from '../WorkSelection'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -39,11 +40,41 @@ export interface FilterOption {
   isOriginal?: boolean | null
 }
 
+/**作品类型的数字表示。
+ *
+ * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
+ *
+ * 0 插画
+ * 1 漫画
+ * 2 动图
+ * 3 小说
+ * undefined 不能确定其类型，或者是系列小说这样不属于单个作品的类型
+ */
+export type WorkType = -1 | 0 | 1 | 2 | 3 | undefined
+
 // 检查作品是否符合过滤条件
 class Filter {
   /** 在日志里输出已启用的过滤选项。返回值表示是否有错误的设置，如果为 true，则不应该开始抓取 */
   public showTip(): boolean {
     return showEnabledFilter.showTip()
+  }
+
+  /** 根据作品类型的数字生成其文本描述，用于显示提示信息 */
+  private getWorkTypeText(workType: WorkType) {
+    switch (workType) {
+      case -1:
+        return lang.transl('_图像作品')
+      case 0:
+        return lang.transl('_插画')
+      case 1:
+        return lang.transl('_漫画')
+      case 2:
+        return lang.transl('_动图')
+      case 3:
+        return lang.transl('_小说')
+      default:
+        return lang.transl('_未知')
+    }
   }
 
   /**检查作品是否符合过滤器的要求，返回值 false 表示不保留这个作品，true 表示保留这个作品 */
@@ -52,13 +83,18 @@ class Filter {
   // 每个过滤器函数都必须检查参数为 undefined 的情况
   // 每个过滤器函数必须返回一个 boolean 值，false 表示排除这个作品,true 表示保留这个作品
   public async check(option: FilterOption): Promise<boolean> {
+    // 检查这个作品是否被用户手动排除
+    if (!this.checkExcluded(option.id, option.IDTypeString)) {
+      return false
+    }
+
     // 检查作品类型设置
     if (!this.checkDownType(option.workType)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_作品类型') +
           ': ' +
-          Tools.getWorkTypeText(option.workType),
+          this.getWorkTypeText(option.workType),
         'excludeWorkByWorkType' + option.workType
       )
       return false
@@ -1085,6 +1121,44 @@ class Filter {
       // 这是图像作品的记录，如果传入的类型不是小说，则是完全匹配
       return !(type !== 'novels')
     }
+  }
+
+  /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除 */
+  private checkExcluded(
+    id?: FilterOption['id'],
+    type?: FilterOption['IDTypeString']
+  ): boolean {
+    if (id === undefined || !type) {
+      return true
+    }
+
+    const idStr = id.toString()
+    const excluded = workSelection.excludeIdList.some((item) => {
+      if (item.id === idStr) {
+        // 需要对 type 进行特殊处理。因为在选择/排除作品时，图像作品的类型都是粗略的 illusts，而在这里检查时，传入的作品类型可能更具体，例如 illusts、manga、ugoira，所以需要对 type 进行特殊处理
+        if (item.type === 'illusts') {
+          return (
+            type === 'illusts' ||
+            type === 'manga' ||
+            type === 'ugoira' ||
+            type === 'unknown'
+          )
+        } else {
+          return item.type === type
+        }
+      }
+    })
+
+    if (excluded) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_手动排除了这个作品'),
+        'excludeWork'
+      )
+      return false
+    }
+
+    return true
   }
 }
 

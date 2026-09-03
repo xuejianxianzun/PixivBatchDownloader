@@ -36,7 +36,7 @@ class InitNovelSeriesPage extends InitPageBase {
       'mergeSeriesNovel',
       'brand'
     ).addEventListener('click', async () => {
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
       const seriesId = Tools.getSeriesId()
       let seriseTitle = ''
       // 尝试获取系列标题
@@ -45,7 +45,7 @@ class InitNovelSeriesPage extends InitPageBase {
         seriseTitle = meta.getAttribute('content') || ''
       }
       await new MergeNovel().merge(seriesId, seriseTitle)
-      EVT.fire('exportLog')
+      EVT.fire('exportLogsTiming')
     })
   }
 

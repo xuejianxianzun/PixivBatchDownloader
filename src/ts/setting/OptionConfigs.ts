@@ -53,7 +53,7 @@ type OptionMeta = {
   hideOnMobile?: boolean
   /** 是否在 pixivision 隐藏。只有需要隐藏时才会有这个属性。如果没有这个属性或者为 false，则表示在 pixivision 显示 */
   hideOnPixivision?: boolean
-  /** 添加该设置项时的时间戳。新增的设置需要添加这个属性，旧设置不需要这个属性，因为它是为了显示“new”角标而存在的，旧设置用不到 */
+  /** 添加该设置项时的时间戳。新增一个设置项时，使用当前时间戳作为这个属性的值。旧设置不需要这个属性，因为它是为了显示“new”角标而存在的，旧设置用不到 */
   addedAt?: number
 }
 
@@ -591,7 +591,7 @@ class OptionConfigs {
       categoryLevel2: 'strategy',
       pinned: false,
       hideOnPixivision: true,
-      searchWordKeys: ['_用户阻止名单', '_黑名单'],
+      searchWordKeys: ['_用户阻止名单', '_黑名单', '_屏蔽用户'],
       searchWords: [],
     },
     {
@@ -857,24 +857,24 @@ class OptionConfigs {
 
     // 下载
     {
-      no: 51,
-      nameKey: '_同时下载数量',
-      name: '',
-      categoryLevel1: 'download',
-      categoryLevel2: 'behavior',
-      pinned: false,
-      hideOnPixivision: true,
-      searchWordKeys: ['_并发'],
-      searchWords: [],
-    },
-    {
       no: 52,
-      nameKey: '_自动开始下载',
+      nameKey: '_抓取完成后自动开始下载',
       name: '',
       categoryLevel1: 'download',
       categoryLevel2: 'behavior',
       pinned: false,
       searchWordKeys: [],
+      searchWords: [],
+    },
+    {
+      no: 51,
+      nameKey: '_同时下载多少个文件',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'behavior',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_并发', '_下载线程数量'],
       searchWords: [],
     },
     {
@@ -1166,6 +1166,7 @@ class OptionConfigs {
       categoryLevel2: 'preview',
       pinned: false,
       hideOnPixivision: true,
+      hideOnMobile: true,
       searchWordKeys: [],
       searchWords: [],
     },
@@ -1199,6 +1200,7 @@ class OptionConfigs {
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnail',
       pinned: false,
+      hideOnMobile: true,
       hideOnPixivision: true,
       searchWordKeys: [],
       searchWords: [],
@@ -1228,14 +1230,14 @@ class OptionConfigs {
     },
     {
       no: 83,
-      nameKey: '_在作品缩略图上显示放大按钮',
+      nameKey: '_在作品缩略图上显示图片查看器按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
       pinned: false,
       hideOnPixivision: true,
       hideOnMobile: true,
-      searchWordKeys: ['_放大镜', '_图片查看器'],
+      searchWordKeys: ['_放大镜', '_图片查看器', '_在作品缩略图上显示放大按钮'],
       searchWords: [],
     },
     {
@@ -1286,7 +1288,7 @@ class OptionConfigs {
     },
     {
       no: 88,
-      nameKey: '_收藏设置',
+      nameKey: '_下载器的收藏功能',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'other',
@@ -1297,13 +1299,13 @@ class OptionConfigs {
     },
     {
       no: 89,
-      nameKey: '_复制按钮',
+      nameKey: '_复制作品信息带高亮关键字',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'other',
       pinned: false,
       hideOnPixivision: true,
-      searchWordKeys: [],
+      searchWordKeys: ['_复制按钮'],
       searchWords: [],
     },
     {
@@ -1407,6 +1409,17 @@ class OptionConfigs {
       addedAt: 1780444800000,
     },
     {
+      no: 107,
+      nameKey: '_自定义快捷键',
+      name: '',
+      categoryLevel1: 'general',
+      categoryLevel2: 'operation',
+      pinned: false,
+      searchWordKeys: ['_快捷键'],
+      searchWords: [],
+      addedAt: 1787655935527,
+    },
+    {
       no: 98,
       nameKey: '_颜色主题',
       name: '',
@@ -1450,7 +1463,7 @@ class OptionConfigs {
     },
     {
       no: 102,
-      nameKey: '_导出日志',
+      nameKey: '_自动导出日志',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'log',

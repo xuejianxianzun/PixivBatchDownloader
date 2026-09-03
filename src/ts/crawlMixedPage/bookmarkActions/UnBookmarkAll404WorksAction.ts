@@ -14,7 +14,7 @@ class UnBookmarkAll404WorksAction extends Bookmark404ActionBase {
       const msg = lang.transl('_取消收藏所有已被删除的作品')
       log.warning(msg)
       toast.warning(msg)
-      EVT.fire('closeCenterPanel')
+      EVT.fire('closeSettingsPanel')
 
       this.reset()
 

@@ -14,6 +14,7 @@
 - [はじめに](#はじめに)
 - [オンラインインストール](#オンラインインストール)
 - [オフラインインストール](#オフラインインストール)
+- [Android でのインストール](#android-でのインストール)
 - [使い方](#使い方)
 - [Wiki](#wiki)
 - [Patreon](#patreon)
@@ -67,12 +68,17 @@ Firefoxブラウザは、**[Add-Ons](https://addons.mozilla.org/firefox/addon/po
 Wikiページをご覧ください：
 [オフラインインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/OfflineInstallation)
 
-Androidでこの拡張機能を使用したい場合は、Wikiページをご覧ください：
-[Microsoft Edge Canaryブラウザでのインストール](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/MicrosoftEdgeCanary)
+# Android でのインストール
+
+Android のブラウザにこの拡張機能をインストールしたい場合は、Quetta ブラウザをおすすめします。これは Chromium コアのモバイルブラウザで、Chrome Web Store からオンラインで拡張機能をインストールでき、とても便利です。
 
 # 使い方
 
-このダウンローダーは Pixiv.net のページ上で動作します。Pixiv を閲覧しているとき、いつでもダウンローダーのパネルを開いて、そのページの作品を一括ダウンロードできます。
+このダウンローダーは Pixiv.net のページ上で動作します。Pixiv を閲覧しているとき、いつでもダウンローダーのパネルを開いて使用できます。
+
+注意：
+- この拡張機能をインストールした後、開いたままの Pixiv タブがある場合は、それらのタブで拡張機能が動作するようにリロード（再読み込み）する必要があります。
+- Pixiv.net 以外のウェブページでは、拡張機能のアイコンをクリックしてもダウンローダーのパネルは表示されません。これは正常です。この拡張機能は Pixiv.net 上でのみ動作するためです。
 
 # Wiki
 

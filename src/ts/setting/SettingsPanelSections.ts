@@ -35,21 +35,21 @@ class SettingsPanelSections {
 
   private foldableSections = new Map<string, FoldableSection>()
   private stickyEls = new Map<PageId, HTMLButtonElement>()
-  private expandAllBtn?: HTMLButtonElement
+  private expandAllBtns: HTMLButtonElement[] = []
   private emptyHintsObserver?: MutationObserver
 
   public connect({
     foldableSections,
     stickyEls,
-    expandAllBtn,
+    expandAllBtns,
   }: {
     foldableSections: Map<string, FoldableSection>
     stickyEls: Map<PageId, HTMLButtonElement>
-    expandAllBtn: HTMLButtonElement
+    expandAllBtns: HTMLButtonElement[]
   }) {
     this.foldableSections = foldableSections
     this.stickyEls = stickyEls
-    this.expandAllBtn = expandAllBtn
+    this.expandAllBtns = expandAllBtns
     this.bindEmptyHintsObserver()
     this.refreshEmptyCategoryHints()
   }
@@ -105,7 +105,8 @@ class SettingsPanelSections {
     })
   }
 
-  public toggleAllSections() {
+  /** 展开/折叠所有区域，返回操作后的状态：true 为全部展开，false 为全部折叠 */
+  public toggleAllSections(): boolean {
     const shouldExpand = !this.areAllSectionsExpanded()
     const nextExpandedCards = Utils.deepCopy(settings.expandedCards)
 
@@ -125,15 +126,18 @@ class SettingsPanelSections {
     setSetting('expandedCards', nextExpandedCards)
     this.updateExpandAllButton()
     this.refreshStickyHeader()
+    return shouldExpand
   }
 
   public updateExpandAllButton() {
-    if (!this.expandAllBtn) {
+    if (this.expandAllBtns.length === 0) {
       return
     }
     const state = this.getExpandAllState()
-    this.expandAllBtn.classList.toggle('expanded', state === 'expanded')
-    this.expandAllBtn.classList.toggle('partial', state === 'partial')
+    this.expandAllBtns.forEach((btn) => {
+      btn.classList.toggle('expanded', state === 'expanded')
+      btn.classList.toggle('partial', state === 'partial')
+    })
   }
 
   public refreshStickyHeader() {

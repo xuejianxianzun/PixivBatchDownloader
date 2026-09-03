@@ -249,7 +249,7 @@ class SaveWorkDescription {
     await SendDownload.noReply(
       blob,
       txtName,
-      settings.rememberTheLastSaveLocation ? 'anchorDownload' : 'downloadsAPI'
+      Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
     )
     const msg = `✅${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'

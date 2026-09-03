@@ -141,7 +141,7 @@ class MsgBox {
       ev.stopPropagation()
     })
 
-    // window.addEventListener(EVT.list.closeCenterPanel, () => {
+    // window.addEventListener(EVT.list.closeSettingsPanel, () => {
     //   this.remove(wrap)
     // })
 

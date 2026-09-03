@@ -83,6 +83,98 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
+/** 一个快捷键组合。key 为 KeyboardEvent.code（如 'KeyX'、'Digit1'），未设置时为空字符串 */
+export interface HotkeyCombo {
+  key: string
+  ctrl: boolean
+  alt: boolean
+  shift: boolean
+  meta: boolean
+}
+
+/** 可被用户自定义的 9 个一级快捷键对应的命令名 */
+// 如果修改了一个命令的名字，那么需要处理对旧设置的兼容性。要避免一个命令同时存在新旧两个名字，因为这可能导致这个命令不能正常派发。
+export type HotkeyCommand =
+  | 'commandToggleSettingsPanel'
+  | 'commandStartDefaultCrawl'
+  | 'commandToggleLogArea'
+  | 'commandToggleSelectWork'
+  | 'commandToggleExcludeWork'
+  | 'commandTogglePreviewWork'
+  | 'commandQuickDownload'
+  | 'commandQuickBookmark'
+  | 'commandCopyWorkInfo'
+
+/** 命令名到快捷键组合的映射，用户未设置的命令不会出现在这里 */
+export type HotkeyMap = Partial<Record<HotkeyCommand, HotkeyCombo>>
+
+/** 一级快捷键的默认键位，供设置初始值与“重置为默认”使用 */
+export const defaultHotkeys: HotkeyMap = {
+  commandToggleSettingsPanel: {
+    key: 'KeyX',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandStartDefaultCrawl: {
+    key: 'KeyZ',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandToggleLogArea: {
+    key: 'KeyL',
+    ctrl: false,
+    alt: false,
+    shift: false,
+    meta: false,
+  },
+  commandToggleSelectWork: {
+    key: 'KeyS',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandToggleExcludeWork: {
+    key: 'KeyE',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandTogglePreviewWork: {
+    key: 'KeyP',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandQuickDownload: {
+    key: 'KeyQ',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandQuickBookmark: {
+    key: 'KeyB',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+  commandCopyWorkInfo: {
+    key: 'KeyC',
+    ctrl: false,
+    alt: true,
+    shift: false,
+    meta: false,
+  },
+}
+
 type SettingValue =
   | string
   | number
@@ -93,6 +185,7 @@ type SettingValue =
   | { [key: number]: string }
   | Map<string, string>
   | { [key in PageName]: CrawlNumberConfig }
+  | HotkeyMap
 
 export interface SettingChangeData {
   name: SettingKeys
@@ -150,6 +243,7 @@ interface XzSetting {
   needTag: string[]
   notNeedTag: string[]
   autoStartDownload: boolean
+  autoStartDownloadForQuickDownload: boolean
   downloadThread: number
   userSetName: string
   userSetNameForNovel: string
@@ -263,8 +357,10 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
-  prevWorkSize: 'original' | 'regular'
+  prevWorkSize: 'original' | 'regular' | 'small'
   previewWorkWait: number
+  /** 是否允许预览区域遮挡作品缩略图，这样预览图可以显示的更大 */
+  allowPreviewCoverThumbnail: boolean
   showPreviewWorkTip: boolean
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
@@ -338,7 +434,6 @@ interface XzSetting {
   downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
   tipAltXToShowControlPanel: boolean
   tipAltSToSelectWork: boolean
-  tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
   exportIDList: boolean
@@ -414,6 +509,10 @@ interface XzSetting {
   autoExportSettings: boolean
   autoExportSettingsStrategy: 'timed' | 'onSettingChange'
   autoExportSettingsInterval: number
+  tipManuallyExcludeWorks: boolean
+  tipAltEToExcludeWork: boolean
+  /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
+  hotkeys: HotkeyMap
 }
 
 type SettingKeys = keyof XzSetting
@@ -651,6 +750,14 @@ class Settings {
         value: 0,
         tip: '',
       },
+      [PageName.UserRequest]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
     },
     onlyCrawlFirstFewImagesSwitch: false,
     onlyCrawlFirstFewImagesCount: 1,
@@ -682,6 +789,7 @@ class Settings {
     needTag: [],
     notNeedTag: [],
     autoStartDownload: true,
+    autoStartDownloadForQuickDownload: true,
     downloadThread: 3,
     userSetName: Config.defaultNameRuleForArtwork,
     userSetNameForNovel: Config.defaultNameRuleForNovel,
@@ -809,6 +917,7 @@ class Settings {
       [PageName.Dashboard]: Config.defaultNameRuleForArtwork,
       [PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
       [PageName.SearchUsers]: Config.defaultNameRuleForArtwork,
+      [PageName.UserRequest]: Config.defaultNameRuleForArtwork,
     },
     nameRuleForEachPageTypeForNovel: {
       [PageName.Unsupported]: Config.defaultNameRuleForNovel,
@@ -839,6 +948,7 @@ class Settings {
       [PageName.Dashboard]: Config.defaultNameRuleForNovel,
       [PageName.Contest]: Config.defaultNameRuleForNovel,
       [PageName.SearchUsers]: Config.defaultNameRuleForNovel,
+      [PageName.UserRequest]: Config.defaultNameRuleForNovel,
     },
     showNotificationAfterDownloadComplete: false,
     boldKeywords: true,
@@ -849,6 +959,7 @@ class Settings {
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
     prevWorkSize: 'regular',
+    allowPreviewCoverThumbnail: false,
     previewWorkWait: 400,
     showPreviewWorkTip: true,
     showOriginImage: true,
@@ -908,7 +1019,6 @@ class Settings {
     downloadOrderSortBy: 'ID',
     tipAltXToShowControlPanel: true,
     tipAltSToSelectWork: true,
-    tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
     exportIDList: false,
@@ -1033,6 +1143,9 @@ class Settings {
     autoExportSettings: false,
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
+    tipManuallyExcludeWorks: true,
+    tipAltEToExcludeWork: true,
+    hotkeys: defaultHotkeys,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1368,8 +1481,8 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipAltEToExcludeWork', true)
     this.setSetting('tipImageViewer', true)
-    this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
     this.setSetting('tipOpenWikiLink', true)
@@ -1377,6 +1490,7 @@ class Settings {
     this.setSetting('tipCloseAskFileSaveLocation', true)
     this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
+    this.setSetting('tipManuallyExcludeWorks', true)
 
     msgBox.show(lang.transl('_重新显示帮助的说明'), {
       title: lang.transl('_重新显示帮助'),
