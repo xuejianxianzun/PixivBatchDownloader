@@ -11,6 +11,7 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { Config } from './Config'
+import { tapDetector } from './utils/TapDetector'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 手动选择作品，图片作品和小说都可以选择
@@ -226,8 +227,15 @@ class SelectWork {
 
     // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
     if (show) {
-      this.selector.style.left = this.left - this.half + 'px'
-      this.selector.style.top = this.top - this.half + 'px'
+      if (Config.mobile) {
+        // 在移动端，由于没有鼠标事件，所以选择器不会跟随鼠标或点击位置。它可能出现在边缘位置，导致状态指示不明显；并且不同情况下出现的位置也可能不一致
+        // 所以在移动端，让选择器始终显示在屏幕中央位置，使其更明显，位置也固定
+        this.selector.style.left = window.innerWidth / 2 - this.half + 'px'
+        this.selector.style.top = window.innerHeight / 2 - this.half + 'px'
+      } else {
+        this.selector.style.left = this.left - this.half + 'px'
+        this.selector.style.top = this.top - this.half + 'px'
+      }
     }
   }
 
@@ -455,6 +463,12 @@ class SelectWork {
 
   private clickElement(el: HTMLElement, ev: Event) {
     if (!this.canSelect()) {
+      return
+    }
+
+    // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+    // 否则用户从作品链接上开始滑动页面，会在滑动结束后误选这个作品
+    if (Config.mobile && !tapDetector.isTap()) {
       return
     }
 

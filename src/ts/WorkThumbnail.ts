@@ -4,6 +4,7 @@ import { ppdTask } from './PPDTask'
 import { setSetting, settings } from './setting/Settings'
 import { toast } from './Toast'
 import { Utils } from './utils/Utils'
+import { tapDetector } from './utils/TapDetector'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
@@ -156,6 +157,11 @@ abstract class WorkThumbnail {
     el.addEventListener(
       Config.mobile ? 'touchend' : 'click',
       (ev) => {
+        // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+        // 否则用户从缩略图上开始滑动页面时，在滑动结束后会误触这里的点击回调（例如选择作品）
+        if (Config.mobile && !tapDetector.isTap()) {
+          return
+        }
         this.clickCallback.forEach((cb) => cb(el, id, ev, type))
       },
       false
@@ -165,6 +171,10 @@ abstract class WorkThumbnail {
     const bmkBtn = this.findBookmarkBtn(el)
     if (!!bmkBtn) {
       bmkBtn.addEventListener(Config.mobile ? 'touchend' : 'click', (ev) => {
+        // 同上：滑动页面时，不把 touchend 当作对收藏按钮的点击
+        if (Config.mobile && !tapDetector.isTap()) {
+          return
+        }
         this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
       })
     }

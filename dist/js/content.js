@@ -4024,9 +4024,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _utils_TapDetector__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/TapDetector */ "./src/ts/utils/TapDetector.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -4173,8 +4175,16 @@ class ExcludeWork {
         this.selector.style.display = show ? 'flex' : 'none';
         // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
         if (show) {
-            this.selector.style.left = this.left - this.half + 'px';
-            this.selector.style.top = this.top - this.half + 'px';
+            if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+                // 在移动端，由于没有鼠标事件，所以选择器不会跟随鼠标或点击位置。它可能出现在边缘位置，导致状态指示不明显；并且不同情况下出现的位置也可能不一致
+                // 所以在移动端，让选择器始终显示在屏幕中央位置，使其更明显，位置也固定
+                this.selector.style.left = window.innerWidth / 2 - this.half + 'px';
+                this.selector.style.top = window.innerHeight / 2 - this.half + 'px';
+            }
+            else {
+                this.selector.style.left = this.left - this.half + 'px';
+                this.selector.style.top = this.top - this.half + 'px';
+            }
         }
     }
     addBtn() {
@@ -4204,7 +4214,7 @@ class ExcludeWork {
                 this.startExclude(ev);
                 this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipAltEToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTE手动排除作品'), _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动排除作品'));
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__.showOneTimeMsg.show('tipAltEToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTE手动排除作品'), _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动排除作品'));
                 }
             };
         }
@@ -4253,7 +4263,7 @@ class ExcludeWork {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy) {
                 const removed = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.removeWorkById([id]);
                 if (removed) {
-                    _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从抓取结果中移除'));
+                    _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从抓取结果中移除'));
                 }
             }
         }
@@ -4272,7 +4282,7 @@ class ExcludeWork {
             return;
         }
         // 如果点击的是多图作品页面里的作品缩略图，则不排除这个作品
-        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_15__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
             return;
         }
         if (!id || id === '0') {
@@ -4297,6 +4307,11 @@ class ExcludeWork {
     }
     clickElement(el, ev) {
         if (!this.canExclude()) {
+            return;
+        }
+        // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+        // 否则用户从作品链接上开始滑动页面，会在滑动结束后误排除这个作品
+        if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile && !_utils_TapDetector__WEBPACK_IMPORTED_MODULE_12__.tapDetector.isTap()) {
             return;
         }
         if (!el) {
@@ -4391,7 +4406,7 @@ class ExcludeWork {
             allThisIdWorks = [wrap];
         }
         for (const el of allThisIdWorks) {
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_14__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_15__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
             // 如果这个缩略图里已经存在标记，就不需要重复添加
@@ -10548,7 +10563,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _utils_TapDetector__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/TapDetector */ "./src/ts/utils/TapDetector.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -10719,8 +10736,16 @@ class SelectWork {
         // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
         // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
         if (show) {
-            this.selector.style.left = this.left - this.half + 'px';
-            this.selector.style.top = this.top - this.half + 'px';
+            if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+                // 在移动端，由于没有鼠标事件，所以选择器不会跟随鼠标或点击位置。它可能出现在边缘位置，导致状态指示不明显；并且不同情况下出现的位置也可能不一致
+                // 所以在移动端，让选择器始终显示在屏幕中央位置，使其更明显，位置也固定
+                this.selector.style.left = window.innerWidth / 2 - this.half + 'px';
+                this.selector.style.top = window.innerHeight / 2 - this.half + 'px';
+            }
+            else {
+                this.selector.style.left = this.left - this.half + 'px';
+                this.selector.style.top = this.top - this.half + 'px';
+            }
         }
     }
     addBtn() {
@@ -10812,7 +10837,7 @@ class SelectWork {
         const elements = document.querySelectorAll('.ppd-workThumbnail');
         for (const el of elements) {
             // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_13__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
             let id = el.dataset.workid;
@@ -10857,7 +10882,7 @@ class SelectWork {
             return;
         }
         // 如果点击的是多图作品页面里的作品缩略图，则不选择这个作品
-        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_13__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
             return;
         }
         // 真实点击的元素
@@ -10886,6 +10911,11 @@ class SelectWork {
     }
     clickElement(el, ev) {
         if (!this.canSelect()) {
+            return;
+        }
+        // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+        // 否则用户从作品链接上开始滑动页面，会在滑动结束后误选这个作品
+        if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile && !_utils_TapDetector__WEBPACK_IMPORTED_MODULE_12__.tapDetector.isTap()) {
             return;
         }
         if (!el) {
@@ -10994,7 +11024,7 @@ class SelectWork {
             allThisIdWorks = [wrap];
         }
         for (const el of allThisIdWorks) {
-            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_12__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_13__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 continue;
             }
             // 如果这个缩略图里已经存在标记，就不需要重复添加
@@ -14541,6 +14571,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_TapDetector__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/TapDetector */ "./src/ts/utils/TapDetector.ts");
+
 
 
 
@@ -14659,12 +14691,21 @@ class WorkThumbnail {
             this.leaveCallback.forEach((cb) => cb(el, ev));
         });
         el.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 'touchend' : 'click', (ev) => {
+            // 在移动端，触摸后发生了滑动（滚动页面）时，不把 touchend 当作点击处理。
+            // 否则用户从缩略图上开始滑动页面时，在滑动结束后会误触这里的点击回调（例如选择作品）
+            if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && !_utils_TapDetector__WEBPACK_IMPORTED_MODULE_6__.tapDetector.isTap()) {
+                return;
+            }
             this.clickCallback.forEach((cb) => cb(el, id, ev, type));
         }, false);
         // 查找作品缩略图右下角的收藏按钮
         const bmkBtn = this.findBookmarkBtn(el);
         if (!!bmkBtn) {
             bmkBtn.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 'touchend' : 'click', (ev) => {
+                // 同上：滑动页面时，不把 touchend 当作对收藏按钮的点击
+                if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && !_utils_TapDetector__WEBPACK_IMPORTED_MODULE_6__.tapDetector.isTap()) {
+                    return;
+                }
                 this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev));
             });
         }
@@ -15616,8 +15657,14 @@ class DownloadBtnOnThumbOnMobile {
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#download"></use>
 </svg>`;
-        btn.style.left = 'auto';
-        btn.style.right = '0px';
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifierPosition === 'left') {
+            btn.style.left = '0px';
+            btn.style.right = 'auto';
+        }
+        else {
+            btn.style.left = 'auto';
+            btn.style.right = '0px';
+        }
         btn.style.top = '0px';
         btn.style.display = 'flex';
         target.appendChild(btn);
@@ -15633,8 +15680,13 @@ class DownloadBtnOnThumbOnMobile {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
     }
+    /** 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡 */
     setPageCountStyle(value) {
-        // 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡
+        // 如果下载按钮显示在左上角就不需要处理，因为页码是显示在右上角的，不会遮挡。
+        // 只有当按钮显示在右上角时才需要处理
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifierPosition === 'left') {
+            return;
+        }
         if (value && !this.styleElement) {
             this.styleElement = document.createElement('style');
             this.styleElement.innerText = `.status-page-count-container {margin-top: ${this.size}px;}`;
@@ -50180,6 +50232,7 @@ class OptionConfigs {
             categoryLevel2: 'preview',
             pinned: false,
             hideOnPixivision: true,
+            hideOnMobile: true,
             searchWordKeys: [],
             searchWords: [],
         },
@@ -50213,6 +50266,7 @@ class OptionConfigs {
             categoryLevel1: 'enhance',
             categoryLevel2: 'thumbnail',
             pinned: false,
+            hideOnMobile: true,
             hideOnPixivision: true,
             searchWordKeys: [],
             searchWords: [],
@@ -75262,6 +75316,104 @@ class SetTimeoutWorker {
     }
 }
 const setTimeoutWorker = new SetTimeoutWorker();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/utils/TapDetector.ts":
+/*!*************************************!*\
+  !*** ./src/ts/utils/TapDetector.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   tapDetector: () => (/* binding */ tapDetector)
+/* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
+// 移动端“轻点(tap)”与“滑动(scroll)”的判别器
+//
+// 背景：在移动端，触摸事件的 target 在 touchstart 时确定，之后手指滑动也不会改变。
+// 所以当用户从作品缩略图上开始滑动页面时，touchend 仍然会在该缩略图上触发。
+// 如果此时把 touchend 当作点击处理，就会误选（或误排除）触摸起始位置的作品。
+// 另外，浏览器把该手势判定为滚动后，touchend 的 cancelable 为 false，
+// 此时调用 ev.preventDefault() 会被忽略，并在控制台输出警告：
+// "Ignored attempt to cancel a touchend event with cancelable=false, ..."
+//
+// 该类通过记录 touchstart 的坐标，并在 touchmove / touchend 时检查位移，
+// 把位移超过阈值的触摸判定为“滑动”而非“轻点”。
+class TapDetector {
+    /** 位移超过这个距离（单位 px）即视为滑动。与浏览器判定滚动的触摸位移阈值一致 */
+    threshold = 10;
+    startX = 0;
+    startY = 0;
+    /** 当前触摸手势是否发生了滑动（或已不可能成为轻点） */
+    moved = false;
+    /** 是否已绑定监听器 */
+    bound = false;
+    /** 绑定触摸事件监听器。只需调用一次，多次调用不会有副作用 */
+    init() {
+        if (this.bound || !_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            return;
+        }
+        this.bound = true;
+        // 在捕获阶段监听，确保在任何业务代码的 touchend 处理函数之前更新手势状态
+        window.addEventListener('touchstart', (ev) => {
+            if (ev.touches.length > 1) {
+                // 多指触摸（例如双指缩放）不是轻点
+                this.moved = true;
+                return;
+            }
+            this.startX = ev.touches[0].clientX;
+            this.startY = ev.touches[0].clientY;
+            this.moved = false;
+        }, true);
+        window.addEventListener('touchmove', (ev) => {
+            if (this.moved) {
+                return;
+            }
+            if (this.movedTooFar(ev.touches[0].clientX, ev.touches[0].clientY)) {
+                this.moved = true;
+            }
+        }, true);
+        window.addEventListener('touchend', (ev) => {
+            // touchend 不可取消时，说明浏览器已把这个手势判定为滚动等操作并接管，
+            // 此时 preventDefault 会被忽略（即控制台里警告的来源），必然不是轻点
+            if (!ev.cancelable) {
+                this.moved = true;
+                return;
+            }
+            // 有些情况下浏览器不会触发 touchmove（例如手势在 touchend 时才判定为滚动），
+            // 所以在 touchend 时再检查一次触摸结束点与起始点的距离
+            if (!this.moved && ev.changedTouches.length > 0) {
+                const touch = ev.changedTouches[0];
+                if (this.movedTooFar(touch.clientX, touch.clientY)) {
+                    this.moved = true;
+                }
+            }
+        }, true);
+        // 浏览器判定该手势为滚动并接管后，会触发 touchcancel，此时必然不是轻点
+        window.addEventListener('touchcancel', () => {
+            this.moved = true;
+        }, true);
+    }
+    /** 当前触摸手势是否为轻点（没有发生滑动） */
+    isTap() {
+        return !this.moved;
+    }
+    movedTooFar(x, y) {
+        return (Math.abs(x - this.startX) > this.threshold ||
+            Math.abs(y - this.startY) > this.threshold);
+    }
+}
+const tapDetector = new TapDetector();
+// 在移动端页面里立即启用。只在移动端绑定，桌面端不受影响
+if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+    tapDetector.init();
+}
 
 
 

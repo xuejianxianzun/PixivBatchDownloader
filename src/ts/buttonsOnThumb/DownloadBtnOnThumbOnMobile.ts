@@ -96,8 +96,13 @@ class DownloadBtnOnThumbOnMobile {
   <use xlink:href="#download"></use>
 </svg>`
 
-    btn.style.left = 'auto'
-    btn.style.right = '0px'
+    if (settings.magnifierPosition === 'left') {
+      btn.style.left = '0px'
+      btn.style.right = 'auto'
+    } else {
+      btn.style.left = 'auto'
+      btn.style.right = '0px'
+    }
     btn.style.top = '0px'
     btn.style.display = 'flex'
 
@@ -116,8 +121,14 @@ class DownloadBtnOnThumbOnMobile {
     EVT.fire('crawlIdList', [idData])
   }
 
+  /** 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡 */
   private setPageCountStyle(value: boolean) {
-    // 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡
+    // 如果下载按钮显示在左上角就不需要处理，因为页码是显示在右上角的，不会遮挡。
+    // 只有当按钮显示在右上角时才需要处理
+    if (settings.magnifierPosition === 'left') {
+      return
+    }
+
     if (value && !this.styleElement) {
       this.styleElement = document.createElement('style')
       this.styleElement.innerText = `.status-page-count-container {margin-top: ${this.size}px;}`
