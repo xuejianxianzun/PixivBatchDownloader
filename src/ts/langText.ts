@@ -1,7 +1,7 @@
 import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
-// 目前每个 key 有 6 条文本，按照固定的顺序排列，依次是：简体中文、繁体中文、英语、日语、韩语、俄语
+// 每个 key 的值是数组，里面有 6 条文本，按照固定的顺序排列是：简体中文、繁体中文、英语、日语、韩语、俄语
 // 备注：
 // 属性名前面需要添加下划线
 // {} 是占位符
@@ -9861,12 +9861,12 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `Открепить`,
   ],
   _提示可以在release页面查看更新日志: [
-    `你可以在本项目的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 页面</a> 查看每个版本的更新日志（中文）。`,
-    `你可以在本專案的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 頁面</a> 查看每個版本的更新日誌（中文）。`,
-    `You can view the changelog (in Chinese) for each version on the <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases page</a> of this project.`,
-    `本プロジェクトの <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases ページ</a> で、各バージョンの更新履歴（中国語）を確認できます。`,
-    `이 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 각 버전의 업데이트 기록(중국어)을 볼 수 있습니다.`,
-    `Журнал изменений (на китайском) для каждой версии можно посмотреть на <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">странице GitHub Releases</a> этого проекта.`,
+    `你可以在本项目的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 页面</a> 查看更详细的说明和历史更新日志（中文）。`,
+    `你可以在本專案的 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 頁面</a> 查看更詳細的說明和歷史更新日誌（中文）。`,
+    `You can view more detailed descriptions and the historical changelog (in Chinese) on the <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases page</a> of this project.`,
+    `このプロジェクトの <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases ページ</a> で、より詳しい説明と過去の更新履歴（中国語）を確認できます。`,
+    `이 프로젝트의 <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases 페이지</a>에서 더 자세한 설명과 이전 업데이트 기록(중국어)을 확인할 수 있습니다.`,
+    `Вы можете просмотреть более подробные описания и историю обновлений (на китайском языке) на странице <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">GitHub Releases</a> этого проекта.`,
   ],
   _不预览这个作品因为它含有你排除的标签: [
     `不预览这个作品，因为它含有你排除的标签`,
@@ -11362,7 +11362,308 @@ You can choose between two export strategies:<br>
     `설정이 변경될 때마다 즉시 내보내기`,
     `Экспортировать сразу после каждого изменения настроек`,
   ],
-  _版本更新说明: [`1`, `1`, `1`, `1`, `1`, `1`],
+  _版本更新说明: [
+    `本次更新的主要内容：<br>
+- 添加了全选作品、手动排除作品的功能<br>
+- 优化了预览作品功能<br>
+- 可以抓取用户主页里的约稿作品了<br>
+- 在网页右侧添加了查看日志的按钮<br>
+- 优化了移动端界面，提升用户体验<br>
+- 添加了自定义快捷键功能<br>
+- 其他优化和 Bug 修复<br>
+<strong>ℹ️提示：如何关闭“快捷屏蔽用户”功能</strong><br>
+上个版本我添加了“快捷屏蔽用户”功能，一些用户不知道如何关闭它。该功能只有当你启用了“用户屏蔽名单”之后才会生效，并且它的开关就在“用户屏蔽名单”里。<br>
+<strong>✨新增功能：全选当前显示的作品</strong><br>
+我在“开始抓取”区域里添加了这个按钮，点击它就可以选择当前页面上显示的所有作品。<br>
+<strong>✨新增功能：手动排除作品</strong><br>
+我在“开始抓取”区域里添加了这个按钮，快捷键是 <span class="blue">Alt</span> + <span class="blue">W</span>。它的操作方式和“手动选择作品”类似，但作用是标记你不想抓取的作品。<br>
+下载器不会抓取被排除的作品；如果它已经被抓取了，下载器会把它从抓取结果里删除。<br>
+<strong>✨新增功能：在多图作品页面里，你可以选择作品里的部分图片，然后下载它们</strong><br>
+在多图作品页面里，下载器会在大图下方添加缩略图列表。有时用户可能只想下载其中的一部分图片，所以我在这个区域里添加了一些按钮来实现这个功能。<br>
+<strong>⚙️优化了“自动开始下载”设置</strong><br>
+之前即使用户关闭了“自动开始下载”，快速下载任务也总是会自动开始下载。现在我区分了“普通下载任务”和“快速下载任务”，你可以分别设置它们是否自动开始下载。<br>
+<strong>✨在预览作品里新增子选项：允许预览图遮挡缩略图</strong><br>
+该选项默认未启用，启用之后可以让横图的预览图显示的更大。<br>
+默认行为变化：现在当你预览作品时，预览图不会遮挡缩略图，除非你启用这个选项。<br>
+<strong>✨在预览作品里添加了更小的图片尺寸：小图(540px)</strong><br>
+在弱网环境里，普通尺寸的图片可能加载比较慢，所以我添加了更小的尺寸：小图(540px)。大部分小图的体积只有 50 KB 左右，你可以根据需要选择这个尺寸。<br>
+<strong>✨在预览作品时，按 V 可以查看它的原始比例图片</strong><br>
+预览作品时显示的图片默认是缩略图，如果你想以 1:1 的比例查看原图，可以按 <span class="blue">V</span> 查看原图，再次按 <span class="blue">V</span> 可以关闭原图。<br>
+另外，当你查看原图时，也可以按 <span class="blue">B</span> 收藏作品了。<br>
+<strong>✨适配了用户主页里的“约稿”分类页面</strong><br>
+现在你可以在用户主页里抓取他的约稿作品了。<br>
+<strong>✨新增快捷键 Alt + Z，用来点击默认的抓取按钮</strong><br>
+快捷键 <span class="blue">Alt</span> + <span class="blue">Z</span> 可以点击默认的抓取按钮（具有蓝色背景的主按钮，通常是“开始抓取”），这样不需要打开设置面板就可以直接开始抓取。<br>
+<strong>✨新增设置：自定义快捷键</strong><br>
+如果你想修改下载器内置的部分快捷键，可以在“通用”-“操作方式”-“自定义快捷键”设置里进行修改。<br>
+<strong>✨优化日志功能</strong><br>
+- 在日志区域底部添加了两个按钮：手动导出日志、隐藏日志区域<br>
+- 把顶部的“显示日志”按钮移动到了右侧，避免遮挡 Pixiv 的搜索框。<br>
+<strong>✏️修改了一些设置的名字，功能没有变化</strong><br>
+- “导出日志”改为“自动导出日志”。这是为了与“手动导出日志”按钮区分。<br>
+- “在作品缩略图上显示放大按钮”改为“在作品缩略图上显示图片查看器按钮”。<br>
+- “复制按钮”改为“复制作品信息”。<br>
+- “同时下载数量”改为“同时下载多少个文件”。<br>
+<strong>🎨优化了下载器在移动端页面里的界面，提升用户体验</strong><br>
+之前在移动端页面里，下载器顶部的标题栏和导航栏占据了太多高度，导致下方内容区域的高度很小，使用起来很不方便。<br>
+现在我进行了优化：<br>
+- 减少了顶部板块的高度，并且增加了内容区域的高度<br>
+- 减小了一些元素的尺寸，使内容更加紧凑<br>
+- 优化了一些增强功能在移动端的使用体验<br>
+<strong>🐞修复问题：转换动图为 WebM 格式时，有极少数作品会转换失败</strong><br>
+<strong>😊优化了一些帮助内容和翻译文本</strong><br>
+<strong>😊其他优化和修复 Bug</strong>`,
+    `本次更新的主要內容：<br>
+- 新增了全選作品、手動排除作品的功能<br>
+- 優化了預覽作品功能<br>
+- 可以抓取使用者主頁裡的約稿作品了<br>
+- 在網頁右側新增了查看日誌的按鈕<br>
+- 優化了移動端介面，提升使用者體驗<br>
+- 新增了自訂快捷鍵功能<br>
+- 其他最佳化和 Bug 修復<br>
+<strong>ℹ️提示：如何關閉「快速封鎖使用者」功能</strong><br>
+上個版本我新增了「快速封鎖使用者」功能，一些使用者不知道如何關閉它。該功能只有當你啟用了「使用者封鎖名單」之後才會生效，而且它的開關就在「使用者封鎖名單」裡。<br>
+<strong>✨新增功能：全選目前顯示的作品</strong><br>
+我在「開始擷取」區域裡新增了這個按鈕，點擊它就可以選擇目前頁面上顯示的所有作品。<br>
+<strong>✨新增功能：手動排除作品</strong><br>
+我在「開始擷取」區域裡新增了這個按鈕，快捷鍵是 <span class="blue">Alt</span> + <span class="blue">W</span>。它的操作方式和「手動選擇作品」類似，但作用是標記你不想擷取的作品。<br>
+下載器不會擷取被排除的作品；如果它已經被擷取了，下載器會把它從擷取結果裡刪除。<br>
+<strong>✨新增功能：在多圖作品頁面裡，你可以選擇作品裡的部分圖片，然後下載它們</strong><br>
+在多圖作品頁面裡，下載器會在大圖下方新增縮圖清單。有時你可能只想下載其中的一部分圖片，所以我在這個區域裡新增了一些按鈕來實現這個功能。<br>
+<strong>⚙️優化了「自動開始下載」設定</strong><br>
+以前即使你關閉了「自動開始下載」，快速下載任務也總是會自動開始下載。現在我區分了「普通下載任務」和「快速下載任務」，你可以分別設定它們是否自動開始下載。<br>
+<strong>✨在預覽作品裡新增子選項：允許預覽圖遮擋縮圖</strong><br>
+該選項預設未啟用，啟用之後可以讓橫圖的預覽圖顯示得更大。<br>
+預設行為變化：現在當你預覽作品時，預覽圖不會遮擋縮圖，除非你啟用這個選項。<br>
+<strong>✨在預覽作品裡新增了更小的圖片尺寸：小圖(540px)</strong><br>
+在弱網環境裡，普通尺寸的圖片可能載入得比較慢，所以我新增了更小的尺寸：小圖(540px)。大部分小圖的體積只有 50 KB 左右，你可以根據需要選擇這個尺寸。<br>
+<strong>✨在預覽作品時，按 V 可以查看它的原始比例圖片</strong><br>
+預覽作品時顯示的圖片預設是縮圖，如果你想以 1:1 的比例查看原圖，可以按 <span class="blue">V</span> 查看原圖，再次按 <span class="blue">V</span> 可以關閉原圖。<br>
+另外，當你查看原圖時，也可以按 <span class="blue">B</span> 收藏作品了。<br>
+<strong>✨適配了使用者主頁裡的「約稿」分類頁面</strong><br>
+現在你可以在使用者主頁裡擷取他的約稿作品了。<br>
+<strong>✨新增快捷鍵 Alt + Z，用來點擊預設的擷取按鈕</strong><br>
+快捷鍵 <span class="blue">Alt</span> + <span class="blue">Z</span> 可以點擊預設的擷取按鈕（具有藍色背景的主按鈕，通常是「開始擷取」），這樣不需要開啟設定面板就可以直接開始擷取。<br>
+<strong>✨新增設定：自訂快捷鍵</strong><br>
+如果你想修改下載器內建的部分快捷鍵，可以在「通用」-「操作方式」-「自訂快捷鍵」設定裡進行修改。<br>
+<strong>✨優化日誌功能</strong><br>
+- 在日誌區域底部新增了兩個按鈕：手動匯出日誌、隱藏日誌區域<br>
+- 把頂部的「顯示日誌」按鈕移動到了右側，避免遮擋 Pixiv 的搜尋框。<br>
+<strong>✏️修改了一些設定的名字，功能沒有變化</strong><br>
+- 「匯出日誌」改為「自動匯出日誌」。這是為了與「手動匯出日誌」按鈕區分。<br>
+- 「在作品縮圖上顯示放大按鈕」改為「在作品縮圖上顯示圖片檢視器按鈕」。<br>
+- 「複製按鈕」改為「複製作品資訊」。<br>
+- 「同時下載數量」改為「同時下載多少個檔案」。<br>
+<strong>🎨優化了下載器在移動端頁面裡的介面，提升使用者體驗</strong><br>
+之前在移動端頁面裡，下載器頂部的標題欄和導覽列佔據了太多高度，導致下方內容區域的高度很小，使用起來很不方便。<br>
+現在我進行了優化：<br>
+- 減少了頂部板塊的高度，並增加了內容區域的高度<br>
+- 縮小了一些元素的尺寸，使內容更加緊湊<br>
+- 優化了一些增強功能在移動端的使用體驗<br>
+<strong>🐞修復問題：轉換動圖為 WebM 格式時，有極少數作品會轉換失敗</strong><br>
+<strong>😊優化了一些幫助內容和翻譯文字</strong><br>
+<strong>😊其他優化和修復 Bug</strong>`,
+    `Main contents of this update:<br>
+- Added the ability to select all works and to manually exclude works<br>
+- Improved the work preview feature<br>
+- You can now crawl request works from a user's homepage<br>
+- Added a button on the right side of the page for viewing the log<br>
+- Improved the mobile UI for a better user experience<br>
+- Added customizable hotkeys<br>
+- Other optimizations and bug fixes<br>
+<strong>ℹ️Tip: How to turn off the "Quickly block users" feature</strong><br>
+In the previous version I added the "Quickly block users" feature, and some users didn't know how to turn it off. This feature only takes effect when you have enabled the "User block list", and its switch is located inside the "User block list" setting.<br>
+<strong>✨New feature: Select all currently displayed works</strong><br>
+I added this button in the "Start crawling" area. Click it to select all works currently displayed on the page.<br>
+<strong>✨New feature: Manually exclude works</strong><br>
+I added this button in the "Start crawling" area. Its hotkey is <span class="blue">Alt</span> + <span class="blue">W</span>. It works in a similar way to "Manually select", but its purpose is to mark the works you don't want to crawl.<br>
+The downloader will not crawl excluded works; if a work has already been crawled, the downloader will remove it from the crawl results.<br>
+<strong>✨New feature: On multi-image work pages, you can choose some of the images in a work and download them</strong><br>
+On multi-image work pages, the downloader adds a thumbnail list below the large image. Sometimes you may only want to download some of the images, so I added some buttons in this area to make this possible.<br>
+<strong>⚙️Improved the "Start download automatically" setting</strong><br>
+Previously, even if you turned off "Start download automatically", quick download tasks always started downloading automatically. Now I distinguish between "Normal download tasks" and "Quick download tasks", and you can set separately whether each of them starts automatically.<br>
+<strong>✨Added a new sub-option in work preview: allow the preview image to cover thumbnails</strong><br>
+This option is disabled by default. Enabling it allows the preview image of landscape works to display larger.<br>
+Default behavior change: when you preview a work now, the preview image will not cover the thumbnails unless you enable this option.<br>
+<strong>✨Added a smaller image size in work preview: Small (540px)</strong><br>
+On slow networks, images of the normal size may load slowly, so I added a smaller size: Small (540px). Most small images are only about 50 KB, and you can choose this size as needed.<br>
+<strong>✨When previewing a work, press V to view the image at its original ratio</strong><br>
+The image displayed when previewing a work is the thumbnail by default. If you want to view the original image at 1:1 ratio, press <span class="blue">V</span> to show the original, and press <span class="blue">V</span> again to close it.<br>
+In addition, while viewing the original image, you can press <span class="blue">B</span> to bookmark the work.<br>
+<strong>✨Adapted to the "Request" category page on a user's homepage</strong><br>
+Now you can crawl a user's request works from their homepage.<br>
+<strong>✨New hotkey Alt + Z: click the default crawl button</strong><br>
+The hotkey <span class="blue">Alt</span> + <span class="blue">Z</span> clicks the default crawl button (the main button with a blue background, usually "Start crawling"), so you can start crawling without opening the settings panel.<br>
+<strong>✨New setting: Customize hotkeys</strong><br>
+If you want to modify some of the downloader's built-in hotkeys, you can do so in the "General" - "Operation method" - "Customize hotkeys" settings.<br>
+<strong>✨Improved the log feature</strong><br>
+- Added two buttons at the bottom of the log area: manually export log, and hide log area<br>
+- Moved the "Show log" button at the top to the right side, so that it no longer blocks Pixiv's search box.<br>
+<strong>✏️Renamed some settings; their functions are unchanged</strong><br>
+- "Export log" is renamed to "Auto export log". This is to distinguish it from the "manually export log" button.<br>
+- "Show the magnify button on work thumbnails" is renamed to "Show the image viewer button on work thumbnails".<br>
+- "Copy button" is renamed to "Copy work info".<br>
+- "Number of simultaneous downloads" is renamed to "How many files to download at the same time".<br>
+<strong>🎨Improved the downloader's interface on mobile pages to enhance the user experience</strong><br>
+Previously on mobile pages, the title bar and navigation bar at the top of the downloader took up too much height, leaving the content area below very short and inconvenient to use.<br>
+Now I have optimized it:<br>
+- Reduced the height of the top sections and increased the height of the content area<br>
+- Shrunk the size of some elements to make the content more compact<br>
+- Improved the experience of some enhanced features on mobile<br>
+<strong>🐞Fixed issue: when converting animated images to WebM format, a very small number of works failed to convert</strong><br>
+<strong>😊Improved some help content and translated texts</strong><br>
+<strong>😊Other optimizations and bug fixes</strong>`,
+    `今回の更新の主な内容：<br>
+- すべての作品を選択する機能と、作品を手動で除外する機能を追加しました<br>
+- 作品のプレビュー機能を最適化しました<br>
+- ユーザーのホームページにあるリクエスト作品をクロールできるようになりました<br>
+- ページ右側にログを表示するボタンを追加しました<br>
+- モバイル向けUIを最適化し、使いやすさを向上させました<br>
+- カスタムショートカットキー機能を追加しました<br>
+- その他の最適化とバグ修正<br>
+<strong>ℹ️ヒント：「ユーザーをすばやくブロック」機能のオフにする方法</strong><br>
+前回のバージョンで「ユーザーをすばやくブロック」機能を追加しましたが、一部のユーザーはそのオフの仕方を知りませんでした。この機能は「ユーザーブロックリスト」を有効にしている場合にのみ動作し、そのスイッチは「ユーザーブロックリスト」の中にあります。<br>
+<strong>✨新機能：現在表示されている作品をすべて選ぶ</strong><br>
+「クロールを開始する」エリアにこのボタンを追加しました。クリックすると、現在のページに表示されているすべての作品を選択できます。<br>
+<strong>✨新機能：作品を手動で除外する</strong><br>
+「クロールを開始する」エリアにこのボタンを追加しました。ショートカットキーは <span class="blue">Alt</span> + <span class="blue">W</span> です。操作方法は「手動で作品を選ぶ」に似ていますが、クロールしたくない作品をマークするための機能です。<br>
+ダウンローダーは除外された作品をクロールしません。すでにクロール済みの場合は、クロール結果から削除します。<br>
+<strong>✨新機能：複数画像の作品ページで、作品内の一部の画像を選択してダウンロードできるようになりました</strong><br>
+複数画像の作品ページでは、ダウンローダーは大きな画像の下にサムネイルリストを追加します。一部の画像だけをダウンロードしたい場合もあるため、このエリアにいくつかのボタンを追加してこの機能を実現しました。<br>
+<strong>⚙️「自動でダウンロードを開始する」設定を最適化しました</strong><br>
+以前は「自動でダウンロードを開始する」をオフにしていても、クイックダウンロードタスクは常に自動でダウンロードを開始していました。今回「通常ダウンロードタスク」と「クイックダウンロードタスク」を区別し、それぞれ自動で開始するかどうかを個別に設定できるようにしました。<br>
+<strong>✨作品プレビューに新しいサブオプションを追加：プレビュー画像がサムネイルを覆うことを許可</strong><br>
+このオプションはデフォルトでは無効です。有効にすると、横長の作品のプレビュー画像をより大きく表示できます。<br>
+デフォルトの動作の変更：作品をプレビューするとき、このオプションを有効にしない限り、プレビュー画像はサムネイルを覆わなくなりました。<br>
+<strong>✨作品プレビューに、より小さい画像サイズを追加：小図(540px)</strong><br>
+通信環境が良くない場合、通常サイズの画像の読み込みに時間がかかることがあります。そのため、より小さいサイズ「小図(540px)」を追加しました。ほとんどの小図は約 50 KB で、必要に応じてこのサイズを選択できます。<br>
+<strong>✨作品をプレビューするとき、V キーで元の比率の画像を表示できます</strong><br>
+作品プレビューで表示される画像はデフォルトではサムネイルです。1:1 の比率で原寸の画像を表示したい場合は、<span class="blue">V</span> キーで原寸画像を表示し、もう一度 <span class="blue">V</span> キーを押すと閉じることができます。<br>
+また、原寸画像を表示しているときは、<span class="blue">B</span> キーで作品をブックマークすることもできます。<br>
+<strong>✨ユーザーホームページの「リクエスト」カテゴリページに対応しました</strong><br>
+ユーザーのホームページから、そのユーザーのリクエスト作品をクロールできるようになりました。<br>
+<strong>✨新しいショートカットキー Alt + Z：デフォルトのクロールボタンをクリック</strong><br>
+ショートカットキー <span class="blue">Alt</span> + <span class="blue">Z</span> で、デフォルトのクロールボタン（青い背景のメインボタン。通常は「クロールを開始する」）をクリックできます。設定パネルを開かなくてもクロールを開始できます。<br>
+<strong>✨新しい設定：ショートカットキーのカスタマイズ</strong><br>
+ダウンローダー内蔵の一部のショートカットキーを変更したい場合は、「一般」-「操作方法」-「ショートカットキーのカスタマイズ」設定で変更できます。<br>
+<strong>✨ログ機能を最適化しました</strong><br>
+- ログエリアの下部に2つのボタンを追加：ログの手動エクスポート、ログエリアを非表示<br>
+- 上部の「ログを表示」ボタンを右側に移動し、Pixiv の検索ボックスを遮らないようにしました。<br>
+<strong>✏️一部の設定名を変更しました。機能に変更はありません</strong><br>
+- 「ログをエクスポート」を「ログを自動エクスポート」に変更しました。「ログの手動エクスポート」ボタンと区別するためです。<br>
+- 「作品サムネイルに拡大ボタンを表示」を「作品サムネイルに画像ビューアボタンを表示」に変更しました。<br>
+- 「コピーボタン」を「作品情報をコピー」に変更しました。<br>
+- 「同時ダウンロード数」を「同時にいくつのファイルをダウンロードするか」に変更しました。<br>
+<strong>🎨モバイルページでのダウンローダーのインターフェースを最適化し、使いやすさを向上させました</strong><br>
+以前はモバイルページで、ダウンローダー上部のタイトルバーとナビゲーションバーが高さを取りすぎて、下のコンテンツエリアが非常に小さく、使いにくくなっていました。<br>
+今回の最適化：<br>
+- 上部セクションの高さを減らし、コンテンツエリアの高さを増やしました<br>
+- 一部の要素のサイズを小さくして、コンテンツをよりコンパクトにしました<br>
+- 一部の拡張機能のモバイルでの使い勝手を最適化しました<br>
+<strong>🐞バグ修正：アニメーション画像を WebM 形式に変換するとき、ごく一部の作品で変換に失敗することがありました</strong><br>
+<strong>😊一部のヘルプコンテンツと翻訳テキストを最適化しました</strong><br>
+<strong>😊その他の最適化とバグ修正</strong>`,
+    `이번 업데이트의 주요 내용：<br>
+- 모든 작품 선택 및 작품 수동 제외 기능 추가<br>
+- 작품 미리보기 기능 최적화<br>
+- 사용자 홈페이지의 리퀘스트 작품을 크롤링할 수 있게 되었습니다<br>
+- 웹페이지 오른쪽에 로그 보기 버튼 추가<br>
+- 모바일 UI를 최적화하여 사용자 경험을 개선했습니다<br>
+- 사용자 지정 단축키 기능 추가<br>
+- 기타 최적화 및 버그 수정<br>
+<strong>ℹ️알림："빠르게 사용자 차단" 기능을 끄는 방법</strong><br>
+지난 버전에서 "빠르게 사용자 차단" 기능을 추가했는데, 일부 사용자는 끄는 방법을 몰랐습니다. 이 기능은 "사용자 차단 목록"을 활성화한 경우에만 동작하며, 그 스위치는 "사용자 차단 목록" 안에 있습니다.<br>
+<strong>✨새 기능：현재 표시된 작품 모두 선택</strong><br>
+"긁어오기 시작" 영역에 이 버튼을 추가했습니다. 클릭하면 현재 페이지에 표시된 모든 작품을 선택할 수 있습니다.<br>
+<strong>✨새 기능：작품 수동 제외</strong><br>
+"긁어오기 시작" 영역에 이 버튼을 추가했습니다. 단축키는 <span class="blue">Alt</span> + <span class="blue">W</span>입니다. 조작 방식은 "수동 선택"과 비슷하지만, 크롤링하고 싶지 않은 작품을 표시하는 기능입니다.<br>
+다운로더는 제외된 작품을 크롤링하지 않습니다. 이미 크롤링된 작품이 있다면 크롤링 결과에서 제거합니다.<br>
+<strong>✨새 기능：여러 이미지가 있는 작품 페이지에서 작품의 일부 이미지를 선택해 다운로드할 수 있습니다</strong><br>
+여러 이미지가 있는 작품 페이지에서 다운로더는 큰 이미지 아래에 썸네일 목록을 추가합니다. 일부 이미지만 다운로드하고 싶은 경우가 있어 이 영역에 몇 가지 버튼을 추가해 이 기능을 구현했습니다.<br>
+<strong>⚙️"다운로드를 자동으로 시작" 설정을 최적화했습니다</strong><br>
+이전에는 "다운로드를 자동으로 시작"을 꺼도 빠른 다운로드 작업은 항상 자동으로 다운로드를 시작했습니다. 이제 "일반 다운로드 작업"과 "빠른 다운로드 작업"을 구분하여 각각 자동 시작 여부를 개별적으로 설정할 수 있습니다.<br>
+<strong>✨작품 미리보기에 새 하위 옵션 추가：미리보기 이미지가 썸네일을 가리는 것을 허용</strong><br>
+이 옵션은 기본적으로 비활성화되어 있습니다. 활성화하면 가로형 작품의 미리보기 이미지를 더 크게 표시할 수 있습니다.<br>
+기본 동작 변경：이제 작품을 미리볼 때 이 옵션을 활성화하지 않으면 미리보기 이미지가 썸네일을 가리지 않습니다.<br>
+<strong>✨작품 미리보기에 더 작은 이미지 크기 추가：소형(540px)</strong><br>
+네트워크가 느린 환경에서는 일반 크기의 이미지 로딩이 느릴 수 있습니다. 그래서 더 작은 크기인 "소형(540px)"을 추가했습니다. 대부분의 소형 이미지는 약 50KB이며, 필요에 따라 이 크기를 선택할 수 있습니다.<br>
+<strong>✨작품을 미리볼 때 V 키를 누르면 원본 비율의 이미지를 볼 수 있습니다</strong><br>
+작품 미리보기에 표시되는 이미지는 기본적으로 썸네일입니다. 1:1 비율로 원본 이미지를 보려면 <span class="blue">V</span> 키를 눌러 원본 이미지를 표시하고, 다시 <span class="blue">V</span> 키를 누르면 닫을 수 있습니다.<br>
+또한 원본 이미지를 보고 있을 때 <span class="blue">B</span> 키를 눌러 작품을 북마크할 수도 있습니다.<br>
+<strong>✨사용자 홈페이지의 "리퀘스트" 카테고리 페이지 지원</strong><br>
+이제 사용자 홈페이지에서 그 사용자의 리퀘스트 작품을 크롤링할 수 있습니다.<br>
+<strong>✨새 단축키 Alt + Z：기본 크롤링 버튼 클릭</strong><br>
+단축키 <span class="blue">Alt</span> + <span class="blue">Z</span>를 누르면 기본 크롤링 버튼(파란색 배경의 기본 버튼, 보통 "긁어오기 시작")을 클릭할 수 있습니다. 설정 패널을 열지 않고도 바로 크롤링을 시작할 수 있습니다.<br>
+<strong>✨새 설정：단축키 사용자 지정</strong><br>
+다운로더에 내장된 일부 단축키를 변경하려면 "일반"-"조작 방법"-"단축키 사용자 지정" 설정에서 수정할 수 있습니다.<br>
+<strong>✨로그 기능 최적화</strong><br>
+- 로그 영역 하단에 버튼 2개 추가：로그 수동 내보내기, 로그 영역 숨기기<br>
+- 상단의 "로그 표시" 버튼을 오른쪽으로 이동하여 Pixiv의 검색 상자를 가리지 않도록 했습니다.<br>
+<strong>✏️일부 설정 이름을 변경했습니다. 기능에는 변화가 없습니다</strong><br>
+- "로그 내보내기"를 "로그 자동 내보내기"로 변경했습니다. "로그 수동 내보내기" 버튼과 구분하기 위해서입니다.<br>
+- "작품 썸네일에 확대 버튼 표시"를 "작품 썸네일에 이미지 뷰어 버튼 표시"로 변경했습니다.<br>
+- "복사 버튼"을 "작품 정보 복사"로 변경했습니다.<br>
+- "동시 다운로드 수"를 "동시에 몇 개의 파일을 다운로드할지"로 변경했습니다.<br>
+<strong>🎨모바일 페이지에서 다운로더 인터페이스를 최적화하여 사용자 경험을 개선했습니다</strong><br>
+이전에는 모바일 페이지에서 다운로더 상단의 제목 표시줄과 탐색 표시줄이 너무 많은 높이를 차지하여 아래 콘텐츠 영역이 매우 작아 사용하기 불편했습니다.<br>
+이번 최적화 내용：<br>
+- 상단 섹션의 높이를 줄이고 콘텐츠 영역의 높이를 늘렸습니다<br>
+- 일부 요소의 크기를 줄여 콘텐츠를 더 컴팩트하게 만들었습니다<br>
+- 일부 확장 기능의 모바일 사용 경험을 최적화했습니다<br>
+<strong>🐞버그 수정：움직이는 이미지를 WebM 형식으로 변환할 때 아주 일부 작품에서 변환에 실패할 수 있었습니다</strong><br>
+<strong>😊일부 도움말 콘텐츠와 번역 텍스트를 최적화했습니다</strong><br>
+<strong>😊기타 최적화 및 버그 수정</strong>`,
+    `Основное содержание этого обновления:<br>
+- Добавлена возможность выбрать все работы и вручную исключать работы<br>
+- Улучшена функция предпросмотра работ<br>
+- Теперь можно собирать работы из запросов на главной странице пользователя<br>
+- Справа на странице добавлена кнопка просмотра журнала<br>
+- Улучшен мобильный интерфейс для повышения удобства использования<br>
+- Добавлена функция настраиваемых горячих клавиш<br>
+- Другие улучшения и исправления ошибок<br>
+<strong>ℹ️Подсказка: как отключить функцию «Быстрая блокировка пользователей»</strong><br>
+В предыдущей версии я добавил функцию «Быстрая блокировка пользователей», и некоторые пользователи не знали, как её отключить. Эта функция действует только если включён «Список заблокированных пользователей», а её переключатель находится внутри «Списка заблокированных пользователей».<br>
+<strong>✨Новая функция: выбрать все отображаемые работы</strong><br>
+Я добавил эту кнопку в область «Начать сканирование». Нажмите её, чтобы выбрать все работы, отображаемые на текущей странице.<br>
+<strong>✨Новая функция: ручное исключение работ</strong><br>
+Я добавил эту кнопку в область «Начать сканирование». Горячая клавиша — <span class="blue">Alt</span> + <span class="blue">W</span>. Способ работы похож на «Ручной выбор», но её назначение — отмечать работы, которые вы не хотите сканировать.<br>
+Загрузчик не будет сканировать исключённые работы; если работа уже была просканирована, загрузчик удалит её из результатов сканирования.<br>
+<strong>✨Новая функция: на странице работы с несколькими изображениями можно выбрать часть изображений и скачать их</strong><br>
+На странице работы с несколькими изображениями загрузчик добавляет список миниатюр под большим изображением. Иногда вы можете захотеть скачать только часть изображений, поэтому я добавил несколько кнопок в эту область, чтобы реализовать эту возможность.<br>
+<strong>⚙️Улучшена настройка «Автоматически начинать загрузку»</strong><br>
+Раньше, даже если вы отключали «Автоматически начинать загрузку», быстрые загрузки всегда запускались автоматически. Теперь я различаю «Обычные загрузки» и «Быстрые загрузки», и вы можете отдельно настроить, запускаться ли им автоматически.<br>
+<strong>✨В предпросмотр работ добавлена новая подопция: разрешить изображению предпросмотра перекрывать миниатюры</strong><br>
+Эта опция отключена по умолчанию. При её включении изображение предпросмотра горизонтальных работ будет отображаться крупнее.<br>
+Изменение поведения по умолчанию: теперь при предпросмотре работы изображение предпросмотра не перекрывает миниатюры, если вы не включите эту опцию.<br>
+<strong>✨В предпросмотр работ добавлен меньший размер изображения: Маленькое (540px)</strong><br>
+При слабой сети изображения обычного размера могут загружаться медленно, поэтому я добавил меньший размер: Маленькое (540px). Большинство маленьких изображений весят около 50 КБ, и вы можете выбрать этот размер при необходимости.<br>
+<strong>✨При предпросмотре работы нажмите V, чтобы увидеть изображение в исходном масштабе</strong><br>
+При предпросмотре работы по умолчанию отображается миниатюра. Чтобы посмотреть исходное изображение в масштабе 1:1, нажмите <span class="blue">V</span>, чтобы показать исходное изображение, и нажмите <span class="blue">V</span> ещё раз, чтобы закрыть его.<br>
+Кроме того, при просмотре исходного изображения вы также можете нажать <span class="blue">B</span>, чтобы добавить работу в закладки.<br>
+<strong>✨Адаптирована страница категории «Запросы» на главной странице пользователя</strong><br>
+Теперь вы можете собирать работы из запросов пользователя на его главной странице.<br>
+<strong>✨Новая горячая клавиша Alt + Z для нажатия кнопки сканирования по умолчанию</strong><br>
+Горячая клавиша <span class="blue">Alt</span> + <span class="blue">Z</span> нажимает кнопку сканирования по умолчанию (главную кнопку с синим фоном, обычно «Начать сканирование»), поэтому вы можете начать сканирование, не открывая панель настроек.<br>
+<strong>✨Новая настройка: настраиваемые горячие клавиши</strong><br>
+Если вы хотите изменить некоторые встроенные горячие клавиши загрузчика, вы можете сделать это в настройках «Общие» - «Способ управления» - «Настраиваемые горячие клавиши».<br>
+<strong>✨Улучшена функция журнала</strong><br>
+- Внизу области журнала добавлены две кнопки: экспорт журнала вручную и скрытие области журнала<br>
+- Кнопка «Показать журнал» вверху перенесена вправо, чтобы не перекрывать поле поиска Pixiv.<br>
+<strong>✏️Переименованы некоторые настройки; функции не изменились</strong><br>
+- «Экспорт журнала» переименован в «Автоматический экспорт журнала». Это нужно, чтобы отличать его от кнопки «Экспорт журнала вручную».<br>
+- «Показывать кнопку увеличения на миниатюрах работ» переименована в «Показывать кнопку просмотра изображений на миниатюрах работ».<br>
+- «Кнопка копирования» переименована в «Копировать информацию о работе».<br>
+- «Количество одновременных загрузок» переименовано в «Сколько файлов загружать одновременно».<br>
+<strong>🎨Улучшен интерфейс загрузчика на мобильных страницах для повышения удобства использования</strong><br>
+Раньше на мобильных страницах строка заголовка и панель навигации в верхней части загрузчика занимали слишком много высоты, из-за чего область содержимого внизу была очень маленькой и неудобной в использовании.<br>
+Что я улучшил:<br>
+- Уменьшил высоту верхних секций и увеличил высоту области содержимого<br>
+- Уменьшил размеры некоторых элементов, чтобы контент стал компактнее<br>
+- Улучшил работу некоторых дополнительных функций на мобильных устройствах<br>
+<strong>🐞Исправлена ошибка: при преобразовании анимированных изображений в формат WebM в очень редких случаях некоторые работы не преобразовывались</strong><br>
+<strong>😊Улучшены некоторые справочные материалы и тексты переводов</strong><br>
+<strong>😊Другие улучшения и исправления ошибок</strong>`,
+  ],
   _用户的约稿页面: [
     `用户的约稿页面`,
     `用戶的約稿頁面`,
