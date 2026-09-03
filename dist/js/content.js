@@ -1921,6 +1921,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
     // 下载器绑定一次之后，这些缩略图的元素可能被 pixiv 再次修改，导致绑定失效，需要重新添加相关标记
     loopFindPageTypeOnPC = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request];
     loopFindPageTypeOnMobile = [
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork,
         _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request,
         _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking,
         _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome,
@@ -24794,6 +24795,9 @@ class DownloadControl {
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_16__.Config.mobile) {
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_移动端浏览器可能不会建立文件夹的说明'));
+            if (_Config__WEBPACK_IMPORTED_MODULE_16__.Config.isFirefox) {
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_在移动版Firefox上提示无法可靠的批量下载'));
+            }
         }
     }
     // 暂停下载
@@ -38840,20 +38844,20 @@ There is also a button at the bottom of the log area for manually exporting logs
         `Список следующих пользователей обновлен`,
     ],
     _移动端浏览器可能不会建立文件夹的说明: [
-        `如果你使用的是移动端的浏览器，它可能不会建立文件夹。这不是下载器的问题。`,
-        `如果你使用的是移動端的瀏覽器，它可能不會建立資料夾。這不是下載器的問題。`,
-        `If you're using a mobile browser, it may not create the folder. This isn't a problem with the downloader.`,
-        `モバイルブラウザをご利用の場合、フォルダが作成されない可能性があります。これはダウンローダーの問題ではありません。`,
-        `모바일 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이는 다운로더 문제가 아닙니다.`,
-        `Если вы используете мобильный браузер, папка может не создаться. Это не проблема загрузчика.`,
+        `⚠️如果你使用的是移动端的浏览器，它可能不会建立文件夹。这不是下载器的问题。`,
+        `⚠️如果你使用的是移動端的瀏覽器，它可能不會建立資料夾。這不是下載器的問題。`,
+        `⚠️If you're using a mobile browser, it may not create the folder. This isn't a problem with the downloader.`,
+        `⚠️モバイルブラウザをご利用の場合、フォルダが作成されない可能性があります。これはダウンローダーの問題ではありません。`,
+        `⚠️모바일 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이는 다운로더 문제가 아닙니다.`,
+        `⚠️Если вы используете мобильный браузер, папка может не создаться. Это не проблема загрузчика.`,
     ],
-    _优化移动设备上的用户体验: [
-        `优化移动设备上的用户体验。`,
-        `最佳化移動裝置上的使用者體驗。`,
-        `Optimize user experience on mobile devices.`,
-        `モバイルデバイスでのユーザーエクスペリエンスを最適化します。`,
-        `모바일 장치에서 사용자 경험을 최적화합니다.`,
-        `Оптимизируйте взаимодействие с пользователем на мобильных устройствах.`,
+    _在移动版Firefox上提示无法可靠的批量下载: [
+        `⚠️在移动版 Firefox 上，下载器无法可靠地批量下载作品（即连续下载多个文件）。这是移动版 Firefox 的限制，不是下载器的问题。如果你需要经常下载作品，我建议使用 Quetta 浏览器，它可以从 Chrome Web Store 在线安装扩展程序，并且能可靠地批量下载作品。`,
+        `⚠️在移動版 Firefox 上，下載器無法可靠地批量下載作品（即連續下載多個檔案）。這是移動版 Firefox 的限制，不是下載器的問題。如果你需要經常下載作品，我建議使用 Quetta 瀏覽器，它可以從 Chrome Web Store 線上安裝擴充套件程式，並且能可靠地批量下載作品。`,
+        `⚠️On Firefox for Android, the downloader cannot reliably batch-download works (i.e., download multiple files in succession). This is a limitation of Firefox for Android, not a problem with the downloader. If you frequently download works, I recommend using the Quetta browser, which lets you install extensions online from the Chrome Web Store and batch-download works reliably.`,
+        `⚠️モバイル版 Firefox では、ダウンローダーは作品を確実に一括ダウンロードできません（つまり、複数のファイルを連続してダウンロードすること）。これはモバイル版 Firefox の制限であり、ダウンローダーの問題ではありません。作品を頻繁にダウンロードする必要がある場合は、Chrome Web Store から拡張機能をオンラインでインストールでき、作品を確実に一括ダウンロードできる Quetta ブラウザの使用をお勧めします。`,
+        `⚠️모바일 Firefox에서는 다운로더가 작품을 안정적으로 일괄 다운로드할 수 없습니다(즉, 여러 파일을 연속으로 다운로드하는 것). 이는 모바일 Firefox의 제한이며 다운로더의 문제가 아닙니다. 작품을 자주 다운로드해야 한다면 Chrome 웹 스토어에서 확장 프로그램을 온라인으로 설치하고 작품을 안정적으로 일괄 다운로드할 수 있는 Quetta 브라우저를 사용하는 것을 권장합니다.`,
+        `⚠️В мобильном Firefox загрузчик не может надёжно выполнять пакетную загрузку работ (то есть последовательную загрузку нескольких файлов). Это ограничение мобильного Firefox, а не проблема загрузчика. Если вам нужно часто загружать работы, рекомендую использовать браузер Quetta: он позволяет устанавливать расширения онлайн из Chrome Web Store и надёжно загружать работы пакетами.`,
     ],
     _批量收藏作品时减慢速度: [
         `批量收藏作品时减慢速度，以减少 429 错误发生的概率`,

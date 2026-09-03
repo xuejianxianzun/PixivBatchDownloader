@@ -517,6 +517,9 @@ class DownloadControl {
 
     if (Config.mobile) {
       log.warning(lang.transl('_移动端浏览器可能不会建立文件夹的说明'))
+      if(Config.isFirefox) {
+        log.warning(lang.transl('_在移动版Firefox上提示无法可靠的批量下载'))
+      }
     }
   }
 

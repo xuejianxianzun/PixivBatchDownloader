@@ -625,3 +625,14 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
     opacity: 0;
   }
 }
+
+body.mobile {
+  // 在移动端页面里，为查找到的缩略图元素添加相对定位，以便让下载按钮显示在正确的位置。
+  // 在移动端，按钮是始终显示的，所以必须添加定位，否则按钮会显示在错误的位置，或者看不到。
+  // 在 PC 端，缩略图上的按钮默认是不显示的，所以无需添加定位。
+  .ppd-workThumbnail {
+    position: relative;
+    overflow: visible !important;
+    z-index: 1;
+  }
+}

@@ -109,6 +109,7 @@ class ArtworkThumbnail extends WorkThumbnail {
   // 下载器绑定一次之后，这些缩略图的元素可能被 pixiv 再次修改，导致绑定失效，需要重新添加相关标记
   private loopFindPageTypeOnPC = [pageType.list.Request]
   private loopFindPageTypeOnMobile = [
+    pageType.list.Artwork,
     pageType.list.Request,
     pageType.list.ArtworkRanking,
     pageType.list.UserHome,
