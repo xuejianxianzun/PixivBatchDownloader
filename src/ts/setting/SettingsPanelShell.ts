@@ -41,6 +41,18 @@ class SettingsPanelShell {
               <span class="settingsPanel_brandName">${Config.appName}</span>
             </div>
 
+            <button class="centerWrap_top_btn centerWrap_searchBtnMobile" id="settingsPanelMobileSearchBtn" type="button" data-xztitle="_搜索">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#search-in-searchbar"></use>
+              </svg>
+            </button>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_mobile" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
+
             <button class="centerWrap_top_btn centerWrap_close centerWrap_close_mobile" type="button" data-xztitle="_关闭">
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#close"></use>
@@ -61,13 +73,13 @@ class SettingsPanelShell {
                   </svg>
                 </button>
               </label>
-
-              <button class="centerWrap_top_btn settingsPanel_expandAll" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
-                <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
-                  <use xlink:href="#arrow-up"></use>
-                </svg>
-              </button>
             </div>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_pc" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
 
             <div class="settingsPanel_headerMinor">
               <button class="centerWrap_top_btn settingsPanel_sponsorBtn" id="settingsPanelSponsor" type="button" data-xztitle="_赞助我">
@@ -226,6 +238,27 @@ class SettingsPanelShell {
       })
     )
 
+    if (Config.mobile) {
+      const mobileSearchBtn = shell.querySelector(
+        '#settingsPanelMobileSearchBtn'
+      ) as HTMLButtonElement | null
+      const headerSearch = shell.querySelector(
+        '.settingsPanel_headerSearch'
+      ) as HTMLElement | null
+      const searchInput = shell.querySelector(
+        '#settingsPanelSearchInput'
+      ) as HTMLInputElement | null
+      if (mobileSearchBtn && headerSearch) {
+        mobileSearchBtn.addEventListener('click', () => {
+          const willShow = !headerSearch.classList.contains('visible')
+          headerSearch.classList.toggle('visible', willShow)
+          if (willShow) {
+            searchInput?.focus()
+          }
+        })
+      }
+    }
+
     shell
       .querySelector('#settingsPanelSponsor')
       ?.addEventListener('click', () =>
@@ -345,11 +378,20 @@ class SettingsPanelShell {
       return
     }
 
-    shell.style.height = 'auto'
-    // 最小高度为 60vh，最大高度为 84vh。如果内容高度处于这个范围内，则使用内容高度
-    const minHeight = window.innerHeight * 0.6
-    const maxHeight = window.innerHeight * 0.84
-    shell.style.height = `${Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight)}px`
+    // 优先使用 visualViewport.height 而不是 window.innerHeight：
+    // 在移动端浏览器上，innerHeight / vh 都是「地址栏隐藏后的最大视口」固定值，
+    // 地址栏显隐不会改变它们。
+    // visualViewport.height 反映用户当前实际可见的视口（已扣除浏览器 UI），
+    // 地址栏显隐时会动态变化——这是唯一能反映「地址栏显隐后还有多少可用高度」的 API。
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
+    // 最小高度为 60vh，最大高度在 PC 端是 84vh，移动端为 90vh。这个最大高度是在 .centerWrap 的样式里定义的
+    const minHeight = viewportHeight * 0.6
+    const maxHeight = viewportHeight * (Config.mobile ? 0.9 : 0.84)
+    let useHeight = Math.min(
+      Math.max(shell.scrollHeight + 2, minHeight),
+      maxHeight
+    )
+    shell.style.height = `${useHeight}px`
   }
 }
 

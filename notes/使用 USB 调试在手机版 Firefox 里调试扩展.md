@@ -39,7 +39,6 @@ web-ext run -t firefox-android --adb-device <序列号> --firefox-apk org.mozill
 实际示例：
 
 ```bash
-cd C:\document\github\PixivBatchDownloader
 web-ext run -t firefox-android --adb-device aea70c79 --firefox-apk org.mozilla.firefox --source-dir dist
 ```
 

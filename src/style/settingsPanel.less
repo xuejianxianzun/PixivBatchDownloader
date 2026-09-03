@@ -318,6 +318,9 @@
 
   .settingsPanel_headerSearch {
     gap: 5px;
+    // 展开/折叠按钮已从本容器移出，成为 headerActions 的独立子元素。
+    // 用右边距保持它与搜索框之间原有的 5px 间距，使桌面布局不变
+    margin-right: 5px;
   }
 
   .settingsPanel_brand {
@@ -377,6 +380,16 @@
   }
 
   .centerWrap_close_mobile {
+    display: none;
+  }
+
+  .centerWrap_searchBtnMobile {
+    display: none;
+  }
+
+  // 移动端专用的“展开/折叠所有区域”按钮，桌面端隐藏
+  // （桌面端的该按钮是 .centerWrap_expandAll_pc，位于 headerActions 中）
+  .centerWrap_expandAll_mobile {
     display: none;
   }
 
@@ -481,6 +494,11 @@
     background: var(--settings-panel-con-bg);
     overflow: auto;
     min-height: 0;
+    // 阻止内部滚动容器的 overscroll 事件向上传递，
+    // 否则在 Firefox Android 上 .settingsPanel_main 滚到底时会和 document 滚动链式冲突，
+    // 出现"始终差几像素无法完全滚到底、抖动"的 bug。
+    // （页面滚到底不动后，反之：只要 document 已经离开顶部，scroll chaining 不再触发，内部就恢复正常）
+    overscroll-behavior: contain;
 
     slot[data-name='namingBtns'] button,
     slot[data-name='exportResult'] button {
@@ -1457,6 +1475,8 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      // 同 .settingsPanel_main,防止 Firefox Android 上 overscroll 上抛
+      overscroll-behavior: contain;
     }
 
     .settingsPanel_nav {
@@ -1628,6 +1648,9 @@
       width: 735px;
       overflow-y: auto;
       padding: 0px 15px 15px 15px;
+      // 阻止内部 overscroll 上抛到 .centerWrap_con / document，
+      // 修复 Firefox Android 上"滚不到真正底部、抖动"的 bug。
+      overscroll-behavior: contain;
     }
 
     .settingsPanel_form,

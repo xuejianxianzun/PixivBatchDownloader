@@ -3,7 +3,7 @@
 在 Pixiv 的 console 里隐藏这些脚本的输出：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
-## 19.4.0 2026-09-01
+## 19.4.0 2026-09-03
 
 本次更新的主要内容：
 - 添加了全选作品、手动排除作品的功能
@@ -116,6 +116,16 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/675
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/526
 
 笔记：notes/解决移动版 Firefox 的兼容性问题.md
+
+### 🎨优化了下载器在移动端页面里的界面，提升用户体验
+
+之前在移动端页面里，顶部的标题栏、搜索栏、导航栏占据了太多高度，导致下方内容区域的高度很小，用户在查看、使用内容区域时很不方便。
+
+现在我进行了优化，减少了顶部板块的高度，并增加了内容区域的高度。另外我还减小了一些元素的尺寸，让内容更加紧凑。
+
+优化前后的对比截图：
+
+![](notes/images/20260903_164038.png)![](notes/images/20260903_193357.png)
 
 ### 😊优化一处体验：在排行榜页面里，“抓取多少作品”的数量不会自动变化了
 

@@ -523,7 +523,7 @@
   top: 15%;
   right: 0;
   z-index: 1000;
-  row-gap: max(0px, calc(5vh - 32px));
+  row-gap: max(10px, calc(5vh - 32px));
   pointer-events: none;
 }
 .rightButton {
@@ -562,7 +562,7 @@
   font-size: 20px;
 }
 body.mobile #rightButtonContainer {
-  row-gap: max(0px, calc(6vh - 32px));
+  row-gap: max(6px, calc(6vh - 32px));
 }
 .centerWrap.theme-white {
   --settings-panel-text: #444;
@@ -934,13 +934,16 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap.mobile {
   width: calc(100vw - 32px);
+  max-width: 720px;
+  min-height: 0;
+  max-height: calc(90vh);
   left: 50%;
   top: 5vh;
-  max-height: calc(80vh);
   transform: translateX(-50%);
   font-size: 15px;
   font-family: var(--mobile-font-family);
   overflow: auto;
+  overscroll-behavior: contain;
 }
 .centerWrap.mobile p {
   line-height: 32px;
@@ -953,25 +956,55 @@ body.mobile #rightButtonContainer {
   flex-basis: 100%;
 }
 .centerWrap.mobile .centerWrap_head {
-  padding: 12px;
+  padding: 6px;
   flex-direction: column;
   align-items: stretch;
 }
-.centerWrap.mobile .centerWrap_head .settingsPanel_headerMain,
-.centerWrap.mobile .centerWrap_head .settingsPanel_headerActions {
+.centerWrap.mobile .centerWrap_head .settingsPanel_headerMain {
+  height: 32px;
   min-height: 32px;
-  justify-content: space-between;
+  gap: 0px;
+}
+.centerWrap.mobile .centerWrap_head .settingsPanel_headerMain .settingsPanel_brand {
+  margin-right: auto;
+}
+.centerWrap.mobile .centerWrap_head .settingsPanel_headerMain .centerWrap_top_btn {
+  width: 28px;
+  height: 32px;
 }
 .centerWrap.mobile .centerWrap_head .settingsPanel_headerActions {
-  padding-top: 10px;
+  min-height: 0;
+  padding-top: 0;
 }
 .centerWrap.mobile .centerWrap_head .settingsPanel_headerSearch {
   flex: 1;
   min-width: 0;
 }
+.centerWrap.mobile .settingsPanel_logo {
+  width: 22px;
+  height: 22px;
+}
+.centerWrap.mobile .settingsPanel_brand {
+  gap: 4px;
+}
+.centerWrap.mobile .settingsPanel_brandName {
+  font-size: 14px;
+}
+.centerWrap.mobile .settingsPanel_headerSearch {
+  display: none;
+}
+.centerWrap.mobile .settingsPanel_headerSearch.visible {
+  display: flex;
+  margin-top: 4px;
+}
 .centerWrap.mobile .settingsPanel_searchBar {
   width: 100%;
   max-width: none;
+  height: 30px;
+}
+.centerWrap.mobile .settingsPanel_expandAll {
+  width: 32px;
+  height: 32px;
 }
 .centerWrap.mobile .settingsPanel_headerMinor,
 .centerWrap.mobile .centerWrap_close_pc {
@@ -980,10 +1013,18 @@ body.mobile #rightButtonContainer {
 .centerWrap.mobile .centerWrap_close_mobile {
   display: inline-flex;
 }
+.centerWrap.mobile .centerWrap_searchBtnMobile {
+  display: inline-flex;
+}
+.centerWrap.mobile .centerWrap_expandAll_mobile {
+  display: inline-flex;
+}
+.centerWrap.mobile .centerWrap_expandAll_pc {
+  display: none;
+}
 .centerWrap.mobile .centerWrap_con {
   padding: 0;
   flex-direction: column;
-  max-height: calc(80vh - 120px);
 }
 .centerWrap.mobile .centerWrap_con .settingsPanel_sidebar {
   width: 100%;
@@ -992,7 +1033,7 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap.mobile .centerWrap_con .settingsPanel_sidebar .settingsPanel_nav {
   margin: 6px 0;
-  gap: 6px;
+  gap: 4px;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
@@ -1001,16 +1042,24 @@ body.mobile #rightButtonContainer {
   flex: 0 1 auto;
   width: auto;
   max-width: 100%;
-  min-height: 42px;
-  padding: 8px 12px;
+  min-height: 30px;
   justify-content: center;
-  gap: 6px;
+  padding: 4px 6px;
+  gap: 4px;
+}
+.centerWrap.mobile .centerWrap_con .settingsPanel_sidebar .settingsPanel_navIconWrap {
+  width: 24px;
+  height: 24px;
+}
+.centerWrap.mobile .centerWrap_con .settingsPanel_sidebar .settingsPanel_navIconWrap .settingsPanel_navIcon {
+  font-size: 24px;
 }
 .centerWrap.mobile .centerWrap_con .settingsPanel_sidebar .settingsPanel_navText {
   flex: none;
   min-width: 0;
-  font-size: 17px;
-  min-height: 26px;
+  font-size: 15px;
+  min-height: 24px;
+  line-height: 24px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1024,6 +1073,16 @@ body.mobile #rightButtonContainer {
   width: 100%;
   padding: 0 1vw;
 }
+.centerWrap.mobile .centerWrap_con .settingForm .settingsPanel_titleSection,
+.centerWrap.mobile .centerWrap_con .settingForm .settingsPanel_panelSection {
+  margin-top: 12px;
+}
+.centerWrap.mobile .centerWrap_con .settingForm .settingsPanel_sectionHeader {
+  padding: 6px 10px;
+}
+.centerWrap.mobile .centerWrap_con .settingForm .settingsPanel_sectionHeader .settingsPanel_sectionTitle {
+  font-size: 15px;
+}
 .centerWrap.mobile .centerWrap_con .settingForm .settingsPanel_panelContent {
   padding: 10px 12px;
 }
@@ -1032,8 +1091,8 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns .settingsPanelActionBtn {
   font-size: 15px;
-  line-height: 24px;
-  padding: 7px 10px;
+  line-height: 20px;
+  padding: 5px 7px;
 }
 .centerWrap.mobile .centerWrap_con .settingForm .setinput_style {
   font-size: 15px !important;
@@ -1069,8 +1128,8 @@ body.mobile #rightButtonContainer {
 .centerWrap.mobile .centerWrap_con .settingsPanel_downloadSummary {
   margin-top: 0px;
   margin-bottom: 10px;
-  padding: 12px 12px;
-  width: 98%;
+  padding: 6px 8px;
+  width: 80%;
   border-top: none;
   background: var(--settings-panel-surface-bg);
   border-radius: 12px;
@@ -1098,14 +1157,40 @@ body.mobile #rightButtonContainer {
 .centerWrap.mobile .centerWrap_con .settingsPanel_helpActions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-@media (max-width: 414px) {
-  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
-    padding: 10px 6px;
+@media (min-width: 400px) {
+  .centerWrap.mobile {
+    max-width: 380px;
+  }
+  .centerWrap.mobile .centerWrap_con .settingsPanel_main {
+    padding: 0 1.4vw;
   }
 }
-@media (max-width: 388px) {
-  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
-    padding: 12px 6px;
+@media (min-width: 500px) {
+  .centerWrap.mobile {
+    max-width: 460px;
+  }
+  .centerWrap.mobile .centerWrap_con .settingsPanel_main {
+    padding: 0 2vw;
+  }
+}
+@media (min-width: 600px) {
+  .centerWrap.mobile {
+    max-width: 500px;
+  }
+}
+@media (min-width: 768px) {
+  .centerWrap.mobile {
+    max-width: 600px;
+  }
+}
+@media (min-width: 848px) {
+  .centerWrap.mobile {
+    max-width: 700px;
+  }
+}
+@media (min-width: 900px) {
+  .centerWrap.mobile {
+    max-width: 720px;
   }
 }
 .centerWrap {
@@ -1392,6 +1477,7 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap .settingsPanel_headerSearch {
   gap: 5px;
+  margin-right: 5px;
 }
 .centerWrap .settingsPanel_brand {
   gap: 6px;
@@ -1439,6 +1525,12 @@ body.mobile #rightButtonContainer {
   background: var(--settings-panel-sponsor-hover-bg);
 }
 .centerWrap .centerWrap_close_mobile {
+  display: none;
+}
+.centerWrap .centerWrap_searchBtnMobile {
+  display: none;
+}
+.centerWrap .centerWrap_expandAll_mobile {
   display: none;
 }
 .centerWrap .settingsPanel_searchBar {
@@ -1520,6 +1612,7 @@ body.mobile #rightButtonContainer {
   background: var(--settings-panel-con-bg);
   overflow: auto;
   min-height: 0;
+  overscroll-behavior: contain;
 }
 .centerWrap .centerWrap_con slot[data-name='namingBtns'] button,
 .centerWrap .centerWrap_con slot[data-name='exportResult'] button {
@@ -2301,6 +2394,7 @@ body.mobile #rightButtonContainer {
   position: relative;
   display: flex;
   flex-direction: column;
+  overscroll-behavior: contain;
 }
 .centerWrap .centerWrap_con .settingsPanel_nav {
   display: flex;
@@ -2440,6 +2534,7 @@ body.mobile #rightButtonContainer {
   width: 735px;
   overflow-y: auto;
   padding: 0px 15px 15px 15px;
+  overscroll-behavior: contain;
 }
 .centerWrap .centerWrap_con .settingsPanel_form,
 .centerWrap .centerWrap_con .settingsPanel_pages {

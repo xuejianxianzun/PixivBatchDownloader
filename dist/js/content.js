@@ -8228,68 +8228,67 @@ __webpack_require__.r(__webpack_exports__);
 // 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
 var PageName;
 (function (PageName) {
-    /** 数字 -1：不支持的页面 */
+    /** -1 不支持的页面 */
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
-    /** 数字 0：主页 */
+    /** 0 主页 */
     PageName[PageName["Home"] = 0] = "Home";
-    /** 数字 1：插画详情页面 */
+    /** 1 插画详情页面 */
     PageName[PageName["Artwork"] = 1] = "Artwork";
-    /** 数字 2：用户主页 */
+    /** 2 用户主页 */
     PageName[PageName["UserHome"] = 2] = "UserHome";
-    /** 数字 3：BookmarkLegacy 页面类型  */
+    /** 3 旧版收藏页面，现已被 Bookmark 页面取代  */
     // 它已经不存在了，但是必须保留它以避免兼容性问题
     // 因为有些设置是使用页面类型的数字编号作为键名的
     // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
     // 这会导致从设置项里取值时，会取到错误的值
-    /** 数字 3：旧版收藏页面，现已被 Bookmark 页面取代 */
     PageName[PageName["BookmarkLegacy"] = 3] = "BookmarkLegacy";
-    /** 数字 4：收藏页面 */
+    /** 4 收藏页面 */
     PageName[PageName["Bookmark"] = 4] = "Bookmark";
-    /** 数字 5：插画搜索页面 */
+    /** 5 插画搜索页面 */
     PageName[PageName["ArtworkSearch"] = 5] = "ArtworkSearch";
-    /** 数字 6：地区排行榜 */
+    /** 6 地区排行榜 */
     PageName[PageName["AreaRanking"] = 6] = "AreaRanking";
-    /** 数字 7：插画排行榜 */
+    /** 7 插画排行榜 */
     PageName[PageName["ArtworkRanking"] = 7] = "ArtworkRanking";
-    /** 数字 8：Pixivision */
+    /** 8 Pixivision */
     PageName[PageName["Pixivision"] = 8] = "Pixivision";
-    /** 数字 9：收藏后的详情页面，现在基本不会用到 */
+    /** 9 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
-    /** 数字 10：已关注用户的新作品 - 插画 */
+    /** 10 已关注用户的新作品 - 插画 */
     PageName[PageName["NewArtworkFromFollowing"] = 10] = "NewArtworkFromFollowing";
-    /** 数字 11：发现页面 */
+    /** 11 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
-    /** 数字 12：大家的新作 - 插画 */
+    /** 12 大家的新作 - 插画 */
     PageName[PageName["NewArtworkFromAllUsers"] = 12] = "NewArtworkFromAllUsers";
-    /** 数字 13：小说详情页面 */
+    /** 13 小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
-    /** 数字 14：小说系列作品目录页 */
+    /** 14 小说系列作品目录页 */
     PageName[PageName["NovelSeries"] = 14] = "NovelSeries";
-    /** 数字 15：小说搜索页面 */
+    /** 15 小说搜索页面 */
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
-    /** 数字 16：小说排行榜 */
+    /** 16 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
-    /** 数字 17：已关注用户的新作品 - 小说 */
+    /** 17 已关注用户的新作品 - 小说 */
     PageName[PageName["NewNovelFromFollowing"] = 17] = "NewNovelFromFollowing";
-    /** 数字 18：大家的新作 - 小说 */
+    /** 18 大家的新作 - 小说 */
     PageName[PageName["NewNovelFromAllUsers"] = 18] = "NewNovelFromAllUsers";
-    /** 数字 19：插画系列作品目录页 */
+    /** 19 插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
-    /** 数字 20：关注的用户 */
+    /** 20 关注的用户 */
     PageName[PageName["Following"] = 20] = "Following";
-    /** 数字 21：约稿 */
+    /** 21 约稿 */
     PageName[PageName["Request"] = 21] = "Request";
-    /** 数字 22：不公开的作品 */
+    /** 22 不公开的作品 */
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
-    /** 数字 23：发现页面 - 推荐用户 */
+    /** 23 发现页面 - 推荐用户 */
     PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
-    /** 数字 24：数据分析（我的作品） */
+    /** 24 数据分析（我的作品） */
     PageName[PageName["Dashboard"] = 24] = "Dashboard";
-    /** 数字 25：比赛页面 */
+    /** 25 比赛页面 */
     PageName[PageName["Contest"] = 25] = "Contest";
-    /** 数字 26：搜索用户 */
+    /** 26 搜索用户 */
     PageName[PageName["SearchUsers"] = 26] = "SearchUsers";
-    /** 数字 27：用户主页里的约稿分类页面 */
+    /** 27 用户主页里的约稿分类页面 */
     PageName[PageName["UserRequest"] = 27] = "UserRequest";
 })(PageName || (PageName = {}));
 // 获取页面类型
@@ -42528,6 +42527,22 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `모든 영역 펼치기/접기`,
         `Развернуть/свернуть все разделы`,
     ],
+    _已展开所有区域: [
+        `已展开所有区域`,
+        `已展開所有區域`,
+        `All sections expanded`,
+        `すべてのエリアを展開しました`,
+        `모든 영역을 펼쳤습니다`,
+        `Все разделы развернуты`,
+    ],
+    _已折叠所有区域: [
+        `已折叠所有区域`,
+        `已摺疊所有區域`,
+        `All sections collapsed`,
+        `すべてのエリアを折りたたみました`,
+        `모든 영역을 접었습니다`,
+        `Все разделы свернуты`,
+    ],
     _置顶的设置: [
         `置顶的设置`,
         `置頂的設定`,
@@ -52951,14 +52966,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   SettingsPanel: () => (/* binding */ SettingsPanel)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _SettingsPanelDownloadSummary__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SettingsPanelDownloadSummary */ "./src/ts/setting/SettingsPanelDownloadSummary.ts");
-/* harmony import */ var _SettingsPanelLayout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SettingsPanelLayout */ "./src/ts/setting/SettingsPanelLayout.ts");
-/* harmony import */ var _SettingsPanelNavigation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SettingsPanelNavigation */ "./src/ts/setting/SettingsPanelNavigation.ts");
-/* harmony import */ var _SettingsPanelPlacement__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SettingsPanelPlacement */ "./src/ts/setting/SettingsPanelPlacement.ts");
-/* harmony import */ var _SettingsPanelSections__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SettingsPanelSections */ "./src/ts/setting/SettingsPanelSections.ts");
-/* harmony import */ var _SettingsPanelShell__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SettingsPanelShell */ "./src/ts/setting/SettingsPanelShell.ts");
-/* harmony import */ var _SettingsPanelSearch__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./SettingsPanelSearch */ "./src/ts/setting/SettingsPanelSearch.ts");
-/* harmony import */ var _OpenSettingsPanel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../OpenSettingsPanel */ "./src/ts/OpenSettingsPanel.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _SettingsPanelDownloadSummary__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SettingsPanelDownloadSummary */ "./src/ts/setting/SettingsPanelDownloadSummary.ts");
+/* harmony import */ var _SettingsPanelLayout__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SettingsPanelLayout */ "./src/ts/setting/SettingsPanelLayout.ts");
+/* harmony import */ var _SettingsPanelNavigation__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SettingsPanelNavigation */ "./src/ts/setting/SettingsPanelNavigation.ts");
+/* harmony import */ var _SettingsPanelPlacement__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SettingsPanelPlacement */ "./src/ts/setting/SettingsPanelPlacement.ts");
+/* harmony import */ var _SettingsPanelSections__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./SettingsPanelSections */ "./src/ts/setting/SettingsPanelSections.ts");
+/* harmony import */ var _SettingsPanelShell__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./SettingsPanelShell */ "./src/ts/setting/SettingsPanelShell.ts");
+/* harmony import */ var _SettingsPanelSearch__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SettingsPanelSearch */ "./src/ts/setting/SettingsPanelSearch.ts");
+/* harmony import */ var _OpenSettingsPanel__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../OpenSettingsPanel */ "./src/ts/OpenSettingsPanel.ts");
+
+
 
 
 
@@ -52979,7 +52998,7 @@ class SettingsPanel {
     stickyEls;
     navEls;
     foldableSections;
-    expandAllBtn;
+    expandAllBtns = [];
     homePinnedContent;
     downloadSummary;
     searchPanel;
@@ -52988,12 +53007,12 @@ class SettingsPanel {
     sectionController;
     constructor(form) {
         this.form = form;
-        this.centerPanel = _SettingsPanelShell__WEBPACK_IMPORTED_MODULE_6__.SettingsPanelShell.get();
+        this.centerPanel = _SettingsPanelShell__WEBPACK_IMPORTED_MODULE_8__.SettingsPanelShell.get();
         this.main = this.centerPanel.querySelector('.settingsPanel_main');
         if (!this.centerPanel || !this.main) {
             throw new Error('SettingsPanel shell not found');
         }
-        this.sectionController = new _SettingsPanelSections__WEBPACK_IMPORTED_MODULE_5__.SettingsPanelSections({
+        this.sectionController = new _SettingsPanelSections__WEBPACK_IMPORTED_MODULE_7__.SettingsPanelSections({
             main: this.main,
             getActivePage: () => this.activePage,
             getSearchExpandStats: () => this.searchPanel?.getExpandStats() ?? { total: 0, expanded: 0 },
@@ -53007,13 +53026,13 @@ class SettingsPanel {
             }
         }
         this.buildLayout();
-        this.downloadSummary = new _SettingsPanelDownloadSummary__WEBPACK_IMPORTED_MODULE_1__.SettingsPanelDownloadSummary(this.centerPanel.querySelector('#settingsPanelDownloadSummary'), this.form);
+        this.downloadSummary = new _SettingsPanelDownloadSummary__WEBPACK_IMPORTED_MODULE_3__.SettingsPanelDownloadSummary(this.centerPanel.querySelector('#settingsPanelDownloadSummary'), this.form);
         this.bindEvents();
         this.navigationController.switchPage('home');
         this.navigationController.updateSearchResult();
     }
     buildLayout() {
-        const layout = new _SettingsPanelLayout__WEBPACK_IMPORTED_MODULE_2__.SettingsPanelLayout({
+        const layout = new _SettingsPanelLayout__WEBPACK_IMPORTED_MODULE_4__.SettingsPanelLayout({
             form: this.form,
             centerPanel: this.centerPanel,
             optionElements: this.optionElements,
@@ -53029,13 +53048,13 @@ class SettingsPanel {
         this.foldableSections = layout.foldableSections;
         this.canonicalContainers = layout.canonicalContainers;
         this.homePinnedContent = layout.homePinnedContent;
-        this.expandAllBtn = this.centerPanel.querySelector('#settingsPanelToggleExpand');
+        this.expandAllBtns = Array.from(this.centerPanel.querySelectorAll('.settingsPanel_expandAll'));
         this.sectionController.connect({
             foldableSections: this.foldableSections,
             stickyEls: this.stickyEls,
-            expandAllBtn: this.expandAllBtn,
+            expandAllBtns: this.expandAllBtns,
         });
-        this.searchPanel = new _SettingsPanelSearch__WEBPACK_IMPORTED_MODULE_7__.SettingsPanelSearch({
+        this.searchPanel = new _SettingsPanelSearch__WEBPACK_IMPORTED_MODULE_9__.SettingsPanelSearch({
             root: layout.searchRoot,
             input: this.centerPanel.querySelector('#settingsPanelSearchInput'),
             clearButton: this.centerPanel.querySelector('#settingsPanelClearSearch'),
@@ -53047,7 +53066,7 @@ class SettingsPanel {
                 this.sectionController.refreshStickyHeader();
             },
         });
-        this.placementController = new _SettingsPanelPlacement__WEBPACK_IMPORTED_MODULE_4__.SettingsPanelPlacement({
+        this.placementController = new _SettingsPanelPlacement__WEBPACK_IMPORTED_MODULE_6__.SettingsPanelPlacement({
             optionElements: this.optionElements,
             canonicalContainers: this.canonicalContainers,
             homePinnedContent: this.homePinnedContent,
@@ -53055,7 +53074,7 @@ class SettingsPanel {
             makeSectionKey: (page, id) => this.sectionController.makeSectionKey(page, id),
             resetSearchHighlight: () => this.searchPanel.resetOptionHighlight(),
         });
-        this.navigationController = new _SettingsPanelNavigation__WEBPACK_IMPORTED_MODULE_3__.SettingsPanelNavigation({
+        this.navigationController = new _SettingsPanelNavigation__WEBPACK_IMPORTED_MODULE_5__.SettingsPanelNavigation({
             pageEls: this.pageEls,
             navEls: this.navEls,
             searchPanel: this.searchPanel,
@@ -53088,7 +53107,10 @@ class SettingsPanel {
             });
         });
         this.navigationController.bindEvents();
-        this.expandAllBtn.addEventListener('click', () => this.sectionController.toggleAllSections());
+        this.expandAllBtns.forEach((btn) => btn.addEventListener('click', () => {
+            const allExpanded = this.sectionController.toggleAllSections();
+            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(allExpanded ? '_已展开所有区域' : '_已折叠所有区域'));
+        }));
         this.main.addEventListener('scroll', () => this.sectionController.refreshStickyHeader());
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -53126,7 +53148,7 @@ class SettingsPanel {
         return this.canonicalContainers.get(this.makeCanonicalKey(level1, level2));
     }
 }
-_SettingsPanelShell__WEBPACK_IMPORTED_MODULE_6__.SettingsPanelShell.init();
+_SettingsPanelShell__WEBPACK_IMPORTED_MODULE_8__.SettingsPanelShell.init();
 
 
 
@@ -54584,12 +54606,12 @@ class SettingsPanelSections {
     getSearchStickySections;
     foldableSections = new Map();
     stickyEls = new Map();
-    expandAllBtn;
+    expandAllBtns = [];
     emptyHintsObserver;
-    connect({ foldableSections, stickyEls, expandAllBtn, }) {
+    connect({ foldableSections, stickyEls, expandAllBtns, }) {
         this.foldableSections = foldableSections;
         this.stickyEls = stickyEls;
-        this.expandAllBtn = expandAllBtn;
+        this.expandAllBtns = expandAllBtns;
         this.bindEmptyHintsObserver();
         this.refreshEmptyCategoryHints();
     }
@@ -54635,6 +54657,7 @@ class SettingsPanelSections {
             this.updateEmptyCategoryHint(section);
         });
     }
+    /** 展开/折叠所有区域，返回操作后的状态：true 为全部展开，false 为全部折叠 */
     toggleAllSections() {
         const shouldExpand = !this.areAllSectionsExpanded();
         const nextExpandedCards = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.deepCopy(_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.expandedCards);
@@ -54649,14 +54672,17 @@ class SettingsPanelSections {
         (0,_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('expandedCards', nextExpandedCards);
         this.updateExpandAllButton();
         this.refreshStickyHeader();
+        return shouldExpand;
     }
     updateExpandAllButton() {
-        if (!this.expandAllBtn) {
+        if (this.expandAllBtns.length === 0) {
             return;
         }
         const state = this.getExpandAllState();
-        this.expandAllBtn.classList.toggle('expanded', state === 'expanded');
-        this.expandAllBtn.classList.toggle('partial', state === 'partial');
+        this.expandAllBtns.forEach((btn) => {
+            btn.classList.toggle('expanded', state === 'expanded');
+            btn.classList.toggle('partial', state === 'partial');
+        });
     }
     refreshStickyHeader() {
         const sticky = this.stickyEls.get(this.getActivePage());
@@ -54831,6 +54857,18 @@ class SettingsPanelShell {
               <span class="settingsPanel_brandName">${_Config__WEBPACK_IMPORTED_MODULE_3__.Config.appName}</span>
             </div>
 
+            <button class="centerWrap_top_btn centerWrap_searchBtnMobile" id="settingsPanelMobileSearchBtn" type="button" data-xztitle="_搜索">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#search-in-searchbar"></use>
+              </svg>
+            </button>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_mobile" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
+
             <button class="centerWrap_top_btn centerWrap_close centerWrap_close_mobile" type="button" data-xztitle="_关闭">
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#close"></use>
@@ -54851,13 +54889,13 @@ class SettingsPanelShell {
                   </svg>
                 </button>
               </label>
-
-              <button class="centerWrap_top_btn settingsPanel_expandAll" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
-                <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
-                  <use xlink:href="#arrow-up"></use>
-                </svg>
-              </button>
             </div>
+
+            <button class="centerWrap_top_btn settingsPanel_expandAll centerWrap_expandAll_pc" id="settingsPanelToggleExpand" type="button" data-xztitle="_展开折叠所有区域">
+              <svg class="icon settingsPanel_expandIcon" aria-hidden="true">
+                <use xlink:href="#arrow-up"></use>
+              </svg>
+            </button>
 
             <div class="settingsPanel_headerMinor">
               <button class="centerWrap_top_btn settingsPanel_sponsorBtn" id="settingsPanelSponsor" type="button" data-xztitle="_赞助我">
@@ -54986,6 +55024,20 @@ class SettingsPanelShell {
                 _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_7__.showOneTimeMsg.show('tipAltXToShowControlPanel', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_快捷键ALTX显示隐藏设置面板'), _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_快捷键提示'));
             }
         }));
+        if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
+            const mobileSearchBtn = shell.querySelector('#settingsPanelMobileSearchBtn');
+            const headerSearch = shell.querySelector('.settingsPanel_headerSearch');
+            const searchInput = shell.querySelector('#settingsPanelSearchInput');
+            if (mobileSearchBtn && headerSearch) {
+                mobileSearchBtn.addEventListener('click', () => {
+                    const willShow = !headerSearch.classList.contains('visible');
+                    headerSearch.classList.toggle('visible', willShow);
+                    if (willShow) {
+                        searchInput?.focus();
+                    }
+                });
+            }
+        }
         shell
             .querySelector('#settingsPanelSponsor')
             ?.addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_赞助方式提示'), {
@@ -55085,11 +55137,17 @@ class SettingsPanelShell {
         if (shell.style.display !== 'flex') {
             return;
         }
-        shell.style.height = 'auto';
-        // 最小高度为 60vh，最大高度为 84vh。如果内容高度处于这个范围内，则使用内容高度
-        const minHeight = window.innerHeight * 0.6;
-        const maxHeight = window.innerHeight * 0.84;
-        shell.style.height = `${Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight)}px`;
+        // 优先使用 visualViewport.height 而不是 window.innerHeight：
+        // 在移动端浏览器上，innerHeight / vh 都是「地址栏隐藏后的最大视口」固定值，
+        // 地址栏显隐不会改变它们。
+        // visualViewport.height 反映用户当前实际可见的视口（已扣除浏览器 UI），
+        // 地址栏显隐时会动态变化——这是唯一能反映「地址栏显隐后还有多少可用高度」的 API。
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        // 最小高度为 60vh，最大高度在 PC 端是 84vh，移动端为 90vh。这个最大高度是在 .centerWrap 的样式里定义的
+        const minHeight = viewportHeight * 0.6;
+        const maxHeight = viewportHeight * (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile ? 0.9 : 0.84);
+        let useHeight = Math.min(Math.max(shell.scrollHeight + 2, minHeight), maxHeight);
+        shell.style.height = `${useHeight}px`;
     }
 }
 
