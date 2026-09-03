@@ -561,6 +561,14 @@
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
   font-size: 20px;
 }
+#rightSelectAllBtn {
+  background: #0096fa;
+  background: -webkit-linear-gradient(top, #1ceb3e 0%, #02b116 100%);
+}
+#exitSelectBtn {
+  background: #0096fa;
+  background: -webkit-linear-gradient(top, #e9e201 0%, #dc9005 100%);
+}
 body.mobile #rightButtonContainer {
   row-gap: max(6px, calc(6vh - 32px));
 }

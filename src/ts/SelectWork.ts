@@ -2,7 +2,7 @@ import { Tools } from './Tools'
 import { lang } from './Language'
 import { EVT } from './EVT'
 import { workSelection } from './WorkSelection'
-import { IDData, IDTypeString } from './store/StoreType'
+import { IDTypeString } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
@@ -307,7 +307,7 @@ class SelectWork {
           return
         }
 
-        this.startSelect(ev)
+        this.startSelect()
         this.clearBtn.style.display = 'flex'
         if (!Config.mobile) {
           showOneTimeMsg.show(
@@ -326,7 +326,7 @@ class SelectWork {
       } else {
         lang.updateText(this.controlTextSpan, '_继续选择')
         this.controlBtn.onclick = (ev) => {
-          this.startSelect(ev)
+          this.startSelect()
         }
       }
     }
@@ -365,7 +365,7 @@ class SelectWork {
   /** 全选当前页面上显示的所有作品。
    * 仅添加，不反选，也不改变或退出任何模式状态（手动选择/排除等）。
    * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。 */
-  private selectAll() {
+  public selectAll() {
     const elements =
       document.querySelectorAll<HTMLElement>('.ppd-workThumbnail')
     for (const el of elements) {
@@ -406,6 +406,12 @@ class SelectWork {
     } else {
       toast.warning(lang.transl('_没有找到任何作品'))
     }
+  }
+
+  /** 退出手动选择模式，并取消所有选择的作品（供网页右侧的“退出全选”按钮调用） */
+  public exitSelect() {
+    this.clearIdList()
+    this.start = false
   }
 
   private clickThumbnail(
@@ -547,7 +553,7 @@ class SelectWork {
   }
 
   // 开始或继续选择
-  private startSelect(ev: MouseEvent) {
+  private startSelect() {
     this.start = true
     // 进入选择模式时，确保处于“活动中、未暂停”的状态。
     // 不在这里清空已选择的作品，选择的列表会一直保留，直到用户点击“清空选择的作品”按钮为止。

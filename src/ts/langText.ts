@@ -1350,6 +1350,22 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `설정 축소/확장`,
     `Свернуть/развернуть настройки`,
   ],
+  _退出全选: [
+    `退出全选`,
+    `取消全選`,
+    `Exit select all`,
+    `すべて選択を終了`,
+    `전체 선택 종료`,
+    `Выйти из режима выбора`,
+  ],
+  _下载当前图片: [
+    `下载当前图片`,
+    `下載目前圖片`,
+    `Download current image`,
+    `現在の画像をダウンロード`,
+    `현재 이미지 다운로드`,
+    `Скачать текущее изображение`,
+  ],
   _github: [`Github`, `Github`, `Github`, `Github`, `Github`, `Github`],
   _wiki: [`使用手册`, `Wiki`, `Wiki`, `マニュアル`, `위키`, `Вики`],
   _快捷键ALTX显示隐藏设置面板: [
