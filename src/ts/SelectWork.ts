@@ -364,8 +364,7 @@ class SelectWork {
 
   /** 全选当前页面上显示的所有作品。
    * 仅添加，不反选，也不改变或退出任何模式状态（手动选择/排除等）。
-   * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。
-   * 供“开始抓取”区域的“全选当前显示的作品”按钮、以及网页右侧的“全选”按钮调用。 */
+   * 选择范围只限当前页面已显示的 .ppd-workThumbnail 作品。 */
   public selectAll() {
     const elements =
       document.querySelectorAll<HTMLElement>('.ppd-workThumbnail')

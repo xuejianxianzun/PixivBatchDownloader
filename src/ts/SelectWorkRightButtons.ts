@@ -82,5 +82,3 @@ class SelectWorkRightButtons {
 }
 
 new SelectWorkRightButtons()
-
-export {}
