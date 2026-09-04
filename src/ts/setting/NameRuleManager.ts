@@ -148,7 +148,12 @@ class NameRuleManager {
           return
         }
         lastValue = input.value
-        if (settings[this.ruleList][pageType.type] !== input.value) {
+        // 当开启“为每个页面类型使用不同的命名规则”时，当前页面类型的规则才是生效的规则；
+        // 否则生效的是 userSetName（或 userSetNameForNovel），这里必须与它比较
+        const effectiveRule = settings.setNameRuleForEachPageType
+          ? settings[this.ruleList][pageType.type]
+          : settings[this.ruleSetting]
+        if (effectiveRule !== input.value) {
           this.rule = input.value
         }
       })

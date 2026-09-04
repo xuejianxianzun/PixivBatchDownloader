@@ -23945,6 +23945,7 @@ class Download {
         const result = arg.result;
         // 获取文件名
         let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result);
+        // console.log(_fileName)
         // 重置当前下载记录条
         this.setProgressBar(_fileName, 0, 0);
         await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
@@ -49317,7 +49318,12 @@ class NameRuleManager {
                     return;
                 }
                 lastValue = input.value;
-                if (_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] !== input.value) {
+                // 当开启“为每个页面类型使用不同的命名规则”时，当前页面类型的规则才是生效的规则；
+                // 否则生效的是 userSetName（或 userSetNameForNovel），这里必须与它比较
+                const effectiveRule = _Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setNameRuleForEachPageType
+                    ? _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleList][_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type]
+                    : _Settings__WEBPACK_IMPORTED_MODULE_8__.settings[this.ruleSetting];
+                if (effectiveRule !== input.value) {
                     this.rule = input.value;
                 }
             });
@@ -75819,7 +75825,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class Utils {
     // 不安全的字符，这里多数是控制字符，需要替换掉
-    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u2000-\u200f\u202a-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00A0\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u2000-\u200f\u202a-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
     // 一些半角字符与全角字符的对照表
     static fullWidthDict = new Map([
         ['\\', '＼'],

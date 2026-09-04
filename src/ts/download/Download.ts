@@ -104,6 +104,7 @@ class Download {
     const result = arg.result
     // 获取文件名
     let _fileName = fileName.createFileName(result)
+    // console.log(_fileName)
 
     // 重置当前下载记录条
     this.setProgressBar(_fileName, 0, 0)

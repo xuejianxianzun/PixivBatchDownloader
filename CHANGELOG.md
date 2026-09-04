@@ -3,6 +3,23 @@
 在 Pixiv 的 console 里隐藏这些脚本的输出：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
 
+## 19.4.1 2026-09-04
+
+### 🐞修复bug：在Firefox上，特殊的空格字符导致文件无法保存
+
+https://www.pixiv.net/artworks/147879864
+
+这个作品的标题里有个颜文字表情 `(º﹃º )`，最右侧的括号前面有个特殊空格 `\u00A0`，Firefox 不允许用作文件名，导致文件保存失败。现在修复。
+
+### 🐞修复bug：修复保存命名规则时的一处判断不正确
+
+这个 bug 导致的问题是：
+如果用户先修改了默认的命名规则，之后又改回了默认的命名规则，下载器有可能不会保存第二次修改。
+
+触发此 bug 时的表现是：命名规则不能恢复到默认值；下载器只会保存与默认值不同的规则。
+
+现在修复。
+
 ## 19.4.0 2026-09-04
 
 本次更新的主要内容：
