@@ -4651,6 +4651,32 @@ class FileName {
     createFileName(data) {
         let rule = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork');
         rule = this.handleCustomFeature(rule, data);
+        const schema = this.buildNamingSchema(data, rule);
+        // 3 生成文件名
+        let result = this.generateFileName(rule, schema);
+        // 5 生成扩展名
+        let ext = data.ext;
+        // 处理小说的扩展名
+        if (data.type === 3) {
+            ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
+        }
+        const extResult = '.' + ext;
+        // 6 处理不创建文件夹的情况
+        if (this.shouldCreateFolder(data) === false) {
+            // 舍弃文件夹部分，只保留文件名
+            result = result.split('/').pop();
+        }
+        // 7 处理文件名长度限制
+        result = this.lengthLimit(result, extResult, schema['{id}'].value);
+        // 8 添加扩展名
+        result += extResult;
+        // 9 返回结果
+        return result;
+    }
+    /** 生成所有命名标记的值。为命名规则（rule）里出现的所有标记计算最终要替换的值。
+     * createFileName 用它渲染完整规则；createFolderPath 用它渲染只含文件夹的规则片段。
+     * 该方法内部的代码原本位于 createFileName 内，重构为独立方法以便复用。 */
+    buildNamingSchema(data, rule) {
         // 1 生成所有命名标记的值
         const schema = {};
         // 这是一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
@@ -4855,26 +4881,14 @@ class FileName {
                 safe: true,
             },
         });
-        // 3 生成文件名
-        let result = this.generateFileName(rule, schema);
-        // 5 生成扩展名
-        let ext = data.ext;
-        // 处理小说的扩展名
-        if (data.type === 3) {
-            ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
-        }
-        const extResult = '.' + ext;
-        // 6 处理不创建文件夹的情况
-        if (this.shouldCreateFolder(data) === false) {
-            // 舍弃文件夹部分，只保留文件名
-            result = result.split('/').pop();
-        }
-        // 7 处理文件名长度限制
-        result = this.lengthLimit(result, extResult, schema['{id}'].value);
-        // 8 添加扩展名
-        result += extResult;
-        // 9 返回结果
-        return result;
+        return schema;
+    }
+    /** 把一个只包含文件夹（不含文件名）的命名规则片段渲染成实际的文件夹路径。
+     * 与 createFileName 使用相同的渲染流程，所以渲染结果和下载的图片文件实际所在的文件夹一致。
+     * 例如把文件夹片段 pixiv/{user}-{user_id}/ 渲染为 pixiv/12253266_老夫子大番薯 */
+    createFolderPath(data, folderRule) {
+        const schema = this.buildNamingSchema(data, folderRule);
+        return this.generateFileName(folderRule, schema);
     }
     /** 传入命名规则和所有标记的配置，生成文件名 */
     generateFileName(rule, schema) {
@@ -28944,13 +28958,15 @@ class SaveWorkDescription {
                 }
             }
             if (folder) {
-                // 查找 / 的数量来统计有几层文件夹
-                const count = (folder.match(/\//g) || []).length;
-                // 从文件名里提取对应的文件夹部分
-                const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0]);
-                const parts = _fileName.split('/');
-                if (parts.length >= count) {
-                    const path = parts.slice(0, count).join('/');
+                // 把命名规则中含 {user} 的文件夹片段渲染成实际的文件夹路径
+                // 这里使用与 fileName.createFileName 相同的渲染流程，因此渲染结果
+                // 与下载的图片文件实际所在的文件夹一致。例如命名规则
+                // pixiv/{user}-{user_id}/{id}-{title} 会渲染为 pixiv/画师名-画师id
+                // 不能使用模板里的文件夹数量（folder 中 / 的数量）去截取实际文件名，
+                // 因为命名规则里可能含有未生效的可选片段等，导致模板与实际路径的层数
+                // 不一致，截取会多切（把文件名当成文件夹）或少切（把文件保存到其他目录）
+                const path = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFolderPath(result, folder);
+                if (path) {
                     // 在 txt 文件之前添加文件夹路径
                     txtName = `${path}/${txtName}`;
                 }
