@@ -44,6 +44,8 @@ export interface DonwloadSuccessData {
   id: string
   tabId: number
   uuid: boolean
+  /** 建立下载请求时的批次，用于忽略旧任务返回的结果 */
+  taskBatch?: number
   /** 当该标记为 true 时，后台不会向前台返回这个文件的下载结果（即不会向前台发送消息）  */
   noReply?: boolean
   /** 浏览器实际保存这个文件时使用的文件名，这可能和前台传递的文件名不同 */
@@ -73,4 +75,6 @@ export interface DownloadedMsg {
   msg: string
   data: DonwloadSuccessData
   err?: string
+  /** 保存请求未能建立浏览器下载项，需要暂停而不是自动重试 */
+  saveRequestFailed?: boolean
 }
