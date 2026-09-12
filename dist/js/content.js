@@ -1395,10 +1395,12 @@ class API {
         const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`;
         return this.fetch(url);
     }
-    /** 获取用户信息 */
+    /** 获取用户信息
+     * @param id 用户 ID
+     * @param full 是否获取详细信息，'1' 为获取详细信息，'0' 为只获取少量信息
+     * @returns 用户的详细信息或部分信息
+     */
     static getUserProfile(id, full = '1') {
-        // full=1 在画师的作品列表页使用，获取详细信息
-        // full=0 在作品页内使用，只获取少量信息
         const url = `https://www.pixiv.net/ajax/user/${id}?full=${full}`;
         return this.fetch(url);
     }
@@ -2202,7 +2204,11 @@ class BG {
         this.setBGAll();
     }
     async selectBG() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.selectFile('.jpg,.jpeg,.png,.bmp,.webp'))[0];
+        const files = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.selectFile('.jpg,.jpeg,.png,.bmp,.webp');
+        if (!files) {
+            return;
+        }
+        const file = files[0];
         this.setBGUrl(URL.createObjectURL(file));
         for (const o of this.list) {
             this.setBG(o);
@@ -4651,35 +4657,34 @@ class FileName {
     createFileName(data) {
         let rule = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__.nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork');
         rule = this.handleCustomFeature(rule, data);
+        // 生成所有命名标记的值
         const schema = this.buildNamingSchema(data, rule);
-        // 3 生成文件名
+        // 生成文件名
         let result = this.generateFileName(rule, schema);
-        // 5 生成扩展名
+        // 生成扩展名
         let ext = data.ext;
         // 处理小说的扩展名
         if (data.type === 3) {
             ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs;
         }
         const extResult = '.' + ext;
-        // 6 处理不创建文件夹的情况
+        // 处理不创建文件夹的情况
         if (this.shouldCreateFolder(data) === false) {
             // 舍弃文件夹部分，只保留文件名
             result = result.split('/').pop();
         }
-        // 7 处理文件名长度限制
+        // 处理文件名长度限制
         result = this.lengthLimit(result, extResult, schema['{id}'].value);
-        // 8 添加扩展名
+        // 添加扩展名
         result += extResult;
-        // 9 返回结果
+        // 返回结果
         return result;
     }
     /** 生成所有命名标记的值。为命名规则（rule）里出现的所有标记计算最终要替换的值。
-     * createFileName 用它渲染完整规则；createFolderPath 用它渲染只含文件夹的规则片段。
-     * 该方法内部的代码原本位于 createFileName 内，重构为独立方法以便复用。 */
+     * createFileName 用它渲染完整规则；createFolderPath 用它渲染只含文件夹的规则片段。 */
     buildNamingSchema(data, rule) {
-        // 1 生成所有命名标记的值
         const schema = {};
-        // 这是一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
+        // 使用一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
         // 该变量只在生成 schema 时使用，作用是判断展开后的完整规则里是否包含某些标记
         let ruleWithExpandedSpecialTags = rule;
         for (const item of this.specialTagConfigs) {
@@ -4883,9 +4888,8 @@ class FileName {
         });
         return schema;
     }
-    /** 把一个只包含文件夹（不含文件名）的命名规则片段渲染成实际的文件夹路径。
-     * 与 createFileName 使用相同的渲染流程，所以渲染结果和下载的图片文件实际所在的文件夹一致。
-     * 例如把文件夹片段 pixiv/{user}-{user_id}/ 渲染为 pixiv/12253266_老夫子大番薯 */
+    /** 把一个只包含文件夹（不含文件名）的命名规则片段渲染成实际的文件夹路径，例如 pixiv/{user}-{user_id}/
+     * 与 createFileName 使用相同的渲染流程，所以渲染结果和下载的图片文件实际所在的文件夹一致。 */
     createFolderPath(data, folderRule) {
         const schema = this.buildNamingSchema(data, folderRule);
         return this.generateFileName(folderRule, schema);
@@ -20299,7 +20303,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.addInitPageBtn('otherBtns', '_导出关注列表JSON', '', 'exportFollowingListJSON', 'brand').addEventListener('click', () => {
             _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_10__.exportFollowingList.start('json');
         });
-        this.addInitPageBtn('otherBtns', '_批量关注用户', '', 'batchFollowUser', 'brand').addEventListener('click', async () => {
+        this.addInitPageBtn('otherBtns', '_批量关注用户JSON', '', 'batchFollowUser', 'brand').addEventListener('click', async () => {
             _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_11__.batchFollowUser.start();
         });
         // 在公开版本里隐藏此功能
@@ -26225,7 +26229,11 @@ class DownloadRecordManager {
     // 从 txt 文件导入
     // 每行一个文件 id（带序号），以换行分割
     async importRecordFromTxt() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.selectFile('.txt'))[0];
+        const files = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.selectFile('.txt');
+        if (!files) {
+            return;
+        }
+        const file = files[0];
         const text = await file.text();
         // 以换行分割
         let split = '\r\n';
@@ -28962,9 +28970,6 @@ class SaveWorkDescription {
                 // 这里使用与 fileName.createFileName 相同的渲染流程，因此渲染结果
                 // 与下载的图片文件实际所在的文件夹一致。例如命名规则
                 // pixiv/{user}-{user_id}/{id}-{title} 会渲染为 pixiv/画师名-画师id
-                // 不能使用模板里的文件夹数量（folder 中 / 的数量）去截取实际文件名，
-                // 因为命名规则里可能含有未生效的可选片段等，导致模板与实际路径的层数
-                // 不一致，截取会多切（把文件名当成文件夹）或少切（把文件保存到其他目录）
                 const path = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFolderPath(result, folder);
                 if (path) {
                     // 在 txt 文件之前添加文件夹路径
@@ -36229,13 +36234,21 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `사용자 수 0`,
         `Количество пользователей 0`,
     ],
-    _批量关注用户: [
+    _批量关注用户JSON: [
         `批量关注用户（JSON）`,
         `批次關注使用者（JSON）`,
         `Follow users in batches (JSON)`,
         `ユーザーをバッチでフォローする（JSON）`,
         `일괄적으로 사용자 팔로우 (JSON)`,
         `Подписывайтесь на пользователей пакетами (JSON)`,
+    ],
+    _批量关注用户: [
+        `批量关注用户`,
+        `批次關注使用者`,
+        `Follow users in batches`,
+        `ユーザーをバッチでフォローする`,
+        `일괄적으로 사용자 팔로우`,
+        `Подписывайтесь на пользователей пакетами`,
     ],
     _导入导出关注用户列表的说明: [
         `在你或其他用户的 Following 页面里，你可以导出关注的用户列表，也可以导入列表来批量关注用户。<br>当你有多个帐户时，可以使用这个方法同步你关注的用户列表。你也可以复制其他用户的关注用户列表。`,
@@ -39094,13 +39107,13 @@ type может быть "illusts", "novels" или "novelSeries".`,
         `작업이 중단됨`,
         `задача прервана`,
     ],
-    _新增的关注用户达到每日限制: [
-        `新增的关注用户数量达到 {}， 下载器已中止任务，以免你的账号被 Pixiv 限制。<br>建议明天再执行此任务。`,
-        `新增的關注使用者數量達到 {}， 下載器已中止任務，以免你的賬號被 Pixiv 限制。<br>建議明天再執行此任務。`,
-        `The number of newly added followers has reached {}, the downloader has stopped the task to prevent your account from being restricted by Pixiv. <br>It is recommended to perform this task again tomorrow.`,
-        `新しく追加されたフォロワーの数が {} に達しました。あなたのアカウントが Pixiv によって制限されるのを防ぐために、ダウンローダーはタスクを停止しました。 <br>このタスクは明日もう一度実行することをお勧めします。`,
-        `새로 추가된 팔로워 수가 {}에 도달했습니다. 다운로더가 작업을 중지하여 Pixiv에서 귀하의 계정을 제한하지 않도록 했습니다. <br>내일 이 작업을 다시 수행하는 것이 좋습니다.`,
-        `Количество новых подписчиков достигло {}, загрузчик остановил задачу, чтобы предотвратить ограничение вашей учетной записи Pixiv. <br>Рекомендуется повторить это задание завтра.`,
+    _批量关注用户的操作达到每日限制: [
+        `本次执行中，调用关注 API 的次数已经达到了 {}，下载器已经主动中止了任务。<br>这是因为连续关注大量用户是高危操作，有可能导致你的账号被 Pixiv 限制。<br>建议明天再继续执行批量关注任务。如果你想立即继续，可以刷新页面后重新执行（不推荐）。`,
+        `本次執行中，呼叫關注 API 的次數已達到 {}，下載器已主動中止任務。<br>這是因為連續關注大量使用者是高風險操作，可能導致你的帳號受到 Pixiv 限制。<br>建議明天再繼續執行批次關注使用者任務。如果你想立即繼續，可以重新整理頁面後再次執行（不建議）。`,
+        `During this run, the number of calls to the follow API has reached {}. The downloader has stopped the task to protect your account.<br>Following a large number of users consecutively is a high-risk operation that may cause Pixiv to restrict your account.<br>It is recommended to continue the batch follow task tomorrow. If you want to continue immediately, you can refresh the page and run it again (not recommended).`,
+        `今回の実行で、フォロー API の呼び出し回数が {} に達したため、ダウンローダーはタスクを停止しました。<br>大量のユーザーを連続してフォローする操作は高リスクであり、Pixiv にアカウントを制限される可能性があります。<br>明日になってからユーザーの一括フォロータスクを再開することをお勧めします。すぐに続行したい場合は、ページを更新して再実行できます（お勧めしません）。`,
+        `이번 실행에서 팔로우 API 호출 횟수가 {}에 도달하여 다운로더가 작업을 중지했습니다.<br>짧은 시간에 많은 사용자를 연속으로 팔로우하는 것은 위험한 작업이며 Pixiv에서 계정을 제한할 수 있습니다.<br>내일 일괄 사용자 팔로우 작업을 계속하는 것이 좋습니다. 즉시 계속하려면 페이지를 새로 고친 후 다시 실행할 수 있지만 권장하지 않습니다.`,
+        `Во время этого запуска количество вызовов API подписки достигло {}. Загрузчик остановил задачу, чтобы защитить вашу учетную запись.<br>Последовательная подписка на большое количество пользователей является рискованной операцией и может привести к ограничению вашей учетной записи Pixiv.<br>Рекомендуется продолжить пакетную подписку на пользователей завтра. Если вы хотите продолжить немедленно, обновите страницу и запустите задачу снова (не рекомендуется).`,
     ],
     _没有找到关注按钮的提示: [
         `跳过关注用户 {} 因为没有找到关注按钮。你可以手动关注此用户。再次执行此任务有可能解决此问题。`,
@@ -44153,6 +44166,62 @@ GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처
         `Мы очень серьезно относимся к вашей конфиденциальности и безопасности данных. Вся обработка данных выполняется этим расширением локально на вашем устройстве. Расширение не передает данные третьим лицам и не содержит рекламы, статистики или кода отслеживания.<br>
 Вы можете просмотреть исходный код этого расширения и полную политику конфиденциальности на GitHub:`,
     ],
+    _关注这个用户时出错: [
+        `关注用户 {} 时出错，状态码：{}`,
+        `關注使用者 {} 時出錯，狀態碼：{}`,
+        `Error following user {}, status code: {}`,
+        `ユーザー {} のフォロー中にエラーが発生しました。ステータスコード：{}`,
+        `사용자 {} 팔로우 중 오류가 발생했습니다. 상태 코드: {}`,
+        `Ошибка при подписке на пользователя {}, код состояния: {}`,
+    ],
+    _检查该用户是否存在: [
+        `检查该用户是否存在`,
+        `檢查該使用者是否存在`,
+        `Check whether the user exists`,
+        `ユーザーが存在するか確認`,
+        `사용자 존재 여부 확인`,
+        `Проверить, существует ли пользователь`,
+    ],
+    _该用户不存在跳过他: [
+        `该用户不存在，跳过他`,
+        `該使用者不存在，跳過他`,
+        `User does not exist, skipping`,
+        `ユーザーが存在しないため、スキップします`,
+        `사용자가 존재하지 않으므로 건너뜁니다`,
+        `Пользователь не существует, пропускаем его`,
+    ],
+    _该用户存在: [
+        `该用户存在`,
+        `該使用者存在`,
+        `User exists`,
+        `ユーザーが存在します`,
+        `사용자가 존재합니다`,
+        `Пользователь существует`,
+    ],
+    _关注该用户失败请等待一段时间后再试: [
+        `关注该用户失败，请等待一段时间后再试`,
+        `關注該使用者失敗，請稍候再試`,
+        `Failed to follow this user. Please wait a while and try again.`,
+        `このユーザーのフォローに失敗しました。しばらく待ってからもう一度お試しください。`,
+        `이 사용자를 팔로우하지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+        `Не удалось подписаться на этого пользователя. Подождите некоторое время и повторите попытку.`,
+    ],
+    _获取当前登录的用户的ID失败: [
+        `获取当前登录的用户的ID失败`,
+        `取得目前登入使用者的 ID 失敗`,
+        `Failed to get the ID of the currently logged-in user.`,
+        `現在ログインしているユーザーの ID の取得に失敗しました。`,
+        `현재 로그인한 사용자의 ID를 가져오지 못했습니다.`,
+        `Не удалось получить ID текущего пользователя.`,
+    ],
+    _获取关注用户列表时出现错误并重试: [
+        `获取关注用户列表时出现错误，重试`,
+        `取得關注使用者列表時發生錯誤，重試中`,
+        `An error occurred while fetching the list of followed users. Retrying.`,
+        `フォロー中のユーザー一覧の取得中にエラーが発生しました。再試行します。`,
+        `팔로우 중인 사용자 목록을 가져오는 중 오류가 발생했습니다. 다시 시도합니다.`,
+        `При получении списка отслеживаемых пользователей произошла ошибка. Повторная попытка.`,
+    ],
 };
 
 
@@ -44515,6 +44584,7 @@ class BatchFollowUser {
     requestTimes = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
+    taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户');
     /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
     userList = [];
     importFollowedUserIDs = [];
@@ -44524,29 +44594,50 @@ class BatchFollowUser {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID === '') {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码401的提示'));
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码401的提示'), {
+                title: this.taskName,
+            });
         }
         this.busy = true;
         this.reset();
         this.importFollowedUserIDs = await this.importUserList();
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
         if (this.importFollowedUserIDs.length === 0) {
+            this.busy = false;
             return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
         }
         this.stopAddFollow = false;
         this.sendReqNumber = 0;
         // 显示提示
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户JSON'));
+        // 根据当前页面来决定添加公开关注还是私密关注
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
+        // 24 是 PC 端关注页面里，每页的用户数量
+        if (this.importFollowedUserIDs.length > 24) {
+            await this.readyGetUserList();
+        }
+        else {
+            // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
+            await this.batchFollow();
+        }
+    }
+    async readyGetUserList() {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_正在加载关注用户列表'));
         // 总是慢速抓取
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-        this.readyGet();
-    }
-    readyGet() {
         // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
         this.currentUserId = _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID;
+        if (!this.currentUserId) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取当前登录的用户的ID失败');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, {
+                title: this.taskName,
+            });
+            this.busy = false;
+            return;
+        }
         this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'following');
-        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
         if (this.rest === 'show') {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为公开关注的提示'));
         }
@@ -44569,19 +44660,10 @@ class BatchFollowUser {
         // 要抓取多少个用户
         // 批量添加关注时，该数字没有限制
         this.totalNeed = Number.MAX_SAFE_INTEGER;
-        // 获取当前页面的用户 id
-        const test = /users\/(\d*)\//.exec(location.href);
-        if (test && test.length > 1) {
-            this.currentUserId = test[1];
-        }
-        else {
-            const msg = `Get the user's own id failed`;
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-            // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log('');
-            throw new Error(msg);
-        }
-        this.getUserList();
+        await this.getUserList();
+    }
+    logGetUserListProgress(number) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', number.toString()), 'batchFollowGetUserListProgress');
     }
     // 获取关注的用户列表
     async getUserList() {
@@ -44591,33 +44673,29 @@ class BatchFollowUser {
             res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
         }
         catch {
-            this.getUserList();
-            return;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取关注用户列表时出现错误并重试'));
+            return this.getUserList();
         }
         const users = res.body.users;
         // 用户列表抓取完毕
         if (users.length === 0) {
-            return this.getUserListComplete();
+            this.logGetUserListProgress(this.userList.length);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.persistentRefresh('batchFollowGetUserListProgress');
+            return this.batchFollow();
         }
         for (const userData of users) {
             this.userList.push(userData.userId);
+            this.logGetUserListProgress(this.userList.length);
             // 抓取到了指定数量的用户
             if (this.userList.length >= this.totalNeed) {
-                return this.getUserListComplete();
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.persistentRefresh('batchFollowGetUserListProgress');
+                return this.batchFollow();
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 'batchFollowGetUserListProgress');
         this.requestTimes++;
         // 获取下一批用户列表
-        window.setTimeout(() => {
-            this.getUserList();
-        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
-    }
-    async getUserListComplete() {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
-        await this.batchFollow();
-        this.busy = false;
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
+        return this.getUserList();
     }
     reset() {
         this.userList = [];
@@ -44642,59 +44720,58 @@ class BatchFollowUser {
             userIDs = loadedJSON;
         }
         else {
-            // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
-            userIDs = loadedJSON.map((user) => user.userId);
+            // 有 userId 属性的话，说明数据是下载器导出的关注列表，格式是 FollowingUserData
+            // 有 id 属性的话，说明数据是下载器在扩展本地存储里保存的关注列表，格式是 UserInfo
+            userIDs = loadedJSON.map((user) => user.userId || user.id);
         }
         return userIDs;
     }
     stopAddFollow = false;
     sendReqNumber = 0;
-    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
+    dailyLimit = 500; // 每天限制关注的数量，以降低封号风险
     tokenHasUpdated = false;
     need_recaptcha_enterprise_score_token = false;
     logProgress(current, total, newAdded) {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 'batchFollowUserProgress');
     }
     async batchFollow() {
-        const taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang
-            .transl('_批量关注用户')
-            .replace('（JSON）', '')
-            .replace('(JSON)', '');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示下载器会跳过已关注的用户'));
-        let followed = 0;
-        let number = 0;
+        let newFollow = 0;
+        let no = 0;
         const total = this.importFollowedUserIDs.length;
         for (const userID of this.importFollowedUserIDs) {
-            this.logProgress(number, total, this.sendReqNumber);
+            this.logProgress(no, total, newFollow);
             if (this.stopAddFollow) {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
                 return;
             }
             if (this.sendReqNumber >= this.dailyLimit) {
                 this.stopAddFollow = true;
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户的操作达到每日限制', this.dailyLimit.toString());
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+                this.busy = false;
                 return;
             }
-            number++;
+            no++;
             if (this.userList.includes(userID) === false) {
                 this.sendReqNumber++;
-                await this.addFollow(userID);
-            }
-            else {
-                followed++;
+                const status = await this.addFollow(userID);
+                // 只有当状态码正常时，才增加新增关注的数量
+                if (status === 200) {
+                    newFollow++;
+                }
             }
         }
-        this.logProgress(number, total, this.sendReqNumber);
-        const msg = '✅' + taskName;
+        this.logProgress(no, total, newFollow);
+        this.busy = false;
+        const msg = '✅' + this.taskName;
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(msg);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(msg, { title: this.taskName });
     }
     clearIframe(iframe) {
         iframe.src = 'about:blank';
@@ -44719,21 +44796,33 @@ class BatchFollowUser {
         // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
         const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
         if (status !== 200) {
-            const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
+            const userLink = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID);
+            const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注这个用户时出错', userLink, status.toString());
+            // 测试用：3 个不存在的用户的 ID
+            // ["3809545", "3809548", "3809552"]
             if (status === 404) {
                 // 404 可能的原因：
                 // 1. token 无效
                 // 2. 该用户不存在
-                if (this.tokenHasUpdated === true) {
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                const userExists = await this.checkUserExists(userID);
+                // 如果该用户不存在，就跳过它
+                if (!userExists) {
+                    return status;
                 }
-                else {
-                    // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                // 如果用户存在，说明是 token 无效导致的 404
+                if (!this.tokenHasUpdated) {
+                    // 尝试重新获取 token（仅执行一次），然后重试请求
                     this.tokenHasUpdated = true;
                     await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
                     await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
-                    await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+                    const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+                    if (status !== 200) {
+                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注该用户失败请等待一段时间后再试'));
+                        this.stopAddFollow = true;
+                    }
                 }
+                return status;
             }
             else if (status === 400) {
                 // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
@@ -44745,12 +44834,20 @@ class BatchFollowUser {
                 return 200;
             }
             else if (status === 403) {
-                // 403 是访问权限已经被限制
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
-                this.stopAddFollow = true;
+                // 403 可能有两种原因：
+                // 1. 当前用户的访问权限已经被限制
+                // 2. 要关注的用户已经不存在
+                // 详见文档：notes/判断一个用户是否已经不存在.md
+                // 这里需要判断具体原因，以免误判
+                const userExists = await this.checkUserExists(userID);
+                // 如果要添加的用户存在，那么说明当前用户的访问权限被限制
+                if (userExists) {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+                    this.stopAddFollow = true;
+                }
                 return status;
             }
             else {
@@ -44764,6 +44861,28 @@ class BatchFollowUser {
         // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
         return status;
+    }
+    async checkUserExists(userID) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_检查该用户是否存在'));
+        // 先假设该用户存在
+        let userExists = true;
+        try {
+            const res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getUserProfile(userID, '0');
+            if (res.error) {
+                userExists = false;
+            }
+        }
+        catch (error) {
+            // 如果请求出错，则认为该用户不存在，这是一个粗略的判断
+            userExists = false;
+        }
+        if (userExists) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该用户存在'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该用户不存在跳过他'));
+        }
+        return userExists;
     }
     // 加载指定用户的的主页，然后查找关注按钮并点击
     async loadIframe(userID) {
@@ -47474,7 +47593,7 @@ class ButtonConfigs {
         },
         {
             id: 'batchFollowUser',
-            nameKey: '_批量关注用户',
+            nameKey: '_批量关注用户JSON',
             categoryLevel1: 'extraFeatures',
             categoryLevel2: 'FollowingPage',
         },
@@ -75869,7 +75988,7 @@ class Utils {
         ['~', '～'],
     ]);
     /**
-     * 替换一些控制字符，并把一些半角字符替换成全角版本。
+     * 移除控制字符，并把一些半角字符替换成全角版本。
      * @param keepPathSeparator 是否保留路径分隔符 /。默认是 false，会把 / 替换成全角版本 ／。如果为 true，则会保留 /，适用于文件夹路径的命名。
      */
     static replaceUnsafeStr(str, keepPathSeparator = false) {
@@ -75959,55 +76078,85 @@ class Utils {
             }
         };
     }
-    // 创建 input 元素选择 json 文件
+    /** 使用选择文件对话框，让用户选择 JSON 文件
+     *
+     * 如果内容是合法的 JSON，则返回解析后的对象。
+     *
+     * 如果用户点击了取消按钮（没有选择任何文件），则返回 undefined。
+     */
     static async loadJSONFile() {
         return new Promise((resolve, reject) => {
             const i = document.createElement('input');
             i.setAttribute('type', 'file');
             i.setAttribute('accept', 'application/json');
+            const cleanup = () => {
+                i.onchange = null;
+                i.removeEventListener('cancel', onCancel);
+            };
+            const onCancel = () => {
+                cleanup();
+                resolve(undefined);
+            };
+            i.addEventListener('cancel', onCancel, { once: true });
             i.onchange = () => {
-                if (i.files && i.files.length > 0) {
-                    // 读取文件内容
-                    const file = new FileReader();
-                    file.readAsText(i.files[0]);
-                    file.onload = () => {
-                        const str = file.result;
-                        let result;
-                        try {
-                            result = JSON.parse(str);
-                            // if((result as any).constructor !== Object){
-                            // 允许是对象 {} 或者数组 []
-                            if (result === null || typeof result !== 'object') {
-                                const msg = 'Data is not an object!';
-                                return reject(new Error(msg));
-                            }
-                            return resolve(result);
-                        }
-                        catch (error) {
-                            const msg = 'JSON parse error!';
+                const selectedFile = i.files?.[0];
+                if (!selectedFile) {
+                    return onCancel();
+                }
+                cleanup();
+                // 读取文件内容
+                const file = new FileReader();
+                file.readAsText(selectedFile);
+                file.onload = () => {
+                    const str = file.result;
+                    let result;
+                    try {
+                        result = JSON.parse(str);
+                        // if((result as any).constructor !== Object){
+                        // 允许是对象 {} 或者数组 []
+                        if (result === null || typeof result !== 'object') {
+                            const msg = 'Data is not an object!';
                             return reject(new Error(msg));
                         }
-                    };
-                }
+                        return resolve(result);
+                    }
+                    catch (error) {
+                        const msg = 'JSON parse error!';
+                        return reject(new Error(msg));
+                    }
+                };
             };
             i.click();
         });
     }
-    // 创建 input 元素选择文件
+    /** 使用选择文件对话框，让用户选择文件
+     *
+     * accept: 可选，指定可选择的文件类型
+     *
+     * 返回用户选择的文件列表；如果用户取消选择，则返回 undefined
+     */
     static async selectFile(accept) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const i = document.createElement('input');
             i.setAttribute('type', 'file');
             if (accept) {
                 i.setAttribute('accept', accept);
             }
+            const cleanup = () => {
+                i.onchange = null;
+                i.removeEventListener('cancel', onCancel);
+            };
+            const onCancel = () => {
+                cleanup();
+                resolve(undefined);
+            };
+            i.addEventListener('cancel', onCancel, { once: true });
             i.onchange = () => {
-                if (i.files && i.files.length > 0) {
-                    return resolve(i.files);
+                if (!i.files || i.files.length === 0) {
+                    return onCancel();
                 }
-                else {
-                    return reject();
-                }
+                cleanup();
+                return resolve(i.files);
             };
             i.click();
         });

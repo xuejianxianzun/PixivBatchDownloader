@@ -257,13 +257,15 @@ class API {
     return this.fetch(url)
   }
 
-  /** 获取用户信息 */
+  /** 获取用户信息
+   * @param id 用户 ID
+   * @param full 是否获取详细信息，'1' 为获取详细信息，'0' 为只获取少量信息
+   * @returns 用户的详细信息或部分信息
+   */
   static getUserProfile(
     id: string,
     full: '0' | '1' = '1'
   ): Promise<UserProfile> {
-    // full=1 在画师的作品列表页使用，获取详细信息
-    // full=0 在作品页内使用，只获取少量信息
     const url = `https://www.pixiv.net/ajax/user/${id}?full=${full}`
     return this.fetch(url)
   }

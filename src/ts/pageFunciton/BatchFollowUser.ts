@@ -9,6 +9,7 @@ import { Tools } from '../Tools'
 import { store } from '../store/Store'
 import { token } from '../Token'
 import { FollowingUserData } from '../crawl/CrawlResult'
+import { UserInfo } from '../FollowingData'
 
 class BatchFollowUser {
   private busy = false
@@ -22,6 +23,7 @@ class BatchFollowUser {
   private requestTimes = 0 // 获取用户列表时，记录请求的次数
   private readonly limit = 100 // 每次请求多少个用户
   private totalNeed = Number.MAX_SAFE_INTEGER
+  private taskName = lang.transl('_批量关注用户')
 
   /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
   private userList: string[] = []
@@ -34,7 +36,9 @@ class BatchFollowUser {
     }
 
     if (store.loggedUserID === '') {
-      return msgBox.error(lang.transl('_状态码401的提示'))
+      return msgBox.error(lang.transl('_状态码401的提示'), {
+        title: this.taskName,
+      })
     }
 
     this.busy = true
@@ -45,6 +49,7 @@ class BatchFollowUser {
       lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length
     )
     if (this.importFollowedUserIDs.length === 0) {
+      this.busy = false
       return log.success(lang.transl('_本次任务已全部完成'))
     }
 
@@ -52,20 +57,38 @@ class BatchFollowUser {
     this.sendReqNumber = 0
 
     // 显示提示
-    log.success('🚀' + lang.transl('_批量关注用户'))
+    log.success('🚀' + lang.transl('_批量关注用户JSON'))
+
+    // 根据当前页面来决定添加公开关注还是私密关注
+    this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
+
+    // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
+    // 24 是 PC 端关注页面里，每页的用户数量
+    if (this.importFollowedUserIDs.length > 24) {
+      await this.readyGetUserList()
+    } else {
+      // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
+      await this.batchFollow()
+    }
+  }
+
+  protected async readyGetUserList() {
     log.log(lang.transl('_正在加载关注用户列表'))
     // 总是慢速抓取
     log.warning(lang.transl('_慢速抓取'))
-
-    this.readyGet()
-  }
-
-  protected readyGet() {
     // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
     this.currentUserId = store.loggedUserID
+    if (!this.currentUserId) {
+      const msg = lang.transl('_获取当前登录的用户的ID失败')
+      log.error(msg)
+      msgBox.error(msg, {
+        title: this.taskName,
+      })
+      this.busy = false
+      return
+    }
 
     this.tag = Utils.getURLPathField(window.location.pathname, 'following')
-    this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
     if (this.rest === 'show') {
       log.warning(lang.transl('_添加为公开关注的提示'))
     } else {
@@ -89,23 +112,18 @@ class BatchFollowUser {
     // 批量添加关注时，该数字没有限制
     this.totalNeed = Number.MAX_SAFE_INTEGER
 
-    // 获取当前页面的用户 id
-    const test = /users\/(\d*)\//.exec(location.href)
-    if (test && test.length > 1) {
-      this.currentUserId = test[1]
-    } else {
-      const msg = `Get the user's own id failed`
-      log.error(msg)
-      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-      log.log('')
-      throw new Error(msg)
-    }
+    await this.getUserList()
+  }
 
-    this.getUserList()
+  private logGetUserListProgress(number: number) {
+    log.log(
+      lang.transl('_当前有x个用户', number.toString()),
+      'batchFollowGetUserListProgress'
+    )
   }
 
   // 获取关注的用户列表
-  private async getUserList() {
+  private async getUserList(): Promise<void> {
     const offset = this.baseOffset + this.requestTimes * this.limit
 
     let res
@@ -117,43 +135,34 @@ class BatchFollowUser {
         offset
       )
     } catch {
-      this.getUserList()
-      return
+      log.error(lang.transl('_获取关注用户列表时出现错误并重试'))
+      return this.getUserList()
     }
 
     const users = res.body.users
 
     // 用户列表抓取完毕
     if (users.length === 0) {
-      return this.getUserListComplete()
+      this.logGetUserListProgress(this.userList.length)
+      log.persistentRefresh('batchFollowGetUserListProgress')
+      return this.batchFollow()
     }
 
     for (const userData of users) {
       this.userList.push(userData.userId)
+      this.logGetUserListProgress(this.userList.length)
 
       // 抓取到了指定数量的用户
       if (this.userList.length >= this.totalNeed) {
-        return this.getUserListComplete()
+        log.persistentRefresh('batchFollowGetUserListProgress')
+        return this.batchFollow()
       }
     }
 
-    log.log(
-      lang.transl('_当前有x个用户', this.userList.length.toString()),
-      'batchFollowGetUserListProgress'
-    )
-
     this.requestTimes++
     // 获取下一批用户列表
-    window.setTimeout(() => {
-      this.getUserList()
-    }, settings.slowCrawlDealy)
-  }
-
-  private async getUserListComplete() {
-    log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
-    // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
-    await this.batchFollow()
-    this.busy = false
+    await Utils.sleep(settings.slowCrawlDealy)
+    return this.getUserList()
   }
 
   private reset() {
@@ -165,7 +174,7 @@ class BatchFollowUser {
     const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
       msgBox.error(err)
       return []
-    })) as string[] | FollowingUserData[]
+    })) as string[] | FollowingUserData[] | UserInfo[]
     if (!loadedJSON) {
       return []
     }
@@ -181,8 +190,11 @@ class BatchFollowUser {
     if (typeof loadedJSON[0] === 'string') {
       userIDs = loadedJSON as string[]
     } else {
-      // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
-      userIDs = (loadedJSON as FollowingUserData[]).map((user) => user.userId)
+      // 有 userId 属性的话，说明数据是下载器导出的关注列表，格式是 FollowingUserData
+      // 有 id 属性的话，说明数据是下载器在扩展本地存储里保存的关注列表，格式是 UserInfo
+      userIDs = (loadedJSON as FollowingUserData[]).map(
+        (user) => (user as any).userId || (user as any).id
+      )
     }
 
     return userIDs
@@ -190,7 +202,7 @@ class BatchFollowUser {
 
   private stopAddFollow = false
   private sendReqNumber = 0
-  private readonly dailyLimit = 1000 // 每天限制关注的数量，以免被封号
+  private readonly dailyLimit = 500 // 每天限制关注的数量，以降低封号风险
   private tokenHasUpdated = false
   private need_recaptcha_enterprise_score_token = false
 
@@ -202,53 +214,52 @@ class BatchFollowUser {
   }
 
   private async batchFollow() {
-    const taskName = lang
-      .transl('_批量关注用户')
-      .replace('（JSON）', '')
-      .replace('(JSON)', '')
-    log.success(taskName)
     log.warning(lang.transl('_慢速执行以避免引起429错误'))
     log.warning(lang.transl('_提示可以重新执行批量关注任务'))
     log.warning(lang.transl('_提示下载器会跳过已关注的用户'))
 
-    let followed = 0
-    let number = 0
+    let newFollow = 0
+    let no = 0
     const total = this.importFollowedUserIDs.length
 
     for (const userID of this.importFollowedUserIDs) {
-      this.logProgress(number, total, this.sendReqNumber)
+      this.logProgress(no, total, newFollow)
 
       if (this.stopAddFollow) {
         const msg = lang.transl('_任务已中止')
         log.error(msg)
-        msgBox.error(msg)
+        msgBox.error(msg, { title: this.taskName })
         return
       }
 
       if (this.sendReqNumber >= this.dailyLimit) {
         this.stopAddFollow = true
         const msg = lang.transl(
-          '_新增的关注用户达到每日限制',
+          '_批量关注用户的操作达到每日限制',
           this.dailyLimit.toString()
         )
         log.error(msg)
-        msgBox.error(msg)
+        msgBox.error(msg, { title: this.taskName })
+        this.busy = false
         return
       }
 
-      number++
+      no++
       if (this.userList.includes(userID) === false) {
         this.sendReqNumber++
-        await this.addFollow(userID)
-      } else {
-        followed++
+        const status = await this.addFollow(userID)
+        // 只有当状态码正常时，才增加新增关注的数量
+        if (status === 200) {
+          newFollow++
+        }
       }
     }
 
-    this.logProgress(number, total, this.sendReqNumber)
-    const msg = '✅' + taskName
+    this.logProgress(no, total, newFollow)
+    this.busy = false
+    const msg = '✅' + this.taskName
     log.success(msg)
-    msgBox.success(msg)
+    msgBox.success(msg, { title: this.taskName })
   }
 
   private clearIframe(iframe: HTMLIFrameElement) {
@@ -283,22 +294,42 @@ class BatchFollowUser {
       this.rest === 'show'
     )
     if (status !== 200) {
-      const errorMsg = `Error: ${Tools.createUserLink(
-        userID
-      )} Status: ${status}`
+      const userLink = Tools.createUserLink(userID)
+      const errorMsg = lang.transl(
+        '_关注这个用户时出错',
+        userLink,
+        status.toString()
+      )
+      // 测试用：3 个不存在的用户的 ID
+      // ["3809545", "3809548", "3809552"]
       if (status === 404) {
         // 404 可能的原因：
         // 1. token 无效
         // 2. 该用户不存在
-        if (this.tokenHasUpdated === true) {
-          log.error(errorMsg)
-        } else {
-          // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+        log.error(errorMsg)
+        const userExists = await this.checkUserExists(userID)
+        // 如果该用户不存在，就跳过它
+        if (!userExists) {
+          return status
+        }
+
+        // 如果用户存在，说明是 token 无效导致的 404
+        if (!this.tokenHasUpdated) {
+          // 尝试重新获取 token（仅执行一次），然后重试请求
           this.tokenHasUpdated = true
           await token.reset()
           await Utils.sleep(1000)
-          await API.addFollowingUser(userID, token.token, this.rest === 'show')
+          const status = await API.addFollowingUser(
+            userID,
+            token.token,
+            this.rest === 'show'
+          )
+          if (status !== 200) {
+            log.error(lang.transl('_关注该用户失败请等待一段时间后再试'))
+            this.stopAddFollow = true
+          }
         }
+        return status
       } else if (status === 400) {
         // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
         // 此时发出一次错误提醒，并重试添加关注
@@ -309,12 +340,21 @@ class BatchFollowUser {
 
         return 200
       } else if (status === 403) {
-        // 403 是访问权限已经被限制
         log.error(errorMsg)
-        const msg = lang.transl('_你的账号已经被Pixiv限制')
-        log.error(msg)
-        msgBox.error(msg)
-        this.stopAddFollow = true
+        // 403 可能有两种原因：
+        // 1. 当前用户的访问权限已经被限制
+        // 2. 要关注的用户已经不存在
+        // 详见文档：notes/判断一个用户是否已经不存在.md
+        // 这里需要判断具体原因，以免误判
+
+        const userExists = await this.checkUserExists(userID)
+        // 如果要添加的用户存在，那么说明当前用户的访问权限被限制
+        if (userExists) {
+          const msg = lang.transl('_你的账号已经被Pixiv限制')
+          log.error(msg)
+          msgBox.error(msg, { title: this.taskName })
+          this.stopAddFollow = true
+        }
         return status
       } else {
         // 其他错误
@@ -328,6 +368,29 @@ class BatchFollowUser {
     // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
     await Utils.sleep(Tools.rangeRandom(2500, 3600))
     return status
+  }
+
+  private async checkUserExists(userID: string): Promise<boolean> {
+    log.log(lang.transl('_检查该用户是否存在'))
+    // 先假设该用户存在
+    let userExists = true
+    try {
+      const res = await API.getUserProfile(userID, '0')
+      if (res.error) {
+        userExists = false
+      }
+    } catch (error) {
+      // 如果请求出错，则认为该用户不存在，这是一个粗略的判断
+      userExists = false
+    }
+
+    if (userExists) {
+      log.log(lang.transl('_该用户存在'))
+    } else {
+      log.warning(lang.transl('_该用户不存在跳过他'))
+    }
+
+    return userExists
   }
 
   // 加载指定用户的的主页，然后查找关注按钮并点击
