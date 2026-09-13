@@ -107,10 +107,13 @@ class Bookmark {
     // 需要排队的情况
     const NO = ++this.taskID
     await this.waitCallMe(NO)
-    await Utils.sleep(settings.slowCrawlDealy)
-    const status = await this.sendRequest(id, type, tags!, _restrict)
-    this.nextTaskID++
-    return status
+    try {
+      await Utils.sleep(settings.slowCrawlDealy)
+      return await this.sendRequest(id, type, tags!, _restrict)
+    } finally {
+      // 请求或 token 刷新拒绝时也叫下一个号码，避免后续收藏一直等待。
+      this.nextTaskID++
+    }
   }
 
   private async waitCallMe(NO: number) {
