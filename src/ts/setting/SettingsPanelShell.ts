@@ -208,7 +208,7 @@ class SettingsPanelShell {
     window.addEventListener(EVT.list.settingInitialized, () => {
       showOneTimeMsg.show(
         'tipHowToUse',
-        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告'),
+        lang.transl('_使用说明详情') + lang.transl('_账户可能被封禁的警告'),
         lang.transl('_使用说明')
       )
     })

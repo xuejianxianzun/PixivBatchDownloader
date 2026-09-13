@@ -1996,47 +1996,42 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。
     <br>
     如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
-    Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>
+    Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险" target="_blank">账号被封禁的风险</a>
     <br>`,
-
-    `<strong>警告</strong>：頻繁且大量的抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
+    `<strong>警告</strong>：頻繁且大量地抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
     <br>
-    多數用戶不會遇到這種情況，而且下載器默認會減慢抓取的速度。但如果你的帳戶被封禁，下載器不會承擔任何責任。
+    大多數使用者不會遇到這種情況，而且下載器預設會放慢抓取速度。但如果你的帳號被封禁，下載器概不負責。
     <br>
-    如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br>
-    Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>
+    如果你計畫進行大量下載，可以考慮註冊 Pixiv 小號。<br>
+    Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险" target="_blank">帳號被封禁的風險</a>
     <br>`,
-
-    `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may lead to your Pixiv account being banned.
+    `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may result in your Pixiv account being banned.
     <br>
-    Most users will not encounter this issue, and the downloader will slow down the crawling speed by default. However, if your account is banned, the downloader will not take any responsibility.
+    Most users will not encounter this problem, and the downloader slows down crawling by default. However, if your account is banned, the downloader will not be held responsible.
     <br>
-    If you plan to perform large-scale downloads, consider registering a secondary Pixiv account.<br>
-    The Wiki provides related information: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Using a Secondary Account for Downloading</a>
+    If you plan to download a large amount of content, consider creating a secondary Pixiv account.<br>
+    See the relevant information in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban" target="_blank">Risk of Account Ban</a>
     <br>`,
-
-    `<strong>警告</strong>：頻繁かつ大規模なクロール（およびダウンロード）は、Pixivアカウントの禁止につながる可能性があります。
+    `<strong>警告</strong>：頻繁かつ大量にクロール（およびダウンロード）を行うと、Pixivアカウントが凍結される可能性があります。
     <br>
-    ほとんどのユーザーはこの問題に遭遇しませんが、ダウンローダーはデフォルトでクロールの速度を遅くします。ただし、アカウントが禁止された場合、ダウンローダーは一切の責任を負いません。
+    多くのユーザーはこのような状況に遭遇しません。また、ダウンローダーはデフォルトでクロールの速度を遅くしています。ただし、アカウントが凍結された場合、ダウンローダーは一切責任を負いません。
     <br>
-    大規模なダウンロードを計画している場合は、Pixivのサブアカウントを登録することを検討してください。<br>
-    Wikiに関連情報があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">サブアカウントを使用したダウンロード</a>
+    大量にダウンロードする予定がある場合は、Pixivのサブアカウントを作成することを検討してください。<br>
+    Wikiに詳しい説明があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban" target="_blank">アカウント凍結のリスク</a>
     <br>`,
-
-    `<strong>경고</strong>: 빈번하고 대규모의 크롤링(및 다운로드)은 Pixiv 계정이 차단될 수 있습니다.
+    `<strong>경고</strong>: 크롤링(및 다운로드)을 빈번하게 대규모로 진행하면 Pixiv 계정이 정지될 수 있습니다.
     <br>
-    대부분의 사용자는 이 문제를 겪지 않으며, 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 하지만 계정이 차단되더라도 다운로더는 어떠한 책임도 지지 않습니다.
+    대부분의 사용자는 이런 상황을 겪지 않으며, 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 하지만 계정이 정지되더라도 다운로더는 어떠한 책임도 지지 않습니다.
     <br>
-    대규모 다운로드를 계획하고 있다면 Pixiv 보조 계정을 등록하는 것을 고려하세요.<br>
-    위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
+    많은 양의 콘텐츠를 다운로드할 계획이라면 Pixiv 부계정을 만드는 것을 고려해 보세요.<br>
+    Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban" target="_blank">계정 정지 위험</a>
     <br>`,
-
-    `<strong>Предупреждение</strong>: Частый и масштабный сканирование (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
+    `<strong>Предупреждение</strong>: частое и массовое сканирование (и скачивание) может привести к блокировке вашего аккаунта Pixiv.
     <br>
-    Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость сканирования. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
+    Большинство пользователей не сталкивается с этой проблемой, а загрузчик по умолчанию снижает скорость сканирования. Однако если ваш аккаунт будет заблокирован, загрузчик не несёт никакой ответственности.
     <br>
-    Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
-    В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
+    Если вы планируете скачивать большое количество материалов, рассмотрите возможность создать дополнительный аккаунт Pixiv.<br>
+    Подробности приведены в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban" target="_blank">Риск блокировки аккаунта</a>
     <br>`,
   ],
   _常见问题说明: [
@@ -4222,12 +4217,24 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
   ],
   _快捷键ALTS手动选择作品: [
-    `你可以使用快捷键开始或暂停手动选择作品，默认是 <span class="blue">Alt</span> + <span class="blue">S</span>。<br>选择完毕之后，打开下载器面板，点击"抓取选择的作品"。`,
-    `你可以使用快捷鍵開始或暫停手動選擇作品，預設是 <span class="blue">Alt</span> + <span class="blue">S</span>。<br>選擇完畢之後，開啟下載器面板，點擊「擷取選擇的作品」。`,
-    `You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.<br>After selecting, open the downloader panel and click "Crawl selected works".`,
-    `ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。<br>選択が終わったら、ダウンローダーのパネルを開き、「選ばれた作品をクロール」をクリックしてください。`,
-    `단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.<br>선택을 마친 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭하세요.`,
-    `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.<br>После выбора откройте панель загрузчика и нажмите «Сканировать выбранные работы».`,
+    `使用这个功能，你可以从网页上选择你喜欢的作品。点击一个作品即可选择它；可以多选。<br>
+    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。<br>
+    该功能的默认快捷键是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以启动或暂停手动选择模式。`,
+    `使用這個功能，你可以從網頁上選擇你喜歡的作品。點擊一個作品即可選擇它；可以多選。<br>
+    選擇完畢之後，點擊下載器面板裡的「抓取選擇的作品」按鈕即可下載這些作品。<br>
+    該功能的預設快捷鍵是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以啟動或暫停手動選擇模式。`,
+    `With this feature, you can select the works you like directly on the webpage. Click a work to select it; multiple selection is supported.<br>
+    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.<br>
+    The default hotkey for this feature is <span class="blue">Alt</span> + <span class="blue">S</span>, which starts or pauses manual selection mode.`,
+    `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品をクリックすると選択でき、複数選択も可能です。<br>
+    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。<br>
+    この機能の既定のショートカットキーは <span class="blue">Alt</span> + <span class="blue">S</span> で、手動選択モードを開始または一時停止できます。`,
+    `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
+    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.<br>
+    이 기능의 기본 단축키는 <span class="blue">Alt</span> + <span class="blue">S</span>이며, 수동 선택 모드를 시작하거나 일시 중지할 수 있습니다.`,
+    `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на работу, чтобы выбрать её; можно выбирать несколько.<br>
+    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.<br>
+    Горячая клавиша по умолчанию для этой функции — <span class="blue">Alt</span> + <span class="blue">S</span>, она запускает или приостанавливает режим ручного выбора.`,
   ],
   _抓取选择的作品: [
     `抓取选择的作品`,
@@ -4797,69 +4804,93 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     `이번에는 요청이 대기되기 시작했습니다.`,
     `На этот раз запрос начал помещаться в очередь.`,
   ],
-  _HowToUse: [
+  _使用说明详情: [
     `点击网页右侧的蓝色按钮可以打开下载器面板。
+    <br>
+    你在哪个页面里，下载器就会下载哪个页面的作品。
+    <br>
+    如果你想下载一个用户的所有作品，就进入这个用户的主页，然后点击“开始抓取”按钮。
     <br><br>
     下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
-    <br><br>
+    <br>
     <strong>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。</strong>
     <br><br>
-    下载器默认启用了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“增强”设置里启用或关闭这些功能。
+    提示：下载器启用了一些增强功能，可能会导致 Pixiv 的页面样式产生变化。你可以在下载器的“增强”设置里启用或关闭这些功能。
     <br><br>
     下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
 
     `點擊網頁右側的藍色按鈕可以打開下載器面板。
+    <br>
+    你在哪個頁面裡，下載器就會下載哪個頁面的作品。
+    <br>
+    如果你想下載一個用戶的所有作品，就進入這個用戶的主頁，然後點擊「開始抓取」按鈕。
     <br><br>
-    下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
+    下載的文件保存在瀏覽器的下載目錄裡。如果你想保存到其他位置，需要修改瀏覽器的下載目錄。
+    <br>
+    <strong>建議您在瀏覽器的下載設置中關閉「下載前詢問每個文件的保存位置」，否則保存每個文件時都會顯示另存為對話框。</strong>
     <br><br>
-    <strong>建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。</strong>
-    <br><br>
-    下載器默認開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。您可以在下載器的「增強」設定中啟用或關閉這些功能。
+    提示：下載器啟用了一些增強功能，可能會導致 Pixiv 的頁面樣式產生變化。您可以在下載器的「增強」設置裡啟用或關閉這些功能。
     <br><br>
     下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
 
     `Click the blue button on the right side of the webpage to open the downloader panel.
+    <br>
+    The downloader downloads the works of whatever page you are currently on.
+    <br>
+    If you want to download all works of a user, go to that user's homepage and click the "Start crawling" button.
     <br><br>
     Downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download directory.
-    <br><br>
+    <br>
     <strong>It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.</strong>
     <br><br>
-    The downloader enables some enhanced features by default, which may cause changes to the style of some Pixiv pages. You can enable or disable these features in the downloader's "Enhance" settings.
+    Tip: because the downloader enables some enhanced features, the style of Pixiv pages may change. You can enable or disable these features in the downloader's "Enhance" settings.
     <br><br>
     Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
 
     `ウェブページの右側にある青いボタンをクリックすると、ダウンローダーパネルが開きます。
+    <br>
+    ダウンローダーは、あなたが今いるページの作品をダウンロードします。
+    <br>
+    ユーザーのすべての作品をダウンロードしたい場合は、そのユーザーのホームページに移動し、「クロールを開始する」ボタンをクリックしてください。
     <br><br>
     ダウンロードしたファイルはブラウザのダウンロードディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロードディレクトリを変更する必要があります。
-    <br><br>
+    <br>
     <strong>ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。</strong>
     <br><br>
-    ダウンローダーはデフォルトでいくつかの拡張機能を有効にしており、これによりPixivの一部のページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「強化機能」設定で有効または無効にできます。
+    ヒント：ダウンローダーはいくつかの強化機能を有効にしているため、Pixivのページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「強化機能」設定で有効または無効にできます。
     <br><br>
     ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
 
     `웹페이지 오른쪽의 파란색 버튼을 클릭하면 다운로더 패널이 열립니다.
+    <br>
+    다운로더는 현재 보고 있는 페이지의 작품을 다운로드합니다.
+    <br>
+    사용자의 모든 작품을 다운로드하려면 해당 사용자의 홈페이지로 이동한 후 "긁어오기 시작" 버튼을 클릭하세요.
     <br><br>
     다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 디렉토리를 변경해야 합니다.
-    <br><br>
+    <br>
     <strong>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.</strong>
     <br><br>
-    다운로더는 기본적으로 몇 가지 향상된 기능을 활성화하며, 이로 인해 Pixiv의 일부 페이지 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "향상" 설정에서 활성화하거나 비활성화할 수 있습니다.
+    참고: 다운로더는 몇 가지 향상 기능을 활성화하고 있어 Pixiv 페이지의 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "향상" 설정에서 활성화하거나 비활성화할 수 있습니다.
     <br><br>
     다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
 
     `Нажмите на синюю кнопку справа на веб-странице, чтобы открыть панель загрузчика.
+    <br>
+    Загрузчик скачивает работы той страницы, на которой вы находитесь.
+    <br>
+    Если вы хотите скачать все работы пользователя, перейдите на его домашнюю страницу и нажмите кнопку «Начать сканирование».
     <br><br>
     Загруженные файлы сохраняются в папке загрузок браузера. Если вы хотите сохранить их в другое место, необходимо изменить папку загрузок в настройках браузера.
+    <br>
+    <strong>Рекомендуется отключить в настройках загрузки браузера опцию «Запрашивать место сохранения каждого файла перед загрузкой», иначе при сохранении каждого файла будет отображаться диалог «Сохранить как».</strong>
     <br><br>
-    <strong>Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".</strong>
-    <br><br>
-    Загрузчик по умолчанию включает некоторые расширенные функции, которые могут привести к изменению стиля некоторых страниц Pixiv. Вы можете включать или отключать эти функции в разделе «Улучшение» загрузчика.
+    Совет: поскольку загрузчик включает некоторые улучшенные функции, стиль страниц Pixiv может измениться. Вы можете включать или отключать эти функции в разделе «Улучшение» загрузчика.
     <br><br>
     Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -5453,10 +5484,10 @@ Note: After enabling this setting, the downloader will overwrite your current na
   _长按右键显示大图: [
     `在缩略图上长按鼠标右键时显示<span class="key">大图</span>`,
     `在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>`,
-    `Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>`,
-    `サムネイルでマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>が表示されます`,
-    `썸네일을 마우스 오른쪽 버튼으로 클릭했을 때 <span class="key">큰 이미지</span> 표시`,
-    `Длительное нажатие правой кнопки мыши на миниатюре для отображения <span class="key">большого изображения</span>`,
+    `Long press the right mouse button on a thumbnail to display the <span class="key">large image</span>`,
+    `サムネイル上でマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>が表示されます`,
+    `썸네일에서 마우스 오른쪽 버튼을 길게 누르면 <span class="key">큰 이미지</span>가 표시됩니다`,
+    `При длительном нажатии правой кнопки мыши на миниатюре отображается <span class="key">крупное изображение</span>`,
   ],
   _鼠标滚轮切换图片: [
     `预览多图作品时，可以使用鼠标滚轮切换图片。`,
@@ -7768,12 +7799,12 @@ PS: На странице профиля заблокированного пол
     `Нажмите на название настройки или долго нажмите кнопку на главной странице, чтобы открыть соответствующую ссылку на Wiki.`,
   ],
   _提示使用小号下载: [
-    `💡本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>`,
-    `💡本次任務需要抓取的作品數量比較多，您可以考慮使用小號進行抓取和下載，以減少大號被封禁的風險。<br>您可以在 Wiki 查看相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>`,
-    `💡This task requires crawling a large number of works. You may consider using an alt account for crawling and downloading to reduce the risk of your main account being banned. <br>You can view the relevant instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Using Secondary Account for Downloading</a>`,
-    `💡今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">小号でダウンロード</a>`,
-    `💡이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">작은 계정으로 다운로드</a>`,
-    `💡Эта задача требует сканирования большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для сканирования и загрузки, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
+    `💡本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险?id=使用小号" target="_blank">使用小号下载</a>`,
+    `💡本次任務需要抓取的作品數量比較多，您可以考慮使用小號進行抓取和下載，以減少大號被封禁的風險。<br>您可以在 Wiki 查看相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险?id=使用小号" target="_blank">使用小號下載</a>`,
+    `💡This task requires crawling a large number of works. You may consider using an alt account for crawling and downloading to reduce the risk of your main account being banned. <br>You can view the relevant instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">Using Secondary Account for Downloading</a>`,
+    `💡今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">小号でダウンロード</a>`,
+    `💡이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">작은 계정으로 다운로드</a>`,
+    `💡Эта задача требует сканирования большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для сканирования и загрузки, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
   ],
   _复制按钮: [
     `<span class="key">复制</span>按钮`,
@@ -9868,12 +9899,12 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `Закрепить сверху`,
   ],
   _提示可以置顶选项: [
-    `你可以置顶自己常用的选项，它们会集中显示在“首页”里。在设置的卡片上长按 0.5 秒即可使其置顶或取消置顶。`,
-    `你可以置頂自己常用的選項，它們會集中顯示在 "首頁" 裡。在設定卡片上長按 0.5 秒即可將其置頂或取消置頂。`,
-    `You can pin the options you use often, and they will be shown together on the "Home" page. Press and hold a setting card for 0.5 seconds to pin or unpin it.`,
-    `よく使うオプションはピン留めできます。ピン留めした項目は "ホーム" にまとめて表示されます。設定カードを 0.5 秒長押しすると、ピン留めまたはピン留め解除できます。`,
-    `자주 사용하는 옵션을 고정할 수 있으며, 고정한 옵션은 "홈" 에 모아서 표시됩니다. 설정 카드에서 0.5초 동안 길게 누르면 고정하거나 고정을 해제할 수 있습니다.`,
-    `Вы можете закрепить часто используемые параметры, и они будут собраны на странице "Главная". Нажмите и удерживайте карточку настройки 0.5 секунды, чтобы закрепить или открепить ее.`,
+    `你可以置顶自己常用的设置，它们会集中显示在“首页”里。在设置的卡片上长按 0.5 秒即可使其置顶或取消置顶。`,
+    `你可以置頂自己常用的設定，它們會集中顯示在「首頁」裡。在設定的卡片上長按 0.5 秒即可使其置頂或取消置頂。`,
+    `You can pin the settings you use often, and they will be shown together on the "Home" page. Long press a setting card for 0.5 seconds to pin or unpin it.`,
+    `よく使う設定はトップに固定でき、それらは「ホーム」にまとめて表示されます。設定のカードを 0.5 秒間長押しすると、トップに固定したり解除したりできます。`,
+    `자주 사용하는 설정을 상단에 고정할 수 있으며, 고정한 설정은 "홈"에 모아서 표시됩니다. 설정 카드를 0.5초 동안 길게 누르면 상단 고정하거나 해제할 수 있습니다.`,
+    `Вы можете закрепить сверху часто используемые настройки, и они будут собраны на странице «Главная». Нажмите и удерживайте карточку настройки 0,5 секунды, чтобы закрепить её сверху или открепить.`,
   ],
   _已置顶: [`已置顶`, `已置頂`, `Pinned`, `固定済み`, `고정됨`, `Закреплено`],
   _取消置顶: [
@@ -12173,5 +12204,13 @@ GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처
     `フォロー中のユーザー一覧の取得中にエラーが発生しました。再試行します。`,
     `팔로우 중인 사용자 목록을 가져오는 중 오류가 발생했습니다. 다시 시도합니다.`,
     `При получении списка отслеживаемых пользователей произошла ошибка. Повторная попытка.`,
+  ],
+  _提示怎么抓取一个用户的作品: [
+    `你在哪个页面里，下载器就会下载哪个页面的作品。如果你想下载一个用户的所有作品，需要进入这个用户的主页，然后点击“开始抓取”按钮。`,
+    `你在哪個頁面裡，下載器就會下載哪個頁面的作品。如果你想下載一個用戶的所有作品，需要進入這個用戶的主頁，然後點擊「開始抓取」按鈕。`,
+    `The downloader downloads the works of whatever page you are currently on. If you want to download all works of a user, go to that user's homepage and click the "Start crawling" button.`,
+    `ダウンローダーは、あなたが今いるページの作品をダウンロードします。ユーザーのすべての作品をダウンロードしたい場合は、そのユーザーのホームページに移動し、「クロールを開始する」ボタンをクリックしてください。`,
+    `다운로더는 현재 보고 있는 페이지의 작품을 다운로드합니다. 사용자의 모든 작품을 다운로드하려면 해당 사용자의 홈페이지로 이동한 후 "긁어오기 시작" 버튼을 클릭하세요.`,
+    `Загрузчик скачивает работы той страницы, на которой вы находитесь. Если вы хотите скачать все работы пользователя, перейдите на его домашнюю страницу и нажмите кнопку «Начать сканирование».`,
   ],
 }
