@@ -513,6 +513,7 @@ interface XzSetting {
   tipAltEToExcludeWork: boolean
   /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
   hotkeys: HotkeyMap
+  tipHowToCrawlUserWorks: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -1147,6 +1148,7 @@ class Settings {
     tipManuallyExcludeWorks: true,
     tipAltEToExcludeWork: true,
     hotkeys: defaultHotkeys,
+    tipHowToCrawlUserWorks: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1483,6 +1485,7 @@ class Settings {
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
     this.setSetting('tipAltEToExcludeWork', true)
+    this.setSetting('tipHowToCrawlUserWorks', true)
     this.setSetting('tipImageViewer', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)

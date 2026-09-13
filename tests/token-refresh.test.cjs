@@ -470,9 +470,10 @@ function callers(options = {}) {
       return 404
     },
     getFollowingList: async () => ({ body: { users: [] } }),
+    getUserProfile: async () => ({ error: false }),
   }
   const log = Object.fromEntries(
-    ['log', 'warning', 'error', 'success'].map((type) => [
+    ['log', 'warning', 'error', 'success', 'persistentRefresh'].map((type) => [
       type,
       (...args) => notices.push({ owner: 'log', type, args }),
     ])
@@ -662,7 +663,7 @@ for (const ids of [['7'], ['7', '8']]) {
     test(`follow ${failure}, ${ids.length} users: stop without retry, false completion or stuck busy`, async () => {
       const e = callers()
       e.Utils.loadJSONFile = async () => ids
-      await e.follow.start()
+      void e.follow.start()
       await flush()
       assert.equal(e.follow.busy, true)
       if (failure === 'network') e.requests[0].reject(new Error('test failure'))
@@ -682,7 +683,7 @@ for (const ids of [['7'], ['7', '8']]) {
         e.follows.push(args)
         return 200
       }
-      await e.follow.start()
+      void e.follow.start()
       await flush()
       await e.advance(ids.length * 2500)
       assert.equal(e.follow.busy, false)
@@ -693,18 +694,18 @@ for (const ids of [['7'], ['7', '8']]) {
   }
 }
 
-test('follow repeated 404 refreshes once per task, then a new task can refresh again', async () => {
+test('follow repeated 404 stops after one refresh, then a new task can refresh again', async () => {
   const e = callers()
   e.Utils.loadJSONFile = async () => ['7', '8']
-  await e.follow.start()
+  void e.follow.start()
   await flush()
   e.requests[0].resolve(response())
   await flush()
   await e.advance(6000)
-  assert.equal(e.follows.length, 3)
+  assert.equal(e.follows.length, 2)
   assert.equal(e.requests.length, 1)
   assert.equal(e.follow.busy, false)
-  await e.follow.start()
+  void e.follow.start()
   await flush()
   assert.equal(e.requests.length, 2)
   e.requests[1].reject(new Error('test end'))
@@ -712,43 +713,34 @@ test('follow repeated 404 refreshes once per task, then a new task can refresh a
   assert.equal(e.follow.busy, false)
 })
 
-for (const afterRefresh of [false, true]) {
-  test(`follow 400 ${afterRefresh ? 'after refresh' : 'directly'} retains the iframe path and privacy`, async () => {
-    const e = callers(),
-      frames = [],
-      cleared = []
-    e.follow.rest = 'hide'
-    e.follow.loadIframe = async (id) => {
-      const frame = { id }
-      frames.push(frame)
-      return frame
-    }
-    e.follow.clearIframe = (frame) => cleared.push(frame)
-    e.API.addFollowingUser = async (...args) => {
-      e.follows.push(args)
-      return afterRefresh && e.follows.length === 1 ? 404 : 400
-    }
-    const pending = e.follow.addFollow('7')
-    await flush()
-    if (afterRefresh) {
-      e.requests[0].resolve(response())
-      await flush()
-      await e.advance(1000)
-    }
-    assert.equal(await pending, 200)
-    assert.equal(await e.follow.addFollow('8'), 200)
-    assert.equal(e.requests.length, afterRefresh ? 1 : 0)
-    assert.equal(e.follows.length, afterRefresh ? 2 : 1)
-    assert.ok(e.follows.every((args) => args[2] === false))
-    assert.deepEqual(
-      frames.map((frame) => frame.id),
-      ['7', '8']
-    )
-    assert.deepEqual(cleared, frames)
-  })
-}
+test('a direct follow 400 retains the upstream iframe path and privacy', async () => {
+  const e = callers(),
+    frames = [],
+    cleared = []
+  e.follow.rest = 'hide'
+  e.follow.loadIframe = async (id) => {
+    const frame = { id }
+    frames.push(frame)
+    return frame
+  }
+  e.follow.clearIframe = (frame) => cleared.push(frame)
+  e.API.addFollowingUser = async (...args) => {
+    e.follows.push(args)
+    return 400
+  }
+  assert.equal(await e.follow.addFollow('7'), 200)
+  assert.equal(await e.follow.addFollow('8'), 200)
+  assert.equal(e.requests.length, 0)
+  assert.equal(e.follows.length, 1)
+  assert.equal(e.follows[0][2], false)
+  assert.deepEqual(
+    frames.map((frame) => frame.id),
+    ['7', '8']
+  )
+  assert.deepEqual(cleared, frames)
+})
 
-for (const failure of ['403', 'rejection']) {
+for (const failure of ['400', '403', 'rejection']) {
   test(`follow retry ${failure} stops the remainder and restores busy`, async () => {
     const e = callers()
     e.Utils.loadJSONFile = async () => ['7', '8']
@@ -756,9 +748,9 @@ for (const failure of ['403', 'rejection']) {
       e.follows.push(args)
       if (e.follows.length === 1) return 404
       if (failure === 'rejection') throw new Error('test rejection')
-      return 403
+      return Number(failure)
     }
-    await e.follow.start()
+    void e.follow.start()
     await flush()
     e.requests[0].resolve(response())
     await flush()
@@ -781,7 +773,7 @@ for (const caller of ['bookmark', 'follow']) {
       assert.equal(await e.bookmark.add('42', 'illusts', []), 400)
       assert.equal(e.writes.length, 1)
     } else {
-      await e.follow.start()
+      void e.follow.start()
       await flush()
       assert.equal(e.follows.length, 1)
       assert.equal(e.follow.busy, false)
@@ -839,4 +831,102 @@ test('an authentication timeout cannot settle an already-sent bookmark retry', a
   assert.equal(settled, false)
   write.resolve()
   assert.equal(await result, 200)
+})
+
+for (const status of [403, 404]) {
+  test(`upstream ${status} handling skips a nonexistent user without refreshing`, async () => {
+    const e = callers()
+    e.API.getUserProfile = async () => ({ error: true })
+    e.API.addFollowingUser = async (...args) => {
+      e.follows.push(args)
+      return status
+    }
+    await e.follow.start()
+    assert.equal(e.requests.length, 0)
+    assert.equal(e.follows.length, 1)
+    assert.equal(e.follow.stopAddFollow, false)
+    assert.equal(e.follow.busy, false)
+  })
+}
+
+for (const field of ['userId', 'id']) {
+  test(`upstream ${field} imports keep the small-batch shortcut`, async () => {
+    const e = callers()
+    let lists = 0
+    e.Utils.loadJSONFile = async () => [{ [field]: '7' }]
+    e.API.getFollowingList = async () => {
+      lists++
+      return { body: { users: [] } }
+    }
+    e.API.addFollowingUser = async (...args) => {
+      e.follows.push(args)
+      return 200
+    }
+    const pending = e.follow.start()
+    await flush()
+    await e.advance(2500)
+    await pending
+    assert.equal(lists, 0)
+    assert.equal(e.follows[0][0], '7')
+    assert.equal(e.follow.busy, false)
+  })
+}
+
+test('refresh failure from the upstream large-batch list path also releases busy', async () => {
+  const e = callers()
+  let lists = 0
+  e.Utils.loadJSONFile = async () =>
+    Array.from({ length: 25 }, (_, i) => String(7 + i))
+  e.API.getFollowingList = async () => {
+    lists++
+    return { body: { users: [] } }
+  }
+  const pending = e.follow.start()
+  await flush()
+  assert.equal(lists, 1)
+  assert.equal(e.requests.length, 1)
+  e.requests[0].reject(new Error('test refresh failed'))
+  await pending
+  assert.equal(e.follows.length, 1)
+  assert.equal(e.follow.busy, false)
+  assert.equal(
+    e.notices.some((n) => n.owner === 'msgBox' && n.type === 'success'),
+    false
+  )
+})
+
+test('a successful refreshed follow is counted by the upstream progress display', async () => {
+  const e = callers()
+  e.API.addFollowingUser = async (...args) => {
+    e.follows.push(args)
+    return e.follows.length === 1 ? 404 : 200
+  }
+  const pending = e.follow.start()
+  await flush()
+  e.requests[0].resolve(response())
+  await flush()
+  await e.advance(1000)
+  await pending
+  assert.ok(e.notices.some((n) => n.args[0] === '1 / 1, _新增x个 1'))
+  assert.equal(e.follow.busy, false)
+})
+
+test('upstream 500-request batch limit still stops before user 501', async () => {
+  const e = callers()
+  e.Utils.loadJSONFile = async () =>
+    Array.from({ length: 501 }, (_, i) => String(7 + i))
+  e.API.addFollowingUser = async (...args) => {
+    e.follows.push(args)
+    return 200
+  }
+  const pending = e.follow.start()
+  await flush()
+  await e.advance(500 * 2500)
+  await pending
+  assert.equal(e.follows.length, 500)
+  assert.equal(e.follow.busy, false)
+  assert.equal(
+    e.notices.some((n) => n.owner === 'msgBox' && n.type === 'success'),
+    false
+  )
 })

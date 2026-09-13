@@ -123,33 +123,54 @@ class Utils {
     }
   }
 
-  // 创建 input 元素选择 json 文件
-  static async loadJSONFile<T>(): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  /** 使用选择文件对话框，让用户选择 JSON 文件
+   *
+   * 如果内容是合法的 JSON，则返回解析后的对象。
+   *
+   * 如果用户点击了取消按钮（没有选择任何文件），则返回 undefined。
+   */
+  static async loadJSONFile<T>(): Promise<T | undefined> {
+    return new Promise<T | undefined>((resolve, reject) => {
       const i = document.createElement('input')
       i.setAttribute('type', 'file')
       i.setAttribute('accept', 'application/json')
+
+      const cleanup = () => {
+        i.onchange = null
+        i.removeEventListener('cancel', onCancel)
+      }
+      const onCancel = () => {
+        cleanup()
+        resolve(undefined)
+      }
+
+      i.addEventListener('cancel', onCancel, { once: true })
       i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          // 读取文件内容
-          const file = new FileReader()
-          file.readAsText(i.files[0])
-          file.onload = () => {
-            const str = file.result as string
-            let result: T
-            try {
-              result = JSON.parse(str)
-              // if((result as any).constructor !== Object){
-              // 允许是对象 {} 或者数组 []
-              if (result === null || typeof result !== 'object') {
-                const msg = 'Data is not an object!'
-                return reject(new Error(msg))
-              }
-              return resolve(result)
-            } catch (error) {
-              const msg = 'JSON parse error!'
+        const selectedFile = i.files?.[0]
+        if (!selectedFile) {
+          return onCancel()
+        }
+
+        cleanup()
+
+        // 读取文件内容
+        const file = new FileReader()
+        file.readAsText(selectedFile)
+        file.onload = () => {
+          const str = file.result as string
+          let result: T
+          try {
+            result = JSON.parse(str)
+            // if((result as any).constructor !== Object){
+            // 允许是对象 {} 或者数组 []
+            if (result === null || typeof result !== 'object') {
+              const msg = 'Data is not an object!'
               return reject(new Error(msg))
             }
+            return resolve(result)
+          } catch (error) {
+            const msg = 'JSON parse error!'
+            return reject(new Error(msg))
           }
         }
       }
@@ -158,20 +179,37 @@ class Utils {
     })
   }
 
-  // 创建 input 元素选择文件
-  static async selectFile(accept?: string) {
-    return new Promise<FileList>((resolve, reject) => {
+  /** 使用选择文件对话框，让用户选择文件
+   *
+   * accept: 可选，指定可选择的文件类型
+   *
+   * 返回用户选择的文件列表；如果用户取消选择，则返回 undefined
+   */
+  static async selectFile(accept?: string): Promise<FileList | undefined> {
+    return new Promise<FileList | undefined>((resolve) => {
       const i = document.createElement('input')
       i.setAttribute('type', 'file')
       if (accept) {
         i.setAttribute('accept', accept)
       }
+
+      const cleanup = () => {
+        i.onchange = null
+        i.removeEventListener('cancel', onCancel)
+      }
+      const onCancel = () => {
+        cleanup()
+        resolve(undefined)
+      }
+
+      i.addEventListener('cancel', onCancel, { once: true })
       i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          return resolve(i.files)
-        } else {
-          return reject()
+        if (!i.files || i.files.length === 0) {
+          return onCancel()
         }
+
+        cleanup()
+        return resolve(i.files)
       }
 
       i.click()

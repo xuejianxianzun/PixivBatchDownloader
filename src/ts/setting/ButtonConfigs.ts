@@ -561,7 +561,7 @@ class ButtonConfigs {
     },
     {
       id: 'batchFollowUser',
-      nameKey: '_批量关注用户',
+      nameKey: '_批量关注用户JSON',
       categoryLevel1: 'extraFeatures',
       categoryLevel2: 'FollowingPage',
     },

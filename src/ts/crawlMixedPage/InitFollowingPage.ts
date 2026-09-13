@@ -84,7 +84,7 @@ class InitFollowingPage extends InitPageBase {
 
     this.addInitPageBtn(
       'otherBtns',
-      '_批量关注用户',
+      '_批量关注用户JSON',
       '',
       'batchFollowUser',
       'brand'

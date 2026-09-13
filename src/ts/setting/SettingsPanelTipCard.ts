@@ -19,6 +19,10 @@ class SettingsPanelTipCard {
       text: '_手动排除作品的提示信息',
     },
     {
+      key: 'tipHowToCrawlUserWorks',
+      text: '_提示怎么抓取一个用户的作品',
+    },
+    {
       key: 'tipCloseAskFileSaveLocation',
       text: '_建议您关闭询问文件保存位置',
     },

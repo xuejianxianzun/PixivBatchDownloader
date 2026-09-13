@@ -103,7 +103,9 @@ class ShowEnabledFilter {
       !settings.UnknownAI
     ) {
       return this.error(
-        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_AI作品')
+        lang.transl('_排除了所有作品类型') +
+          ': <br>' +
+          lang.transl('_AI作品带高亮')
       )
     }
 
