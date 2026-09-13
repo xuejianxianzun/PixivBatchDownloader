@@ -149,16 +149,27 @@ class BatchFollowUser {
     }, settings.slowCrawlDealy)
   }
 
+  /** 关注阶段失败也恢复 busy，事件启动的任务不泄漏未处理的 Promise。 */
   private async getUserListComplete() {
-    log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
-    // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
-    await this.batchFollow()
-    this.busy = false
+    try {
+      log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
+      // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
+      await this.batchFollow()
+    } catch {
+      this.stopAddFollow = true
+      const msg = lang.transl('_任务已中止')
+      log.error(msg)
+      msgBox.error(msg)
+    } finally {
+      this.busy = false
+    }
   }
 
+  /** 新任务重新获得一次 404 刷新机会，保留原有列表初始化。 */
   private reset() {
     this.userList = []
     this.requestTimes = 0
+    this.tokenHasUpdated = false
   }
 
   private async importUserList(): Promise<string[]> {
@@ -191,6 +202,7 @@ class BatchFollowUser {
   private stopAddFollow = false
   private sendReqNumber = 0
   private readonly dailyLimit = 1000 // 每天限制关注的数量，以免被封号
+  /** 每个批量任务最多在 404 时刷新一次；404 也可能表示用户不存在。 */
   private tokenHasUpdated = false
   private need_recaptcha_enterprise_score_token = false
 
@@ -201,6 +213,7 @@ class BatchFollowUser {
     )
   }
 
+  /** 刷新失败时停止剩余用户，包括最后一个用户失败时也不能显示全部成功。 */
   private async batchFollow() {
     const taskName = lang
       .transl('_批量关注用户')
@@ -219,10 +232,7 @@ class BatchFollowUser {
       this.logProgress(number, total, this.sendReqNumber)
 
       if (this.stopAddFollow) {
-        const msg = lang.transl('_任务已中止')
-        log.error(msg)
-        msgBox.error(msg)
-        return
+        break
       }
 
       if (this.sendReqNumber >= this.dailyLimit) {
@@ -243,6 +253,13 @@ class BatchFollowUser {
       } else {
         followed++
       }
+    }
+
+    if (this.stopAddFollow) {
+      const msg = lang.transl('_任务已中止')
+      log.error(msg)
+      msgBox.error(msg)
+      return
     }
 
     this.logProgress(number, total, this.sendReqNumber)
@@ -268,6 +285,7 @@ class BatchFollowUser {
     }
   }
 
+  /** 404 只刷新一次，成功取得 token 才重试；400 仍使用原有 iframe 路径。 */
   private async addFollow(userID: string): Promise<number> {
     // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
     if (this.need_recaptcha_enterprise_score_token) {
@@ -277,29 +295,33 @@ class BatchFollowUser {
     }
 
     // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-    const status = await API.addFollowingUser(
+    let status = await API.addFollowingUser(
       userID,
       token.token,
       this.rest === 'show'
     )
+    if (status === 404 && !this.tokenHasUpdated) {
+      // 404 也可能是用户不存在；只尝试一次，不能当成登录状态判断。
+      this.tokenHasUpdated = true
+      const refreshedToken = await token.reset().catch(() => '')
+      if (!refreshedToken) {
+        log.error(`Error: ${Tools.createUserLink(userID)} Status: ${status}`)
+        this.stopAddFollow = true
+        return status
+      }
+      await Utils.sleep(1000)
+      status = await API.addFollowingUser(
+        userID,
+        refreshedToken,
+        this.rest === 'show'
+      )
+    }
+
     if (status !== 200) {
       const errorMsg = `Error: ${Tools.createUserLink(
         userID
       )} Status: ${status}`
-      if (status === 404) {
-        // 404 可能的原因：
-        // 1. token 无效
-        // 2. 该用户不存在
-        if (this.tokenHasUpdated === true) {
-          log.error(errorMsg)
-        } else {
-          // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-          this.tokenHasUpdated = true
-          await token.reset()
-          await Utils.sleep(1000)
-          await API.addFollowingUser(userID, token.token, this.rest === 'show')
-        }
-      } else if (status === 400) {
+      if (status === 400) {
         // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
         // 此时发出一次错误提醒，并重试添加关注
         this.need_recaptcha_enterprise_score_token = true
