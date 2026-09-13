@@ -335,7 +335,7 @@ class OptionConfigs {
     },
     {
       no: 5,
-      nameKey: '_AI作品',
+      nameKey: '_AI作品带高亮',
       name: '',
       categoryLevel1: 'crawl',
       categoryLevel2: 'workType',

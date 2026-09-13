@@ -9,9 +9,9 @@ class FindBookmark404Action extends Bookmark404ActionBase {
     super()
 
     btn.addEventListener('click', () => {
-      const title = lang.transl('_查找所有已被删除的作品')
-      log.log(title)
-      toast.show(title, {
+      const msg = lang.transl('_查找所有已被删除的作品')
+      log.success('🚀' + msg)
+      toast.show(msg, {
         position: 'topCenter',
       })
       EVT.fire('closeSettingsPanel')

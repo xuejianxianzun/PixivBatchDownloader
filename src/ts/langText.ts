@@ -6771,13 +6771,21 @@ There is also a button at the bottom of the log area for manually exporting logs
     `특정 <span class="key">태그</span>가 있는 경우 작업에 다른 명명 규칙을 사용하십시오`,
     `Используйте другое правило именования для работы, если она имеет определенные <span class="key">теги</span>`,
   ],
-  _AI作品: [
+  _AI作品带高亮: [
     `<span class="key">AI</span> 作品`,
     `<span class="key">AI</span> 作品`,
     `<span class="key">AI</span> works`,
     `<span class="key">AI</span> 作品`,
     `<span class="key">AI</span> 작품`,
     `<span class="key">ИИ</span> работы`,
+  ],
+  _AI作品: [
+    `AI 作品`,
+    `AI 作品`,
+    `AI works`,
+    `AI 作品`,
+    `AI 작품`,
+    `ИИ работы`,
   ],
   _AI生成: [
     `AI 生成`,
@@ -7466,6 +7474,14 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `ブックマークリストをエクスポートする（JSON）`,
     `북마크 목록 내보내기（JSON）`,
     `Экспортировать список закладок（JSON）`,
+  ],
+  _导出时会包含已删除或非公开的作品: [
+    `导出时会包含已删除或非公开的作品`,
+    `匯出時會包含已刪除或非公開的作品`,
+    `The export will include deleted or private works`,
+    `エクスポートには削除または非公開の作品が含まれます`,
+    `내보내기에는 삭제되었거나 비공개된 작품이 포함됩니다`,
+    `При экспорте будут включены удалённые или приватные работы`,
   ],
   _导入收藏列表: [
     `导入收藏列表（批量添加收藏）`,
