@@ -35,10 +35,23 @@ class PreviewWorkDetailInfo {
   private delayShowTimer: number | undefined = undefined
 
   private bindEvents() {
-    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string, ev: MouseEvent) => {
       window.clearTimeout(this.resetWorkIdTimer)
 
-      if (id === '' || id === this.workId) {
+      if (id === '') {
+        return
+      }
+
+      if (id === this.workId) {
+        // 鼠标经过缩略图上的按钮时，会取消详情面板的延迟显示；
+        // 之后如果鼠标从按钮上回到（落入）缩略图时，需要重新启动延迟显示，否则这次就不会显示详情面板
+        if (
+          ev.relatedTarget instanceof HTMLElement &&
+          ev.relatedTarget.classList.contains('btnOnThumb')
+        ) {
+          this.workEl = el
+          this.readyShow()
+        }
         return
       }
 

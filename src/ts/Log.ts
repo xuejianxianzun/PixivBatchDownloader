@@ -149,7 +149,11 @@ class Log {
       }
     }
 
-    span.innerHTML = str
+    // 把「裸 &」转义成 &amp; 之后再交给 innerHTML 渲染。
+    // 否则 URL 里的一些参数会被浏览器当成 HTML 实体解析，例如：
+    // &timestamp= 开头的 &times 会被解析成 ×，于是显示成 ×tamp=
+    // 已经写成实体的文本（如 &amp;、&nbsp;、&#39;）会被保留，不会重复转义
+    span.innerHTML = str.replace(/&(?![a-zA-Z0-9#]+;)/g, '&amp;')
     span.style.color = this.levelColor[level]
     span.appendChild(document.createElement('br'))
 
@@ -161,6 +165,7 @@ class Log {
   }
 
   /** 输出普通日志 */
+  // 允许添加空行。使用 log.log('') 即可输出一个空行，在视觉上形成一个空白分隔区域。
   public log(str: string, key = '') {
     this.add(str, 0, key)
   }

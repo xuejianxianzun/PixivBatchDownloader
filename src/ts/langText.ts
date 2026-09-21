@@ -5,8 +5,10 @@ import { Config } from './Config'
 // 备注：
 // 属性名前面需要添加下划线
 // {} 是占位符
-// <br> 和 \n 是换行
+// <br> 和 \n 是换行。其中 <br> 是用于 HTML 元素的换行，\n 是用于写入文件内容的换行
 // 字符串使用模板字符串的反引号 ` 包裹（而非单引号 ' 或双引号 "），这样对于换行和特殊字符的处理会更方便
+
+/**i18n 语句的 key。以下划线开头 */
 export type LangTextKey = keyof typeof langText
 
 export const langText = {
