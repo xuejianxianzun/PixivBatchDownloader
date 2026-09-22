@@ -12,7 +12,7 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { lang } from '../Language'
 import { setSetting, settings } from '../setting/Settings'
-import { Download } from '../download/Download'
+import { Download } from './Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowDownloadStates } from './ShowDownloadStates'
@@ -181,6 +181,11 @@ class DownloadControl {
         return
       }
 
+      // 忽略之前下载批次延迟返回的消息，避免它影响当前任务
+      if (msg.data?.taskBatch !== this.taskBatch) {
+        return
+      }
+
       // 提示文件名变成了UUID 的情况
       // 注意：有些文件是不会返回消息的，所以它们不会触发这个提示
       if (msg.data?.uuid) {
@@ -240,16 +245,17 @@ class DownloadControl {
         }
 
         // 其他原因，下载器会重试保存这个文件
+        const errorDetail = msg.runtimeError || msg.err || 'unknown'
         log.error(
           lang.transl(
             '_save_file_failed_tip',
             Tools.createWorkLink(msg.data.id),
-            msg.err || 'unknown'
+            errorDetail
           )
         )
 
         if (msg.err === 'FILE_FAILED') {
-          log.error(lang.transl('_FILE_FAILED_tip'))
+          log.error(lang.transl('_可能是文件名太长'))
         }
 
         EVT.fire('saveFileError')

@@ -15931,10 +15931,11 @@ __webpack_require__.r(__webpack_exports__);
  * 页面抓取流程的基类。
  *
  * 典型流程：
- * 1. 子类调用 init，添加页面元素、注册事件和销毁回调。
- * 2. 用户开始抓取后，readyCrawl 完成检查与初始化，依次执行 nextStep、getIdList。
- * 3. getIdListFinished 过滤 ID 并启动并发 getWorksData，全部完成后执行 crawlFinished。
- * 4. 页面卸载时，DestroyManager 调用 destroy；子类可覆写它来清理页面专用元素和事件。
+ * 1. 初始化：子类调用 init，添加页面元素、注册事件和销毁回调。
+ * 2. 开始抓取时，先执行 readyCrawl 完成检查与初始化，然后执行 nextStep
+ * 3. 获取作品 ID 列表：getIdList，获取完毕后执行 getIdListFinished
+ * 4. 获取作品详情：getWorksData，全部完成后执行 crawlFinished，之后就可以开始下载了。
+ * 5. 卸载：当用户切换到不同的页面类型里时，会执行 destroy 销毁该页面里的元素和事件。
  */
 class InitPageBase {
     /**要抓取的个数/页数 */
@@ -24597,7 +24598,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _download_Download__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/Download */ "./src/ts/download/Download.ts");
+/* harmony import */ var _Download__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Download */ "./src/ts/download/Download.ts");
 /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 /* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
@@ -24746,6 +24747,10 @@ class DownloadControl {
             if (!this.isDownloadedMsg(msg)) {
                 return;
             }
+            // 忽略之前下载批次延迟返回的消息，避免它影响当前任务
+            if (msg.data?.taskBatch !== this.taskBatch) {
+                return;
+            }
             // 提示文件名变成了UUID 的情况
             // 注意：有些文件是不会返回消息的，所以它们不会触发这个提示
             if (msg.data?.uuid) {
@@ -24788,9 +24793,10 @@ class DownloadControl {
                     return;
                 }
                 // 其他原因，下载器会重试保存这个文件
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(msg.data.id), msg.err || 'unknown'));
+                const errorDetail = msg.runtimeError || msg.err || 'unknown';
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(msg.data.id), errorDetail));
                 if (msg.err === 'FILE_FAILED') {
-                    _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_FILE_FAILED_tip'));
+                    _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能是文件名太长'));
                 }
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('saveFileError');
                 // 重新下载这个文件
@@ -25129,7 +25135,7 @@ class DownloadControl {
                 progressBarIndex: progressBarIndex,
             };
             // 建立下载
-            new _download_Download__WEBPACK_IMPORTED_MODULE_7__.Download(progressBarIndex, argument, index);
+            new _Download__WEBPACK_IMPORTED_MODULE_7__.Download(progressBarIndex, argument, index);
         }
     }
     // 在有下载出错的情况下，是否已经完成了下载
@@ -37934,7 +37940,7 @@ This setting does not apply to collection files generated after merging a novel 
         `{} 저장되지 않음, 코드: {}.`,
         `{} не сохранено, код: {}.`,
     ],
-    _FILE_FAILED_tip: [
+    _可能是文件名太长: [
         `可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用“命名”设置里的“文件名长度限制”。`,
         `可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用“命名”設定裡的“檔案名稱長度限制”。`,
         `Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in the "Naming" settings.`,

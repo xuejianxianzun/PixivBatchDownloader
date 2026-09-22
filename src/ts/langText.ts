@@ -5816,7 +5816,7 @@ This setting does not apply to collection files generated after merging a novel 
     `{} 저장되지 않음, 코드: {}.`,
     `{} не сохранено, код: {}.`,
   ],
-  _FILE_FAILED_tip: [
+  _可能是文件名太长: [
     `可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用“命名”设置里的“文件名长度限制”。`,
     `可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用“命名”設定裡的“檔案名稱長度限制”。`,
     `Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in the "Naming" settings.`,
