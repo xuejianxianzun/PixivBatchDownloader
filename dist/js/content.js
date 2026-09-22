@@ -24741,14 +24741,15 @@ class DownloadControl {
         });
         // 监听浏览器返回的消息
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg) => {
-            if (!this.taskBatch) {
-                return;
-            }
             if (!this.isDownloadedMsg(msg)) {
                 return;
             }
-            // 忽略之前下载批次延迟返回的消息，避免它影响当前任务
-            if (msg.data?.taskBatch !== this.taskBatch) {
+            // 旧批次的结果也需要释放前台 Blob URL，但不能影响当前任务。
+            if ((msg.msg === 'downloaded' || msg.msg === 'download_err') &&
+                msg.data?.blobURLFront) {
+                URL.revokeObjectURL(msg.data.blobURLFront);
+            }
+            if (!this.taskBatch || msg.data?.taskBatch !== this.taskBatch) {
                 return;
             }
             // 提示文件名变成了UUID 的情况
@@ -24771,7 +24772,6 @@ class DownloadControl {
             // 文件下载成功
             if (msg.msg === 'downloaded') {
                 try {
-                    URL.revokeObjectURL(msg.data.blobURLFront);
                     // 发送下载成功的事件
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadSuccess', msg.data);
                     this.downloadOrSkipAFile(msg.data);
@@ -24784,6 +24784,16 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地失败
+                // 无效文件名等建立请求时的错误不会因为自动重试而消失。
+                if (msg.saveRequestFailed) {
+                    // API 拒绝原因不是固定错误码，作为文本显示，避免插入 HTML。
+                    let reason = msg.runtimeError || msg.err || 'unknown';
+                    reason = _utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.escapeHTML(reason);
+                    _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_save_file_request_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(msg.data.id), reason));
+                    _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('saveFileError');
+                    this.pauseDownload();
+                    return;
+                }
                 // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
                 // 用户在浏览器弹出“另存为”对话框时取消保存
                 // 用户让 IDM 转接这个下载时
@@ -25067,8 +25077,16 @@ class DownloadControl {
         if (this.pause || this.stop) {
             return false;
         }
+        const taskBatch = this.taskBatch;
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.sleep(3000);
+        // 等待期间可能暂停、停止或重新开始，不能继续旧任务的重试。
+        if (this.pause || this.stop || this.taskBatch !== taskBatch) {
+            return false;
+        }
         const task = this.taskList[data.id];
+        if (!task) {
+            return false;
+        }
         // 复位这个任务的状态
         _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(task.index, -1);
         // 建立下载任务，再次下载它
@@ -37923,6 +37941,14 @@ This setting does not apply to collection files generated after merging a novel 
         `タグ・タイトル・キャプション`,
         `태그, 제목, 설명`,
         `Теги, Заголовки, Подписи`,
+    ],
+    _save_file_request_failed_tip: [
+        `{} 无法开始保存：{}。下载已暂停。解决问题后，点击“开始下载”重试未完成的文件。`,
+        `{} 無法開始儲存：{}。下載已暫停。解決問題後，點擊「開始下載」重試未完成的檔案。`,
+        `{} could not start saving: {}. Downloads are paused. After resolving the problem, click "Start download" to retry unfinished files.`,
+        `{} の保存を開始できませんでした：{}。ダウンロードを一時停止しました。問題を解決した後、「開始」をクリックすると未完了のファイルを再試行できます。`,
+        `{} 저장을 시작하지 못했습니다: {}. 다운로드를 일시정지했습니다. 문제를 해결한 뒤 “다운로드 시작”을 누르면 미완료 파일을 다시 시도합니다.`,
+        `{} не удалось начать сохранение: {}. Загрузка приостановлена. После устранения проблемы нажмите «Начать загрузку», чтобы повторить попытку для незавершённых файлов.`,
     ],
     _save_file_failed_tip: [
         `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
@@ -55073,7 +55099,7 @@ class SettingsPanelSearch {
         this.summary.innerHTML = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_找到x条与搜索词有关的设置', groupOrder
             .map((key) => this.sections.get(key).content.children.length)
             .reduce((total, count) => total + count, 0)
-            .toString(), this.escapeHTML(this.keyword));
+            .toString(), _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.escapeHTML(this.keyword));
     }
     toggleSectionByKey(key) {
         const section = this.sections.get(key);
@@ -55191,29 +55217,21 @@ class SettingsPanelSearch {
         const lowerText = text.toLowerCase();
         const lowerKeyword = keyword.toLowerCase();
         if (!lowerKeyword) {
-            return this.escapeHTML(text);
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.escapeHTML(text);
         }
         let cursor = 0;
         let html = '';
         while (cursor < text.length) {
             const index = lowerText.indexOf(lowerKeyword, cursor);
             if (index === -1) {
-                html += this.escapeHTML(text.slice(cursor));
+                html += _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.escapeHTML(text.slice(cursor));
                 break;
             }
-            html += this.escapeHTML(text.slice(cursor, index));
-            html += `<mark class="settingsPanel_searchMark">${this.escapeHTML(text.slice(index, index + keyword.length))}</mark>`;
+            html += _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.escapeHTML(text.slice(cursor, index));
+            html += `<mark class="settingsPanel_searchMark">${_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.escapeHTML(text.slice(index, index + keyword.length))}</mark>`;
             cursor = index + keyword.length;
         }
         return html;
-    }
-    escapeHTML(text) {
-        return text
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#39;');
     }
     createSearchSection(level1, level2) {
         const group = _OptionConfigs__WEBPACK_IMPORTED_MODULE_2__.optionConfigs.categorySchema[level1].level2[level2];
@@ -76569,6 +76587,15 @@ class Utils {
         // 这可能是因为如果一个元素只存在于内存里，而没有添加到页面上进行渲染的话，浏览器会忽略换行标记
         document.body.append(div);
         return div.innerText;
+    }
+    /** 转义 HTML 特殊字符 */
+    static escapeHTML(text) {
+        return text
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
     }
     /**将可能包含有 HTML 转义字符的字符串进行反转义 */
     // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"

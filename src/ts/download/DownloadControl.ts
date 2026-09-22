@@ -173,16 +173,18 @@ class DownloadControl {
 
     // 监听浏览器返回的消息
     browser.runtime.onMessage.addListener((msg: any) => {
-      if (!this.taskBatch) {
-        return
-      }
-
       if (!this.isDownloadedMsg(msg)) {
         return
       }
 
-      // 忽略之前下载批次延迟返回的消息，避免它影响当前任务
-      if (msg.data?.taskBatch !== this.taskBatch) {
+      // 旧批次的结果也需要释放前台 Blob URL，但不能影响当前任务。
+      if (
+        (msg.msg === 'downloaded' || msg.msg === 'download_err') &&
+        msg.data?.blobURLFront
+      ) {
+        URL.revokeObjectURL(msg.data.blobURLFront)
+      }
+      if (!this.taskBatch || msg.data?.taskBatch !== this.taskBatch) {
         return
       }
 
@@ -214,8 +216,6 @@ class DownloadControl {
       // 文件下载成功
       if (msg.msg === 'downloaded') {
         try {
-          URL.revokeObjectURL(msg.data.blobURLFront)
-
           // 发送下载成功的事件
           EVT.fire('downloadSuccess', msg.data)
 
@@ -227,6 +227,23 @@ class DownloadControl {
         // console.log('downloaded', msg.data.id )
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
+
+        // 无效文件名等建立请求时的错误不会因为自动重试而消失。
+        if (msg.saveRequestFailed) {
+          // API 拒绝原因不是固定错误码，作为文本显示，避免插入 HTML。
+          let reason = msg.runtimeError || msg.err || 'unknown'
+          reason = Utils.escapeHTML(reason)
+          log.error(
+            lang.transl(
+              '_save_file_request_failed_tip',
+              Tools.createWorkLink(msg.data.id),
+              reason
+            )
+          )
+          EVT.fire('saveFileError')
+          this.pauseDownload()
+          return
+        }
 
         // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
         // 用户在浏览器弹出“另存为”对话框时取消保存
@@ -642,8 +659,16 @@ class DownloadControl {
       return false
     }
 
+    const taskBatch = this.taskBatch
     await Utils.sleep(3000)
+    // 等待期间可能暂停、停止或重新开始，不能继续旧任务的重试。
+    if (this.pause || this.stop || this.taskBatch !== taskBatch) {
+      return false
+    }
     const task = this.taskList[data.id]
+    if (!task) {
+      return false
+    }
     // 复位这个任务的状态
     downloadStates.setState(task.index, -1)
     // 建立下载任务，再次下载它

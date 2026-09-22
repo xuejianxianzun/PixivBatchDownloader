@@ -510,6 +510,16 @@ class Utils {
     return div.innerText
   }
 
+  /** 转义 HTML 特殊字符 */
+  static escapeHTML(text: string) {
+    return text
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;')
+  }
+
   /**将可能包含有 HTML 转义字符的字符串进行反转义 */
   // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
   // 输出 "1,2,3,4'5'6'"

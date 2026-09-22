@@ -77,4 +77,6 @@ export interface DownloadedMsg {
   err?: string
   /** 后台运行时错误的详细信息 */
   runtimeError?: string
+  /** browser.downloads.download 出错，未能建立浏览器下载项。让前台暂停下载 */
+  saveRequestFailed?: boolean
 }
