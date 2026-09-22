@@ -206,14 +206,17 @@ class Bookmark {
     })
   }
 
+  /** 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。 */
   private async sendRequest(
     id: string,
     type: 'illusts' | 'novels',
     tags: string[],
-    hide: boolean
+    hide: boolean,
+    tokenRefreshed = false,
+    requestToken = token.token
   ): Promise<number> {
     try {
-      await API.addBookmark(id, type, tags, hide, token.token)
+      await API.addBookmark(id, type, tags, hide, requestToken)
       return 200
     } catch (error: Error | any) {
       if (error.status) {
@@ -223,15 +226,17 @@ class Bookmark {
           '',
           type === 'novels' ? 'novel' : 'artwork'
         )
+        if (status === 400 && !tokenRefreshed) {
+          const refreshedToken = await token.reset().catch(() => '')
+          if (refreshedToken) {
+            await Utils.sleep(3000)
+            return this.sendRequest(id, type, tags, hide, true, refreshedToken)
+          }
+        }
         switch (status) {
           // 注意：其他模块调用本模块来添加收藏时，由本模块来显示下面的错误消息
           // 所以其他模块通常不需要自行显示错误消息，否则就重复了
           // 不过下面没有使用 msgBox 来显示（因为会打扰用户），所以如果其他模块想使用 msgBox 来显示的话可以自行处理
-          // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
-          case 400:
-            await token.reset()
-            await Utils.sleep(3000)
-            return this.sendRequest(id, type, tags, hide)
           case 403:
             // 显示 403 错误的提示
             // 当一个账号被限制无法收藏时，依然可以正常删除收藏，所以“取消收藏本页面中的所有作品”的功能不受影响

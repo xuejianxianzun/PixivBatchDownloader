@@ -29,6 +29,7 @@ class BatchFollowUser {
   private userList: string[] = []
   private importFollowedUserIDs: string[] = []
 
+  /** 等待当前列表与关注流程；刷新失败或其他拒绝都恢复 busy。 */
   public async start() {
     if (this.busy) {
       toast.error(lang.transl('_有同类任务正在执行请等待之前的任务完成'))
@@ -42,33 +43,42 @@ class BatchFollowUser {
     }
 
     this.busy = true
-    this.reset()
+    try {
+      this.reset()
 
-    this.importFollowedUserIDs = await this.importUserList()
-    log.log(
-      lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length
-    )
-    if (this.importFollowedUserIDs.length === 0) {
+      this.importFollowedUserIDs = await this.importUserList()
+      log.log(
+        lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length
+      )
+      if (this.importFollowedUserIDs.length === 0) {
+        this.busy = false
+        return log.success(lang.transl('_本次任务已全部完成'))
+      }
+
+      this.stopAddFollow = false
+      this.sendReqNumber = 0
+
+      // 显示提示
+      log.success('🚀' + lang.transl('_批量关注用户JSON'))
+
+      // 根据当前页面来决定添加公开关注还是私密关注
+      this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
+
+      // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
+      // 24 是 PC 端关注页面里，每页的用户数量
+      if (this.importFollowedUserIDs.length > 24) {
+        await this.readyGetUserList()
+      } else {
+        // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
+        await this.batchFollow()
+      }
+    } catch {
+      this.stopAddFollow = true
+      const msg = lang.transl('_任务已中止')
+      log.error(msg)
+      msgBox.error(msg, { title: this.taskName })
+    } finally {
       this.busy = false
-      return log.success(lang.transl('_本次任务已全部完成'))
-    }
-
-    this.stopAddFollow = false
-    this.sendReqNumber = 0
-
-    // 显示提示
-    log.success('🚀' + lang.transl('_批量关注用户JSON'))
-
-    // 根据当前页面来决定添加公开关注还是私密关注
-    this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
-
-    // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
-    // 24 是 PC 端关注页面里，每页的用户数量
-    if (this.importFollowedUserIDs.length > 24) {
-      await this.readyGetUserList()
-    } else {
-      // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
-      await this.batchFollow()
     }
   }
 
@@ -165,9 +175,11 @@ class BatchFollowUser {
     return this.getUserList()
   }
 
+  /** 新批次重新获得一次 token 刷新机会。 */
   private reset() {
     this.userList = []
     this.requestTimes = 0
+    this.tokenHasUpdated = false
   }
 
   private async importUserList(): Promise<string[]> {
@@ -203,6 +215,7 @@ class BatchFollowUser {
   private stopAddFollow = false
   private sendReqNumber = 0
   private readonly dailyLimit = 500 // 每天限制关注的数量，以降低封号风险
+  /** 每批最多一次刷新；是否存在用户仍使用上游的检查。 */
   private tokenHasUpdated = false
   private need_recaptcha_enterprise_score_token = false
 
@@ -213,6 +226,7 @@ class BatchFollowUser {
     )
   }
 
+  /** 最后一个用户失败也不能越过中止状态显示完成。 */
   private async batchFollow() {
     log.warning(lang.transl('_慢速执行以避免引起429错误'))
     log.warning(lang.transl('_提示可以重新执行批量关注任务'))
@@ -225,12 +239,7 @@ class BatchFollowUser {
     for (const userID of this.importFollowedUserIDs) {
       this.logProgress(no, total, newFollow)
 
-      if (this.stopAddFollow) {
-        const msg = lang.transl('_任务已中止')
-        log.error(msg)
-        msgBox.error(msg, { title: this.taskName })
-        return
-      }
+      if (this.stopAddFollow) break
 
       if (this.sendReqNumber >= this.dailyLimit) {
         this.stopAddFollow = true
@@ -253,6 +262,13 @@ class BatchFollowUser {
           newFollow++
         }
       }
+    }
+
+    if (this.stopAddFollow) {
+      const msg = lang.transl('_任务已中止')
+      log.error(msg)
+      msgBox.error(msg, { title: this.taskName })
+      return
     }
 
     this.logProgress(no, total, newFollow)
@@ -279,6 +295,7 @@ class BatchFollowUser {
     }
   }
 
+  /** 保留用户存在检查和上游错误处理；刷新成功后使用返回 token 重试。 */
   private async addFollow(userID: string): Promise<number> {
     // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
     if (this.need_recaptcha_enterprise_score_token) {
@@ -288,7 +305,7 @@ class BatchFollowUser {
     }
 
     // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-    const status = await API.addFollowingUser(
+    let status = await API.addFollowingUser(
       userID,
       token.token,
       this.rest === 'show'
@@ -317,11 +334,15 @@ class BatchFollowUser {
         if (!this.tokenHasUpdated) {
           // 尝试重新获取 token（仅执行一次），然后重试请求
           this.tokenHasUpdated = true
-          await token.reset()
+          const refreshedToken = await token.reset().catch(() => '')
+          if (!refreshedToken) {
+            this.stopAddFollow = true
+            return status
+          }
           await Utils.sleep(1000)
-          const status = await API.addFollowingUser(
+          status = await API.addFollowingUser(
             userID,
-            token.token,
+            refreshedToken,
             this.rest === 'show'
           )
           if (status !== 200) {
