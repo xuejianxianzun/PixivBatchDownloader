@@ -433,20 +433,7 @@ abstract class InitPageBase {
     this.idListLength = store.idList.length
     this.mergedNovelCount = 0
 
-    // 设置抓取线程
-    if (
-      settings.slowCrawl &&
-      store.idList.length > settings.slowCrawlOnWorksNumber
-    ) {
-      // 慢速抓取时限制为 1
-      log.warning(lang.transl('_慢速抓取'))
-      states.slowCrawlMode = true
-      this.ajaxThread = 1
-    } else {
-      // 全速抓取
-      states.slowCrawlMode = false
-      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
-    }
+    this.setCrawlThread()
 
     // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
     // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
@@ -469,6 +456,24 @@ abstract class InitPageBase {
 
     // 进入抓取流程
     this.startGetWorksData()
+  }
+
+  /**根据待抓取作品数量和慢速抓取设置，配置抓取线程数 */
+  protected setCrawlThread(canUseSlowCrawl = true) {
+    if (
+      canUseSlowCrawl &&
+      settings.slowCrawl &&
+      store.idList.length > settings.slowCrawlOnWorksNumber
+    ) {
+      // 慢速抓取时限制为 1
+      log.warning(lang.transl('_慢速抓取'))
+      states.slowCrawlMode = true
+      this.ajaxThread = 1
+    } else {
+      // 全速抓取
+      states.slowCrawlMode = false
+      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
+    }
   }
 
   /** 并发调用 getWorksData 方法 */

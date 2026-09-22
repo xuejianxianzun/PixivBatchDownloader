@@ -9195,7 +9195,7 @@ class PreviewWork {
     }
     bindEvents() {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_1__.artworkThumbnail.onEnter((el, id, ev) => {
-            // 这个判断是为了处理这个边界情况：
+            // 这个判断是为了处理这个边界情况（鼠标重入缩略图）：
             // 在多图作品页面里，预览作品下方的某个缩略图时（必须是由 displayThumbnailListOnMultiImageWorkPage 生成的缩略图，因为它设置了 data-index，每个缩略图都有不同的索引）
             // 在预览并切换图片的过程中，某张预览图（通常是横图）遮挡住了缩略图，这会触发 artworkThumbnail.onLeave 事件；
             // 之后当预览图消失，或者显示了下一张预览图（并且这个预览图没有遮挡缩略图），就会导致鼠标重新落在下方的缩略图上，触发 artworkThumbnail.onEnter 事件。
@@ -9825,7 +9825,8 @@ class PreviewWorkDetailInfo {
                 return;
             }
             if (id === this.workId) {
-                // 鼠标经过缩略图按钮会取消延迟显示；从按钮回到缩略图时需要重新启动
+                // 鼠标经过缩略图上的按钮时，会取消详情面板的延迟显示；
+                // 之后如果鼠标从按钮上回到（落入）缩略图时，需要重新启动延迟显示，否则这次就不会显示详情面板
                 if (ev.relatedTarget instanceof HTMLElement &&
                     ev.relatedTarget.classList.contains('btnOnThumb')) {
                     this.workEl = el;
@@ -16227,19 +16228,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
         this.idListLength = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
         this.mergedNovelCount = 0;
-        // 设置抓取线程
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlOnWorksNumber) {
-            // 慢速抓取时限制为 1
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
-            this.ajaxThread = 1;
-        }
-        else {
-            // 全速抓取
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
-            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
-        }
+        this.setCrawlThread();
         // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
         // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
         // 对于图像作品，优先从缓存读取。其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久，所以就使用缓存了
@@ -16258,6 +16247,22 @@ class InitPageBase {
         }
         // 进入抓取流程
         this.startGetWorksData();
+    }
+    /**根据待抓取作品数量和慢速抓取设置，配置抓取线程数 */
+    setCrawlThread(canUseSlowCrawl = true) {
+        if (canUseSlowCrawl &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlOnWorksNumber) {
+            // 慢速抓取时限制为 1
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
+            this.ajaxThread = 1;
+        }
+        else {
+            // 全速抓取
+            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
+        }
     }
     /** 并发调用 getWorksData 方法 */
     startGetWorksData() {
@@ -20503,11 +20508,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化首页
-
 
 
 
@@ -20563,7 +20566,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     /** 查找首页里的一些广告元素，将其移除。循环执行 */
     async removeAD() {
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(1000);
-        if (_PageType__WEBPACK_IMPORTED_MODULE_14__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_14__.pageType.list.Home) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.list.Home) {
             const findADs = document.body.querySelectorAll('iframe[data-uid]');
             if (findADs.length > 0) {
                 findADs.forEach((ad) => {
@@ -20583,7 +20586,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     async inputIDList() {
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeSettingsPanel');
         this.checkPageType();
-        const input = new _Input__WEBPACK_IMPORTED_MODULE_13__.Input({
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
             width: 400,
             type: 'textarea',
             rows: 6,
@@ -20618,7 +20621,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         let start = 0;
         let end = 0;
         // 接收起点
-        const startInput = new _Input__WEBPACK_IMPORTED_MODULE_13__.Input({
+        const startInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
             width: 400,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间说明') +
                 '<br><br>' +
@@ -20643,7 +20646,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次操作已取消'));
         }
         // 接收终点
-        const endInput = new _Input__WEBPACK_IMPORTED_MODULE_13__.Input({
+        const endInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
             width: 400,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间终点'),
             placeholder: '200',
@@ -20729,7 +20732,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_10__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入ID列表'));
-        _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.reset();
+        _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlStart');
+        _store_States__WEBPACK_IMPORTED_MODULE_11__.states.stopCrawl = false;
+        this.crawlFinishBecauseStopCrawl = false;
         this.finishedRequest = 0;
         // 之前的帮助信息里写的是错误的 novel，但实际上应该是 novels，需要纠正这个错误
         loadedJSON.forEach((item) => {
@@ -20743,20 +20748,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     crawlImportIDList() {
         _Log__WEBPACK_IMPORTED_MODULE_10__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.idList.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_10__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始获取作品信息'));
-        if (_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.checkUserLogin() === false) {
-            // 如果未登录账号，则全速抓取
-            _store_States__WEBPACK_IMPORTED_MODULE_11__.states.slowCrawlMode = false;
-            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.idList.length);
-        }
-        else {
-            // 登录账号后，可以使用慢速抓取
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_12__.settings.slowCrawl &&
-                _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_12__.settings.slowCrawlOnWorksNumber) {
-                _Log__WEBPACK_IMPORTED_MODULE_10__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
-                _store_States__WEBPACK_IMPORTED_MODULE_11__.states.slowCrawlMode = true;
-                this.ajaxThread = 1;
-            }
-        }
+        // 未登录账号时不使用慢速抓取
+        this.setCrawlThread(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.checkUserLogin());
         this.startGetWorksData();
     }
     destroy() {
