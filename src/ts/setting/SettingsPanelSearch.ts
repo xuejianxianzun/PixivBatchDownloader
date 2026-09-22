@@ -165,7 +165,7 @@ class SettingsPanelSearch {
         .map((key) => this.sections.get(key)!.content.children.length)
         .reduce((total, count) => total + count, 0)
         .toString(),
-      this.escapeHTML(this.keyword)
+      Utils.escapeHTML(this.keyword)
     )
   }
 
@@ -323,7 +323,7 @@ class SettingsPanelSearch {
     const lowerKeyword = keyword.toLowerCase()
 
     if (!lowerKeyword) {
-      return this.escapeHTML(text)
+      return Utils.escapeHTML(text)
     }
 
     let cursor = 0
@@ -331,27 +331,18 @@ class SettingsPanelSearch {
     while (cursor < text.length) {
       const index = lowerText.indexOf(lowerKeyword, cursor)
       if (index === -1) {
-        html += this.escapeHTML(text.slice(cursor))
+        html += Utils.escapeHTML(text.slice(cursor))
         break
       }
 
-      html += this.escapeHTML(text.slice(cursor, index))
-      html += `<mark class="settingsPanel_searchMark">${this.escapeHTML(
+      html += Utils.escapeHTML(text.slice(cursor, index))
+      html += `<mark class="settingsPanel_searchMark">${Utils.escapeHTML(
         text.slice(index, index + keyword.length)
       )}</mark>`
       cursor = index + keyword.length
     }
 
     return html
-  }
-
-  private escapeHTML(text: string) {
-    return text
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;')
   }
 
   private createSearchSection(level1: OptionCategoryLevel1, level2: string) {

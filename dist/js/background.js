@@ -1956,6 +1956,21 @@ function saveDLData() {
     saveDLDataChain = saveDLDataChain.then(save, save);
     return saveDLDataChain;
 }
+/** 释放失败任务的去重记录，不影响新批次中相同作品的请求。 */
+async function releaseDownloadId(data) {
+    if (batchNo[data.tabId] !== data.taskBatch) {
+        return;
+    }
+    const ids = idList[data.tabId];
+    const index = ids?.indexOf(data.id) ?? -1;
+    if (index < 0) {
+        return;
+    }
+    ids.splice(index, 1);
+    await setData({ idList }).catch((error) => {
+        console.error('保存下载任务记录失败', error);
+    });
+}
 // 类型守卫，这是为了通过类型检查，所以只要求有 msg 属性
 // 如果检查了其他属性，那么对于只有 msg 属性的简单消息就会不通过。所以不检查其他属性
 function isMsg(msg) {
@@ -1986,55 +2001,44 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
             // 储存该任务的索引
             idList[tabId].push(msg.id);
             setData({ idList });
-            // 开始下载
-            const _url = await getFileURL(msg);
+            const data = {
+                blobURLFront: msg.blobURL,
+                blobURLBack: '',
+                id: msg.id,
+                tabId,
+                taskBatch: msg.taskBatch,
+                uuid: false,
+            };
             try {
+                const url = await getFileURL(msg);
+                data.blobURLBack = url.startsWith('blob:') ? url : '';
                 const id = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.download({
-                    url: _url,
+                    url,
                     filename: msg.fileName,
                     conflictAction,
                     saveAs: false,
                 });
-                // id 是新建立的下载项的 id，使用它作为 key 保存数据
-                dlData[id] = {
-                    blobURLFront: msg.blobURL,
-                    blobURLBack: _url.startsWith('blob:') ? _url : '',
-                    id: msg.id,
-                    taskBatch: msg.taskBatch,
-                    tabId: tabId,
-                    uuid: false,
-                };
+                // 建立下载项不代表保存完成，继续等待 onChanged 返回结果。
+                dlData[id] = data;
                 await saveDLData();
             }
             catch (error) {
-                console.error('downloads.download 失败', error);
-                // 建立下载失败时，清除该文件的后台去重标记，允许重试
+                console.error('建立浏览器下载任务失败', error);
+                revokeBlobURL(data.blobURLFront);
+                revokeBlobURL(data.blobURLBack);
+                await releaseDownloadId(data);
                 const runtimeError = error instanceof Error ? error.message : String(error);
-                const idIndex = idList[tabId].findIndex((val) => val === msg.id);
-                if (idIndex > -1) {
-                    idList[tabId][idIndex] = '';
-                    setData({ idList });
-                }
-                // 向前台发送下载错误消息
-                webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs
+                await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs
                     .sendMessage(tabId, {
                     msg: 'download_err',
-                    data: {
-                        blobURLFront: msg.blobURL,
-                        blobURLBack: _url.startsWith('blob:') ? _url : '',
-                        id: msg.id,
-                        taskBatch: msg.taskBatch,
-                        tabId,
-                        uuid: false,
-                    },
-                    err: 'RUNTIME_ERROR',
+                    data,
+                    err: runtimeError,
                     runtimeError,
+                    saveRequestFailed: true,
                 })
-                    .catch((sendError) => {
-                    console.error('回发 download_err 消息失败', sendError);
+                    .catch((error) => {
+                    console.error('回发下载失败消息失败', error);
                 });
-                revokeBlobURL(msg.blobURL);
-                revokeBlobURL(_url);
             }
         }
     }
@@ -2145,9 +2149,7 @@ if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.downloadsAPIDisabled) {
                 msg = 'download_err';
                 err = detail.error.current;
                 // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-                const idIndex = idList[_dlData.tabId].findIndex((val) => val === _dlData.id);
-                idList[_dlData.tabId][idIndex] = '';
-                setData({ idList });
+                await releaseDownloadId(_dlData);
             }
             if (msg) {
                 // 返回信息
