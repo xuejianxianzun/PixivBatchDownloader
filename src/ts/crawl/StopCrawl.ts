@@ -3,7 +3,6 @@ import { lang } from '../Language'
 import { log } from '../Log'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
-import { states } from '../store/States'
 
 class StopCrawl {
   constructor() {
@@ -12,6 +11,7 @@ class StopCrawl {
   }
   private btn!: HTMLButtonElement
 
+  /**创建停止抓取按钮 */
   private addBtn() {
     this.btn = Tools.addBtn(
       'stopCrawl',
@@ -25,10 +25,10 @@ class StopCrawl {
 
     this.btn.addEventListener('click', () => {
       EVT.fire('stopCrawl')
-      states.stopCrawl = true
     })
   }
 
+  /**绑定停止按钮和抓取生命周期事件 */
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.show()

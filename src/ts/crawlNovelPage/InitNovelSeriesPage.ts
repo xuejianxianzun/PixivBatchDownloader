@@ -3,9 +3,9 @@ import { InitPageBase } from '../crawl/InitPageBase'
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
-import { Utils } from '../utils/Utils'
 import { MergeNovel } from '../download/MergeNovel'
 import { EVT } from '../EVT'
+import { states } from '../store/States'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -53,7 +53,12 @@ class InitNovelSeriesPage extends InitPageBase {
     this.getIdList()
   }
 
+  /**分批获取系列小说的 ID */
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     const seriesId = Tools.getSeriesId()
     const seriesData = await API.getNovelSeriesContent(
       seriesId,

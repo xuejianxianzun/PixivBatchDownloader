@@ -10,6 +10,7 @@ import { API } from '../API'
 import { RankingNovelItem } from '../crawl/CrawlResult.d'
 import { nameRuleManager } from '../setting/NameRuleManager'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 // 新版小说排行榜页面
 // Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
@@ -119,7 +120,12 @@ class InitRankingNovelPageNew extends InitPageBase {
     }
   }
 
+  /**获取排行榜小说的 ID 列表 */
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     try {
       const json = await API.getRankingDataNovel(
         this.mode,

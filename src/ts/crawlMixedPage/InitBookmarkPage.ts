@@ -215,17 +215,20 @@ class InitBookmarkPage extends InitPageBase {
 
   protected nextStep() {
     this.setSlowCrawl()
-    this.readyGetIdList()
+    if (!this.readyGetIdList()) {
+      return
+    }
     this.getIdList()
   }
 
+  /**初始化获取收藏作品 ID 所需的参数，返回是否可以继续抓取 */
   protected readyGetIdList() {
     if (window.location.pathname.includes('/collections')) {
       const msg = lang.transl('_下载器目前不支持抓取珍藏册')
       msgBox.warning(msg)
       log.warning(msg)
       EVT.fire('stopCrawl')
-      return
+      return false
     }
 
     if (window.location.pathname.includes('/novel')) {
@@ -264,6 +267,8 @@ class InitBookmarkPage extends InitPageBase {
     if (this.crawlNumber === -1) {
       log.log(lang.transl('_获取全部书签作品'))
     }
+
+    return true
   }
 
   protected async getIdList() {
@@ -286,13 +291,7 @@ class InitBookmarkPage extends InitPageBase {
       )
     } catch (error) {
       if ((error as any).message.includes('not valid JSON')) {
-        if (lang.type.includes('zh')) {
-          log.error(`预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
-一种可能的原因：您已被 Pixiv 封禁。`)
-        } else {
-          log.error(`Expected data format is JSON, but the fetch result is not JSON. Fetch has been canceled. <br>
-One possible reason: You have been banned from Pixiv.`)
-        }
+        log.error(lang.transl('_抓取结果是非法的JSON的提醒'))
         return this.getIdListFinished()
       }
       this.getIdList()

@@ -82,6 +82,7 @@ class States {
   // 由 ShowOriginSizeImage 模块修改它的值
   public showOriginSizeImageIsShow = false
 
+  /**绑定全局事件以维护运行时状态 */
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true
@@ -112,6 +113,10 @@ class States {
       window.addEventListener(type, () => {
         this.busy = true
       })
+    })
+
+    window.addEventListener(EVT.list.stopCrawl, () => {
+      this.stopCrawl = true
     })
 
     window.addEventListener(EVT.list.bookmarkModeStart, () => {

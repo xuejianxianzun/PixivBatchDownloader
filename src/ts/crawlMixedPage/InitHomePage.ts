@@ -29,6 +29,9 @@ class InitHomePage extends InitPageBase {
   private idRangeTip: HTMLDivElement
 
   private type: 'novels' | 'illusts' = 'illusts'
+  /**是否继续执行移除广告任务 */
+  private removeADEnabled = true
+
   private checkPageType() {
     this.type = window.location.pathname.includes('novel')
       ? 'novels'
@@ -89,6 +92,10 @@ class InitHomePage extends InitPageBase {
   /** 查找首页里的一些广告元素，将其移除。循环执行 */
   private async removeAD() {
     await Utils.sleep(1000)
+
+    if (!this.removeADEnabled) {
+      return
+    }
 
     if (pageType.type === pageType.list.Home) {
       const findADs = document.body.querySelectorAll('iframe[data-uid]')
@@ -315,7 +322,9 @@ class InitHomePage extends InitPageBase {
     this.startGetWorksData()
   }
 
+  /**销毁首页专用的元素和任务 */
   protected destroy() {
+    this.removeADEnabled = false
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
   }

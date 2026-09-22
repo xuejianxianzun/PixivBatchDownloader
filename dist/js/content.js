@@ -15927,6 +15927,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+/**
+ * 页面抓取流程的基类。
+ *
+ * 典型流程：
+ * 1. 子类调用 init，添加页面元素、注册事件和销毁回调。
+ * 2. 用户开始抓取后，readyCrawl 完成检查与初始化，依次执行 nextStep、getIdList。
+ * 3. getIdListFinished 过滤 ID 并启动并发 getWorksData，全部完成后执行 crawlFinished。
+ * 4. 页面卸载时，DestroyManager 调用 destroy；子类可覆写它来清理页面专用元素和事件。
+ */
 class InitPageBase {
     /**要抓取的个数/页数 */
     crawlNumber = 0;
@@ -15950,12 +15959,11 @@ class InitPageBase {
     idListLength = 0;
     /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
     mergedNovelCount = 0;
-    /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程 */
-    // 切换到不同页面类型后，会恢复成默认值 false
+    /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程。切换到不同页面类型后，会恢复成默认值 false */
     onlyCrawlIdList = false;
     /** 当前页面里通过 addInitPageBtn 添加了多少个按钮。第一个按钮作为主按钮，其余默认作为次要按钮。 */
     initPageBtnCount = 0;
-    // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
+    /** 该类的实现必须调用 init 方法，并且不可以修改 init 方法 */
     init = () => {
         this.addCrawlBtns();
         this.addAnyElement();
@@ -16009,7 +16017,7 @@ class InitPageBase {
             }
         });
     };
-    // 添加抓取区域的默认按钮，可以被子类覆写
+    /** 添加抓取区域的默认按钮，可以被子类覆写 */
     addCrawlBtns() {
         this.addInitPageBtn('crawlBtns', '_开始抓取', '_默认下载多页', 'startCrawling', 'brand').addEventListener('click', () => {
             this.readyCrawl();
@@ -16024,21 +16032,22 @@ class InitPageBase {
         this.initPageBtnCount++;
         return _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn(slot, text, title, id, emphasis, intent);
     }
-    // 添加其他任意元素（如果有）
+    /** 添加其他任意元素（如果有） */
     addAnyElement() { }
-    // 初始化任意内容
-    // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
-    // 通常用来初始化特有的组件、功能、事件、状态等
+    /**
+     * 初始化任意内容。如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里。
+     * 通常用来初始化特有的组件、功能、事件、状态等。
+     */
     initAny() { }
-    // 销毁初始化页面时添加的元素和事件，恢复设置项等
+    /** 销毁初始化页面时添加的元素和事件监听器 */
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('otherBtns');
     }
-    // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
+    /** 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义 */
     getWantPage() { }
-    /**在日志上显示任意提示 */
-    showTip() {
+    /**在日志上显示一些提示 */
+    showLogTip() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.removeWorksOfFollowedUsersOnSearchPage &&
             (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
                 _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
@@ -16065,7 +16074,7 @@ class InitPageBase {
         }
         return true;
     }
-    // 准备正常进行抓取，执行一些检查
+    /** 准备正常进行抓取，执行一些检查 */
     async readyCrawl() {
         // 检查是否可以开始抓取
         // states.busy 表示下载器正在抓取或正在下载
@@ -16093,16 +16102,17 @@ class InitPageBase {
         await _filter_Mute__WEBPACK_IMPORTED_MODULE_11__.mute.getMuteSettings();
         this.getWantPage();
         _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_27__.crawlLatestFewWorks.showLog();
-        this.showTip();
+        this.showLogTip();
         this.finishedRequest = 0;
         this.crawlFinishBecauseStopCrawl = false;
         _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = false;
         // 进入第一个抓取流程
         this.nextStep();
     }
-    // 基于传递的 id 列表直接开始抓取
-    // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
-    // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+    /**
+     * 基于传递的 id 列表直接开始抓取。这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
+     * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+     */
     async crawlIdList(idList) {
         // 对 idList 进行去重
         // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
@@ -16156,11 +16166,11 @@ class InitPageBase {
             this.getIdListFinished();
         }
     }
-    // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
+    /** 当可以开始抓取时，进入下一个流程。默认情况下，开始获 id 列表。如有不同，由子类具体定义 */
     nextStep() {
         this.getIdList();
     }
-    // 获取 id 列表，由各个子类具体定义
+    /** 获取 id 列表，由各个子类具体定义 */
     getIdList() { }
     /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
     async checkUserId(userId) {
@@ -16168,7 +16178,7 @@ class InitPageBase {
             userId,
         });
     }
-    // id 列表获取完毕，开始抓取作品内容页
+    /** id 列表获取完毕，开始抓取作品内容页 */
     async getIdListFinished() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh(this.getIdListLogKey);
         _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
@@ -16280,9 +16290,9 @@ class InitPageBase {
             }, 0);
         }
     }
-    // 重设抓取作品列表时使用的变量或标记
+    /** 重设抓取 id 列表时使用的变量或标记 */
     resetGetIdListStatus() { }
-    // 获取作品的数据
+    /** 获取作品的数据 */
     async getWorksData(idData) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.crawlFinished();
@@ -16362,7 +16372,7 @@ class InitPageBase {
             }
         }
     }
-    // 每当获取完一个作品的信息
+    /** 每当获取完一个作品的信息 */
     async afterGetWorksData(data) {
         this.logResultNumber();
         // 抓取可能中途停止，此时保留抓取结果
@@ -16417,7 +16427,7 @@ class InitPageBase {
             }
         }
     }
-    // 抓取完毕
+    /** 抓取完毕 */
     crawlFinished() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('getWorksProgress');
         // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
@@ -16470,7 +16480,7 @@ class InitPageBase {
             }
         }
     }
-    // 每当抓取了一个作品之后，输出提示
+    /** 每当抓取了一个作品之后，输出提示 */
     logResultNumber() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 'getWorksProgress');
     }
@@ -16502,7 +16512,7 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
         }
     }
-    // 抓取完成后，对结果进行排序
+    /** 抓取完成后，对结果进行排序 */
     sortResult() { }
     /**定时抓取的按钮 */
     addStartTimedCrawlBtn(cb) {
@@ -16744,8 +16754,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-
 
 
 
@@ -16757,14 +16765,15 @@ class StopCrawl {
         this.bindEvents();
     }
     btn;
+    /**创建停止抓取按钮 */
     addBtn() {
         this.btn = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('stopCrawl', '_停止抓取', '', 'stopCrawling', 'secondary', 'danger');
         this.hide();
         this.btn.addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('stopCrawl');
-            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.stopCrawl = true;
         });
     }
+    /**绑定停止按钮和抓取生命周期事件 */
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.show();
@@ -19583,16 +19592,19 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     }
     nextStep() {
         this.setSlowCrawl();
-        this.readyGetIdList();
+        if (!this.readyGetIdList()) {
+            return;
+        }
         this.getIdList();
     }
+    /**初始化获取收藏作品 ID 所需的参数，返回是否可以继续抓取 */
     readyGetIdList() {
         if (window.location.pathname.includes('/collections')) {
             const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器目前不支持抓取珍藏册');
             _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.warning(msg);
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(msg);
             _EVT__WEBPACK_IMPORTED_MODULE_16__.EVT.fire('stopCrawl');
-            return;
+            return false;
         }
         if (window.location.pathname.includes('/novel')) {
             this.type = 'novels';
@@ -19622,6 +19634,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         if (this.crawlNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_获取全部书签作品'));
         }
+        return true;
     }
     async getIdList() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.stopCrawl) {
@@ -19633,14 +19646,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         catch (error) {
             if (error.message.includes('not valid JSON')) {
-                if (_Language__WEBPACK_IMPORTED_MODULE_2__.lang.type.includes('zh')) {
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
-一种可能的原因：您已被 Pixiv 封禁。`);
-                }
-                else {
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Expected data format is JSON, but the fetch result is not JSON. Fetch has been canceled. <br>
-One possible reason: You have been banned from Pixiv.`);
-                }
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取结果是非法的JSON的提醒'));
                 return this.getIdListFinished();
             }
             this.getIdList();
@@ -19725,7 +19731,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 // 初始化比赛页面
+
 
 
 
@@ -19809,7 +19817,11 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
             this.crawlWinning();
         }
     }
+    /**获取应募作品的 ID 列表 */
     async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_11__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
         const data = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getContestWorksData(this.type, this.name, this.page, this.order);
         if (data.error) {
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_API返回了错误信息') + data.error);
@@ -19842,6 +19854,7 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
             return this.getIdList();
         }
     }
+    /**获取获奖作品的 ID 列表 */
     async crawlWinning() {
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_抓取获奖作品'));
         // 获奖作品直接存在于页面源码里，所以直接获取即可，不需要请求 API
@@ -20543,6 +20556,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     importIDListButton = document.createElement('button');
     idRangeTip;
     type = 'illusts';
+    /**是否继续执行移除广告任务 */
+    removeADEnabled = true;
     checkPageType() {
         this.type = window.location.pathname.includes('novel')
             ? 'novels'
@@ -20573,6 +20588,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     /** 查找首页里的一些广告元素，将其移除。循环执行 */
     async removeAD() {
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(1000);
+        if (!this.removeADEnabled) {
+            return;
+        }
         if (_PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.list.Home) {
             const findADs = document.body.querySelectorAll('iframe[data-uid]');
             if (findADs.length > 0) {
@@ -20759,7 +20777,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         this.setCrawlThread(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.checkUserLogin());
         this.startGetWorksData();
     }
+    /**销毁首页专用的元素和任务 */
     destroy() {
+        this.removeADEnabled = false;
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('otherBtns');
     }
@@ -22554,7 +22574,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 //初始化小说系列作品页面
+
 
 
 
@@ -22590,7 +22612,11 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     async nextStep() {
         this.getIdList();
     }
+    /**分批获取系列小说的 ID */
     async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_6__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
         const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
         const seriesData = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
@@ -22640,6 +22666,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -22739,7 +22767,11 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
             this.selectLang = value;
         }
     }
+    /**获取排行榜小说的 ID 列表 */
     async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_11__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
         try {
             const json = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getRankingDataNovel(this.mode, this.date, this.page);
             this.listPageFinished++;
@@ -22930,6 +22962,7 @@ class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         }
         this.getIdList();
     }
+    /**获取排行榜小说的 ID 列表 */
     async getIdList() {
         let dom;
         try {
@@ -44308,6 +44341,20 @@ GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처
         `다운로더는 현재 보고 있는 페이지의 작품을 다운로드합니다. 사용자의 모든 작품을 다운로드하려면 해당 사용자의 홈페이지로 이동한 후 "긁어오기 시작" 버튼을 클릭하세요.`,
         `Загрузчик скачивает работы той страницы, на которой вы находитесь. Если вы хотите скачать все работы пользователя, перейдите на его домашнюю страницу и нажмите кнопку «Начать сканирование».`,
     ],
+    _抓取结果是非法的JSON的提醒: [
+        `预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
+一种可能的原因：您已被 Pixiv 封禁。`,
+        `預期的資料格式為 JSON，但抓取結果不是 JSON。已取消抓取。<br>
+其中一個可能的原因：您已被 Pixiv 封鎖。`,
+        `The expected data format is JSON, but the retrieved data is not JSON. Crawling has been canceled.<br>
+One possible reason: Your Pixiv account has been banned.`,
+        `想定されるデータ形式は JSON ですが、取得したデータは JSON ではありません。クロールを中止しました。<br>
+考えられる原因の一つ：Pixiv によってアカウントが凍結されています。`,
+        `예상한 데이터 형식은 JSON이지만, 가져온 데이터는 JSON이 아닙니다. 크롤링을 취소했습니다.<br>
+가능한 원인 중 하나: Pixiv에서 계정이 차단되었습니다.`,
+        `Ожидался формат данных JSON, но полученные данные не являются JSON. Сканирование отменено.<br>
+Одна из возможных причин: ваша учетная запись заблокирована Pixiv.`,
+    ],
 };
 
 
@@ -57110,6 +57157,7 @@ class States {
     /** 原比例查看图片（ShowOriginSizeImage）是否正在显示 */
     // 由 ShowOriginSizeImage 模块修改它的值
     showOriginSizeImageIsShow = false;
+    /**绑定全局事件以维护运行时状态 */
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;
@@ -57136,6 +57184,9 @@ class States {
             window.addEventListener(type, () => {
                 this.busy = true;
             });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl, () => {
+            this.stopCrawl = true;
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.bookmarkModeStart, () => {
             this.bookmarkMode = true;

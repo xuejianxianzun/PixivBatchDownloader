@@ -115,6 +115,7 @@ class InitRankingNovelPageOld extends InitPageBase {
     this.getIdList()
   }
 
+  /**获取排行榜小说的 ID 列表 */
   protected async getIdList() {
     let dom: Document
     try {
