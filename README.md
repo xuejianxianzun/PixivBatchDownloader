@@ -1,9 +1,9 @@
 English |
-[简体中文](/README-ZH-CN.md) |
-[繁體中文](/README-ZH-TW.md) |
-[日本語](/README-JA.md) |
-[韩国语](/README-KO.md) |
-[Russian](/README-RU.md)
+[简体中文](/readme/README-ZH-CN.md) |
+[繁體中文](/readme/README-ZH-TW.md) |
+[日本語](/readme/README-JA.md) |
+[韩国语](/readme/README-KO.md) |
+[Russian](/readme/README-RU.md)
 
 [Discord channel](https://discord.gg/eW9JtTK)
 

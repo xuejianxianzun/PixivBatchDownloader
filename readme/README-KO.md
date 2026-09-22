@@ -1,9 +1,9 @@
 [English](/README.md) |
-[중국어 간체](/README-ZH-CN.md) |
-[중국어 번체](/README-ZH-TW.md) |
-[日本語](/README-JA.md) |
+[중국어 간체](/readme/README-ZH-CN.md) |
+[중국어 번체](/readme/README-ZH-TW.md) |
+[日本語](/readme/README-JA.md) |
 韩国语 |
-[Russian](/README-RU.md)
+[Russian](/readme/README-RU.md)
 
 [Discord](https://discord.gg/eW9JtTK)
 
