@@ -282,12 +282,22 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
+  /**销毁页面切换后不再适用的元素、定时器和全局事件 */
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
 
+    window.removeEventListener(
+      EVT.list.pageSwitchedTypeNotChange,
+      this.removeBlockOnHotBar
+    )
     window.removeEventListener(EVT.list.addResult, this.showCount)
+    window.removeEventListener(EVT.list.addResult, this.createPreview)
+    window.removeEventListener('addBMK', this.addBookmark)
     window.removeEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
+    window.removeEventListener(EVT.list.clearMultiple, this.clearMultiple)
+    window.removeEventListener(EVT.list.clearUgoira, this.clearUgoira)
+    window.removeEventListener(EVT.list.deleteWork, this.deleteWork)
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
 

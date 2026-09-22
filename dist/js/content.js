@@ -18437,11 +18437,18 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             this.worksWrap.appendChild(this.workPreviewBuffer);
         }
     }
+    /**销毁页面切换后不再适用的元素、定时器和全局事件 */
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.clearSlot('otherBtns');
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.addResult, this.showCount);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.addResult, this.createPreview);
+        window.removeEventListener('addBMK', this.addBookmark);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlComplete, this.onCrawlFinish);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.clearMultiple, this.clearMultiple);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.clearUgoira, this.clearUgoira);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.deleteWork, this.deleteWork);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.settingChange, this.onSettingChange);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlTag, this.crawlTag);
         window.clearInterval(this.showPreviewIntervalId);
@@ -33325,14 +33332,6 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `この作品は削除された可能性があります。あるいは、作者の Pixiv 友達になる必要があります`,
         `이 작품은 삭제되었을 수 있으며, 작가의 Pixiv 친구가 되어야 볼 수 있습니다`,
         `Это произведение, возможно, было удалено, или вам нужно стать Pixiv-другом автора, чтобы просмотреть его`,
-    ],
-    _状态码429下载器会重试的提示: [
-        `请求太频繁（429 Too Many Requests）。下载器会等待几分钟，然后重试该请求`,
-        `請求太頻繁（429 Too Many Requests）。下載器會等待幾分鐘，然後重試該請求`,
-        `Too many requests (429 Too Many Requests). The downloader will wait a few minutes and then retry the request`,
-        `リクエストが多すぎます（429 Too Many Requests）。ダウンロードツールは数分間待機してから、このリクエストを再試行します`,
-        `요청이 너무 빈번합니다(429 Too Many Requests). 다운로더가 몇 분 동안 기다린 후 해당 요청을 재시도합니다`,
-        `Слишком много запросов (429 Too Many Requests). Загрузчик подождёт несколько минут, а затем повторит запрос`,
     ],
     _状态码429的提示: [
         `请求太频繁（429 Too Many Requests）`,
