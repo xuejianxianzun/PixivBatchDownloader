@@ -1,43 +1,32 @@
 // 初始化 artwork 搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
-import { DeleteWorks } from '../pageFunciton/DeleteWorks'
+import { DeleteWorks } from './DeleteWorks'
 import { EVT } from '../EVT'
 import { SearchOption } from '../crawl/CrawlArgument'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
-import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { FastScreen } from '../pageFunciton/FastScreen'
 import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
-import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
-import { bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../Config'
-import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import '../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage'
 import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 import '../filter/FilterSearchResults'
+import { SearchResultPreview } from './SearchResultPreview'
 
 // 用于测试抓取的 URL：
 // 搜索图像作品的两种 URL：
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/illustrations?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=3000&hlt=3000&ratio=0.5&tool=Photoshop&ai_type=1&csw=1
 // https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=illust_ugoira&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=3000&hlt=3000&ratio=0.5&tool=Photoshop&ai_type=1&csw=1
-
-type AddBMKData = {
-  id: number
-  tags: string[]
-  el: Element
-}
-
-type FilterCB = (value: Result) => unknown
 
 class InitSearchArtworkPage extends InitPageBase {
   constructor() {
@@ -45,15 +34,10 @@ class InitSearchArtworkPage extends InitPageBase {
     this.init()
   }
 
-  protected getIdListLogKey = 'crawlArtworkSearchPageListPage'
+  /** 管理搜索页面上的抓取结果预览和二次筛选 */
+  private readonly searchResultPreview = new SearchResultPreview()
 
-  private readonly workListWrapID = 'workListWrap'
-  private readonly listClass = 'searchList'
-  private readonly multipleClass = 'multiplePart'
-  private readonly ugoiraClass = 'ugoiraPart'
-  private readonly addBMKBtnClass = 'bmkBtn'
-  private readonly bookmarkedClass = 'bookmarked'
-  private countEl?: HTMLElement
+  protected getIdListLogKey = 'crawlArtworkSearchPageListPage'
 
   private APIPath: 'artworks' | 'illustrations' | 'manga' = 'artworks'
   private option: SearchOption = {}
@@ -140,28 +124,9 @@ class InitSearchArtworkPage extends InitPageBase {
     'dgw',
   ]
 
-  private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
-
-  private worksWrap: HTMLElement | null = null
-
-  private deleteId = 0 // 手动删除时，要删除的作品的 id
-
-  private showPreviewIntervalId = 0 // showPreview 定时器的 id
   private removeBlockIntervalId = 0 // removeBlockOnHotBar 定时器的 id
 
-  private causeResultChange = [
-    'onlyCrawlFirstFewImagesSwitch',
-    'onlyCrawlFirstFewImagesCount',
-  ] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
-
-  private crawlStartBySelf = false // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
-
-  private previewCount = 0 // 共显示了多少个作品的预览图
-  private showPreviewLimitTip = false // 当预览数量达到上限时显示一次提示
-
-  // 储存预览搜索结果的元素
-  private workPreviewBuffer = document.createDocumentFragment()
-
+  /** 添加搜索页的抓取和结果筛选按钮 */
   protected addCrawlBtns() {
     this.addInitPageBtn(
       'crawlBtns',
@@ -170,10 +135,7 @@ class InitSearchArtworkPage extends InitPageBase {
       'startCrawling',
       'brand'
     ).addEventListener('click', () => {
-      this.resultMeta = []
-      this.crawlStartBySelf = true
-
-      window.addEventListener(EVT.list.addResult, this.createPreview)
+      this.searchResultPreview.startCrawl()
       this.readyCrawl()
     })
 
@@ -189,18 +151,22 @@ class InitSearchArtworkPage extends InitPageBase {
       'filterResults',
       'brand'
     ).addEventListener('click', () => {
-      this.screenInResult()
+      this.searchResultPreview.filterResults()
     })
   }
 
+  /** 添加搜索页结果的批量操作控件 */
   protected addAnyElement() {
-    const deleteWorks = new DeleteWorks(`.${this.listClass}`)
+    const deleteWorks = new DeleteWorks(`.${SearchResultPreview.listClass}`)
 
-    deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
-      EVT.fire('clearMultiple')
-    })
+    deleteWorks.addClearMultipleBtn(
+      `.${SearchResultPreview.multipleClass}`,
+      () => {
+        EVT.fire('clearMultiple')
+      }
+    )
 
-    deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
+    deleteWorks.addClearUgoiraBtn(`.${SearchResultPreview.ugoiraClass}`, () => {
       EVT.fire('clearUgoira')
     })
 
@@ -219,7 +185,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
     bookmarkAllBtn.addEventListener('click', () => {
-      const listWrap = this.findWorksWrap()
+      const listWrap = this.searchResultPreview.findWorksWrap()
       if (listWrap) {
         // 选择作品列表
         // 2026-02-10 改版前的选择器，以及下载器在预览抓取结果时添加的作品元素是 li
@@ -244,6 +210,7 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
+  /** 初始化搜索页特有的功能 */
   protected initAny() {
     this.removeBlockOnHotBar()
 
@@ -254,32 +221,14 @@ class InitSearchArtworkPage extends InitPageBase {
       this.removeBlockOnHotBar
     )
 
-    window.addEventListener(EVT.list.addResult, this.showCount)
+    this.searchResultPreview.init()
 
-    window.addEventListener('addBMK', this.addBookmark)
-
-    window.addEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
-
-    window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
-
-    window.addEventListener(EVT.list.clearUgoira, this.clearUgoira)
-
-    window.addEventListener(EVT.list.deleteWork, this.deleteWork)
-
+    window.addEventListener(
+      EVT.list.crawlComplete,
+      this.searchResultPreview.finishCrawl
+    )
     window.addEventListener(EVT.list.settingChange, this.onSettingChange)
-
     window.addEventListener(EVT.list.crawlTag, this.crawlTag)
-
-    // 定期将缓冲中的预览作品元素添加到页面上
-    this.showPreviewIntervalId = window.setInterval(() => {
-      this.showPreview()
-    }, 1000)
-  }
-
-  private showPreview() {
-    if (this.workPreviewBuffer.firstChild && this.worksWrap) {
-      this.worksWrap.appendChild(this.workPreviewBuffer)
-    }
   }
 
   /**销毁页面切换后不再适用的元素、定时器和全局事件 */
@@ -291,17 +240,14 @@ class InitSearchArtworkPage extends InitPageBase {
       EVT.list.pageSwitchedTypeNotChange,
       this.removeBlockOnHotBar
     )
-    window.removeEventListener(EVT.list.addResult, this.showCount)
-    window.removeEventListener(EVT.list.addResult, this.createPreview)
-    window.removeEventListener('addBMK', this.addBookmark)
-    window.removeEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
-    window.removeEventListener(EVT.list.clearMultiple, this.clearMultiple)
-    window.removeEventListener(EVT.list.clearUgoira, this.clearUgoira)
-    window.removeEventListener(EVT.list.deleteWork, this.deleteWork)
+    window.removeEventListener(
+      EVT.list.crawlComplete,
+      this.searchResultPreview.finishCrawl
+    )
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
 
-    window.clearInterval(this.showPreviewIntervalId)
+    this.searchResultPreview.destroy()
     window.clearInterval(this.removeBlockIntervalId)
   }
 
@@ -316,6 +262,7 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
+  /** 计算搜索结果页数并开始抓取列表 */
   protected async nextStep() {
     if (settings.previewResult && !states.timedCrawlMode) {
       log.warning(
@@ -378,16 +325,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.getIdList()
 
-    this.clearPreview()
-
-    // 显示作品数量的元素
-    // 第一个选择器是旧版页面的，以后可能不需要使用了
-    // 第二个下载器是新版页面里的
-    this.countEl =
-      document.querySelector('section h3+div span') ||
-      (document.querySelector(
-        'div[data-ga4-label="works_content"]>div:first-child div:first-child span span'
-      ) as HTMLElement)
+    this.searchResultPreview.prepareContainer()
   }
 
   // 初始化 API 里要使用的参数
@@ -675,442 +613,6 @@ class InitSearchArtworkPage extends InitPageBase {
     store.result.sort(Utils.sortByProperty('bmk'))
   }
 
-  private onSettingChange = (event: CustomEventInit) => {
-    if (states.crawlTagList) {
-      return
-    }
-    const data = event.detail.data
-    if (this.causeResultChange.includes(data.name)) {
-      if (store.result.length > 0) {
-        this.reAddResult()
-        EVT.fire('resultChange')
-      }
-    }
-  }
-
-  // 抓取完成后，保存结果的元数据，并重新添加抓取结果
-  private onCrawlFinish = () => {
-    // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
-    if (states.crawlTagList || states.quickCrawl) {
-      return
-    }
-    if (!this.crawlStartBySelf) {
-      return
-    }
-
-    this.resultMeta = [...store.resultMeta]
-
-    // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
-    this.clearPreview()
-    this.reAddResult()
-    this.showPreview()
-
-    // 解绑创建作品元素的事件
-    window.removeEventListener(EVT.list.addResult, this.createPreview)
-
-    this.crawlStartBySelf = false
-
-    setTimeout(() => {
-      EVT.fire('worksUpdate')
-    }, 0)
-  }
-
-  // 返回包含作品列表的容器元素
-  private findWorksWrap() {
-    let wrap: HTMLElement | null = null
-
-    // 对于已经查找过的情况，直接定位到该元素
-    const old = document.querySelector(`#${this.workListWrapID}`)
-    if (old) {
-      wrap = old as HTMLElement
-    } else {
-      // 重新查找
-      // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
-      // 为什么用最后一个作品，而不是第一个作品：
-      // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
-      // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
-      let works = document.querySelectorAll(
-        'li a[data-gtm-user-id][href^="/artworks"]'
-      )
-      if (works.length > 0) {
-        const lastWork = Array.from(works).pop()!
-        wrap = lastWork.closest('ul')
-      }
-
-      // 2026-02-10 改版后
-      if (!wrap) {
-        // 查找作品元素
-        works = document.querySelectorAll('.col-span-2')
-        if (works.length > 0) {
-          const lastWork = Array.from(works).pop()!
-          if (lastWork.querySelector('a[href^="/artworks"]')) {
-            wrap = lastWork.parentElement!
-          }
-        }
-      }
-
-      if (!wrap) {
-        // 查找作品缩略图
-        works = document.querySelectorAll('div[width="184"]')
-        if (works.length > 0) {
-          const lastWork = Array.from(works).pop()!
-          wrap =
-            lastWork.closest('div.mx-auto') ||
-            lastWork.closest('div[data-ga4-label="works_content"]')
-        }
-      }
-    }
-
-    // 查找到作品列表后，添加自定义的 ID，方便后续查找它
-    if (wrap) {
-      wrap.id = this.workListWrapID
-    }
-
-    return wrap
-  }
-
-  // 显示抓取到的作品数量
-  private showCount = () => {
-    if (states.crawlTagList || !settings.previewResult) {
-      return
-    }
-
-    if (settings.previewResult && this.countEl) {
-      const count = this.resultMeta.length || store.resultMeta.length
-      this.countEl.textContent = count.toString()
-    }
-  }
-
-  // 生成抓取结果对应的作品元素
-  private createPreview = (event: CustomEventInit) => {
-    if (states.crawlTagList) {
-      return
-    }
-    if (!settings.previewResult || !this.worksWrap) {
-      return
-    }
-
-    // 检查显示的预览数量是否达到上限
-    if (this.previewCount >= settings.previewResultLimit) {
-      if (!this.showPreviewLimitTip) {
-        const msg = lang.transl('_预览搜索结果的数量达到上限的提示')
-        log.warning(msg)
-        msgBox.warning(msg)
-        this.showPreviewLimitTip = true
-      }
-      return
-    }
-    this.previewCount++
-
-    const data = event.detail.data as Result
-
-    let r18Text = ''
-    if (data.xRestrict === 1) {
-      r18Text = 'R-18'
-    }
-    if (data.xRestrict === 2) {
-      r18Text = 'R-18G'
-    }
-
-    let r18HTML = r18Text
-      ? `
-      <div class="r18Part">
-        <div class="child">
-          <div class="text">${r18Text}</div>
-        </div>
-      </div>`
-      : ''
-
-    let multipleHTML = ''
-    if (data.pageCount > 1) {
-      multipleHTML = `
-        <div class="${this.multipleClass}">
-          <div class="child">
-            <span class="span1">
-              <span class="span2">
-              <svg viewBox="0 0 9 10" size="9" class="multipleSvg">
-                <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
-                C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
-                C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
-                0,7.55228475 0,7 L0,2 C0,1.44771525 0.44771525,1 1,1 Z" transform=""></path>
-                </svg>
-              </span>
-            </span>
-            <span>${data.pageCount}</span>
-          </div>  
-        </div>`
-    }
-
-    let ugoiraHTML = ''
-    if (data.ugoiraInfo) {
-      ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="${this.ugoiraClass}" style="width: 48px; height: 48px;">
-        <circle cx="12" cy="12" r="10" class="ugoiraCircle"></circle>
-          <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
-              C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
-              C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
-              C16.3034179,11.3464262 16.1812655,11.2242738 16.0347118,11.1380658 L10.5070201,7.88648243
-              C10.030987,7.60646294 9.41808527,7.76536339 9.13806578,8.24139652
-              C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
-        </svg>`
-    }
-
-    // 添加收藏的作品，让收藏图标变红
-    const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : ''
-
-    const html = `
-    <div class="searchContent">
-      <div class="searchImgArea">
-        <div width="184" height="184" class="searchImgAreaContent">
-          <a target="_blank" class="imgAreaLink" href="/artworks/${data.idNum}">
-            <!--顶部横幅-->
-            <div class="topbar">
-
-            <!--R-18 标记-->
-            ${r18HTML}
-
-            <!--多图作品标记-->
-            ${multipleHTML}
-              
-            </div>
-            <!--图片部分-->
-            <div class="imgWrap">
-            <img src="${
-              settings.replaceSquareThumb
-                ? Tools.convertThumbURLTo540px(data.thumb)
-                : data.thumb
-            }" alt="${
-              data.title
-            }" style="object-fit: contain; object-position: center center;">
-              <!-- 动图 svg -->
-              ${ugoiraHTML}
-              </div>
-          </a>
-          <!--添加显示收藏数-->
-          <div class="bmkCount">${data.bmk}</div>
-          <!--收藏按钮-->
-          <div class="bmkBtnWrap">
-            <div class="">
-            <button type="button" class="${this.addBMKBtnClass}">
-            <svg viewBox="0 0 1024 1024" width="32" height="32" class="bmkBtnSvg ${bookmarkedFlag}">
-            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="path2"></path>
-            <path d="M959.008 406.016l-308-47.008L512 64 372.992 359.008l-308 47.008 223.008 228-52.992 324L512 805.024l276.992 152.992-52.992-324zM512 740L304 856.992l40-235.008-179.008-182.016 242.016-32 104.992-224 104 224 240.992 34.016L680 622.976l36.992 235.008z" p-id="919"></path>
-            </svg>
-            </button>
-            </div>
-          </div>
-        <!--收藏按钮结束-->
-        </div>
-      </div>
-      <!--标题名-->
-      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${
-        data.title
-      }</a>
-      <!--底部-->
-      <div class="bottomBar">
-      <!--作者信息-->
-      <div class="userInfo">
-          <a target="_blank" href="/users/${data.userId}">
-            <div class="userName">${data.user}</div>
-          </a>
-        </div>
-      </div>
-    </div>
-    `
-    // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
-
-    // 生成预览元素
-    const li = document.createElement('li')
-    li.classList.add(this.listClass)
-    li.dataset.id = data.idNum.toString()
-    li.innerHTML = html
-
-    // 绑定收藏按钮的事件
-    const addBMKBtn = li!.querySelector(
-      `.${this.addBMKBtnClass}`
-    ) as HTMLButtonElement
-    const bookmarkedClass = this.bookmarkedClass
-    addBMKBtn.addEventListener('click', function () {
-      // 添加收藏
-      const e = new CustomEvent('addBMK', {
-        detail: { data: { id: data.idNum, tags: data.tags, el: addBMKBtn } },
-      })
-      window.dispatchEvent(e)
-
-      // 下载这个作品
-      downloadOnClickBookmark.send(data.idNum.toString())
-    })
-
-    // 添加到缓冲中
-    this.workPreviewBuffer.append(li)
-  }
-
-  // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
-  private clearPreview() {
-    if (!settings.previewResult || !this.crawlStartBySelf) {
-      return
-    }
-    this.worksWrap = this.findWorksWrap()
-    if (this.worksWrap) {
-      this.worksWrap.innerHTML = ''
-    }
-    // 同时重置一些变量
-    this.previewCount = 0
-    this.showPreviewLimitTip = false
-    this.workPreviewBuffer = document.createDocumentFragment()
-  }
-
-  // 传递作品 id 列表，从页面上的作品列表里移除这些作品
-  private removeWorks(idList: string[]) {
-    const listSelector = `#${this.workListWrapID} .${this.listClass}`
-    const lists = document.querySelectorAll(
-      listSelector
-    ) as NodeListOf<HTMLLIElement>
-    for (const li of lists) {
-      if (li.dataset.id && idList.includes(li.dataset.id)) {
-        li.style.display = 'none'
-        // li.remove()
-        // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
-      }
-    }
-  }
-
-  // 筛选抓取结果。传入函数，过滤符合条件的结果
-  // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
-  private async filterResult(callback: FilterCB) {
-    if (this.resultMeta.length === 0) {
-      toast.error(lang.transl('_没有可用的抓取结果'))
-      return
-    }
-
-    const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
-    const resultMetaTemp: Result[] = []
-    const resultMetaRemoved: Result[] = []
-
-    for (const meta of this.resultMeta) {
-      try {
-        if (await callback(meta)) {
-          resultMetaTemp.push(meta)
-        } else {
-          resultMetaRemoved.push(meta)
-        }
-      } catch (err) {
-        log.error(`filterResult error: ${err}`)
-        resultMetaTemp.push(meta) // 出错时保留该条目，避免误删
-      }
-    }
-
-    this.resultMeta = resultMetaTemp
-
-    // 如果过滤后，作品元数据发生了改变则重排作品
-    if (this.resultMeta.length !== beforeLength) {
-      let ids: string[] = []
-      for (const result of resultMetaRemoved) {
-        ids.push(result.idNum.toString())
-      }
-      this.removeWorks(ids)
-      this.reAddResult()
-    }
-
-    EVT.fire('resultChange')
-  }
-
-  // 重新添加抓取结果，执行时机：
-  // 1 作品抓取完毕之后，添加抓取到的数据
-  // 2 使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
-  // 3 修改了“多图下载设置”，导致作品数据变化
-  private reAddResult() {
-    store.reset()
-
-    // store.addResult 会触发 addResult 事件，让本模块生成对应作品的预览，并显示作品数量
-    for (let data of this.resultMeta) {
-      store.addResult(data)
-    }
-
-    // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
-    if (this.resultMeta.length === 0) {
-      this.showCount()
-    }
-  }
-
-  // 在当前结果中再次筛选，会修改第一次筛选的结果
-  private screenInResult() {
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
-    this.filterResult((data) => {
-      const filterOpt: FilterOption = {
-        aiType: data.aiType,
-        id: data.id,
-        isOriginal: data.isOriginal,
-        workType: data.type,
-        pageCount: data.pageCount,
-        tags: data.tags,
-        title: data.title,
-        bookmarkCount: data.bmk,
-        bookmarkData: data.bookmarked,
-        width: data.pageCount === 1 ? data.fullWidth : 0,
-        height: data.pageCount === 1 ? data.fullHeight : 0,
-        createDate: data.date,
-        userId: data.userId,
-        xRestrict: data.xRestrict,
-      }
-
-      return filter.check(filterOpt)
-    })
-  }
-
-  // 清除多图作品
-  private clearMultiple = () => {
-    this.filterResult((data) => {
-      return data.pageCount <= 1
-    })
-  }
-
-  // 清除动图作品
-  private clearUgoira = () => {
-    this.filterResult((data) => {
-      return !data.ugoiraInfo
-    })
-  }
-
-  // 手动删除作品
-  private deleteWork = (event: CustomEventInit) => {
-    const el = event.detail.data as HTMLElement
-    this.deleteId = parseInt(el.dataset.id!)
-
-    this.filterResult((data) => {
-      return data.idNum !== this.deleteId
-    })
-  }
-
-  private addBookmark = async (event: CustomEventInit) => {
-    const data = event.detail.data as AddBMKData
-
-    for (const r of store.result) {
-      if (r.idNum === data.id) {
-        const status = await bookmark.add(
-          data.id.toString(),
-          'illusts',
-          data.tags
-        )
-        if (status === 200) {
-          // 同步数据
-          r.bookmarked = true
-          this.resultMeta.forEach((result) => {
-            if (result.idNum === data.id) {
-              result.bookmarked = true
-            }
-          })
-          data.el.classList.add(this.bookmarkedClass)
-        }
-        break
-      }
-    }
-  }
-
   // 去除覆盖在热门作品上面的会员购买链接
   private removeBlockOnHotBar() {
     // 需要重复执行，因为这个链接会生成不止一次
@@ -1171,6 +673,11 @@ class InitSearchArtworkPage extends InitPageBase {
     if (states.crawlTagList) {
       this.readyCrawl()
     }
+  }
+
+  /** 将抓取结果相关的设置变更交给预览模块处理 */
+  private onSettingChange = (event: CustomEventInit) => {
+    this.searchResultPreview.refreshResults(event)
   }
 }
 

@@ -1,5 +1,3 @@
-// 删除页面上的作品
-import { log } from '../Log'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
@@ -9,6 +7,10 @@ import { Utils } from '../utils/Utils'
 import { store } from '../store/Store'
 import { toast } from '../Toast'
 
+// 在搜索页面里，删除下载器添加到页面上的作品
+// 这个模块会添加一些按钮，当点击按钮时，以及手动删除作品时，在 2 个模块里共同工作：
+// 1. 触发事件，通知 SearchResultPreview 模块过滤抓取结果（修改数据源）
+// 2. 本模块负责删除页面上对应的作品元素（操作 DOM）
 class DeleteWorks {
   constructor(worksSelectors: string) {
     // .searchList
@@ -93,8 +95,8 @@ class DeleteWorks {
           const el = document.querySelector(selector) as HTMLElement | null
           if (el) {
             el.remove()
-            this.showWorksCount()
-            // 触发此事件是为了让搜索页面的模块（InitSearchArtworkPage）执行 deleteWork 方法，保持数据一致性
+            toast.success(lang.transl('_已调整抓取结果'))
+            // 触发此事件是为了让“预览搜索页面的筛选结果的模块”的模块（SearchResultPreview）执行 deleteWork 方法，保持数据一致性
             EVT.fire('deleteWork', el)
           }
         }
@@ -124,12 +126,11 @@ class DeleteWorks {
       'click',
       () => {
         if (states.busy) {
-          msgBox.error(lang.transl('_当前任务尚未完成'))
+          toast.error(lang.transl('_当前任务尚未完成'))
           return
         }
 
-        if (store.resultMeta.length === 0) {
-          toast.error(lang.transl('_没有可用的抓取结果'))
+        if (!this.checkCanDelete()) {
           return
         }
 
@@ -155,12 +156,11 @@ class DeleteWorks {
       'click',
       () => {
         if (states.busy) {
-          msgBox.error(lang.transl('_当前任务尚未完成'))
+          toast.error(lang.transl('_当前任务尚未完成'))
           return
         }
 
-        if (store.resultMeta.length === 0) {
-          toast.error(lang.transl('_没有可用的抓取结果'))
+        if (!this.checkCanDelete()) {
           return
         }
 
@@ -190,10 +190,19 @@ class DeleteWorks {
 
   // 切换删除模式
   private async toggleDeleteMode() {
-    if (store.resultMeta.length === 0) {
-      toast.error(lang.transl('_没有可用的抓取结果'))
+    if (!this.checkCanDelete()) {
       return
     }
+
+    const findTarget = document.querySelector(this.worksSelector)
+    if (!findTarget) {
+      msgBox.warning(lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
+        title: lang.transl('_手动删除作品'),
+      })
+      this.delMode = false
+      return
+    }
+
     this.delMode = !this.delMode
 
     this.bindDeleteEvent()
@@ -218,7 +227,7 @@ class DeleteWorks {
         el.remove()
       }
     })
-    this.showWorksCount()
+    toast.success(lang.transl('_已调整抓取结果'))
   }
 
   // 清除动图作品
@@ -229,7 +238,7 @@ class DeleteWorks {
         el.remove()
       }
     })
-    this.showWorksCount()
+    toast.success(lang.transl('_已调整抓取结果'))
   }
 
   // 给作品绑定手动删除事件
@@ -244,26 +253,25 @@ class DeleteWorks {
           ev.preventDefault()
 
           if (states.busy) {
-            msgBox.error(lang.transl('_当前任务尚未完成'))
+            toast.error(lang.transl('_当前任务尚未完成'))
             return
           }
 
           const target = ev.currentTarget as HTMLElement
           target.remove()
-          this.showWorksCount()
+          toast.success(lang.transl('_已调整抓取结果'))
           this.deleteWorkCallback(target)
         }
       }
     })
   }
 
-  // 显示调整后，列表里的作品数量
-  private showWorksCount() {
-    const selector = this.worksSelector
-    log.success(
-      lang.transl('_调整完毕', Utils.getVisibleEl(selector).length.toString()),
-      'deleteWorkSuccess'
-    )
+  private checkCanDelete() {
+    if (store.resultMeta.length === 0 && store.result.length === 0) {
+      toast.error(lang.transl('_没有可用的抓取结果'))
+      return false
+    }
+    return true
   }
 }
 

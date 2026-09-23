@@ -1,8 +1,5 @@
 # CHANGLOG
 
-在 Pixiv 的 console 里隐藏这些脚本的输出：
--doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -_script.js -_app- -_app. -reach -ufs -pubads -google -tabool -openx -sync -userscript
-
 ## next
 
 ### 🐞修复问题：特定情况下，保存汇总的简介文件之后，会导致图片下载失败
