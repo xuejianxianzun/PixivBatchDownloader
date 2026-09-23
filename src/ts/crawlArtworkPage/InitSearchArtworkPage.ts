@@ -34,8 +34,13 @@ class InitSearchArtworkPage extends InitPageBase {
     this.init()
   }
 
+  /** 管理搜索页上的批量清除和手动删除操作 */
+  private deleteWorks?: DeleteWorks
+
   /** 管理搜索页面上的抓取结果预览和二次筛选 */
-  private readonly searchResultPreview = new SearchResultPreview()
+  private readonly searchResultPreview = new SearchResultPreview(() => {
+    this.deleteWorks?.exitDeleteMode()
+  })
 
   protected getIdListLogKey = 'crawlArtworkSearchPageListPage'
 
@@ -158,15 +163,13 @@ class InitSearchArtworkPage extends InitPageBase {
   /** 添加搜索页结果的批量操作控件 */
   protected addAnyElement() {
     const deleteWorks = new DeleteWorks(`.${SearchResultPreview.listClass}`)
+    this.deleteWorks = deleteWorks
 
-    deleteWorks.addClearMultipleBtn(
-      `.${SearchResultPreview.multipleClass}`,
-      () => {
-        EVT.fire('clearMultiple')
-      }
-    )
+    deleteWorks.addClearMultipleBtn(() => {
+      EVT.fire('clearMultiple')
+    })
 
-    deleteWorks.addClearUgoiraBtn(`.${SearchResultPreview.ugoiraClass}`, () => {
+    deleteWorks.addClearUgoiraBtn(() => {
       EVT.fire('clearUgoira')
     })
 
@@ -187,18 +190,23 @@ class InitSearchArtworkPage extends InitPageBase {
     bookmarkAllBtn.addEventListener('click', () => {
       const listWrap = this.searchResultPreview.findWorksWrap()
       if (listWrap) {
-        // 选择作品列表
-        // 2026-02-10 改版前的选择器，以及下载器在预览抓取结果时添加的作品元素是 li
-        let list = listWrap.querySelectorAll('li')
+        let list = listWrap.querySelectorAll<HTMLElement>(
+          `li.${SearchResultPreview.listClass}`
+        )
+
+        // 原有搜索结果使用 li，新版页面则使用 div
+        if (list.length === 0) {
+          list = listWrap.querySelectorAll<HTMLElement>('li')
+        }
 
         // 2026-02-10 改版后的选择器
         if (list.length === 0) {
-          list = document.querySelectorAll(
+          list = document.querySelectorAll<HTMLElement>(
             'div[data-ga4-label="works_content"]>div:last-child>div'
           )
         }
 
-        // 在显示了预览的抓取结果时，被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时需要过滤掉隐藏的作品
+        // 只将当前页面实际显示的作品加入批量收藏。
         const showList = Array.from(list).filter((el) => {
           return el.style.display !== 'none'
         })
@@ -247,6 +255,7 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
 
+    this.deleteWorks?.destroy()
     this.searchResultPreview.destroy()
     window.clearInterval(this.removeBlockIntervalId)
   }

@@ -220,6 +220,60 @@
   flex-wrap: wrap;
   align-items: center;
 }
+.searchResultPreviewPagination {
+  box-sizing: border-box;
+  display: flex !important;
+  flex: 0 0 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+  list-style: none;
+}
+.searchResultPreviewPagination .searchResultPreviewPages {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: calc(100% - 96px);
+  overflow-x: auto;
+}
+.searchResultPreviewPagination button {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #858585;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 40px;
+  text-align: center;
+  white-space: nowrap;
+}
+.searchResultPreviewPagination button:disabled {
+  cursor: not-allowed;
+}
+.searchResultPreviewPagination button.currentPage {
+  background: var(--pixiv-theme-blue);
+  color: #fff;
+}
+.searchResultPreviewPagination button .settingsPanel_sectionArrow {
+  color: #858585;
+  font-size: 18px;
+}
 .searchList {
   margin: 0;
   list-style: none;
@@ -4499,6 +4553,7 @@ body[data-page-type='9'] .xzTipPanelWrap {
 }
 :root {
   --theme-blue: #199df5;
+  --pixiv-theme-blue: #0096fa;
   --blue-buttons-bg: #0ea8ef;
   --beautify-blue: #1dacf5;
   --bg-checkbox-blue: #1fb2fd;

@@ -258,6 +258,8 @@ interface XzSetting {
   postDateEnd: number
   previewResult: boolean
   previewResultLimit: number
+  /** 搜索页预览每页显示的作品数量 */
+  previewResultPageSize: number
   BMKNumSwitch: boolean
   BMKNumMin: number
   BMKNumMax: number
@@ -807,6 +809,7 @@ class Settings {
     postDateEnd: 4102416000000,
     previewResult: true,
     previewResultLimit: 3000,
+    previewResultPageSize: 100,
     BMKNumSwitch: false,
     BMKNumMin: 0,
     BMKNumMax: Config.BookmarkCountLimit,
@@ -1654,6 +1657,14 @@ class Settings {
 
     if (key === 'previewResultLimit' && (value as number) < 0) {
       value = 999999
+    }
+
+    if (key === 'previewResultPageSize') {
+      const pageSize = value as number
+      value =
+        Number.isFinite(pageSize) && pageSize >= 1
+          ? Math.floor(pageSize)
+          : this.defaultSettings[key]
     }
 
     if (key === 'borderWidth' && (value as number) < 1) {

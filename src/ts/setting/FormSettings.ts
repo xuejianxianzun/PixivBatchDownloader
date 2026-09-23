@@ -232,6 +232,7 @@ class FormSettings {
       'autoExportResultNumber',
       'previewWorkWait',
       'previewResultLimit',
+      'previewResultPageSize',
       'timedCrawlInterval',
       'slowCrawlOnWorksNumber',
       'exportLogExclude',

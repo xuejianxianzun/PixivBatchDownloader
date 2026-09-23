@@ -7,10 +7,7 @@ import { Utils } from '../utils/Utils'
 import { store } from '../store/Store'
 import { toast } from '../Toast'
 
-// 在搜索页面里，删除下载器添加到页面上的作品
-// 这个模块会添加一些按钮，当点击按钮时，以及手动删除作品时，在 2 个模块里共同工作：
-// 1. 触发事件，通知 SearchResultPreview 模块过滤抓取结果（修改数据源）
-// 2. 本模块负责删除页面上对应的作品元素（操作 DOM）
+// 在搜索页面里添加批量清除和手动删除作品的按钮，具体的数据修改和页面重绘由 SearchResultPreview 模块处理。
 class DeleteWorks {
   constructor(worksSelectors: string) {
     // .searchList
@@ -23,13 +20,12 @@ class DeleteWorks {
 
   private worksSelector: string = '' // 选择页面上所有作品的选择器
 
-  private multipleSelector: string = '' // 多图作品特有的元素的标识
-
-  private ugoiraSelector: string = '' // 动图作品特有的元素的标识
-
   private delMode: boolean = false // 是否处于手动删除作品状态
 
   private delBtn: HTMLButtonElement = document.createElement('button')
+
+  /** 手动删除模式下注册点击事件的作品容器 */
+  private deleteEventTarget: HTMLElement | null = null
 
   private icon?: HTMLElement // 手动删除时，显示一个指示图标
   private readonly iconId = 'deleteWorkEl'
@@ -37,7 +33,28 @@ class DeleteWorks {
   private top = 0
   private half = 12
 
-  private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+  /** 手动删除作品时通知预览模块更新数据 */
+  private deleteWorkCallback: (el: HTMLElement) => void = () => {}
+
+  /** 鼠标移动事件处理函数 */
+  private onMouseMove = (ev: MouseEvent) => {
+    this.moveEvent(ev)
+  }
+
+  /** 同步“手动排除作品”操作与搜索结果预览 */
+  private onManuallyExcludeWork = (ev: CustomEventInit) => {
+    const id = ev.detail.data.id as string
+    const type = ev.detail.data.type as string
+    if (id && type !== 'novels' && type !== 'novelSeries') {
+      const selector = `${this.worksSelector}[data-id="${id}"]`
+      const el = document.querySelector(selector) as HTMLElement | null
+      if (el) {
+        el.remove()
+        // SearchResultPreview 会同步更新抓取结果并重绘当前页。
+        EVT.fire('deleteWork', el)
+      }
+    }
+  }
 
   private createDeleteIcon() {
     const el = document.createElement('div')
@@ -61,60 +78,28 @@ class DeleteWorks {
   }
 
   private bindEvents() {
-    // 作品列表更新后，需要重新给作品绑定手动删除事件
-    window.addEventListener(EVT.list.worksUpdate, () => {
-      if (this.delMode) {
-        this.bindDeleteEvent()
-      }
-    })
-
     // 切换页面时，退出手动删除模式
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      if (this.delMode) {
-        this.toggleDeleteMode()
-      }
-    })
+    window.addEventListener(EVT.list.pageSwitch, this.exitDeleteMode)
 
     // 鼠标移动时保存鼠标的坐标
-    window.addEventListener(
-      'mousemove',
-      (ev) => {
-        this.moveEvent(ev)
-      },
-      true
-    )
+    window.addEventListener('mousemove', this.onMouseMove, true)
 
     // 当用户使用“手动排除作品”功能排除了一个作品时，自动删除页面上对应的作品元素
     window.addEventListener(
       EVT.list.manuallyExcludeWork,
-      (ev: CustomEventInit) => {
-        const id = ev.detail.data.id as string
-        const type = ev.detail.data.type as string
-        if (id && type !== 'novels' && type !== 'novelSeries') {
-          const selector = `${this.worksSelector}[data-id="${id}"]`
-          const el = document.querySelector(selector) as HTMLElement | null
-          if (el) {
-            el.remove()
-            toast.success(lang.transl('_已调整抓取结果'))
-            // 触发此事件是为了让“预览搜索页面的筛选结果的模块”的模块（SearchResultPreview）执行 deleteWork 方法，保持数据一致性
-            EVT.fire('deleteWork', el)
-          }
-        }
-      }
+      this.onManuallyExcludeWork
     )
   }
 
-  // 监听鼠标移动
+  /** 监听鼠标移动并更新手动删除指示图标 */
   private moveEvent(ev: MouseEvent) {
-    this.left = ev.x
-    this.top = ev.y
+    this.left = ev.clientX
+    this.top = ev.clientY
     this.updateDeleteIcon()
   }
 
-  // 清除多图作品的按钮
-  public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
-    this.multipleSelector = selector
-
+  /** 添加由结果预览模块处理的清除多图作品按钮 */
+  public addClearMultipleBtn(callback: () => void = () => {}) {
     Tools.addBtn(
       'crawlBtns',
       '_清除多图作品',
@@ -134,17 +119,14 @@ class DeleteWorks {
           return
         }
 
-        this.clearMultiple()
         callback()
       },
       false
     )
   }
 
-  // 清除动图作品的按钮
-  public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
-    this.ugoiraSelector = selector
-
+  /** 添加由结果预览模块处理的清除动图作品按钮 */
+  public addClearUgoiraBtn(callback: () => void = () => {}) {
     Tools.addBtn(
       'crawlBtns',
       '_清除动图作品',
@@ -164,15 +146,14 @@ class DeleteWorks {
           return
         }
 
-        this.ClearUgoira()
         callback()
       },
       false
     )
   }
 
-  // 手动删除作品的按钮
-  public addManuallyDeleteBtn(callback: Function = () => {}) {
+  /** 添加手动删除作品按钮 */
+  public addManuallyDeleteBtn(callback: (el: HTMLElement) => void = () => {}) {
     this.deleteWorkCallback = callback
     this.delBtn = Tools.addBtn(
       'crawlBtns',
@@ -183,13 +164,22 @@ class DeleteWorks {
       'danger'
     )
 
-    this.delBtn.addEventListener('click', () => {
+    this.delBtn.addEventListener('click', (ev: MouseEvent) => {
+      if (ev.detail > 0) {
+        this.left = ev.clientX
+        this.top = ev.clientY
+      }
       this.toggleDeleteMode()
     })
   }
 
-  // 切换删除模式
+  /** 切换手动删除模式 */
   private async toggleDeleteMode() {
+    if (this.delMode) {
+      this.exitDeleteMode()
+      return
+    }
+
     if (!this.checkCanDelete()) {
       return
     }
@@ -199,71 +189,90 @@ class DeleteWorks {
       msgBox.warning(lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
         title: lang.transl('_手动删除作品'),
       })
-      this.delMode = false
       return
     }
 
-    this.delMode = !this.delMode
+    const eventTarget =
+      findTarget.closest<HTMLElement>('#workListWrap') ||
+      findTarget.parentElement
+    if (!eventTarget) {
+      msgBox.warning(lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
+        title: lang.transl('_手动删除作品'),
+      })
+      return
+    }
 
-    this.bindDeleteEvent()
-
+    this.delMode = true
+    this.deleteEventTarget = eventTarget
+    this.deleteEventTarget.addEventListener(
+      'click',
+      this.handleDeleteClick,
+      true
+    )
     this.updateDeleteIcon()
 
     const span = this.delBtn.querySelector('span')
+    lang.updateText(span!, '_退出手动删除')
+    await Utils.sleep(100)
     if (this.delMode) {
-      lang.updateText(span!, '_退出手动删除')
-      await Utils.sleep(100)
       EVT.fire('closeSettingsPanel')
-    } else {
-      lang.updateText(span!, '_手动删除作品')
     }
   }
 
-  // 清除多图作品
-  private clearMultiple() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach((el) => {
-      if (el.querySelector(this.multipleSelector)) {
-        el.remove()
-      }
-    })
-    toast.success(lang.transl('_已调整抓取结果'))
-  }
+  /** 退出手动删除模式并移除列表级点击监听 */
+  public exitDeleteMode = () => {
+    if (!this.delMode) {
+      return
+    }
 
-  // 清除动图作品
-  private ClearUgoira() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach((el) => {
-      if (el.querySelector(this.ugoiraSelector)) {
-        el.remove()
-      }
-    })
-    toast.success(lang.transl('_已调整抓取结果'))
-  }
-
-  // 给作品绑定手动删除事件
-  // 删除作品后，回调函数可以接收到被删除的元素
-  private bindDeleteEvent() {
-    const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      this.worksSelector
+    this.delMode = false
+    this.deleteEventTarget?.removeEventListener(
+      'click',
+      this.handleDeleteClick,
+      true
     )
-    listElement.forEach((el) => {
-      el.onclick = (ev) => {
-        if (this.delMode) {
-          ev.preventDefault()
+    this.deleteEventTarget = null
+    this.updateDeleteIcon()
 
-          if (states.busy) {
-            toast.error(lang.transl('_当前任务尚未完成'))
-            return
-          }
+    const span = this.delBtn.querySelector('span')
+    if (span) {
+      lang.updateText(span, '_手动删除作品')
+    }
+  }
 
-          const target = ev.currentTarget as HTMLElement
-          target.remove()
-          toast.success(lang.transl('_已调整抓取结果'))
-          this.deleteWorkCallback(target)
-        }
-      }
-    })
+  /** 销毁手动删除模块及其全局事件 */
+  public destroy() {
+    this.exitDeleteMode()
+    window.removeEventListener(EVT.list.pageSwitch, this.exitDeleteMode)
+    window.removeEventListener('mousemove', this.onMouseMove, true)
+    window.removeEventListener(
+      EVT.list.manuallyExcludeWork,
+      this.onManuallyExcludeWork
+    )
+    this.icon?.remove()
+  }
+
+  /** 在列表容器上委托处理手动删除操作 */
+  private handleDeleteClick = (ev: MouseEvent) => {
+    if (!this.delMode || !(ev.target instanceof Element)) {
+      return
+    }
+
+    const target = ev.target.closest<HTMLElement>(this.worksSelector)
+    if (!target) {
+      return
+    }
+
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    if (states.busy) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    this.deleteWorkCallback(target)
+    target.remove()
   }
 
   private checkCanDelete() {
