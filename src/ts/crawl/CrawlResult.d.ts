@@ -1,6 +1,6 @@
 // 声明 Pixiv API 返回的数据格式
 
-// 插画、漫画的详细数据（在作品页内使用的）
+/** 插画、漫画的详细数据（在作品页内使用的） */
 export interface ArtworkData {
   error: boolean
   message: string
@@ -301,7 +301,7 @@ export interface ArtworkData {
   }
 }
 
-// 插画、漫画的通用数据
+/** 插画、漫画的通用数据 */
 export interface ArtworkCommonData {
   /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType: 0 | 1 | 2
@@ -339,7 +339,7 @@ export interface ArtworkCommonData {
   profileImageUrl: string
 }
 
-// 画师信息的数据 user/id/profile/Top
+/** 画师信息的数据 user/id/profile/Top */
 export interface UserProfileTop {
   error: boolean
   message: string
@@ -405,7 +405,7 @@ interface UserCommonData {
   partial: number
 }
 
-// 画师账户信息 user/id?full=1
+/** 画师账户信息 user/id?full=1 */
 export interface UserProfile {
   error: boolean
   message: '' | string
@@ -462,7 +462,7 @@ export interface UserProfile {
   }
 }
 
-// 动图每一帧的文件名和延迟
+/** 动图每一帧的文件名和延迟 */
 export interface UgoiraInfo {
   mime_type: string
   frames: { file: string; delay: number }[]
@@ -484,7 +484,7 @@ export interface BookmarkResult {
   type?: 'illusts' | 'novels'
 }
 
-// 动图元数据
+/** 动图元数据 */
 export interface UgoiraMetaBody {
   /**原图尺寸
    *
@@ -526,7 +526,7 @@ export type BookMarkNewNovelData = NovelCommonData & {
   isMasked: boolean
 }
 
-// 关注的用户的新作品的数据
+/** 关注的用户的新作品的数据 */
 export interface BookMarkNewData {
   error: boolean
   message: string | ''
@@ -571,7 +571,7 @@ export interface BookMarkNewData {
   }
 }
 
-// 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了
+/** 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了 */
 export interface UserProfileAllData {
   error: boolean
   message: string
@@ -599,7 +599,7 @@ export interface UserProfileAllData {
   }
 }
 
-// 获取书签数据
+/** 获取书签数据 */
 export interface BookmarkData {
   error: boolean
   message: string
@@ -651,7 +651,7 @@ export interface BookmarkData {
   }
 }
 
-// 获取作品下方的相关作品数据。只有 recommendMethods 里的 id 列表是完整的。最多有 180 个，但经常会少一些。
+/** 在作品详情页面底部显示的相关作品数据。只有 recommendMethods 里的 id 列表是完整的。最多有 180 个，但经常会少一些。 */
 export interface RecommendData {
   error: false | true
   message: string
@@ -878,12 +878,12 @@ interface ZoneConfig {
   }
 }
 
-// 收藏后的相似作品数据
+/** 收藏后的相似作品数据 */
 export interface RecommenderData {
   recommendations: number[]
 }
 
-// 搜索页的数据格式，删除了 body 里没有使用的部分
+/** 搜索页的数据格式，删除了 body 里没有使用的部分 */
 export interface SearchData {
   error: boolean
   body: Record<
@@ -895,7 +895,7 @@ export interface SearchData {
   >
 }
 
-// 搜索页的小说的数据格式，删除了 body 里没有使用的部分
+/** 搜索页的小说的数据格式，删除了 body 里没有使用的部分 */
 export interface NovelSearchData {
   error: boolean
   body: {
@@ -944,7 +944,7 @@ export type NovelSearchDataItem = NovelCommonData &
     isBookmarkable?: boolean
   }
 
-// 当用户启用了整合系列作品时，并且这项数据属于系列作品时，会有这些特有的属性
+/** 当用户启用了整合系列作品时，并且这项数据属于系列作品时，会有这些特有的属性 */
 interface NovelSearchDataOnlyInSeries {
   /** 该系列是否完结。当 isOneshot 为 false 时才会有这个属性 */
   isConcluded?: boolean
@@ -963,7 +963,7 @@ interface NovelSearchDataOnlyInSeries {
   isNotifying?: boolean
 }
 
-// 大家的新作小说的数据格式
+/** 大家的新作小说的数据格式 */
 export interface NewNovelData {
   error: boolean
   message: ''
@@ -995,7 +995,7 @@ export interface NewNovelData {
   }
 }
 
-// 大家的新作品的数据格式
+/** 大家的新作品的数据格式 */
 export interface NewIllustData {
   error: boolean
   message: string
@@ -1013,7 +1013,7 @@ export interface NewIllustData {
   }
 }
 
-// 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了
+/** 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了 */
 export interface UserImageWorksWithTag {
   error: boolean
   message: string
@@ -1102,7 +1102,7 @@ export interface UserNovelsWithTag {
   }
 }
 
-// 请求单个小说时返回的数据
+/** 请求单个小说时返回的数据 */
 export interface NovelData {
   error: boolean
   message: string
@@ -1439,8 +1439,10 @@ export interface NovelSeriesContentData {
 }
 
 /**获取小说里插入（引用）的插画图片的数据。相比获取这个插画的全部数据，这里返回的数据要少一些，而且更有针对性 */
-// 示例网址：
-// https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979454-1
+/**
+ * 示例网址：
+ * https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979454-1
+ */
 export interface NovelInsertIllusts {
   error: boolean
   message: string
@@ -1507,8 +1509,10 @@ export interface FollowingUserData {
   novels: NovelCommonData[]
 }
 
-// 获取关注列表时的返回数据
-// 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
+/**
+ * 获取关注列表时的返回数据
+ * 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
+ */
 export interface FollowingResponse {
   error: boolean
   message: string
@@ -1580,7 +1584,7 @@ interface extraDataCommon {
   }
 }
 
-// 系列数据，这个接口的数据结构里同时有插画系列和小说系列，但是小说系列目前使用的是另一套 api，这个 api 里的小说数据不知道是什么样，目前只有空数组
+/** 系列数据，这个接口的数据结构里同时有插画系列和小说系列，但是小说系列目前使用的是另一套 api，这个 api 里的小说数据不知道是什么样，目前只有空数组 */
 export interface SeriesData {
   error: boolean
   message: string | ''
@@ -1675,7 +1679,7 @@ interface muteItemTag {
   listType: 'existing' | 'candidate'
 }
 
-// 获取屏蔽的项目时返回的数据格式
+/** 获取屏蔽的项目时返回的数据格式 */
 export interface muteData {
   error: boolean
   message: string
@@ -1696,9 +1700,11 @@ export type GlossaryCover = null | {
   }
 }
 
-// 有图片和详情的设定资料示例：
-// https://www.pixiv.net/novel/series/9114820/glossary/154698
-// https://www.pixiv.net/ajax/novel/series/9114820/glossary/item/154698?lang=zh
+/**
+ * 有图片和详情的设定资料示例：
+ * https://www.pixiv.net/novel/series/9114820/glossary/154698
+ * https://www.pixiv.net/ajax/novel/series/9114820/glossary/item/154698?lang=zh
+ */
 export interface GlossaryItem {
   id: string
   seriesId: string
@@ -1737,9 +1743,11 @@ export interface GlossaryCategorie {
 }
 
 /** 系列小说的设定资料 */
-// 有可置换单词的系列小说：
-// https://www.pixiv.net/novel/series/9114820
-// https://www.pixiv.net/ajax/novel/series/9114820/glossary
+/**
+ * 有可置换单词的系列小说：
+ * https://www.pixiv.net/novel/series/9114820
+ * https://www.pixiv.net/ajax/novel/series/9114820/glossary
+ */
 export interface NovelSeriesGlossary {
   error: boolean
   message: string
@@ -2119,5 +2127,47 @@ export interface RequestWorksData {
     }
     illustSeries: []
     users: []
+  }
+}
+
+/**
+ * 图像作品页面底部的推荐作品。
+ * 注意：这是底部的推荐作品，不是收藏作品后在作品内容下方显示的推荐作品
+ * 它不是用于这个模块的：src/ts/crawlArtworkPage/CrawlRecommendWorksAfterBookmark.ts
+ * https://www.pixiv.net/ajax/illust/discovery?mode=safe&max=18&lang=zh
+ */
+export interface BottomRecommendedWorksOnArtworkPage {
+  error: boolean
+  message: string
+  body: {
+    illusts: ArtworkCommonData[]
+  }
+}
+
+/**
+ * 小说作品页面底部的推荐作品。
+ * 注意：这是底部的推荐作品，不是收藏作品后在作品内容下方显示的推荐作品
+ * https://www.pixiv.net/ajax/novel/discovery?mode=r18&max=18&lang=zh
+ */
+export interface BottomRecommendedWorksOnNovelPage {
+  error: false | true
+  message: string
+  body: {
+    illusts: ArtworkCommonData[]
+    details: {
+      [key: string]: {
+        methods:
+          | ['illust_by_illust_table_bq_recommendation_c']
+          | ['illust_by_illust_table_mf_tda']
+          | [
+              'illust_by_illust_table_bq_recommendation_c',
+              'illust_by_illust_table_mf_tda',
+            ]
+        score: number
+        seed_novel_ids: string[]
+        seed_illust_ids: string[]
+        position: number
+      }
+    }
   }
 }

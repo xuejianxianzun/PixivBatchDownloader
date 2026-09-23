@@ -5,8 +5,10 @@ import { IDData } from '../store/StoreType'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 
-// 在作品页面里，点击收藏按钮后会出现推荐作品。这个模块用于抓取推荐作品
-class CrawlRecommendWorks {
+// 在图像作品页面里，点击收藏按钮后会在作品内容下方显示推荐作品。这个模块用于抓取推荐作品
+// 备注：在小说作品页面里，点击收藏按钮后不会显示推荐作品
+// 直接从页面元素里获取这些作品的 id 列表
+class CrawlRecommendWorksAfterBookmark {
   constructor() {
     this.timer = window.setInterval(() => {
       this.foundTarget()
@@ -113,4 +115,4 @@ class CrawlRecommendWorks {
   }
 }
 
-new CrawlRecommendWorks()
+new CrawlRecommendWorksAfterBookmark()

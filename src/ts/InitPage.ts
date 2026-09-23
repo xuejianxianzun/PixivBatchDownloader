@@ -12,7 +12,7 @@ import { InitRankingArtworkPage } from './crawlArtworkPage/InitRankingArtworkPag
 import { InitPixivisionPage } from './crawlArtworkPage/InitPixivisionPage'
 import { InitBookmarkDetailPage } from './crawlArtworkPage/InitBookmarkDetailPage'
 import { InitNewWorksFromFollowingPage } from './crawlMixedPage/InitNewWorksFromFollowingPage'
-import { InitDiscoverPage } from './crawlArtworkPage/InitDiscoverPage'
+import { InitDiscoveryPage } from './crawlArtworkPage/InitDiscoveryPage'
 import { InitNewArtworkFromAllUsersPage } from './crawlArtworkPage/InitNewArtworkFromAllUsersPage'
 import { InitNovelPage } from './crawlNovelPage/InitNovelPage'
 import { InitNovelSeriesPage } from './crawlNovelPage/InitNovelSeriesPage'
@@ -64,7 +64,7 @@ class InitPage {
       case pageType.list.NewArtworkFromFollowing:
         return new InitNewWorksFromFollowingPage()
       case pageType.list.Discover:
-        return new InitDiscoverPage()
+        return new InitDiscoveryPage()
       case pageType.list.NewArtworkFromAllUsers:
         return new InitNewArtworkFromAllUsersPage()
       case pageType.list.Novel:

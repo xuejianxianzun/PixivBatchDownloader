@@ -36,6 +36,7 @@ enum PageName {
   /** 10 已关注用户的新作品 - 插画 */
   NewArtworkFromFollowing,
   /** 11 发现页面 */
+  // 其实应该是 Discovery，但是为了兼容性不修改。
   Discover,
   /** 12 大家的新作 - 插画 */
   NewArtworkFromAllUsers,

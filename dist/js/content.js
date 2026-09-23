@@ -6837,7 +6837,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./crawlArtworkPage/InitPixivisionPage */ "./src/ts/crawlArtworkPage/InitPixivisionPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./crawlArtworkPage/InitBookmarkDetailPage */ "./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts");
 /* harmony import */ var _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/InitNewWorksFromFollowingPage */ "./src/ts/crawlMixedPage/InitNewWorksFromFollowingPage.ts");
-/* harmony import */ var _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlArtworkPage/InitDiscoverPage */ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts");
+/* harmony import */ var _crawlArtworkPage_InitDiscoveryPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlArtworkPage/InitDiscoveryPage */ "./src/ts/crawlArtworkPage/InitDiscoveryPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/InitNewArtworkFromAllUsersPage */ "./src/ts/crawlArtworkPage/InitNewArtworkFromAllUsersPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelPage */ "./src/ts/crawlNovelPage/InitNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
@@ -6915,7 +6915,7 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromFollowing:
                 return new _crawlMixedPage_InitNewWorksFromFollowingPage__WEBPACK_IMPORTED_MODULE_11__.InitNewWorksFromFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover:
-                return new _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_12__.InitDiscoverPage();
+                return new _crawlArtworkPage_InitDiscoveryPage__WEBPACK_IMPORTED_MODULE_12__.InitDiscoveryPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
                 return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Novel:
@@ -8328,6 +8328,7 @@ var PageName;
     /** 10 已关注用户的新作品 - 插画 */
     PageName[PageName["NewArtworkFromFollowing"] = 10] = "NewArtworkFromFollowing";
     /** 11 发现页面 */
+    // 其实应该是 Discovery，但是为了兼容性不修改。
     PageName[PageName["Discover"] = 11] = "Discover";
     /** 12 大家的新作 - 插画 */
     PageName[PageName["NewArtworkFromAllUsers"] = 12] = "NewArtworkFromAllUsers";
@@ -17100,10 +17101,10 @@ const vipSearchOptimize = new VipSearchOptimize();
 
 /***/ }),
 
-/***/ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts":
-/*!********************************************************!*\
-  !*** ./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts ***!
-  \********************************************************/
+/***/ "./src/ts/crawlArtworkPage/CrawlRecommendWorksAfterBookmark.ts":
+/*!*********************************************************************!*\
+  !*** ./src/ts/crawlArtworkPage/CrawlRecommendWorksAfterBookmark.ts ***!
+  \*********************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -17118,8 +17119,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 在作品页面里，点击收藏按钮后会出现推荐作品。这个模块用于抓取推荐作品
-class CrawlRecommendWorks {
+// 在图像作品页面里，点击收藏按钮后会在作品内容下方显示推荐作品。这个模块用于抓取推荐作品
+// 备注：在小说作品页面里，点击收藏按钮后不会显示推荐作品
+// 直接从页面元素里获取这些作品的 id 列表
+class CrawlRecommendWorksAfterBookmark {
     constructor() {
         this.timer = window.setInterval(() => {
             this.foundTarget();
@@ -17202,7 +17205,7 @@ class CrawlRecommendWorks {
         }
     }
 }
-new CrawlRecommendWorks();
+new CrawlRecommendWorksAfterBookmark();
 
 
 /***/ }),
@@ -17317,7 +17320,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _CrawlRecommendWorks__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./CrawlRecommendWorks */ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts");
+/* harmony import */ var _CrawlRecommendWorksAfterBookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./CrawlRecommendWorksAfterBookmark */ "./src/ts/crawlArtworkPage/CrawlRecommendWorksAfterBookmark.ts");
 /* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../buttonsOnThumb/ButtonsOnArtworkPage */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 //初始化 artwork 作品页
@@ -17463,10 +17466,17 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         }
         this.getIdListFinished();
     }
-    // 下载相关作品时使用
+    /**下载页面底部的相关作品时使用 */
+    // 注意：新发表的作品，页面底部可能不是相关作品，而是推荐作品（其实就是发现页面里的推荐作品）
+    // 详细说明可以查看这个文档：notes/作品详情页底部的推荐作品和相关作品.md
+    // 下载器目前不会抓取推荐作品，因为它的作品是不会根据当前页面作品的内容变化的，这导致：
+    // - 推荐作品与当前页面的作品没有相关性
+    // - 底部的推荐作品数量有限，尤其是在图像作品页面里，固定显示 18 个
+    // - 在不同的作品页面里，推荐作品的相似度很高，抓取它们的意义不大
     async getRelatedList() {
         let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getRelatedData(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getIllustId());
-        // 相关作品的列表由两部分构成，所以要组合起来
+        // 相关作品的完整 id 列表由两部分组成：illusts 里的 id，以及 ids 里的 id
+        // 需要组合起来
         let ids = [];
         for (const illust of data.body.illusts) {
             if (illust.isAdContainer) {
@@ -17485,7 +17495,11 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
                 id,
             });
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关作品抓取完毕', _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.idList.length.toString()));
+        const length = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.idList.length;
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关作品抓取完毕', length.toString()));
+        if (length === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有相关作品的提示'));
+        }
         this.getIdListFinished();
     }
     resetGetIdListStatus() {
@@ -17688,25 +17702,27 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
 
 /***/ }),
 
-/***/ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts":
-/*!*****************************************************!*\
-  !*** ./src/ts/crawlArtworkPage/InitDiscoverPage.ts ***!
-  \*****************************************************/
+/***/ "./src/ts/crawlArtworkPage/InitDiscoveryPage.ts":
+/*!******************************************************!*\
+  !*** ./src/ts/crawlArtworkPage/InitDiscoveryPage.ts ***!
+  \******************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitDiscoverPage: () => (/* binding */ InitDiscoverPage)
+/* harmony export */   InitDiscoveryPage: () => (/* binding */ InitDiscoveryPage)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+
 // 初始化发现页面
-
-
-
-class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+// API 文档：notes/发现页面的作品列表 API.md
+// 目前并未使用上面的 API
+class InitDiscoveryPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -33234,6 +33250,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `関連作品はクロールされました。 {} 作品を含み、その作品に関する情報の取得を開始します。`,
         `관련 작품 긁어오기 완료, {}개의 작품이 포함되어 있으며, 작품 정보 가져오기를 시작합니다`,
         `Связанные работы были просканированы. Содержит {} работ и начинает получать информацию о работе(ах).`,
+    ],
+    _没有相关作品的提示: [
+        `没有找到相关作品。最可能的原因：这个作品刚发布不久，所以它的底部没有相关作品（而是推荐作品）。`,
+        `沒有找到相關作品。最可能的原因：這個作品剛發布不久，所以作品頁面底部沒有相關作品（而是推薦作品）。`,
+        `No related works were found. The most likely reason is that this work was posted recently, so its page shows recommended works instead of related works at the bottom.`,
+        `関連作品が見つかりませんでした。作品が投稿されたばかりで、作品ページの下部に関連作品ではなくおすすめ作品が表示されている可能性が最も高いです。`,
+        `관련 작품을 찾을 수 없습니다. 이 작품이 게시된 지 얼마 되지 않아 작품 페이지 하단에 관련 작품 대신 추천 작품이 표시되고 있을 가능성이 가장 높습니다.`,
+        `Связанные работы не найдены. Скорее всего, эта работа была опубликована недавно, поэтому внизу страницы вместо связанных работ отображаются рекомендуемые работы.`,
     ],
     _排行榜任务完成: [
         `本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。`,

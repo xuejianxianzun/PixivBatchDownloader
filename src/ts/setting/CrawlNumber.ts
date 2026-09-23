@@ -87,7 +87,7 @@ class CrawlNumber {
           }
         } else {
           // 如果 max 不是 -1
-          if(v === -1){
+          if (v === -1) {
             v = cfg.max
           }
           // 检查其最小值和最大值是否合法

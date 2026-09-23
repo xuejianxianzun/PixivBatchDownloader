@@ -1,9 +1,11 @@
-// 初始化发现页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Tools } from '../Tools'
 import { store } from '../store/Store'
 
-class InitDiscoverPage extends InitPageBase {
+// 初始化发现页面
+// API 文档：notes/发现页面的作品列表 API.md
+// 目前并未使用上面的 API
+class InitDiscoveryPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -57,4 +59,4 @@ class InitDiscoverPage extends InitPageBase {
     this.getIdListFinished()
   }
 }
-export { InitDiscoverPage }
+export { InitDiscoveryPage }
