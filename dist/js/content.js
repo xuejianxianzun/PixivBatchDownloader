@@ -2474,10 +2474,14 @@ class Bookmark {
         // 需要排队的情况
         const NO = ++this.taskID;
         await this.waitCallMe(NO);
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
-        const status = await this.sendRequest(id, type, tags, _restrict);
-        this.nextTaskID++;
-        return status;
+        try {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
+            return await this.sendRequest(id, type, tags, _restrict);
+        }
+        finally {
+            // 请求或 token 刷新拒绝时也叫下一个号码，避免后续收藏一直等待。
+            this.nextTaskID++;
+        }
     }
     async waitCallMe(NO) {
         while (this.nextTaskID !== NO) {
@@ -2550,24 +2554,27 @@ class Bookmark {
             position: 'center',
         });
     }
-    async sendRequest(id, type, tags, hide) {
+    /** 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。 */
+    async sendRequest(id, type, tags, hide, tokenRefreshed = false, requestToken = _Token__WEBPACK_IMPORTED_MODULE_6__.token.token) {
         try {
-            await _API__WEBPACK_IMPORTED_MODULE_0__.API.addBookmark(id, type, tags, hide, _Token__WEBPACK_IMPORTED_MODULE_6__.token.token);
+            await _API__WEBPACK_IMPORTED_MODULE_0__.API.addBookmark(id, type, tags, hide, requestToken);
             return 200;
         }
         catch (error) {
             if (error.status) {
                 const status = error.status;
                 const workLink = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, '', type === 'novels' ? 'novel' : 'artwork');
+                if (status === 400 && !tokenRefreshed) {
+                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_6__.token.reset().catch(() => '');
+                    if (refreshedToken) {
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(3000);
+                        return this.sendRequest(id, type, tags, hide, true, refreshedToken);
+                    }
+                }
                 switch (status) {
                     // 注意：其他模块调用本模块来添加收藏时，由本模块来显示下面的错误消息
                     // 所以其他模块通常不需要自行显示错误消息，否则就重复了
                     // 不过下面没有使用 msgBox 来显示（因为会打扰用户），所以如果其他模块想使用 msgBox 来显示的话可以自行处理
-                    // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
-                    case 400:
-                        await _Token__WEBPACK_IMPORTED_MODULE_6__.token.reset();
-                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(3000);
-                        return this.sendRequest(id, type, tags, hide);
                     case 403:
                         // 显示 403 错误的提示
                         // 当一个账号被限制无法收藏时，依然可以正常删除收藏，所以“取消收藏本页面中的所有作品”的功能不受影响
@@ -12741,68 +12748,6 @@ const theme = new Theme();
 
 /***/ }),
 
-/***/ "./src/ts/Tip.ts":
-/*!***********************!*\
-  !*** ./src/ts/Tip.ts ***!
-  \***********************/
-/***/ (() => {
-
-"use strict";
-
-// 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
-// 用法：
-// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容，例如：
-// <div class="has_tip" data-tip="提示"></div>
-// 如果要让 tip 文本支持多语言动态切换，可以使用 data-xztip 设置提示内容的 i18n key，例如：
-// <div class="has_tip" data-xztip="_提示"></div>
-// 然后在语言模块里注册这个元素：lang.register(el)
-class Tip {
-    constructor() {
-        this.addTipEl();
-        this.bindEvents();
-    }
-    tipEl;
-    addTipEl() {
-        this.tipEl = document.createElement('div');
-        this.tipEl.id = 'tip';
-        document.body.append(this.tipEl);
-    }
-    bindEvents() {
-        const tips = document.querySelectorAll('.has_tip');
-        for (const el of tips) {
-            for (const ev of ['mouseenter', 'mouseleave']) {
-                el.addEventListener(ev, (e) => {
-                    const text = el.dataset.tip;
-                    this.showTip(text, {
-                        type: ev === 'mouseenter' ? 1 : 0,
-                        x: e.clientX || 0,
-                        y: e.clientY || 0,
-                    });
-                });
-            }
-        }
-    }
-    // 显示设置面板上的提示。参数 mouse 指示鼠标是移入还是移出，并包含鼠标坐标
-    showTip(text, mouse) {
-        if (!text) {
-            throw new Error('No tip text.');
-        }
-        if (mouse.type === 1) {
-            this.tipEl.innerHTML = text;
-            this.tipEl.style.left = mouse.x + 30 + 'px';
-            this.tipEl.style.top = mouse.y - 30 + 'px';
-            this.tipEl.style.display = 'block';
-        }
-        else if (mouse.type === 0) {
-            this.tipEl.style.display = 'none';
-        }
-    }
-}
-new Tip();
-
-
-/***/ }),
-
 /***/ "./src/ts/Toast.ts":
 /*!*************************!*\
   !*** ./src/ts/Toast.ts ***!
@@ -13018,80 +12963,123 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 获取和保存 token
+/** 获取和保存 token；并发调用共享一次有期限的只读查询。 */
 class Token {
+    /** 保留同步读取缓存和当前页面的时机，后台初始化失败由本模块收尾。 */
     constructor() {
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.isPixiv()) {
-            this.token = this.getToken();
-            this.updateToken();
             this.bindEvents();
+            this.init().catch(() => console.error('初始化 token 失败'));
         }
     }
+    /** 原有 token 存储键。 */
     tokenStore = 'xzToken';
+    /** 原有成功更新时间存储键。 */
     timeStore = 'xzTokenTime';
+    /** 当前页面没有 token 时使用的原有作品页面。 */
     updateURL = 'https://www.pixiv.net/artworks/62751951';
-    token;
-    bindEvents() {
-        // 重置设置时重新获取一次 token
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettingsEnd, () => {
-            this.reset();
-        });
-    }
-    getToken() {
-        const token = localStorage.getItem(this.tokenStore);
-        return token ? token : '';
-    }
-    interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
-    async updateToken() {
-        const nowTime = Date.now();
+    /** 供原有按钮和 API 调用读取；token 的存在不能代表已登录。 */
+    token = '';
+    /** 两次自动更新之间的最小间隔仍为 5 分钟。 */
+    interval = 300000;
+    /** 替代页面的请求和正文读取共用 20 秒期限，不限制已发送的写入。 */
+    requestTimeout = 20000;
+    /** 只保存正在进行的查询；完成或失败后允许新的显式刷新。 */
+    updating;
+    /** 初始化只检查原有缓存间隔；跳过查询时不能阻止显式 reset。 */
+    async init() {
+        this.token = localStorage.getItem(this.tokenStore) || '';
         const lastTimeStr = localStorage.getItem(this.timeStore);
         if (this.token &&
             lastTimeStr &&
-            nowTime - Number.parseInt(lastTimeStr) < this.interval) {
+            Date.now() - Number.parseInt(lastTimeStr) < this.interval) {
             return;
+        }
+        await this.updateToken();
+    }
+    /** 设置重置事件没有等待者，必须在这里处理刷新失败。 */
+    bindEvents() {
+        // 重置设置时重新获取一次 token
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettingsEnd, () => {
+            this.reset().catch(() => console.error('重置设置后更新 token 失败'));
+        });
+    }
+    /** 所有调用者接收同一结果；加入查询不会再次清空或启动另一请求。 */
+    updateToken(force = false) {
+        if (this.updating)
+            return this.updating;
+        const updating = this.readAndStoreToken(force).finally(() => {
+            if (this.updating === updating)
+                this.updating = undefined;
+        });
+        this.updating = updating;
+        return updating;
+    }
+    /** 仅保存本次查询取得的值，失败不能把旧缓存的更新时间向后延长。 */
+    async readAndStoreToken(force) {
+        if (force) {
+            this.token = '';
+            localStorage.removeItem(this.tokenStore);
+            localStorage.removeItem(this.timeStore);
         }
         // 优先从当前网页的特定源码里匹配 token
         // 这个 script 是 2025 年 4 月初改版出现的，里面的文字是转义过的
         // token 部分的源代码是这样的：
         // \\"token\\":\\"83332ba3da54d99b56e925728c295b28\\",
+        let value = '';
         const script = document.querySelector('#__NEXT_DATA__');
         if (script) {
             const match = (script.textContent || '').match(/token\\":\\"(\w*)?\\/);
             if (match && match[1] && match[1].length === 32) {
-                this.token = match[1];
-                localStorage.setItem(this.tokenStore, this.token);
-                localStorage.setItem(this.timeStore, Date.now().toString());
-                return;
+                value = match[1];
             }
         }
         // 如果在当前网页里没有找到，则从作品页面的源码里获取 token
-        return fetch(this.updateURL)
-            .then((response) => {
-            return response.text();
-        })
-            .then((data) => {
-            const regExp = _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? /postKey":"(\w+)"/ : /token":"(\w+)"/;
-            const result = data.match(regExp);
-            if (result) {
-                this.token = result[1];
-            }
-            if (this.token) {
-                localStorage.setItem(this.tokenStore, this.token);
-                localStorage.setItem(this.timeStore, Date.now().toString());
-            }
-            else {
-                console.error('UpdateToken failed: no token found!');
-            }
-        });
+        if (!value)
+            value = await this.fetchToken();
+        localStorage.setItem(this.tokenStore, value);
+        localStorage.setItem(this.timeStore, Date.now().toString());
+        this.token = value;
+        return value;
     }
-    // 不论用户是否登录，都有 token，所以不能根据 token 来判断用户是否登录
-    // 在桌面端，如果存在下面的字符串，则说明用户未登录：
-    // "userData":null
-    async reset() {
-        this.token = '';
-        localStorage.removeItem(this.tokenStore);
-        localStorage.removeItem(this.timeStore);
-        return this.updateToken();
+    /** race 结束后才允许保存；即使 fetch 或正文忽略 abort，晚到结果也不能写入。 */
+    async fetchToken() {
+        const controller = new AbortController();
+        let timer;
+        const timeout = new Promise((_, reject) => {
+            timer = window.setTimeout(() => {
+                reject(new Error('更新 token 超时'));
+                controller.abort();
+            }, this.requestTimeout);
+        });
+        try {
+            return await Promise.race([
+                this.readPageToken(controller.signal),
+                timeout,
+            ]);
+        }
+        finally {
+            window.clearTimeout(timer);
+            controller.abort();
+        }
+    }
+    /** 保留 PC/mobile 的匹配规则；HTTP 错误或没有 token 时明确失败。 */
+    async readPageToken(signal) {
+        const response = await fetch(this.updateURL, { signal });
+        signal.throwIfAborted();
+        if (!response.ok)
+            throw new Error(`更新 token 失败: HTTP ${response.status}`);
+        const data = await response.text();
+        signal.throwIfAborted();
+        const regExp = _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? /postKey":"(\w+)"/ : /token":"(\w+)"/;
+        const result = data.match(regExp);
+        if (!result)
+            throw new Error('更新 token 失败: 未找到 token');
+        return result[1];
+    }
+    /** 强制绕过缓存间隔；返回本次结果供调用者固定重试所用的 token。 */
+    reset() {
+        return this.updateToken(true);
     }
 }
 const token = new Token();
@@ -23697,8 +23685,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 当文件下载成功后，收藏这个作品
+/** 下载成功后收藏作品；一个串行循环负责写入，各批次只更新自己的进度。 */
 class BookmarkAfterDL {
+    /** 沿用原有提示元素、翻译注册和 200ms 调度。 */
     constructor(tipEl) {
         if (tipEl) {
             this.tipEl = tipEl;
@@ -23707,125 +23696,149 @@ class BookmarkAfterDL {
         this.bindEvents();
         this.addBookmark();
     }
-    successCount = 0;
-    // 储存需要收藏的作品的 ID。其数量就是收藏任务的总数
-    IDList = [];
-    // 储存需要收藏的作品的 ID。每次收藏时，从这里取出一个 ID 进行收藏。它的数量并不总是等于任务总数
-    queue = [];
+    /** 当前批次的唯一身份，同时保存其待处理作品和完成状态。 */
+    task = this.createTask();
+    /** 原有设置面板中的进度提示，不创建新的 UI。 */
     tipEl = document.createElement('span');
-    // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
-    delayReset = false;
-    // 可选传入一个元素，显示收藏的数量和总数
+    /** 创建空批次；暂停/继续下载不调用此方法。 */
+    createTask() {
+        return {
+            ids: new Set(),
+            queue: [],
+            successCount: 0,
+            downloadComplete: false,
+            completionLogged: false,
+            resetOnStart: false,
+        };
+    }
+    /** 接收原有成功/重复下载事件，并区分新结果、新下载与暂停后继续。 */
     bindEvents() {
-        // 当有文件下载完成时，提取作品 ID 进行收藏
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
-            this.send(Number.parseInt(successData.id));
+            this.send(successData.id);
         });
-        // 当有文件跳过下载时，如果是重复的下载，也进行收藏
-        // 因为重复的下载，本意还是要下载的，只是之前下载过了。所以进行收藏。
-        // 其他跳过下载的原因，则是本意就是不下载，所以不收藏。
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.skipDownload, (ev) => {
             const skipData = ev.detail.data;
-            if (skipData.reason === 'duplicate') {
-                this.send(Number.parseInt(skipData.id));
-            }
+            // 重复文件仍是用户打算下载的作品；其他过滤跳过不收藏。
+            if (skipData.reason === 'duplicate')
+                this.send(skipData.id, skipData.type);
         });
-        // 当开始新的抓取时重置状态和提示
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlStart, (ev) => {
-            this.reset();
-        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlStart, () => this.reset());
+        // 恢复保存的下载结果会替换 Store，也属于新的结果集合。
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.resume, () => this.reset());
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadComplete, () => {
-            this.showCompleteLog = true;
-            this.delayReset = true;
+            this.task.downloadComplete = true;
+            this.task.resetOnStart = true;
+            this.showProgress();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadStop, () => {
+            // 已接收的收藏仍正常处理；停止后的重新下载建立新批次。
+            this.task.resetOnStart = true;
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadStart, () => {
-            if (this.delayReset) {
+            if (this.task.resetOnStart)
                 this.reset();
-                this.delayReset = false;
-            }
         });
     }
-    /** 当所有的收藏任务都完成后，显示一条日志 */
-    // 只有当所有文件都下载完毕后才会显示这条日志
-    showCompleteLog = false;
+    /** 仅显示当前批次；文件和收藏的完成先后顺序都只产生一次完成日志。 */
     showProgress() {
-        if (this.IDList.length === 0) {
+        const task = this.task;
+        if (task.ids.size === 0) {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
             return;
         }
-        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.IDList.length}`);
-        if (this.showCompleteLog &&
-            this.successCount > 0 &&
-            this.successCount === this.IDList.length) {
-            this.showCompleteLog = false;
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${task.successCount}/${task.ids.size}`);
+        if (task.downloadComplete &&
+            !task.completionLogged &&
+            task.successCount === task.ids.size) {
+            task.completionLogged = true;
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('♥️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
         }
     }
+    /** 丢弃尚未执行的旧队列，已开始的写入仍由同一个循环等待真实结果。 */
     reset() {
-        this.IDList = [];
-        this.queue = [];
-        this.showCompleteLog = false;
-        this.successCount = 0;
+        this.task = this.createTask();
         this.tipEl.classList.remove('red');
         this.tipEl.classList.add('green');
         this.showProgress();
     }
-    // 接收作品 ID，开始收藏
-    send(id) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.bmkAfterDL) {
+    /** 优先使用原有元数据；没有元数据的恢复结果仍使用 result。 */
+    findData(id, type) {
+        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result;
+        let found;
+        for (const data of dataSource) {
+            if (data.idNum !== id)
+                continue;
+            const family = data.type === 3 ? 'novels' : 'illusts';
+            if (type && family !== type)
+                continue;
+            // 纯数字 ID 同时对应小说和动图时，缺少类型信息不能任选一个写入。
+            if (found && (found.type === 3) !== (data.type === 3))
+                return;
+            found ??= data;
+        }
+        return found;
+    }
+    /** 固定类型、标签、公开范围和慢速条件；同作品的多张图片只入队一次。 */
+    send(fileID, resultType) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.bmkAfterDL)
             return;
-        }
-        if (typeof id !== 'number') {
-            id = Number.parseInt(id);
-        }
-        // 检查这个 ID 是否已经添加了
-        if (this.IDList.includes(id)) {
+        const match = fileID.match(/^(\d+)(?:_p\d+)?$/);
+        if (!match)
             return;
+        const id = Number.parseInt(match[1]);
+        if (!Number.isSafeInteger(id) || id <= 0)
+            return;
+        const type = resultType === 3
+            ? 'novels'
+            : resultType !== undefined || fileID.includes('_p')
+                ? 'illusts'
+                : undefined;
+        const data = this.findData(id, type);
+        const family = data ? (data.type === 3 ? 'novels' : 'illusts') : type;
+        const key = `${family || 'unknown'}:${id}`;
+        if (this.task.ids.has(key))
+            return;
+        this.task.ids.add(key);
+        if (data) {
+            this.task.queue.push({
+                id: id.toString(),
+                type: data.type === 3 ? 'novels' : 'illusts',
+                tags: [...data.tags],
+                needAddTag: _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.widthTagBoolean,
+                restrict: _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.restrictBoolean,
+                slowly: _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30,
+            });
         }
-        this.queue.push(id);
-        this.IDList.push(id);
+        else {
+            // 缺失的数据仍计入总数，不能让部分成功伪装成全部完成。
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${id} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有可用的抓取结果')}`);
+        }
         this.showProgress();
     }
-    busy = false;
-    // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
+    /** 保留串行写入及 200ms 间隔；失败或旧批次响应都不会停止后续处理。 */
     async addBookmark() {
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(200);
-        if (this.busy || this.queue.length === 0) {
-            return this.addBookmark();
-        }
-        const id = this.queue.shift();
-        if (!id) {
-            return this.addBookmark();
-        }
-        this.busy = true;
-        // 从 store 里查找这个作品的数据
-        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result;
-        const data = dataSource.find((val) => val.idNum === id);
-        if (data === undefined) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Not find ${id} in result`);
-            return this.addBookmark();
-        }
-        // 添加收藏
-        // 当抓取结果很少时，不使用慢速收藏
-        // 如果抓取结果大于 30 个，则使用慢速收藏1
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
-        if (status === 200) {
-            this.successCount++;
-            // 已完成的数量不应该超过任务总数
-            // 特定情况下会导致已完成数量比任务总数多 1，需要修正。原因如下：
-            // 在下载完毕后，收藏尚未完毕（例如进度为 18/48)，并且第 19 个收藏任务已经发送给了 bookmark.add
-            // 在这个收藏任务完成前，用户点击开始下载按钮开始了新一批下载任务，导致执行了 reset
-            // successCount 会重置为 0
-            // 但之后遗留的 bookmark.add 执行完毕，在这里导致 successCount + 1
-            // 这会使已完成数量比开始下载后的新的任务数量多 1，所以需要进行检查，以避免这种情况
-            if (this.successCount > this.IDList.length) {
-                this.successCount = this.IDList.length;
+        while (true) {
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(200);
+            const task = this.task;
+            const work = task.queue.shift();
+            if (!work)
+                continue;
+            let status = 0;
+            try {
+                status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(work.id, work.type, work.tags, work.needAddTag, work.restrict, work.slowly);
             }
-            this.showProgress();
+            catch {
+                if (task === this.task)
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${work.id} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败')}`);
+            }
+            if (task !== this.task)
+                continue;
+            if (status === 200) {
+                task.successCount++;
+                this.showProgress();
+            }
         }
-        this.busy = false;
-        return this.addBookmark();
     }
 }
 
@@ -44753,6 +44766,7 @@ class BatchFollowUser {
     /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
     userList = [];
     importFollowedUserIDs = [];
+    /** 等待当前列表与关注流程；刷新失败或其他拒绝都恢复 busy。 */
     async start() {
         if (this.busy) {
             _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
@@ -44764,27 +44778,38 @@ class BatchFollowUser {
             });
         }
         this.busy = true;
-        this.reset();
-        this.importFollowedUserIDs = await this.importUserList();
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
-        if (this.importFollowedUserIDs.length === 0) {
+        try {
+            this.reset();
+            this.importFollowedUserIDs = await this.importUserList();
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
+            if (this.importFollowedUserIDs.length === 0) {
+                this.busy = false;
+                return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
+            }
+            this.stopAddFollow = false;
+            this.sendReqNumber = 0;
+            // 显示提示
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户JSON'));
+            // 根据当前页面来决定添加公开关注还是私密关注
+            this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+            // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
+            // 24 是 PC 端关注页面里，每页的用户数量
+            if (this.importFollowedUserIDs.length > 24) {
+                await this.readyGetUserList();
+            }
+            else {
+                // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
+                await this.batchFollow();
+            }
+        }
+        catch {
+            this.stopAddFollow = true;
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+        }
+        finally {
             this.busy = false;
-            return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
-        }
-        this.stopAddFollow = false;
-        this.sendReqNumber = 0;
-        // 显示提示
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户JSON'));
-        // 根据当前页面来决定添加公开关注还是私密关注
-        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
-        // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
-        // 24 是 PC 端关注页面里，每页的用户数量
-        if (this.importFollowedUserIDs.length > 24) {
-            await this.readyGetUserList();
-        }
-        else {
-            // 如果导入的用户数量不多，就不需要获取关注用户列表，直接添加
-            await this.batchFollow();
         }
     }
     async readyGetUserList() {
@@ -44862,9 +44887,11 @@ class BatchFollowUser {
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
         return this.getUserList();
     }
+    /** 新批次重新获得一次 token 刷新机会。 */
     reset() {
         this.userList = [];
         this.requestTimes = 0;
+        this.tokenHasUpdated = false;
     }
     async importUserList() {
         const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
@@ -44894,11 +44921,13 @@ class BatchFollowUser {
     stopAddFollow = false;
     sendReqNumber = 0;
     dailyLimit = 500; // 每天限制关注的数量，以降低封号风险
+    /** 每批最多一次刷新；是否存在用户仍使用上游的检查。 */
     tokenHasUpdated = false;
     need_recaptcha_enterprise_score_token = false;
     logProgress(current, total, newAdded) {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 'batchFollowUserProgress');
     }
+    /** 最后一个用户失败也不能越过中止状态显示完成。 */
     async batchFollow() {
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
@@ -44908,12 +44937,8 @@ class BatchFollowUser {
         const total = this.importFollowedUserIDs.length;
         for (const userID of this.importFollowedUserIDs) {
             this.logProgress(no, total, newFollow);
-            if (this.stopAddFollow) {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
-                return;
-            }
+            if (this.stopAddFollow)
+                break;
             if (this.sendReqNumber >= this.dailyLimit) {
                 this.stopAddFollow = true;
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户的操作达到每日限制', this.dailyLimit.toString());
@@ -44931,6 +44956,12 @@ class BatchFollowUser {
                     newFollow++;
                 }
             }
+        }
+        if (this.stopAddFollow) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+            return;
         }
         this.logProgress(no, total, newFollow);
         this.busy = false;
@@ -44951,6 +44982,7 @@ class BatchFollowUser {
             }
         }
     }
+    /** 保留用户存在检查和上游错误处理；刷新成功后使用返回 token 重试。 */
     async addFollow(userID) {
         // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
         if (this.need_recaptcha_enterprise_score_token) {
@@ -44959,7 +44991,7 @@ class BatchFollowUser {
             return 200;
         }
         // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-        const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+        let status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
         if (status !== 200) {
             const userLink = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID);
             const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注这个用户时出错', userLink, status.toString());
@@ -44979,9 +45011,13 @@ class BatchFollowUser {
                 if (!this.tokenHasUpdated) {
                     // 尝试重新获取 token（仅执行一次），然后重试请求
                     this.tokenHasUpdated = true;
-                    await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
+                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset().catch(() => '');
+                    if (!refreshedToken) {
+                        this.stopAddFollow = true;
+                        return status;
+                    }
                     await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
-                    const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+                    status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, refreshedToken, this.rest === 'show');
                     if (status !== 200) {
                         _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注该用户失败请等待一段时间后再试'));
                         this.stopAddFollow = true;
@@ -47948,7 +47984,11 @@ class CrawlNumber {
                     }
                 }
                 else {
-                    // 如果 max 不是 -1，则检查其最小值和最大值是否合法
+                    // 如果 max 不是 -1
+                    if (v === -1) {
+                        v = cfg.max;
+                    }
+                    // 检查其最小值和最大值是否合法
                     if (v < cfg.min) {
                         v = cfg.min;
                     }
@@ -51602,7 +51642,8 @@ class QuicklyBlockUsers {
         // 主要是为了避免遮挡 pixiv 本身出现的小卡片
         // 默认显示在下方
         // 有时 activeEl 元素的高度为 0(这经常发生在一些用户头像上)，此时使用 24 px 的高度, 避免浮动面板遮挡住头像
-        let top = rect.y + (rect.height || 24);
+        const bottomPosition = rect.y + (rect.height || 24);
+        let top = bottomPosition;
         panel.style.top = top + 'px';
         // 检测需要显示在上方的情况
         let showTop = false;
@@ -51624,24 +51665,26 @@ class QuicklyBlockUsers {
         document.body.appendChild(panel);
         const panelRectList = panel.getClientRects();
         const panelHeight = panelRectList[0].height;
+        // 面板高度不固定，所以先添加到 DOM 后再判断上下两侧是否放得下。
+        const topPosition = rect.y - panelHeight;
+        // 底部留出滚动条的空间。
+        const bottomMargin = 16;
+        const fitsTop = topPosition >= 0;
+        const fitsBottom = bottomPosition + panelHeight <= window.innerHeight - bottomMargin;
         if (showTop) {
-            // 当面板显示在画师名字上方时，需要减去面板高度，但面板高度是不固定的
-            // 所以需要先添加面板到 DOM 上，然后才能获取面板高度，做出调整
-            top = rect.y - panelHeight;
-            if (top < 0) {
-                top = 0;
+            top = topPosition;
+            if (!fitsTop && fitsBottom) {
+                top = bottomPosition;
             }
-            panel.style.top = top + 'px';
         }
-        else {
-            // 当面板显示在下方时，防止其显示在可视区域之下
-            // 发生时这个情况，说明目标元素位于可视区域底部，此时面板显示在下方的话会导致看不到面板，因此需要上提一些
-            // 数字 16 是考虑到底部滚动条的高度，避免面板被滚动条遮挡
-            if (top + panelHeight > window.innerHeight) {
-                top = window.innerHeight - panelHeight - 16;
-            }
-            panel.style.top = top + 'px';
+        else if (fitsBottom) {
+            top = bottomPosition;
         }
+        else if (fitsTop) {
+            top = topPosition;
+        }
+        // 两侧都放不下时仍贴着目标元素显示，避免为了留在视口内而遮住用户名。
+        panel.style.top = top + 'px';
     }
     removePanel() {
         const panel = document.querySelector('#' + this.panelID);
@@ -56075,6 +56118,68 @@ class ShowOptionsNewFlag {
 }
 const showOptionsNewFlag = new ShowOptionsNewFlag();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/ShowTip.ts":
+/*!***********************************!*\
+  !*** ./src/ts/setting/ShowTip.ts ***!
+  \***********************************/
+/***/ (() => {
+
+"use strict";
+
+// 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
+// 用法：
+// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容，例如：
+// <div class="has_tip" data-tip="提示"></div>
+// 如果要让 tip 文本支持多语言动态切换，可以使用 data-xztip 设置提示内容的 i18n key，例如：
+// <div class="has_tip" data-xztip="_提示"></div>
+// 然后在语言模块里注册这个元素：lang.register(el)
+class Tip {
+    constructor() {
+        this.addTipEl();
+        this.bindEvents();
+    }
+    tipEl;
+    addTipEl() {
+        this.tipEl = document.createElement('div');
+        this.tipEl.id = 'tip';
+        document.body.append(this.tipEl);
+    }
+    bindEvents() {
+        const tips = document.querySelectorAll('.has_tip');
+        for (const el of tips) {
+            for (const ev of ['mouseenter', 'mouseleave']) {
+                el.addEventListener(ev, (e) => {
+                    const text = el.dataset.tip;
+                    this.showTip(text, {
+                        type: ev === 'mouseenter' ? 1 : 0,
+                        x: e.clientX || 0,
+                        y: e.clientY || 0,
+                    });
+                });
+            }
+        }
+    }
+    // 显示设置面板上的提示。参数 mouse 指示鼠标是移入还是移出，并包含鼠标坐标
+    showTip(text, mouse) {
+        if (!text) {
+            throw new Error('No tip text.');
+        }
+        if (mouse.type === 1) {
+            this.tipEl.innerHTML = text;
+            this.tipEl.style.left = mouse.x + 30 + 'px';
+            this.tipEl.style.top = mouse.y - 30 + 'px';
+            this.tipEl.style.display = 'block';
+        }
+        else if (mouse.type === 0) {
+            this.tipEl.style.display = 'none';
+        }
+    }
+}
+new Tip();
 
 
 /***/ }),
@@ -77187,13 +77292,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_SettingsPanelBootstrap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/SettingsPanelBootstrap */ "./src/ts/setting/SettingsPanelBootstrap.ts");
 /* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
 /* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/ShowTip */ "./src/ts/setting/ShowTip.ts");
+/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_setting_ShowTip__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
 /* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");

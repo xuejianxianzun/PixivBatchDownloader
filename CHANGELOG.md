@@ -17,6 +17,12 @@
 
 现在修复。
 
+### 🐞修复问题：快速屏蔽用户的按钮可能会遮挡住作者名字
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/682
+
+当用户名元素位于可视区域顶部或底部时，屏蔽按钮会遮挡住用户名。现在修复。
+
 ### 🐞修复问题：特定情况下，预览作品的详细信息面板不显示
 
 如果用户的操作是：
@@ -33,6 +39,24 @@ PS：在这个情况里，预览作品（的图片）的功能是正常触发的
 3. 从按钮回到缩略图后，再次触发了进入缩略图的事件。此时 workId 相同，所以不会显示详情面板
 
 现在 `src/ts/PreviewWorkDetailInfo.ts` 会识别鼠标是否从 `.btnOnThumb` 返回同一缩略图：若是，则重新启动详情面板的延迟显示。
+
+### 🐞修复问题：下载后收藏作品时，没有为每批下载任务分别保存待收藏列表，导致之后启动的下载会覆盖当前待收藏列表
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/680
+
+相关模块：src/ts/download/BookmarkAfterDL.ts
+
+### 🐞修复问题：刷新 token 的流程不够严谨，会导致一些问题
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/679
+
+相关模块：src/ts/Token.ts
+
+### 🐞修复问题：SW 里 downloads.download() 建立下载失败时，前台下载进度可能会卡住
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/678
+
+相关模块：src/ts/serviceWorker/background.ts
 
 ### ✨优化了批量关注用户的功能
 
