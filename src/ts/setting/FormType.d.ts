@@ -54,7 +54,6 @@ export interface FormType extends HTMLFormElement {
   folderForMultiImageWorksRule: HTMLInputElement
   folderForMultiImageWorksImageNumber: HTMLInputElement
   previewResult: HTMLInputElement
-  previewResultLimit: HTMLInputElement
   previewResultPageSize: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
   ratioSwitch: HTMLInputElement

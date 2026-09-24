@@ -231,7 +231,6 @@ class FormSettings {
       'folderForMultiImageWorksRule',
       'autoExportResultNumber',
       'previewWorkWait',
-      'previewResultLimit',
       'previewResultPageSize',
       'timedCrawlInterval',
       'slowCrawlOnWorksNumber',

@@ -2,7 +2,6 @@ import { bookmark } from '../Bookmark'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
-import { msgBox } from '../MsgBox'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { downloadStates } from '../download/DownloadStates'
 import { filter, FilterOption } from '../filter/Filter'
@@ -75,8 +74,6 @@ class SearchResultPreview {
   ]
   /** 当前抓取是否由搜索页的抓取按钮发起 */
   private crawlStartBySelf = false
-  /** 是否已提示预览数量达到上限 */
-  private showPreviewLimitTip = false
   /** 缓存待插入页面的预览作品 */
   private workPreviewBuffer = document.createDocumentFragment()
   /** 本实例是否已经被销毁。销毁后不再执行恢复预览等延迟任务 */
@@ -144,7 +141,6 @@ class SearchResultPreview {
     // 不需要清空抓取结果：它在 store 里，store 会在 crawlStart 时重置
     this.crawlStartBySelf = true
     this.currentPage = 1
-    this.showPreviewLimitTip = false
     this.resetPreviewBuffer()
     window.removeEventListener(EVT.list.addResult, this.onResultAdded)
     window.addEventListener(EVT.list.addResult, this.onResultAdded)
@@ -282,10 +278,7 @@ class SearchResultPreview {
       return
     }
     const data = event.detail.data
-    if (
-      data.name === 'previewResultLimit' ||
-      data.name === 'previewResultPageSize'
-    ) {
+    if (data.name === 'previewResultPageSize') {
       this.renderCurrentPage()
       return
     }
@@ -377,7 +370,7 @@ class SearchResultPreview {
     this.resetPreviewBuffer()
 
     const results = store.resultMeta
-    const resultCount = this.getPreviewResultCount(results.length)
+    const resultCount = store.resultMeta.length
     const pageSize = this.getPageSize()
     const pageCount = Math.ceil(resultCount / pageSize)
     this.currentPage = Math.min(
@@ -394,7 +387,7 @@ class SearchResultPreview {
     }
 
     this.worksWrap.replaceChildren(fragment)
-    this.updatePagination(resultCount)
+    this.updatePagination()
   }
 
   /** 切换预览页 */
@@ -413,7 +406,7 @@ class SearchResultPreview {
   }
 
   /** 更新分页按钮状态和结果数量 */
-  private updatePagination(resultCount = this.getPreviewResultCount()) {
+  private updatePagination() {
     if (
       !this.paginationWrap ||
       !this.previousPageBtn ||
@@ -423,7 +416,7 @@ class SearchResultPreview {
       return
     }
 
-    const pageCount = Math.ceil(resultCount / this.getPageSize())
+    const pageCount = Math.ceil(store.resultMeta.length / this.getPageSize())
     this.currentPage = Math.min(
       Math.max(this.currentPage, 1),
       Math.max(pageCount, 1)
@@ -483,11 +476,6 @@ class SearchResultPreview {
       }
       this.activePageBtn = activePageBtn
     }
-  }
-
-  /** 获取受总预览上限约束的作品数量。传入作品总数可以少读一次 store.resultMeta */
-  private getPreviewResultCount(resultCount = store.resultMeta.length) {
-    return Math.min(resultCount, Math.max(0, settings.previewResultLimit))
   }
 
   /** 获取有效的每页显示数量 */
@@ -559,25 +547,12 @@ class SearchResultPreview {
     const data = event.detail.data as Result
     const results = store.resultMeta
     const resultIndex = results.length - 1
-    const resultCount = this.getPreviewResultCount(results.length)
     const pageSize = this.getPageSize()
-    const previewLimit = Math.max(0, settings.previewResultLimit)
 
-    this.updatePagination(resultCount)
+    this.updatePagination()
     const startIndex = (this.currentPage - 1) * pageSize
 
-    if (results.length > previewLimit && !this.showPreviewLimitTip) {
-      const msg = lang.transl('_预览搜索结果的数量达到上限的提示')
-      log.warning(msg)
-      msgBox.warning(msg)
-      this.showPreviewLimitTip = true
-    }
-
-    if (
-      resultIndex < startIndex ||
-      resultIndex >= startIndex + pageSize ||
-      resultIndex >= previewLimit
-    ) {
+    if (resultIndex < startIndex || resultIndex >= startIndex + pageSize) {
       return
     }
 
@@ -733,7 +708,6 @@ class SearchResultPreview {
 
     // 同时重置一些变量
     this.currentPage = 1
-    this.showPreviewLimitTip = false
     this.resetPreviewBuffer()
   }
 
@@ -756,7 +730,6 @@ class SearchResultPreview {
       // 可能的情况：
       // - 用户尚未开始抓取
       // - 用户已经开始抓取，但现在还没有任何抓取结果
-      // - 用户刷新了页面之后，下载器会恢复保存的抓取结果，但不会恢复 resultMeta 数据，导致这里为空
       toast.warning(lang.transl('_缺少必要的数据'))
       return false
     }

@@ -257,7 +257,6 @@ interface XzSetting {
   postDateStart: number
   postDateEnd: number
   previewResult: boolean
-  previewResultLimit: number
   /** 搜索页预览每页显示的作品数量 */
   previewResultPageSize: number
   BMKNumSwitch: boolean
@@ -808,8 +807,7 @@ class Settings {
     // 2100 年 1 月 1 日
     postDateEnd: 4102416000000,
     previewResult: true,
-    previewResultLimit: 3000,
-    previewResultPageSize: 100,
+    previewResultPageSize: 120,
     BMKNumSwitch: false,
     BMKNumMin: 0,
     BMKNumMax: Config.BookmarkCountLimit,
@@ -1653,10 +1651,6 @@ class Settings {
       if ((value as number) < 1 || isNaN(value as number)) {
         value = 1
       }
-    }
-
-    if (key === 'previewResultLimit' && (value as number) < 0) {
-      value = 999999
     }
 
     if (key === 'previewResultPageSize') {
