@@ -1106,8 +1106,12 @@ class Filter {
     }
   }
 
-  /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除 */
-  private checkExcluded(
+  /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除。
+   *
+   * 这是「手动排除作品」的唯一判断入口。其他模块需要判断某个作品是否被排除时也应该调用它，
+   * 不要自己再写一套匹配逻辑：排除列表里图像作品的类型是粗略的 illusts，而查询时可能传入
+   * 更具体的 manga、ugoira，只有这里处理了这种差异 */
+  public checkExcluded(
     id?: FilterOption['id'],
     type?: FilterOption['IDTypeString']
   ): boolean {

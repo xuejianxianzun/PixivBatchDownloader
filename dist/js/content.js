@@ -4272,8 +4272,14 @@ class ExcludeWork {
         const added = _WorkSelection__WEBPACK_IMPORTED_MODULE_3__.workSelection.toggleExcludeId(id, type, seriesTitle);
         if (added) {
             this.addExcludedFlag(el, id, type);
-            // 如果这个作品已经被抓取，则从抓取结果里移除它
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy) {
+            // 如果这个作品已经被抓取，则从抓取结果里移除它。
+            // 但如果下载任务存在（正在下载或已暂停），就不能直接删除：
+            // - 下载任务是按 store.result 的下标派发的，而 DownloadStates 的状态数组与它一一对应，
+            //   删除元素会让下标错位；
+            // - removeWorkById 会触发 resultChange，导致 DownloadStates 重建状态列表、把下载进度清空。
+            // 这两种情况交给 DownloadControl 处理：它会把该作品尚未开始下载的文件标记为跳过，
+            // 并在下载结束后再把抓取结果整理干净。
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.hasDownloadTask) {
                 const removed = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.removeWorkById([id]);
                 if (removed) {
                     _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从抓取结果中移除'));
@@ -15945,7 +15951,10 @@ class InitPageBase {
     finishedRequest = 0;
     /** 如果 stopCrawl 标记为 true，则这个标记也会变成 true。通过检查这个标记，可以避免重复执行一些逻辑 */
     crawlFinishBecauseStopCrawl = false;
-    /** 获取完 idList 之后，保存它的的长度 */
+    /** 获取完 idList 之后，保存它的的长度。目的是在抓取完成后，检查某种操作的次数是否与初始的 idList 长度一致，如果一致就说明所有 id 都被这种操作处理了。
+     *
+     * 注意：在抓取过程中，如果 idList 里的某些 id 被移除（如手动排除作品），则该值可能不再准确。所以这个值是不可信的，只应该用于输出日志等辅助用途。
+     */
     idListLength = 0;
     /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
     mergedNovelCount = 0;
@@ -17261,20 +17270,6 @@ class DeleteWorks {
     onMouseMove = (ev) => {
         this.moveEvent(ev);
     };
-    /** 同步“手动排除作品”操作与搜索结果预览 */
-    onManuallyExcludeWork = (ev) => {
-        const id = ev.detail.data.id;
-        const type = ev.detail.data.type;
-        if (id && type !== 'novels' && type !== 'novelSeries') {
-            const selector = `${this.worksSelector}[data-id="${id}"]`;
-            const el = document.querySelector(selector);
-            if (el) {
-                el.remove();
-                // SearchResultPreview 会同步更新抓取结果并重绘当前页。
-                _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('deleteWork', el);
-            }
-        }
-    };
     createDeleteIcon() {
         const el = document.createElement('div');
         el.id = this.iconId;
@@ -17297,8 +17292,6 @@ class DeleteWorks {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, this.exitDeleteMode);
         // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', this.onMouseMove, true);
-        // 当用户使用“手动排除作品”功能排除了一个作品时，自动删除页面上对应的作品元素
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
     }
     /** 监听鼠标移动并更新手动删除指示图标 */
     moveEvent(ev) {
@@ -17398,7 +17391,6 @@ class DeleteWorks {
         this.exitDeleteMode();
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, this.exitDeleteMode);
         window.removeEventListener('mousemove', this.onMouseMove, true);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
         this.icon?.remove();
     }
     /** 在列表容器上委托处理手动删除操作 */
@@ -19075,7 +19067,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/** 搜索页面中预览、筛选和维护抓取结果的模块 */
+/** 在搜索页面中预览、筛选和维护抓取结果的模块 */
+// 预览搜索页面的筛选结果
+// 对应的设置：previewResult
+// 现在渲染预览卡片时是分页的。
+// 我试过不用分页的方案：为卡片设置 content-visibility: auto; 使浏览器不渲染离屏内容，也不会立刻加载离屏的图片。首屏先渲染前 N 张、其余用 requestIdleCallback 分批补充渲染。但是当卡片数量很多时，几乎所有操作都会有明显的卡顿，因此改回了分页方案。
 class SearchResultPreview {
     exitManualDeleteMode;
     /** 预览作品列表项的类名 */
@@ -19138,6 +19134,11 @@ class SearchResultPreview {
         this.createPaginationControls();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.showCount);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resultChange, this.showCountOnLog);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
+        // 下载结束后，把下载期间被排除的作品从预览列表里移除
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
+            window.addEventListener(ev, this.syncExcludedWorks);
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updatePaginationLanguage);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
@@ -19148,6 +19149,10 @@ class SearchResultPreview {
     destroy() {
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.showCount);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resultChange, this.showCountOnLog);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
+            window.removeEventListener(ev, this.syncExcludedWorks);
+        }
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updatePaginationLanguage);
         window.removeEventListener('addBMK', this.addBookmark);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
@@ -19767,6 +19772,77 @@ class SearchResultPreview {
         this.renderCurrentPage(false);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
         _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+    };
+    /** 处理“手动排除作品”功能排除的作品。
+     *
+     * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
+     * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
+     *
+     * 抓取进行中时不在这里处理：那时数据源是 store.resultMeta（this.resultMeta 还是空的），
+     * 而 ExcludeWork 已经在抓取期间直接把它从抓取结果里移除了。
+     *
+     * 下载任务进行中（正在下载或已暂停）也不在这里处理，见方法内的判断。 */
+    onManuallyExcludeWork = (event) => {
+        // 有下载任务时不在这里处理。这里要重绘预览并重建抓取结果，而下载任务是按 store.result
+        // 的下标派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
+        // 开始下载的文件标记为跳过），预览列表则在下载结束后由 syncExcludedWorks 收尾。
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.hasDownloadTask) {
+            return;
+        }
+        const id = event.detail.data.id;
+        const type = event.detail.data.type;
+        // 搜索页的预览列表里只有图像作品
+        if (!id || type === 'novels' || type === 'novelSeries') {
+            return;
+        }
+        const deleteId = Number.parseInt(id);
+        if (Number.isNaN(deleteId)) {
+            return;
+        }
+        // this.resultMeta 还是空的，说明抓取尚未结束。这种情况由 ExcludeWork 负责移除，这里不处理
+        if (this.resultMeta.length === 0) {
+            return;
+        }
+        const beforeLength = this.resultMeta.length;
+        this.resultMeta = this.resultMeta.filter((result) => result.idNum !== deleteId);
+        if (this.resultMeta.length === beforeLength) {
+            return;
+        }
+        this.reAddResult();
+        this.renderCurrentPage(false);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
+        _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+    };
+    /** 下载结束后，把下载期间被排除的作品从预览列表里同步移除。
+     *
+     * 下载期间不能做这件事：预览列表的更新会重建抓取结果，而下载任务是按 store.result 的
+     * 下标派发的，重建结果会打乱下标。下载结束后没有在飞的文件，处理是安全的。
+     *
+     * 这里以 store.resultMeta 为准来同步：下载期间被排除的作品已经被 DownloadControl 从
+     * store 里移除了，而 this.resultMeta 是预览模块自己的快照，需要跟着收窄。
+     *
+     * 注意不要触发 resultChange：下载刚刚结束，它会让下载状态列表被清空（进度显示归零），
+     * 也可能让下载器重新进入准备下载的流程。 */
+    syncExcludedWorks = () => {
+        if (this.resultMeta.length === 0) {
+            return;
+        }
+        // 延后到本轮事件处理完毕再同步。因为 DownloadControl 也监听这两个事件，
+        // 它需要先把被排除的作品从 store 里移除，这里才能以 store 为准做同步
+        window.setTimeout(() => {
+            if (this.resultMeta.length === 0) {
+                return;
+            }
+            const storeIds = new Set(_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.map((meta) => meta.idNum));
+            const beforeLength = this.resultMeta.length;
+            this.resultMeta = this.resultMeta.filter((meta) => storeIds.has(meta.idNum));
+            if (this.resultMeta.length === beforeLength) {
+                return;
+            }
+            // 更新搜索页上显示的作品数量，并重绘预览列表
+            this.showCount();
+            this.renderCurrentPage(false);
+        }, 0);
     };
     /** 通过容器事件委托处理预览卡片的收藏按钮 */
     onPreviewClick = (event) => {
@@ -24295,6 +24371,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
 
 
 
@@ -24441,6 +24521,16 @@ class BookmarkAfterDL {
             const work = task.queue.shift();
             if (!work)
                 continue;
+            // 用户手动排除的作品不收藏。这里在真正写入之前才判断，
+            // 所以排队期间被排除的作品也会被跳过。
+            // 跳过的作品计入已完成数量，否则进度会一直差几个，永远等不到「收藏完毕」
+            if (!_filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.checkExcluded(work.id, work.type)) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('⏭️' +
+                    _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过收藏因为用户排除了作品', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLinkByIDData({ id: work.id, type: work.type })));
+                task.successCount++;
+                this.showProgress();
+                continue;
+            }
             let status = 0;
             try {
                 status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(work.id, work.type, work.tags, work.needAddTag, work.restrict, work.slowly);
@@ -25297,7 +25387,7 @@ class DownloadControl {
     taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
     taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
     /** 有文件下载失败时，保存 id */
-    // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是 XHR 请求失败、动图转换失败。
+    // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是网络请求失败、动图转换失败。
     // 这不是 SW 让浏览器保存文件时的失败
     errorIdList = [];
     downloaded = 0; // 已下载的任务数量
@@ -25306,6 +25396,11 @@ class DownloadControl {
     crawlIdListTimer = undefined;
     checkDownloadTimeoutTimer = undefined;
     uuidTip = 'uuidTip';
+    /** 下载过程中被手动排除、等待下载结束后从抓取结果里移除的作品 id。
+     *
+     * 这些作品的文件在排除时已经被标记为「已完成（跳过）」，所以不会再下载它们。
+     * 但要从 store.result 里真正删掉它们必须等到下载结束，否则会让下标错位。 */
+    excludedWorkIdList = [];
     // 类型守卫
     isDownloadedMsg(msg) {
         return !!msg.msg;
@@ -25315,6 +25410,8 @@ class DownloadControl {
             this.hideResultBtns();
             this.hideDownloadArea();
             this.reset();
+            // 抓取结果会被重置，上一轮记录的待移除作品也就没有意义了
+            this.excludedWorkIdList = [];
         });
         for (const ev of [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete,
@@ -25322,6 +25419,11 @@ class DownloadControl {
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume,
         ]) {
             window.addEventListener(ev, (ev) => {
+                // 如果在下载完成后或者暂停、停止之后修改了抓取结果（可能的原因是用户手动排除了作品），则不再触发开始下载流程
+                if (ev.type === 'resultChange' &&
+                    (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadCompleteOrStop || this.pause)) {
+                    return;
+                }
                 // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
                 this.pause = ev.type === 'resume';
                 //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
@@ -25331,6 +25433,12 @@ class DownloadControl {
                     this.readyDownload(openPanel);
                 }, 0);
             });
+        }
+        // 下载过程中，用户手动排除了一个作品
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.manuallyExcludeWork, this.handleExcludedWork);
+        // 下载结束时，把被排除的作品从抓取结果里真正移除
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
+            window.addEventListener(ev, this.removeExcludedWorks);
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.skipDownload, (ev) => {
             // 跳过下载的文件不会触发 downloadSuccess 事件
@@ -25683,6 +25791,93 @@ class DownloadControl {
         }
         this.checkCompleteWithError();
     }
+    /** 下载任务进行中（正在下载或已暂停）一个作品被手动排除时，让它不再被下载。
+     *
+     * 这里不修改 store.result 数组本身，而是把该作品「尚未开始下载」的文件标记为已完成
+     * （下载器把跳过下载的文件也视为正常下载），这样下载队列、进度分母和完成判定都不需要改动。
+     *
+     * 正在下载的文件（状态 0）不处理：它的下标已经被下载任务持有，改动下标会连累其它文件。
+     * 已经下载完成的文件（状态 1）也不处理：文件已经在本地了。
+     *
+     * 真正从抓取结果里删除放到 removeExcludedWorks() 里做，那时下载已经结束，改动下标是安全的。 */
+    handleExcludedWork = (event) => {
+        // 只有「下载任务存在」（正在下载或已暂停）时才需要在这里处理。
+        // 其他情况下（抓取中、空闲、书签模式中）ExcludeWork 会直接调用 removeWorkById
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.hasDownloadTask) {
+            return;
+        }
+        const id = event.detail.data.id;
+        const type = event.detail.data.type;
+        // 只跳过系列小说：它的 id 是系列 id 而不是作品 id（而且理论上可能与某个作品 id 数值相同），
+        // 在抓取结果里找不到对应的记录。而不在下载中时排除系列也是同样结果（removeWorkById 找不到），
+        // 所以这里保持什么都不做，两边行为一致。
+        // 小说本身同样是一条抓取结果，需要正常处理
+        if (!id || type === 'novelSeries') {
+            return;
+        }
+        const idNum = Number.parseInt(id);
+        if (Number.isNaN(idNum)) {
+            return;
+        }
+        // 找出这个作品在抓取结果里占用的文件下标
+        const indexes = [];
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.forEach((result, index) => {
+            if (result.idNum === idNum) {
+                indexes.push(index);
+            }
+        });
+        if (indexes.length === 0) {
+            // 它没有抓取结果，不需要处理
+            return;
+        }
+        // 把尚未开始下载的文件标记为已完成，使下载器跳过它们
+        for (const index of indexes) {
+            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.states[index] === -1) {
+                _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(index, 1);
+            }
+        }
+        // 这些文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id）。
+        // 现在它们已被跳过、不会再重试，所以要一并移除，否则会让 checkCompleteWithError 的等式
+        // （downloaded + errorIdList.length === store.result.length）提前成立，可能触发一次多余的
+        // 「暂停 + 重试」流程
+        if (this.errorIdList.length > 0) {
+            const errorIds = new Set(indexes.map((index) => _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result[index].id));
+            this.errorIdList = this.errorIdList.filter((id) => !errorIds.has(id));
+        }
+        // 从作品列表里移除，让用户看到的抓取结果立即更新
+        // 注意：这里不能触发 resultChange 事件。否则 DownloadStates 会重建状态列表、把下载进度清零，
+        // 而且 DownloadControl 自己监听该事件后会重新进入准备下载的流程，可能把下过的文件再下一次
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.resultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.resultMeta.filter((result) => result.idNum !== idNum);
+        this.excludedWorkIdList.push(idNum);
+        // 刷新下载进度与完成判定（被跳过的文件同样计入已完成数量）。
+        // 暂停时不刷新：setDownloaded 会在「全部完成」时调用 reset() 而清掉暂停状态，
+        // 还可能走出错重试的流程自动开始下载。恢复下载时这些数字会被重新计算。
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadPaused) {
+            this.setDownloaded();
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning('⏭️' + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_用户排除了一个作品下载器会在之后跳过它'));
+        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已从抓取结果中移除'));
+    };
+    /** 下载结束后，把被排除的作品从抓取结果里真正移除。
+     *
+     * 这时已经没有正在下载的文件，删除数组元素不会再造成下标错位。
+     *
+     * 注意不要触发 resultChange 事件：它会让 DownloadStates 重建状态列表，
+     * 也会让 DownloadControl 自己重新进入准备下载的流程，可能把已经下载完的文件再下一次。 */
+    removeExcludedWorks = () => {
+        if (this.excludedWorkIdList.length === 0) {
+            return;
+        }
+        for (const idNum of this.excludedWorkIdList) {
+            // 移除该作品的所有文件，并同步移除下载状态列表里对应的项，保持两者下标一一对应
+            const removedIndexes = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.removeWorkFromResult(idNum);
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.removeItems(removedIndexes);
+            // resultMeta 里该作品在排除时就已经移除了，这里重复移除是幂等的
+        }
+        this.excludedWorkIdList = [];
+        // 结果数量变小了，同步一下剩余的下载数量
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.remainingDownload = Math.max(0, _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length - _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.downloadedCount());
+    };
     // 设置下载线程数量
     setDownloadThread() {
         const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.downloadThread;
@@ -26990,7 +27185,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   downloadStates: () => (/* binding */ downloadStates)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
 
 
 // 下载状态列表
@@ -27004,13 +27201,19 @@ class DownloadStates {
         const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, () => {
+                // 有未完成的下载任务时（正在下载或已暂停），不因为 resultChange 而重置下载状态。
+                // 重置会把所有文件的状态清成「未开始」，而这时下载还没结束，进度不应该被丢弃。
+                // 注意这个判断必须写在事件回调里：注册监听时这些状态还没有变化，写在循环里不会生效
+                if (ev === _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resultChange && _store_States__WEBPACK_IMPORTED_MODULE_1__.states.hasDownloadTask) {
+                    return;
+                }
                 this.init();
             });
         }
     }
     // 创建新的状态列表
     init() {
-        this.states = new Array(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.result.length).fill(-1);
+        this.states = new Array(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length).fill(-1);
     }
     // 统计下载完成的数量
     downloadedCount() {
@@ -27052,6 +27255,15 @@ class DownloadStates {
     // 设置已下载列表中的标记
     setState(index, value) {
         this.states[index] = value;
+    }
+    /** 移除指定下标的状态项。
+     * 用于下载结束后整理抓取结果时，同步缩短状态列表，保持下标与 result 一一对应。
+     * 传入的下标需要按升序排列。 */
+    removeItems(indexes) {
+        // 从后往前删，避免删除时影响后面还没处理的下标
+        for (let i = indexes.length - 1; i >= 0; i--) {
+            this.states.splice(indexes[i], 1);
+        }
     }
     clear() {
         this.states = [];
@@ -28397,7 +28609,7 @@ class MergeNovel {
             }
             // 如果处于快速合并模式，则跳过剩余小说
             if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.quickMergeNovel) {
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning('⏩quickMergeNovel: On，跳过剩余小说');
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning('⏭️quickMergeNovel: On，跳过剩余小说');
                 break;
             }
         }
@@ -28423,7 +28635,7 @@ class MergeNovel {
         }
         catch (error) {
             // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-            _Log__WEBPACK_IMPORTED_MODULE_9__.log.error('⏩' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个小说'));
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.error('⏭️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个小说'));
             return null;
         }
     }
@@ -31966,7 +32178,11 @@ class Filter {
             return !(type !== 'novels');
         }
     }
-    /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除 */
+    /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除。
+     *
+     * 这是「手动排除作品」的唯一判断入口。其他模块需要判断某个作品是否被排除时也应该调用它，
+     * 不要自己再写一套匹配逻辑：排除列表里图像作品的类型是粗略的 illusts，而查询时可能传入
+     * 更具体的 manga、ugoira，只有这里处理了这种差异 */
     checkExcluded(id, type) {
         if (id === undefined || !type) {
             return true;
@@ -35057,8 +35273,8 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `手動刪除作品`,
         `Manually delete works`,
         `作品を手動で削除する`,
-        `수동으로 작품 지우기`,
-        `Вручную удалить работу`,
+        `수동 지우기`,
+        `Ручное удаление`,
     ],
     _手动删除作品Title: [
         `可以在下载前手动删除不需要的作品`,
@@ -38481,14 +38697,6 @@ This setting does not apply to collection files generated after merging a novel 
     ],
     _预览上一页: [`上一页`, `上一頁`, `Previous`, `前へ`, `이전`, `Назад`],
     _预览下一页: [`下一页`, `下一頁`, `Next`, `次へ`, `다음`, `Далее`],
-    _搜索预览页码: [
-        `第 {} / {} 页，共 {} 个抓取结果`,
-        `第 {} / {} 頁，共 {} 個抓取結果`,
-        `Page {} of {} ({} crawled results)`,
-        `ページ {} / {}（クロール結果 {} 件）`,
-        `{} / {} 페이지 (크롤링된 결과 {}개)`,
-        `Страница {} из {} ({} полученных результатов)`,
-    ],
     _预览搜索结果的数量达到上限的提示: [
         `预览搜索结果的数量已经达到上限，剩余的结果不会显示。`,
         `預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。`,
@@ -39360,6 +39568,14 @@ Mouse wheel: zoom in or out of the image<br>
         `ブックマーク作業終了`,
         `북마크 작업 완료`,
         `Работа над закладками завершена`,
+    ],
+    _跳过收藏因为用户排除了作品: [
+        `跳过收藏：因为用户手动排除了作品 {}，所以下载器在这次收藏任务里跳过了它`,
+        `跳過收藏：因為使用者手動排除了作品 {}，所以下載器在這次收藏任務裡跳過了它`,
+        `Skip bookmarking: the user manually excluded work {}, so the downloader skipped it in this bookmarking task`,
+        `ブックマークをスキップ：ユーザーが作品 {} を手動で除外したため、このブックマーク処理ではスキップしました`,
+        `북마크 건너뛰기: 사용자가 작품 {}을(를) 수동으로 제외했으므로 이 북마크 작업에서 건너뛰었습니다`,
+        `Пропустить добавление в закладки: пользователь вручную исключил работу {}, поэтому загрузчик пропустил её в этой задаче`,
     ],
     _添加收藏失败: [
         `添加收藏失败`,
@@ -40398,12 +40614,12 @@ You can view this hotkey list anytime in the "Preview works" settings`,
         `Свести в один файл`,
     ],
     _后续作品低于最低收藏数量要求跳过后续作品: [
-        `⏩检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品`,
-        `⏩檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品`,
-        `⏩It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.`,
-        `⏩以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。`,
-        `⏩후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.`,
-        `⏩Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.`,
+        `⏭️检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品`,
+        `⏭️檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品`,
+        `⏭️It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.`,
+        `⏭️以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。`,
+        `⏭️후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.`,
+        `⏭️Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.`,
     ],
     _间隔时间: [
         `间隔时间：`,
@@ -42428,21 +42644,21 @@ ${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.originalTags.join(',')}`,
         `{} 오류의 경우, 다운로더는 일정 횟수 재시도합니다`,
         `Для ошибки {} загрузчик выполнит повторные попытки определённое количество раз`,
     ],
-    _跳过这个作品: [
-        `跳过这个作品`,
-        `跳過這個作品`,
-        `Skip this work`,
-        `この作品をスキップ`,
-        `이 작품 건너뛰기`,
-        `Пропустить эту работу`,
+    _用户排除了一个作品下载器会在之后跳过它: [
+        `用户手动排除了一个作品，下载器会在之后跳过它`,
+        `使用者手動排除了一個作品，下載器會在之後跳過它`,
+        `The user manually excluded a work, and the downloader will skip it later`,
+        `ユーザーが作品を手動で除外したため、ダウンローダーは後でそれをスキップします`,
+        `사용자가 작품을 수동으로 제외했으므로 다운로더는 나중에 해당 작품을 건너뜁니다`,
+        `Пользователь вручную исключил работу, и загрузчик пропустит её позже`,
     ],
     _因为网络错误跳过这个作品: [
-        `⏩因为网络错误跳过这个作品: {}`,
-        `⏩因為網路錯誤跳過這個作品: {}`,
-        `⏩Skipped this work due to network error: {}`,
-        `⏩ネットワークエラーのためこの作品をスキップしました: {}`,
-        `⏩네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
-        `⏩Пропущена эта работа из-за сетевой ошибки: {}`,
+        `⏭️因为网络错误跳过这个作品: {}`,
+        `⏭️因為網路錯誤跳過這個作品: {}`,
+        `⏭️Skipped this work due to network error: {}`,
+        `⏭️ネットワークエラーのためこの作品をスキップしました: {}`,
+        `⏭️네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
+        `⏭️Пропущена эта работа из-за сетевой ошибки: {}`,
     ],
     _移除文件名里的emoji: [
         `移除文件名里的 <span class="key">Emoji</span>`,
@@ -45799,7 +46015,7 @@ class BatchFollowUser {
             console.log(userID + ' click');
         }
         else {
-            const msg = '⏩' +
+            const msg = '⏭️' +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
         }
@@ -57744,6 +57960,19 @@ class States {
     crawlTagList = false;
     /**是否处于下载中 */
     downloading = false;
+    /** 指示下载任务是否已经完成或被中止 */
+    downloadCompleteOrStop = false;
+    /** 指示下载任务是否处于「已暂停」状态。
+     *
+     * 暂停时 downloading 会变成 false（它表示「正在传输」），但下载任务其实还在，之后可以继续。 */
+    downloadPaused = false;
+    /** 是否存在下载任务（正在下载或已暂停）。
+     *
+     * 暂停时 downloading 会变成 false，所以判断「有没有下载任务」不能只看 downloading。
+     * 需要这个判断的地方（手动排除作品的处理等）都引用这里，避免多个模块里的条件写得不一致。 */
+    get hasDownloadTask() {
+        return this.downloading || this.downloadPaused;
+    }
     /**是否应用慢速抓取模式 */
     // 由 InitPageBase 修改它的值
     slowCrawlMode = false;
@@ -57835,6 +58064,31 @@ class States {
                 this.downloading = false;
             });
         }
+        // 当下载开始时，重置 downloadCompleteOrStop 状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
+            this.downloadCompleteOrStop = false;
+            this.downloadPaused = false;
+        });
+        // 当下载完成或被中止时，设置 downloadCompleteOrStop 为 true
+        const downloadCompleteOrStopEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        for (const ev of downloadCompleteOrStopEvents) {
+            window.addEventListener(ev, () => {
+                this.downloadCompleteOrStop = true;
+                this.downloadPaused = false;
+            });
+        }
+        // 暂停下载时，标记下载任务处于「已暂停」状态。
+        // 注意不要用 downloading 来判断下载任务是否存在：暂停时它也会变成 false
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause, () => {
+            this.downloadPaused = true;
+        });
+        // 开始新的抓取时，上一次的下载任务已经作废（抓取结果会被重置）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
+            this.downloadPaused = false;
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             // 当用户关闭设置里的慢速抓取时，在这里把慢速抓取模式的标记设为 false
@@ -58084,6 +58338,31 @@ class Store {
             return true;
         }
         return false;
+    }
+    /** 从抓取结果里移除指定的作品（会移除它的所有文件）。
+     *
+     * 与 removeWorkById 的区别：
+     * - 不修改 idList；
+     * - 不触发 resultChange 事件。
+     *
+     * 所以它适合在下载过程中调用：下载阶段修改 idList 没有意义，
+     * 而 resultChange 会让 DownloadStates 重建状态列表，把下载进度清零。
+     *
+     * @param idNum 作品的数字 id
+     * @returns 被移除的文件在 result 里原本的下标，升序排列。
+     *          调用方需要用这些下标同步下载状态列表，保持两者一一对应。
+     */
+    removeWorkFromResult(idNum) {
+        const removedIndexes = [];
+        this.result.forEach((result, index) => {
+            if (result.idNum === idNum) {
+                removedIndexes.push(index);
+            }
+        });
+        this.result = this.result.filter((result) => result.idNum !== idNum);
+        // resultMeta 里每个作品只有一条数据，单独移除
+        this.resultMeta = this.resultMeta.filter((result) => result.idNum !== idNum);
+        return removedIndexes;
     }
     reset() {
         this.resultMeta = [];

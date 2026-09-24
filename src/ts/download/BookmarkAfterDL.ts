@@ -7,6 +7,8 @@ import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import { filter } from '../filter/Filter'
+import { Tools } from '../Tools'
 
 /** 接收下载结果时固定写入对象和设置，排队期间不再读取可变的抓取结果。 */
 interface BookmarkAfterDLWork {
@@ -180,6 +182,22 @@ class BookmarkAfterDL {
       const task = this.task
       const work = task.queue.shift()
       if (!work) continue
+
+      // 用户手动排除的作品不收藏。这里在真正写入之前才判断，
+      // 所以排队期间被排除的作品也会被跳过。
+      // 跳过的作品计入已完成数量，否则进度会一直差几个，永远等不到「收藏完毕」
+      if (!filter.checkExcluded(work.id, work.type)) {
+        log.warning(
+          '⏭️' +
+            lang.transl(
+              '_跳过收藏因为用户排除了作品',
+              Tools.createWorkLinkByIDData({ id: work.id, type: work.type })
+            )
+        )
+        task.successCount++
+        this.showProgress()
+        continue
+      }
 
       let status = 0
       try {

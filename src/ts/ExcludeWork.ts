@@ -17,6 +17,7 @@ import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 手动排除作品，图片作品和小说都可以排除
+// 文档：notes/手动排除作品.md
 class ExcludeWork {
   constructor() {
     // 符合条件时才会创建“手动排除作品”的按钮
@@ -308,8 +309,14 @@ class ExcludeWork {
     const added = workSelection.toggleExcludeId(id, type, seriesTitle)
     if (added) {
       this.addExcludedFlag(el, id, type)
-      // 如果这个作品已经被抓取，则从抓取结果里移除它
-      if (!states.busy) {
+      // 如果这个作品已经被抓取，则从抓取结果里移除它。
+      // 但如果下载任务存在（正在下载或已暂停），就不能直接删除：
+      // - 下载任务是按 store.result 的下标派发的，而 DownloadStates 的状态数组与它一一对应，
+      //   删除元素会让下标错位；
+      // - removeWorkById 会触发 resultChange，导致 DownloadStates 重建状态列表、把下载进度清空。
+      // 这两种情况交给 DownloadControl 处理：它会把该作品尚未开始下载的文件标记为跳过，
+      // 并在下载结束后再把抓取结果整理干净。
+      if (!states.hasDownloadTask) {
         const removed = store.removeWorkById([id])
         if (removed) {
           toast.error(lang.transl('_已从抓取结果中移除'))

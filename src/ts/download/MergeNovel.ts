@@ -976,7 +976,7 @@ class MergeNovel {
 
       // 如果处于快速合并模式，则跳过剩余小说
       if (states.quickMergeNovel) {
-        log.warning('⏩quickMergeNovel: On，跳过剩余小说')
+        log.warning('⏭️quickMergeNovel: On，跳过剩余小说')
         break
       }
     }
@@ -1005,7 +1005,7 @@ class MergeNovel {
       return data
     } catch (error: Error | any) {
       // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-      log.error('⏩' + lang.transl('_跳过这个小说'))
+      log.error('⏭️' + lang.transl('_跳过这个小说'))
       return null
     }
   }

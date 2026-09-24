@@ -238,6 +238,34 @@ class Store {
     return false
   }
 
+  /** 从抓取结果里移除指定的作品（会移除它的所有文件）。
+   *
+   * 与 removeWorkById 的区别：
+   * - 不修改 idList；
+   * - 不触发 resultChange 事件。
+   *
+   * 所以它适合在下载过程中调用：下载阶段修改 idList 没有意义，
+   * 而 resultChange 会让 DownloadStates 重建状态列表，把下载进度清零。
+   *
+   * @param idNum 作品的数字 id
+   * @returns 被移除的文件在 result 里原本的下标，升序排列。
+   *          调用方需要用这些下标同步下载状态列表，保持两者一一对应。
+   */
+  public removeWorkFromResult(idNum: number): number[] {
+    const removedIndexes: number[] = []
+    this.result.forEach((result, index) => {
+      if (result.idNum === idNum) {
+        removedIndexes.push(index)
+      }
+    })
+
+    this.result = this.result.filter((result) => result.idNum !== idNum)
+    // resultMeta 里每个作品只有一条数据，单独移除
+    this.resultMeta = this.resultMeta.filter((result) => result.idNum !== idNum)
+
+    return removedIndexes
+  }
+
   public reset() {
     this.resultMeta = []
     this.artworkIDList = []

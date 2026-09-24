@@ -44,6 +44,22 @@ class States {
   /**是否处于下载中 */
   public downloading = false
 
+  /** 指示下载任务是否已经完成或被中止 */
+  public downloadCompleteOrStop = false
+
+  /** 指示下载任务是否处于「已暂停」状态。
+   *
+   * 暂停时 downloading 会变成 false（它表示「正在传输」），但下载任务其实还在，之后可以继续。 */
+  public downloadPaused = false
+
+  /** 是否存在下载任务（正在下载或已暂停）。
+   *
+   * 暂停时 downloading 会变成 false，所以判断「有没有下载任务」不能只看 downloading。
+   * 需要这个判断的地方（手动排除作品的处理等）都引用这里，避免多个模块里的条件写得不一致。 */
+  public get hasDownloadTask() {
+    return this.downloading || this.downloadPaused
+  }
+
   /**是否应用慢速抓取模式 */
   // 由 InitPageBase 修改它的值
   public slowCrawlMode = false
@@ -156,6 +172,35 @@ class States {
         this.downloading = false
       })
     }
+
+    // 当下载开始时，重置 downloadCompleteOrStop 状态
+    window.addEventListener(EVT.list.downloadStart, () => {
+      this.downloadCompleteOrStop = false
+      this.downloadPaused = false
+    })
+
+    // 当下载完成或被中止时，设置 downloadCompleteOrStop 为 true
+    const downloadCompleteOrStopEvents = [
+      EVT.list.downloadStop,
+      EVT.list.downloadComplete,
+    ]
+    for (const ev of downloadCompleteOrStopEvents) {
+      window.addEventListener(ev, () => {
+        this.downloadCompleteOrStop = true
+        this.downloadPaused = false
+      })
+    }
+
+    // 暂停下载时，标记下载任务处于「已暂停」状态。
+    // 注意不要用 downloading 来判断下载任务是否存在：暂停时它也会变成 false
+    window.addEventListener(EVT.list.downloadPause, () => {
+      this.downloadPaused = true
+    })
+
+    // 开始新的抓取时，上一次的下载任务已经作废（抓取结果会被重置）
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.downloadPaused = false
+    })
 
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any

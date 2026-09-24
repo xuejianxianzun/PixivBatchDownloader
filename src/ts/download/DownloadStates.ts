@@ -1,4 +1,5 @@
 import { EVT } from '../EVT'
+import { states } from '../store/States'
 import { store } from '../store/Store'
 
 // 每个任务会在数组中的对应位置用一个数字表示它的下载状态。数字和含义：
@@ -20,6 +21,13 @@ class DownloadStates {
     const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, () => {
+        // 有未完成的下载任务时（正在下载或已暂停），不因为 resultChange 而重置下载状态。
+        // 重置会把所有文件的状态清成「未开始」，而这时下载还没结束，进度不应该被丢弃。
+        // 注意这个判断必须写在事件回调里：注册监听时这些状态还没有变化，写在循环里不会生效
+        if (ev === EVT.list.resultChange && states.hasDownloadTask) {
+          return
+        }
+
         this.init()
       })
     }
@@ -74,6 +82,16 @@ class DownloadStates {
   // 设置已下载列表中的标记
   public setState(index: number, value: -1 | 0 | 1) {
     this.states[index] = value
+  }
+
+  /** 移除指定下标的状态项。
+   * 用于下载结束后整理抓取结果时，同步缩短状态列表，保持下标与 result 一一对应。
+   * 传入的下标需要按升序排列。 */
+  public removeItems(indexes: number[]) {
+    // 从后往前删，避免删除时影响后面还没处理的下标
+    for (let i = indexes.length - 1; i >= 0; i--) {
+      this.states.splice(indexes[i], 1)
+    }
   }
 
   public clear() {

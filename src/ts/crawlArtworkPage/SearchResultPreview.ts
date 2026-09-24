@@ -23,6 +23,8 @@ type FilterCB = (value: Result) => unknown
 /** 在搜索页面中预览、筛选和维护抓取结果的模块 */
 // 预览搜索页面的筛选结果
 // 对应的设置：previewResult
+// 现在渲染预览卡片时是分页的。
+// 我试过不用分页的方案：为卡片设置 content-visibility: auto; 使浏览器不渲染离屏内容，也不会立刻加载离屏的图片。首屏先渲染前 N 张、其余用 requestIdleCallback 分批补充渲染。但是当卡片数量很多时，几乎所有操作都会有明显的卡顿，因此改回了分页方案。
 class SearchResultPreview {
   /** 预览作品列表项的类名 */
   public static readonly listClass = 'searchList'
@@ -85,6 +87,14 @@ class SearchResultPreview {
     this.createPaginationControls()
     window.addEventListener(EVT.list.addResult, this.showCount)
     window.addEventListener(EVT.list.resultChange, this.showCountOnLog)
+    window.addEventListener(
+      EVT.list.manuallyExcludeWork,
+      this.onManuallyExcludeWork
+    )
+    // 下载结束后，把下载期间被排除的作品从预览列表里移除
+    for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
+      window.addEventListener(ev, this.syncExcludedWorks)
+    }
     window.addEventListener(EVT.list.langChange, this.updatePaginationLanguage)
     window.addEventListener('addBMK', this.addBookmark)
     window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
@@ -96,6 +106,13 @@ class SearchResultPreview {
   public destroy() {
     window.removeEventListener(EVT.list.addResult, this.showCount)
     window.removeEventListener(EVT.list.resultChange, this.showCountOnLog)
+    window.removeEventListener(
+      EVT.list.manuallyExcludeWork,
+      this.onManuallyExcludeWork
+    )
+    for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
+      window.removeEventListener(ev, this.syncExcludedWorks)
+    }
     window.removeEventListener(
       EVT.list.langChange,
       this.updatePaginationLanguage
@@ -838,6 +855,92 @@ class SearchResultPreview {
     this.renderCurrentPage(false)
     EVT.fire('resultChange')
     toast.success(lang.transl('_已调整抓取结果'))
+  }
+
+  /** 处理“手动排除作品”功能排除的作品。
+   *
+   * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
+   * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
+   *
+   * 抓取进行中时不在这里处理：那时数据源是 store.resultMeta（this.resultMeta 还是空的），
+   * 而 ExcludeWork 已经在抓取期间直接把它从抓取结果里移除了。
+   *
+   * 下载任务进行中（正在下载或已暂停）也不在这里处理，见方法内的判断。 */
+  private onManuallyExcludeWork = (event: CustomEventInit) => {
+    // 有下载任务时不在这里处理。这里要重绘预览并重建抓取结果，而下载任务是按 store.result
+    // 的下标派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
+    // 开始下载的文件标记为跳过），预览列表则在下载结束后由 syncExcludedWorks 收尾。
+    if (states.hasDownloadTask) {
+      return
+    }
+
+    const id = event.detail.data.id as string
+    const type = event.detail.data.type as string
+    // 搜索页的预览列表里只有图像作品
+    if (!id || type === 'novels' || type === 'novelSeries') {
+      return
+    }
+
+    const deleteId = Number.parseInt(id)
+    if (Number.isNaN(deleteId)) {
+      return
+    }
+
+    // this.resultMeta 还是空的，说明抓取尚未结束。这种情况由 ExcludeWork 负责移除，这里不处理
+    if (this.resultMeta.length === 0) {
+      return
+    }
+
+    const beforeLength = this.resultMeta.length
+    this.resultMeta = this.resultMeta.filter(
+      (result) => result.idNum !== deleteId
+    )
+    if (this.resultMeta.length === beforeLength) {
+      return
+    }
+
+    this.reAddResult()
+    this.renderCurrentPage(false)
+    EVT.fire('resultChange')
+    toast.success(lang.transl('_已调整抓取结果'))
+  }
+
+  /** 下载结束后，把下载期间被排除的作品从预览列表里同步移除。
+   *
+   * 下载期间不能做这件事：预览列表的更新会重建抓取结果，而下载任务是按 store.result 的
+   * 下标派发的，重建结果会打乱下标。下载结束后没有在飞的文件，处理是安全的。
+   *
+   * 这里以 store.resultMeta 为准来同步：下载期间被排除的作品已经被 DownloadControl 从
+   * store 里移除了，而 this.resultMeta 是预览模块自己的快照，需要跟着收窄。
+   *
+   * 注意不要触发 resultChange：下载刚刚结束，它会让下载状态列表被清空（进度显示归零），
+   * 也可能让下载器重新进入准备下载的流程。 */
+  private syncExcludedWorks = () => {
+    if (this.resultMeta.length === 0) {
+      return
+    }
+
+    // 延后到本轮事件处理完毕再同步。因为 DownloadControl 也监听这两个事件，
+    // 它需要先把被排除的作品从 store 里移除，这里才能以 store 为准做同步
+    window.setTimeout(() => {
+      if (this.resultMeta.length === 0) {
+        return
+      }
+
+      const storeIds = new Set(store.resultMeta.map((meta) => meta.idNum))
+      const beforeLength = this.resultMeta.length
+      this.resultMeta = this.resultMeta.filter((meta) =>
+        storeIds.has(meta.idNum)
+      )
+
+      if (this.resultMeta.length === beforeLength) {
+        return
+      }
+
+      // 更新搜索页上显示的作品数量，并重绘预览列表
+      this.showCount()
+      this.renderCurrentPage(false)
+    }, 0)
   }
 
   /** 通过容器事件委托处理预览卡片的收藏按钮 */

@@ -41,21 +41,6 @@ class DeleteWorks {
     this.moveEvent(ev)
   }
 
-  /** 同步“手动排除作品”操作与搜索结果预览 */
-  private onManuallyExcludeWork = (ev: CustomEventInit) => {
-    const id = ev.detail.data.id as string
-    const type = ev.detail.data.type as string
-    if (id && type !== 'novels' && type !== 'novelSeries') {
-      const selector = `${this.worksSelector}[data-id="${id}"]`
-      const el = document.querySelector(selector) as HTMLElement | null
-      if (el) {
-        el.remove()
-        // SearchResultPreview 会同步更新抓取结果并重绘当前页。
-        EVT.fire('deleteWork', el)
-      }
-    }
-  }
-
   private createDeleteIcon() {
     const el = document.createElement('div')
     el.id = this.iconId
@@ -83,12 +68,6 @@ class DeleteWorks {
 
     // 鼠标移动时保存鼠标的坐标
     window.addEventListener('mousemove', this.onMouseMove, true)
-
-    // 当用户使用“手动排除作品”功能排除了一个作品时，自动删除页面上对应的作品元素
-    window.addEventListener(
-      EVT.list.manuallyExcludeWork,
-      this.onManuallyExcludeWork
-    )
   }
 
   /** 监听鼠标移动并更新手动删除指示图标 */
@@ -245,10 +224,6 @@ class DeleteWorks {
     this.exitDeleteMode()
     window.removeEventListener(EVT.list.pageSwitch, this.exitDeleteMode)
     window.removeEventListener('mousemove', this.onMouseMove, true)
-    window.removeEventListener(
-      EVT.list.manuallyExcludeWork,
-      this.onManuallyExcludeWork
-    )
     this.icon?.remove()
   }
 

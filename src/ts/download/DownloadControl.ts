@@ -83,7 +83,7 @@ class DownloadControl {
   private taskList: TaskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
 
   /** 有文件下载失败时，保存 id */
-  // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是 XHR 请求失败、动图转换失败。
+  // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是网络请求失败、动图转换失败。
   // 这不是 SW 让浏览器保存文件时的失败
   private errorIdList: string[] = []
 
@@ -99,6 +99,12 @@ class DownloadControl {
 
   private readonly uuidTip = 'uuidTip'
 
+  /** 下载过程中被手动排除、等待下载结束后从抓取结果里移除的作品 id。
+   *
+   * 这些作品的文件在排除时已经被标记为「已完成（跳过）」，所以不会再下载它们。
+   * 但要从 store.result 里真正删掉它们必须等到下载结束，否则会让下标错位。 */
+  private excludedWorkIdList: number[] = []
+
   // 类型守卫
   private isDownloadedMsg(msg: any): msg is DownloadedMsg {
     return !!msg.msg
@@ -109,6 +115,8 @@ class DownloadControl {
       this.hideResultBtns()
       this.hideDownloadArea()
       this.reset()
+      // 抓取结果会被重置，上一轮记录的待移除作品也就没有意义了
+      this.excludedWorkIdList = []
     })
 
     for (const ev of [
@@ -117,15 +125,35 @@ class DownloadControl {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, (ev) => {
+        // 如果在下载完成后或者暂停、停止之后修改了抓取结果（可能的原因是用户手动排除了作品），则不再触发开始下载流程
+        if (
+          ev.type === 'resultChange' &&
+          (states.downloadCompleteOrStop || this.pause)
+        ) {
+          return
+        }
+
         // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
         this.pause = ev.type === 'resume'
         //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
         const openPanel = ev.type !== 'resultChange'
+
         // 让开始下载的方法进入事件队列，以便让其他模块里监听上述事件的代码先执行完毕
         window.setTimeout(() => {
           this.readyDownload(openPanel)
         }, 0)
       })
+    }
+
+    // 下载过程中，用户手动排除了一个作品
+    window.addEventListener(
+      EVT.list.manuallyExcludeWork,
+      this.handleExcludedWork
+    )
+
+    // 下载结束时，把被排除的作品从抓取结果里真正移除
+    for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
+      window.addEventListener(ev, this.removeExcludedWorks)
     }
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
@@ -628,6 +656,113 @@ class DownloadControl {
     }
 
     this.checkCompleteWithError()
+  }
+
+  /** 下载任务进行中（正在下载或已暂停）一个作品被手动排除时，让它不再被下载。
+   *
+   * 这里不修改 store.result 数组本身，而是把该作品「尚未开始下载」的文件标记为已完成
+   * （下载器把跳过下载的文件也视为正常下载），这样下载队列、进度分母和完成判定都不需要改动。
+   *
+   * 正在下载的文件（状态 0）不处理：它的下标已经被下载任务持有，改动下标会连累其它文件。
+   * 已经下载完成的文件（状态 1）也不处理：文件已经在本地了。
+   *
+   * 真正从抓取结果里删除放到 removeExcludedWorks() 里做，那时下载已经结束，改动下标是安全的。 */
+  private handleExcludedWork = (event: CustomEventInit) => {
+    // 只有「下载任务存在」（正在下载或已暂停）时才需要在这里处理。
+    // 其他情况下（抓取中、空闲、书签模式中）ExcludeWork 会直接调用 removeWorkById
+    if (!states.hasDownloadTask) {
+      return
+    }
+
+    const id = event.detail.data.id as string
+    const type = event.detail.data.type as string
+    // 只跳过系列小说：它的 id 是系列 id 而不是作品 id（而且理论上可能与某个作品 id 数值相同），
+    // 在抓取结果里找不到对应的记录。而不在下载中时排除系列也是同样结果（removeWorkById 找不到），
+    // 所以这里保持什么都不做，两边行为一致。
+    // 小说本身同样是一条抓取结果，需要正常处理
+    if (!id || type === 'novelSeries') {
+      return
+    }
+
+    const idNum = Number.parseInt(id)
+    if (Number.isNaN(idNum)) {
+      return
+    }
+
+    // 找出这个作品在抓取结果里占用的文件下标
+    const indexes: number[] = []
+    store.result.forEach((result, index) => {
+      if (result.idNum === idNum) {
+        indexes.push(index)
+      }
+    })
+
+    if (indexes.length === 0) {
+      // 它没有抓取结果，不需要处理
+      return
+    }
+
+    // 把尚未开始下载的文件标记为已完成，使下载器跳过它们
+    for (const index of indexes) {
+      if (downloadStates.states[index] === -1) {
+        downloadStates.setState(index, 1)
+      }
+    }
+
+    // 这些文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id）。
+    // 现在它们已被跳过、不会再重试，所以要一并移除，否则会让 checkCompleteWithError 的等式
+    // （downloaded + errorIdList.length === store.result.length）提前成立，可能触发一次多余的
+    // 「暂停 + 重试」流程
+    if (this.errorIdList.length > 0) {
+      const errorIds = new Set(indexes.map((index) => store.result[index].id))
+      this.errorIdList = this.errorIdList.filter((id) => !errorIds.has(id))
+    }
+
+    // 从作品列表里移除，让用户看到的抓取结果立即更新
+    // 注意：这里不能触发 resultChange 事件。否则 DownloadStates 会重建状态列表、把下载进度清零，
+    // 而且 DownloadControl 自己监听该事件后会重新进入准备下载的流程，可能把下过的文件再下一次
+    store.resultMeta = store.resultMeta.filter(
+      (result) => result.idNum !== idNum
+    )
+
+    this.excludedWorkIdList.push(idNum)
+
+    // 刷新下载进度与完成判定（被跳过的文件同样计入已完成数量）。
+    // 暂停时不刷新：setDownloaded 会在「全部完成」时调用 reset() 而清掉暂停状态，
+    // 还可能走出错重试的流程自动开始下载。恢复下载时这些数字会被重新计算。
+    if (!states.downloadPaused) {
+      this.setDownloaded()
+    }
+
+    log.warning('⏭️' + lang.transl('_用户排除了一个作品下载器会在之后跳过它'))
+    toast.error(lang.transl('_已从抓取结果中移除'))
+  }
+
+  /** 下载结束后，把被排除的作品从抓取结果里真正移除。
+   *
+   * 这时已经没有正在下载的文件，删除数组元素不会再造成下标错位。
+   *
+   * 注意不要触发 resultChange 事件：它会让 DownloadStates 重建状态列表，
+   * 也会让 DownloadControl 自己重新进入准备下载的流程，可能把已经下载完的文件再下一次。 */
+  private removeExcludedWorks = () => {
+    if (this.excludedWorkIdList.length === 0) {
+      return
+    }
+
+    for (const idNum of this.excludedWorkIdList) {
+      // 移除该作品的所有文件，并同步移除下载状态列表里对应的项，保持两者下标一一对应
+      const removedIndexes = store.removeWorkFromResult(idNum)
+      downloadStates.removeItems(removedIndexes)
+      // resultMeta 里该作品在排除时就已经移除了，这里重复移除是幂等的
+    }
+
+    this.excludedWorkIdList = []
+
+    // 结果数量变小了，同步一下剩余的下载数量
+    store.remainingDownload = Math.max(
+      0,
+      store.result.length - downloadStates.downloadedCount()
+    )
   }
 
   // 设置下载线程数量

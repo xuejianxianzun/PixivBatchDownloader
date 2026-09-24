@@ -64,7 +64,10 @@ abstract class InitPageBase {
   protected finishedRequest = 0
   /** 如果 stopCrawl 标记为 true，则这个标记也会变成 true。通过检查这个标记，可以避免重复执行一些逻辑 */
   protected crawlFinishBecauseStopCrawl = false
-  /** 获取完 idList 之后，保存它的的长度 */
+  /** 获取完 idList 之后，保存它的的长度。目的是在抓取完成后，检查某种操作的次数是否与初始的 idList 长度一致，如果一致就说明所有 id 都被这种操作处理了。
+   *
+   * 注意：在抓取过程中，如果 idList 里的某些 id 被移除（如手动排除作品），则该值可能不再准确。所以这个值是不可信的，只应该用于输出日志等辅助用途。
+   */
   protected idListLength = 0
   /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
   protected mergedNovelCount = 0
