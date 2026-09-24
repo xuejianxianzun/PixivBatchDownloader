@@ -109,9 +109,6 @@ class SearchResultPreview {
     // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
     window.addEventListener(EVT.list.resume, this.renderRestoredPreview)
     window.addEventListener('addBMK', this.addBookmark)
-    window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
-    window.addEventListener(EVT.list.clearUgoira, this.clearUgoira)
-    window.addEventListener(EVT.list.deleteWork, this.deleteWork)
   }
 
   /** 移除预览模块注册的事件和待执行的渲染任务 */
@@ -131,9 +128,6 @@ class SearchResultPreview {
     )
     window.removeEventListener(EVT.list.resume, this.renderRestoredPreview)
     window.removeEventListener('addBMK', this.addBookmark)
-    window.removeEventListener(EVT.list.clearMultiple, this.clearMultiple)
-    window.removeEventListener(EVT.list.clearUgoira, this.clearUgoira)
-    window.removeEventListener(EVT.list.deleteWork, this.deleteWork)
     window.removeEventListener(EVT.list.addResult, this.onResultAdded)
     this.worksWrap?.removeEventListener('click', this.onPreviewClick)
     this.paginationWrap?.remove()
@@ -224,13 +218,13 @@ class SearchResultPreview {
     return wrap
   }
 
+  /** 是否存在可以操作的抓取结果 */
+  public get hasResult() {
+    return store.resultMeta.length > 0 || store.result.length > 0
+  }
+
   /** 在抓取结果中应用当前筛选条件 */
   public async filterResults() {
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
     const canFilter = await this.filterResult((data) => {
       const filterOpt: FilterOption = {
         aiType: data.aiType,
@@ -748,6 +742,11 @@ class SearchResultPreview {
    * @returns 如果无法开始执行筛选任务，会返回 false；如果可以执行筛选任务则返回 true
    */
   private async filterResult(callback: FilterCB) {
+    if (states.busy) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return false
+    }
+
     if (this.isFiltering) {
       toast.warning(lang.transl('_当前任务尚未完成'))
       return false
@@ -824,8 +823,8 @@ class SearchResultPreview {
     }
   }
 
-  /** 从当前结果中移除多图作品 */
-  private clearMultiple = async () => {
+  /** 从当前结果中移除多图作品（由“清除多图作品”按钮调用） */
+  public async clearMultiple() {
     const canFilter = await this.filterResult((data) => {
       return data.pageCount <= 1
     })
@@ -834,8 +833,8 @@ class SearchResultPreview {
     }
   }
 
-  /** 从当前结果中移除动图作品 */
-  private clearUgoira = async () => {
+  /** 从当前结果中移除动图作品（由“清除动图作品”按钮调用） */
+  public async clearUgoira() {
     const canFilter = await this.filterResult((data) => {
       return !data.ugoiraInfo
     })
@@ -844,17 +843,21 @@ class SearchResultPreview {
     }
   }
 
-  /** 从当前结果中移除手动删除的作品 */
-  private deleteWork = (event: CustomEventInit) => {
-    const el = event.detail.data as HTMLElement
-    const deleteId = Number.parseInt(el.dataset.id || '')
-    if (Number.isNaN(deleteId)) {
+  /** 从当前结果中移除指定的作品（由“手动删除作品”调用）
+   * @param idNum 作品的数字 id */
+  public removeWork(idNum: number) {
+    if (states.busy) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    if (Number.isNaN(idNum)) {
       return
     }
 
     if (this.isFiltering) {
-      if (!this.pendingDeleteIds.has(deleteId)) {
-        this.pendingDeleteIds.add(deleteId)
+      if (!this.pendingDeleteIds.has(idNum)) {
+        this.pendingDeleteIds.add(idNum)
         toast.success(lang.transl('_已调整抓取结果'))
       }
       return
@@ -867,7 +870,7 @@ class SearchResultPreview {
 
     const beforeLength = store.resultMeta.length
     const newResultMeta = store.resultMeta.filter(
-      (result) => result.idNum !== deleteId
+      (result) => result.idNum !== idNum
     )
     if (newResultMeta.length === beforeLength) {
       return

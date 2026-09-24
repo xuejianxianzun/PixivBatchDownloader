@@ -75,6 +75,14 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/678
 
 相关模块：src/ts/serviceWorker/background.ts
 
+### ♻️拆分了“预览搜索页面的筛选结果”功能的代码
+
+之前 `InitSearchArtworkPage.ts` 模块同时负责抓取和预览抓取结果，但是后者是个重量级功能，两者的逻辑混在一起增加了维护难度。现在把后者拆分成单独的 `SearchResultPreview.ts` 模块，并优化了很多逻辑。
+
+### ♻️简化搜索页面里删除作品模块的逻辑
+
+在上一个重构之后，`DeleteWorks.ts` 的代码显得更绕了，而且有些啰嗦。现在优化了它的代码逻辑。
+
 ### ✨优化了批量关注用户的功能
 
 - 修复问题：当要关注的用户不存在时，Pixiv 会返回错误代码。之前下载器可能会误判为用户当前账号存在问题，并中止任务。现在修复此问题，并跳过不存在的用户。

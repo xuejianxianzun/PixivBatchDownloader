@@ -162,20 +162,12 @@ class InitSearchArtworkPage extends InitPageBase {
 
   /** 添加搜索页结果的批量操作控件 */
   protected addAnyElement() {
-    const deleteWorks = new DeleteWorks(`.${SearchResultPreview.listClass}`)
+    // DeleteWorks 直接持有预览模块：它只负责按钮和删除模式的界面部分，
+    // 抓取结果的修改和页面重绘都交给预览模块
+    const deleteWorks = new DeleteWorks(this.searchResultPreview)
     this.deleteWorks = deleteWorks
 
-    deleteWorks.addClearMultipleBtn(() => {
-      EVT.fire('clearMultiple')
-    })
-
-    deleteWorks.addClearUgoiraBtn(() => {
-      EVT.fire('clearUgoira')
-    })
-
-    deleteWorks.addManuallyDeleteBtn((el: HTMLElement) => {
-      EVT.fire('deleteWork', el)
-    })
+    deleteWorks.addBtns()
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = this.addInitPageBtn(

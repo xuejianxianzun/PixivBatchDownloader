@@ -3883,12 +3883,6 @@ class EVENT {
         settingsPanelOpened: 'settingsPanelOpened',
         /** 设置面板已关闭 */
         settingsPanelClosed: 'settingsPanelClosed',
-        /** 当清除多图作品时触发 */
-        clearMultiple: 'clearMultiple',
-        /** 当清除动图作品时触发 */
-        clearUgoira: 'clearUgoira',
-        /** 当手动删除作品时触发 */
-        deleteWork: 'deleteWork',
         /** 当下载器在页面上创建的作品列表全部完成时触发 */
         worksUpdate: 'worksUpdate',
         /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
@@ -17235,12 +17229,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _SearchResultPreview__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SearchResultPreview */ "./src/ts/crawlArtworkPage/SearchResultPreview.ts");
 
 
 
@@ -17248,80 +17241,73 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-// 在搜索页面里添加批量清除和手动删除作品的按钮，具体的数据修改和页面重绘由 SearchResultPreview 模块处理。
+// 在搜索页面里添加批量清除和手动删除作品的按钮
+//
+// 这个模块只负责界面部分：按钮、手动删除模式的指示器、在作品列表上委托点击。
+// 它不接触抓取结果，而是直接调用 SearchResultPreview 的方法 —— 抓取结果、作品列表容器、
+// 页面重绘都由预览模块负责，本模块通过它提供的少量方法取用。
+// 之前这里是派发全局事件（clearMultiple / clearUgoira / deleteWork）来通知预览模块的，
+// 但这两个模块只在搜索页面里一对一存在，用全局事件反而绕了一圈，所以改成了直接调用。
 class DeleteWorks {
-    constructor(worksSelectors) {
-        // .searchList
-        this.worksSelector = worksSelectors;
+    preview;
+    constructor(preview) {
+        this.preview = preview;
         this.icon = this.createDeleteIcon();
         this.bindEvents();
     }
-    worksSelector = ''; // 选择页面上所有作品的选择器
+    /** 预览卡片的选择器 */
+    cardSelector = `.${_SearchResultPreview__WEBPACK_IMPORTED_MODULE_6__.SearchResultPreview.listClass}`;
     delMode = false; // 是否处于手动删除作品状态
-    delBtn = document.createElement('button');
-    /** 手动删除模式下注册点击事件的作品容器 */
-    deleteEventTarget = null;
     icon; // 手动删除时，显示一个指示图标
     iconId = 'deleteWorkEl';
     left = 0;
     top = 0;
     half = 12;
-    /** 手动删除作品时通知预览模块更新数据 */
-    deleteWorkCallback = () => { };
-    /** 鼠标移动事件处理函数 */
-    onMouseMove = (ev) => {
-        this.moveEvent(ev);
-    };
-    createDeleteIcon() {
-        const el = document.createElement('div');
-        el.id = this.iconId;
-        document.body.appendChild(el);
-        return el;
+    delBtn;
+    delBtnText;
+    /** 手动删除模式下注册点击事件的作品列表容器 */
+    deleteEventTarget = null;
+    /** 添加本模块提供的全部按钮 */
+    addBtns() {
+        this.addFilterBtn('_清除多图作品', 'clearMultiImageWork', () => this.preview.clearMultiple());
+        this.addFilterBtn('_清除动图作品', 'clearUgoiraWork', () => this.preview.clearUgoira());
+        this.addManuallyDeleteBtn();
     }
-    updateDeleteIcon() {
-        if (!this.icon) {
+    /** 退出手动删除模式并移除列表级点击监听 */
+    exitDeleteMode = () => {
+        if (!this.delMode) {
             return;
         }
-        this.icon.style.display = this.delMode ? 'block' : 'none';
-        // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
-        if (this.delMode) {
-            this.icon.style.left = this.left - this.half + 'px';
-            this.icon.style.top = this.top - this.half + 'px';
+        this.delMode = false;
+        this.deleteEventTarget?.removeEventListener('click', this.handleDeleteClick, true);
+        this.deleteEventTarget = null;
+        this.updateDeleteIcon();
+        if (this.delBtnText) {
+            _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(this.delBtnText, '_手动删除作品');
         }
+    };
+    /** 销毁手动删除模块及其全局事件 */
+    destroy() {
+        this.exitDeleteMode();
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, this.exitDeleteMode);
+        window.removeEventListener('mousemove', this.onMouseMove, true);
+        this.icon?.remove();
     }
     bindEvents() {
         // 切换页面时，退出手动删除模式
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, this.exitDeleteMode);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, this.exitDeleteMode);
         // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', this.onMouseMove, true);
     }
-    /** 监听鼠标移动并更新手动删除指示图标 */
-    moveEvent(ev) {
+    /** 鼠标移动时保存鼠标的坐标 */
+    onMouseMove = (ev) => {
         this.left = ev.clientX;
         this.top = ev.clientY;
         this.updateDeleteIcon();
-    }
-    /** 添加由结果预览模块处理的清除多图作品按钮 */
-    addClearMultipleBtn(callback = () => { }) {
-        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', '_清除多图作品', '', 'clearMultiImageWork', 'secondary', 'danger').addEventListener('click', () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_2__.states.busy) {
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
-                return;
-            }
-            if (!this.checkCanDelete()) {
-                return;
-            }
-            callback();
-        }, false);
-    }
-    /** 添加由结果预览模块处理的清除动图作品按钮 */
-    addClearUgoiraBtn(callback = () => { }) {
-        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', '_清除动图作品', '', 'clearUgoiraWork', 'secondary', 'danger').addEventListener('click', () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_2__.states.busy) {
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
-                return;
-            }
+    };
+    /** 添加由预览模块处理的“清除某一类作品”的按钮 */
+    addFilterBtn(text, id, callback) {
+        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', text, '', id, 'secondary', 'danger').addEventListener('click', () => {
             if (!this.checkCanDelete()) {
                 return;
             }
@@ -17329,9 +17315,9 @@ class DeleteWorks {
         }, false);
     }
     /** 添加手动删除作品按钮 */
-    addManuallyDeleteBtn(callback = () => { }) {
-        this.deleteWorkCallback = callback;
+    addManuallyDeleteBtn() {
         this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', '_手动删除作品', '_手动删除作品Title', 'manuallyDeleteWork', 'secondary', 'danger');
+        this.delBtnText = this.delBtn.querySelector('span') ?? undefined;
         this.delBtn.addEventListener('click', (ev) => {
             if (ev.detail > 0) {
                 this.left = ev.clientX;
@@ -17349,77 +17335,65 @@ class DeleteWorks {
         if (!this.checkCanDelete()) {
             return;
         }
-        const findTarget = document.querySelector(this.worksSelector);
-        if (!findTarget) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_手动删除作品'),
-            });
-            return;
-        }
-        const eventTarget = findTarget.closest('#workListWrap') ||
-            findTarget.parentElement;
-        if (!eventTarget) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
+        // 直接向预览模块要作品列表容器，不再从某个卡片元素反查它的父元素
+        const wrap = this.preview.findWorksWrap();
+        if (!wrap || !wrap.querySelector(this.cardSelector)) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
                 title: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_手动删除作品'),
             });
             return;
         }
         this.delMode = true;
-        this.deleteEventTarget = eventTarget;
-        this.deleteEventTarget.addEventListener('click', this.handleDeleteClick, true);
+        this.deleteEventTarget = wrap;
+        wrap.addEventListener('click', this.handleDeleteClick, true);
         this.updateDeleteIcon();
-        const span = this.delBtn.querySelector('span');
-        _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(span, '_退出手动删除');
+        if (this.delBtnText) {
+            _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(this.delBtnText, '_退出手动删除');
+        }
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(100);
         if (this.delMode) {
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeSettingsPanel');
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('closeSettingsPanel');
         }
     }
-    /** 退出手动删除模式并移除列表级点击监听 */
-    exitDeleteMode = () => {
-        if (!this.delMode) {
-            return;
-        }
-        this.delMode = false;
-        this.deleteEventTarget?.removeEventListener('click', this.handleDeleteClick, true);
-        this.deleteEventTarget = null;
-        this.updateDeleteIcon();
-        const span = this.delBtn.querySelector('span');
-        if (span) {
-            _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(span, '_手动删除作品');
-        }
-    };
-    /** 销毁手动删除模块及其全局事件 */
-    destroy() {
-        this.exitDeleteMode();
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, this.exitDeleteMode);
-        window.removeEventListener('mousemove', this.onMouseMove, true);
-        this.icon?.remove();
-    }
-    /** 在列表容器上委托处理手动删除操作 */
+    /** 在作品列表容器上委托处理手动删除操作 */
     handleDeleteClick = (ev) => {
         if (!this.delMode || !(ev.target instanceof Element)) {
             return;
         }
-        const target = ev.target.closest(this.worksSelector);
-        if (!target) {
+        const card = ev.target.closest(this.cardSelector);
+        if (!card) {
             return;
         }
         ev.preventDefault();
         ev.stopPropagation();
-        if (_store_States__WEBPACK_IMPORTED_MODULE_2__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
-            return;
-        }
-        this.deleteWorkCallback(target);
-        target.remove();
+        // 只把作品 id 交给预览模块：它会修改抓取结果并重绘整个列表。
+        // 所以这里不需要自己删除卡片元素，交给预览模块统一处理
+        this.preview.removeWork(Number.parseInt(card.dataset.id || ''));
     };
+    /** 检查是否存在可以操作的抓取结果 */
     checkCanDelete() {
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_6__.store.resultMeta.length === 0 && _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.result.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果'));
+        if (!this.preview.hasResult) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果'));
             return false;
         }
         return true;
+    }
+    createDeleteIcon() {
+        const el = document.createElement('div');
+        el.id = this.iconId;
+        document.body.appendChild(el);
+        return el;
+    }
+    updateDeleteIcon() {
+        if (!this.icon) {
+            return;
+        }
+        this.icon.style.display = this.delMode ? 'block' : 'none';
+        // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
+        if (this.delMode) {
+            this.icon.style.left = this.left - this.half + 'px';
+            this.icon.style.top = this.top - this.half + 'px';
+        }
     }
 }
 
@@ -18599,17 +18573,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     /** 添加搜索页结果的批量操作控件 */
     addAnyElement() {
-        const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_2__.DeleteWorks(`.${_SearchResultPreview__WEBPACK_IMPORTED_MODULE_21__.SearchResultPreview.listClass}`);
+        // DeleteWorks 直接持有预览模块：它只负责按钮和删除模式的界面部分，
+        // 抓取结果的修改和页面重绘都交给预览模块
+        const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_2__.DeleteWorks(this.searchResultPreview);
         this.deleteWorks = deleteWorks;
-        deleteWorks.addClearMultipleBtn(() => {
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('clearMultiple');
-        });
-        deleteWorks.addClearUgoiraBtn(() => {
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('clearUgoira');
-        });
-        deleteWorks.addManuallyDeleteBtn((el) => {
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('deleteWork', el);
-        });
+        deleteWorks.addBtns();
         // 添加收藏本页所有作品的功能
         const bookmarkAllBtn = this.addInitPageBtn('otherBtns', '_收藏本页面的所有作品', '', 'bookmarkAllWorksOnSearchPage', 'brand');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__.BookmarkAllWorks(bookmarkAllBtn);
@@ -19157,9 +19125,6 @@ class SearchResultPreview {
         // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.renderRestoredPreview);
         window.addEventListener('addBMK', this.addBookmark);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearUgoira, this.clearUgoira);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.deleteWork, this.deleteWork);
     }
     /** 移除预览模块注册的事件和待执行的渲染任务 */
     destroy() {
@@ -19172,9 +19137,6 @@ class SearchResultPreview {
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updatePaginationLanguage);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.renderRestoredPreview);
         window.removeEventListener('addBMK', this.addBookmark);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearUgoira, this.clearUgoira);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.deleteWork, this.deleteWork);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.onResultAdded);
         this.worksWrap?.removeEventListener('click', this.onPreviewClick);
         this.paginationWrap?.remove();
@@ -19252,12 +19214,12 @@ class SearchResultPreview {
         }
         return wrap;
     }
+    /** 是否存在可以操作的抓取结果 */
+    get hasResult() {
+        return _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length > 0 || _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.result.length > 0;
+    }
     /** 在抓取结果中应用当前筛选条件 */
     async filterResults() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
-            return;
-        }
         const canFilter = await this.filterResult((data) => {
             const filterOpt = {
                 aiType: data.aiType,
@@ -19687,6 +19649,10 @@ class SearchResultPreview {
      * @returns 如果无法开始执行筛选任务，会返回 false；如果可以执行筛选任务则返回 true
      */
     async filterResult(callback) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            return false;
+        }
         if (this.isFiltering) {
             _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             return false;
@@ -19751,34 +19717,37 @@ class SearchResultPreview {
             this.showCount();
         }
     }
-    /** 从当前结果中移除多图作品 */
-    clearMultiple = async () => {
+    /** 从当前结果中移除多图作品（由“清除多图作品”按钮调用） */
+    async clearMultiple() {
         const canFilter = await this.filterResult((data) => {
             return data.pageCount <= 1;
         });
         if (canFilter) {
             _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
-    };
-    /** 从当前结果中移除动图作品 */
-    clearUgoira = async () => {
+    }
+    /** 从当前结果中移除动图作品（由“清除动图作品”按钮调用） */
+    async clearUgoira() {
         const canFilter = await this.filterResult((data) => {
             return !data.ugoiraInfo;
         });
         if (canFilter) {
             _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
-    };
-    /** 从当前结果中移除手动删除的作品 */
-    deleteWork = (event) => {
-        const el = event.detail.data;
-        const deleteId = Number.parseInt(el.dataset.id || '');
-        if (Number.isNaN(deleteId)) {
+    }
+    /** 从当前结果中移除指定的作品（由“手动删除作品”调用）
+     * @param idNum 作品的数字 id */
+    removeWork(idNum) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
+        if (Number.isNaN(idNum)) {
             return;
         }
         if (this.isFiltering) {
-            if (!this.pendingDeleteIds.has(deleteId)) {
-                this.pendingDeleteIds.add(deleteId);
+            if (!this.pendingDeleteIds.has(idNum)) {
+                this.pendingDeleteIds.add(idNum);
                 _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
             }
             return;
@@ -19788,7 +19757,7 @@ class SearchResultPreview {
             return;
         }
         const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length;
-        const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.filter((result) => result.idNum !== deleteId);
+        const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.filter((result) => result.idNum !== idNum);
         if (newResultMeta.length === beforeLength) {
             return;
         }
@@ -19796,7 +19765,7 @@ class SearchResultPreview {
         this.renderCurrentPage(false);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
         _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
-    };
+    }
     /** 处理“手动排除作品”功能排除的作品。
      *
      * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，

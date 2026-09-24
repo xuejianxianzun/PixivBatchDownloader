@@ -100,12 +100,6 @@ class EVENT {
     settingsPanelOpened: 'settingsPanelOpened',
     /** 设置面板已关闭 */
     settingsPanelClosed: 'settingsPanelClosed',
-    /** 当清除多图作品时触发 */
-    clearMultiple: 'clearMultiple',
-    /** 当清除动图作品时触发 */
-    clearUgoira: 'clearUgoira',
-    /** 当手动删除作品时触发 */
-    deleteWork: 'deleteWork',
     /** 当下载器在页面上创建的作品列表全部完成时触发 */
     worksUpdate: 'worksUpdate',
     /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
@@ -251,8 +245,6 @@ class EVENT {
       | 'closeSettingsPanel'
       | 'settingsPanelOpened'
       | 'settingsPanelClosed'
-      | 'clearMultiple'
-      | 'clearUgoira'
       | 'worksUpdate'
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
@@ -315,8 +307,6 @@ class EVENT {
   public fire(type: 'output', data: OutputData): void
 
   public fire(type: 'settingChange', data: SettingChangeData): void
-
-  public fire(type: 'deleteWork', data: HTMLElement): void
 
   public fire(type: 'skipDownload', data: DonwloadSkipData): void
 
