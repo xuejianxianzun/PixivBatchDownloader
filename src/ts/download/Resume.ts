@@ -186,6 +186,10 @@ class Resume {
       }
 
       store.resetDownloadCount()
+
+      // 过去没有保存过 resultMeta，所以这里根据刚刚恢复的 result 反向生成它。
+      // 这样恢复之后“在结果中筛选”、预览列表等功能才能正常工作
+      store.restoreResultMetaFromResult()
     })
 
     // 3 恢复下载状态
@@ -194,8 +198,12 @@ class Resume {
       this.taskId
     )) as TaskStates
 
-    if (data) {
+    // 保存的下载状态必须和恢复的抓取结果数量一致，否则下载时会读到 store.result 之外的下标。
+    // 不一致时（例如保存 states 失败）就重建状态列表，保证两者一一对应
+    if (data?.states?.length === store.result.length) {
       downloadStates.replace(data.states)
+    } else {
+      downloadStates.init()
     }
 
     store.crawlCompleteTime = meta.date
@@ -237,7 +245,7 @@ class Resume {
 
     // 保存本次任务的数据
     // 如果此时本次任务已经完成，就不进行保存了
-    if (downloadStates.downloadedCount() === store.result.length) {
+    if (states.downloadCompleteOrStop) {
       return
     }
 
@@ -335,7 +343,7 @@ class Resume {
         }
         this.needPutStates = false
         // 如果此时本次任务已经完成，就不进行保存了
-        if (downloadStates.downloadedCount() === store.result.length) {
+        if (states.downloadCompleteOrStop) {
           return
         }
         this.IDB.put(this.statesName, statesData)

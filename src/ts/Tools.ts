@@ -37,12 +37,14 @@ type BtnIntent = 'brand' | 'success' | 'warning' | 'danger'
 class Tools {
   // 把结果中的动图排列到最前面
   static sortUgoiraFirst(a: Result, b: Result) {
+    // 注意：不需要调整顺序时必须返回 0。返回非 0 会让这个比较器不满足反对称性，
+    // 排序结果会变得不可预期（同一作品的文件可能被打散）
     if (a.type === 2 && b.type !== 2) {
       return -1
-    } else if (a.type === 2 && b.type === 2) {
-      return 0
-    } else {
+    } else if (a.type !== 2 && b.type === 2) {
       return 1
+    } else {
+      return 0
     }
   }
 

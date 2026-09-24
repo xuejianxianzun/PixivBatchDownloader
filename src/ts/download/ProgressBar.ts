@@ -87,6 +87,18 @@ class ProgressBar {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hide()
     })
+
+    // 抓取结果被筛选、手动删除等操作改变后，立即更新总进度条上显示的作品总数
+    window.addEventListener(EVT.list.resultChange, this.setTotalNumber)
+  }
+
+  /** 更新总进度条上显示的作品总数（文件总数）。
+   *
+   * 抓取结果减少时（如在结果中筛选、手动排除作品）需要立即反映最新的数量，
+   * 但 reset 只在下载流程里被调用，所以单独提供这个方法。
+   * 这里只改数字，不重建子进度条：下载尚未开始时子进度条的数量没有意义。 */
+  public setTotalNumber = () => {
+    this.totalNumberEl.textContent = store.result.length.toString()
   }
 
   // 重设所有进度
@@ -98,7 +110,7 @@ class ProgressBar {
 
     // 重置总进度条
     this.setTotalProgress(downloaded)
-    this.totalNumberEl.textContent = store.result.length.toString()
+    this.setTotalNumber()
     // 重置子进度条
     this.listWrap.innerHTML = this.barHTML.repeat(progressBarNum)
 

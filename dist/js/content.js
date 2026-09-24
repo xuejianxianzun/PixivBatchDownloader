@@ -4058,6 +4058,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 手动排除作品，图片作品和小说都可以排除
+// 文档：notes/手动排除作品.md
 class ExcludeWork {
     constructor() {
         // 符合条件时才会创建“手动排除作品”的按钮
@@ -13125,14 +13126,16 @@ __webpack_require__.r(__webpack_exports__);
 class Tools {
     // 把结果中的动图排列到最前面
     static sortUgoiraFirst(a, b) {
+        // 注意：不需要调整顺序时必须返回 0。返回非 0 会让这个比较器不满足反对称性，
+        // 排序结果会变得不可预期（同一作品的文件可能被打散）
         if (a.type === 2 && b.type !== 2) {
             return -1;
         }
-        else if (a.type === 2 && b.type === 2) {
-            return 0;
+        else if (a.type !== 2 && b.type === 2) {
+            return 1;
         }
         else {
-            return 1;
+            return 0;
         }
     }
     // 根据 tag 判断是否是 R-18(G) 作品
@@ -19049,12 +19052,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _download_DownloadStates__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../download/DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -19070,6 +19075,8 @@ __webpack_require__.r(__webpack_exports__);
 /** 在搜索页面中预览、筛选和维护抓取结果的模块 */
 // 预览搜索页面的筛选结果
 // 对应的设置：previewResult
+// 预览列表的数据源就是 store.resultMeta，本模块不维护自己的副本。
+// 需要筛选或删除作品时，直接改动 store 的结果列表，再用 reAddResult() 重建 store.result。
 // 现在渲染预览卡片时是分页的。
 // 我试过不用分页的方案：为卡片设置 content-visibility: auto; 使浏览器不渲染离屏内容，也不会立刻加载离屏的图片。首屏先渲染前 N 张、其余用 requestIdleCallback 分批补充渲染。但是当卡片数量很多时，几乎所有操作都会有明显的卡顿，因此改回了分页方案。
 class SearchResultPreview {
@@ -19088,8 +19095,6 @@ class SearchResultPreview {
     bookmarkedClass = 'bookmarked';
     /** 显示作品数量的元素 */
     countEl;
-    /** 每次抓取完成后，储存当时所有结果，以备“在结果中筛选”使用 */
-    resultMeta = [];
     /** 搜索结果列表容器 */
     worksWrap = null;
     /** 当前容器是否已由预览模块接管 */
@@ -19125,21 +19130,32 @@ class SearchResultPreview {
     showPreviewLimitTip = false;
     /** 缓存待插入页面的预览作品 */
     workPreviewBuffer = document.createDocumentFragment();
+    /** 本实例是否已经被销毁。销毁后不再执行恢复预览等延迟任务 */
+    destroyed = false;
+    /** 恢复预览时的已重试次数 */
+    restoredPreviewRetry = 0;
+    /** 恢复预览的重试定时器 id */
+    restoredPreviewTimer = 0;
+    /** 恢复预览的最大重试次数。pixiv 的作品列表可能比恢复流程更晚渲染出来 */
+    restoredPreviewMaxRetry = 25;
     /** 初始化退出手动删除模式的回调 */
     constructor(exitManualDeleteMode = () => { }) {
         this.exitManualDeleteMode = exitManualDeleteMode;
     }
     /** 初始化预览、结果变更和收藏相关事件 */
     init() {
+        this.destroyed = false;
         this.createPaginationControls();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.showCount);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resultChange, this.showCountOnLog);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
-        // 下载结束后，把下载期间被排除的作品从预览列表里移除
+        // 下载结束后重绘预览列表，反映下载期间被排除的作品
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
-            window.addEventListener(ev, this.syncExcludedWorks);
+            window.addEventListener(ev, this.renderAfterDownload);
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updatePaginationLanguage);
+        // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.renderRestoredPreview);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearUgoira, this.clearUgoira);
@@ -19151,9 +19167,10 @@ class SearchResultPreview {
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resultChange, this.showCountOnLog);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.manuallyExcludeWork, this.onManuallyExcludeWork);
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
-            window.removeEventListener(ev, this.syncExcludedWorks);
+            window.removeEventListener(ev, this.renderAfterDownload);
         }
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updatePaginationLanguage);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.renderRestoredPreview);
         window.removeEventListener('addBMK', this.addBookmark);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearMultiple, this.clearMultiple);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.clearUgoira, this.clearUgoira);
@@ -19162,13 +19179,15 @@ class SearchResultPreview {
         this.worksWrap?.removeEventListener('click', this.onPreviewClick);
         this.paginationWrap?.remove();
         this.previewContainerPrepared = false;
+        this.destroyed = true;
+        window.clearTimeout(this.restoredPreviewTimer);
         this.resetPreviewBuffer();
     }
     /** 开始由搜索页按钮发起的抓取，初始化预览结果状态 */
     startCrawl() {
         this.exitManualDeleteMode();
         this.previewContainerPrepared = false;
-        this.resultMeta = [];
+        // 不需要清空抓取结果：它在 store 里，store 会在 crawlStart 时重置
         this.crawlStartBySelf = true;
         this.currentPage = 1;
         this.showPreviewLimitTip = false;
@@ -19235,8 +19254,8 @@ class SearchResultPreview {
     }
     /** 在抓取结果中应用当前筛选条件 */
     async filterResults() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             return;
         }
         const canFilter = await this.filterResult((data) => {
@@ -19256,26 +19275,26 @@ class SearchResultPreview {
                 userId: data.userId,
                 xRestrict: data.xRestrict,
             };
-            return _filter_Filter__WEBPACK_IMPORTED_MODULE_6__.filter.check(filterOpt);
+            return _filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.check(filterOpt);
         });
         if (canFilter) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
     }
     /** 抓取完成后保存结果快照并按排序后的结果重建预览 */
     finishCrawl = () => {
         // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.quickCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl) {
             return;
         }
         if (!this.crawlStartBySelf) {
             return;
         }
-        this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta];
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.onResultAdded);
-        // 搜索页面抓取完毕后会按收藏数量排序，因此清空旧预览并重新生成当前页。
+        // 搜索页面抓取完毕后会按收藏数量排序（排序在 crawlFinished 里完成），
+        // 所以清空旧预览并按新的顺序重新生成当前页。
+        // 这里不需要重建 store：本次抓取的结果已经在 store 里了
         this.clearPreview();
-        this.reAddResult();
         this.crawlStartBySelf = false;
         this.currentPage = 1;
         this.renderCurrentPage();
@@ -19285,7 +19304,7 @@ class SearchResultPreview {
     };
     /** 根据会影响结果的设置变更重新生成抓取结果 */
     refreshResults(event) {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlTagList) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlTagList) {
             return;
         }
         const data = event.detail.data;
@@ -19295,10 +19314,11 @@ class SearchResultPreview {
             return;
         }
         if (!this.causeResultChange.includes(data.name) ||
-            _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length === 0) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.result.length === 0) {
             return;
         }
-        this.reAddResult();
+        // 这些设置会影响每个作品要下载哪些文件，所以要按当前的作品列表重建抓取结果
+        this.reAddResult([..._store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta]);
         this.renderCurrentPage();
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
     }
@@ -19357,13 +19377,13 @@ class SearchResultPreview {
         if (exitDeleteMode) {
             this.exitManualDeleteMode();
         }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult ||
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult ||
             !this.worksWrap ||
             !this.previewContainerPrepared) {
             return;
         }
         this.resetPreviewBuffer();
-        const results = this.getResultMeta();
+        const results = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta;
         const resultCount = this.getPreviewResultCount(results.length);
         const pageSize = this.getPageSize();
         const pageCount = Math.ceil(resultCount / pageSize);
@@ -19448,17 +19468,13 @@ class SearchResultPreview {
             this.activePageBtn = activePageBtn;
         }
     }
-    /** 读取当前预览数据源 */
-    getResultMeta() {
-        return this.crawlStartBySelf ? _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta : this.resultMeta;
-    }
-    /** 获取受总预览上限约束的作品数量 */
-    getPreviewResultCount(resultCount = this.getResultMeta().length) {
-        return Math.min(resultCount, Math.max(0, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResultLimit));
+    /** 获取受总预览上限约束的作品数量。传入作品总数可以少读一次 store.resultMeta */
+    getPreviewResultCount(resultCount = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length) {
+        return Math.min(resultCount, Math.max(0, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResultLimit));
     }
     /** 获取有效的每页显示数量 */
     getPageSize() {
-        return Math.max(1, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResultPageSize);
+        return Math.max(1, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResultPageSize);
     }
     /** 将当前页新增的预览卡片合并插入页面 */
     queuePreview(preview) {
@@ -19487,34 +19503,33 @@ class SearchResultPreview {
     }
     /** 更新搜索页面上显示的作品数量 */
     showCount = () => {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlTagList || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlTagList || !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
             return;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult && this.countEl) {
-            const count = this.resultMeta.length || _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
-            this.countEl.textContent = count.toString();
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult && this.countEl) {
+            this.countEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length.toString();
         }
     };
     showCountOnLog = () => {
-        const count = this.resultMeta.length || _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
+        const count = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length;
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_调整完毕', count.toString()), 'showCountWhenResultChange');
     };
     /** 按新增结果更新当前预览页 */
     onResultAdded = (event) => {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlTagList) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlTagList) {
             return;
         }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult ||
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult ||
             !this.worksWrap ||
             !this.previewContainerPrepared) {
             return;
         }
         const data = event.detail.data;
-        const results = this.getResultMeta();
+        const results = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta;
         const resultIndex = results.length - 1;
         const resultCount = this.getPreviewResultCount(results.length);
         const pageSize = this.getPageSize();
-        const previewLimit = Math.max(0, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResultLimit);
+        const previewLimit = Math.max(0, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResultLimit);
         this.updatePagination(resultCount);
         const startIndex = (this.currentPage - 1) * pageSize;
         if (results.length > previewLimit && !this.showPreviewLimitTip) {
@@ -19598,8 +19613,8 @@ class SearchResultPreview {
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img loading="lazy" decoding="async" src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.replaceSquareThumb
-            ? _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.convertThumbURLTo540px(data.thumb)
+            <img loading="lazy" decoding="async" src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.replaceSquareThumb
+            ? _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.convertThumbURLTo540px(data.thumb)
             : data.thumb}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
@@ -19644,9 +19659,16 @@ class SearchResultPreview {
     }
     /** 清空本次抓取生成的预览作品列表 */
     clearPreview() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult || !this.crawlStartBySelf) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult || !this.crawlStartBySelf) {
             return;
         }
+        this.preparePreviewContainer();
+    }
+    /** 清空搜索结果容器，并把它交给预览模块接管。
+     *
+     * 与 clearPreview 的区别：它不检查这次抓取是否由搜索页的按钮发起。
+     * 因为恢复未完成的抓取结果时不会经过搜索页的抓取流程（见 renderRestoredPreview）。 */
+    preparePreviewContainer() {
         this.findWorksWrap();
         if (this.worksWrap) {
             this.worksWrap.replaceChildren();
@@ -19666,26 +19688,22 @@ class SearchResultPreview {
      */
     async filterResult(callback) {
         if (this.isFiltering) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             return false;
         }
-        if (this.resultMeta.length === 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length === 0) {
             // 可能的情况：
             // - 用户尚未开始抓取
             // - 用户已经开始抓取，但现在还没有任何抓取结果
-            // - 用户刷新了页面之后，下载器会恢复保存的抓取结果，但不会恢复 resultMeta 数据，导致 this.resultMeta 为空
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
-            return false;
-        }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length === 0 && _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有可用的抓取结果'));
+            // - 用户刷新了页面之后，下载器会恢复保存的抓取结果，但不会恢复 resultMeta 数据，导致这里为空
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
             return false;
         }
         this.isFiltering = true;
         try {
-            const beforeLength = this.resultMeta.length; // 储存过滤前的结果数量
+            const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length; // 储存过滤前的结果数量
             const resultMetaTemp = [];
-            for (const meta of this.resultMeta) {
+            for (const meta of _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta) {
                 try {
                     if (await callback(meta)) {
                         resultMetaTemp.push(meta);
@@ -19696,16 +19714,14 @@ class SearchResultPreview {
                     resultMetaTemp.push(meta); // 出错时保留该条目，避免误删
                 }
             }
+            let newResultMeta = resultMetaTemp;
             if (this.pendingDeleteIds.size > 0) {
-                this.resultMeta = resultMetaTemp.filter((meta) => !this.pendingDeleteIds.has(meta.idNum));
+                newResultMeta = resultMetaTemp.filter((meta) => !this.pendingDeleteIds.has(meta.idNum));
                 this.pendingDeleteIds.clear();
             }
-            else {
-                this.resultMeta = resultMetaTemp;
-            }
-            // 如果过滤后，作品元数据发生了改变则重排作品并刷新当前页
-            if (this.resultMeta.length !== beforeLength) {
-                this.reAddResult();
+            // 如果过滤后，作品元数据发生了改变则重建抓取结果并刷新当前页
+            if (newResultMeta.length !== beforeLength) {
+                this.reAddResult(newResultMeta);
                 this.renderCurrentPage();
             }
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
@@ -19715,15 +19731,23 @@ class SearchResultPreview {
             this.isFiltering = false;
         }
     }
-    /** 按照当前元数据重新构建抓取结果 */
-    reAddResult() {
-        _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.reset();
+    /** 按照传入的作品列表重新构建抓取结果。
+     *
+     * store.reset() 会清空 store 里的结果，所以传入的列表必须是一份独立的数组（不能直接传 store.resultMeta）。
+     * @param resultMeta 要保留的作品列表 */
+    reAddResult(resultMeta) {
+        // 抓取结果会被整体重建，下载状态列表的下标随之失效（下载任务是按 store.result 的下标派发的）。
+        // 所以先保存「文件 id → 下载状态」的映射，重建后按 id 还原：
+        // 已经下载完成的文件不用重新下载，状态列表的长度也始终与 store.result 保持一致。
+        const stateMap = _download_DownloadStates__WEBPACK_IMPORTED_MODULE_6__.downloadStates.createStateMap(_store_Store__WEBPACK_IMPORTED_MODULE_10__.store.result);
+        _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.reset();
         // 重新生成抓取结果并更新作品数量，预览卡片由 renderCurrentPage 单独创建。
-        for (let data of this.resultMeta) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.addResult(data);
+        for (const data of resultMeta) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.addResult(data);
         }
+        _download_DownloadStates__WEBPACK_IMPORTED_MODULE_6__.downloadStates.remapTo(_store_Store__WEBPACK_IMPORTED_MODULE_10__.store.result, stateMap);
         // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
-        if (this.resultMeta.length === 0) {
+        if (resultMeta.length === 0) {
             this.showCount();
         }
     }
@@ -19733,7 +19757,7 @@ class SearchResultPreview {
             return data.pageCount <= 1;
         });
         if (canFilter) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
     };
     /** 从当前结果中移除动图作品 */
@@ -19742,7 +19766,7 @@ class SearchResultPreview {
             return !data.ugoiraInfo;
         });
         if (canFilter) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
     };
     /** 从当前结果中移除手动删除的作品 */
@@ -19755,38 +19779,42 @@ class SearchResultPreview {
         if (this.isFiltering) {
             if (!this.pendingDeleteIds.has(deleteId)) {
                 this.pendingDeleteIds.add(deleteId);
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
             }
             return;
         }
-        if (this.resultMeta.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
             return;
         }
-        const beforeLength = this.resultMeta.length;
-        this.resultMeta = this.resultMeta.filter((result) => result.idNum !== deleteId);
-        if (this.resultMeta.length === beforeLength) {
+        const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length;
+        const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.filter((result) => result.idNum !== deleteId);
+        if (newResultMeta.length === beforeLength) {
             return;
         }
-        this.reAddResult();
+        this.reAddResult(newResultMeta);
         this.renderCurrentPage(false);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
-        _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
     };
     /** 处理“手动排除作品”功能排除的作品。
      *
      * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
      * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
      *
-     * 抓取进行中时不在这里处理：那时数据源是 store.resultMeta（this.resultMeta 还是空的），
-     * 而 ExcludeWork 已经在抓取期间直接把它从抓取结果里移除了。
+     * 抓取进行中时，ExcludeWork 已经把它从抓取结果里移除了，所以下面的过滤不会改变数量、会直接返回。
      *
-     * 下载任务进行中（正在下载或已暂停）也不在这里处理，见方法内的判断。 */
+     * 只有「正在传输」时不在这里处理，见方法内的判断。
+     * 已暂停（包括恢复了未完成的抓取结果之后）时也会真正删除，与「手动删除作品」按钮的行为一致。 */
     onManuallyExcludeWork = (event) => {
-        // 有下载任务时不在这里处理。这里要重绘预览并重建抓取结果，而下载任务是按 store.result
-        // 的下标派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
-        // 开始下载的文件标记为跳过），预览列表则在下载结束后由 syncExcludedWorks 收尾。
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.hasDownloadTask) {
+        // 正在传输时不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标派发的，
+        // 重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未开始下载的文件
+        // 标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
+        //
+        // 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉，
+        // 效果和「手动删除作品」按钮一样。已暂停时是安全的：reAddResult 会按文件 id 迁移下载状态，
+        // 保持 store.result 与 downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloading) {
             return;
         }
         const id = event.detail.data.id;
@@ -19799,50 +19827,81 @@ class SearchResultPreview {
         if (Number.isNaN(deleteId)) {
             return;
         }
-        // this.resultMeta 还是空的，说明抓取尚未结束。这种情况由 ExcludeWork 负责移除，这里不处理
-        if (this.resultMeta.length === 0) {
+        const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length;
+        const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.filter((result) => result.idNum !== deleteId);
+        if (newResultMeta.length === beforeLength) {
             return;
         }
-        const beforeLength = this.resultMeta.length;
-        this.resultMeta = this.resultMeta.filter((result) => result.idNum !== deleteId);
-        if (this.resultMeta.length === beforeLength) {
-            return;
-        }
-        this.reAddResult();
+        this.reAddResult(newResultMeta);
         this.renderCurrentPage(false);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
-        _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
     };
-    /** 下载结束后，把下载期间被排除的作品从预览列表里同步移除。
+    /** 下载结束后重绘预览列表，让它反映下载期间被排除的作品。
      *
-     * 下载期间不能做这件事：预览列表的更新会重建抓取结果，而下载任务是按 store.result 的
-     * 下标派发的，重建结果会打乱下标。下载结束后没有在飞的文件，处理是安全的。
+     * 下载期间用户可能排除了作品：DownloadControl 会把它们从 store 里移除，但刻意不发
+     * resultChange（那会清空下载状态、并可能让下载器重新开始下载）。所以这里主动重绘一次。
      *
-     * 这里以 store.resultMeta 为准来同步：下载期间被排除的作品已经被 DownloadControl 从
-     * store 里移除了，而 this.resultMeta 是预览模块自己的快照，需要跟着收窄。
+     * 只有 DOM 需要更新 —— 预览的数据源就是 store.resultMeta，数据本身已经是最新的了。
      *
      * 注意不要触发 resultChange：下载刚刚结束，它会让下载状态列表被清空（进度显示归零），
      * 也可能让下载器重新进入准备下载的流程。 */
-    syncExcludedWorks = () => {
-        if (this.resultMeta.length === 0) {
-            return;
-        }
-        // 延后到本轮事件处理完毕再同步。因为 DownloadControl 也监听这两个事件，
-        // 它需要先把被排除的作品从 store 里移除，这里才能以 store 为准做同步
+    renderAfterDownload = () => {
+        // 延后到本轮事件处理完毕再重绘：DownloadControl 也监听这两个事件，它需要先改完 store
         window.setTimeout(() => {
-            if (this.resultMeta.length === 0) {
-                return;
-            }
-            const storeIds = new Set(_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.map((meta) => meta.idNum));
-            const beforeLength = this.resultMeta.length;
-            this.resultMeta = this.resultMeta.filter((meta) => storeIds.has(meta.idNum));
-            if (this.resultMeta.length === beforeLength) {
-                return;
-            }
-            // 更新搜索页上显示的作品数量，并重绘预览列表
             this.showCount();
             this.renderCurrentPage(false);
         }, 0);
+    };
+    /** 下载器恢复了未完成的抓取结果（见 Resume 模块）之后，用恢复的数据绘制预览列表。
+     *
+     * 恢复流程不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，需要在这里自己准备容器。
+     * 而且恢复的时机可能早于 pixiv 渲染出作品列表，所以找不到容器时会延迟重试。 */
+    renderRestoredPreview = () => {
+        if (this.destroyed) {
+            return;
+        }
+        if (this.crawlStartBySelf ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult ||
+            _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length === 0) {
+            return;
+        }
+        if (!this.findWorksWrap()) {
+            // pixiv 还没有渲染出作品列表，稍后再试
+            if (this.restoredPreviewRetry < this.restoredPreviewMaxRetry) {
+                this.restoredPreviewRetry++;
+                window.clearTimeout(this.restoredPreviewTimer);
+                this.restoredPreviewTimer = window.setTimeout(this.renderRestoredPreview, 200);
+            }
+            return;
+        }
+        this.restoredPreviewRetry = 0;
+        // 作品列表出现之后再定位作品数量元素，它通常和作品列表一起渲染出来
+        this.prepareContainer();
+        this.preparePreviewContainer();
+        this.showCount();
+        this.renderCurrentPage();
+        // pixiv 有可能在我们接管容器之后才完成它自己的渲染，把作品追加进容器里。
+        // 所以稍后再确认重绘一次，确保页面上只留下预览卡片
+        window.clearTimeout(this.restoredPreviewTimer);
+        this.restoredPreviewTimer = window.setTimeout(this.confirmRestoredPreview, 600);
+    };
+    /** 恢复预览的确认重绘。见 renderRestoredPreview 里的说明 */
+    confirmRestoredPreview = () => {
+        if (this.destroyed ||
+            this.crawlStartBySelf ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult ||
+            _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.length === 0 ||
+            !this.previewContainerPrepared) {
+            return;
+        }
+        // pixiv 可能换掉了作品列表容器，这时需要重新接管它
+        const oldWrap = this.worksWrap;
+        if (this.findWorksWrap() && this.worksWrap !== oldWrap) {
+            this.preparePreviewContainer();
+        }
+        this.showCount();
+        this.renderCurrentPage(false);
     };
     /** 通过容器事件委托处理预览卡片的收藏按钮 */
     onPreviewClick = (event) => {
@@ -19858,7 +19917,7 @@ class SearchResultPreview {
         if (!card || Number.isNaN(id)) {
             return;
         }
-        const data = this.getResultMeta().find((result) => result.idNum === id);
+        const data = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.find((result) => result.idNum === id);
         if (!data) {
             return;
         }
@@ -19871,18 +19930,13 @@ class SearchResultPreview {
     /** 收藏搜索结果预览卡片中的作品 */
     addBookmark = async (event) => {
         const data = event.detail.data;
-        for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result) {
+        for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.result) {
             if (r.idNum === data.id) {
                 const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_0__.bookmark.add(data.id.toString(), 'illusts', data.tags);
                 if (status === 200) {
                     // 同步数据
                     r.bookmarked = true;
-                    this.resultMeta.forEach((result) => {
-                        if (result.idNum === data.id) {
-                            result.bookmarked = true;
-                        }
-                    });
-                    _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.forEach((result) => {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.resultMeta.forEach((result) => {
                         if (result.idNum === data.id) {
                             result.bookmarked = true;
                         }
@@ -24746,6 +24800,13 @@ class Download {
         this.download(arg);
     }
     async download(arg) {
+        // 暂停、停止之后不再继续这个文件：states.downloading 变成 false 会让 this.cancel 变成 true。
+        // 中止后它的状态保持「下载中」，下次开始下载时 downloadStates.resume() 会把它复位成
+        // 「未开始」，从而重新下载它。
+        // 这里也覆盖了重试：重试同样会再次调用 download()
+        if (this.cancel) {
+            return;
+        }
         const result = arg.result;
         // 获取文件名
         let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result);
@@ -25167,6 +25228,11 @@ class Download {
     // 如果用户启用了“文件下载顺序”，就需要等待上一个文件下载完成后（浏览器返回文件下载成功的消息），再开始下载这个文件
     async waitPreviousFileDownload() {
         while (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setFileDownloadOrder) {
+            // 暂停、停止之后不再等待：前一个文件可能已经被中止，它会保持「下载中」状态，
+            // 继续等下去会让这个实例永远卡在这个循环里
+            if (this.cancel) {
+                return;
+            }
             if (this.downloadStatesIndex === 0 ||
                 _DownloadStates__WEBPACK_IMPORTED_MODULE_16__.downloadStates.states[this.downloadStatesIndex - 1] === 1) {
                 return;
@@ -25382,7 +25448,6 @@ class DownloadControl {
         importJSON: document.createElement('button'),
     };
     thread = 5; // 同时下载的线程数的默认值
-    // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
     // 最大值由 Config.downloadThreadMax 定义
     taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
     taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
@@ -25422,10 +25487,29 @@ class DownloadControl {
                 // 如果在下载完成后或者暂停、停止之后修改了抓取结果（可能的原因是用户手动排除了作品），则不再触发开始下载流程
                 if (ev.type === 'resultChange' &&
                     (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadCompleteOrStop || this.pause)) {
+                    if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadCompleteOrStop) {
+                        // 下载已经完成或停止：此时下载状态列表会被重建成「全部未开始」，
+                        // 所以按新的结果数量把进度条整个重画一次。
+                        // 不重画的话，进度条会一直显示旧数字（如 100 / 90），看起来像下载已经完成
+                        this.downloaded = 0;
+                        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length;
+                        this.setDownloadThread();
+                    }
+                    else if (this.pause) {
+                        // 暂停时抓取结果可能被重建（如在结果中筛选、手动删除作品），已下载数量会随之变化。
+                        // 但状态列表里还保存着可以继续的进度，所以只同步数字，不重画进度条。
+                        // 只同步数字，不做「是否下载完毕」的判定，避免像 setDownloaded 那样把暂停状态清掉
+                        this.syncDownloadedCount();
+                    }
                     return;
                 }
-                // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
-                this.pause = ev.type === 'resume';
+                // 如果当前未暂停下载，则在恢复了未完成的抓取数据时设置为暂停下载状态
+                const pause = ev.type === 'resume';
+                if (this.pause !== pause) {
+                    this.pause = pause;
+                    if (pause)
+                        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadPause');
+                }
                 //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
                 const openPanel = ev.type !== 'resultChange';
                 // 让开始下载的方法进入事件队列，以便让其他模块里监听上述事件的代码先执行完毕
@@ -25769,6 +25853,17 @@ class DownloadControl {
             this.checkCompleteWithError();
         }
     }
+    /** 只同步「已下载数量」与进度显示，不做「是否下载完毕」的判定。
+     *
+     * 抓取结果被重建之后（如在结果中筛选）需要用它刷新进度条上的数字。
+     * 不能直接调用 setDownloaded()：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+     * 还可能经 checkCompleteWithError 触发一次自动重试。 */
+    syncDownloadedCount() {
+        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.downloadedCount();
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__.progressBar.setTotalProgress(this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__.progressBar.setTotalNumber();
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.remainingDownload = Math.max(0, _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length - this.downloaded);
+    }
     setDownloaded() {
         this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.downloadedCount();
         // 显示下载进度
@@ -25819,6 +25914,16 @@ class DownloadControl {
         if (Number.isNaN(idNum)) {
             return;
         }
+        // 这个作品的文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id，
+        // 形如 123_p0；动图和小说是 123）。
+        // 无论这次排除是由本方法处理、还是由搜索页的预览模块直接从抓取结果里删掉，
+        // 这些文件都不会再被下载，所以要一并移除，否则会让 checkCompleteWithError 的等式
+        // （downloaded + errorIdList.length === store.result.length）提前成立，
+        // 可能触发一次多余的「暂停 + 重试」流程。
+        // 这里按作品 id 匹配而不是按下标匹配：预览模块可能已经把它们从 store.result 里删掉了
+        if (this.errorIdList.length > 0) {
+            this.errorIdList = this.errorIdList.filter((fileId) => fileId !== id && !fileId.startsWith(id + '_'));
+        }
         // 找出这个作品在抓取结果里占用的文件下标
         const indexes = [];
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.forEach((result, index) => {
@@ -25827,7 +25932,8 @@ class DownloadControl {
             }
         });
         if (indexes.length === 0) {
-            // 它没有抓取结果，不需要处理
+            // 它没有抓取结果，不需要处理。
+            // 常见情况：搜索页的预览模块已经把它从抓取结果里删掉了（已暂停时排除作品）
             return;
         }
         // 把尚未开始下载的文件标记为已完成，使下载器跳过它们
@@ -25836,27 +25942,22 @@ class DownloadControl {
                 _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(index, 1);
             }
         }
-        // 这些文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id）。
-        // 现在它们已被跳过、不会再重试，所以要一并移除，否则会让 checkCompleteWithError 的等式
-        // （downloaded + errorIdList.length === store.result.length）提前成立，可能触发一次多余的
-        // 「暂停 + 重试」流程
-        if (this.errorIdList.length > 0) {
-            const errorIds = new Set(indexes.map((index) => _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result[index].id));
-            this.errorIdList = this.errorIdList.filter((id) => !errorIds.has(id));
-        }
         // 从作品列表里移除，让用户看到的抓取结果立即更新
         // 注意：这里不能触发 resultChange 事件。否则 DownloadStates 会重建状态列表、把下载进度清零，
         // 而且 DownloadControl 自己监听该事件后会重新进入准备下载的流程，可能把下过的文件再下一次
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.resultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.resultMeta.filter((result) => result.idNum !== idNum);
         this.excludedWorkIdList.push(idNum);
-        // 刷新下载进度与完成判定（被跳过的文件同样计入已完成数量）。
-        // 暂停时不刷新：setDownloaded 会在「全部完成」时调用 reset() 而清掉暂停状态，
-        // 还可能走出错重试的流程自动开始下载。恢复下载时这些数字会被重新计算。
-        if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadPaused) {
+        // 刷新下载进度（被跳过的文件同样计入已完成数量）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.downloadPaused) {
+            // 暂停时不能调用 setDownloaded：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+            // 还可能走出错重试的流程自动开始下载。所以只同步数字，不做「是否下载完毕」的判定
+            this.syncDownloadedCount();
+        }
+        else {
             this.setDownloaded();
         }
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning('⏭️' + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_用户排除了一个作品下载器会在之后跳过它'));
-        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已从抓取结果中移除'));
+        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载时会跳过这个文件'));
     };
     /** 下载结束后，把被排除的作品从抓取结果里真正移除。
      *
@@ -25920,13 +26021,25 @@ class DownloadControl {
     downloadOrSkipAFile(data) {
         const task = this.taskList[data.id];
         try {
+            // 抓取结果可能已经被重建（如在结果中筛选），此时 taskList 里保存的下标不再对应这个文件。
+            // 所以按文件 id 重新定位，避免把别的文件标记成已下载
+            const index = this.findResultIndex(data.id, task?.index);
+            if (index === -1) {
+                // 这个文件已经不在抓取结果里了，放弃它
+                delete this.taskList[data.id];
+                return;
+            }
             // 更改这个任务状态为“已完成”
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(task.index, 1);
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.setState(index, 1);
+            if (task) {
+                // 抓取结果被重建过，顺手把保存的下标修正过来
+                task.index = index;
+            }
             // 统计已下载数量
             this.setDownloaded();
             // 是否继续下载
-            const no = task.progressBarIndex;
-            if (this.checkContinueDownload()) {
+            const no = task?.progressBarIndex;
+            if (no !== undefined && this.checkContinueDownload()) {
                 this.createDownload(no);
             }
         }
@@ -25934,6 +26047,17 @@ class DownloadControl {
             // 捕获推进任务时的异常，避免任务卡住却没有提示
             console.error('downloadOrSkipAFile 执行出错', error);
         }
+    }
+    /** 按文件 id 查找它在抓取结果里的下标。
+     *
+     * 抓取结果被整体重建后（如在结果中筛选），taskList 里保存的下标会失效，
+     * 所以先用保存的下标快速确认，确认不了再按 id 重新查找。
+     * @returns 下标；找不到时返回 -1 */
+    findResultIndex(id, savedIndex) {
+        if (savedIndex !== undefined && _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result[savedIndex]?.id === id) {
+            return savedIndex;
+        }
+        return _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.findIndex((result) => result.id === id);
     }
     // 当一个文件下载成功或失败之后，检查是否还有后续下载任务
     checkContinueDownload() {
@@ -27264,6 +27388,28 @@ class DownloadStates {
         for (let i = indexes.length - 1; i >= 0; i--) {
             this.states.splice(indexes[i], 1);
         }
+    }
+    /** 把当前的状态列表转换成「文件 id → 下载状态」的映射。
+     *
+     * 抓取结果被整体重建时（如在结果中筛选、手动删除作品），状态列表的下标就不再对应原来的文件，
+     * 所以在重建前调用它保存映射，重建完成后再用 remapTo 写回。
+     * 这样已经下载完成的文件不会因为重建而需要重新下载，状态列表的长度也始终与 store.result 一致
+     * （长度不一致会让下载时读到 store.result 之外的下标）。
+     *
+     * @param storeResult 重建前的 store.result，用来把下标映射回文件 id */
+    createStateMap(storeResult) {
+        const map = new Map();
+        storeResult.forEach((result, index) => {
+            map.set(result.id, this.states[index] ?? -1);
+        });
+        return map;
+    }
+    /** 按照重建后的抓取结果重建状态列表，并从 map 里还原每个文件原本的状态。
+     *
+     * 只有「已下载完成（1）」会被保留：重建时不会有文件正在传输（0），
+     * 也不应该让尚未下载的文件变成已完成。map 里找不到的文件视为「未开始下载」。 */
+    remapTo(newResult, map) {
+        this.states = newResult.map((result) => (map.get(result.id) === 1 ? 1 : -1));
     }
     clear() {
         this.states = [];
@@ -29042,7 +29188,17 @@ class ProgressBar {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlStart, () => {
             this.hide();
         });
+        // 抓取结果被筛选、手动删除等操作改变后，立即更新总进度条上显示的作品总数
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.resultChange, this.setTotalNumber);
     }
+    /** 更新总进度条上显示的作品总数（文件总数）。
+     *
+     * 抓取结果减少时（如在结果中筛选、手动排除作品）需要立即反映最新的数量，
+     * 但 reset 只在下载流程里被调用，所以单独提供这个方法。
+     * 这里只改数字，不重建子进度条：下载尚未开始时子进度条的数量没有意义。 */
+    setTotalNumber = () => {
+        this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length.toString();
+    };
     // 重设所有进度
     reset(progressBarNum, downloaded = 0) {
         if (progressBarNum === 0) {
@@ -29051,7 +29207,7 @@ class ProgressBar {
         }
         // 重置总进度条
         this.setTotalProgress(downloaded);
-        this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length.toString();
+        this.setTotalNumber();
         // 重置子进度条
         this.listWrap.innerHTML = this.barHTML.repeat(progressBarNum);
         this.show();
@@ -29457,11 +29613,19 @@ class Resume {
                 }
             }
             _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.resetDownloadCount();
+            // 过去没有保存过 resultMeta，所以这里根据刚刚恢复的 result 反向生成它。
+            // 这样恢复之后“在结果中筛选”、预览列表等功能才能正常工作
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.restoreResultMetaFromResult();
         });
         // 3 恢复下载状态
         const data = (await this.IDB.get(this.statesName, this.taskId));
-        if (data) {
+        // 保存的下载状态必须和恢复的抓取结果数量一致，否则下载时会读到 store.result 之外的下标。
+        // 不一致时（例如保存 states 失败）就重建状态列表，保证两者一一对应
+        if (data?.states?.length === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.replace(data.states);
+        }
+        else {
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.init();
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime = meta.date;
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
@@ -29492,7 +29656,7 @@ class Resume {
         }
         // 保存本次任务的数据
         // 如果此时本次任务已经完成，就不进行保存了
-        if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.downloadCompleteOrStop) {
             return;
         }
         // log.warning(lang.transl('_正在保存抓取结果'))
@@ -29578,7 +29742,7 @@ class Resume {
                 };
                 this.needPutStates = false;
                 // 如果此时本次任务已经完成，就不进行保存了
-                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
+                if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.downloadCompleteOrStop) {
                     return;
                 }
                 this.IDB.put(this.statesName, statesData);
@@ -44823,6 +44987,14 @@ Now I have optimized it:<br>
         `크롤링 결과에서 제거됨`,
         `Удалено из результатов сбора`,
     ],
+    _下载时会跳过这个文件: [
+        `下载时会跳过这个文件`,
+        `下載時會跳過這個文件`,
+        `This file will be skipped during download`,
+        `ダウンロード時にこのファイルはスキップされます`,
+        `다운로드 시 이 파일은 건너뜁니다`,
+        `Этот файл будет пропущен при загрузке`,
+    ],
     _快捷键ALTE手动排除作品: [
         `你可以使用快捷键开始或暂停手动排除作品，默认是 <span class="blue">Alt</span> + <span class="blue">E</span>。`,
         `你可以使用快捷鍵開始或暫停手動排除作品，預設是 <span class="blue">Alt</span> + <span class="blue">E</span>。`,
@@ -58069,6 +58241,10 @@ class States {
             this.downloadCompleteOrStop = false;
             this.downloadPaused = false;
         });
+        // 抓取完成后，新的下载任务即将就绪，此时也重置 downloadCompleteOrStop 状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
+            this.downloadCompleteOrStop = false;
+        });
         // 当下载完成或被中止时，设置 downloadCompleteOrStop 为 true
         const downloadCompleteOrStopEvents = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
@@ -58363,6 +58539,60 @@ class Store {
         // resultMeta 里每个作品只有一条数据，单独移除
         this.resultMeta = this.resultMeta.filter((result) => result.idNum !== idNum);
         return removedIndexes;
+    }
+    /** 根据 result 反向生成 resultMeta，并按 result 重建去重表。
+     *
+     * 用途：恢复未完成的下载时（见 Resume），过去只保存和恢复了 result，没有保存 resultMeta。
+     * 而 result 是由 resultMeta 派生的，所以可以在这里反向还原它，
+     * 让恢复之后“在结果中筛选”、预览列表等功能也能正常工作。
+     *
+     * 为什么不用 addResult() 重新添加一遍：addResult 会按当前的“多图作品”设置重新决定要下载
+     * 哪些图片，导致恢复出来的结果和当初保存的不一致。所以这里只做纯数据还原。
+     *
+     * 这个方法可以重复调用（会先清空去重表）。
+     */
+    restoreResultMetaFromResult() {
+        const metaList = [];
+        const addedIdList = new Set();
+        // 去重表也按 result 重建，避免重复调用时累积
+        this.artworkIDList = [];
+        this.novelIDList = [];
+        for (const data of this.result) {
+            // result 里同一个作品的多条数据是连续的，只取第一条
+            if (addedIdList.has(data.idNum)) {
+                continue;
+            }
+            addedIdList.add(data.idNum);
+            if (data.type === 3) {
+                this.novelIDList.push(data.idNum);
+            }
+            else {
+                this.artworkIDList.push(data.idNum);
+            }
+            if (data.type === 0 || data.type === 1) {
+                // 插画、漫画：result 里的每条数据都是 resultMeta 的克隆，
+                // 只有下面这些文件级字段被改过，需要还原回去
+                const meta = { ...data, index: 0 };
+                meta.id = `${data.idNum}_p0`;
+                meta.original = this.restoreP0InURL(data.original, data.idNum);
+                meta.regular = this.restoreP0InURL(data.regular, data.idNum);
+                meta.small = this.restoreP0InURL(data.small, data.idNum);
+                meta.thumb = this.restoreP0InURL(data.thumb, data.idNum);
+                metaList.push(meta);
+            }
+            else {
+                // 动图、小说只有一个文件，result 里的数据就是 resultMeta 本身
+                metaList.push(data);
+            }
+        }
+        this.resultMeta = metaList;
+    }
+    /** 把图片链接里的 pN 还原成 p0。以作品 id 作为锚点，避免改到 URL 里的其他部分 */
+    restoreP0InURL(url, idNum) {
+        if (!url) {
+            return url;
+        }
+        return url.replace(new RegExp(`${idNum}_p\\d+`), `${idNum}_p0`);
     }
     reset() {
         this.resultMeta = [];

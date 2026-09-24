@@ -75,7 +75,6 @@ class DownloadControl {
   }
 
   private thread = 5 // 同时下载的线程数的默认值
-  // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
   // 最大值由 Config.downloadThreadMax 定义
 
   private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
@@ -130,11 +129,29 @@ class DownloadControl {
           ev.type === 'resultChange' &&
           (states.downloadCompleteOrStop || this.pause)
         ) {
+          if (states.downloadCompleteOrStop) {
+            // 下载已经完成或停止：此时下载状态列表会被重建成「全部未开始」，
+            // 所以按新的结果数量把进度条整个重画一次。
+            // 不重画的话，进度条会一直显示旧数字（如 100 / 90），看起来像下载已经完成
+            this.downloaded = 0
+            store.remainingDownload = store.result.length
+            this.setDownloadThread()
+          } else if (this.pause) {
+            // 暂停时抓取结果可能被重建（如在结果中筛选、手动删除作品），已下载数量会随之变化。
+            // 但状态列表里还保存着可以继续的进度，所以只同步数字，不重画进度条。
+            // 只同步数字，不做「是否下载完毕」的判定，避免像 setDownloaded 那样把暂停状态清掉
+            this.syncDownloadedCount()
+          }
           return
         }
 
-        // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
-        this.pause = ev.type === 'resume'
+        // 如果当前未暂停下载，则在恢复了未完成的抓取数据时设置为暂停下载状态
+        const pause = ev.type === 'resume'
+        if (this.pause !== pause) {
+          this.pause = pause
+          if (pause) EVT.fire('downloadPause')
+        }
+
         //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
         const openPanel = ev.type !== 'resultChange'
 
@@ -629,6 +646,18 @@ class DownloadControl {
     }
   }
 
+  /** 只同步「已下载数量」与进度显示，不做「是否下载完毕」的判定。
+   *
+   * 抓取结果被重建之后（如在结果中筛选）需要用它刷新进度条上的数字。
+   * 不能直接调用 setDownloaded()：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+   * 还可能经 checkCompleteWithError 触发一次自动重试。 */
+  private syncDownloadedCount() {
+    this.downloaded = downloadStates.downloadedCount()
+    progressBar.setTotalProgress(this.downloaded)
+    progressBar.setTotalNumber()
+    store.remainingDownload = Math.max(0, store.result.length - this.downloaded)
+  }
+
   private setDownloaded() {
     this.downloaded = downloadStates.downloadedCount()
 
@@ -689,6 +718,19 @@ class DownloadControl {
       return
     }
 
+    // 这个作品的文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id，
+    // 形如 123_p0；动图和小说是 123）。
+    // 无论这次排除是由本方法处理、还是由搜索页的预览模块直接从抓取结果里删掉，
+    // 这些文件都不会再被下载，所以要一并移除，否则会让 checkCompleteWithError 的等式
+    // （downloaded + errorIdList.length === store.result.length）提前成立，
+    // 可能触发一次多余的「暂停 + 重试」流程。
+    // 这里按作品 id 匹配而不是按下标匹配：预览模块可能已经把它们从 store.result 里删掉了
+    if (this.errorIdList.length > 0) {
+      this.errorIdList = this.errorIdList.filter(
+        (fileId) => fileId !== id && !fileId.startsWith(id + '_')
+      )
+    }
+
     // 找出这个作品在抓取结果里占用的文件下标
     const indexes: number[] = []
     store.result.forEach((result, index) => {
@@ -698,7 +740,8 @@ class DownloadControl {
     })
 
     if (indexes.length === 0) {
-      // 它没有抓取结果，不需要处理
+      // 它没有抓取结果，不需要处理。
+      // 常见情况：搜索页的预览模块已经把它从抓取结果里删掉了（已暂停时排除作品）
       return
     }
 
@@ -707,15 +750,6 @@ class DownloadControl {
       if (downloadStates.states[index] === -1) {
         downloadStates.setState(index, 1)
       }
-    }
-
-    // 这些文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id）。
-    // 现在它们已被跳过、不会再重试，所以要一并移除，否则会让 checkCompleteWithError 的等式
-    // （downloaded + errorIdList.length === store.result.length）提前成立，可能触发一次多余的
-    // 「暂停 + 重试」流程
-    if (this.errorIdList.length > 0) {
-      const errorIds = new Set(indexes.map((index) => store.result[index].id))
-      this.errorIdList = this.errorIdList.filter((id) => !errorIds.has(id))
     }
 
     // 从作品列表里移除，让用户看到的抓取结果立即更新
@@ -727,15 +761,17 @@ class DownloadControl {
 
     this.excludedWorkIdList.push(idNum)
 
-    // 刷新下载进度与完成判定（被跳过的文件同样计入已完成数量）。
-    // 暂停时不刷新：setDownloaded 会在「全部完成」时调用 reset() 而清掉暂停状态，
-    // 还可能走出错重试的流程自动开始下载。恢复下载时这些数字会被重新计算。
-    if (!states.downloadPaused) {
+    // 刷新下载进度（被跳过的文件同样计入已完成数量）
+    if (states.downloadPaused) {
+      // 暂停时不能调用 setDownloaded：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+      // 还可能走出错重试的流程自动开始下载。所以只同步数字，不做「是否下载完毕」的判定
+      this.syncDownloadedCount()
+    } else {
       this.setDownloaded()
     }
 
     log.warning('⏭️' + lang.transl('_用户排除了一个作品下载器会在之后跳过它'))
-    toast.error(lang.transl('_已从抓取结果中移除'))
+    toast.success(lang.transl('_下载时会跳过这个文件'))
   }
 
   /** 下载结束后，把被排除的作品从抓取结果里真正移除。
@@ -814,21 +850,46 @@ class DownloadControl {
     const task = this.taskList[data.id]
 
     try {
+      // 抓取结果可能已经被重建（如在结果中筛选），此时 taskList 里保存的下标不再对应这个文件。
+      // 所以按文件 id 重新定位，避免把别的文件标记成已下载
+      const index = this.findResultIndex(data.id, task?.index)
+      if (index === -1) {
+        // 这个文件已经不在抓取结果里了，放弃它
+        delete this.taskList[data.id]
+        return
+      }
+
       // 更改这个任务状态为“已完成”
-      downloadStates.setState(task.index, 1)
+      downloadStates.setState(index, 1)
+      if (task) {
+        // 抓取结果被重建过，顺手把保存的下标修正过来
+        task.index = index
+      }
 
       // 统计已下载数量
       this.setDownloaded()
 
       // 是否继续下载
-      const no = task.progressBarIndex
-      if (this.checkContinueDownload()) {
+      const no = task?.progressBarIndex
+      if (no !== undefined && this.checkContinueDownload()) {
         this.createDownload(no)
       }
     } catch (error) {
       // 捕获推进任务时的异常，避免任务卡住却没有提示
       console.error('downloadOrSkipAFile 执行出错', error)
     }
+  }
+
+  /** 按文件 id 查找它在抓取结果里的下标。
+   *
+   * 抓取结果被整体重建后（如在结果中筛选），taskList 里保存的下标会失效，
+   * 所以先用保存的下标快速确认，确认不了再按 id 重新查找。
+   * @returns 下标；找不到时返回 -1 */
+  private findResultIndex(id: string, savedIndex?: number) {
+    if (savedIndex !== undefined && store.result[savedIndex]?.id === id) {
+      return savedIndex
+    }
+    return store.result.findIndex((result) => result.id === id)
   }
 
   // 当一个文件下载成功或失败之后，检查是否还有后续下载任务

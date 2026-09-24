@@ -11835,6 +11835,14 @@ Now I have optimized it:<br>
     `크롤링 결과에서 제거됨`,
     `Удалено из результатов сбора`,
   ],
+  _下载时会跳过这个文件: [
+    `下载时会跳过这个文件`,
+    `下載時會跳過這個文件`,
+    `This file will be skipped during download`,
+    `ダウンロード時にこのファイルはスキップされます`,
+    `다운로드 시 이 파일은 건너뜁니다`,
+    `Этот файл будет пропущен при загрузке`,
+  ],
   _快捷键ALTE手动排除作品: [
     `你可以使用快捷键开始或暂停手动排除作品，默认是 <span class="blue">Alt</span> + <span class="blue">E</span>。`,
     `你可以使用快捷鍵開始或暫停手動排除作品，預設是 <span class="blue">Alt</span> + <span class="blue">E</span>。`,

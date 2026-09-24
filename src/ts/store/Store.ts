@@ -266,6 +266,64 @@ class Store {
     return removedIndexes
   }
 
+  /** 根据 result 反向生成 resultMeta，并按 result 重建去重表。
+   *
+   * 用途：恢复未完成的下载时（见 Resume），过去只保存和恢复了 result，没有保存 resultMeta。
+   * 而 result 是由 resultMeta 派生的，所以可以在这里反向还原它，
+   * 让恢复之后“在结果中筛选”、预览列表等功能也能正常工作。
+   *
+   * 为什么不用 addResult() 重新添加一遍：addResult 会按当前的“多图作品”设置重新决定要下载
+   * 哪些图片，导致恢复出来的结果和当初保存的不一致。所以这里只做纯数据还原。
+   *
+   * 这个方法可以重复调用（会先清空去重表）。
+   */
+  public restoreResultMetaFromResult() {
+    const metaList: Result[] = []
+    const addedIdList = new Set<number>()
+    // 去重表也按 result 重建，避免重复调用时累积
+    this.artworkIDList = []
+    this.novelIDList = []
+
+    for (const data of this.result) {
+      // result 里同一个作品的多条数据是连续的，只取第一条
+      if (addedIdList.has(data.idNum)) {
+        continue
+      }
+      addedIdList.add(data.idNum)
+
+      if (data.type === 3) {
+        this.novelIDList.push(data.idNum)
+      } else {
+        this.artworkIDList.push(data.idNum)
+      }
+
+      if (data.type === 0 || data.type === 1) {
+        // 插画、漫画：result 里的每条数据都是 resultMeta 的克隆，
+        // 只有下面这些文件级字段被改过，需要还原回去
+        const meta = { ...data, index: 0 }
+        meta.id = `${data.idNum}_p0`
+        meta.original = this.restoreP0InURL(data.original, data.idNum)
+        meta.regular = this.restoreP0InURL(data.regular, data.idNum)
+        meta.small = this.restoreP0InURL(data.small, data.idNum)
+        meta.thumb = this.restoreP0InURL(data.thumb, data.idNum)
+        metaList.push(meta)
+      } else {
+        // 动图、小说只有一个文件，result 里的数据就是 resultMeta 本身
+        metaList.push(data)
+      }
+    }
+
+    this.resultMeta = metaList
+  }
+
+  /** 把图片链接里的 pN 还原成 p0。以作品 id 作为锚点，避免改到 URL 里的其他部分 */
+  private restoreP0InURL(url: string, idNum: number) {
+    if (!url) {
+      return url
+    }
+    return url.replace(new RegExp(`${idNum}_p\\d+`), `${idNum}_p0`)
+  }
+
   public reset() {
     this.resultMeta = []
     this.artworkIDList = []

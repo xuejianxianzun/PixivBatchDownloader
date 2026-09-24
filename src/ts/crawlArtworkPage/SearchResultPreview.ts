@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { log } from '../Log'
 import { msgBox } from '../MsgBox'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
+import { downloadStates } from '../download/DownloadStates'
 import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { states } from '../store/States'
@@ -23,6 +24,8 @@ type FilterCB = (value: Result) => unknown
 /** 在搜索页面中预览、筛选和维护抓取结果的模块 */
 // 预览搜索页面的筛选结果
 // 对应的设置：previewResult
+// 预览列表的数据源就是 store.resultMeta，本模块不维护自己的副本。
+// 需要筛选或删除作品时，直接改动 store 的结果列表，再用 reAddResult() 重建 store.result。
 // 现在渲染预览卡片时是分页的。
 // 我试过不用分页的方案：为卡片设置 content-visibility: auto; 使浏览器不渲染离屏内容，也不会立刻加载离屏的图片。首屏先渲染前 N 张、其余用 requestIdleCallback 分批补充渲染。但是当卡片数量很多时，几乎所有操作都会有明显的卡顿，因此改回了分页方案。
 class SearchResultPreview {
@@ -41,8 +44,6 @@ class SearchResultPreview {
   private readonly bookmarkedClass = 'bookmarked'
   /** 显示作品数量的元素 */
   private countEl?: HTMLElement
-  /** 每次抓取完成后，储存当时所有结果，以备“在结果中筛选”使用 */
-  private resultMeta: Result[] = []
   /** 搜索结果列表容器 */
   private worksWrap: HTMLElement | null = null
   /** 当前容器是否已由预览模块接管 */
@@ -78,12 +79,21 @@ class SearchResultPreview {
   private showPreviewLimitTip = false
   /** 缓存待插入页面的预览作品 */
   private workPreviewBuffer = document.createDocumentFragment()
+  /** 本实例是否已经被销毁。销毁后不再执行恢复预览等延迟任务 */
+  private destroyed = false
+  /** 恢复预览时的已重试次数 */
+  private restoredPreviewRetry = 0
+  /** 恢复预览的重试定时器 id */
+  private restoredPreviewTimer = 0
+  /** 恢复预览的最大重试次数。pixiv 的作品列表可能比恢复流程更晚渲染出来 */
+  private readonly restoredPreviewMaxRetry = 25
 
   /** 初始化退出手动删除模式的回调 */
   constructor(private readonly exitManualDeleteMode: () => void = () => {}) {}
 
   /** 初始化预览、结果变更和收藏相关事件 */
   public init() {
+    this.destroyed = false
     this.createPaginationControls()
     window.addEventListener(EVT.list.addResult, this.showCount)
     window.addEventListener(EVT.list.resultChange, this.showCountOnLog)
@@ -91,11 +101,13 @@ class SearchResultPreview {
       EVT.list.manuallyExcludeWork,
       this.onManuallyExcludeWork
     )
-    // 下载结束后，把下载期间被排除的作品从预览列表里移除
+    // 下载结束后重绘预览列表，反映下载期间被排除的作品
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
-      window.addEventListener(ev, this.syncExcludedWorks)
+      window.addEventListener(ev, this.renderAfterDownload)
     }
     window.addEventListener(EVT.list.langChange, this.updatePaginationLanguage)
+    // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
+    window.addEventListener(EVT.list.resume, this.renderRestoredPreview)
     window.addEventListener('addBMK', this.addBookmark)
     window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
     window.addEventListener(EVT.list.clearUgoira, this.clearUgoira)
@@ -111,12 +123,13 @@ class SearchResultPreview {
       this.onManuallyExcludeWork
     )
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
-      window.removeEventListener(ev, this.syncExcludedWorks)
+      window.removeEventListener(ev, this.renderAfterDownload)
     }
     window.removeEventListener(
       EVT.list.langChange,
       this.updatePaginationLanguage
     )
+    window.removeEventListener(EVT.list.resume, this.renderRestoredPreview)
     window.removeEventListener('addBMK', this.addBookmark)
     window.removeEventListener(EVT.list.clearMultiple, this.clearMultiple)
     window.removeEventListener(EVT.list.clearUgoira, this.clearUgoira)
@@ -125,6 +138,8 @@ class SearchResultPreview {
     this.worksWrap?.removeEventListener('click', this.onPreviewClick)
     this.paginationWrap?.remove()
     this.previewContainerPrepared = false
+    this.destroyed = true
+    window.clearTimeout(this.restoredPreviewTimer)
     this.resetPreviewBuffer()
   }
 
@@ -132,7 +147,7 @@ class SearchResultPreview {
   public startCrawl() {
     this.exitManualDeleteMode()
     this.previewContainerPrepared = false
-    this.resultMeta = []
+    // 不需要清空抓取结果：它在 store 里，store 会在 crawlStart 时重置
     this.crawlStartBySelf = true
     this.currentPage = 1
     this.showPreviewLimitTip = false
@@ -252,12 +267,12 @@ class SearchResultPreview {
       return
     }
 
-    this.resultMeta = [...store.resultMeta]
     window.removeEventListener(EVT.list.addResult, this.onResultAdded)
 
-    // 搜索页面抓取完毕后会按收藏数量排序，因此清空旧预览并重新生成当前页。
+    // 搜索页面抓取完毕后会按收藏数量排序（排序在 crawlFinished 里完成），
+    // 所以清空旧预览并按新的顺序重新生成当前页。
+    // 这里不需要重建 store：本次抓取的结果已经在 store 里了
     this.clearPreview()
-    this.reAddResult()
     this.crawlStartBySelf = false
     this.currentPage = 1
     this.renderCurrentPage()
@@ -288,7 +303,8 @@ class SearchResultPreview {
       return
     }
 
-    this.reAddResult()
+    // 这些设置会影响每个作品要下载哪些文件，所以要按当前的作品列表重建抓取结果
+    this.reAddResult([...store.resultMeta])
     this.renderCurrentPage()
     EVT.fire('resultChange')
   }
@@ -366,7 +382,7 @@ class SearchResultPreview {
 
     this.resetPreviewBuffer()
 
-    const results = this.getResultMeta()
+    const results = store.resultMeta
     const resultCount = this.getPreviewResultCount(results.length)
     const pageSize = this.getPageSize()
     const pageCount = Math.ceil(resultCount / pageSize)
@@ -475,13 +491,8 @@ class SearchResultPreview {
     }
   }
 
-  /** 读取当前预览数据源 */
-  private getResultMeta() {
-    return this.crawlStartBySelf ? store.resultMeta : this.resultMeta
-  }
-
-  /** 获取受总预览上限约束的作品数量 */
-  private getPreviewResultCount(resultCount = this.getResultMeta().length) {
+  /** 获取受总预览上限约束的作品数量。传入作品总数可以少读一次 store.resultMeta */
+  private getPreviewResultCount(resultCount = store.resultMeta.length) {
     return Math.min(resultCount, Math.max(0, settings.previewResultLimit))
   }
 
@@ -526,13 +537,12 @@ class SearchResultPreview {
     }
 
     if (settings.previewResult && this.countEl) {
-      const count = this.resultMeta.length || store.resultMeta.length
-      this.countEl.textContent = count.toString()
+      this.countEl.textContent = store.resultMeta.length.toString()
     }
   }
 
   private showCountOnLog = () => {
-    const count = this.resultMeta.length || store.resultMeta.length
+    const count = store.resultMeta.length
     log.success(
       lang.transl('_调整完毕', count.toString()),
       'showCountWhenResultChange'
@@ -553,7 +563,7 @@ class SearchResultPreview {
     }
 
     const data = event.detail.data as Result
-    const results = this.getResultMeta()
+    const results = store.resultMeta
     const resultIndex = results.length - 1
     const resultCount = this.getPreviewResultCount(results.length)
     const pageSize = this.getPageSize()
@@ -711,6 +721,14 @@ class SearchResultPreview {
     if (!settings.previewResult || !this.crawlStartBySelf) {
       return
     }
+    this.preparePreviewContainer()
+  }
+
+  /** 清空搜索结果容器，并把它交给预览模块接管。
+   *
+   * 与 clearPreview 的区别：它不检查这次抓取是否由搜索页的按钮发起。
+   * 因为恢复未完成的抓取结果时不会经过搜索页的抓取流程（见 renderRestoredPreview）。 */
+  private preparePreviewContainer() {
     this.findWorksWrap()
     if (this.worksWrap) {
       this.worksWrap.replaceChildren()
@@ -735,26 +753,21 @@ class SearchResultPreview {
       return false
     }
 
-    if (this.resultMeta.length === 0) {
+    if (store.resultMeta.length === 0) {
       // 可能的情况：
       // - 用户尚未开始抓取
       // - 用户已经开始抓取，但现在还没有任何抓取结果
-      // - 用户刷新了页面之后，下载器会恢复保存的抓取结果，但不会恢复 resultMeta 数据，导致 this.resultMeta 为空
+      // - 用户刷新了页面之后，下载器会恢复保存的抓取结果，但不会恢复 resultMeta 数据，导致这里为空
       toast.warning(lang.transl('_缺少必要的数据'))
-      return false
-    }
-
-    if (store.resultMeta.length === 0 && store.result.length === 0) {
-      toast.error(lang.transl('_没有可用的抓取结果'))
       return false
     }
 
     this.isFiltering = true
     try {
-      const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
+      const beforeLength = store.resultMeta.length // 储存过滤前的结果数量
       const resultMetaTemp: Result[] = []
 
-      for (const meta of this.resultMeta) {
+      for (const meta of store.resultMeta) {
         try {
           if (await callback(meta)) {
             resultMetaTemp.push(meta)
@@ -765,18 +778,17 @@ class SearchResultPreview {
         }
       }
 
+      let newResultMeta = resultMetaTemp
       if (this.pendingDeleteIds.size > 0) {
-        this.resultMeta = resultMetaTemp.filter(
+        newResultMeta = resultMetaTemp.filter(
           (meta) => !this.pendingDeleteIds.has(meta.idNum)
         )
         this.pendingDeleteIds.clear()
-      } else {
-        this.resultMeta = resultMetaTemp
       }
 
-      // 如果过滤后，作品元数据发生了改变则重排作品并刷新当前页
-      if (this.resultMeta.length !== beforeLength) {
-        this.reAddResult()
+      // 如果过滤后，作品元数据发生了改变则重建抓取结果并刷新当前页
+      if (newResultMeta.length !== beforeLength) {
+        this.reAddResult(newResultMeta)
         this.renderCurrentPage()
       }
 
@@ -787,17 +799,27 @@ class SearchResultPreview {
     }
   }
 
-  /** 按照当前元数据重新构建抓取结果 */
-  private reAddResult() {
+  /** 按照传入的作品列表重新构建抓取结果。
+   *
+   * store.reset() 会清空 store 里的结果，所以传入的列表必须是一份独立的数组（不能直接传 store.resultMeta）。
+   * @param resultMeta 要保留的作品列表 */
+  private reAddResult(resultMeta: Result[]) {
+    // 抓取结果会被整体重建，下载状态列表的下标随之失效（下载任务是按 store.result 的下标派发的）。
+    // 所以先保存「文件 id → 下载状态」的映射，重建后按 id 还原：
+    // 已经下载完成的文件不用重新下载，状态列表的长度也始终与 store.result 保持一致。
+    const stateMap = downloadStates.createStateMap(store.result)
+
     store.reset()
 
     // 重新生成抓取结果并更新作品数量，预览卡片由 renderCurrentPage 单独创建。
-    for (let data of this.resultMeta) {
+    for (const data of resultMeta) {
       store.addResult(data)
     }
 
+    downloadStates.remapTo(store.result, stateMap)
+
     // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
-    if (this.resultMeta.length === 0) {
+    if (resultMeta.length === 0) {
       this.showCount()
     }
   }
@@ -838,20 +860,20 @@ class SearchResultPreview {
       return
     }
 
-    if (this.resultMeta.length === 0) {
+    if (store.resultMeta.length === 0) {
       toast.warning(lang.transl('_缺少必要的数据'))
       return
     }
 
-    const beforeLength = this.resultMeta.length
-    this.resultMeta = this.resultMeta.filter(
+    const beforeLength = store.resultMeta.length
+    const newResultMeta = store.resultMeta.filter(
       (result) => result.idNum !== deleteId
     )
-    if (this.resultMeta.length === beforeLength) {
+    if (newResultMeta.length === beforeLength) {
       return
     }
 
-    this.reAddResult()
+    this.reAddResult(newResultMeta)
     this.renderCurrentPage(false)
     EVT.fire('resultChange')
     toast.success(lang.transl('_已调整抓取结果'))
@@ -862,15 +884,19 @@ class SearchResultPreview {
    * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
    * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
    *
-   * 抓取进行中时不在这里处理：那时数据源是 store.resultMeta（this.resultMeta 还是空的），
-   * 而 ExcludeWork 已经在抓取期间直接把它从抓取结果里移除了。
+   * 抓取进行中时，ExcludeWork 已经把它从抓取结果里移除了，所以下面的过滤不会改变数量、会直接返回。
    *
-   * 下载任务进行中（正在下载或已暂停）也不在这里处理，见方法内的判断。 */
+   * 只有「正在传输」时不在这里处理，见方法内的判断。
+   * 已暂停（包括恢复了未完成的抓取结果之后）时也会真正删除，与「手动删除作品」按钮的行为一致。 */
   private onManuallyExcludeWork = (event: CustomEventInit) => {
-    // 有下载任务时不在这里处理。这里要重绘预览并重建抓取结果，而下载任务是按 store.result
-    // 的下标派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
-    // 开始下载的文件标记为跳过），预览列表则在下载结束后由 syncExcludedWorks 收尾。
-    if (states.hasDownloadTask) {
+    // 正在传输时不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标派发的，
+    // 重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未开始下载的文件
+    // 标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
+    //
+    // 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉，
+    // 效果和「手动删除作品」按钮一样。已暂停时是安全的：reAddResult 会按文件 id 迁移下载状态，
+    // 保持 store.result 与 downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。
+    if (states.downloading) {
       return
     }
 
@@ -886,61 +912,104 @@ class SearchResultPreview {
       return
     }
 
-    // this.resultMeta 还是空的，说明抓取尚未结束。这种情况由 ExcludeWork 负责移除，这里不处理
-    if (this.resultMeta.length === 0) {
-      return
-    }
-
-    const beforeLength = this.resultMeta.length
-    this.resultMeta = this.resultMeta.filter(
+    const beforeLength = store.resultMeta.length
+    const newResultMeta = store.resultMeta.filter(
       (result) => result.idNum !== deleteId
     )
-    if (this.resultMeta.length === beforeLength) {
+    if (newResultMeta.length === beforeLength) {
       return
     }
 
-    this.reAddResult()
+    this.reAddResult(newResultMeta)
     this.renderCurrentPage(false)
     EVT.fire('resultChange')
     toast.success(lang.transl('_已调整抓取结果'))
   }
 
-  /** 下载结束后，把下载期间被排除的作品从预览列表里同步移除。
+  /** 下载结束后重绘预览列表，让它反映下载期间被排除的作品。
    *
-   * 下载期间不能做这件事：预览列表的更新会重建抓取结果，而下载任务是按 store.result 的
-   * 下标派发的，重建结果会打乱下标。下载结束后没有在飞的文件，处理是安全的。
+   * 下载期间用户可能排除了作品：DownloadControl 会把它们从 store 里移除，但刻意不发
+   * resultChange（那会清空下载状态、并可能让下载器重新开始下载）。所以这里主动重绘一次。
    *
-   * 这里以 store.resultMeta 为准来同步：下载期间被排除的作品已经被 DownloadControl 从
-   * store 里移除了，而 this.resultMeta 是预览模块自己的快照，需要跟着收窄。
+   * 只有 DOM 需要更新 —— 预览的数据源就是 store.resultMeta，数据本身已经是最新的了。
    *
    * 注意不要触发 resultChange：下载刚刚结束，它会让下载状态列表被清空（进度显示归零），
    * 也可能让下载器重新进入准备下载的流程。 */
-  private syncExcludedWorks = () => {
-    if (this.resultMeta.length === 0) {
-      return
-    }
-
-    // 延后到本轮事件处理完毕再同步。因为 DownloadControl 也监听这两个事件，
-    // 它需要先把被排除的作品从 store 里移除，这里才能以 store 为准做同步
+  private renderAfterDownload = () => {
+    // 延后到本轮事件处理完毕再重绘：DownloadControl 也监听这两个事件，它需要先改完 store
     window.setTimeout(() => {
-      if (this.resultMeta.length === 0) {
-        return
-      }
-
-      const storeIds = new Set(store.resultMeta.map((meta) => meta.idNum))
-      const beforeLength = this.resultMeta.length
-      this.resultMeta = this.resultMeta.filter((meta) =>
-        storeIds.has(meta.idNum)
-      )
-
-      if (this.resultMeta.length === beforeLength) {
-        return
-      }
-
-      // 更新搜索页上显示的作品数量，并重绘预览列表
       this.showCount()
       this.renderCurrentPage(false)
     }, 0)
+  }
+
+  /** 下载器恢复了未完成的抓取结果（见 Resume 模块）之后，用恢复的数据绘制预览列表。
+   *
+   * 恢复流程不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，需要在这里自己准备容器。
+   * 而且恢复的时机可能早于 pixiv 渲染出作品列表，所以找不到容器时会延迟重试。 */
+  private renderRestoredPreview = () => {
+    if (this.destroyed) {
+      return
+    }
+
+    if (
+      this.crawlStartBySelf ||
+      !settings.previewResult ||
+      store.resultMeta.length === 0
+    ) {
+      return
+    }
+
+    if (!this.findWorksWrap()) {
+      // pixiv 还没有渲染出作品列表，稍后再试
+      if (this.restoredPreviewRetry < this.restoredPreviewMaxRetry) {
+        this.restoredPreviewRetry++
+        window.clearTimeout(this.restoredPreviewTimer)
+        this.restoredPreviewTimer = window.setTimeout(
+          this.renderRestoredPreview,
+          200
+        )
+      }
+      return
+    }
+
+    this.restoredPreviewRetry = 0
+
+    // 作品列表出现之后再定位作品数量元素，它通常和作品列表一起渲染出来
+    this.prepareContainer()
+    this.preparePreviewContainer()
+    this.showCount()
+    this.renderCurrentPage()
+
+    // pixiv 有可能在我们接管容器之后才完成它自己的渲染，把作品追加进容器里。
+    // 所以稍后再确认重绘一次，确保页面上只留下预览卡片
+    window.clearTimeout(this.restoredPreviewTimer)
+    this.restoredPreviewTimer = window.setTimeout(
+      this.confirmRestoredPreview,
+      600
+    )
+  }
+
+  /** 恢复预览的确认重绘。见 renderRestoredPreview 里的说明 */
+  private confirmRestoredPreview = () => {
+    if (
+      this.destroyed ||
+      this.crawlStartBySelf ||
+      !settings.previewResult ||
+      store.resultMeta.length === 0 ||
+      !this.previewContainerPrepared
+    ) {
+      return
+    }
+
+    // pixiv 可能换掉了作品列表容器，这时需要重新接管它
+    const oldWrap = this.worksWrap
+    if (this.findWorksWrap() && this.worksWrap !== oldWrap) {
+      this.preparePreviewContainer()
+    }
+
+    this.showCount()
+    this.renderCurrentPage(false)
   }
 
   /** 通过容器事件委托处理预览卡片的收藏按钮 */
@@ -964,7 +1033,7 @@ class SearchResultPreview {
       return
     }
 
-    const data = this.getResultMeta().find((result) => result.idNum === id)
+    const data = store.resultMeta.find((result) => result.idNum === id)
     if (!data) {
       return
     }
@@ -991,11 +1060,6 @@ class SearchResultPreview {
         if (status === 200) {
           // 同步数据
           r.bookmarked = true
-          this.resultMeta.forEach((result) => {
-            if (result.idNum === data.id) {
-              result.bookmarked = true
-            }
-          })
           store.resultMeta.forEach((result) => {
             if (result.idNum === data.id) {
               result.bookmarked = true

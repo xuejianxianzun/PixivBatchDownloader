@@ -178,6 +178,10 @@ class States {
       this.downloadCompleteOrStop = false
       this.downloadPaused = false
     })
+    // 抓取完成后，新的下载任务即将就绪，此时也重置 downloadCompleteOrStop 状态
+    window.addEventListener(EVT.list.crawlComplete, () => {
+      this.downloadCompleteOrStop = false
+    })
 
     // 当下载完成或被中止时，设置 downloadCompleteOrStop 为 true
     const downloadCompleteOrStopEvents = [

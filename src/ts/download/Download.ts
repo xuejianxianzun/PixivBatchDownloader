@@ -101,6 +101,14 @@ class Download {
   }
 
   private async download(arg: downloadArgument): Promise<void> {
+    // 暂停、停止之后不再继续这个文件：states.downloading 变成 false 会让 this.cancel 变成 true。
+    // 中止后它的状态保持「下载中」，下次开始下载时 downloadStates.resume() 会把它复位成
+    // 「未开始」，从而重新下载它。
+    // 这里也覆盖了重试：重试同样会再次调用 download()
+    if (this.cancel) {
+      return
+    }
+
     const result = arg.result
     // 获取文件名
     let _fileName = fileName.createFileName(result)
@@ -606,6 +614,12 @@ class Download {
   // 如果用户启用了“文件下载顺序”，就需要等待上一个文件下载完成后（浏览器返回文件下载成功的消息），再开始下载这个文件
   private async waitPreviousFileDownload() {
     while (settings.setFileDownloadOrder) {
+      // 暂停、停止之后不再等待：前一个文件可能已经被中止，它会保持「下载中」状态，
+      // 继续等下去会让这个实例永远卡在这个循环里
+      if (this.cancel) {
+        return
+      }
+
       if (
         this.downloadStatesIndex === 0 ||
         downloadStates.states[this.downloadStatesIndex - 1] === 1
