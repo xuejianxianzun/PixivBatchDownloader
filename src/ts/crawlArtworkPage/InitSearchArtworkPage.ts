@@ -180,7 +180,9 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
     bookmarkAllBtn.addEventListener('click', () => {
-      const listWrap = this.searchResultPreview.findWorksWrap()
+      // 传 false：这里只是想找当前显示作品的容器（预览未启用时是 pixiv 原本的列表），
+      // 不要因为点击这个按钮就创建预览容器、隐藏 pixiv 的列表
+      const listWrap = this.searchResultPreview.findWorksWrap(false)
       if (listWrap) {
         let list = listWrap.querySelectorAll<HTMLElement>(
           `li.${SearchResultPreview.listClass}`
@@ -267,7 +269,7 @@ class InitSearchArtworkPage extends InitPageBase {
   protected async nextStep() {
     if (settings.previewResult && !states.timedCrawlMode) {
       log.warning(
-        lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载')
+        lang.transl('_提示启用预览搜索页面的抓取结果时不会自动开始下载')
       )
     }
 
@@ -326,7 +328,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.getIdList()
 
-    this.searchResultPreview.prepareContainer()
+    this.searchResultPreview.clearPreview()
   }
 
   // 初始化 API 里要使用的参数

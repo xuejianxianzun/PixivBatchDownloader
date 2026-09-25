@@ -20,8 +20,21 @@ type AddBMKData = {
 
 type FilterCB = (value: Result) => unknown
 
+/** 一份分页控件。作品列表的顶部和底部各有一份 */
+type PaginationControl = {
+  /** 列表项容器 */
+  wrap: HTMLLIElement
+  previousBtn: HTMLButtonElement
+  nextBtn: HTMLButtonElement
+  pagesWrap: HTMLSpanElement
+  /** 已经创建的页码按钮 */
+  pageButtons: HTMLButtonElement[]
+  /** 当前高亮的页码按钮 */
+  activePageBtn?: HTMLButtonElement
+}
+
 /** 在搜索页面中预览、筛选和维护抓取结果的模块 */
-// 预览搜索页面的筛选结果
+// 预览搜索页面的抓取结果
 // 对应的设置：previewResult
 // 预览列表的数据源就是 store.resultMeta，本模块不维护自己的副本。
 // 需要筛选或删除作品时，直接改动 store 的结果列表，再用 reAddResult() 重建 store.result。
@@ -41,10 +54,16 @@ class SearchResultPreview {
   private readonly addBMKBtnClass = 'bmkBtn'
   /** 已收藏作品的类名 */
   private readonly bookmarkedClass = 'bookmarked'
-  /** 显示作品数量的元素 */
+  /** 顶部区域里显示作品数量的元素（本模块自己创建） */
   private countEl?: HTMLElement
-  /** 搜索结果列表容器 */
+  /** 顶部区域里显示“抓取结果”的元素（本模块自己创建） */
+  private titleEl?: HTMLElement
+  /** 本模块自己创建的搜索结果容器，包含顶部区域和作品列表 */
+  private wrap: HTMLElement | null = null
+  /** 作品列表容器。它是 wrap 的内部元素，预览卡片和分页控件都放在它里面 */
   private worksWrap: HTMLElement | null = null
+  /** pixiv 原本的作品列表容器。只用来确定插入位置，之后会被隐藏 */
+  private originalWrap: HTMLElement | null = null
   /** 当前容器是否已由预览模块接管 */
   private previewContainerPrepared = false
   /** 当前显示的预览页 */
@@ -55,18 +74,8 @@ class SearchResultPreview {
   private isFiltering = false
   /** 异步筛选期间请求删除的作品 id */
   private pendingDeleteIds = new Set<number>()
-  /** 分页控件列表项 */
-  private paginationWrap?: HTMLLIElement
-  /** 分页控件中的上一页按钮 */
-  private previousPageBtn?: HTMLButtonElement
-  /** 分页控件中的下一页按钮 */
-  private nextPageBtn?: HTMLButtonElement
-  /** 分页控件中的页码按钮容器 */
-  private pageNumbersWrap?: HTMLSpanElement
-  /** 已创建的页码按钮 */
-  private pageButtons: HTMLButtonElement[] = []
-  /** 当前高亮的页码按钮 */
-  private activePageBtn?: HTMLButtonElement
+  /** 分页控件。作品列表的顶部和底部各一份，它们显示的内容始终相同 */
+  private paginations: PaginationControl[] = []
   /** 修改这些设置后需要重新生成抓取结果 */
   private causeResultChange = [
     'onlyCrawlFirstFewImagesSwitch',
@@ -102,9 +111,13 @@ class SearchResultPreview {
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
       window.addEventListener(ev, this.renderAfterDownload)
     }
-    window.addEventListener(EVT.list.langChange, this.updatePaginationLanguage)
+    window.addEventListener(EVT.list.langChange, this.updateLanguage)
     // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
-    window.addEventListener(EVT.list.resume, this.renderRestoredPreview)
+    window.addEventListener(EVT.list.resume, this.onResume)
+    // URL 变化时移除上一个页面里添加的预览卡片
+    window.addEventListener(EVT.list.pageSwitch, this.onPageSwitch)
+    // 用户开启或关闭“预览搜索页面的抓取结果”设置时
+    window.addEventListener(EVT.list.settingChange, this.onPreviewResultChange)
     window.addEventListener('addBMK', this.addBookmark)
   }
 
@@ -119,17 +132,79 @@ class SearchResultPreview {
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
       window.removeEventListener(ev, this.renderAfterDownload)
     }
+    window.removeEventListener(EVT.list.langChange, this.updateLanguage)
+    window.removeEventListener(EVT.list.resume, this.onResume)
+    window.removeEventListener(EVT.list.pageSwitch, this.onPageSwitch)
     window.removeEventListener(
-      EVT.list.langChange,
-      this.updatePaginationLanguage
+      EVT.list.settingChange,
+      this.onPreviewResultChange
     )
-    window.removeEventListener(EVT.list.resume, this.renderRestoredPreview)
     window.removeEventListener('addBMK', this.addBookmark)
     window.removeEventListener(EVT.list.addResult, this.onResultAdded)
-    this.worksWrap?.removeEventListener('click', this.onPreviewClick)
-    this.paginationWrap?.remove()
-    this.previewContainerPrepared = false
+    this.removeWrap()
+    this.paginations = []
     this.destroyed = true
+    window.clearTimeout(this.restoredPreviewTimer)
+    this.resetPreviewBuffer()
+  }
+
+  /** 用户开启或关闭“预览搜索页面的抓取结果”（`previewResult`）设置时。
+   *
+   * - 开启：用当前的抓取结果绘制预览列表（交给 renderPreview，它会自己判断是否有结果、
+   *   容器是否已存在，所以重复触发也不会出问题）
+   * - 关闭：移除预览列表，恢复 pixiv 原本的作品列表 */
+  private onPreviewResultChange = (event: CustomEventInit) => {
+    // 设置初始化期间每个设置项都会触发一次 settingChange，那时不需要处理
+    if (!states.settingInitialized) {
+      return
+    }
+
+    const data = event.detail.data as any
+    if (data.name !== 'previewResult') {
+      return
+    }
+
+    if (data.value) {
+      this.renderPreview()
+      return
+    }
+
+    this.removeWrap()
+  }
+
+  /** URL 变化时移除上一个页面里添加的预览卡片。
+   *
+   * 搜索页面里的多个分页之间是**无刷新切换**的：切换后 pixiv 会重新渲染作品列表，
+   * 但本模块创建的容器是插在它外面的（祖父元素前面），不会被 pixiv 带走。
+   * 如果不主动移除，上一个 URL 的预览卡片会一直留在页面上。
+   *
+   * 移除之后，如果这个 URL 里有保存的抓取结果，
+   * `renderPreview` 会重新创建容器并渲染；没有的话就保持 pixiv 原本的列表。 */
+  private onPageSwitch = () => {
+    this.removeWrap()
+  }
+
+  /** 移除本模块创建的容器，恢复 pixiv 原本的作品列表，并复位相关状态 */
+  private removeWrap() {
+    this.worksWrap?.removeEventListener('click', this.onPreviewClick)
+    this.wrap?.remove()
+    if (this.originalWrap) {
+      this.originalWrap.style.removeProperty('display')
+    }
+    // 分页控件不跟着容器一起销毁，重新创建容器时可以继续使用
+    for (const pagination of this.paginations) {
+      pagination.wrap.remove()
+    }
+
+    this.wrap = null
+    this.worksWrap = null
+    this.originalWrap = null
+    this.countEl = undefined
+    this.titleEl = undefined
+    this.previewContainerPrepared = false
+    this.currentPage = 1
+    this.restoredPreviewRetry = 0
+    // 必须清掉待执行的重试：否则它会在 200ms 后把刚刚移除的容器又创建出来
     window.clearTimeout(this.restoredPreviewTimer)
     this.resetPreviewBuffer()
   }
@@ -146,72 +221,126 @@ class SearchResultPreview {
     window.addEventListener(EVT.list.addResult, this.onResultAdded)
   }
 
-  /** 找到搜索结果容器、清空旧预览并定位作品数量元素 */
-  public prepareContainer() {
-    this.clearPreview()
+  /** 返回承载预览卡片的作品列表容器。
+   *
+   * 这个容器是**本模块自己创建的**：在 pixiv 原本的作品列表上方插入一个独立的 div，
+   * 里面是顶部区域（显示“抓取结果”和数量）和作品列表。
+   * 这样不再复用 pixiv 的元素，也就不会因为 pixiv 改版而受影响。
+   *
+   * @param create 容器还不存在时，是否创建并插入它
+   *   （创建时会隐藏 pixiv 原本的列表，所以只想“看看有没有”的地方要传 false） */
+  public findWorksWrap(create: boolean = true) {
+    // 已经创建过，并且它还在页面上
+    if (this.wrap && this.worksWrap && this.wrap.isConnected) {
+      return this.worksWrap
+    }
 
-    // 第一个选择器是旧版页面的，以后可能不需要使用了
-    // 第二个选择器是新版页面里的
-    this.countEl =
-      document.querySelector('section h3+div span') ||
-      (document.querySelector(
-        'div[data-ga4-label="works_content"]>div:first-child div:first-child span span'
-      ) as HTMLElement)
+    // 缓存的元素已经不在页面上了（pixiv 重新渲染了页面），重新来一次
+    this.wrap = null
+    this.worksWrap = null
+    this.originalWrap = null
+
+    // 查找 pixiv 原本的作品列表，用它来确定插入位置
+    const original = this.findOriginalWorksWrap()
+    if (!original) {
+      return null
+    }
+
+    if (!create) {
+      // 调用方只是想找作品列表（例如“收藏本页面的所有作品”），不要动页面
+      return original
+    }
+
+    this.originalWrap = original
+    const { wrap, list } = this.createWrap()
+
+    // 插入到「原本位置的祖父元素」的前面
+    const insertBefore = original.parentElement?.parentElement ?? original
+    insertBefore.insertAdjacentElement('beforebegin', wrap)
+
+    // 隐藏 pixiv 原本的列表，避免同时显示两份作品
+    original.style.display = 'none'
+
+    this.wrap = wrap
+    this.setWorksWrap(list)
+
+    return list
   }
 
-  /** 返回包含作品列表的容器元素 */
-  public findWorksWrap() {
+  /** 查找 pixiv 原本的作品列表容器。只用于定位，不修改它 */
+  private findOriginalWorksWrap() {
     let wrap: HTMLElement | null = null
 
-    // 对于已经查找过的情况，直接定位到该元素
-    const old = document.querySelector(`#${this.workListWrapID}`)
-    if (old) {
-      wrap = old as HTMLElement
-    } else {
-      // 重新查找
-      // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
-      // 为什么用最后一个作品，而不是第一个作品：
-      // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
-      // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
-      let works = document.querySelectorAll(
-        'li a[data-gtm-user-id][href^="/artworks"]'
-      )
+    // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
+    // 为什么用最后一个作品，而不是第一个作品：
+    // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
+    // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
+    let works = document.querySelectorAll(
+      'li a[data-gtm-user-id][href^="/artworks"]'
+    )
+    if (works.length > 0) {
+      const lastWork = Array.from(works).pop()!
+      wrap = lastWork.closest('ul')
+    }
+
+    // 2026-02-10 改版后
+    if (!wrap) {
+      // 查找作品元素
+      works = document.querySelectorAll('.col-span-2')
       if (works.length > 0) {
         const lastWork = Array.from(works).pop()!
-        wrap = lastWork.closest('ul')
-      }
-
-      // 2026-02-10 改版后
-      if (!wrap) {
-        // 查找作品元素
-        works = document.querySelectorAll('.col-span-2')
-        if (works.length > 0) {
-          const lastWork = Array.from(works).pop()!
-          if (lastWork.querySelector('a[href^="/artworks"]')) {
-            wrap = lastWork.parentElement!
-          }
-        }
-      }
-
-      if (!wrap) {
-        // 查找作品缩略图
-        works = document.querySelectorAll('div[width="184"]')
-        if (works.length > 0) {
-          const lastWork = Array.from(works).pop()!
-          wrap =
-            lastWork.closest('div.mx-auto') ||
-            lastWork.closest('div[data-ga4-label="works_content"]')
+        if (lastWork.querySelector('a[href^="/artworks"]')) {
+          wrap = lastWork.parentElement!
         }
       }
     }
 
-    // 查找到作品列表后，添加自定义的 ID，方便后续查找它
-    if (wrap) {
-      wrap.id = this.workListWrapID
-      this.setWorksWrap(wrap)
+    if (!wrap) {
+      // 查找作品缩略图
+      works = document.querySelectorAll('div[width="184"]')
+      if (works.length > 0) {
+        const lastWork = Array.from(works).pop()!
+        wrap =
+          lastWork.closest('div.mx-auto') ||
+          lastWork.closest('div[data-ga4-label="works_content"]')
+      }
     }
 
     return wrap
+  }
+
+  /** 创建搜索结果容器：顶部区域 + 作品列表 */
+  private createWrap() {
+    const wrap = document.createElement('div')
+    wrap.id = this.workListWrapID
+
+    // 顶部区域：显示“抓取结果”和作品数量
+    const header = document.createElement('div')
+    header.className = 'searchResultPreviewHeader'
+
+    const title = document.createElement('p')
+    title.className = 'searchResultPreviewTitle'
+    lang.updateText(title, '_抓取结果')
+
+    const count = document.createElement('span')
+    count.className = 'searchResultPreviewCount'
+    count.textContent = '0'
+
+    header.append(title, count)
+
+    // 作品列表。预览卡片和分页控件都放在它里面，
+    // 这样重绘列表时不会动到顶部区域
+    const list = document.createElement('ul')
+    list.className = 'searchResultPreviewList'
+
+    wrap.append(header, list)
+
+    // 这里不用 lang.register：容器会在页面切换时反复创建，
+    // 而 register 会把元素永久留在 Language 的列表里。改成在 langChange 时刷新文本
+    this.titleEl = title
+    this.countEl = count
+
+    return { wrap, list }
   }
 
   /** 是否存在可以操作的抓取结果 */
@@ -305,52 +434,64 @@ class SearchResultPreview {
     }
   }
 
-  /** 创建搜索结果分页控件 */
+  /** 创建两份分页控件：一份在作品列表顶部，一份在底部 */
   private createPaginationControls() {
+    this.paginations = [
+      this.createPaginationControl(),
+      this.createPaginationControl(),
+    ]
+    this.updateLanguage()
+  }
+
+  /** 创建一份分页控件 */
+  private createPaginationControl(): PaginationControl {
     const wrap = document.createElement('li')
     wrap.className = 'searchResultPreviewPagination'
 
-    const previousPageBtn = document.createElement('button')
-    previousPageBtn.type = 'button'
-    previousPageBtn.innerHTML = `
+    const previousBtn = document.createElement('button')
+    previousBtn.type = 'button'
+    previousBtn.innerHTML = `
       <svg class="icon settingsPanel_sectionArrow" aria-hidden="true">
         <use xlink:href="#arrow-up"></use>
       </svg>
     `
-    previousPageBtn.addEventListener('click', () => {
+    previousBtn.addEventListener('click', () => {
       this.changePage(-1)
     })
 
-    const pageNumbersWrap = document.createElement('span')
-    pageNumbersWrap.className = 'searchResultPreviewPages'
+    const pagesWrap = document.createElement('span')
+    pagesWrap.className = 'searchResultPreviewPages'
 
-    const nextPageBtn = document.createElement('button')
-    nextPageBtn.type = 'button'
-    nextPageBtn.innerHTML = `
+    const nextBtn = document.createElement('button')
+    nextBtn.type = 'button'
+    nextBtn.innerHTML = `
       <svg class="icon settingsPanel_sectionArrow" aria-hidden="true">
         <use xlink:href="#arrow-down"></use>
       </svg>
     `
-    nextPageBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', () => {
       this.changePage(1)
     })
 
-    wrap.append(previousPageBtn, pageNumbersWrap, nextPageBtn)
-    this.paginationWrap = wrap
-    this.previousPageBtn = previousPageBtn
-    this.nextPageBtn = nextPageBtn
-    this.pageNumbersWrap = pageNumbersWrap
-    this.updatePaginationLanguage()
+    wrap.append(previousBtn, pagesWrap, nextBtn)
+
+    return { wrap, previousBtn, nextBtn, pagesWrap, pageButtons: [] }
   }
 
-  /** 更新分页控件的多语言文本 */
-  private updatePaginationLanguage = () => {
-    if (!this.previousPageBtn || !this.nextPageBtn) {
-      return
+  /** 更新本模块添加的多语言文本：顶部区域的“抓取结果”和分页控件的提示 */
+  private updateLanguage = () => {
+    if (this.titleEl) {
+      lang.updateText(this.titleEl, '_抓取结果')
     }
 
-    this.previousPageBtn.setAttribute('aria-label', lang.transl('_预览上一页'))
-    this.nextPageBtn.setAttribute('aria-label', lang.transl('_预览下一页'))
+    for (const pagination of this.paginations) {
+      pagination.previousBtn.setAttribute(
+        'aria-label',
+        lang.transl('_预览上一页')
+      )
+      pagination.nextBtn.setAttribute('aria-label', lang.transl('_预览下一页'))
+    }
+
     this.updatePagination()
   }
 
@@ -405,14 +546,11 @@ class SearchResultPreview {
     this.renderCurrentPage()
   }
 
-  /** 更新分页按钮状态和结果数量 */
+  /** 更新分页按钮状态和页码控件的位置
+   *
+   * 分页控件有两份（列表顶部和底部），它们显示的内容始终相同 */
   private updatePagination() {
-    if (
-      !this.paginationWrap ||
-      !this.previousPageBtn ||
-      !this.nextPageBtn ||
-      !this.pageNumbersWrap
-    ) {
+    if (this.paginations.length === 0) {
       return
     }
 
@@ -422,38 +560,43 @@ class SearchResultPreview {
       Math.max(pageCount, 1)
     )
 
-    this.previousPageBtn.disabled = this.currentPage <= 1
-    this.nextPageBtn.disabled = pageCount === 0 || this.currentPage >= pageCount
-    this.updatePageNumbers(pageCount > 1 ? pageCount : 0)
+    for (const pagination of this.paginations) {
+      pagination.previousBtn.disabled = this.currentPage <= 1
+      pagination.nextBtn.disabled =
+        pageCount === 0 || this.currentPage >= pageCount
+      this.updatePageNumbers(pagination, pageCount > 1 ? pageCount : 0)
+    }
 
-    if (pageCount > 1 && this.worksWrap) {
-      if (
-        this.paginationWrap.parentElement !== this.worksWrap ||
-        this.worksWrap.firstChild !== this.paginationWrap
-      ) {
-        this.worksWrap.prepend(this.paginationWrap)
+    if (pageCount <= 1 || !this.worksWrap) {
+      // 只有一页（或者没有结果）时不显示分页控件
+      for (const pagination of this.paginations) {
+        pagination.wrap.remove()
       }
-    } else {
-      this.paginationWrap.remove()
+      return
+    }
+
+    // 第一份放在列表顶部，第二份放在列表底部
+    const [top, bottom] = this.paginations
+    if (this.worksWrap.firstChild !== top.wrap) {
+      this.worksWrap.prepend(top.wrap)
+    }
+    if (this.worksWrap.lastChild !== bottom.wrap) {
+      this.worksWrap.append(bottom.wrap)
     }
   }
 
   /** 按页数增删页码按钮并更新当前页高亮 */
-  private updatePageNumbers(pageCount: number) {
-    if (!this.pageNumbersWrap) {
-      return
-    }
-
-    while (this.pageButtons.length > pageCount) {
-      const button = this.pageButtons.pop()!
-      if (this.activePageBtn === button) {
-        this.activePageBtn = undefined
+  private updatePageNumbers(pagination: PaginationControl, pageCount: number) {
+    while (pagination.pageButtons.length > pageCount) {
+      const button = pagination.pageButtons.pop()!
+      if (pagination.activePageBtn === button) {
+        pagination.activePageBtn = undefined
       }
       button.remove()
     }
 
-    while (this.pageButtons.length < pageCount) {
-      const page = this.pageButtons.length + 1
+    while (pagination.pageButtons.length < pageCount) {
+      const page = pagination.pageButtons.length + 1
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'searchResultPreviewPageNumber'
@@ -461,20 +604,20 @@ class SearchResultPreview {
       button.addEventListener('click', () => {
         this.changeToPage(page)
       })
-      this.pageButtons.push(button)
-      this.pageNumbersWrap.append(button)
+      pagination.pageButtons.push(button)
+      pagination.pagesWrap.append(button)
     }
 
-    const activePageBtn = this.pageButtons[this.currentPage - 1]
-    if (this.activePageBtn !== activePageBtn) {
-      this.activePageBtn?.classList.remove('currentPage')
-      this.activePageBtn?.removeAttribute('aria-current')
+    const activePageBtn = pagination.pageButtons[this.currentPage - 1]
+    if (pagination.activePageBtn !== activePageBtn) {
+      pagination.activePageBtn?.classList.remove('currentPage')
+      pagination.activePageBtn?.removeAttribute('aria-current')
 
       if (activePageBtn) {
         activePageBtn.classList.add('currentPage')
         activePageBtn.setAttribute('aria-current', 'page')
       }
-      this.activePageBtn = activePageBtn
+      pagination.activePageBtn = activePageBtn
     }
   }
 
@@ -498,7 +641,15 @@ class SearchResultPreview {
 
   /** 显示当前缓冲中的预览作品 */
   private showPreview() {
-    if (this.workPreviewBuffer.firstChild && this.worksWrap) {
+    if (!this.workPreviewBuffer.firstChild || !this.worksWrap) {
+      return
+    }
+
+    // 列表底部还有一份分页控件，新卡片要插到它前面，不能追加到最后
+    const bottom = this.paginations[1]?.wrap
+    if (bottom && bottom.parentElement === this.worksWrap) {
+      this.worksWrap.insertBefore(this.workPreviewBuffer, bottom)
+    } else {
       this.worksWrap.append(this.workPreviewBuffer)
     }
   }
@@ -518,7 +669,8 @@ class SearchResultPreview {
       return
     }
 
-    if (settings.previewResult && this.countEl) {
+    // 数量显示在容器顶部的区域里，这个元素是本模块自己创建的
+    if (this.countEl) {
       this.countEl.textContent = store.resultMeta.length.toString()
     }
   }
@@ -686,7 +838,7 @@ class SearchResultPreview {
   }
 
   /** 清空本次抓取生成的预览作品列表 */
-  private clearPreview() {
+  public clearPreview() {
     if (!settings.previewResult || !this.crawlStartBySelf) {
       return
     }
@@ -696,7 +848,7 @@ class SearchResultPreview {
   /** 清空搜索结果容器，并把它交给预览模块接管。
    *
    * 与 clearPreview 的区别：它不检查这次抓取是否由搜索页的按钮发起。
-   * 因为恢复未完成的抓取结果时不会经过搜索页的抓取流程（见 renderRestoredPreview）。 */
+   * 因为恢复未完成的抓取结果时不会经过搜索页的抓取流程（见 renderPreview）。 */
   private preparePreviewContainer() {
     this.findWorksWrap()
     if (this.worksWrap) {
@@ -919,20 +1071,38 @@ class SearchResultPreview {
     }, 0)
   }
 
-  /** 下载器恢复了未完成的抓取结果（见 Resume 模块）之后，用恢复的数据绘制预览列表。
+  /** 下载器恢复了未完成的抓取结果（见 Resume 模块）之后，绘制预览列表。
    *
-   * 恢复流程不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，需要在这里自己准备容器。
-   * 而且恢复的时机可能早于 pixiv 渲染出作品列表，所以找不到容器时会延迟重试。 */
-  private renderRestoredPreview = () => {
+   * 抓取进行中不处理：那时预览列表由抓取流程增量绘制（onResultAdded），
+   * 在这里整页重绘会和它冲突。
+   * 正常情况下 Resume.restoreData 会因为 states.busy 而早退、不会派发 resume，
+   * 这里再挡一层是为了不依赖别的模块的内部判断。 */
+  private onResume = () => {
+    if (this.crawlStartBySelf) {
+      return
+    }
+
+    this.renderPreview()
+  }
+
+  /** 用当前的抓取结果绘制预览列表。
+   *
+   * 调用处：恢复了未完成的抓取结果之后（onResume）；
+   * 以及用户开启了“预览搜索页面的抓取结果”设置（onPreviewResultChange）。
+   *
+   * 这两条调用路径都不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，
+   * 需要在这里自己准备容器。而且它们的时机可能早于 pixiv 渲染出作品列表，
+   * 所以找不到容器时会延迟重试。
+   *
+   * ⚠️ 这里**不能**用 crawlStartBySelf 早退：抓取进行中用户也可能开启“预览”设置，
+   * 那时需要立刻把已有的抓取结果显示出来（之后的增量渲染仍由 onResultAdded 负责）。
+   * 「抓取进行中不要重绘」这条规则只适用于恢复流程，见 onResume。 */
+  private renderPreview = () => {
     if (this.destroyed) {
       return
     }
 
-    if (
-      this.crawlStartBySelf ||
-      !settings.previewResult ||
-      store.resultMeta.length === 0
-    ) {
+    if (!settings.previewResult || store.resultMeta.length === 0) {
       return
     }
 
@@ -941,18 +1111,15 @@ class SearchResultPreview {
       if (this.restoredPreviewRetry < this.restoredPreviewMaxRetry) {
         this.restoredPreviewRetry++
         window.clearTimeout(this.restoredPreviewTimer)
-        this.restoredPreviewTimer = window.setTimeout(
-          this.renderRestoredPreview,
-          200
-        )
+        this.restoredPreviewTimer = window.setTimeout(this.renderPreview, 200)
       }
       return
     }
 
     this.restoredPreviewRetry = 0
 
-    // 作品列表出现之后再定位作品数量元素，它通常和作品列表一起渲染出来
-    this.prepareContainer()
+    // 清空容器并接管它。注意不能用 clearPreview：它内部要求
+    // crawlStartBySelf 为 true，而恢复/开启设置这两条路径都不满足
     this.preparePreviewContainer()
     this.showCount()
     this.renderCurrentPage()
@@ -960,14 +1127,11 @@ class SearchResultPreview {
     // pixiv 有可能在我们接管容器之后才完成它自己的渲染，把作品追加进容器里。
     // 所以稍后再确认重绘一次，确保页面上只留下预览卡片
     window.clearTimeout(this.restoredPreviewTimer)
-    this.restoredPreviewTimer = window.setTimeout(
-      this.confirmRestoredPreview,
-      600
-    )
+    this.restoredPreviewTimer = window.setTimeout(this.confirmPreview, 600)
   }
 
-  /** 恢复预览的确认重绘。见 renderRestoredPreview 里的说明 */
-  private confirmRestoredPreview = () => {
+  /** 恢复预览的确认重绘。见 renderPreview 里的说明 */
+  private confirmPreview = () => {
     if (
       this.destroyed ||
       this.crawlStartBySelf ||

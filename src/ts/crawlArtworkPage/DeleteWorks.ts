@@ -144,8 +144,9 @@ class DeleteWorks {
       return
     }
 
-    // 直接向预览模块要作品列表容器，不再从某个卡片元素反查它的父元素
-    const wrap = this.preview.findWorksWrap()
+    // 直接向预览模块要作品列表容器，不再从某个卡片元素反查它的父元素。
+    // 传 false：这里只想找已有的列表，不要为了进入删除模式而创建容器、隐藏 pixiv 的列表
+    const wrap = this.preview.findWorksWrap(false)
     if (!wrap || !wrap.querySelector(this.cardSelector)) {
       msgBox.warning(lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
         title: lang.transl('_手动删除作品'),

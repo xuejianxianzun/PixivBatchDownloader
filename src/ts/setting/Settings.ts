@@ -29,6 +29,7 @@
 // 每当用户打开或刷新一个标签页时，下载器会读取之前储存的设置，然后执行设置初始化。
 // 在此过程中每个设置项都会从默认值变成储存的值（如果没有储存的设置，则使用默认值），并触发一次 settingChange 事件
 // 当所有设置都初始化完毕后，触发一次 settingInitialized 事件
+// 其他模块如果需要判断初始化是否已经完成，除了监听 settingInitialized 事件，也可以使用 states.settingInitialized
 // 在内容脚本的生命周期里，这个事件只会触发一次。可以理解为在一个标签页里只会触发一次，除非用户刷新了该标签页才会再次触发
 // PS：重置设置不会触发这个事件
 // 用途：
@@ -807,7 +808,7 @@ class Settings {
     // 2100 年 1 月 1 日
     postDateEnd: 4102416000000,
     previewResult: true,
-    previewResultPageSize: 120,
+    previewResultPageSize: 200,
     BMKNumSwitch: false,
     BMKNumMin: 0,
     BMKNumMax: Config.BookmarkCountLimit,

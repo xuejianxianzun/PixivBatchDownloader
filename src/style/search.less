@@ -34,10 +34,71 @@
   }
 }
 
+// 下载器自己创建的搜索结果容器。它里面是顶部区域和作品列表
 #workListWrap {
+  display: block;
+  max-width: 92vw;
+  margin: 24px auto;
+}
+
+// 顶部区域：显示“抓取结果”和作品数量
+.searchResultPreviewHeader {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  justify-content: start;
+  margin-top: 0px;
+  margin-bottom: 12px;
+  gap: 8px;
+
+  .searchResultPreviewTitle {
+    font-size: 20px;
+    line-height: 28px;
+    color: rgb(71, 71, 71);
+    font-weight: bold;
+    margin: 0px;
+  }
+
+  .searchResultPreviewCount {
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    height: 20px;
+    min-width: 20px;
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+    padding: 0px 6px;
+    background: rgba(0, 0, 0, 0.32);
+    border-radius: 10px;
+    font-size: 10px;
+    line-height: 10px;
+  }
+}
+
+// 暗色模式：顶部区域里的文字改为浅色
+html[data-xzpagetheme='dark'] {
+  .searchResultPreviewHeader {
+    .searchResultPreviewTitle {
+      color: #f5f5f5;
+    }
+
+    .searchResultPreviewCount {
+      color: #f5f5f5;
+    }
+  }
+}
+
+// 作品列表（#workListWrap 的内部元素）
+.searchResultPreviewList {
   display: flex !important;
   flex-wrap: wrap;
   align-items: center;
+  gap: 24px;
+  padding: 0;
 }
 
 .searchResultPreviewPagination {
@@ -48,7 +109,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  margin: 8px 0;
+  margin: 8px 0 20px;
   padding: 8px;
   list-style: none;
 

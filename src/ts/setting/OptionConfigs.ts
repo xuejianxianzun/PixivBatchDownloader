@@ -1344,7 +1344,7 @@ class OptionConfigs {
     },
     {
       no: 93,
-      nameKey: '_预览搜索结果',
+      nameKey: '_预览搜索页面的抓取结果',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'searchPage',

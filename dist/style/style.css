@@ -216,9 +216,56 @@
   text-decoration: underline;
 }
 #workListWrap {
+  display: block;
+  max-width: 92vw;
+  margin: 24px auto;
+}
+.searchResultPreviewHeader {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  justify-content: start;
+  margin-top: 0px;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+.searchResultPreviewHeader .searchResultPreviewTitle {
+  font-size: 20px;
+  line-height: 28px;
+  color: #474747;
+  font-weight: bold;
+  margin: 0px;
+}
+.searchResultPreviewHeader .searchResultPreviewCount {
+  display: flex;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: 20px;
+  min-width: 20px;
+  color: #ffffff;
+  font-weight: bold;
+  padding: 0px 6px;
+  background: rgba(0, 0, 0, 0.32);
+  border-radius: 10px;
+  font-size: 10px;
+  line-height: 10px;
+}
+html[data-xzpagetheme='dark'] .searchResultPreviewHeader .searchResultPreviewTitle {
+  color: #f5f5f5;
+}
+html[data-xzpagetheme='dark'] .searchResultPreviewHeader .searchResultPreviewCount {
+  color: #f5f5f5;
+}
+.searchResultPreviewList {
   display: flex !important;
   flex-wrap: wrap;
   align-items: center;
+  gap: 24px;
+  padding: 0;
 }
 .searchResultPreviewPagination {
   box-sizing: border-box;
@@ -228,7 +275,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  margin: 8px 0;
+  margin: 8px 0 20px;
   padding: 8px;
   list-style: none;
 }

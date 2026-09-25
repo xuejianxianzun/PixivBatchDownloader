@@ -509,7 +509,7 @@ class DownloadControl {
 
     // 是否自动开始下载
 
-    // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
+    // 在插画漫画搜索页面里，如果启用了“预览搜索页面的抓取结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
       settings.previewResult
