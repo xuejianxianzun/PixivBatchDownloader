@@ -11,6 +11,7 @@ export interface FormType extends HTMLFormElement {
   multiImageWorkImageLimit: HTMLInputElement
   downColorImg: HTMLInputElement
   downBlackWhiteImg: HTMLInputElement
+  coloredRatio: HTMLInputElement
   ugoiraSaveAsWebM: HTMLInputElement
   ugoiraSaveAsWebP: HTMLInputElement
   ugoiraSaveAsGIF: HTMLInputElement

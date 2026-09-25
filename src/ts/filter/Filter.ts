@@ -31,7 +31,7 @@ export interface FilterOption {
   height?: number
   yes_rank?: number
   createDate?: string
-  mini?: string
+  imageUrl?: string
   size?: number
   userId?: string
   xRestrict?: 0 | 1 | 2
@@ -318,7 +318,7 @@ class Filter {
 
     // 检查黑白图片
     // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
-    if (!(await this.checkBlackWhite(option.mini))) {
+    if (!(await this.checkBlackWhite(option.imageUrl))) {
       return false
     }
 
@@ -446,7 +446,7 @@ class Filter {
   }
 
   /** 检查过滤黑白图像设置 */
-  private async checkBlackWhite(imgUrl: FilterOption['mini']) {
+  public async checkBlackWhite(imgUrl: FilterOption['imageUrl']) {
     // 如果没有图片网址，或者没有排除任何一个选项，则不检查
     if (!imgUrl || (settings.downColorImg && settings.downBlackWhiteImg)) {
       return true
@@ -462,7 +462,7 @@ class Filter {
         ? lang.transl('_黑白图片')
         : lang.transl('_彩色图片')
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') +
+        lang.transl('_下载器排除了一些作品或图片原因') +
           lang.transl('_图片色彩') +
           ': ' +
           colorText,

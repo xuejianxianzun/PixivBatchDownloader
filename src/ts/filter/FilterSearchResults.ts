@@ -96,7 +96,8 @@ class FilterSearchResults {
                 pageCount: work.pageCount,
                 userId: work.userId,
                 xRestrict: work.xRestrict,
-                mini: work.url,
+                // 此时的 url 是 250x250 的 thumb 尺寸缩略图
+                imageUrl: work.url,
               }
             } else {
               // 小说作品

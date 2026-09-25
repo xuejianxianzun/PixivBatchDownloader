@@ -54,13 +54,17 @@ export interface ArtworkData {
     sl: 0 | 2 | 4 | 6
     /**作品的第一张图片（或压缩包）的 URL*/
     urls: {
-      /**48px 的最小尺寸的小图 */
+      /**48px 的最小尺寸的小图。体积不到 5 KB。
+       * 对于多图作品，只有第一张图片有 mini 尺寸的缩略图，后续图片没有 mini 尺寸的缩略图 */
       mini: string
-      /**250px 的缩略图 */
+      /**250px 的缩略图。体积通常在 10 - 30 KB 之间。
+       * 对于多图作品，只有第一张图片有 thumb 尺寸的缩略图，后续图片没有 thumb 尺寸的缩略图  */
       thumb: string
-      /**540px 的缩略图 */
+      /**540px 的缩略图。体积通常在 20 - 60 KB 之间。
+       * 每张图片都有对应的 small 尺寸的缩略图 */
       small: string
-      /**1200px 的预览图 */
+      /**1200px 的缩略图。体积通常在 300 KB - 1.2 MB 之间。超过 1 MB 的大约有四分之一（粗略估算，不是准确数字）。
+       * 每张图片都有对应的 regular 尺寸的缩略图  */
       regular: string
       /**原图 */
       original: string

@@ -1,4 +1,5 @@
 import { API } from '../API'
+import { checkIndexForMultiImageWork } from '../filter/CheckIndexForMultiImageWork'
 import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { ArtworkData } from '../crawl/CrawlResult'
@@ -63,15 +64,77 @@ class SaveArtworkData {
       bookmarkData: body.bookmarkData,
       width: body.pageCount === 1 ? fullWidth : 0,
       height: body.pageCount === 1 ? fullHeight : 0,
-      mini: body.pageCount === 1 ? body.urls.mini : undefined,
+      // 这里只检查单图作品的缩略图的颜色；多图作品的缩略图将在后续单独检查
+      // 之前是使用 mini 网址检查的，但尺寸太小，最大 48px
+      // 现在改为使用 small 网址检查，尺寸最大 540px，体积 60 kB 左右
+      imageUrl: body.pageCount === 1 ? body.urls.small : undefined,
       userId: body.userId,
       xRestrict: body.xRestrict,
     }
-    // 对于多图作品，其宽高和颜色不在这里进行检查。也就是只会在下载时检查。
-    // 这是因为在多图作品里，第一张图片的宽高和颜色不能代表剩余的图片。
+
+    let checkResult = await filter.check(filterOpt)
+
+    // 在多图作品里，第一张图片的颜色不能代表剩余的图片，所以需要检查每张图片的颜色
+    // 注意两个色彩选项都启用时，过滤器不会进行色彩检查（任何图片都能通过），所以此时不需要检查
+    let needCheckColor = !(settings.downColorImg && settings.downBlackWhiteImg)
+    // 两个选项都未启用时，不检查，并且不保存这个作品
+    if (!settings.downColorImg && !settings.downBlackWhiteImg) {
+      needCheckColor = false
+      checkResult = false
+    }
+
+    if (checkResult && needCheckColor && body.pageCount > 1) {
+      // 首先确定要检查哪些图片
+      let checkList: number[] = []
+      if (downloadIndexes && downloadIndexes.length > 0) {
+        checkList = downloadIndexes
+      } else {
+        // 与 Store 里的行为保持一致：先应用多图作品的索引过滤器（例如只下载前几张图片），再检查颜色
+        // 因为下面会把 downloadIndexes 传给 Store，而 Store 只在没有收到 downloadIndexes 的时候才应用索引过滤器
+        // 这就导致 Store 可能不会应用索引过滤器，而是直接使用 downloadIndexes 里的值。
+        // 因此需要在这里先应用索引过滤器，之后就不需要 Store 再去应用了。
+        checkList = Array.from({ length: body.pageCount }, (_, i) => i).filter(
+          (index) =>
+            checkIndexForMultiImageWork.check(
+              index,
+              body.pageCount,
+              body.userId
+            )
+        )
+      }
+
+      // 多图作品的缩略图网址是把第一张图片的 _p0 替换成对应的序号
+      // small 是每一张图片都有的缩略图尺寸，mini 和 thumb 只有第一张图片有
+      const smallURL = body.urls.small
+      if (!smallURL || !smallURL.includes('_p0')) {
+        // 网址不符合预期时无法生成其他图片的网址，此时不进行检查
+        console.error(`Unexpected thumbnail url: ${body.id} ${smallURL}`)
+      } else if (checkList.length > 0) {
+        // 储存通过颜色检查的图片索引
+        const passList: number[] = []
+        // 串行检查
+        // 如果使用并行检查的话，会在短时间内加载大量缩略图，请求太密集，可能会导致账号被风控。
+        for (const index of checkList) {
+          const imageUrl = smallURL.replace('_p0', `_p${index}`)
+          const result = await filter.checkBlackWhite(imageUrl)
+          if (result) {
+            passList.push(index)
+          }
+          await Utils.sleep(100) // 等待 100 毫秒，避免请求过于密集
+        }
+
+        // 如果没有图片通过颜色检查，就不保存这个作品
+        if (passList.length === 0) {
+          checkResult = false
+        } else {
+          // 如果有图片通过颜色检查，就只保留通过检查的图片索引
+          downloadIndexes = passList
+        }
+      }
+    }
 
     // 检查通过
-    if (await filter.check(filterOpt)) {
+    if (checkResult) {
       const idNum = parseInt(body.id)
       const title = body.title // 作品标题
       const userId = body.userId // 用户id

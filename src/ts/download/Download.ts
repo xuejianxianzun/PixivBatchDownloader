@@ -566,7 +566,7 @@ class Download {
   /* 对插画、漫画进行颜色检查 */
   private async checkColor(result: Result, blobURL: string) {
     const checkResult = await filter.check({
-      mini: blobURL,
+      imageUrl: blobURL,
     })
     if (!checkResult) {
       return this.skipDownload(

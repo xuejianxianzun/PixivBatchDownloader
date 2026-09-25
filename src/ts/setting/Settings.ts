@@ -226,6 +226,8 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
+  /** 非白色像素里，有颜色的像素的占比超过这个值时，就认为它是彩色图片。取值范围 1 - 100 */
+  coloredRatio: number
   downNotBookmarked: boolean
   downBookmarked: boolean
   /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的动图转换格式 */
@@ -777,6 +779,7 @@ class Settings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
+    coloredRatio: 25,
     downNotBookmarked: true,
     downBookmarked: true,
     ugoiraSaveAs: 'webp',
@@ -1659,6 +1662,15 @@ class Settings {
       value =
         Number.isFinite(pageSize) && pageSize >= 1
           ? Math.floor(pageSize)
+          : this.defaultSettings[key]
+    }
+
+    if (key === 'coloredRatio') {
+      // 取值范围是 1 - 100，超过范围时使用默认值
+      const ratio = Math.floor(value as number)
+      value =
+        Number.isFinite(ratio) && ratio >= 1 && ratio <= 100
+          ? ratio
           : this.defaultSettings[key]
     }
 
