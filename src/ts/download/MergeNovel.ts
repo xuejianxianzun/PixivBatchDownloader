@@ -693,7 +693,11 @@ class MergeNovel {
       i18n: lang.type,
       // 对 EPUB 左侧的一些文字进行本地化
       i18n_config: {
-        code: lang.type,
+        code: settings.epubLangOverride
+          ? settings.epubLangSource === 'custom'
+            ? settings.epubCustomLang || lang.type
+            : this.seriesData?.body.language || lang.type
+          : lang.type,
         cover: 'Cover',
         toc: lang.transl('_目录'),
         info: lang.transl('_Information'),
@@ -704,6 +708,7 @@ class MergeNovel {
       publisher: link,
       tags: this.seriesTags,
       description,
+      writing_mode: settings.epubWritingMode,
     })
     jepub.uuid(link)
     jepub.date(date)

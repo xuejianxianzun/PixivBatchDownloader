@@ -101,6 +101,11 @@ function createPage (data) {
 		return content
 	}
 
+	// 纵排模式：writing-mode: vertical-rl（从右向左竖排，适合日语等 CJK 小说）
+	const writingModeStyle = data.writing_mode === 'vertical'
+		? 'writing-mode: vertical-rl;'
+		: ''
+
 	const temp = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${data.i18n.code}">
@@ -110,6 +115,7 @@ function createPage (data) {
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
 	<style>
 	img {max-width: 100vw;}
+	body {${writingModeStyle}}
 	</style>
 </head>
 
@@ -193,7 +199,7 @@ function createBookOpf (data) {
 		${imagesStr(data.images)}
 	</manifest>
 
-	<spine toc="ncx">
+	<spine toc="ncx"${data.writing_mode === 'vertical' ? ' page-progression-direction="rtl"' : ''}>
 	${data.cover ?
 			'<itemref idref="front-cover" linear="yes" />'
 			: ''
@@ -493,6 +499,7 @@ function createTOC_ncx (data) {
 							this._Pages = [];
 							this._Images = [];
 							this._Zip = {};
+							this._WritingMode = 'horizontal';
 						}
 
 						init (details) {
@@ -514,6 +521,9 @@ function createTOC_ncx (data) {
 							if(usedForPixiv && details.i18n_config){
 								_i18n.default[details.i18n] = details.i18n_config
 							}
+
+							// 保存文字方向模式，默认横排
+							this._WritingMode = details.writing_mode || 'horizontal'
 
 							this._Uuid = {
 								scheme: 'uuid',
@@ -673,7 +683,8 @@ function createTOC_ncx (data) {
 								this._Zip.file("OEBPS/page-".concat(index, ".html"), createPage({
 									i18n: this._I18n,
 									title: title,
-									content: content
+									content: content,
+									writing_mode: this._WritingMode
 								}));
 
 								this._Pages[index] = title;
@@ -700,7 +711,8 @@ function createTOC_ncx (data) {
 								cover: this._Cover,
 								pages: this._Pages,
 								notes: notes,
-								images: this._Images
+								images: this._Images,
+								writing_mode: this._WritingMode
 							}));
 
 							this._Zip.file('OEBPS/table-of-contents.html', createTOC({
