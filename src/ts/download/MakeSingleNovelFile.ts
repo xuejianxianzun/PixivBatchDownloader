@@ -95,14 +95,23 @@ class MakeSingleNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
-      content =
-        this.makeMeta(data) +
-        `----- ${lang.transl('_下面是正文')} -----\n\n` +
-        content
-    }
+      if (settings.epubWritingMode === 'vertical') {
+        // 纵排模式下，将元数据区域单独转换并包裹为横向，且不显示分隔符
+        const metaHtml = `<div style="writing-mode: horizontal-tb;">${Tools.replaceEPUBTextWithP(this.makeMeta(data))}</div>`
+        content = metaHtml + Tools.replaceEPUBTextWithP(content)
+      } else {
+        content =
+          this.makeMeta(data) +
+          `----- ${lang.transl('_下面是正文')} -----\n\n` +
+          content
+        // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
+        content = Tools.replaceEPUBTextWithP(content)
+      }
 
-    // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
-    content = Tools.replaceEPUBTextWithP(content)
+    } else {
+      // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
+      content = Tools.replaceEPUBTextWithP(content)
+    }
 
     const userName = Tools.replaceEPUBText(
       Utils.replaceUnsafeStr(data.userName)
@@ -133,6 +142,7 @@ class MakeSingleNovelFile {
       //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
       description:
         `<p>${date}</p>` + Tools.replaceEPUBTextWithP(data.description),
+      writing_mode: settings.epubWritingMode,
     })
 
     jepub.uuid(novelURL)

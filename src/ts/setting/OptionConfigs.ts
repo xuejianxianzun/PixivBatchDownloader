@@ -1111,6 +1111,18 @@ class OptionConfigs {
       addedAt: 1776693866003,
     },
     {
+      no: 108,
+      nameKey: '_EPUB文字方向',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'novel',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1790208000000,
+    },
+    {
       no: 73,
       nameKey: '_保存作品的元数据',
       name: '',

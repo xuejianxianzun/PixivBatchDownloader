@@ -287,6 +287,8 @@ interface XzSetting {
   sizeMax: number
   novelSaveAs: 'txt' | 'epub'
   saveNovelMeta: boolean
+  /** EPUB 文字方向。horizontal 横排（默认），vertical 纵排（适合日语等 CJK 小说） */
+  epubWritingMode: 'horizontal' | 'vertical'
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
@@ -838,6 +840,7 @@ class Settings {
     sizeMax: 100,
     novelSaveAs: 'epub',
     saveNovelMeta: true,
+    epubWritingMode: 'horizontal',
     deduplication: false,
     dupliStrategy: 'loose',
     tagsSeparator: ',',

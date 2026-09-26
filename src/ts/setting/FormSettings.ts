@@ -205,6 +205,7 @@ class FormSettings {
       'novelEmbeddedImageSize',
       'settingsAcrossDifferentTabs',
       'autoExportSettingsStrategy',
+      'epubWritingMode',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',

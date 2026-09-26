@@ -704,6 +704,7 @@ class MergeNovel {
       publisher: link,
       tags: this.seriesTags,
       description,
+      writing_mode: settings.epubWritingMode,
     })
     jepub.uuid(link)
     jepub.date(date)
