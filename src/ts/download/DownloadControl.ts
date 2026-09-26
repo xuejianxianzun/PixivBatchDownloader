@@ -399,7 +399,7 @@ class DownloadControl {
 
     Tools.addBtn(
       'downloadControlBtns',
-      '_停止下载',
+      '_放弃下载',
       '',
       'stopDownload',
       'primary',
@@ -618,13 +618,24 @@ class DownloadControl {
     }
   }
 
-  // 停止下载
+  // 放弃下载
   private stopDownload() {
     if (store.result.length === 0 || this.stop) {
       return
     }
 
+    // 本次抓取的结果还没有被下载完毕时，放弃下载会清除保存的抓取结果，所以需要让用户确认。
+    // 这里不再额外判断 states.hasDownloadTask：抓取完成但还没有开始下载时也不存在下载任务，
+    // 但那时抓取结果已经被保存了，放弃下载同样会把它清除，所以也需要确认
+    if (
+      states.hasUndownloadedCrawlResult &&
+      !window.confirm(lang.transl('_放弃下载的提示'))
+    ) {
+      return
+    }
+
     this.stop = true
+    toast.error(lang.transl('_已放弃下载'))
     log.error('🛑' + lang.transl('_下载已停止'))
     // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
     log.log('')

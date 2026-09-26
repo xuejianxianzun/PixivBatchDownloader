@@ -114,6 +114,12 @@ abstract class InitPageBase {
       states.crawlCompleteTime = Date.now()
     })
 
+    // 抓取结果为 0 时，把抓取完成的时间重置为 0，表示没有需要下载的文件。
+    // 这里依赖触发顺序：crawlEmpty 总是在 crawlComplete 之后触发，所以重置不会被 crawlComplete 覆盖
+    EVT.bindOnce('crawlCompleteButNoResult', EVT.list.crawlEmpty, () => {
+      states.crawlCompleteTime = 0
+    })
+
     EVT.bindOnce('downloadCompleteTime', EVT.list.downloadComplete, () => {
       states.downloadCompleteTime = Date.now()
     })
@@ -214,9 +220,7 @@ abstract class InitPageBase {
 
   protected confirmRecrawl() {
     if (store.result.length > 0) {
-      // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
-      // 如果没有被下载过，则显示提醒
-      if (states.crawlCompleteTime > states.downloadCompleteTime) {
+      if (states.hasUndownloadedCrawlResult) {
         const _confirm = window.confirm(lang.transl('_已有抓取结果时进行提醒'))
         return _confirm
       }

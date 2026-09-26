@@ -209,6 +209,17 @@ class Resume {
     store.crawlCompleteTime = meta.date
     store.URLWhenCrawlStart = meta.URLWhenCrawlStart || ''
 
+    // 恢复抓取完成的时间，这样恢复出来的结果才不会被判定为「已经下载完毕」。
+    // 注意类型不同：meta.date 是 Date，而 states.crawlCompleteTime 是时间戳。
+    // 如果 meta.date 缺失或无效（例如数据由旧版本保存），就当作刚刚抓取完成。
+    // 这样会判定为「未下载完毕」，是这个判定的安全方向：放弃下载时依然会向用户确认
+    const crawlCompleteTime = meta.date
+      ? new Date(meta.date).getTime()
+      : Number.NaN
+    states.crawlCompleteTime = Number.isFinite(crawlCompleteTime)
+      ? crawlCompleteTime
+      : Date.now()
+
     // 恢复模式就绪
     await states.waitSettingInitialized()
     log.success(lang.transl('_已恢复抓取结果'), 'restoreCrawlResult')

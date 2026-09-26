@@ -127,7 +127,7 @@ class SettingsPanelShell {
                 <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryPause" type="button" data-xztitle="_暂停下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#pause"></use></svg>
                 </button>
-                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_停止下载">
+                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_放弃下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#stop"></use></svg>
                 </button>
               </div>

@@ -71,8 +71,30 @@ class States {
 
   // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
   // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
-  public crawlCompleteTime = 1
+  /** 当抓取完成，且有抓取结果时，记录抓取完成的时间。
+   *
+   * 如果尚未开始抓取，值是默认的 0；如果上次抓取之后没有产生抓取结果，值也会被重置为 0。
+   * 页面刷新后恢复任务时，这个值会由 Resume 模块根据保存的元数据恢复，
+   * 所以恢复出来的结果依然会被判定为未下载完毕 */
+  public crawlCompleteTime = 0
   public downloadCompleteTime = 0
+
+  /** 是否存在还没下载完的抓取结果。
+   *
+   * true 表示本次抓取的结果还没有被下载完毕；false 表示已经被下载完毕（或者没有抓取结果），
+   * 此时可以安全地进行下一步操作（开始新的抓取、放弃下载等）。
+   *
+   * ⚠️ 它不代表「存在下载任务」：抓取完成但还没有开始下载时，这个值也是 true。
+   * ⚠️ 也不能只判断「有没有抓取结果」：下载完所有文件之后，抓取结果依然存在。
+   * ⚠️ 如果用户在下载完成之前放弃了下载，结果依然算「还没下载完」。
+   * 因为放弃下载只会触发 downloadStop，不会更新 downloadCompleteTime。
+   */
+  public get hasUndownloadedCrawlResult() {
+    if (this.crawlCompleteTime === 0) {
+      return false
+    }
+    return this.crawlCompleteTime > this.downloadCompleteTime
+  }
 
   /** 调试用，指示是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
   public quickMergeNovel = false

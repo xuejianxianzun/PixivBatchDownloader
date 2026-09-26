@@ -3,7 +3,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 
-/** 每下载 100 个文件（是文件不是作品），检查当前用户是否被 pixiv 警告 */
+/** 每下载 100 个文件（是文件数量不是作品数量），就检查一次当前用户是否被 pixiv 警告 */
 class CheckWarningMessage {
   constructor() {
     this.bindEvents()

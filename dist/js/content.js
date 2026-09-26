@@ -15987,6 +15987,11 @@ class InitPageBase {
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
             _store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlCompleteTime = Date.now();
         });
+        // 抓取结果为 0 时，把抓取完成的时间重置为 0，表示没有需要下载的文件。
+        // 这里依赖触发顺序：crawlEmpty 总是在 crawlComplete 之后触发，所以重置不会被 crawlComplete 覆盖
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteButNoResult', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlEmpty, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlCompleteTime = 0;
+        });
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.downloadComplete, () => {
             _store_States__WEBPACK_IMPORTED_MODULE_8__.states.downloadCompleteTime = Date.now();
         });
@@ -16061,9 +16066,7 @@ class InitPageBase {
     }
     confirmRecrawl() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
-            // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
-            // 如果没有被下载过，则显示提醒
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlCompleteTime > _store_States__WEBPACK_IMPORTED_MODULE_8__.states.downloadCompleteTime) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.hasUndownloadedCrawlResult) {
                 const _confirm = window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已有抓取结果时进行提醒'));
                 return _confirm;
             }
@@ -24706,7 +24709,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/** 每下载 100 个文件（是文件不是作品），检查当前用户是否被 pixiv 警告 */
+/** 每下载 100 个文件（是文件数量不是作品数量），就检查一次当前用户是否被 pixiv 警告 */
 class CheckWarningMessage {
     constructor() {
         this.bindEvents();
@@ -25770,7 +25773,7 @@ class DownloadControl {
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('downloadControlBtns', '_暂停下载', '', 'pauseDownload', 'primary', 'warning').addEventListener('click', () => {
             this.pauseDownload();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('downloadControlBtns', '_停止下载', '', 'stopDownload', 'primary', 'danger').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('downloadControlBtns', '_放弃下载', '', 'stopDownload', 'primary', 'danger').addEventListener('click', () => {
             this.stopDownload();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('downloadControlBtns', '_复制url', '', 'copyURLs', 'secondary', 'brand').addEventListener('click', () => {
@@ -25912,12 +25915,20 @@ class DownloadControl {
             }
         }
     }
-    // 停止下载
+    // 放弃下载
     stopDownload() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length === 0 || this.stop) {
             return;
         }
+        // 本次抓取的结果还没有被下载完毕时，放弃下载会清除保存的抓取结果，所以需要让用户确认。
+        // 这里不再额外判断 states.hasDownloadTask：抓取完成但还没有开始下载时也不存在下载任务，
+        // 但那时抓取结果已经被保存了，放弃下载同样会把它清除，所以也需要确认
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.hasUndownloadedCrawlResult &&
+            !window.confirm(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_放弃下载的提示'))) {
+            return;
+        }
         this.stop = true;
+        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已放弃下载'));
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.error('🛑' + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载已停止'));
         // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.log('');
@@ -29712,6 +29723,16 @@ class Resume {
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime = meta.date;
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
+        // 恢复抓取完成的时间，这样恢复出来的结果才不会被判定为「已经下载完毕」。
+        // 注意类型不同：meta.date 是 Date，而 states.crawlCompleteTime 是时间戳。
+        // 如果 meta.date 缺失或无效（例如数据由旧版本保存），就当作刚刚抓取完成。
+        // 这样会判定为「未下载完毕」，是这个判定的安全方向：放弃下载时依然会向用户确认
+        const crawlCompleteTime = meta.date
+            ? new Date(meta.date).getTime()
+            : Number.NaN;
+        _store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlCompleteTime = Number.isFinite(crawlCompleteTime)
+            ? crawlCompleteTime
+            : Date.now();
         // 恢复模式就绪
         await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'), 'restoreCrawlResult');
@@ -35105,13 +35126,29 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `다운로드 일시중지`,
         `Приостановить загрузку`,
     ],
-    _停止下载: [
-        `停止下载`,
-        `停止下載`,
-        `Stop download`,
-        `停止`,
-        `다운로드 정지`,
-        `Остановить загрузку`,
+    _放弃下载: [
+        `放弃下载`,
+        `放棄下載`,
+        `Abandon download`,
+        `放棄`,
+        `다운로드 포기`,
+        `Отказаться от загрузки`,
+    ],
+    _放弃下载的提示: [
+        `还有一些文件没有下载。\n如果你不需要下载剩余的文件了，可以点击确定按钮来放弃下载。\n下载器会停止下载，并且刷新页面之后也不会恢复这次下载任务。`,
+        `還有一些檔案沒有下載。\n如果你不需要下載剩餘的檔案了，可以點擊確定按鈕來放棄下載。\n下載器會停止下載，並且重新整理頁面之後也不會恢復這一次的下載任務。`,
+        `There are still some files that have not been downloaded.\nIf you do not need to download the remaining files, click OK to abandon the download.\nThe downloader will stop downloading, and this download task will not be resumed even after you reload the page.`,
+        `まだダウンロードされていないファイルがあります。\n残りのファイルをダウンロードする必要がない場合は、「OK」をクリックしてダウンロードを放棄してください。\nダウンローダーはダウンロードを停止し、ページを再読み込みしてもこのダウンロードは再開されません。`,
+        `아직 다운로드되지 않은 파일이 있습니다.\n남은 파일을 다운로드할 필요가 없다면, 확인 버튼을 눌러 다운로드를 포기하세요.\n다운로더가 다운로드를 중지하며, 페이지를 새로 고침해도 이번 다운로드 작업은 복구되지 않습니다.`,
+        `Ещё не все файлы загружены.\nЕсли вам не нужно загружать оставшиеся файлы, нажмите «ОК», чтобы отказаться от загрузки.\nЗагрузчик остановит загрузку, и после перезагрузки страницы эта задача загрузки не будет восстановлена.`,
+    ],
+    _已放弃下载: [
+        `已放弃下载`,
+        `已放棄下載`,
+        `Download abandoned`,
+        `ダウンロードを放棄しました`,
+        `다운로드를 포기했습니다`,
+        `Загрузка отменена`,
     ],
     _复制url: [
         `复制 URL`,
@@ -48827,7 +48864,7 @@ class ButtonConfigs {
         },
         {
             id: 'stopDownload',
-            nameKey: '_停止下载',
+            nameKey: '_放弃下载',
             categoryLevel1: 'downloadArea',
             categoryLevel2: 'DownloadControl',
         },
@@ -56899,7 +56936,7 @@ class SettingsPanelShell {
                 <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryPause" type="button" data-xztitle="_暂停下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#pause"></use></svg>
                 </button>
-                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_停止下载">
+                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_放弃下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#stop"></use></svg>
                 </button>
               </div>
@@ -58120,7 +58157,9 @@ class SaveArtworkData {
             }
             else {
                 // 与 Store 里的行为保持一致：先应用多图作品的索引过滤器（例如只下载前几张图片），再检查颜色
-                // 因为下面会把 downloadIndexes 传给 Store，而 Store 只在没有收到它的时候才应用索引过滤器
+                // 因为下面会把 downloadIndexes 传给 Store，而 Store 只在没有收到 downloadIndexes 的时候才应用索引过滤器
+                // 这就导致 Store 可能不会应用索引过滤器，而是直接使用 downloadIndexes 里的值。
+                // 因此需要在这里先应用索引过滤器，之后就不需要 Store 再去应用了。
                 checkList = Array.from({ length: body.pageCount }, (_, i) => i).filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, body.pageCount, body.userId));
             }
             // 多图作品的缩略图网址是把第一张图片的 _p0 替换成对应的序号
@@ -58494,8 +58533,29 @@ class States {
     exportIDList = false;
     // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
     // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
-    crawlCompleteTime = 1;
+    /** 当抓取完成，且有抓取结果时，记录抓取完成的时间。
+     *
+     * 如果尚未开始抓取，值是默认的 0；如果上次抓取之后没有产生抓取结果，值也会被重置为 0。
+     * 页面刷新后恢复任务时，这个值会由 Resume 模块根据保存的元数据恢复，
+     * 所以恢复出来的结果依然会被判定为未下载完毕 */
+    crawlCompleteTime = 0;
     downloadCompleteTime = 0;
+    /** 是否存在还没下载完的抓取结果。
+     *
+     * true 表示本次抓取的结果还没有被下载完毕；false 表示已经被下载完毕（或者没有抓取结果），
+     * 此时可以安全地进行下一步操作（开始新的抓取、放弃下载等）。
+     *
+     * ⚠️ 它不代表「存在下载任务」：抓取完成但还没有开始下载时，这个值也是 true。
+     * ⚠️ 也不能只判断「有没有抓取结果」：下载完所有文件之后，抓取结果依然存在。
+     * ⚠️ 如果用户在下载完成之前放弃了下载，结果依然算「还没下载完」。
+     * 因为放弃下载只会触发 downloadStop，不会更新 downloadCompleteTime。
+     */
+    get hasUndownloadedCrawlResult() {
+        if (this.crawlCompleteTime === 0) {
+            return false;
+        }
+        return this.crawlCompleteTime > this.downloadCompleteTime;
+    }
     /** 调试用，指示是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
     quickMergeNovel = false;
     /** 是否在定时抓取模式下 */

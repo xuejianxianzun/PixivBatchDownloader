@@ -448,7 +448,7 @@ class ButtonConfigs {
     },
     {
       id: 'stopDownload',
-      nameKey: '_停止下载',
+      nameKey: '_放弃下载',
       categoryLevel1: 'downloadArea',
       categoryLevel2: 'DownloadControl',
     },
