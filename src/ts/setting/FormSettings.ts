@@ -170,6 +170,7 @@ class FormSettings {
       'saveAllSeriesNovelsIfOneMatches',
       'autoExportSettings',
       'allowPreviewCoverThumbnail',
+      'epubLangOverride',
     ],
     radio: [
       'novelSaveAs',
@@ -206,6 +207,7 @@ class FormSettings {
       'settingsAcrossDifferentTabs',
       'autoExportSettingsStrategy',
       'epubWritingMode',
+      'epubLangSource',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -249,6 +251,7 @@ class FormSettings {
       'doNotCrawlFirstImagesCount',
       'singleEPUBFileSizeLimit',
       'autoExportSettingsInterval',
+      'epubCustomLang',
     ],
     textarea: [
       'notNeedTag',

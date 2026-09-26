@@ -127,6 +127,7 @@ class SaveNovelData {
           embeddedImages,
           tags,
           charCount,
+          language: body.language,
         },
         xRestrict: body.xRestrict,
       })

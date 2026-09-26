@@ -289,6 +289,12 @@ interface XzSetting {
   saveNovelMeta: boolean
   /** EPUB 文字方向。horizontal 横排（默认），vertical 纵排（适合日语等 CJK 小说） */
   epubWritingMode: 'horizontal' | 'vertical'
+  /** 是否启用 EPUB 语言标签覆盖。开启后会在 EPUB 的 dc:language 和 xml:lang 中写入指定语言 */
+  epubLangOverride: boolean
+  /** EPUB 语言标签的来源。auto 从 Pixiv API 获取，custom 使用用户自定义值 */
+  epubLangSource: 'auto' | 'custom'
+  /** 用户自定义的 EPUB 语言标签，仅在 epubLangSource 为 custom 时生效 */
+  epubCustomLang: string
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
@@ -841,6 +847,9 @@ class Settings {
     novelSaveAs: 'epub',
     saveNovelMeta: true,
     epubWritingMode: 'horizontal',
+    epubLangOverride: false,
+    epubLangSource: 'auto',
+    epubCustomLang: 'ja',
     deduplication: false,
     dupliStrategy: 'loose',
     tagsSeparator: ',',

@@ -159,6 +159,8 @@ export interface NovelMeta {
     [key: string]: string
   }
   tags: string[]
+  /** 小说的语言标签，来自 Pixiv API，例如 "ja"、"zh-cn"、"en" */
+  language?: string
 }
 
 // 储存作品在排行榜中的排名
