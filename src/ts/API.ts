@@ -41,6 +41,7 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
+import { states } from './store/States'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
@@ -89,6 +90,12 @@ class API {
     }
     const attemptRequest = async (tryCount = 0): Promise<T> => {
       const response = await fetch(url, init)
+
+      // 统计 API 请求成功的次数，供 CheckWarningMessage 判断是否需要检查站内信。
+      // 放在这一行之后：只有请求本身成功（收到了响应）才计数，不管响应的状态码是什么。
+      // 如果请求本身失败，原生 fetch 会抛出异常，就不会执行到这里，也就不会计数
+      states.apiRequestCount++
+
       // response.ok 的状态码范围是 200-299
       if (response.ok && !mockHttpStatus) {
         // 请求成功，直接返回数据

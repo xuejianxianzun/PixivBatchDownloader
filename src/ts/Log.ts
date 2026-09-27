@@ -10,6 +10,20 @@ import { ppdTask } from './PPDTask'
 import { bg } from './BG'
 import { lang } from './Language'
 
+/** 日志系统。它会在网页顶部添加日志区域，并在其中输出日志。
+ *
+ * ## 关于日志的 key
+ *
+ * `log.log()` / `log.warning()` / `log.error()` 等方法的第二个参数是 key（可以省略）。
+ * **key 相同的日志会复用同一个元素，只占一行**——再次输出时会覆盖那一行的内容，而不会新增一行。
+ * 所以当一段逻辑会（例如在循环里）反复输出同样的内容时，只要给它们相同的 key 就不会刷屏。
+ * 典型用法：`log.error(msg, 'accountWarning' + nameKey)`。
+ *
+ * 几点说明：
+ * - 带 key 的日志不计入日志总数，所以不会触发「日志太多就新建日志区域」的逻辑。
+ * - 如果希望某条带 key 的日志之后重新占一行，可以调用 `log.persistentRefresh(key)`，
+ *   这会让下次输出该 key 时新建一个元素。
+ * - 导出日志时也按 key 去重，同一个 key 只保留最后一条记录。 */
 class Log {
   constructor() {
     showLogButton.init({

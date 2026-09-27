@@ -506,6 +506,9 @@ function callers(options = {}) {
     './Tools': { Tools },
     './utils/Utils': { Utils },
     './store/Store': { store: { loggedUserID: '7' } },
+    // 账户没有被警告，所以批量操作会正常执行
+    './AccountWarning': { canRequestInBatch: () => true },
+    './store/States': { states: { accountWarning: false } },
   }
   e.globals.location = e.globals.window.location = {
     href: 'http://localhost/users/7/following',

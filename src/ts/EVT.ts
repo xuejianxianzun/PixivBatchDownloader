@@ -56,6 +56,8 @@ class EVENT {
     downloadPause: 'downloadPause',
     /** 请求暂停下载 */
     requestPauseDownload: 'requestPauseDownload',
+    /** 当检测到当前账户被 pixiv 警告时触发 */
+    accountWarning: 'accountWarning',
     /** 下载状态变成停止时触发 */
     downloadStop: 'downloadStop',
     /** 当文件在下载阶段下载失败时触发 */
@@ -231,6 +233,7 @@ class EVENT {
       | 'downloadStart'
       | 'downloadPause'
       | 'requestPauseDownload'
+      | 'accountWarning'
       | 'downloadStop'
       | 'saveFileError'
       | 'downloadComplete'

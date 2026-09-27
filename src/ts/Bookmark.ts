@@ -1,3 +1,4 @@
+import { canRequestInBatch } from './AccountWarning'
 import { API } from './API'
 import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
 import { EVT } from './EVT'
@@ -136,6 +137,11 @@ class Bookmark {
     const onceOffset = 100
 
     while (true) {
+      // 账户被警告时终止遍历，不再请求后续的收藏列表
+      if (!canRequestInBatch('_添加收藏')) {
+        break
+      }
+
       const data = await API.getBookmarkData(userID, type, '', offset, hide)
 
       for (const workData of data.body.works) {
@@ -167,6 +173,10 @@ class Bookmark {
     list: BookmarkResult[],
     oldList: BookmarkResult[] = []
   ) {
+    if (!canRequestInBatch('_添加收藏')) {
+      return
+    }
+
     // 反转要添加收藏的作品列表。这是因为它来自于导出的收藏列表，导出时的顺序是按照添加收藏时的倒序排列
     // 即后收藏的作品在数组前面，先收藏的作品在数组后面
     // 如果不反转，那么在添加收藏时，就会先收藏在“导出时是后收藏”的作品，这会导致添加收藏的顺序反了
@@ -176,7 +186,14 @@ class Bookmark {
     let added = 0
     let skip = 0
     let tip = ''
+    // 是否因为账户被警告而中止了遍历
+    let aborted = false
     for (const data of list) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_添加收藏')) {
+        aborted = true
+        break
+      }
       // 如果这个作品已经被收藏过，就不会重复收藏它（这里没有检查 tag 列表）
       const find = oldList.find(
         (old) => old.id === data.id && old.type === data.type
@@ -199,6 +216,11 @@ class Bookmark {
         tip = tip + `, ${lang.transl('_跳过x个', skip.toString())}`
       }
       log.log(tip, 'bookmarkAddProgress')
+    }
+
+    // 因为账户被警告而中止时，不显示「完成」的提示
+    if (aborted) {
+      return
     }
 
     log.persistentRefresh('bookmarkAddProgress')

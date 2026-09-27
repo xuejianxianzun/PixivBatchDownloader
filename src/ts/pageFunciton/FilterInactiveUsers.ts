@@ -1,3 +1,4 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { lang } from '../Language'
 import { log } from '../Log'
 import { pageType } from '../PageType'
@@ -46,6 +47,10 @@ class FilterInactiveUsers {
   }
 
   public async start() {
+    if (!canRequestInBatch('_过滤不活跃用户')) {
+      return
+    }
+
     if (this.busy) {
       toast.error(lang.transl('_有同类任务正在执行请等待之前的任务完成'))
       return
@@ -140,6 +145,11 @@ class FilterInactiveUsers {
 
   // 获取用户列表
   private async getUserList() {
+    // 账户被警告时终止遍历，不再请求后续的用户列表，也不会显示不完整的结果
+    if (!canRequestInBatch('_过滤不活跃用户')) {
+      return
+    }
+
     const offset = this.baseOffset + this.requestTimes * this.limit
     let res
     try {

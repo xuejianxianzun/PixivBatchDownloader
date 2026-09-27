@@ -1,3 +1,4 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { API } from '../API'
 import { Tools } from '../Tools'
 import {
@@ -39,6 +40,10 @@ class BookmarksAddTag {
 
   private bindEvents() {
     this.btn.addEventListener('click', () => {
+      if (!canRequestInBatch('_给收藏添加标签')) {
+        return
+      }
+
       // 每次点击重置状态
       this.addTagList = []
       this.addIndex = 0
@@ -56,6 +61,13 @@ class BookmarksAddTag {
 
   // 准备添加 tag。loop 表示这是第几轮循环
   private async readyAddTag(loop: number = 0) {
+    // 账户被警告时终止遍历，不再请求后续的数据
+    if (!canRequestInBatch('_给收藏添加标签')) {
+      this.textSpan.textContent = `×`
+      this.btn.removeAttribute('disabled')
+      return
+    }
+
     const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
     let errorFlag = false
 
@@ -129,6 +141,13 @@ class BookmarksAddTag {
 
   // 给未分类作品添加 tag
   private async addTag(): Promise<void> {
+    // 账户被警告时终止遍历，不再发出后续的请求
+    if (!canRequestInBatch('_给收藏添加标签')) {
+      this.textSpan.textContent = `×`
+      this.btn.removeAttribute('disabled')
+      return
+    }
+
     const item = this.addTagList[this.addIndex]
 
     const status = await bookmark.add(

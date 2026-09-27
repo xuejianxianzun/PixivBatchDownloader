@@ -1,3 +1,4 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { lang } from '../Language'
 import { log } from '../Log'
 import { settings } from '../setting/Settings'
@@ -31,6 +32,10 @@ class BatchFollowUser {
 
   /** 等待当前列表与关注流程；刷新失败或其他拒绝都恢复 busy。 */
   public async start() {
+    if (!canRequestInBatch('_批量关注用户')) {
+      return
+    }
+
     if (this.busy) {
       toast.error(lang.transl('_有同类任务正在执行请等待之前的任务完成'))
       return
@@ -134,6 +139,11 @@ class BatchFollowUser {
 
   // 获取关注的用户列表
   private async getUserList(): Promise<void> {
+    // 账户被警告时终止遍历，不再请求后续的用户列表
+    if (!canRequestInBatch('_批量关注用户')) {
+      return
+    }
+
     const offset = this.baseOffset + this.requestTimes * this.limit
 
     let res
@@ -237,6 +247,12 @@ class BatchFollowUser {
     const total = this.importFollowedUserIDs.length
 
     for (const userID of this.importFollowedUserIDs) {
+      // 账户被警告时终止遍历。设置 stopAddFollow 之后，循环后面的收尾代码也会显示「任务已中止」
+      if (!canRequestInBatch('_批量关注用户')) {
+        this.stopAddFollow = true
+        break
+      }
+
       this.logProgress(no, total, newFollow)
 
       if (this.stopAddFollow) break

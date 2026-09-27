@@ -30,6 +30,8 @@
 - `src/ts/utils/`：该文件夹里的模块是通用的工具类，与本项目没有耦合关系。其中 `src/ts/utils/Utils.ts` 是最常用的。
 - `src/ts/Language.ts`：自制的 i18n 系统，它会从 i18n 语句（保存在 `src/ts/langText.ts`）里获取目标语言的文本内容。
 - `src/ts/Log.ts`：日志系统，它会在网页顶部添加日志区域并输出日志。
+  - 输出日志时可以传入 key（第二个参数）：**key 相同的日志会复用同一个元素、只占一行**，再次输出时会覆盖那一行的内容，而不会新增一行。所以当一段逻辑会（例如在循环里）反复输出同样的内容时，只要给它们相同的 key 就不会刷屏。典型用法：`log.error(msg, 'accountWarning' + nameKey)`。
+  - 带 key 的日志不计入日志总数，所以不会触发“日志太多就新建日志区域”的逻辑。如果希望某条带 key 的日志之后重新占一行，调用 `log.persistentRefresh(key)`。导出日志时也按 key 去重，同一个 key 只保留最后一条记录。
 - `src/ts/MsgBox.ts`：显示一个单独的消息框，用于显示重要提示。用它显示一条消息后，用户必须点击确定按钮才能关闭它。
 - `src/ts/Toast.ts`：轻提示，用于显示不重要的信息。轻提示内容会在短暂停留后自行消失，所以不会打扰用户。
 - `src/ts/WorkThumbnail.ts`：它会查找网页里的所有作品缩略图元素（包括在未来动态添加的缩略图元素），为其添加 `ppd-workThumbnail` 类名、`data-workid` 和 `data-worktype` 数据属性。一些预览作品、选择作品的模块依赖它的这些预处理。

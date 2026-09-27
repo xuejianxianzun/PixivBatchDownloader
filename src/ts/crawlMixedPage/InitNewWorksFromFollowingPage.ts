@@ -1,5 +1,3 @@
-// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
-// Premium 会员可以看到第 84 页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
@@ -16,6 +14,14 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
+// 初始化“已关注用户的作品”和“好P友的作品”页面，这里面的作品都是新发表的作品；分页显示。
+// 默认网址如（根据子页面类型、作品类型还有多种其他网址）：
+// https://www.pixiv.net/bookmark_new_illust.php
+// 非会员最多可以看到第 34 页：
+// https://www.pixiv.net/bookmark_new_illust.php?p=34
+// https://www.pixiv.net/novel/bookmark_new.php?p=34
+// Premium 会员可以看到第 84 页
+// 在插画分类和小说分类里，每页最多都是 60 个作品，但有些页面里的数量会略少一些
 class InitNewWorksFromFollowingPage extends InitPageBase {
   constructor() {
     super()

@@ -162,6 +162,14 @@ function frontend() {
             sleeps.push(wait)
             return wait.promise
           },
+          // DownloadControl 在输出文件保存失败的提示时会转义文本，这里照 Utils.ts 的实现来
+          escapeHTML: (text) =>
+            text
+              .replaceAll('&', '&amp;')
+              .replaceAll('<', '&lt;')
+              .replaceAll('>', '&gt;')
+              .replaceAll('"', '&quot;')
+              .replaceAll("'", '&#39;'),
         },
       },
       './DownloadStates': {

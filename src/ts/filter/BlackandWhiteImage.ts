@@ -83,10 +83,11 @@ class BlackAndWhiteImage {
     if (url.startsWith('blob')) {
       return Utils.loadImg(url)
     } else {
+      console.count('因为检查图片颜色而加载的图片数量')
       // 不是 blobURL 的话先获取图片
       const res = await fetch(url).catch((error) => {
         // fetch 加载图片可能会失败 TypeError: Failed to fetch
-        console.log(`Load image error! url: ${url}`)
+        console.log(`Failed to load image! url: ${url}`)
       })
       // 如果 fetch 加载图片失败
       if (!res || !res.ok) {

@@ -1,3 +1,4 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { API } from '../API'
 import { lang } from '../Language'
 import { BookmarkResult } from '../crawl/CrawlResult'
@@ -129,6 +130,14 @@ class BookmarkAllWorks {
 
   // 启动收藏流程
   private async startBookmark() {
+    if (!canRequestInBatch('_添加收藏')) {
+      // 收藏模式需要结束，否则后续流程会一直以为自己还在收藏模式里
+      if (states.bookmarkMode) {
+        EVT.fire('bookmarkModeEnd')
+      }
+      return
+    }
+
     if (this.idList.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
       EVT.fire('bookmarkModeEnd')
@@ -140,12 +149,25 @@ class BookmarkAllWorks {
 
     await this.getTagData()
     await this.addBookmarkAll()
+
+    // 账户被警告时遍历被中止了，此时不显示「完成」，但需要恢复界面状态
+    if (!canRequestInBatch('_添加收藏')) {
+      this.tipWrap.removeAttribute('disabled')
+      EVT.fire('bookmarkModeEnd')
+      return
+    }
+
     this.complete()
   }
 
   // 获取每个作品的 tag 数据
   private async getTagData() {
     for (const id of this.idList) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_添加收藏')) {
+        break
+      }
+
       this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
       const noTagData = {
         type: id.type,
@@ -187,6 +209,11 @@ class BookmarkAllWorks {
   private async addBookmarkAll() {
     let index = 0
     for (const data of this.bookmarKData) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_添加收藏')) {
+        break
+      }
+
       this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
       const status = await bookmark.add(
         data.id,

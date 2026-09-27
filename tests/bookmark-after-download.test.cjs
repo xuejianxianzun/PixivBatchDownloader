@@ -137,6 +137,12 @@ function environment({ realBookmark = false } = {}) {
     '../Bookmark': { bookmark },
     '../Log': { log },
     '../utils/Utils': { Utils },
+    '../Tools': {
+      Tools: { createWorkLinkByIDData: (data) => `work/${data.id}` },
+    },
+    // BookmarkAfterDL 在收藏前会检查作品是否被手动排除。
+    // checkNotExcluded 返回 true 表示「没有被排除」，所以这里返回 true
+    '../filter/Filter': { filter: { checkNotExcluded: () => true } },
   }
   const globals = { window, document }
   if (realBookmark) {
@@ -166,6 +172,9 @@ function environment({ realBookmark = false } = {}) {
         './Token': { token },
         './Tools': { Tools: { createWorkLink: (id) => id } },
         './utils/Utils': { Utils },
+        // 账户没有被警告，所以收藏操作会正常执行
+        './AccountWarning': { canRequestInBatch: () => true },
+        './store/States': { states: { accountWarning: false } },
       },
       globals
     ).bookmark

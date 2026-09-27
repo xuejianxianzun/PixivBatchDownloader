@@ -5842,6 +5842,14 @@ This setting does not apply to collection files generated after merging a novel 
     `{} 저장을 시작하지 못했습니다: {}. 다운로드를 일시정지했습니다. 문제를 해결한 뒤 “다운로드 시작”을 누르면 미완료 파일을 다시 시도합니다.`,
     `{} не удалось начать сохранение: {}. Загрузка приостановлена. После устранения проблемы нажмите «Начать загрузку», чтобы повторить попытку для незавершённых файлов.`,
   ],
+  _filename_contains_illegal_characters: [
+    `这可能是因为文件名里含有一些特殊字符，浏览器不允许这些字符用在文件名里。<br>你可以修改命名规则，移除可能含有特殊字符的标记，如 <span class="blue">{user}</span>、<span class="blue">{title}</span> 等。也可以只保留 <span class="blue">pixiv/{id}</span>，这样文件名肯定是安全的。<br>然后点击开始下载按钮继续下载。`,
+    `這可能是因為檔案名稱裡含有一些特殊字元，瀏覽器不允許這些字元用在檔案名稱裡。<br>你可以修改命名規則，移除可能含有特殊字元的標記，例如 <span class="blue">{user}</span>、<span class="blue">{title}</span> 等。也可以只保留 <span class="blue">pixiv/{id}</span>，這樣檔案名稱一定是安全的。<br>然後點擊「開始下載」按鈕繼續下載。`,
+    `This may be because the file name contains special characters that the browser does not allow in file names.<br>You can change the naming rule and remove the markers that may contain special characters, such as <span class="blue">{user}</span> and <span class="blue">{title}</span>. You can also keep only <span class="blue">pixiv/{id}</span>, which makes the file name definitely safe.<br>Then click the "Start download" button to continue downloading.`,
+    `ファイル名にブラウザが許可していない特殊な文字が含まれているためだと考えられます。<br>命名規則を変更して、特殊な文字が含まれる可能性があるマーカー（<span class="blue">{user}</span> や <span class="blue">{title}</span> など）を外してください。<span class="blue">pixiv/{id}</span> だけにしてもかまいません。そうすればファイル名は確実に安全になります。<br>その後、「開始」ボタンをクリックしてダウンロードを続けてください。`,
+    `파일 이름에 브라우저가 허용하지 않는 특수 문자가 포함되어 있기 때문일 수 있습니다.<br>명명 규칙을 수정하여 특수 문자가 포함될 수 있는 마커(예: <span class="blue">{user}</span>, <span class="blue">{title}</span>)를 제거하세요. <span class="blue">pixiv/{id}</span> 만 남겨도 됩니다. 그러면 파일 이름이 확실히 안전해집니다.<br>그런 다음 “다운로드 시작” 버튼을 눌러 다운로드를 계속하세요.`,
+    `Возможно, это потому, что имя файла содержит специальные символы, которые браузер не допускает в именах файлов.<br>Вы можете изменить правило названий и убрать метки, которые могут содержать специальные символы, например <span class="blue">{user}</span>, <span class="blue">{title}</span> и другие. Можно также оставить только <span class="blue">pixiv/{id}</span> — тогда имя файла точно будет безопасным.<br>Затем нажмите кнопку «Начать загрузку», чтобы продолжить загрузку.`,
+  ],
   _save_file_failed_tip: [
     `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
     `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
@@ -6027,6 +6035,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
   _图片色彩的说明: [
     `你可以设置是否抓取彩色图片或黑白图片，默认会全部抓取。<br>
 如果你不想下载某种颜色的图片，可以取消选择它。<br>
+注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。<br>
 <br>
 判断方式：<br>
 下载器在检查图片的颜色时，会忽略白色和透明像素，只统计彩色、灰色、黑色像素。这是因为人眼在判断图片是否为彩色时，通常不会在意白色区域，重点在于其他内容是不是彩色。去掉白色区域之后，准确度会更高。<br>
@@ -6037,6 +6046,9 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 在有些图片里，彩色、灰色、黑色可能都占据了一定比例。<br>
 如果你加大彩色占比的阈值，图片会更容易被视为黑白图片。<br>
 如果你减小彩色占比的阈值，图片会更容易被视为彩色图片。<br>
+阈值为 25% 时的粗略参考数据：<br>
+抓取插画和动图时，大约有 5% 的图片被视为黑白图片；<br>
+抓取漫画时，大约有 45% 的图片被视为黑白图片。<br>
 <br>
 有小概率误判：<br>
 有些黑白图片会在局部使用彩色，有时彩色区域占比甚至可以达到 30%。它可能会被视为彩色图片。<br>
@@ -6050,6 +6062,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
  在下载阶段，下载器会在下载图片后再次检查它的颜色，不符合要求的话就不会把它保存到硬盘上。`,
     `你可以設定是否抓取彩色圖片或黑白圖片，預設會全部抓取。<br>
 如果你不想下載某種顏色的圖片，可以取消選擇它。<br>
+注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。<br>
 <br>
 判斷方式：<br>
 下載器在檢查圖片的顏色時，會忽略白色和透明像素，只統計彩色、灰色、黑色像素。這是因為人眼在判斷圖片是否為彩色時，通常不會在意白色區域，重點在於其他內容是不是彩色。去掉白色區域之後，準確度會更高。<br>
@@ -6073,6 +6086,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 在下載階段，下載器會在下載圖片後再次檢查它的顏色，不符合要求的話就不會把它保存到硬碟上。`,
     `You can set whether to crawl color images or black and white images. By default, all of them will be crawled.<br>
 If you do not want to download images of a certain color, you can unselect it.<br>
+Note: if you select only one image color, the downloader will load the thumbnail of every image to check it, so it will take more time to crawl.<br>
 <br>
 How it works:<br>
 When checking the color of an image, the downloader ignores white and transparent pixels, and only counts colored, gray and black pixels. This is because when people judge whether an image is in color, they usually do not care about the white area; what matters is whether the rest of the content is colored. Ignoring the white area makes the result more accurate.<br>
@@ -6096,6 +6110,7 @@ During crawling, the downloader loads the thumbnail of the image to check it; if
 During downloading, the downloader checks the color again after the image is downloaded; if it does not meet the requirements, the file will not be saved to the disk.`,
     `カラー画像と白黒画像のどちらをクロールするかを設定できます。既定ではすべてクロールします。<br>
 特定の色の画像をダウンロードしたくない場合は、そのチェックを外してください。<br>
+注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。<br>
 <br>
 判定方法：<br>
 ダウンローダーは画像の色を調べるとき、白と透明のピクセルを無視し、色付き・グレー・黒のピクセルだけを数えます。人が画像がカラーかどうかを判断するとき、通常は白い領域を気にせず、それ以外の部分が色付きかどうかを重視するためです。白い領域を除外すると精度が上がります。<br>
@@ -6119,6 +6134,7 @@ During downloading, the downloader checks the color again after the image is dow
 ダウンロード時には画像をダウンロードしたあとに再度色をチェックし、条件を満たさない場合はディスクに保存しません。`,
     `컬러 이미지와 흑백 이미지 중 무엇을 크롤링할지 설정할 수 있습니다. 기본적으로는 모두 크롤링합니다.<br>
 특정 색상의 이미지를 다운로드하고 싶지 않다면 선택을 해제하세요.<br>
+주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.<br>
 <br>
 판단 방법:<br>
 다운로더는 이미지의 색상을 확인할 때 흰색과 투명 픽셀은 무시하고 색이 있는 픽셀, 회색 픽셀, 검은색 픽셀만 계산합니다. 사람이 이미지가 컬러인지 판단할 때는 보통 흰 영역은 신경 쓰지 않고 나머지 내용이 컬러인지를 중시하기 때문입니다. 흰 영역을 제외하면 정확도가 높아집니다.<br>
@@ -6142,6 +6158,7 @@ During downloading, the downloader checks the color again after the image is dow
 다운로드 단계에서는 이미지를 다운로드한 뒤 다시 색상을 검사하고, 조건에 맞지 않으면 디스크에 저장하지 않습니다.`,
     `Вы можете выбрать, сканировать цветные или чёрно-белые изображения. По умолчанию сканируются все.<br>
 Если вы не хотите загружать изображения определённого цвета, снимите соответствующий флажок.<br>
+Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.<br>
 <br>
 Как определяется цвет:<br>
 При проверке цвета изображения загрузчик игнорирует белые и прозрачные пиксели и учитывает только цветные, серые и чёрные пиксели. Это связано с тем, что человек, оценивая, цветное изображение или нет, обычно не обращает внимания на белые области — важно, цветное ли остальное содержимое. Если исключить белые области, точность будет выше.<br>
@@ -7202,6 +7219,62 @@ There is also a button at the bottom of the log area for manually exporting logs
     `クロールを停止しました`,
     `크롤링 중지됨`,
     `Сканирование остановлено`,
+  ],
+  _账户被警告时停止操作的提示: [
+    `你的账户可能被 Pixiv 警告了，因此下载器已停止{}的操作。如果有需要，你可以在以后刷新该页面并再次执行该操作。`,
+    `你的帳號可能被 Pixiv 警告了，因此下載器已停止{}的操作。如果有需要，你可以在之後重新整理該頁面並再次執行該操作。`,
+    `Your account may have been warned by Pixiv, so the downloader has stopped this operation: {}. If necessary, you can reload this page later and perform the operation again.`,
+    `あなたのアカウントは Pixiv から警告を受けた可能性があるため、ダウンローダーは{}の操作を停止しました。必要であれば、後でこのページを再読み込みしてから、もう一度実行してください。`,
+    `계정이 Pixiv로부터 경고를 받았을 가능성이 있으므로 다운로더가 {} 작업을 중지했습니다. 필요하다면 나중에 이 페이지를 새로 고친 뒤 다시 실행할 수 있습니다.`,
+    `Возможно, ваш аккаунт получил предупреждение от Pixiv, поэтому загрузчик остановил операцию: {}. При необходимости вы можете позже перезагрузить эту страницу и выполнить её снова.`,
+  ],
+  _添加收藏: [
+    `添加收藏`,
+    `新增收藏`,
+    `Adding bookmarks`,
+    `ブックマークの追加`,
+    `북마크 추가`,
+    `Добавление закладок`,
+  ],
+  _给收藏添加标签: [
+    `给收藏添加标签`,
+    `為收藏新增標籤`,
+    `Adding tags to bookmarks`,
+    `ブックマークへのタグの追加`,
+    `북마크에 태그 추가`,
+    `Добавление тегов к закладкам`,
+  ],
+  _移除收藏标签: [
+    `移除收藏标签`,
+    `移除收藏標籤`,
+    `Removing tags from bookmarks`,
+    `ブックマークのタグの削除`,
+    `북마크 태그 제거`,
+    `Удаление тегов из закладок`,
+  ],
+  _导出关注列表: [
+    `导出关注列表`,
+    `匯出關注列表`,
+    `Exporting the following list`,
+    `フォロー一覧のエクスポート`,
+    `팔로우 목록 내보내기`,
+    `Экспорт списка подписок`,
+  ],
+  _过滤不活跃用户: [
+    `过滤不活跃用户`,
+    `過濾不活躍使用者`,
+    `Filtering inactive users`,
+    `非アクティブユーザーの絞り込み`,
+    `비활성 사용자 필터링`,
+    `Фильтрация неактивных пользователей`,
+  ],
+  _获取关注列表: [
+    `获取关注列表`,
+    `獲取關注列表`,
+    `Retrieving the following list`,
+    `フォロー一覧の取得`,
+    `팔로우 목록 가져오기`,
+    `Получение списка подписок`,
   ],
   _导入ID列表: [
     `导入 ID 列表`,
@@ -12490,5 +12563,13 @@ One possible reason: Your Pixiv account has been banned.`,
     Возможно, функция «Предварительный просмотр результатов сканирования на странице поиска» не включена или результатов сканирования пока нет.<br>
     <br>
     Вместо этого можно нажать кнопку «Ручное исключение», чтобы исключить ненужные работы.`,
+  ],
+  _提示检查图片色彩会增加抓取所需时间: [
+    `注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。`,
+    `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。`,
+    `Note: if you select only one image color, the downloader will load the thumbnail of every image to check it, so it will take more time to crawl.`,
+    `注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。`,
+    `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
+    `Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.`,
   ],
 }

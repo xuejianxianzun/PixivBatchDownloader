@@ -1,3 +1,4 @@
+import { canRequestInBatch } from './AccountWarning'
 import { lang } from './Language'
 import { log } from './Log'
 import { toast } from './Toast'
@@ -11,6 +12,10 @@ import { Utils } from './utils/Utils'
 // 移除已收藏的作品的标签
 class RemoveBookmarkTags {
   public async start(list: WorkBookmarkData[]) {
+    if (!canRequestInBatch('_移除收藏标签')) {
+      return
+    }
+
     if (list.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
       log.error(lang.transl('_没有数据可供使用'))
@@ -31,7 +36,15 @@ class RemoveBookmarkTags {
     }
 
     let number = 0
+    // 是否因为账户被警告而中止了遍历
+    let aborted = false
     for (const item of list) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_移除收藏标签')) {
+        aborted = true
+        break
+      }
+
       try {
         const status = await bookmark.add(
           item.workID.toString(),
@@ -59,11 +72,17 @@ class RemoveBookmarkTags {
       }
     }
 
+    states.busy = false
+
+    // 因为账户被警告而中止时，不显示「完成」的提示
+    if (aborted) {
+      return
+    }
+
     const msg =
       lang.transl('_移除本页面中所有作品的标签') + ' ' + lang.transl('_完成')
     log.success(msg)
     toast.success(msg)
-    states.busy = false
   }
 }
 

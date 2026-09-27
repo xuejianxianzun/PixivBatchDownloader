@@ -186,7 +186,7 @@ class BookmarkAfterDL {
       // 用户手动排除的作品不收藏。这里在真正写入之前才判断，
       // 所以排队期间被排除的作品也会被跳过。
       // 跳过的作品计入已完成数量，否则进度会一直差几个，永远等不到「收藏完毕」
-      if (!filter.checkExcluded(work.id, work.type)) {
+      if (!filter.checkNotExcluded(work.id, work.type)) {
         log.warning(
           '⏭️' +
             lang.transl(

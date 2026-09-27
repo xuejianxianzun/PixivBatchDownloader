@@ -1,4 +1,3 @@
-// 初始化 本站的最新作品 artwork 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
 import { NewIllustOption } from '../crawl/CrawlArgument'
@@ -13,6 +12,10 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 
+// 初始化大家的新作页面里的插画、漫画分类页面
+// 这个页面里的作品列表是滚动加载的，但作品数量上限不固定。
+// 在插画分类里可以加载超过 1000 个作品（我不清楚最大值是多少）。
+// 在漫画分类页面里则少一些，有一次测试最多只加载了 474 个作品就到底了，无法继续加载。
 class InitNewArtworkFromAllUsersPage extends InitPageBase {
   constructor() {
     super()
@@ -143,8 +146,10 @@ class InitNewArtworkFromAllUsersPage extends InitPageBase {
     // 抓取完毕
     if (
       this.fetchCount >= this.crawlNumber ||
-      this.fetchCount >= this.maxCount
+      this.fetchCount >= this.maxCount ||
+      data.body.lastId === null
     ) {
+      // 如果没有后续作品了，lastId 会是 null，此时不能再继续下一次请求了，否则会产生 400 错误
       log.log(lang.transl('_开始获取作品页面'))
       this.getIdListFinished()
       return

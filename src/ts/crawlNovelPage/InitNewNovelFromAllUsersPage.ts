@@ -1,4 +1,3 @@
-// 初始化 本站的最新作品 小说页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { lang } from '../Language'
 import { NewIllustOption } from '../crawl/CrawlArgument'
@@ -12,6 +11,10 @@ import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { Utils } from '../utils/Utils'
 
+// 初始化大家的新作页面里的小说分类页面
+// https://www.pixiv.net/novel/new.php
+// 这个页面里的作品列表是滚动加载的
+// 在一次测试里我加载了超过 1500 个作品，还可以继续加载。我不清楚最大值是多少。
 class InitNewNovelFromAllUsersPage extends InitPageBase {
   constructor() {
     super()
@@ -132,8 +135,10 @@ class InitNewNovelFromAllUsersPage extends InitPageBase {
     // 抓取完毕
     if (
       this.fetchCount >= this.crawlNumber ||
-      this.fetchCount >= this.maxCount
+      this.fetchCount >= this.maxCount ||
+      data.body.lastId === null
     ) {
+      // 如果没有后续作品了，lastId 会是 null，此时不能再继续下一次请求了，否则会产生 400 错误
       log.log(lang.transl('_开始获取作品页面'))
       this.getIdListFinished()
       return

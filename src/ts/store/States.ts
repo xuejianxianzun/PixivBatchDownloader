@@ -16,7 +16,8 @@ class States {
   /**表示下载器是否处于繁忙状态
    *
    * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
-   */
+   *
+   * ⚠️ 它不代表「正在抓取」，需要判断那种情况时请用 `crawling` */
   public busy = false
 
   /**快速下载标记
@@ -44,6 +45,14 @@ class States {
   /**是否处于下载中 */
   public downloading = false
 
+  /** 是否正在抓取（抓取流程正在运行）。
+   *
+   * ⚠️ 判断「是否正在抓取」要用这个，**不要用 `busy`**：`busy` 还会被下载、书签模式、
+   * 批量取消收藏、批量移除标签等操作设为 true，用它会误判。
+   *
+   * 由 crawlStart / crawlComplete / crawlEmpty / stopCrawl 维护 */
+  public crawling = false
+
   /** 指示下载任务是否已经完成或被中止 */
   public downloadCompleteOrStop = false
 
@@ -59,6 +68,33 @@ class States {
   public get hasDownloadTask() {
     return this.downloading || this.downloadPaused
   }
+
+  /** 累计有多少次下载成功事件。每次下载成功事件都意味着下载器保存了至少一个文件。
+   *
+   * 跳过下载的文件不会计入（例如因为不下载重复文件而跳过、因为不符合某些设置而跳过下载的文件），因为它们不会触发 downloadSuccess 事件
+   *
+   * 这个数字只会单向增长，不会重置，除非当前页面被关闭或刷新。*/
+  public downloadSuccessCount = 0
+
+  /** API 请求成功的次数。用于估计下载器实际发送了多少请求。
+   *
+   * 每次请求收到响应时 +1，不管响应的状态码是什么（429、502 这类异常状态码也会计入）。
+   * 如果请求本身失败（原生 fetch 抛出异常），或者请求还没有收到响应，就不会增加。
+   * 重试也会计入，因为每次重试都是实际发送的一次请求。
+   * 只会单向增长，不会重置，除非当前页面被关闭或刷新。
+   *
+   * ⚠️ 它不会统计没有走 API 模块的请求，主要是加载图片文件的操作（例如 filter/BlackandWhiteImage.ts 模块）。
+   * 那些操作分散在多个模块里，通常是 API 请求完成后的附属任务。而且 pixiv 对加载文件的频率限制比较宽松，没有请求网络 API 那么严格，所以目前我没有统计加载图片文件的次数。 */
+  public apiRequestCount = 0
+
+  /** 当前账户是否被 pixiv 警告了。
+   *
+   * 检测到警告时由 CheckWarningMessage 派发 accountWarning 事件，这里监听该事件并设为 true。
+   * 它不会变回 false（除非刷新页面），所以刷新页面之后才能重新执行那些批量请求的操作。
+   *
+   * 抓取流程和下载流程会响应 stopCrawl / downloadPause 而自动停止，
+   * 那些不理会这两个事件、但会批量发送请求的模块需要自己检查这个状态（用 AccountWarning.ts 里的方法） */
+  public accountWarning = false
 
   /**是否应用慢速抓取模式 */
   // 由 InitPageBase 修改它的值
@@ -153,6 +189,22 @@ class States {
       })
     })
 
+    // 抓取流程的生命周期。单独维护 crawling，因为 busy 还会被其他操作设为 true（见 crawling 的说明）
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.crawling = true
+    })
+
+    const crawlIdle = [
+      EVT.list.crawlComplete,
+      EVT.list.crawlEmpty,
+      EVT.list.stopCrawl,
+    ]
+    for (const ev of crawlIdle) {
+      window.addEventListener(ev, () => {
+        this.crawling = false
+      })
+    }
+
     window.addEventListener(EVT.list.stopCrawl, () => {
       this.stopCrawl = true
     })
@@ -216,6 +268,17 @@ class States {
         this.downloadPaused = false
       })
     }
+
+    // 每当有一个文件被成功保存到硬盘上时，记录已下载的文件数量
+    // 跳过下载的文件不会触发这个事件，所以不会被计入
+    window.addEventListener(EVT.list.downloadSuccess, () => {
+      this.downloadSuccessCount++
+    })
+
+    // 检测到账户被 pixiv 警告时标记这个状态。它只会随着页面刷新而重置
+    window.addEventListener(EVT.list.accountWarning, () => {
+      this.accountWarning = true
+    })
 
     // 暂停下载时，标记下载任务处于「已暂停」状态。
     // 注意不要用 downloading 来判断下载任务是否存在：暂停时它也会变成 false

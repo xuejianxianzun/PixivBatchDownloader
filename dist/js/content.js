@@ -1243,22 +1243,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   API: () => (/* binding */ API)
 /* harmony export */ });
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
 
 let mockHttpStatus = null;
-_PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(200, 'mock http status unset', () => {
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(200, 'mock http status unset', () => {
     mockHttpStatus = null;
 });
-_PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(429, 'mock http status 429', () => {
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(429, 'mock http status 429', () => {
     mockHttpStatus = 429;
 });
-_PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(502, 'mock http status 502', () => {
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(502, 'mock http status 502', () => {
     mockHttpStatus = 502;
 });
 class API {
@@ -1277,6 +1279,10 @@ class API {
         };
         const attemptRequest = async (tryCount = 0) => {
             const response = await fetch(url, init);
+            // 统计 API 请求成功的次数，供 CheckWarningMessage 判断是否需要检查站内信。
+            // 放在这一行之后：只有请求本身成功（收到了响应）才计数，不管响应的状态码是什么。
+            // 如果请求本身失败，原生 fetch 会抛出异常，就不会执行到这里，也就不会计数
+            _store_States__WEBPACK_IMPORTED_MODULE_0__.states.apiRequestCount++;
             // response.ok 的状态码范围是 200-299
             if (response.ok && !mockHttpStatus) {
                 // 请求成功，直接返回数据
@@ -1292,7 +1298,7 @@ class API {
                     console.log(`Mocked http status ${status}`);
                 }
                 // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
-                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestStatusError', {
+                _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('requestStatusError', {
                     status,
                     url,
                 });
@@ -1303,14 +1309,14 @@ class API {
                 if (status === 429) {
                     // 等待一段时间后，通过尾递归重试请求
                     // console.log(`429 tryCount ${tryCount}`)
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime);
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_1__.Config.retryTime);
                     return await attemptRequest(tryCount + 1);
                 }
                 else if (status === 502 && tryCount < 3) {
                     // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
                     // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
                     console.log(`502 tryCount ${tryCount}`);
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(10000);
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(10000);
                     return await attemptRequest(tryCount + 1);
                 }
                 else {
@@ -1720,6 +1726,48 @@ class API {
     }
 }
 
+
+
+/***/ }),
+
+/***/ "./src/ts/AccountWarning.ts":
+/*!**********************************!*\
+  !*** ./src/ts/AccountWarning.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   canRequestInBatch: () => (/* binding */ canRequestInBatch)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
+
+
+/** 判断批量发送 API 请求的操作能否继续。返回 false 时，调用方应该立刻停止。
+ *
+ * 只有账户被 pixiv 警告时才返回 false，此时会输出一条红色警告日志。
+ *
+ * nameKey 是这次操作的名称（langText 里的 key，例如「批量关注用户」），它决定日志里显示什么。
+ * **不管在操作的入口还是遍历里调用，都要传入 nameKey**——日志的 key 参数会让内容相同的日志只占一行
+ * （见 Log.ts 开头的说明），所以即使在循环里每次迭代都调用，也不会刷屏。
+ *
+ * 抓取流程和下载流程不需要调用它，因为它们会响应 stopCrawl / downloadPause 事件而自动停止。
+ * 这个函数是给那些不理会这两个事件、但自身会批量发送请求的模块用的（例如批量收藏、批量关注）。
+ *
+ * 这些操作没有「恢复执行」的功能，需要用户刷新页面之后重新执行。 */
+function canRequestInBatch(nameKey) {
+    if (!_store_States__WEBPACK_IMPORTED_MODULE_2__.states.accountWarning) {
+        return true;
+    }
+    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户被警告时停止操作的提示', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(nameKey)), 
+    // 带上 key：同一次操作里的多处检查（例如循环里每次迭代）只会占一行日志
+    'accountWarning' + nameKey);
+    return false;
+}
 
 
 /***/ }),
@@ -2383,15 +2431,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   bookmark: () => (/* binding */ bookmark)
 /* harmony export */ });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -2404,11 +2454,11 @@ __webpack_require__.r(__webpack_exports__);
 // 对 API.addBookmark 进行封装
 class Bookmark {
     constructor() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadComplete, () => {
             if (this.taskID > this.nextTaskID) {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏任务尚未完成请等待');
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(msg, {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏任务尚未完成请等待');
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.warning(msg, {
                     position: 'center',
                 });
             }
@@ -2419,8 +2469,8 @@ class Bookmark {
     }
     async getWorkData(type, id) {
         return type === 'illusts'
-            ? await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id)
-            : await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id);
+            ? await _API__WEBPACK_IMPORTED_MODULE_1__.API.getArtworkData(id)
+            : await _API__WEBPACK_IMPORTED_MODULE_1__.API.getNovelData(id);
     }
     /** 接收到需要排队的任务时增加计数 */
     taskID = 0;
@@ -2443,14 +2493,14 @@ class Bookmark {
      * @param slowly 未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
      */
     async add(id, type, tags, needAddTag, restrict, slowly) {
-        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.widthTagBoolean : !!needAddTag;
+        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.widthTagBoolean : !!needAddTag;
         if (_needAddTag) {
             // 需要添加 tags
             if (tags === undefined) {
                 // 如果未传递 tags，则请求作品数据来获取 tags
                 try {
                     const data = await this.getWorkData(type, id);
-                    tags = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.extractTags(data);
+                    tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
                 }
                 catch (error) {
                     // 请求失败的话使用空 tags。这不是致命问题
@@ -2462,20 +2512,20 @@ class Bookmark {
             // 不需要添加 tags
             tags = [];
         }
-        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.restrictBoolean : !!restrict;
+        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.restrictBoolean : !!restrict;
         // 立即执行的情况
         if (!slowly) {
             const status = await this.sendRequest(id, type, tags, _restrict);
             return status;
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示添加收藏时会慢速执行'), 'tipSlowlyAddBookmark');
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示添加收藏时会慢速执行'), 'tipSlowlyAddBookmark');
         }
         // 需要排队的情况
         const NO = ++this.taskID;
         await this.waitCallMe(NO);
         try {
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
             return await this.sendRequest(id, type, tags, _restrict);
         }
         finally {
@@ -2485,7 +2535,7 @@ class Bookmark {
     }
     async waitCallMe(NO) {
         while (this.nextTaskID !== NO) {
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(300);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(300);
         }
         return NO;
     }
@@ -2495,7 +2545,11 @@ class Bookmark {
         let offset = offsetStart;
         const onceOffset = 100;
         while (true) {
-            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(userID, type, '', offset, hide);
+            // 账户被警告时终止遍历，不再请求后续的收藏列表
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+                break;
+            }
+            const data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(userID, type, '', offset, hide);
             for (const workData of data.body.works) {
                 result.push({
                     id: workData.id,
@@ -2506,17 +2560,20 @@ class Bookmark {
                     restrict: workData.bookmarkData?.private || false,
                 });
             }
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark');
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark');
             offset += onceOffset;
             if (data.body.works.length === 0) {
                 break;
             }
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('resutlCountWhenCrawlingBookmark');
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('resutlCountWhenCrawlingBookmark');
         return result;
     }
     async addBookmarksInBatchs(list, oldList = []) {
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+            return;
+        }
         // 反转要添加收藏的作品列表。这是因为它来自于导出的收藏列表，导出时的顺序是按照添加收藏时的倒序排列
         // 即后收藏的作品在数组前面，先收藏的作品在数组后面
         // 如果不反转，那么在添加收藏时，就会先收藏在“导出时是后收藏”的作品，这会导致添加收藏的顺序反了
@@ -2525,7 +2582,14 @@ class Bookmark {
         let added = 0;
         let skip = 0;
         let tip = '';
+        // 是否因为账户被警告而中止了遍历
+        let aborted = false;
         for (const data of list) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+                aborted = true;
+                break;
+            }
             // 如果这个作品已经被收藏过，就不会重复收藏它（这里没有检查 tag 列表）
             const find = oldList.find((old) => old.id === data.id && old.type === data.type);
             if (!find) {
@@ -2541,33 +2605,37 @@ class Bookmark {
                 skip++;
             }
             added++;
-            tip = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品') + ` ${added}/${list.length}`;
+            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品') + ` ${added}/${list.length}`;
             if (skip > 0) {
-                tip = tip + `, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过x个', skip.toString())}`;
+                tip = tip + `, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过x个', skip.toString())}`;
             }
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(tip, 'bookmarkAddProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(tip, 'bookmarkAddProgress');
         }
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('bookmarkAddProgress');
-        const msg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg, {
+        // 因为账户被警告而中止时，不显示「完成」的提示
+        if (aborted) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('bookmarkAddProgress');
+        const msg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕');
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg, {
             position: 'center',
         });
     }
     /** 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。 */
-    async sendRequest(id, type, tags, hide, tokenRefreshed = false, requestToken = _Token__WEBPACK_IMPORTED_MODULE_6__.token.token) {
+    async sendRequest(id, type, tags, hide, tokenRefreshed = false, requestToken = _Token__WEBPACK_IMPORTED_MODULE_7__.token.token) {
         try {
-            await _API__WEBPACK_IMPORTED_MODULE_0__.API.addBookmark(id, type, tags, hide, requestToken);
+            await _API__WEBPACK_IMPORTED_MODULE_1__.API.addBookmark(id, type, tags, hide, requestToken);
             return 200;
         }
         catch (error) {
             if (error.status) {
                 const status = error.status;
-                const workLink = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, '', type === 'novels' ? 'novel' : 'artwork');
+                const workLink = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLink(id, '', type === 'novels' ? 'novel' : 'artwork');
                 if (status === 400 && !tokenRefreshed) {
-                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_6__.token.reset().catch(() => '');
+                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_7__.token.reset().catch(() => '');
                     if (refreshedToken) {
-                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(3000);
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(3000);
                         return this.sendRequest(id, type, tags, hide, true, refreshedToken);
                     }
                 }
@@ -2578,23 +2646,23 @@ class Bookmark {
                     case 403:
                         // 显示 403 错误的提示
                         // 当一个账号被限制无法收藏时，依然可以正常删除收藏，所以“取消收藏本页面中的所有作品”的功能不受影响
-                        const msg = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBookmark403Error();
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(workLink + ' ' + msg);
+                        const msg = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.addBookmark403Error();
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(workLink + ' ' + msg);
                         this.toastDebounce(msg);
                         return status;
                     case 404:
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`${id} 404 Not Found`);
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${id} 404 Not Found`);
                         return status;
                     default:
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`${workLink} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_状态码')}: ${status}`);
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${workLink} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码')}: ${status}`);
                         return status;
                 }
             }
             return 0;
         }
     }
-    toastDebounce = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.debounce((msg) => {
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(msg);
+    toastDebounce = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.debounce((msg) => {
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(msg);
         // 延迟时间不能太短，如果小于两次调用的间隔，就会导致每次都执行
     }, 500);
 }
@@ -3839,6 +3907,8 @@ class EVENT {
         downloadPause: 'downloadPause',
         /** 请求暂停下载 */
         requestPauseDownload: 'requestPauseDownload',
+        /** 当检测到当前账户被 pixiv 警告时触发 */
+        accountWarning: 'accountWarning',
         /** 下载状态变成停止时触发 */
         downloadStop: 'downloadStop',
         /** 当文件在下载阶段下载失败时触发 */
@@ -5472,16 +5542,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   findDeactivatedUsers: () => (/* binding */ findDeactivatedUsers)
 /* harmony export */ });
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _FollowingList__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FollowingList */ "./src/ts/FollowingList.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _FollowingList__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FollowingList */ "./src/ts/FollowingList.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5494,30 +5566,33 @@ __webpack_require__.r(__webpack_exports__);
 
 class FindDeactivatedUsers {
     constructor() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.followingUsersChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.followingUsersChange, () => {
             this.dataChange = true;
         });
     }
     dataChange = false;
     async waitChange() {
         while (!this.dataChange) {
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(100);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(100);
         }
     }
     async check() {
-        const tip = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_查找已注销的用户');
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('closeSettingsPanel');
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(tip);
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning('🚀' + tip);
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_检查是否有已注销的用户的说明'));
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_查找已注销的用户')) {
+            return;
+        }
+        const tip = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_查找已注销的用户');
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('closeSettingsPanel');
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(tip);
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning('🚀' + tip);
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检查是否有已注销的用户的说明'));
         // 等待数据更新和派发完成
         this.dataChange = false;
-        await _FollowingList__WEBPACK_IMPORTED_MODULE_2__.followingList.getList();
+        await _FollowingList__WEBPACK_IMPORTED_MODULE_3__.followingList.getList();
         await this.waitChange();
         // 检查已经不存在于关注列表里，并且不是用户手动取消关注的用户
         const deletedUsers = [];
-        _FollowingList__WEBPACK_IMPORTED_MODULE_2__.followingList.followedUsersInfo.forEach((user) => {
-            if (_FollowingList__WEBPACK_IMPORTED_MODULE_2__.followingList.following.includes(user.id) === false &&
+        _FollowingList__WEBPACK_IMPORTED_MODULE_3__.followingList.followedUsersInfo.forEach((user) => {
+            if (_FollowingList__WEBPACK_IMPORTED_MODULE_3__.followingList.following.includes(user.id) === false &&
                 user.deleteByUser === false) {
                 deletedUsers.push(user);
             }
@@ -5528,25 +5603,32 @@ class FindDeactivatedUsers {
             return;
         }
         const deactivatedUsers = [];
+        // 是否因为账户被警告而中止了遍历
+        let aborted = false;
         for (const user of deletedUsers) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_查找已注销的用户')) {
+                aborted = true;
+                break;
+            }
             // 之前已经确定注销了的用户
             if (!user.exist) {
                 deactivatedUsers.push(user);
             }
             else {
                 // 检查用户是否已注销
-                const link = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createUserLink(user.id, user.name);
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_检查用户x是否已注销', link));
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createUserLink(user.id, user.name);
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检查用户x是否已注销', link));
                 let flag = false;
                 try {
                     // 调试用：获取一个不存在的用户的信息
                     // const json = await API.getUserProfile('16689973', '0')
-                    const json = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getUserProfile(user.id, '0');
+                    const json = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getUserProfile(user.id, '0');
                     if (json.error) {
                         flag = true;
                     }
                     else {
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_该用户未注销'));
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_该用户未注销'));
                     }
                 }
                 catch (error) {
@@ -5557,13 +5639,17 @@ class FindDeactivatedUsers {
                 if (flag) {
                     user.exist = false;
                     deactivatedUsers.push(user);
-                    _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_该用户已注销'));
+                    _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_该用户已注销'));
                 }
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
             }
         }
         // 调试用：输出未注销的用户，这是为了在没有已注销用户时也能输出结果，以便检查样式
         // this.output(needCheck.filter(user => user.exist))
+        // 因为账户被警告而中止时，不显示不完整的结果
+        if (aborted) {
+            return;
+        }
         if (deactivatedUsers.length === 0) {
             this.tipNoResult();
         }
@@ -5573,7 +5659,7 @@ class FindDeactivatedUsers {
         this.tipComplete();
     }
     output(users) {
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已注销用户数量') + `: ${users.length}`);
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已注销用户数量') + `: ${users.length}`);
         for (const user of users) {
             let img = '';
             // 输出头像、id、名字
@@ -5585,19 +5671,19 @@ class FindDeactivatedUsers {
         <span style="margin-right: 10px;">${user.id}</span>
         <span style="margin-right: 10px;">${user.name}</span>
         </a>`;
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(html);
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(html);
             // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log('');
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log('');
         }
     }
     tipNoResult() {
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到已注销的用户');
-        _MsgBox__WEBPACK_IMPORTED_MODULE_0__.msgBox.warning(msg);
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有找到已注销的用户');
+        _MsgBox__WEBPACK_IMPORTED_MODULE_1__.msgBox.warning(msg);
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg);
     }
     tipComplete() {
-        const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_查找已注销的用户');
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+        const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_查找已注销的用户');
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(msg);
     }
 }
 const findDeactivatedUsers = new FindDeactivatedUsers();
@@ -5617,17 +5703,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   followingList: () => (/* binding */ followingList)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
 
 
 
@@ -5641,11 +5729,11 @@ __webpack_require__.r(__webpack_exports__);
 // 更新关注列表
 class FollowingList {
     constructor() {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.isPixiv()) {
             return;
         }
         this.delayCheckUpdate();
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg, sender, sendResponse) => {
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.addListener((msg, sender, sendResponse) => {
             if (!this.isMsg(msg)) {
                 return false;
             }
@@ -5653,17 +5741,17 @@ class FollowingList {
                 this.receiveData(msg.data || []);
             }
             if (msg.msg === 'updateFollowingData') {
-                if (!_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID) {
+                if (!_store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID) {
                     return;
                 }
                 this.getList();
             }
             if (msg.msg === 'getLoggedUserID') {
-                sendResponse({ loggedUserID: _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID });
+                sendResponse({ loggedUserID: _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID });
             }
         });
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID) {
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID) {
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.sendMessage({
                 msg: 'requestFollowingData',
             });
         }
@@ -5691,9 +5779,14 @@ class FollowingList {
                 });
             });
         }
+        // 账户被警告时不再获取关注列表，避免继续发出大量请求（关注列表是分页获取的）
+        // 返回已储存的列表，这样调用方依然能拿到之前的数据
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_获取关注列表')) {
+            return this.following;
+        }
         this.status = 'locked';
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载关注用户列表_该数据会保存在本地'));
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载关注用户列表'), {
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在加载关注用户列表_该数据会保存在本地'));
+        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在加载关注用户列表'), {
             position: 'topCenter',
         });
         // 获取公开关注和私密关注，然后合并
@@ -5702,15 +5795,21 @@ class FollowingList {
         const following = publicList.following.concat(privateList.following);
         const followedUsersInfo = publicList.followedUsersInfo.concat(privateList.followedUsersInfo);
         const total = publicList.total + privateList.total;
-        const tip2 = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已更新关注用户列表');
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.success(tip2);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(tip2, {
+        // 账户被警告时上面可能只获取了一部分，此时拿到的是不完整的列表，不能保存，也不提示更新成功
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_获取关注列表')) {
+            this.executeQueue();
+            this.status = 'idle';
+            return this.following;
+        }
+        const tip2 = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已更新关注用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.success(tip2);
+        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(tip2, {
             position: 'topCenter',
         });
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.sendMessage({
             msg: 'setFollowingData',
             data: {
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID,
                 following: following,
                 followedUsersInfo: followedUsersInfo,
                 total: total,
@@ -5736,7 +5835,11 @@ class FollowingList {
         const limit = 100;
         let offset = 0;
         while (following.length < total) {
-            const res = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID, rest, '', offset, limit);
+            // 账户被警告时终止遍历，不再请求后续的分页
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_获取关注列表')) {
+                break;
+            }
+            const res = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID, rest, '', offset, limit);
             offset = offset + limit;
             for (const users of res.body.users) {
                 following.push(users.userId);
@@ -5748,15 +5851,15 @@ class FollowingList {
                     exist: true,
                 });
             }
-            const type = rest === 'show' ? _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_公开') : _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_非公开');
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(`${type} ${following.length} / ${total}`, `getFollowingList_${rest}`);
+            const type = rest === 'show' ? _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_公开') : _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_非公开');
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(`${type} ${following.length} / ${total}`, `getFollowingList_${rest}`);
             if (res.body.users.length === 0) {
                 // 实际获取到的关注用户数量可能比 total 少，这是正常的
                 // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
-                _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示有些用户可能已经注销'), 'tipUserMayDeactivated');
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_提示有些用户可能已经注销'), 'tipUserMayDeactivated');
                 break;
             }
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
         }
         return {
             following,
@@ -5767,12 +5870,12 @@ class FollowingList {
     /**只请求关注列表第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
         // 关注页面一页显示 24 个作者
-        const res = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID, rest, '', 0, 24);
+        const res = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID, rest, '', 0, 24);
         return res.body.total;
     }
     async receiveData(list) {
         // console.log('receiveData', list)
-        const data = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID);
+        const data = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID);
         if (data) {
             this.following = data.following;
             this.followedUsersInfo = data.followedUsersInfo;
@@ -5789,7 +5892,7 @@ class FollowingList {
             this.checkNeedUpdate();
         }
         // console.log('receiveData', list, this.following)
-        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('followingUsersChange');
+        _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('followingUsersChange');
     }
     async delayCheckUpdate() {
         window.clearTimeout(this.checkUpdateTimer);
@@ -5812,12 +5915,12 @@ class FollowingList {
     /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
     async checkNeedUpdate() {
         // 在搜索页面里移除已关注用户的作品 功能依赖关注用户列表，所以如果用户启用了该功能，也需要更新关注列表
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.highlightFollowingUsers &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.removeWorksOfFollowedUsersOnSearchPage) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.highlightFollowingUsers &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.removeWorksOfFollowedUsersOnSearchPage) {
             return;
         }
         // 不在比赛页面里启用，因为该页面里无法获取 token，会导致获取关注列表失败
-        if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.Contest) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Contest) {
             return;
         }
         // 因为本程序不区分公开和非公开关注，所以只储存总数
@@ -5830,9 +5933,9 @@ class FollowingList {
         if (newTotal !== this.total) {
             console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}，请求更新关注列表`);
             this.total = newTotal;
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.sendMessage({
                 msg: 'needUpdateFollowingData',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.loggedUserID,
             });
         }
     }
@@ -7500,6 +7603,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+/** 日志系统。它会在网页顶部添加日志区域，并在其中输出日志。
+ *
+ * ## 关于日志的 key
+ *
+ * `log.log()` / `log.warning()` / `log.error()` 等方法的第二个参数是 key（可以省略）。
+ * **key 相同的日志会复用同一个元素，只占一行**——再次输出时会覆盖那一行的内容，而不会新增一行。
+ * 所以当一段逻辑会（例如在循环里）反复输出同样的内容时，只要给它们相同的 key 就不会刷屏。
+ * 典型用法：`log.error(msg, 'accountWarning' + nameKey)`。
+ *
+ * 几点说明：
+ * - 带 key 的日志不计入日志总数，所以不会触发「日志太多就新建日志区域」的逻辑。
+ * - 如果希望某条带 key 的日志之后重新占一行，可以调用 `log.persistentRefresh(key)`，
+ *   这会让下次输出该 key 时新建一个元素。
+ * - 导出日志时也按 key 去重，同一个 key 只保留最后一条记录。 */
 class Log {
     constructor() {
         _ShowLogButton__WEBPACK_IMPORTED_MODULE_7__.showLogButton.init({
@@ -10322,15 +10439,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   removeBookmarkTags: () => (/* binding */ removeBookmarkTags)
 /* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -10343,27 +10462,37 @@ __webpack_require__.r(__webpack_exports__);
 // 移除已收藏的作品的标签
 class RemoveBookmarkTags {
     async start(list) {
-        if (list.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_移除收藏标签')) {
             return;
         }
-        _store_States__WEBPACK_IMPORTED_MODULE_3__.states.busy = true;
+        if (list.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
+            return;
+        }
+        _store_States__WEBPACK_IMPORTED_MODULE_4__.states.busy = true;
         const total = list.length.toString();
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', total));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个作品', total));
         let slowMode = false;
         // 如果作品数量超过 1 页，就启用慢速模式
         if (list.length > 48) {
             slowMode = true;
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
         }
         let number = 0;
+        // 是否因为账户被警告而中止了遍历
+        let aborted = false;
         for (const item of list) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_移除收藏标签')) {
+                aborted = true;
+                break;
+            }
             try {
-                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.workID.toString(), item.type, [], false, item.private, true);
+                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(item.workID.toString(), item.type, [], false, item.private, true);
                 if (status === 403) {
-                    const msg = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBookmark403Error();
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(msg);
+                    const msg = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBookmark403Error();
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
                     break;
                 }
             }
@@ -10372,15 +10501,19 @@ class RemoveBookmarkTags {
                 // 但是也可能出现其他错误，比如因为请求太多而出现 429 错误。因为 429 错误需要等待几分钟后才能重试，这里偷懒不再重试
             }
             number++;
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${number} / ${total}`, 'removeWorksTagsProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${number} / ${total}`, 'removeWorksTagsProgress');
             if (slowMode) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
             }
         }
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除本页面中所有作品的标签') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_完成');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(msg);
-        _store_States__WEBPACK_IMPORTED_MODULE_3__.states.busy = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_4__.states.busy = false;
+        // 因为账户被警告而中止时，不显示「完成」的提示
+        if (aborted) {
+            return;
+        }
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移除本页面中所有作品的标签') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_完成');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(msg);
     }
 }
 const removeBookmarkTags = new RemoveBookmarkTags();
@@ -14385,14 +14518,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   unBookmarkWorks: () => (/* binding */ unBookmarkWorks)
 /* harmony export */ });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -14403,22 +14538,32 @@ __webpack_require__.r(__webpack_exports__);
 
 class UnBookmarkWorks {
     async start(list) {
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消收藏作品'));
-        if (list.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_取消收藏作品')) {
             return;
         }
-        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = true;
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消收藏作品'));
+        if (list.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
+            return;
+        }
+        _store_States__WEBPACK_IMPORTED_MODULE_6__.states.busy = true;
         const total = list.length;
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个作品', total.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个作品', total.toString()));
         // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
         const slowMode = total > 48;
         let progress = 0;
+        // 是否因为账户被警告而中止了遍历
+        let aborted = false;
         for (const item of list) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_取消收藏作品')) {
+                aborted = true;
+                break;
+            }
             try {
                 await this.waitSlowMode(slowMode);
-                await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(item.bookmarkID, item.type, _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
+                await _API__WEBPACK_IMPORTED_MODULE_1__.API.deleteBookmark(item.bookmarkID, item.type, _Token__WEBPACK_IMPORTED_MODULE_5__.token.token);
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
@@ -14426,18 +14571,22 @@ class UnBookmarkWorks {
                 // 不过这种作品无法被删除，执行完毕后还是会留在收藏里
             }
             progress++;
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${progress} / ${total}`, 'unBookmarkWorksProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(`${progress} / ${total}`, 'unBookmarkWorksProgress');
         }
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消收藏作品') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_完成');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(msg, {
+        _store_States__WEBPACK_IMPORTED_MODULE_6__.states.busy = false;
+        // 因为账户被警告而中止时，不显示「完成」的提示
+        if (aborted) {
+            return;
+        }
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消收藏作品') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_完成');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg, {
             position: 'topCenter',
         });
-        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = false;
     }
     async waitSlowMode(slowMode) {
         if (slowMode) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.slowCrawlDealy);
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
         }
     }
 }
@@ -18099,7 +18248,9 @@ class InitNewArtworkFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORT
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_新作品进度', this.fetchCount.toString()), 'initNewArtworkPageFetchProgress');
         // 抓取完毕
         if (this.fetchCount >= this.crawlNumber ||
-            this.fetchCount >= this.maxCount) {
+            this.fetchCount >= this.maxCount ||
+            data.body.lastId === null) {
+            // 如果没有后续作品了，lastId 会是 null，此时不能再继续下一次请求了，否则会产生 400 错误
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始获取作品页面'));
             this.getIdListFinished();
             return;
@@ -23250,7 +23401,9 @@ class InitNewNovelFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_新作品进度', this.fetchCount.toString()), 'initNewNovelPageFetchProgress');
         // 抓取完毕
         if (this.fetchCount >= this.crawlNumber ||
-            this.fetchCount >= this.maxCount) {
+            this.fetchCount >= this.maxCount ||
+            data.body.lastId === null) {
+            // 如果没有后续作品了，lastId 会是 null，此时不能再继续下一次请求了，否则会产生 400 错误
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始获取作品页面'));
             this.getIdListFinished();
             return;
@@ -24664,7 +24817,7 @@ class BookmarkAfterDL {
             // 用户手动排除的作品不收藏。这里在真正写入之前才判断，
             // 所以排队期间被排除的作品也会被跳过。
             // 跳过的作品计入已完成数量，否则进度会一直差几个，永远等不到「收藏完毕」
-            if (!_filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.checkExcluded(work.id, work.type)) {
+            if (!_filter_Filter__WEBPACK_IMPORTED_MODULE_7__.filter.checkNotExcluded(work.id, work.type)) {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('⏭️' +
                     _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过收藏因为用户排除了作品', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLinkByIDData({ id: work.id, type: work.type })));
                 task.successCount++;
@@ -24703,45 +24856,99 @@ class BookmarkAfterDL {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 
 
 
 
-/** 每下载 100 个文件（是文件数量不是作品数量），就检查一次当前用户是否被 pixiv 警告 */
+
+
+/** 检查当前用户是否被 pixiv 警告。
+ *
+ * 抓取阶段和下载阶段都会被覆盖：已下载的文件数量每增加 100 个，或者 API 请求次数每增加 300 次，
+ * 就会检查一次站内信。
+ * 实际的检查时机受 checkInterval 限制，所以最多会延迟一个 checkInterval 才进行检查 */
 class CheckWarningMessage {
     constructor() {
-        this.bindEvents();
+        this.setTimer();
     }
-    /**已下载（成功保存到硬盘上）的文件数量
+    /** 检查「是否需要检查站内信」的时间间隔。
      *
-     * 这个数字不会重置，除非当前标签页被关闭
-     */
-    downloaded = 0;
-    /**每当保存数量增加了指定数量时，进行一次检查 */
-    unitNumber = 100;
-    /**上次检查时的下载数量 */
+     * 抓取和下载都可能在短时间内产生大量请求，但检查站内信本身也是一次请求，
+     * 间隔太短就会检查得过于频繁，没有必要。
+     * ⚠️ 这里复用了 Config.retryTime，如果以后它的值被调整，这个间隔也会跟着变 */
+    checkInterval = _Config__WEBPACK_IMPORTED_MODULE_2__.Config.retryTime;
+    /** 已下载（成功保存到硬盘上）的文件数量每增加这个数量，就检查一次站内信 */
+    downloadedUnit = 100;
+    /** API 请求次数每增加这个数量，就检查一次站内信。
+     *
+     * 大量抓取时耗时可能以小时计，所以在抓取期间检查站内信会更加稳妥。
+     * 300 大致相当于很多列表页里 5 - 6 页的作品数量 */
+    apiRequestUnit = 300;
+    /** 上次检查站内信时的已下载文件数量 */
     lastCheckDownloaded = 0;
+    /** 上次检查站内信时的 API 请求次数 */
+    lastCheckApiRequest = 0;
     /** 检查过去 1 小时内的消息 */
     // 如果警告消息的时间过去比较久了，则不再显示提示消息，否则就会无限提示了
     checkTimeRange = 1 * 60 * 60 * 1000;
-    bindEvents() {
-        // 当有文件保存成功后，计算已下载文件的数量（不会计算跳过的文件）
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadSuccess, () => {
-            this.addDownloaded();
-        });
-    }
-    async addDownloaded() {
-        this.downloaded++;
-        if (this.downloaded >= this.lastCheckDownloaded + this.unitNumber) {
-            this.lastCheckDownloaded = this.downloaded;
-            const result = await this.check();
-            if (result) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_过度访问警告') + '<br>' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载已暂停'));
-                return _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestPauseDownload');
+    /** 每隔一段时间检查一次「是否满足检查站内信的条件」。
+     *
+     * 不使用 setInterval 是因为检查可能因为 429 重试而耗时很久（甚至超过这个间隔），
+     * 那样会让多次检查重叠、发出多余的请求。这里改为上一次结束后再安排下一次 */
+    setTimer() {
+        window.setTimeout(async () => {
+            try {
+                await this.checkCondition();
             }
+            catch (error) {
+                console.error(error);
+            }
+            finally {
+                this.setTimer();
+            }
+        }, this.checkInterval);
+    }
+    /** 判断是否满足检查站内信的条件，满足则检查一次 */
+    async checkCondition() {
+        const needCheck = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloadSuccessCount >=
+            this.lastCheckDownloaded + this.downloadedUnit ||
+            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.apiRequestCount >= this.lastCheckApiRequest + this.apiRequestUnit;
+        if (!needCheck) {
+            return;
         }
+        // 更新基线。两个条件都以「上次检查站内信时」为基准，所以只要检查了，就都要一起更新
+        this.lastCheckDownloaded = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloadSuccessCount;
+        this.lastCheckApiRequest = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.apiRequestCount;
+        const result = await this.check();
+        if (result) {
+            this.handleWarning();
+        }
+    }
+    /** 检测到账户被警告之后要做的事 */
+    handleWarning() {
+        // 下载中和抓取中的流程会响应这两个事件而自动暂停/停止。
+        // 两者都不在时（例如正在执行批量收藏）就不需要触发它们，交给下面的 accountWarning 事件处理。
+        // ⚠️ 判断「正在抓取」要用 states.crawling，不能用 states.busy —— busy 还会被
+        // 批量取消收藏、批量移除标签等操作设为 true，用它会触发没有意义的 stopCrawl
+        let tip = '';
+        if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloading) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadPause');
+            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载已暂停');
+        }
+        else if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.crawling) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('stopCrawl');
+            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已停止抓取');
+        }
+        _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(tip
+            ? _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_过度访问警告') + '<br>' + tip
+            : _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_过度访问警告'));
+        // 通知那些不理会 stopCrawl / downloadPause 事件、但自身会批量发送请求的模块。
+        // 这些模块会检查 states.accountWarning，并停止后续的操作（见 AccountWarning.ts）
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('accountWarning');
     }
     async check() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getLatestMessage(3);
@@ -25699,6 +25906,12 @@ class DownloadControl {
                     reason = _utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.escapeHTML(reason);
                     _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_save_file_request_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(msg.data.id), reason));
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('saveFileError');
+                    // 如果因为文件名里含有非法字符，导致浏览器无法建立下载，就显示针对性的提示
+                    // 例如 Firefox 此时的错误信息是：
+                    // filename must not contain illegal characters
+                    if (reason.includes('filename') && reason.includes('illegal')) {
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_filename_contains_illegal_characters'));
+                    }
                     this.pauseDownload();
                     return;
                 }
@@ -31114,10 +31327,11 @@ class BlackAndWhiteImage {
             return _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.loadImg(url);
         }
         else {
+            console.count('因为检查图片颜色而加载的图片数量');
             // 不是 blobURL 的话先获取图片
             const res = await fetch(url).catch((error) => {
                 // fetch 加载图片可能会失败 TypeError: Failed to fetch
-                console.log(`Load image error! url: ${url}`);
+                console.log(`Failed to load image! url: ${url}`);
             });
             // 如果 fetch 加载图片失败
             if (!res || !res.ok) {
@@ -31740,7 +31954,7 @@ class Filter {
     // 每个过滤器函数必须返回一个 boolean 值，false 表示排除这个作品,true 表示保留这个作品
     async check(option) {
         // 检查这个作品是否被用户手动排除
-        if (!this.checkExcluded(option.id, option.IDTypeString)) {
+        if (!this.checkNotExcluded(option.id, option.IDTypeString)) {
             return false;
         }
         // 检查作品类型设置
@@ -32495,12 +32709,14 @@ class Filter {
             return !(type !== 'novels');
         }
     }
-    /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除。
+    /** 检查这个作品**没有被用户手动排除**。返回 true 表示没有被排除（应该保留），false 表示被排除了。
      *
      * 这是「手动排除作品」的唯一判断入口。其他模块需要判断某个作品是否被排除时也应该调用它，
      * 不要自己再写一套匹配逻辑：排除列表里图像作品的类型是粗略的 illusts，而查询时可能传入
-     * 更具体的 manga、ugoira，只有这里处理了这种差异 */
-    checkExcluded(id, type) {
+     * 更具体的 manga、ugoira，只有这里处理了这种差异。
+     *
+     * 注意：这个作品被排除时，这里会输出一条警告日志，所以它不只是一个单纯的查询 */
+    checkNotExcluded(id, type) {
         if (id === undefined || !type) {
             return true;
         }
@@ -32917,6 +33133,7 @@ class ShowEnabledFilter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downBlackWhiteImg && tips.push(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_黑白图片'));
         if (tips.length > 0) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_排除作品类型') + tips.join(', '));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示检查图片色彩会增加抓取所需时间'));
         }
     }
     /** 提示下载收藏和未收藏作品的设置 */
@@ -39148,6 +39365,14 @@ This setting does not apply to collection files generated after merging a novel 
         `{} 저장을 시작하지 못했습니다: {}. 다운로드를 일시정지했습니다. 문제를 해결한 뒤 “다운로드 시작”을 누르면 미완료 파일을 다시 시도합니다.`,
         `{} не удалось начать сохранение: {}. Загрузка приостановлена. После устранения проблемы нажмите «Начать загрузку», чтобы повторить попытку для незавершённых файлов.`,
     ],
+    _filename_contains_illegal_characters: [
+        `这可能是因为文件名里含有一些特殊字符，浏览器不允许这些字符用在文件名里。<br>你可以修改命名规则，移除可能含有特殊字符的标记，如 <span class="blue">{user}</span>、<span class="blue">{title}</span> 等。也可以只保留 <span class="blue">pixiv/{id}</span>，这样文件名肯定是安全的。<br>然后点击开始下载按钮继续下载。`,
+        `這可能是因為檔案名稱裡含有一些特殊字元，瀏覽器不允許這些字元用在檔案名稱裡。<br>你可以修改命名規則，移除可能含有特殊字元的標記，例如 <span class="blue">{user}</span>、<span class="blue">{title}</span> 等。也可以只保留 <span class="blue">pixiv/{id}</span>，這樣檔案名稱一定是安全的。<br>然後點擊「開始下載」按鈕繼續下載。`,
+        `This may be because the file name contains special characters that the browser does not allow in file names.<br>You can change the naming rule and remove the markers that may contain special characters, such as <span class="blue">{user}</span> and <span class="blue">{title}</span>. You can also keep only <span class="blue">pixiv/{id}</span>, which makes the file name definitely safe.<br>Then click the "Start download" button to continue downloading.`,
+        `ファイル名にブラウザが許可していない特殊な文字が含まれているためだと考えられます。<br>命名規則を変更して、特殊な文字が含まれる可能性があるマーカー（<span class="blue">{user}</span> や <span class="blue">{title}</span> など）を外してください。<span class="blue">pixiv/{id}</span> だけにしてもかまいません。そうすればファイル名は確実に安全になります。<br>その後、「開始」ボタンをクリックしてダウンロードを続けてください。`,
+        `파일 이름에 브라우저가 허용하지 않는 특수 문자가 포함되어 있기 때문일 수 있습니다.<br>명명 규칙을 수정하여 특수 문자가 포함될 수 있는 마커(예: <span class="blue">{user}</span>, <span class="blue">{title}</span>)를 제거하세요. <span class="blue">pixiv/{id}</span> 만 남겨도 됩니다. 그러면 파일 이름이 확실히 안전해집니다.<br>그런 다음 “다운로드 시작” 버튼을 눌러 다운로드를 계속하세요.`,
+        `Возможно, это потому, что имя файла содержит специальные символы, которые браузер не допускает в именах файлов.<br>Вы можете изменить правило названий и убрать метки, которые могут содержать специальные символы, например <span class="blue">{user}</span>, <span class="blue">{title}</span> и другие. Можно также оставить только <span class="blue">pixiv/{id}</span> — тогда имя файла точно будет безопасным.<br>Затем нажмите кнопку «Начать загрузку», чтобы продолжить загрузку.`,
+    ],
     _save_file_failed_tip: [
         `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
         `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
@@ -39333,6 +39558,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     _图片色彩的说明: [
         `你可以设置是否抓取彩色图片或黑白图片，默认会全部抓取。<br>
 如果你不想下载某种颜色的图片，可以取消选择它。<br>
+注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。<br>
 <br>
 判断方式：<br>
 下载器在检查图片的颜色时，会忽略白色和透明像素，只统计彩色、灰色、黑色像素。这是因为人眼在判断图片是否为彩色时，通常不会在意白色区域，重点在于其他内容是不是彩色。去掉白色区域之后，准确度会更高。<br>
@@ -39343,6 +39569,9 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 在有些图片里，彩色、灰色、黑色可能都占据了一定比例。<br>
 如果你加大彩色占比的阈值，图片会更容易被视为黑白图片。<br>
 如果你减小彩色占比的阈值，图片会更容易被视为彩色图片。<br>
+阈值为 25% 时的粗略参考数据：<br>
+抓取插画和动图时，大约有 5% 的图片被视为黑白图片；<br>
+抓取漫画时，大约有 45% 的图片被视为黑白图片。<br>
 <br>
 有小概率误判：<br>
 有些黑白图片会在局部使用彩色，有时彩色区域占比甚至可以达到 30%。它可能会被视为彩色图片。<br>
@@ -39356,6 +39585,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
  在下载阶段，下载器会在下载图片后再次检查它的颜色，不符合要求的话就不会把它保存到硬盘上。`,
         `你可以設定是否抓取彩色圖片或黑白圖片，預設會全部抓取。<br>
 如果你不想下載某種顏色的圖片，可以取消選擇它。<br>
+注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。<br>
 <br>
 判斷方式：<br>
 下載器在檢查圖片的顏色時，會忽略白色和透明像素，只統計彩色、灰色、黑色像素。這是因為人眼在判斷圖片是否為彩色時，通常不會在意白色區域，重點在於其他內容是不是彩色。去掉白色區域之後，準確度會更高。<br>
@@ -39379,6 +39609,7 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 在下載階段，下載器會在下載圖片後再次檢查它的顏色，不符合要求的話就不會把它保存到硬碟上。`,
         `You can set whether to crawl color images or black and white images. By default, all of them will be crawled.<br>
 If you do not want to download images of a certain color, you can unselect it.<br>
+Note: if you select only one image color, the downloader will load the thumbnail of every image to check it, so it will take more time to crawl.<br>
 <br>
 How it works:<br>
 When checking the color of an image, the downloader ignores white and transparent pixels, and only counts colored, gray and black pixels. This is because when people judge whether an image is in color, they usually do not care about the white area; what matters is whether the rest of the content is colored. Ignoring the white area makes the result more accurate.<br>
@@ -39402,6 +39633,7 @@ During crawling, the downloader loads the thumbnail of the image to check it; if
 During downloading, the downloader checks the color again after the image is downloaded; if it does not meet the requirements, the file will not be saved to the disk.`,
         `カラー画像と白黒画像のどちらをクロールするかを設定できます。既定ではすべてクロールします。<br>
 特定の色の画像をダウンロードしたくない場合は、そのチェックを外してください。<br>
+注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。<br>
 <br>
 判定方法：<br>
 ダウンローダーは画像の色を調べるとき、白と透明のピクセルを無視し、色付き・グレー・黒のピクセルだけを数えます。人が画像がカラーかどうかを判断するとき、通常は白い領域を気にせず、それ以外の部分が色付きかどうかを重視するためです。白い領域を除外すると精度が上がります。<br>
@@ -39425,6 +39657,7 @@ During downloading, the downloader checks the color again after the image is dow
 ダウンロード時には画像をダウンロードしたあとに再度色をチェックし、条件を満たさない場合はディスクに保存しません。`,
         `컬러 이미지와 흑백 이미지 중 무엇을 크롤링할지 설정할 수 있습니다. 기본적으로는 모두 크롤링합니다.<br>
 특정 색상의 이미지를 다운로드하고 싶지 않다면 선택을 해제하세요.<br>
+주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.<br>
 <br>
 판단 방법:<br>
 다운로더는 이미지의 색상을 확인할 때 흰색과 투명 픽셀은 무시하고 색이 있는 픽셀, 회색 픽셀, 검은색 픽셀만 계산합니다. 사람이 이미지가 컬러인지 판단할 때는 보통 흰 영역은 신경 쓰지 않고 나머지 내용이 컬러인지를 중시하기 때문입니다. 흰 영역을 제외하면 정확도가 높아집니다.<br>
@@ -39448,6 +39681,7 @@ During downloading, the downloader checks the color again after the image is dow
 다운로드 단계에서는 이미지를 다운로드한 뒤 다시 색상을 검사하고, 조건에 맞지 않으면 디스크에 저장하지 않습니다.`,
         `Вы можете выбрать, сканировать цветные или чёрно-белые изображения. По умолчанию сканируются все.<br>
 Если вы не хотите загружать изображения определённого цвета, снимите соответствующий флажок.<br>
+Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.<br>
 <br>
 Как определяется цвет:<br>
 При проверке цвета изображения загрузчик игнорирует белые и прозрачные пиксели и учитывает только цветные, серые и чёрные пиксели. Это связано с тем, что человек, оценивая, цветное изображение или нет, обычно не обращает внимания на белые области — важно, цветное ли остальное содержимое. Если исключить белые области, точность будет выше.<br>
@@ -40508,6 +40742,62 @@ There is also a button at the bottom of the log area for manually exporting logs
         `クロールを停止しました`,
         `크롤링 중지됨`,
         `Сканирование остановлено`,
+    ],
+    _账户被警告时停止操作的提示: [
+        `你的账户可能被 Pixiv 警告了，因此下载器已停止{}的操作。如果有需要，你可以在以后刷新该页面并再次执行该操作。`,
+        `你的帳號可能被 Pixiv 警告了，因此下載器已停止{}的操作。如果有需要，你可以在之後重新整理該頁面並再次執行該操作。`,
+        `Your account may have been warned by Pixiv, so the downloader has stopped this operation: {}. If necessary, you can reload this page later and perform the operation again.`,
+        `あなたのアカウントは Pixiv から警告を受けた可能性があるため、ダウンローダーは{}の操作を停止しました。必要であれば、後でこのページを再読み込みしてから、もう一度実行してください。`,
+        `계정이 Pixiv로부터 경고를 받았을 가능성이 있으므로 다운로더가 {} 작업을 중지했습니다. 필요하다면 나중에 이 페이지를 새로 고친 뒤 다시 실행할 수 있습니다.`,
+        `Возможно, ваш аккаунт получил предупреждение от Pixiv, поэтому загрузчик остановил операцию: {}. При необходимости вы можете позже перезагрузить эту страницу и выполнить её снова.`,
+    ],
+    _添加收藏: [
+        `添加收藏`,
+        `新增收藏`,
+        `Adding bookmarks`,
+        `ブックマークの追加`,
+        `북마크 추가`,
+        `Добавление закладок`,
+    ],
+    _给收藏添加标签: [
+        `给收藏添加标签`,
+        `為收藏新增標籤`,
+        `Adding tags to bookmarks`,
+        `ブックマークへのタグの追加`,
+        `북마크에 태그 추가`,
+        `Добавление тегов к закладкам`,
+    ],
+    _移除收藏标签: [
+        `移除收藏标签`,
+        `移除收藏標籤`,
+        `Removing tags from bookmarks`,
+        `ブックマークのタグの削除`,
+        `북마크 태그 제거`,
+        `Удаление тегов из закладок`,
+    ],
+    _导出关注列表: [
+        `导出关注列表`,
+        `匯出關注列表`,
+        `Exporting the following list`,
+        `フォロー一覧のエクスポート`,
+        `팔로우 목록 내보내기`,
+        `Экспорт списка подписок`,
+    ],
+    _过滤不活跃用户: [
+        `过滤不活跃用户`,
+        `過濾不活躍使用者`,
+        `Filtering inactive users`,
+        `非アクティブユーザーの絞り込み`,
+        `비활성 사용자 필터링`,
+        `Фильтрация неактивных пользователей`,
+    ],
+    _获取关注列表: [
+        `获取关注列表`,
+        `獲取關注列表`,
+        `Retrieving the following list`,
+        `フォロー一覧の取得`,
+        `팔로우 목록 가져오기`,
+        `Получение списка подписок`,
     ],
     _导入ID列表: [
         `导入 ID 列表`,
@@ -45797,6 +46087,14 @@ One possible reason: Your Pixiv account has been banned.`,
     <br>
     Вместо этого можно нажать кнопку «Ручное исключение», чтобы исключить ненужные работы.`,
     ],
+    _提示检查图片色彩会增加抓取所需时间: [
+        `注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。`,
+        `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。`,
+        `Note: if you select only one image color, the downloader will load the thumbnail of every image to check it, so it will take more time to crawl.`,
+        `注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。`,
+        `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
+        `Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.`,
+    ],
 };
 
 
@@ -46129,16 +46427,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   batchFollowUser: () => (/* binding */ batchFollowUser)
 /* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+
 
 
 
@@ -46159,18 +46459,21 @@ class BatchFollowUser {
     requestTimes = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
-    taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户');
+    taskName = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_批量关注用户');
     /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
     userList = [];
     importFollowedUserIDs = [];
     /** 等待当前列表与关注流程；刷新失败或其他拒绝都恢复 busy。 */
     async start() {
-        if (this.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_批量关注用户')) {
             return;
         }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID === '') {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码401的提示'), {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.loggedUserID === '') {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_状态码401的提示'), {
                 title: this.taskName,
             });
         }
@@ -46178,15 +46481,15 @@ class BatchFollowUser {
         try {
             this.reset();
             this.importFollowedUserIDs = await this.importUserList();
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
             if (this.importFollowedUserIDs.length === 0) {
                 this.busy = false;
-                return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
+                return _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次任务已全部完成'));
             }
             this.stopAddFollow = false;
             this.sendReqNumber = 0;
             // 显示提示
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户JSON'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_批量关注用户JSON'));
             // 根据当前页面来决定添加公开关注还是私密关注
             this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
             // 如果导入的用户数量较多，先获取关注用户列表，以便在添加关注时跳过已关注的用户
@@ -46201,38 +46504,38 @@ class BatchFollowUser {
         }
         catch {
             this.stopAddFollow = true;
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务已中止');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg, { title: this.taskName });
         }
         finally {
             this.busy = false;
         }
     }
     async readyGetUserList() {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_正在加载关注用户列表'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_正在加载关注用户列表'));
         // 总是慢速抓取
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
         // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
-        this.currentUserId = _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID;
+        this.currentUserId = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.loggedUserID;
         if (!this.currentUserId) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取当前登录的用户的ID失败');
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取当前登录的用户的ID失败');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg, {
                 title: this.taskName,
             });
             this.busy = false;
             return;
         }
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
         if (this.rest === 'show') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为公开关注的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_添加为公开关注的提示'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为非公开关注的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_添加为非公开关注的提示'));
         }
         // 获取抓取开始时的页码
-        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(location.href, 'p');
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
         // 计算开始抓取时的偏移量
         if (nowPage !== '') {
             this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
@@ -46250,24 +46553,28 @@ class BatchFollowUser {
         await this.getUserList();
     }
     logGetUserListProgress(number) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', number.toString()), 'batchFollowGetUserListProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个用户', number.toString()), 'batchFollowGetUserListProgress');
     }
     // 获取关注的用户列表
     async getUserList() {
+        // 账户被警告时终止遍历，不再请求后续的用户列表
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_批量关注用户')) {
+            return;
+        }
         const offset = this.baseOffset + this.requestTimes * this.limit;
         let res;
         try {
-            res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+            res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
         }
         catch {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取关注用户列表时出现错误并重试'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取关注用户列表时出现错误并重试'));
             return this.getUserList();
         }
         const users = res.body.users;
         // 用户列表抓取完毕
         if (users.length === 0) {
             this.logGetUserListProgress(this.userList.length);
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.persistentRefresh('batchFollowGetUserListProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.persistentRefresh('batchFollowGetUserListProgress');
             return this.batchFollow();
         }
         for (const userData of users) {
@@ -46275,13 +46582,13 @@ class BatchFollowUser {
             this.logGetUserListProgress(this.userList.length);
             // 抓取到了指定数量的用户
             if (this.userList.length >= this.totalNeed) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.persistentRefresh('batchFollowGetUserListProgress');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.persistentRefresh('batchFollowGetUserListProgress');
                 return this.batchFollow();
             }
         }
         this.requestTimes++;
         // 获取下一批用户列表
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
         return this.getUserList();
     }
     /** 新批次重新获得一次 token 刷新机会。 */
@@ -46291,8 +46598,8 @@ class BatchFollowUser {
         this.tokenHasUpdated = false;
     }
     async importUserList() {
-        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
+        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.loadJSONFile().catch((err) => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(err);
             return [];
         }));
         if (!loadedJSON) {
@@ -46300,7 +46607,7 @@ class BatchFollowUser {
         }
         // 要求是数组
         if (!Array.isArray(loadedJSON) || loadedJSON.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
             return [];
         }
         let userIDs = [];
@@ -46322,25 +46629,30 @@ class BatchFollowUser {
     tokenHasUpdated = false;
     need_recaptcha_enterprise_score_token = false;
     logProgress(current, total, newAdded) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 'batchFollowUserProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_新增x个', newAdded.toString())}`, 'batchFollowUserProgress');
     }
     /** 最后一个用户失败也不能越过中止状态显示完成。 */
     async batchFollow() {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示下载器会跳过已关注的用户'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速执行以避免引起429错误'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示可以重新执行批量关注任务'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示下载器会跳过已关注的用户'));
         let newFollow = 0;
         let no = 0;
         const total = this.importFollowedUserIDs.length;
         for (const userID of this.importFollowedUserIDs) {
+            // 账户被警告时终止遍历。设置 stopAddFollow 之后，循环后面的收尾代码也会显示「任务已中止」
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_批量关注用户')) {
+                this.stopAddFollow = true;
+                break;
+            }
             this.logProgress(no, total, newFollow);
             if (this.stopAddFollow)
                 break;
             if (this.sendReqNumber >= this.dailyLimit) {
                 this.stopAddFollow = true;
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户的操作达到每日限制', this.dailyLimit.toString());
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_批量关注用户的操作达到每日限制', this.dailyLimit.toString());
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg, { title: this.taskName });
                 this.busy = false;
                 return;
             }
@@ -46355,16 +46667,16 @@ class BatchFollowUser {
             }
         }
         if (this.stopAddFollow) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务已中止');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg, { title: this.taskName });
             return;
         }
         this.logProgress(no, total, newFollow);
         this.busy = false;
         const msg = '✅' + this.taskName;
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(msg, { title: this.taskName });
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.success(msg, { title: this.taskName });
     }
     clearIframe(iframe) {
         iframe.src = 'about:blank';
@@ -46388,17 +46700,17 @@ class BatchFollowUser {
             return 200;
         }
         // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-        let status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+        let status = await _API__WEBPACK_IMPORTED_MODULE_6__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_10__.token.token, this.rest === 'show');
         if (status !== 200) {
-            const userLink = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID);
-            const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注这个用户时出错', userLink, status.toString());
+            const userLink = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createUserLink(userID);
+            const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_关注这个用户时出错', userLink, status.toString());
             // 测试用：3 个不存在的用户的 ID
             // ["3809545", "3809548", "3809552"]
             if (status === 404) {
                 // 404 可能的原因：
                 // 1. token 无效
                 // 2. 该用户不存在
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
                 const userExists = await this.checkUserExists(userID);
                 // 如果该用户不存在，就跳过它
                 if (!userExists) {
@@ -46408,15 +46720,15 @@ class BatchFollowUser {
                 if (!this.tokenHasUpdated) {
                     // 尝试重新获取 token（仅执行一次），然后重试请求
                     this.tokenHasUpdated = true;
-                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset().catch(() => '');
+                    const refreshedToken = await _Token__WEBPACK_IMPORTED_MODULE_10__.token.reset().catch(() => '');
                     if (!refreshedToken) {
                         this.stopAddFollow = true;
                         return status;
                     }
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
-                    status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, refreshedToken, this.rest === 'show');
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(1000);
+                    status = await _API__WEBPACK_IMPORTED_MODULE_6__.API.addFollowingUser(userID, refreshedToken, this.rest === 'show');
                     if (status !== 200) {
-                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_关注该用户失败请等待一段时间后再试'));
+                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_关注该用户失败请等待一段时间后再试'));
                         this.stopAddFollow = true;
                     }
                 }
@@ -46426,13 +46738,13 @@ class BatchFollowUser {
                 // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
                 // 此时发出一次错误提醒，并重试添加关注
                 this.need_recaptcha_enterprise_score_token = true;
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_模拟用户点击'));
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_模拟用户点击'));
                 const iframe = await this.loadIframe(userID);
                 this.clearIframe(iframe);
                 return 200;
             }
             else if (status === 403) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
                 // 403 可能有两种原因：
                 // 1. 当前用户的访问权限已经被限制
                 // 2. 要关注的用户已经不存在
@@ -46441,31 +46753,31 @@ class BatchFollowUser {
                 const userExists = await this.checkUserExists(userID);
                 // 如果要添加的用户存在，那么说明当前用户的访问权限被限制
                 if (userExists) {
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
-                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg, { title: this.taskName });
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你的账号已经被Pixiv限制');
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg, { title: this.taskName });
                     this.stopAddFollow = true;
                 }
                 return status;
             }
             else {
                 // 其他错误
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
             }
         }
         // 慢速执行
         // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
         // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
         // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.rangeRandom(2500, 3600));
         return status;
     }
     async checkUserExists(userID) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_检查该用户是否存在'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_检查该用户是否存在'));
         // 先假设该用户存在
         let userExists = true;
         try {
-            const res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getUserProfile(userID, '0');
+            const res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getUserProfile(userID, '0');
             if (res.error) {
                 userExists = false;
             }
@@ -46475,16 +46787,16 @@ class BatchFollowUser {
             userExists = false;
         }
         if (userExists) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该用户存在'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_该用户存在'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该用户不存在跳过他'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_该用户不存在跳过他'));
         }
         return userExists;
     }
     // 加载指定用户的的主页，然后查找关注按钮并点击
     async loadIframe(userID) {
-        const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
+        const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
         const res = await fetch(url);
         // const text = await res.text()
         const iframe = document.createElement('iframe');
@@ -46494,7 +46806,7 @@ class BatchFollowUser {
         iframe.src = url;
         // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
         // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(4000, 6000));
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.rangeRandom(4000, 6000));
         await this.clickFollowBtn(userID, iframe);
         return iframe;
     }
@@ -46506,11 +46818,11 @@ class BatchFollowUser {
         }
         else {
             const msg = '⏭️' +
-                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createUserLink(userID));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
         }
         // 等待一段时间，以确保关注请求已经完成。之后 iframe 会被清除
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(1000, 2000));
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.rangeRandom(1000, 2000));
     }
 }
 const batchFollowUser = new BatchFollowUser();
@@ -46530,17 +46842,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   BookmarkAllWorks: () => (/* binding */ BookmarkAllWorks)
 /* harmony export */ });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -46608,10 +46922,10 @@ class BookmarkAllWorks {
     }
     /** 把 store.idList 转换为 BookmarkAllWorks 可用的 id 列表 */
     getBookmarkIdList = () => {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.bookmarkMode) {
             // 将 id 的 type 设置为 illusts 或 novels
             const list = [];
-            for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList) {
+            for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList) {
                 if (data.type === 'novelSeries') {
                     continue;
                 }
@@ -46625,7 +46939,7 @@ class BookmarkAllWorks {
                     });
                 }
             }
-            _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList = []; // 清空这次抓取到的 id 列表
+            _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList = []; // 清空这次抓取到的 id 列表
             this.sendIdList(list);
         }
     };
@@ -46641,20 +46955,37 @@ class BookmarkAllWorks {
     }
     // 启动收藏流程
     async startBookmark() {
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+            // 收藏模式需要结束，否则后续流程会一直以为自己还在收藏模式里
+            if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.bookmarkMode) {
+                _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('bookmarkModeEnd');
+            }
+            return;
+        }
         if (this.idList.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
-            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('bookmarkModeEnd');
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('bookmarkModeEnd');
             return;
         }
         this.textSpan.textContent = `Checking`;
         this.tipWrap.setAttribute('disabled', 'disabled');
         await this.getTagData();
         await this.addBookmarkAll();
+        // 账户被警告时遍历被中止了，此时不显示「完成」，但需要恢复界面状态
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+            this.tipWrap.removeAttribute('disabled');
+            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('bookmarkModeEnd');
+            return;
+        }
         this.complete();
     }
     // 获取每个作品的 tag 数据
     async getTagData() {
         for (const id of this.idList) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+                break;
+            }
             this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
             const noTagData = {
                 type: id.type,
@@ -46664,24 +46995,24 @@ class BookmarkAllWorks {
             };
             try {
                 // 如果下载器的收藏按钮设置为“不添加标签”，就不需要请求作品的数据
-                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.widthTagBoolean) {
+                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.widthTagBoolean) {
                     this.bookmarKData.push(noTagData);
                     continue;
                 }
                 // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
-                const delay = this.idList.length >= 120 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy : 0;
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sleep(delay);
+                const delay = this.idList.length >= 120 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy : 0;
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(delay);
                 let data;
                 if (id.type === 'novels') {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id.id);
+                    data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getNovelData(id.id);
                 }
                 else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id.id);
+                    data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getArtworkData(id.id);
                 }
                 this.bookmarKData.push({
                     type: id.type,
                     id: data.body.id,
-                    tags: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data),
+                    tags: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.extractTags(data),
                     restrict: false,
                 });
             }
@@ -46695,11 +47026,15 @@ class BookmarkAllWorks {
     async addBookmarkAll() {
         let index = 0;
         for (const data of this.bookmarKData) {
+            // 账户被警告时终止遍历，不再发出后续的请求
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_添加收藏')) {
+                break;
+            }
             this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
             if (status === 403) {
-                const msg = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBookmark403Error();
-                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                const msg = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBookmark403Error();
+                _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg);
                 break;
             }
             index++;
@@ -46708,8 +47043,8 @@ class BookmarkAllWorks {
     complete() {
         this.textSpan.textContent = `✓ Complete`;
         this.tipWrap.removeAttribute('disabled');
-        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_收藏作品完毕'));
-        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('bookmarkModeEnd');
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
+        _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('bookmarkModeEnd');
     }
 }
 
@@ -46728,12 +47063,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   BookmarksAddTag: () => (/* binding */ BookmarksAddTag)
 /* harmony export */ });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
 
 
 
@@ -46761,6 +47098,9 @@ class BookmarksAddTag {
     once = 100; // 一次请求多少个作品的数据
     bindEvents() {
         this.btn.addEventListener('click', () => {
+            if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_给收藏添加标签')) {
+                return;
+            }
             // 每次点击重置状态
             this.addTagList = [];
             this.addIndex = 0;
@@ -46774,12 +47114,18 @@ class BookmarksAddTag {
     }
     // 准备添加 tag。loop 表示这是第几轮循环
     async readyAddTag(loop = 0) {
+        // 账户被警告时终止遍历，不再请求后续的数据
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_给收藏添加标签')) {
+            this.textSpan.textContent = `×`;
+            this.btn.removeAttribute('disabled');
+            return;
+        }
         const offset = loop * this.once; // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
         let errorFlag = false;
         // 获取收藏的作品的数据
         const [showData, hideData] = await Promise.all([
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserId(), this.type, '未分類', offset, false),
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserId(), this.type, '未分類', offset, true),
+            _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserId(), this.type, '未分類', offset, false),
+            _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserId(), this.type, '未分類', offset, true),
         ]).catch((error) => {
             // 如果错误码为 403, 可能是在其他用户的页面里
             if (error.status && error.status === 403) {
@@ -46831,12 +47177,18 @@ class BookmarksAddTag {
     }
     // 给未分类作品添加 tag
     async addTag() {
+        // 账户被警告时终止遍历，不再发出后续的请求
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_给收藏添加标签')) {
+            this.textSpan.textContent = `×`;
+            this.btn.removeAttribute('disabled');
+            return;
+        }
         const item = this.addTagList[this.addIndex];
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
         if (status === 403) {
             this.textSpan.textContent = `× Permission denied`;
-            const msg = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBookmark403Error();
-            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(msg);
+            const msg = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBookmark403Error();
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
             return;
         }
         if (this.addIndex < this.addTagList.length - 1) {
@@ -46849,7 +47201,7 @@ class BookmarksAddTag {
             // 添加完成
             this.textSpan.textContent = `✓ Complete`;
             this.btn.removeAttribute('disabled');
-            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_收藏作品完毕'));
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_收藏作品完毕'));
         }
     }
 }
@@ -47394,16 +47746,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   exportFollowingList: () => (/* binding */ exportFollowingList)
 /* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -47434,30 +47788,33 @@ class ExportFollowingList {
     // 用户主页的通用链接前缀
     homePrefix = 'https://www.pixiv.net/users/';
     start(format) {
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_导出关注列表')) {
+            return;
+        }
         if (this.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
             return;
         }
         this.busy = true;
         this.format = format;
         // 显示提示
-        const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + log1);
-        const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
-        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(log2);
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + log1);
+        const log2 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(log2);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(log2);
         // 总是慢速抓取
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
         this.readyGet();
     }
     getWantPage() {
-        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type].value;
         if (this.crawlPageNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始抓取x页', this.crawlPageNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlPageNumber.toString()));
         }
     }
     getPageType() {
@@ -47476,9 +47833,9 @@ class ExportFollowingList {
         this.getWantPage();
         this.getPageType();
         this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'following');
         // 获取抓取开始时的页码
-        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLSearchField(location.href, 'p');
         // 计算开始抓取时的偏移量
         if (nowPage !== '') {
             this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
@@ -47498,27 +47855,31 @@ class ExportFollowingList {
         }
         else {
             const msg = `Get the user's own id failed`;
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
             // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log('');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log('');
             throw new Error(msg);
         }
         this.getUserList();
     }
     // 获取用户列表
     async getUserList() {
+        // 账户被警告时终止遍历，不再请求后续的用户列表，也不会导出不完整的列表
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_导出关注列表')) {
+            return;
+        }
         const offset = this.baseOffset + this.requestTimes * this.limit;
         let res;
         try {
             switch (this.pageType) {
                 case 'following':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
                     break;
                 case 'mypixiv':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getMyPixivList(this.currentUserId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getMyPixivList(this.currentUserId, offset);
                     break;
                 case 'followers':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowersList(this.currentUserId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowersList(this.currentUserId, offset);
                     break;
             }
         }
@@ -47549,35 +47910,35 @@ class ExportFollowingList {
                 return this.getUserListComplete();
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.JSONData.length.toString()), 'exportFollowingListProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个用户', this.JSONData.length.toString()), 'exportFollowingListProgress');
         this.requestTimes++;
         // 获取下一批用户列表
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
         this.getUserList();
     }
     async getUserListComplete() {
         this.busy = false;
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.JSONData.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个用户', this.JSONData.length.toString()));
         if (this.JSONData.length === 0) {
             const msg = '✅' +
-                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_用户数量为0') +
                 ', ' +
-                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.warning(msg);
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.warning(msg);
         }
         else {
             let msg = '';
             if (this.format === 'csv') {
                 await this.exportCSV();
-                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表CSV');
+                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表CSV');
             }
             else {
                 await this.exportJSON();
-                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表JSON');
+                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表JSON');
             }
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
         }
         this.reset();
     }
@@ -47588,10 +47949,10 @@ class ExportFollowingList {
         });
         // 添加用户信息的标题字段
         data.unshift(Object.keys(this.CSVData[0]));
-        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(data);
+        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__.createCSV.create(data);
         const csvURL = URL.createObjectURL(csv);
-        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(csvName) + '.csv');
+        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getPageTitle();
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(csvName) + '.csv');
     }
     async exportJSON() {
         // 在一次测试里我导出了 4514 个用户，JSON 文件的体积是 25.45 MiB（已格式化），平均每个用户的数据为 5912 B
@@ -47600,12 +47961,12 @@ class ExportFollowingList {
         const limit = this.JSONData.length > 50000;
         let urls = [];
         if (!limit) {
-            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(this.JSONData);
+            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.json2Blob(this.JSONData);
             const url = URL.createObjectURL(blob);
             urls.push(url);
         }
         else {
-            const data = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2BlobSafe(this.JSONData);
+            const data = await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.json2BlobSafe(this.JSONData);
             urls = data.map((item) => item.url);
         }
         let part = 1;
@@ -47616,8 +47977,8 @@ class ExportFollowingList {
             }
             // 文件名示例：
             // following list-total 4514-from user 9460149-part 1-2026-08-07 08-01-00.json
-            const fileName = `following list-total ${this.JSONData.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'users')}-${partString}${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.formatDateTimeInFilename()}.json`;
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, fileName);
+            const fileName = `following list-total ${this.JSONData.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'users')}-${partString}${_Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.formatDateTimeInFilename()}.json`;
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.downloadFile(url, fileName);
             URL.revokeObjectURL(url);
             part++;
         }
@@ -58180,7 +58541,11 @@ class SaveArtworkData {
                     if (result) {
                         passList.push(index);
                     }
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100); // 等待 100 毫秒，避免请求过于密集
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100); // 等待一定时间，避免请求过于密集
+                    // 我已经验证过 100 ms 是安全值，不会导致账号被警告。
+                    // 我有两次连续抓取了近 4000 个作品，分别检查了 8089 和 54706 张缩略图，没有触发警告。
+                    // 详见该测试记录：
+                    // notes/检查图片色彩的测试记录.md
                 }
                 // 如果没有图片通过颜色检查，就不保存这个作品
                 if (passList.length === 0) {
@@ -58490,7 +58855,8 @@ class States {
     /**表示下载器是否处于繁忙状态
      *
      * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
-     */
+     *
+     * ⚠️ 它不代表「正在抓取」，需要判断那种情况时请用 `crawling` */
     busy = false;
     /**快速下载标记
      *
@@ -58511,6 +58877,13 @@ class States {
     crawlTagList = false;
     /**是否处于下载中 */
     downloading = false;
+    /** 是否正在抓取（抓取流程正在运行）。
+     *
+     * ⚠️ 判断「是否正在抓取」要用这个，**不要用 `busy`**：`busy` 还会被下载、书签模式、
+     * 批量取消收藏、批量移除标签等操作设为 true，用它会误判。
+     *
+     * 由 crawlStart / crawlComplete / crawlEmpty / stopCrawl 维护 */
+    crawling = false;
     /** 指示下载任务是否已经完成或被中止 */
     downloadCompleteOrStop = false;
     /** 指示下载任务是否处于「已暂停」状态。
@@ -58524,6 +58897,30 @@ class States {
     get hasDownloadTask() {
         return this.downloading || this.downloadPaused;
     }
+    /** 累计有多少次下载成功事件。每次下载成功事件都意味着下载器保存了至少一个文件。
+     *
+     * 跳过下载的文件不会计入（例如因为不下载重复文件而跳过、因为不符合某些设置而跳过下载的文件），因为它们不会触发 downloadSuccess 事件
+     *
+     * 这个数字只会单向增长，不会重置，除非当前页面被关闭或刷新。*/
+    downloadSuccessCount = 0;
+    /** API 请求成功的次数。用于估计下载器实际发送了多少请求。
+     *
+     * 每次请求收到响应时 +1，不管响应的状态码是什么（429、502 这类异常状态码也会计入）。
+     * 如果请求本身失败（原生 fetch 抛出异常），或者请求还没有收到响应，就不会增加。
+     * 重试也会计入，因为每次重试都是实际发送的一次请求。
+     * 只会单向增长，不会重置，除非当前页面被关闭或刷新。
+     *
+     * ⚠️ 它不会统计没有走 API 模块的请求，主要是加载图片文件的操作（例如 filter/BlackandWhiteImage.ts 模块）。
+     * 那些操作分散在多个模块里，通常是 API 请求完成后的附属任务。而且 pixiv 对加载文件的频率限制比较宽松，没有请求网络 API 那么严格，所以目前我没有统计加载图片文件的次数。 */
+    apiRequestCount = 0;
+    /** 当前账户是否被 pixiv 警告了。
+     *
+     * 检测到警告时由 CheckWarningMessage 派发 accountWarning 事件，这里监听该事件并设为 true。
+     * 它不会变回 false（除非刷新页面），所以刷新页面之后才能重新执行那些批量请求的操作。
+     *
+     * 抓取流程和下载流程会响应 stopCrawl / downloadPause 而自动停止，
+     * 那些不理会这两个事件、但会批量发送请求的模块需要自己检查这个状态（用 AccountWarning.ts 里的方法） */
+    accountWarning = false;
     /**是否应用慢速抓取模式 */
     // 由 InitPageBase 修改它的值
     slowCrawlMode = false;
@@ -58601,6 +58998,20 @@ class States {
                 this.busy = true;
             });
         });
+        // 抓取流程的生命周期。单独维护 crawling，因为 busy 还会被其他操作设为 true（见 crawling 的说明）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
+            this.crawling = true;
+        });
+        const crawlIdle = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlEmpty,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl,
+        ];
+        for (const ev of crawlIdle) {
+            window.addEventListener(ev, () => {
+                this.crawling = false;
+            });
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl, () => {
             this.stopCrawl = true;
         });
@@ -58656,6 +59067,15 @@ class States {
                 this.downloadPaused = false;
             });
         }
+        // 每当有一个文件被成功保存到硬盘上时，记录已下载的文件数量
+        // 跳过下载的文件不会触发这个事件，所以不会被计入
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, () => {
+            this.downloadSuccessCount++;
+        });
+        // 检测到账户被 pixiv 警告时标记这个状态。它只会随着页面刷新而重置
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.accountWarning, () => {
+            this.accountWarning = true;
+        });
         // 暂停下载时，标记下载任务处于「已暂停」状态。
         // 注意不要用 downloading 来判断下载任务是否存在：暂停时它也会变成 false
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause, () => {
@@ -77645,8 +78065,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/utils/SetTimeoutWorker.ts");
 
 class Utils {
-    // 不安全的字符，这里多数是控制字符，需要替换掉
-    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00A0\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u2000-\u200f\u202a-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+    // 不安全的字符，它们在文件名里会引发问题，需要替换掉。内容包括：
+    //
+    // - 控制字符（Cc）：U+0000-U+001F、U+007F-U+009F。各种换行符都在这里：LF、VT、FF、CR、NEL（U+0085）
+    // - **行分隔符 U+2028、段落分隔符 U+2029**。它们是 JavaScript 的行终止符，Firefox 也不允许把它们用作文件名。
+    //   ⚠️ 这两个字符的 Unicode 类别是 Zl / Zp，不属于 Cf / Cc，所以很容易被漏掉
+    // - 不可见的格式字符（Cf）：零宽字符（U+200B-U+200D）、双向控制符（U+202A-U+202E、U+2066-U+2069）、
+    //   阿拉伯的各种标记（U+0600-U+0605、U+061C、U+06DD、U+0890-U+0891、U+08E2）等
+    // - 特殊空格：NBSP（U+00A0）、U+1680、U+2000-U+200A、U+202F、U+205F。它们看起来像空格，但是别的字符
+    // - Unicode 非字符（U+FDD0-U+FDEF、U+FFFE、U+FFFF）、BOM（U+FEFF）、行间注释符（U+FFF9-U+FFFB）
+    //
+    // 因此它符合这样一个规则：**BMP 内所有 Cc、Cf、Zl、Zp 类别都已经覆盖**，
+    // Zs（空格类）只保留了 U+0020（普通空格）和 U+3000（全角空格）——这两个不能删，
+    // 尤其是 U+3000，它是日文标题里正常使用的字符（例如作者名里的分隔符），删掉会改变文件名的含义。
+    // 非 BMP 里还有很少见的一些 Cf 字符没有覆盖（例如 U+E0020-U+E007F 的标签字符），
+    // 它们需要给正则加上 u 标志并用 \u{} 写法才能表示，暂时没有处理
+    //
+    // 如果以后发现别的特殊字符也会导致文件名出错，也应该加到这里
+    //
+    // ⚠️ 这个正则带 g 标志（replace 需要它才能替换掉全部匹配）。因此**不要用 .test() / .exec() 来判断字符**：
+    // 它们会残留 lastIndex，导致下次判断从上次的位置继续、跳着匹配。要判断就用 replace，
+    // 或者自己先把 lastIndex 重置为 0
+    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00A0\u00ad\u0600-\u0605\u061c\u06dd\u070f\u0890-\u0891\u08e2\u1680\u180e\u2000-\u200f\u2028-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
     // 一些半角字符与全角字符的对照表
     static fullWidthDict = new Map([
         ['\\', '＼'],
