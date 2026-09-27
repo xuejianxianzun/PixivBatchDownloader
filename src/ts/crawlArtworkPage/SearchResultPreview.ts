@@ -11,6 +11,7 @@ import { Result } from '../store/StoreType'
 import { store } from '../store/Store'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
+import { msgBox } from '../MsgBox'
 
 type AddBMKData = {
   id: number
@@ -348,7 +349,7 @@ class SearchResultPreview {
     return store.resultMeta.length > 0 || store.result.length > 0
   }
 
-  /** 在抓取结果中应用当前筛选条件 */
+  /** 点击“在结果中筛选”按钮之后，在抓取结果中应用当前筛选条件 */
   public async filterResults() {
     const canFilter = await this.filterResult((data) => {
       const filterOpt: FilterOption = {
@@ -373,6 +374,24 @@ class SearchResultPreview {
 
     if (canFilter) {
       toast.success(lang.transl('_已调整抓取结果'))
+
+      if (store.result.length === 0) {
+        msgBox.warning(lang.transl('_在结果中筛选后没有剩余作品'), {
+          title: lang.transl('_在结果中筛选'),
+        })
+        return
+      }
+
+      if (!settings.downColorImg || !settings.downBlackWhiteImg) {
+        if (store.getColorBlockedIndexes().length === 0) {
+          msgBox.warning(
+            lang.transl('_在结果中筛选时没有图片色彩检查记录时的提示'),
+            {
+              title: lang.transl('_在结果中筛选'),
+            }
+          )
+        }
+      }
     }
   }
 
@@ -412,9 +431,13 @@ class SearchResultPreview {
       return
     }
 
+    // ⚠️「没有抓取结果」按**作品数**判断，不能用 store.result：
+    // 某作品在当前设置下一张图都不用下载时，result 里没有它的文件，但作品仍在 resultMeta 里
+    // （见 Store.getDownloadIndexes）。用 result 判断的话，结果一旦整体变空，
+    // 之后再改这些设置就永远不会重建了，「把设置改回去 → 图片回来」也会失效
     if (
       !this.causeResultChange.includes(data.name) ||
-      store.result.length === 0
+      store.resultMeta.length === 0
     ) {
       return
     }
@@ -676,9 +699,10 @@ class SearchResultPreview {
   }
 
   private showCountOnLog = () => {
-    const count = store.resultMeta.length
+    const workCount = store.resultMeta.length
+    const resultCount = store.result.length
     log.success(
-      lang.transl('_调整完毕', count.toString()),
+      lang.transl('_调整完毕', workCount.toString(), resultCount.toString()),
       'showCountWhenResultChange'
     )
   }
@@ -888,7 +912,6 @@ class SearchResultPreview {
 
     this.isFiltering = true
     try {
-      const beforeLength = store.resultMeta.length // 储存过滤前的结果数量
       const resultMetaTemp: Result[] = []
 
       for (const meta of store.resultMeta) {
@@ -910,17 +933,44 @@ class SearchResultPreview {
         this.pendingDeleteIds.clear()
       }
 
-      // 如果过滤后，作品元数据发生了改变则重建抓取结果并刷新当前页
-      if (newResultMeta.length !== beforeLength) {
-        this.reAddResult(newResultMeta)
-        this.renderCurrentPage()
-      }
+      // 顺便移除「在当前设置下一张图都下载不了」的作品。
+      //
+      // 之前这种作品同样会被 addResult 写进 store.resultMeta（它不关心文件数），但一个文件都不会贡献 ——
+      // 留着它的卡片会让用户以为这次筛选没有生效（最常见的是把图片色彩选项换到另一侧之后：
+      // 抓取结果变少了，但没用的作品还会显示卡片）。
+      // 现在会过滤掉这些没有任何一张图片被保留的作品，避免它们继续占据卡片位置。
+      //
+      // ⚠️ 只在这里移除（用户显式点了筛选 / 清除）。改设置触发的自动重建不移除，
+      // 否则用户在设置里反复改来改去就会静默丢掉作品，而且改回去也回不来
+      newResultMeta = newResultMeta.filter((meta) =>
+        this.willDownloadAnyFile(meta)
+      )
+
+      // 无条件重建抓取结果并刷新当前页。
+      // ⚠️ 不能只在「作品数量变了」时重建：用户可能改了图片色彩过滤的设置，
+      // 此时作品数量不变，但每个作品要保存哪些图片变了（见 Store.getDownloadIndexes）。
+      // 这个方法的三个调用者（在结果中筛选 / 清除多图作品 / 清除动图作品）都适用
+      this.reAddResult(newResultMeta)
+      this.renderCurrentPage()
 
       EVT.fire('resultChange')
       return true
     } finally {
       this.isFiltering = false
     }
+  }
+
+  /** 按当前设置算一下，这个作品会不会产生至少一个要下载的文件。
+   *
+   * ⚠️ 判断必须和 addResult / reAddResult 实际会做的事一致，所以统一用 Store.getDownloadIndexes()：
+   * 它已经处理了动图的特殊情况（动图只有一个文件，但封面同样会被检查颜色）。
+   *
+   * 只有小说例外：它不检查颜色、也没有索引过滤（见 Store.addResult），所以总是算「会」 */
+  private willDownloadAnyFile(meta: Result) {
+    if (meta.type === 3) {
+      return true
+    }
+    return store.getDownloadIndexes(meta).length > 0
   }
 
   /** 按照传入的作品列表重新构建抓取结果。

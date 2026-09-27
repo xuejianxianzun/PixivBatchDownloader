@@ -26,6 +26,8 @@ class StopCrawl {
     this.btn.addEventListener('click', () => {
       EVT.fire('stopCrawl')
     })
+    // 触发 stopCrawl 事件之后，states.stopCrawl 会被设置为 true
+    // 然后结束抓取流程，并触发抓取完成的事件（见 src/ts/crawl/InitPageBase.ts 里的 crawlFinished 方法）
   }
 
   /**绑定停止按钮和抓取生命周期事件 */

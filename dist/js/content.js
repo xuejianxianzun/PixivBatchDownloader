@@ -2142,7 +2142,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
+
 
 
 
@@ -2171,14 +2175,26 @@ class BG {
     pendingBackgroundChange = false;
     async init() {
         this.bindEvents();
-        await this.initDB();
+        // 数据库打不开时（例如版本升级被其他标签页阻塞）只会让背景图片功能不可用，
+        // 不能让它变成未处理的 Promise 拒绝（见 utils/IndexedDB.open 里的 onblocked）
+        if (!(await this.initDB())) {
+            return;
+        }
         await this.restore();
-        if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.settingInitialized) {
             this.pendingBackgroundChange = false;
         }
     }
+    /** 初始化数据库，返回是否成功（**不抛出异常**） */
     async initDB() {
-        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
+        try {
+            await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
+            return true;
+        }
+        catch (ev) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_IndexedDB打不开', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB.getErrorName(ev)));
+            return false;
+        }
     }
     // 在数据库升级事件里创建表
     onUpdate = (db) => {
@@ -2232,7 +2248,7 @@ class BG {
             if (areaName !== 'local' || !data || data.origin !== location.origin) {
                 return;
             }
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.settingInitialized || !this.IDB.db) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_7__.states.settingInitialized || !this.IDB.db) {
                 this.pendingBackgroundChange = true;
                 return;
             }
@@ -16920,6 +16936,8 @@ class StopCrawl {
         this.btn.addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('stopCrawl');
         });
+        // 触发 stopCrawl 事件之后，states.stopCrawl 会被设置为 true
+        // 然后结束抓取流程，并触发抓取完成的事件（见 src/ts/crawl/InitPageBase.ts 里的 crawlFinished 方法）
     }
     /**绑定停止按钮和抓取生命周期事件 */
     bindEvents() {
@@ -18135,7 +18153,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-// 初始化 本站的最新作品 artwork 页面
 
 
 
@@ -18147,6 +18164,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 初始化大家的新作页面里的插画、漫画分类页面
+// 这个页面里的作品列表是滚动加载的，但作品数量上限不固定。
+// 在插画分类里可以加载超过 1000 个作品（我不清楚最大值是多少）。
+// 在漫画分类页面里则少一些，有一次测试最多只加载了 474 个作品就到底了，无法继续加载。
 class InitNewArtworkFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
@@ -19183,6 +19204,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
 
 
 
@@ -19465,7 +19488,7 @@ class SearchResultPreview {
     get hasResult() {
         return _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length > 0 || _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length > 0;
     }
-    /** 在抓取结果中应用当前筛选条件 */
+    /** 点击“在结果中筛选”按钮之后，在抓取结果中应用当前筛选条件 */
     async filterResults() {
         const canFilter = await this.filterResult((data) => {
             const filterOpt = {
@@ -19488,6 +19511,19 @@ class SearchResultPreview {
         });
         if (canFilter) {
             _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length === 0) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_在结果中筛选后没有剩余作品'), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_在结果中筛选'),
+                });
+                return;
+            }
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downColorImg || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downBlackWhiteImg) {
+                if (_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.getColorBlockedIndexes().length === 0) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_在结果中筛选时没有图片色彩检查记录时的提示'), {
+                        title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_在结果中筛选'),
+                    });
+                }
+            }
         }
     }
     /** 抓取完成后保存结果快照并按排序后的结果重建预览 */
@@ -19521,8 +19557,12 @@ class SearchResultPreview {
             this.renderCurrentPage();
             return;
         }
+        // ⚠️「没有抓取结果」按**作品数**判断，不能用 store.result：
+        // 某作品在当前设置下一张图都不用下载时，result 里没有它的文件，但作品仍在 resultMeta 里
+        // （见 Store.getDownloadIndexes）。用 result 判断的话，结果一旦整体变空，
+        // 之后再改这些设置就永远不会重建了，「把设置改回去 → 图片回来」也会失效
         if (!this.causeResultChange.includes(data.name) ||
-            _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length === 0) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length === 0) {
             return;
         }
         // 这些设置会影响每个作品要下载哪些文件，所以要按当前的作品列表重建抓取结果
@@ -19735,8 +19775,9 @@ class SearchResultPreview {
         }
     };
     showCountOnLog = () => {
-        const count = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_调整完毕', count.toString()), 'showCountWhenResultChange');
+        const workCount = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
+        const resultCount = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.result.length;
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_调整完毕', workCount.toString(), resultCount.toString()), 'showCountWhenResultChange');
     };
     /** 按新增结果更新当前预览页 */
     onResultAdded = (event) => {
@@ -19917,7 +19958,6 @@ class SearchResultPreview {
         }
         this.isFiltering = true;
         try {
-            const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length; // 储存过滤前的结果数量
             const resultMetaTemp = [];
             for (const meta of _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta) {
                 try {
@@ -19935,17 +19975,40 @@ class SearchResultPreview {
                 newResultMeta = resultMetaTemp.filter((meta) => !this.pendingDeleteIds.has(meta.idNum));
                 this.pendingDeleteIds.clear();
             }
-            // 如果过滤后，作品元数据发生了改变则重建抓取结果并刷新当前页
-            if (newResultMeta.length !== beforeLength) {
-                this.reAddResult(newResultMeta);
-                this.renderCurrentPage();
-            }
+            // 顺便移除「在当前设置下一张图都下载不了」的作品。
+            //
+            // 之前这种作品同样会被 addResult 写进 store.resultMeta（它不关心文件数），但一个文件都不会贡献 ——
+            // 留着它的卡片会让用户以为这次筛选没有生效（最常见的是把图片色彩选项换到另一侧之后：
+            // 抓取结果变少了，但没用的作品还会显示卡片）。
+            // 现在会过滤掉这些没有任何一张图片被保留的作品，避免它们继续占据卡片位置。
+            //
+            // ⚠️ 只在这里移除（用户显式点了筛选 / 清除）。改设置触发的自动重建不移除，
+            // 否则用户在设置里反复改来改去就会静默丢掉作品，而且改回去也回不来
+            newResultMeta = newResultMeta.filter((meta) => this.willDownloadAnyFile(meta));
+            // 无条件重建抓取结果并刷新当前页。
+            // ⚠️ 不能只在「作品数量变了」时重建：用户可能改了图片色彩过滤的设置，
+            // 此时作品数量不变，但每个作品要保存哪些图片变了（见 Store.getDownloadIndexes）。
+            // 这个方法的三个调用者（在结果中筛选 / 清除多图作品 / 清除动图作品）都适用
+            this.reAddResult(newResultMeta);
+            this.renderCurrentPage();
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
             return true;
         }
         finally {
             this.isFiltering = false;
         }
+    }
+    /** 按当前设置算一下，这个作品会不会产生至少一个要下载的文件。
+     *
+     * ⚠️ 判断必须和 addResult / reAddResult 实际会做的事一致，所以统一用 Store.getDownloadIndexes()：
+     * 它已经处理了动图的特殊情况（动图只有一个文件，但封面同样会被检查颜色）。
+     *
+     * 只有小说例外：它不检查颜色、也没有索引过滤（见 Store.addResult），所以总是算「会」 */
+    willDownloadAnyFile(meta) {
+        if (meta.type === 3) {
+            return true;
+        }
+        return _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.getDownloadIndexes(meta).length > 0;
     }
     /** 按照传入的作品列表重新构建抓取结果。
      *
@@ -21784,19 +21847,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
+
+
+
+
+
+
+
+
+
+
+
+// 初始化“已关注用户的作品”和“好P友的作品”页面，这里面的作品都是新发表的作品；分页显示。
+// 默认网址如（根据子页面类型、作品类型还有多种其他网址）：
+// https://www.pixiv.net/bookmark_new_illust.php
+// 非会员最多可以看到第 34 页：
+// https://www.pixiv.net/bookmark_new_illust.php?p=34
+// https://www.pixiv.net/novel/bookmark_new.php?p=34
 // Premium 会员可以看到第 84 页
-
-
-
-
-
-
-
-
-
-
-
+// 在插画分类和小说分类里，每页最多都是 60 个作品，但有些页面里的数量会略少一些
 class InitNewWorksFromFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
@@ -23298,7 +23367,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-// 初始化 本站的最新作品 小说页面
 
 
 
@@ -23309,6 +23377,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 初始化大家的新作页面里的小说分类页面
+// https://www.pixiv.net/novel/new.php
+// 这个页面里的作品列表是滚动加载的
+// 在一次测试里我加载了超过 1500 个作品，还可以继续加载。我不清楚最大值是多少。
 class InitNewNovelFromAllUsersPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
@@ -27224,6 +27296,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _DownloadRecordManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadRecordManager */ "./src/ts/download/DownloadRecordManager.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+
+
 
 
 
@@ -27258,7 +27334,11 @@ class DownloadRecord {
     // 从图片 url 里取出日期字符串的正则表达式
     dateRegExp = /img\/(.*)\//;
     async init() {
-        await this.initDB();
+        // 数据库打不开时（例如版本升级被其他标签页阻塞）整个模块降级为「不记录下载记录」：
+        // 这时不绑定事件，避免之后写数据库时报错；异常也不能逃出去变成未处理的拒绝
+        if (!(await this.initDB())) {
+            return;
+        }
         this.bindEvents();
     }
     // 初始化数据库，获取数据库对象
@@ -27272,7 +27352,14 @@ class DownloadRecord {
                 }
             }
         };
-        return this.IDB.open(this.DBName, this.DBVer, onUpdate);
+        try {
+            await this.IDB.open(this.DBName, this.DBVer, onUpdate);
+            return true;
+        }
+        catch (ev) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB打不开', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB.getErrorName(ev)));
+            return false;
+        }
     }
     bindEvents() {
         // 当有文件下载完成时，存储这个任务的记录
@@ -27340,6 +27427,10 @@ class DownloadRecord {
     }
     /** 传入一个构造好的 Record 对象，添加它的下载记录 */
     async addRecordFromRecord(record) {
+        // 数据库不可用时直接跳过（写不进去，也不应该报错）
+        if (!this.IDB.db) {
+            return;
+        }
         const storeName = this.getStoreName(record.id);
         if (this.existedIdList.includes(record.id)) {
             this.IDB.put(storeName, record);
@@ -27354,6 +27445,10 @@ class DownloadRecord {
     // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
     async getRecord(id) {
         await this.dbReady;
+        // 数据库不可用时当作「没有记录」：去重会失效，但不会让下载流程报错
+        if (!this.IDB.db) {
+            return null;
+        }
         const storeName = this.getStoreName(id);
         const record = (await this.IDB.get(storeName, id));
         if (record) {
@@ -28122,6 +28217,8 @@ class ImportResult {
         // 恢复数据
         // 通过 store.addResult 添加数据，可以应用多图作品设置，对导入的结果进行调整
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.reset();
+        // 这是一批全新的结果，上次抓取的色彩检查记录不再适用
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.clearColorBlockedIndexes();
         for (const r of temp) {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.addResult(r);
         }
@@ -29801,6 +29898,8 @@ class Resume {
     IDB;
     DBName = 'PBD';
     DBVer = 3;
+    /** 记住数据库实际的版本（见 getDBVer） */
+    dbVerKey = 'PBD_DBVer';
     metaName = 'taskMeta'; // 下载任务元数据的表名
     dataName = 'taskData'; // 下载任务数据的表名
     statesName = 'taskStates'; // 下载状态列表的表名
@@ -29819,15 +29918,30 @@ class Resume {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             return;
         }
-        await this.initDB();
+        const dbReady = await this.initDB();
+        // ⚠️ 不管数据库有没有打开成功，都要绑定事件。
+        // 如果数据库打不开（例如版本升级被其他标签页阻塞）就在这里中断，
+        // 那么「抓取完成时保存抓取结果」的监听就永远不会被绑上，
+        // 表现为「抓取完成后不保存抓取结果」，而其它功能看起来一切正常，很难排查
         this.bindEvents();
+        if (!dbReady) {
+            return;
+        }
         if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.settingInitialized) {
             this.restoreData();
         }
         this.regularPutStates();
         this.clearExired();
     }
-    // 初始化数据库，获取数据库对象
+    /** 初始化数据库，返回是否成功。
+     *
+     * ⚠️ **不抛出异常**：数据库不可用时只影响「保存 / 恢复抓取结果」，
+     * 不应该让整个模块的初始化流程中断（见 init 里的说明）。
+     *
+     * 带版本打开失败时退化为「按数据库当前的版本打开」：
+     * - 数据库的版本高于请求的版本（用户用过更高的版本）→ VersionError
+     * - 请求的版本高于数据库当前的版本，但还有别的连接在打开它 → 请求被阻塞
+     * 不带版本打开不会触发升级，所以这两种情况都能绕过去。 */
     async initDB() {
         // 在升级事件里创建表和索引
         const onUpdate = (db) => {
@@ -29851,8 +29965,57 @@ class Resume {
                 statesStore.createIndex('id', 'id', { unique: true });
             }
         };
-        // 打开数据库
-        return this.IDB.open(this.DBName, this.DBVer, onUpdate);
+        // 数据库实际的版本可能比 DBVer 高（用户用过某个更高的版本），直接用那个版本打开，
+        // 这样就不会每次都先撞一次 VersionError
+        const ver = this.getDBVer();
+        try {
+            await this.IDB.open(this.DBName, ver, onUpdate);
+            return true;
+        }
+        catch (ev) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_IndexedDB改为按当前版本打开', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__.IndexedDB.getErrorName(ev)));
+        }
+        // 不带版本打开：它不会触发升级，所以上面那两种情况都绕得过去
+        try {
+            const db = await this.IDB.open(this.DBName);
+            // 这样打开的数据库可能缺表（数据库是在更早的版本里创建的，而升级没能进行）。
+            // 缺表时保存和恢复都会报错，所以判定为失败，别装作能用
+            const missing = [this.metaName, this.dataName, this.statesName].filter((name) => !db.objectStoreNames.contains(name));
+            if (missing.length > 0) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_IndexedDB缺少数据表', missing.join(', ')));
+                return false;
+            }
+            // 记住实际的版本，下次直接用它打开
+            if (db.version !== ver) {
+                try {
+                    localStorage.setItem(this.dbVerKey, db.version.toString());
+                }
+                catch (err) {
+                    // 写不进去只是失去这个优化，不能因此判定「数据库打不开」（见下面的 catch 分支）
+                }
+            }
+            return true;
+        }
+        catch (ev) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_IndexedDB打不开', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__.IndexedDB.getErrorName(ev)));
+            return false;
+        }
+    }
+    /** 打开数据库时要用的版本：取「代码里的 DBVer」与「上次发现的实际版本」中较大的那个。
+     *
+     * 数据库的实际版本可能比 DBVer 高（用户用过某个更高的版本，而 IndexedDB 不支持降级）。
+     * 用较大的版本打开，才不会每次都先撞一次 VersionError */
+    getDBVer() {
+        // ⚠️ 这个方法在 initDB 的 try 之外被调用，所以它自己绝不能抛：
+        // 禁用站点数据等情况读取 localStorage 会抛异常，而 initDB 承诺了「不抛出异常」
+        try {
+            const saved = Number.parseInt(localStorage.getItem(this.dbVerKey) || '');
+            return Number.isFinite(saved) && saved > this.DBVer ? saved : this.DBVer;
+        }
+        catch (err) {
+            // 取不到就按代码里的 DBVer 走
+            return this.DBVer;
+        }
     }
     bindEvents() {
         // 切换页面时，重新检查恢复数据
@@ -29892,6 +30055,11 @@ class Resume {
     async restoreData() {
         // 如果下载器在抓取或者在下载，则不恢复数据
         if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.busy) {
+            return;
+        }
+        // 数据库不可用时不恢复。init() 在初始化失败时不会调用这里，
+        // 但 pageSwitch / settingInitialized 的监听也会调用它，所以要挡一下
+        if (!this.IDB.db) {
             return;
         }
         // 1 获取任务的元数据
@@ -29946,6 +30114,14 @@ class Resume {
         _store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlCompleteTime = Number.isFinite(crawlCompleteTime)
             ? crawlCompleteTime
             : Date.now();
+        // 4 恢复「被色彩检查排除的图片索引」。
+        // 有了它，恢复之后再做删除/筛选作品时，不会把被色彩排除的图片又加回来。
+        //
+        // ⚠️ 必须放在 restoreResultMetaFromResult() 之后：那个方法会先按 result 反推一份（给旧数据兜底），
+        // 这里再用精确保存的数据覆盖它。旧数据（没有 colorBlocked 字段）时保持反推的结果
+        if (meta.colorBlocked) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.restoreColorBlockedIndexes(meta.colorBlocked);
+        }
         // 恢复模式就绪
         await _store_States__WEBPACK_IMPORTED_MODULE_4__.states.waitSettingInitialized();
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'), 'restoreCrawlResult');
@@ -29959,10 +30135,15 @@ class Resume {
         // 无论上一次保存成功还是失败，都把本次保存接到队列末尾顺序执行
         const run = () => this.saveDataInner();
         const p = this.saveDataChain.then(run, run);
-        this.saveDataChain = p.catch(() => {
-            // 忽略单次保存失败，避免阻塞后续保存
+        // 忽略单次保存失败，避免阻塞后续保存
+        const handled = p.catch((error) => {
+            // 失败原因可能是字符串（这层封装会 reject 字符串）、事件对象或 Error，
+            // 所以统一交给 IndexedDB.getErrorName 取一个能看懂的原因
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_保存抓取结果失败', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__.IndexedDB.getErrorName(error)));
         });
-        return p;
+        // ⚠️ 返回处理过的这个：调用方是事件监听，拿到原始 Promise 会产生未处理的拒绝
+        this.saveDataChain = handled;
+        return handled;
     }
     async saveDataInner() {
         // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
@@ -29981,12 +30162,14 @@ class Resume {
         this.part = [];
         await this.saveTaskData();
         // 保存 meta 数据
+        // 被图片色彩检查排除的图片索引也放在这里（见 TaskMeta.colorBlocked）
         const metaData = {
             id: this.taskId,
             url: this.getURL(),
             URLWhenCrawlStart: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.URLWhenCrawlStart,
             part: this.part.length,
             date: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime,
+            colorBlocked: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.getColorBlockedIndexes(),
         };
         // add 必须 await，否则下一个排队的保存可能在它提交前就读取/插入，撞上 url 唯一索引
         // 主键冲突时退化为 put 保存（仍 await，确保本次写入完成后再进行下一次保存）
@@ -32832,6 +33015,7 @@ class FilterSearchResults {
                             userId: work.userId,
                             xRestrict: work.xRestrict,
                             // 此时的 url 是 250x250 的 thumb 尺寸缩略图
+                            // 此时没有其他尺寸的缩略图 url 可用
                             imageUrl: work.url,
                         };
                     }
@@ -35772,12 +35956,28 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `Просканировать похожие работы`,
     ],
     _调整完毕: [
-        `调整完毕，当前有{}个作品`,
-        `調整完畢，目前有 {} 個作品`,
-        `The adjustment is complete and now has {} works`,
-        `調整が完了し、今、{} の作品があります`,
-        `조정이 완료되어, 현재 {}개의 작품이 있습니다`,
-        `Настройка завершена и теперь имеет {} работ`,
+        `调整完毕，当前有 {} 个作品，{} 个抓取结果`,
+        `調整完畢，目前有 {} 個作品，{} 個擷取結果`,
+        `Adjustment complete. Currently there are {} works and {} crawl results.`,
+        `調整が完了しました。現在 {} 件の作品、{} 件のクロール結果があります。`,
+        `조정 완료. 현재 {} 개의 작품, {} 개의 크롤링 결과가 있습니다.`,
+        `Корректировка завершена. Сейчас {} работ и {} результатов сканирования.`,
+    ],
+    _在结果中筛选后没有剩余作品: [
+        `这次筛选排除了所有抓取结果，所以抓取结果数量是 0。`,
+        `這次篩選排除了所有擷取結果，所以擷取結果數量是 0。`,
+        `This filtering excluded all of the crawl results, so the number of crawl results is 0.`,
+        `今回のスクリーニングでクロール結果がすべて除外されたため、クロール結果の数は 0 になりました。`,
+        `이번 선별에서 크롤링 결과가 모두 제외되어 크롤링 결과 수가 0이 되었습니다.`,
+        `Эта фильтрация исключила все результаты сканирования, поэтому число результатов сканирования равно 0.`,
+    ],
+    _在结果中筛选时没有图片色彩检查记录时的提示: [
+        `虽然你在“图片色彩”设置里排除了某种颜色的图片，但是下载器没有找到之前检查图片色彩的记录，所以这次操作不会应用“图片色彩”设置。<br>提示：如果你想使用“在结果中筛选”功能排除某种颜色的图片，必须在开始抓取之前排除任意一种颜色的图片，这样下载器会在抓取时检查图片颜色并生成记录，以便在之后使用。`,
+        `雖然你在「圖片色彩」設定裡排除了某種顏色的圖片，但是下載器沒有找到之前檢查圖片色彩的記錄，所以這次操作不會套用「圖片色彩」設定。<br>提示：如果你想使用「在結果中篩選」功能排除某種顏色的圖片，必須在開始擷取之前排除任意一種顏色的圖片，這樣下載器會在擷取時檢查圖片顏色並產生記錄，以便在之後使用。`,
+        `You have excluded images of one color in the "Image color" settings, but the downloader could not find any record of a previous image color check, so this operation will not apply the "Image color" setting.<br>Tip: if you want to use "Screen in results" to exclude images of a certain color, you must exclude one of the colors before starting to crawl. The downloader will then check image colors during crawling and create a record, so that you can use it later.`,
+        `「画像の色」設定でどちらか一方の色の画像を除外していますが、以前に画像の色をチェックした記録が見つからないため、この操作では「画像の色」設定は適用されません。<br>ヒント：「結果の中からスクリーニング」機能で特定の色の画像を除外したい場合は、クロールを開始する前にどちらか一方の色を除外しておく必要があります。そうすると、ダウンローダーがクロール時に画像の色をチェックして記録を作成し、後で利用できます。`,
+        `"이미지 색채" 설정에서 한쪽 색상의 이미지를 제외했지만, 이전에 이미지 색상을 검사한 기록을 찾을 수 없어서 이번 작업에서는 "이미지 색채" 설정이 적용되지 않습니다.<br>팁: "결과 중에서 선별" 기능으로 특정 색상의 이미지를 제외하려면 크롤링을 시작하기 전에 한쪽 색상을 제외해야 합니다. 그러면 다운로더가 크롤링할 때 이미지 색상을 검사해 기록을 만들고, 나중에 사용할 수 있습니다.`,
+        `Вы исключили изображения одного из цветов в настройках «Цвет изображения», но загрузчик не нашёл записи о предыдущей проверке цвета изображений, поэтому эта операция не применит настройку «Цвет изображения».<br>Подсказка: если вы хотите использовать «Экран результатов», чтобы исключить изображения определённого цвета, нужно исключить один из цветов до начала сканирования. Тогда загрузчик проверит цвет изображений при сканировании и создаст запись, которую можно будет использовать позже.`,
     ],
     _已调整抓取结果: [
         `已调整抓取结果`,
@@ -44739,7 +44939,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
         `일치하는 설정을 찾지 못했습니다. 다른 키워드로 다시 시도해 보세요.`,
         `Подходящие настройки не найдены. Попробуйте ввести другой ключевой слово.`,
     ],
-    _Discord: [`Discord`, `Discord`, `Discord`, `Discord`, `Discord`],
+    _Discord: [`Discord`, `Discord`, `Discord`, `Discord`, `Discord`, `Discord`],
     _Discord说明: [
         `本项目的 Discord 服务器：<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
         `本專案的 Discord 伺服器：<br><a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>`,
@@ -46094,6 +46294,38 @@ One possible reason: Your Pixiv account has been banned.`,
         `注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。`,
         `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
         `Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.`,
+    ],
+    _IndexedDB打不开: [
+        `下载器打不开 IndexedDB 数据库：{}`,
+        `下載器打不開 IndexedDB 資料庫：{}`,
+        `The downloader could not open the IndexedDB database: {}`,
+        `ダウンローダーは IndexedDB データベースを開けませんでした：{}`,
+        `다운로더가 IndexedDB 데이터베이스를 열 수 없습니다: {}`,
+        `Загрузчик не смог открыть базу данных IndexedDB: {}`,
+    ],
+    _IndexedDB改为按当前版本打开: [
+        `下载器打不开 IndexedDB 数据库：{}。已改为按数据库当前的版本打开，下载器会继续工作。`,
+        `下載器打不開 IndexedDB 資料庫：{}。已改為按資料庫目前的版本開啟，下載器會繼續運作。`,
+        `The downloader could not open the IndexedDB database: {}. It was opened with the current version instead, and the downloader will keep working.`,
+        `ダウンローダーは IndexedDB データベースを開けませんでした：{}。データベースの現在のバージョンで開き直し、ダウンローダーはそのまま動作を続けます。`,
+        `다운로더가 IndexedDB 데이터베이스를 열 수 없습니다: {}. 데이터베이스의 현재 버전으로 다시 열었으며 다운로더는 계속 작동합니다.`,
+        `Загрузчик не смог открыть базу данных IndexedDB: {}. База открыта в текущей версии, загрузчик продолжит работу.`,
+    ],
+    _IndexedDB缺少数据表: [
+        `IndexedDB 数据库里缺少下载器需要的数据表：{}`,
+        `IndexedDB 資料庫裡缺少下載器需要的資料表：{}`,
+        `The IndexedDB database is missing the data stores the downloader needs: {}`,
+        `IndexedDB データベースにダウンローダーが必要とするデータストアがありません：{}`,
+        `IndexedDB 데이터베이스에 다운로더에 필요한 데이터 저장소가 없습니다: {}`,
+        `В базе данных IndexedDB отсутствуют хранилища, необходимые загрузчику: {}`,
+    ],
+    _保存抓取结果失败: [
+        `保存抓取结果失败：{}`,
+        `儲存抓取結果失敗：{}`,
+        `Failed to save the crawl result: {}`,
+        `クロール結果の保存に失敗しました：{}`,
+        `크롤링 결과 저장에 실패했습니다: {}`,
+        `Не удалось сохранить результат сканирования: {}`,
     ],
 };
 
@@ -54071,12 +54303,12 @@ __webpack_require__.r(__webpack_exports__);
 // 每当用户打开或刷新一个标签页时，下载器会读取之前储存的设置，然后执行设置初始化。
 // 在此过程中每个设置项都会从默认值变成储存的值（如果没有储存的设置，则使用默认值），并触发一次 settingChange 事件
 // 当所有设置都初始化完毕后，触发一次 settingInitialized 事件
-// 其他模块如果需要判断初始化是否已经完成，除了监听 settingInitialized 事件，也可以使用 states.settingInitialized
 // 在内容脚本的生命周期里，这个事件只会触发一次。可以理解为在一个标签页里只会触发一次，除非用户刷新了该标签页才会再次触发
 // PS：重置设置不会触发这个事件
-// 用途：
+// 使用说明：
 // - 如果其他模块在初始化时依赖多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
-// - 想在设置初始化之后执行动作
+// - 如果需要在设置初始化之后执行动作，可以绑定这个事件，也可以 await states.waitSettingInitialized()
+// - 如果需要判断初始化是否已经完成，可以使用 states.settingInitialized
 // EVT.list.resetSettingsEnd
 // 会被两种操作触发：
 // 1. 重置设置
@@ -58494,69 +58726,16 @@ class SaveArtworkData {
             bookmarkData: body.bookmarkData,
             width: body.pageCount === 1 ? fullWidth : 0,
             height: body.pageCount === 1 ? fullHeight : 0,
-            // 这里只检查单图作品的缩略图的颜色；多图作品的缩略图将在后续单独检查
-            // 之前是使用 mini 网址检查的，但尺寸太小，最大 48px
-            // 现在改为使用 small 网址检查，尺寸最大 540px，体积 60 kB 左右
-            imageUrl: body.pageCount === 1 ? body.urls.small : undefined,
             userId: body.userId,
             xRestrict: body.xRestrict,
         };
+        // ⚠️ 图片颜色不在这个过滤器里检查，见 checkImageColor：它需要逐张加载缩略图，比较慢，
+        // 而且多图作品的每一张图片都要单独检查，交给 Filter 不方便
         let checkResult = await _filter_Filter__WEBPACK_IMPORTED_MODULE_2__.filter.check(filterOpt);
-        // 在多图作品里，第一张图片的颜色不能代表剩余的图片，所以需要检查每张图片的颜色
-        // 注意两个色彩选项都启用时，过滤器不会进行色彩检查（任何图片都能通过），所以此时不需要检查
-        let needCheckColor = !(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downBlackWhiteImg);
-        // 两个选项都未启用时，不检查，并且不保存这个作品
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downBlackWhiteImg) {
-            needCheckColor = false;
-            checkResult = false;
-        }
-        if (checkResult && needCheckColor && body.pageCount > 1) {
-            // 首先确定要检查哪些图片
-            let checkList = [];
-            if (downloadIndexes && downloadIndexes.length > 0) {
-                checkList = downloadIndexes;
-            }
-            else {
-                // 与 Store 里的行为保持一致：先应用多图作品的索引过滤器（例如只下载前几张图片），再检查颜色
-                // 因为下面会把 downloadIndexes 传给 Store，而 Store 只在没有收到 downloadIndexes 的时候才应用索引过滤器
-                // 这就导致 Store 可能不会应用索引过滤器，而是直接使用 downloadIndexes 里的值。
-                // 因此需要在这里先应用索引过滤器，之后就不需要 Store 再去应用了。
-                checkList = Array.from({ length: body.pageCount }, (_, i) => i).filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, body.pageCount, body.userId));
-            }
-            // 多图作品的缩略图网址是把第一张图片的 _p0 替换成对应的序号
-            // small 是每一张图片都有的缩略图尺寸，mini 和 thumb 只有第一张图片有
-            const smallURL = body.urls.small;
-            if (!smallURL || !smallURL.includes('_p0')) {
-                // 网址不符合预期时无法生成其他图片的网址，此时不进行检查
-                console.error(`Unexpected thumbnail url: ${body.id} ${smallURL}`);
-            }
-            else if (checkList.length > 0) {
-                // 储存通过颜色检查的图片索引
-                const passList = [];
-                // 串行检查
-                // 如果使用并行检查的话，会在短时间内加载大量缩略图，请求太密集，可能会导致账号被风控。
-                for (const index of checkList) {
-                    const imageUrl = smallURL.replace('_p0', `_p${index}`);
-                    const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_2__.filter.checkBlackWhite(imageUrl);
-                    if (result) {
-                        passList.push(index);
-                    }
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100); // 等待一定时间，避免请求过于密集
-                    // 我已经验证过 100 ms 是安全值，不会导致账号被警告。
-                    // 我有两次连续抓取了近 4000 个作品，分别检查了 8089 和 54706 张缩略图，没有触发警告。
-                    // 详见该测试记录：
-                    // notes/检查图片色彩的测试记录.md
-                }
-                // 如果没有图片通过颜色检查，就不保存这个作品
-                if (passList.length === 0) {
-                    checkResult = false;
-                }
-                else {
-                    // 如果有图片通过颜色检查，就只保留通过检查的图片索引
-                    downloadIndexes = passList;
-                }
-            }
-        }
+        // 按「图片色彩」设置继续检查图片（多图作品需要逐张检查），并算出最终要保存哪些图片
+        const colorCheck = await this.checkImageColor(body, checkResult, downloadIndexes);
+        checkResult = colorCheck.checkResult;
+        downloadIndexes = colorCheck.downloadIndexes;
         // 检查通过
         if (checkResult) {
             const idNum = parseInt(body.id);
@@ -58679,6 +58858,99 @@ class SaveArtworkData {
                 });
             }
         }
+    }
+    /** 按「图片色彩」设置检查这个作品的图片，并算出最终要保存哪些图片。
+     *
+     * 三种情况：
+     * - 两个选项都启用：不检查颜色（任何图片都能通过），保持原样
+     * - 两个选项都未启用：整个作品都不会被保存
+     * - 恰好启用一侧：这是唯一会做色彩检查的情况
+     *   - 单图作品只要检查它唯一的那张图片
+     *   - 多图作品的第一张图片不能代表其余的，所以要逐张检查
+     *
+     * ⚠️ 逐张检查必须串行，并且每张之间要 sleep：并发会在短时间内加载大量缩略图，
+     * 请求过于密集，可能会导致账号被风控。
+     *
+     * @param checkResult filter.check 的结果。为 false 时这个作品已经要被丢弃，不必再检查
+     * @returns 最终的 checkResult，以及要传给 store.addResult 的图片索引 */
+    async checkImageColor(body, checkResult, downloadIndexes) {
+        const { downColorImg, downBlackWhiteImg } = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings;
+        // 两个选项都启用时，过滤器不会进行色彩检查（任何图片都能通过），所以这里也不需要检查
+        if (downColorImg && downBlackWhiteImg) {
+            return { checkResult, downloadIndexes };
+        }
+        // 两个选项都未启用时，不检查，并且不保存这个作品
+        if (!downColorImg && !downBlackWhiteImg) {
+            return { checkResult: false, downloadIndexes };
+        }
+        // 这个作品已经被别的过滤器排除了，就不必再检查图片颜色
+        if (!checkResult) {
+            return { checkResult, downloadIndexes };
+        }
+        // 首先确定要检查哪些图片
+        let checkList = [];
+        if (body.pageCount === 1) {
+            // 单图作品只有一张图片，不应用「多图作品」的设置（与 Store.getDownloadIndexes 保持一致）
+            checkList = [0];
+        }
+        else if (downloadIndexes && downloadIndexes.length > 0) {
+            checkList = downloadIndexes;
+        }
+        else {
+            // 与 Store 里的行为保持一致：先应用多图作品的索引过滤器（例如只下载前几张图片），再检查颜色
+            // 因为下面会把 downloadIndexes 传给 Store，而 Store 只在没有收到 downloadIndexes 的时候才应用索引过滤器
+            // 这就导致 Store 可能不会应用索引过滤器，而是直接使用 downloadIndexes 里的值。
+            // 因此需要在这里先应用索引过滤器，之后就不需要 Store 再去应用了。
+            checkList = Array.from({ length: body.pageCount }, (_, i) => i).filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, body.pageCount, body.userId));
+        }
+        // 缩略图网址：把第一张图片的 _p0 替换成对应的序号，就得到其他图片的缩略图
+        // small 是每一张图片都有的缩略图尺寸（最大 540px，体积 40 kB 左右）。
+        // mini 和 thumb 只有第一张图片有，不能用来给多图作品检查颜色
+        const smallURL = body.urls.small;
+        // 注意：这里不要判断 !smallURL.includes('_p0')，因为动图的缩略图里本来就没有 '_p0'
+        // 只有插画、漫画作品的缩略图里才有 '_p0'
+        // 动图的缩略图网址示例：
+        // https://i.pximg.net/c/540x540_70/img-master/img/2026/09/26/13/47/14/150124088_master1200.jpg
+        // 插画的缩略图网址示例：
+        // https://i.pximg.net/c/540x540_70/img-master/img/2026/09/16/23/42/30/149748517_p0_master1200.jpg
+        if (!smallURL) {
+            // 网址不符合预期时无法生成其他图片的网址，此时不进行检查
+            console.error(`Unexpected thumbnail url: ${body.id} ${smallURL}`);
+            return { checkResult, downloadIndexes };
+        }
+        if (checkList.length === 0) {
+            return { checkResult, downloadIndexes };
+        }
+        // 储存通过颜色检查的图片索引
+        const passList = [];
+        // 串行检查
+        // 如果使用并行检查的话，会在短时间内加载大量缩略图，请求太密集，可能会导致账号被风控。
+        for (const index of checkList) {
+            const imageUrl = smallURL.replace('_p0', `_p${index}`);
+            const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_2__.filter.checkBlackWhite(imageUrl);
+            if (result) {
+                passList.push(index);
+            }
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100); // 等待一定时间，避免请求过于密集
+            // 我已经验证过 100 ms 是安全值，不会导致账号被警告。
+            // 我有两次连续抓取了近 4000 个作品，分别检查了 8089 和 54706 张缩略图，没有触发警告。
+            // 详见该测试记录：
+            // notes/检查图片色彩的测试记录.md
+        }
+        // 如果没有图片通过颜色检查，就不保存这个作品
+        if (passList.length === 0) {
+            return { checkResult: false, downloadIndexes };
+        }
+        // 如果有图片通过颜色检查，就只保留通过检查的图片索引
+        //
+        // 同时记录被色彩检查排除的图片索引。以后重建抓取结果时（从抓取结果里删除某个作品/在结果中筛选时）需要它，
+        // 如果缺少此数据，那些图片又会被加回来（见 Store.getDownloadIndexes）。
+        //
+        // ⚠️ 一张都没被排除时也要记录（indexes 是空数组）：它表示「这个作品的图片全都通过了色彩检查」。
+        // 这和「没有记录」是两回事 —— 用户之后把色彩选项换到另一侧时，前者应该贡献 0 张图片，
+        // 后者（从没检查过颜色）才保持原样。漏了空记录会让「只保留黑白」的结果里混进彩色图片
+        _Store__WEBPACK_IMPORTED_MODULE_4__.store.setColorBlockedIndexes(parseInt(body.id), checkList.filter((index) => !passList.includes(index)));
+        return { checkResult, downloadIndexes: passList };
     }
 }
 const saveArtworkData = new SaveArtworkData();
@@ -59124,6 +59396,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../filter/CheckIndexForMultiImageWork */ "./src/ts/filter/CheckIndexForMultiImageWork.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -59148,12 +59422,108 @@ class Store {
     // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
     /** 储存抓取结果 */
     result = [];
+    /** 某个作品里「被色彩检查排除」的图片索引。key 是作品的数字 id（idNum）
+     *
+     * 重建抓取结果时（见 SearchResultPreview.reAddResult）必须知道当初有哪些图片没通过色彩检查，
+     * 否则会把它们又加回来。所以这里按 idNum 记住它们。
+     *
+     * ⚠️ 这里只记「被色彩检查排除」的索引，**不要**记「被多图作品设置排除」的索引：
+     * 后者每次重建都要按当时的设置重新计算（用户可能改了「只下载前几张图片」）。
+     *
+     * 清空时机：开始新一轮抓取、导入抓取结果、恢复未完成的下载。
+     * ⚠️ 不能写进 reset()：reAddResult 也会调用 reset()，在那里清会丢掉本次抓取的结果。
+     *
+     * 同一轮抓取内只增不减，条目数不会超过作品数 */
+    colorBlockedIndexes = new Map();
     /** 储存抓取到的图片作品的 id 列表，用来避免重复添加 */
     artworkIDList = [];
     /** 储存抓取到的小说作品的 id 列表，用来避免重复添加 */
     novelIDList = [];
     /** 记录从每个作品里下载多少个文件 */
     downloadCount = {};
+    /** 记录某个作品里被色彩检查排除的图片索引。
+     * 连同当时的色彩设置一起记下来（含义取决于当时保留的是哪一侧，见 applyColorBlockedIndexes）。
+     *
+     * ⚠️ **一张都没被排除时也要调用**（传空数组）：空记录表示「这个作品的图片全都通过了色彩检查」，
+     * 它和「没有记录」（从没检查过颜色）的含义不同，见 applyColorBlockedIndexes */
+    setColorBlockedIndexes(idNum, indexes) {
+        this.colorBlockedIndexes.set(idNum, {
+            colorImg: _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downColorImg,
+            blackWhiteImg: _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downBlackWhiteImg,
+            indexes,
+        });
+    }
+    /** 清空色彩检查的排除记录。
+     * 开始新一轮抓取、导入抓取结果、恢复未完成的下载时都要调用 */
+    clearColorBlockedIndexes() {
+        this.colorBlockedIndexes.clear();
+    }
+    /** 导出色彩检查的排除记录，用于保存到 IndexedDB（见 Resume） */
+    getColorBlockedIndexes() {
+        return [...this.colorBlockedIndexes.entries()];
+    }
+    /** 从保存的数据恢复色彩检查的排除记录（整体替换）。
+     *
+     * 传入空数组时等于清空 —— 这是对的：保存的记录是精确的，
+     * 「保存过但内容为空」表示当时的图片全都通过了色彩检查 */
+    restoreColorBlockedIndexes(data) {
+        this.colorBlockedIndexes.clear();
+        for (const [idNum, record] of data) {
+            this.colorBlockedIndexes.set(idNum, record);
+        }
+    }
+    /** 按当前设置和这个作品的色彩检查结果，算出要保存它的哪些图片。
+     *
+     * 先用「多图作品设置」过滤，再按色彩检查的结果调整。
+     *
+     * 用它的地方都要通过这里，别在别处再写一套（addResult 和 SaveArtworkData 都依赖这个结果）。
+     * 动图只有一个文件（下载的是 zip），但它的封面同样会被检查颜色，所以也要走这里 */
+    // ⚠️ 色彩检查只检查过当初的那些索引（为了少发请求，见 SaveArtworkData），
+    // 所以「没检查过」的索引按「允许」处理：如果用户后来放宽了「只下载前几张图片」，
+    // 新出现的那些图片不会再被色彩过滤。这是刻意的取舍
+    getDownloadIndexes(meta) {
+        // 动图只有一个文件，不需要「多图作品」的过滤，所以直接用索引 0 过一遍色彩记录。
+        // 这里不依赖 meta.pageCount：动图的 pageCount 虽然也是 1，但显式写出来更清楚。
+        // （小说 type 3 不检查颜色，也就没有色彩记录，所以不会调用到这里）
+        if (meta.type === 2) {
+            return this.applyColorBlockedIndexes(meta.idNum, [0]);
+        }
+        const allIndex = [...Array(meta.pageCount).keys()];
+        // 单图作品不需要应用过滤器，保存所有图片（其实也就一个）
+        const bySettings = meta.pageCount === 1
+            ? allIndex
+            : allIndex.filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, meta.pageCount, meta.userId));
+        return this.applyColorBlockedIndexes(meta.idNum, bySettings);
+    }
+    /** 把「被色彩检查排除的图片索引」应用到索引列表上。
+     *
+     * 应用之前要先判断两件事，否则会把用户已经取消掉的过滤又套回去、甚至套反：
+     * 1. 色彩过滤现在是否还开着
+     * 2. 现在的「保留侧」是否和记录时相同
+     *
+     * ⚠️「没有记录」和「有记录但 indexes 为空」必须区别对待，所以不要用 `if (!record.indexes.length)` 之类的判断提前返回：
+     * - 没有记录 = 这个作品从没检查过颜色 → 保持原样
+     * - 空记录 = 当时全都通过了 → 同一侧时保持全部，换到另一侧时应该只剩 0 张 */
+    applyColorBlockedIndexes(idNum, bySettings) {
+        const record = this.colorBlockedIndexes.get(idNum);
+        if (!record) {
+            return bySettings;
+        }
+        // 只有「恰好启用一侧」时才会做色彩检查，所以别的情况都不应该应用这个记录：
+        // 两侧都启用 = 不检查颜色；两侧都不启用 = 整个作品都不会被保存
+        const { downColorImg, downBlackWhiteImg } = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings;
+        if (downColorImg === downBlackWhiteImg) {
+            return bySettings;
+        }
+        // 记录记的是「当时没通过色彩检查的图片」，所以它的含义取决于当时保留的是哪一侧。
+        // 同一侧：这些索引就是「不符合要求」的，减掉它们。
+        // 换了一侧：这些索引正好是现在想要的（例如之前「只保留彩色」所以排除的是黑白图片，
+        // 现在改成「只保留黑白」了），所以反过来用——只保留它们
+        if (downColorImg === record.colorImg) {
+            return bySettings.filter((index) => !record.indexes.includes(index));
+        }
+        return bySettings.filter((index) => record.indexes.includes(index));
+    }
     // 恢复未完成的下载之后，生成 downloadCount 数据
     // 因为保存的任务数据里没有 downloadCount，并且恢复数据时也没有生成 downloadCount
     resetDownloadCount() {
@@ -59255,19 +59625,9 @@ class Store {
                 indexList = requestedIndexList;
             }
             else {
-                // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分
-                const pageCount = meta.pageCount;
-                const allIndex = [...Array(pageCount).keys()];
-                // 单图作品在这里不需要应用过滤器，保存所有图片（其实也就一个）
-                if (pageCount === 1) {
-                    indexList = allIndex;
-                }
-                else {
-                    // 对多图作品应用过滤器，来决定最终保留哪些图片
-                    // 每个过滤器都可能会删除一些图片，只保留部分图片
-                    // 这些过滤器的执行顺序不重要，取它们的交集来确定最终保留哪些图片（在所有过滤器里都为 true 的项）
-                    indexList = allIndex.filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, pageCount, meta.userId));
-                }
+                // 没有指定时，按当前的多图作品设置和色彩检查结果算出要保存哪些图片
+                // （多图作品设置的过滤在 getDownloadIndexes 里完成）
+                indexList = this.getDownloadIndexes(meta);
             }
             this.downloadCount[meta.idNum] = indexList.length;
             // 添加插画、漫画作品里每个文件的数据
@@ -59369,7 +59729,10 @@ class Store {
      * 为什么不用 addResult() 重新添加一遍：addResult 会按当前的“多图作品”设置重新决定要下载
      * 哪些图片，导致恢复出来的结果和当初保存的不一致。所以这里只做纯数据还原。
      *
-     * 这个方法可以重复调用（会先清空去重表）。
+     * 同时按 result **反推**一份「被色彩检查排除的图片索引」（见 colorBlockedIndexes）。
+     * 这只是给旧数据兜底：新数据会把精确的记录保存到 IndexedDB（见 Resume 的 TaskMeta.colorBlocked），恢复时由它覆盖。
+     *
+     * 这个方法可以重复调用（会先清空去重表和色彩排除记录）。
      */
     restoreResultMetaFromResult() {
         const metaList = [];
@@ -59377,6 +59740,23 @@ class Store {
         // 去重表也按 result 重建，避免重复调用时累积
         this.artworkIDList = [];
         this.novelIDList = [];
+        // 色彩检查的排除记录同样按 result 重建（见下面 type 为 0/1 的分支）
+        this.clearColorBlockedIndexes();
+        // 先收集每个作品在 result 里保留了哪些图片索引，用于还原色彩检查的排除记录
+        const keptIndexes = new Map();
+        for (const data of this.result) {
+            if (data.type !== 0 && data.type !== 1)
+                continue;
+            if (typeof data.index !== 'number')
+                continue;
+            const kept = keptIndexes.get(data.idNum);
+            if (kept) {
+                kept.add(data.index);
+            }
+            else {
+                keptIndexes.set(data.idNum, new Set([data.index]));
+            }
+        }
         for (const data of this.result) {
             // result 里同一个作品的多条数据是连续的，只取第一条
             if (addedIdList.has(data.idNum)) {
@@ -59399,6 +59779,26 @@ class Store {
                 meta.small = this.restoreP0InURL(data.small, data.idNum);
                 meta.thumb = this.restoreP0InURL(data.thumb, data.idNum);
                 metaList.push(meta);
+                // 按 result 反推一份色彩检查的排除记录：result 里没有的图片索引就是当初被排除掉的。
+                // 这样恢复之后再删除/筛选作品时，不会把被色彩排除的图片又加回来。
+                //
+                // ⚠️ 这只是**给旧数据兜底**：新数据会把精确的记录保存到 IndexedDB（见 Resume 的 TaskMeta.colorBlocked），
+                // 恢复时用它覆盖这里的反推结果。
+                // ⚠️ 反推也分不清「图片全都通过」和「从没检查过颜色」，所以只在 blocked 非空时才记（与 SaveArtworkData 不同）
+                // ⚠️ 反推分不清「被色彩排除」和「被多图作品设置排除」，所以旧数据恢复之后如果放宽那些设置，
+                // 它们不会回来（无法区分两者，只能一起当成已排除）
+                const kept = keptIndexes.get(data.idNum);
+                if (kept && kept.size > 0) {
+                    const blocked = [];
+                    for (let i = 0; i < data.pageCount; i++) {
+                        if (!kept.has(i)) {
+                            blocked.push(i);
+                        }
+                    }
+                    if (blocked.length > 0) {
+                        this.setColorBlockedIndexes(data.idNum, blocked);
+                    }
+                }
             }
             else {
                 // 动图、小说只有一个文件，result 里的数据就是 resultMeta 本身
@@ -59432,6 +59832,9 @@ class Store {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.URLWhenCrawlStart = window.location.href;
             this.reset();
+            // 新一轮抓取会有全新的结果，上次的色彩检查记录不再适用。
+            // ⚠️ 必须写在这里而不是 reset() 里：reAddResult 也会调用 reset()，在那里清会丢掉本次抓取的结果
+            this.clearColorBlockedIndexes();
         });
         // 停止下载时，清空等待下载的任务
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop, () => {
@@ -77575,6 +77978,23 @@ __webpack_require__.r(__webpack_exports__);
 // 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
 class IndexedDB {
     db;
+    /** 从 IndexedDB 的错误里取出一个简短的原因，取不到时返回 unknown。
+     *
+     * 为什么需要它：请求失败时 reject 的是**事件对象**（真正的错误在 `target.error` 里，
+     * 名字是 VersionError 这类有意义的值），而这层封装自己 reject 的是**字符串**
+     * （如 Database is not defined）。直接塞进日志只会看到 [object Event]。 */
+    static getErrorName(ev) {
+        if (typeof ev === 'string') {
+            return ev;
+        }
+        const name = ev?.target?.error?.name || ev?.name;
+        // 普通 Error 的 name 只是 Error，没有信息量，这种情况改用 message
+        if (name && name !== 'Error') {
+            return name;
+        }
+        return ev?.message || name || 'unknown';
+    }
+    // DBVer 省略时，按数据库当前的版本打开（不会触发升级）
     async open(DBName, DBVer, onUpgrade) {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DBName, DBVer);
@@ -77591,6 +78011,16 @@ class IndexedDB {
                 console.error('open indexDB failed');
                 console.trace();
                 reject(ev);
+            };
+            // 请求的版本比数据库当前的版本高、而还有别的连接在打开这个数据库时，
+            // 浏览器不会自动关闭那些连接，而是让这个请求一直停在阻塞状态（既不成功也不失败）。
+            // 所以这里把它当成打开失败，让调用方有机会降级处理（例如按当前版本重新打开）
+            request.onblocked = () => {
+                console.warn('open indexDB blocked');
+                // 起一个明确的名字：调用方靠 name 区分「被阻塞」和「版本不匹配」
+                const error = new Error('indexedDB open request is blocked');
+                error.name = 'BlockedError';
+                reject(error);
             };
         });
     }

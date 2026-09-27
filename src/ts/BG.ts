@@ -3,6 +3,8 @@ import { Utils } from './utils/Utils'
 import { IndexedDB } from './utils/IndexedDB'
 import { settings } from './setting/Settings'
 import browser from 'webextension-polyfill'
+import { log } from './Log'
+import { lang } from './Language'
 import { states } from './store/States'
 
 interface BGData {
@@ -47,15 +49,28 @@ class BG {
 
   private async init() {
     this.bindEvents()
-    await this.initDB()
+
+    // 数据库打不开时（例如版本升级被其他标签页阻塞）只会让背景图片功能不可用，
+    // 不能让它变成未处理的 Promise 拒绝（见 utils/IndexedDB.open 里的 onblocked）
+    if (!(await this.initDB())) {
+      return
+    }
+
     await this.restore()
     if (states.settingInitialized) {
       this.pendingBackgroundChange = false
     }
   }
 
+  /** 初始化数据库，返回是否成功（**不抛出异常**） */
   private async initDB() {
-    await this.IDB.open(this.DBName, this.DBVer, this.onUpdate)
+    try {
+      await this.IDB.open(this.DBName, this.DBVer, this.onUpdate)
+      return true
+    } catch (ev) {
+      log.error(lang.transl('_IndexedDB打不开', IndexedDB.getErrorName(ev)))
+      return false
+    }
   }
 
   // 在数据库升级事件里创建表

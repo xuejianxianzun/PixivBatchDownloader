@@ -7,6 +7,8 @@ import { fileName } from '../FileName'
 import { Utils } from '../utils/Utils'
 import { Result } from '../store/StoreType'
 import { DownloadRecordManager } from './DownloadRecordManager'
+import { log } from '../Log'
+import { lang } from '../Language'
 
 export interface DownloadRecordType {
   id: string
@@ -46,7 +48,12 @@ class DownloadRecord {
   private readonly dateRegExp = /img\/(.*)\//
 
   private async init() {
-    await this.initDB()
+    // 数据库打不开时（例如版本升级被其他标签页阻塞）整个模块降级为「不记录下载记录」：
+    // 这时不绑定事件，避免之后写数据库时报错；异常也不能逃出去变成未处理的拒绝
+    if (!(await this.initDB())) {
+      return
+    }
+
     this.bindEvents()
   }
 
@@ -62,7 +69,13 @@ class DownloadRecord {
       }
     }
 
-    return this.IDB.open(this.DBName, this.DBVer, onUpdate)
+    try {
+      await this.IDB.open(this.DBName, this.DBVer, onUpdate)
+      return true
+    } catch (ev) {
+      log.error(lang.transl('_IndexedDB打不开', IndexedDB.getErrorName(ev)))
+      return false
+    }
   }
 
   private bindEvents() {
@@ -137,6 +150,10 @@ class DownloadRecord {
 
   /** 传入一个构造好的 Record 对象，添加它的下载记录 */
   public async addRecordFromRecord(record: DownloadRecordType) {
+    // 数据库不可用时直接跳过（写不进去，也不应该报错）
+    if (!this.IDB.db) {
+      return
+    }
     const storeName = this.getStoreName(record.id)
     if (this.existedIdList.includes(record.id)) {
       this.IDB.put(storeName, record)
@@ -151,6 +168,10 @@ class DownloadRecord {
   // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
   public async getRecord(id: string) {
     await this.dbReady
+    // 数据库不可用时当作「没有记录」：去重会失效，但不会让下载流程报错
+    if (!this.IDB.db) {
+      return null
+    }
     const storeName = this.getStoreName(id)
     const record = (await this.IDB.get(
       storeName,
