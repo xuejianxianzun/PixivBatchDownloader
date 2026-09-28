@@ -2,7 +2,6 @@ import { EVT } from '../EVT'
 import { settings, setSetting, SettingKeys } from './Settings'
 import { FormType } from './FormType'
 import { DateFormat } from '../utils/DateFormat'
-import { nameRuleManager } from './NameRuleManager'
 import { Tools } from '../Tools'
 
 // 管理 from 表单里的输入选项（input 元素和 textarea 元素）

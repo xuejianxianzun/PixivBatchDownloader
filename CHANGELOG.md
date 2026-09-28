@@ -157,6 +157,16 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/687
 
 之前每个作品只有 5 条数据，现在我添加了更多数据，以备不时之需。
 
+### 💡当命名规则里缺少必须的标记时，会显示更详细的提示
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/689
+
+之前的提示不够准确和明显，会让用户产生误解。
+
+现在当命名规则里缺少必须的标记时：
+- 输入框下方会显示一个提示区域进行说明
+- 输入框失去焦点时，会使用轻提示显示“缺少必须的标记，本次修改未保存”
+
 ### 😊优化了一些帮助文本
 
 ## 19.4.1 2026-09-04

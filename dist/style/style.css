@@ -2120,6 +2120,7 @@ body.mobile #rightButtonContainer {
   display: flex;
   align-items: flex-start;
   flex-grow: 1;
+  max-width: 100%;
   gap: 8px;
   margin-top: 15px;
   padding: 9px 12px;
@@ -4655,6 +4656,9 @@ body[data-page-type='9'] .xzTipPanelWrap {
 }
 .mr8 {
   margin-right: 8px !important;
+}
+.mb4 {
+  margin-bottom: 4px !important;
 }
 .pl0 {
   padding-left: 0 !important;

@@ -1497,6 +1497,18 @@ class Tools {
     }
     return bool ? 'downloadsAPI' : 'anchorDownload'
   }
+
+  /** 检查命名规则里是否含有必须的标记，如 {id} 或者 {pid}{p} 或者 {id_num}{p_num}。
+   *
+   * 通常只需要对图像作品的命名规则进行检查
+   */
+  static checkNameRule(str: string) {
+    const check =
+      str.includes('{id}') ||
+      (str.includes('{pid}') && str.includes('{p}')) ||
+      (str.includes('{id_num}') && str.includes('{p_num}'))
+    return check
+  }
 }
 
 export { Tools }

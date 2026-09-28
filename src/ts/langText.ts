@@ -1706,6 +1706,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {pid}{p}이 포함되어야 합니다.`,
     `Чтобы предотвратить дублирование имен файлов, {id} или {pid}{p} должны быть включены в правила именования.`,
   ],
+  _缺少必须的标记本次修改未保存: [
+    `缺少必须的标记，本次修改未保存`,
+    `缺少必須的標記，本次修改未儲存`,
+    `Required tokens are missing, so this change was not saved.`,
+    `必須のトークンが不足しているため、今回の変更は保存されていません。`,
+    `필수 토큰이 없으므로 이번 변경은 저장되지 않았습니다.`,
+    `Отсутствуют обязательные токены — это изменение не сохранено.`,
+  ],
   _文件夹标记page_tag: [
     `如果页面里的作品属于同一个标签，下载器会输出这个标签，否则忽略它。通常当你处于这些页面里时有值：搜索某个标签、在用户主页里查看某个标签分类下的作品、在自己的收藏里查看某个标签分类下的作品。`,
     `如果頁面裡的作品屬於同一個標籤，下載器會輸出這個標籤，否則忽略它。通常當你處於這些頁面裡時有值：搜尋某個標籤、在用戶主頁裡查看某個標籤分類下的作品、在自己的收藏裡查看某個標籤分類下的作品。`,
@@ -3548,6 +3556,14 @@ Note: This clears the downloader's download record, not the browser's download h
     `命名規則を保存しました`,
     `명명 규칙이 저장되었습니다.`,
     `Правило наименования сохранено`,
+  ],
+  _已保存修改: [
+    `已保存修改`,
+    `已儲存修改`,
+    `Changes saved`,
+    `変更を保存しました`,
+    `수정 사항이 저장되었습니다`,
+    `Изменения сохранены`,
   ],
   _命名: [`命名`, `命名`, `Naming`, `命名`, `이름`, `Имя`],
   _文件名长度限制: [
@@ -6063,8 +6079,8 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 如果你加大彩色占比的阈值，图片会更容易被视为黑白图片。<br>
 如果你减小彩色占比的阈值，图片会更容易被视为彩色图片。<br>
 阈值为 25% 时的粗略参考数据：<br>
-抓取插画和动图时，大约有 5% 的图片被视为黑白图片；<br>
-抓取漫画时，大约有 45% 的图片被视为黑白图片。<br>
+抓取插画和动图时，大约有 10% - 20% 的图片被视为黑白图片；<br>
+抓取漫画时，大约有 50% 左右的图片被视为黑白图片。<br>
 <br>
 有小概率误判：<br>
 有些黑白图片会在局部使用彩色，有时彩色区域占比甚至可以达到 30%。它可能会被视为彩色图片。<br>
@@ -6089,6 +6105,9 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 在有些圖片裡，彩色、灰色、黑色可能都佔據了一定比例。<br>
 如果你加大彩色佔比的閾值，圖片會更容易被視為黑白圖片。<br>
 如果你減小彩色佔比的閾值，圖片會更容易被視為彩色圖片。<br>
+閾值為 25% 時的粗略參考數據：<br>
+抓取插畫和動圖時，大約有 10% - 20% 的圖片被視為黑白圖片；<br>
+抓取漫畫時，大約有 50% 左右的圖片被視為黑白圖片。<br>
 <br>
 有小機率誤判：<br>
 有些黑白圖片會在局部使用彩色，有時彩色區域佔比甚至可以達到 30%。它可能會被視為彩色圖片。<br>
@@ -6113,6 +6132,9 @@ Color ratio threshold:<br>
 In some images, colored, gray and black pixels may each take up a certain proportion.<br>
 If you increase the threshold, images will be more likely to be treated as black and white images.<br>
 If you decrease the threshold, images will be more likely to be treated as color images.<br>
+Rough reference data when the threshold is 25%:<br>
+When crawling illustrations and Ugoira, about 10% - 20% of the images are treated as black and white images;<br>
+When crawling manga, about 50% of the images are treated as black and white images.<br>
 <br>
 There is a small chance of misjudgment:<br>
 Some black and white images use color in part of the image, and sometimes the colored area can even reach 30%. Such an image may be treated as a color image.<br>
@@ -6137,6 +6159,9 @@ During downloading, the downloader checks the color again after the image is dow
 画像によっては、色付き・グレー・黒がそれぞれある程度の割合を占めることがあります。<br>
 閾値を大きくすると、画像は白黒画像として扱われやすくなります。<br>
 閾値を小さくすると、画像はカラー画像として扱われやすくなります。<br>
+閾値が 25% のときのおおよその参考データ：<br>
+イラストとうごイラをクロールする場合、約 10% - 20% の画像が白黒画像として扱われます；<br>
+マンガをクロールする場合、約 50% 程度の画像が白黒画像として扱われます。<br>
 <br>
 誤判定の可能性はわずかにあります：<br>
 白黒画像でも一部に色が使われていることがあり、色の領域が 30% に達する場合もあります。そのような画像はカラー画像として扱われることがあります。<br>
@@ -6161,6 +6186,9 @@ During downloading, the downloader checks the color again after the image is dow
 일부 이미지에서는 색이 있는 부분, 회색, 검은색이 각각 일정한 비율을 차지할 수 있습니다.<br>
 임계값을 크게 하면 이미지가 흑백 이미지로 처리되기 쉬워집니다.<br>
 임계값을 작게 하면 이미지가 컬러 이미지로 처리되기 쉬워집니다.<br>
+임계값이 25%일 때의 대략적인 참고 데이터:<br>
+일러스트와 움직이는 일러스트를 크롤링할 때, 약 10% - 20%의 이미지가 흑백 이미지로 처리됩니다;<br>
+만화를 크롤링할 때, 약 50% 정도의 이미지가 흑백 이미지로 처리됩니다.<br>
 <br>
 오판 가능성이 아주 낮게 있습니다:<br>
 흑백 이미지라도 일부에 색이 사용된 경우가 있으며, 컬러 영역의 비율이 30%에 이르는 경우도 있습니다. 그런 이미지는 컬러 이미지로 처리될 수 있습니다.<br>
@@ -6185,6 +6213,9 @@ During downloading, the downloader checks the color again after the image is dow
 В некоторых изображениях цветные, серые и чёрные пиксели могут занимать определённую долю каждый.<br>
 Если увеличить порог, изображения будут чаще считаться чёрно-белыми.<br>
 Если уменьшить порог, изображения будут чаще считаться цветными.<br>
+Примерные данные для порога 25%:<br>
+При сканировании иллюстраций и Ugoira около 10% - 20% изображений считаются чёрно-белыми;<br>
+При сканировании манги около 50% изображений считаются чёрно-белыми.<br>
 <br>
 Небольшая вероятность ошибки:<br>
 Некоторые чёрно-белые изображения используют цвет на отдельных участках, и иногда цветная область может достигать 30%. Такое изображение может быть определено как цветное.<br>
@@ -10315,8 +10346,8 @@ If the work matches either blocking condition, the downloader will not preview i
 <br>
 提示：<br>
 - * 有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。<br>
--  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样，使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
-- 为了防止文件名重复，文件名里必须含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必须同时包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
+- 为了防止文件名重复，文件名里必须含有序号。这意味着命名规则里必须含有 <span class="blue name">{id}</span>，或者 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span> 的组合。另外，如果你想让单图不带序号，可以在下方的“序号”-“第一张图不带序号”设置里选择“单图作品”。<br>
+-  如果你想在文件夹里使用作品的 id，应该使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因为每张图片的 id 都不一样（含有序号），使用 <span class="blue name">{id}</span> 会导致每张图片都产生一个文件夹。<br>
 <br>
 命名标记列表：<br>
 提示：点击标记的名字就可以复制它。<br>`,
@@ -10332,8 +10363,8 @@ If the work matches either blocking condition, the downloader will not preview i
 <br>
 提示：<br>
 - * 有些標記並不總是可用，有時它們會是空字串，下載器會忽略它們。<br>
--  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣，使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
-- 為了防止檔名重複，檔名裡必須含有 <span class="blue name">{id}</span>。如果你不想使用 <span class="blue name">{id}</span>，就必須同時包含 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span>。<br>
+- 為了防止檔名重複，檔名裡必須含有序號。這意味著命名規則裡必須含有 <span class="blue name">{id}</span>，或者 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span> 的組合。另外，如果你想讓單圖作品不帶序號，可以在下方的「序號」-「第一張圖片不包含序號」設定裡選擇「單圖作品」。<br>
+-  如果你想在資料夾裡使用作品的 id，應該使用 <span class="blue name">{pid}</span> 而不是 <span class="blue name">{id}</span>。因為每張圖片的 id 都不一樣（含有序號），使用 <span class="blue name">{id}</span> 會導致每張圖片都產生一個資料夾。<br>
 <br>
 命名標記列表：<br>
 提示：點擊標記的名字就可以複製它。<br>`,
@@ -10349,8 +10380,8 @@ Notes on creating folders:<br>
 <br>
 Tips:<br>
 - * Some tokens are not always available and may be empty strings — the downloader will ignore them.<br>
-- If you want to use the work's ID in a folder name, use <span class="blue name">{pid}</span> instead of <span class="blue name">{id}</span>. Since each image has a different ID, using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
-- To prevent duplicate file names, the file name must contain <span class="blue name">{id}</span>. If you don't want to use <span class="blue name">{id}</span>, you must include both <span class="blue name">{pid}</span> and <span class="blue name">{p}</span>.<br>
+- To prevent duplicate file names, file names must contain a serial number. This means the naming rule must contain <span class="blue name">{id}</span>, or a combination of <span class="blue name">{pid}</span> and <span class="blue name">{p}</span>. Also, if you do not want single image works to have a serial number, you can select "Single image works" in the "Serial number" - "The first image without a serial number" setting below.<br>
+- If you want to use the work's ID in a folder name, use <span class="blue name">{pid}</span> instead of <span class="blue name">{id}</span>. Since the ID of each image is different (it contains a serial number), using <span class="blue name">{id}</span> would create a separate folder for each image.<br>
 <br>
 List of naming tokens:<br>
 Tip: Click a token name to copy it.<br>`,
@@ -10366,8 +10397,8 @@ Tip: Click a token name to copy it.<br>`,
 <br>
 ヒント：<br>
 - * 一部のトークンは常に使えるわけではなく、空文字列になることがあります。その場合、ダウンローダーはそれを無視します。<br>
-- フォルダー名に 作品 の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 画像 の ID は異なるため、<span class="blue name">{id}</span> を使うと 画像 ごとにフォルダーが作られてしまいます。<br>
-- ファイル名の重複を防ぐため、ファイル名には必ず <span class="blue name">{id}</span> を含める必要があります。<span class="blue name">{id}</span> を使いたくない場合は、<span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の両方を含める必要があります。<br>
+- ファイル名の重複を防ぐため、ファイル名には番号を含める必要があります。つまり、命名規則に <span class="blue name">{id}</span>、または <span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の組み合わせを含める必要があります。また、シングルイメージ作品に番号を付けたくない場合は、下の「番号」-「最初のイメージの番号を削除」設定で「シングルイメージ作品」を選んでください。<br>
+- フォルダー名に 作品 の ID を使いたい場合は、<span class="blue name">{id}</span> ではなく <span class="blue name">{pid}</span> を使ってください。各 画像 の ID は異なるため（番号を含む）、<span class="blue name">{id}</span> を使うと 画像 ごとにフォルダーが作られてしまいます。<br>
 <br>
 命名トークン一覧：<br>
 ヒント：トークン名をクリックするとコピーできます。<br>`,
@@ -10383,8 +10414,8 @@ Tip: Click a token name to copy it.<br>`,
 <br>
 팁：<br>
 - * 일부 토큰은 항상 사용 가능한 것은 아니며, 빈 문자열이 될 수 있습니다. 이 경우 다운로더는 해당 토큰을 무시합니다.<br>
-- 폴더 이름에 작품의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 이미지마다 ID가 다르기 때문에 <span class="blue name">{id}</span> 를 사용하면 이미지마다 폴더가 생성됩니다.<br>
-- 파일 이름 중복을 방지하려면 파일 이름에 반드시 <span class="blue name">{id}</span> 가 포함되어야 합니다. <span class="blue name">{id}</span> 를 사용하고 싶지 않다면 <span class="blue name">{pid}</span> 과 <span class="blue name">{p}</span> 을 모두 포함해야 합니다.<br>
+- 파일 이름 중복을 방지하려면 파일 이름에는 일련번호가 포함되어야 합니다. 즉, 명명 규칙에 <span class="blue name">{id}</span>, 또는 <span class="blue name">{pid}</span> 와 <span class="blue name">{p}</span> 의 조합이 포함되어야 합니다. 또한 단일 이미지 작품에 일련번호를 붙이고 싶지 않다면, 아래의 "일련번호" - "일련번호가 없는 첫 번째 이미지" 설정에서 "단일 이미지 작품"을 선택할 수 있습니다.<br>
+- 폴더 이름에 작품의 ID를 사용하고 싶다면 <span class="blue name">{id}</span> 대신 <span class="blue name">{pid}</span> 을 사용하세요. 각 이미지마다 ID가 다르기 때문에(일련번호 포함), <span class="blue name">{id}</span> 를 사용하면 이미지마다 폴더가 생성됩니다.<br>
 <br>
 명명 토큰 목록：<br>
 팁: 토큰 이름을 클릭하면 복사할 수 있습니다.<br>`,
@@ -10400,8 +10431,8 @@ Tip: Click a token name to copy it.<br>`,
 <br>
 Советы:<br>
 - * Некоторые токены доступны не всегда и могут быть пустой строкой — загрузчик будет их игнорировать.<br>
-- Если вы хотите использовать ID работы в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждого изображения свой ID, использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждого изображения.<br>
-- Чтобы избежать дублирования имён файлов, имя файла должно содержать <span class="blue name">{id}</span>. Если вы не хотите использовать <span class="blue name">{id}</span>, необходимо одновременно включить <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
+- Чтобы избежать дублирования имён файлов, имя файла должно содержать серийный номер. Это значит, что в правилах названий должно быть <span class="blue name">{id}</span> либо сочетание <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>. Кроме того, если вы не хотите добавлять серийный номер к работам с одним изображением, выберите «Работа с одним изображением» в настройке «Серийный номер» — «Первое изображение без серийного номера» ниже.<br>
+- Если вы хотите использовать ID работы в названии папки, используйте <span class="blue name">{pid}</span>, а не <span class="blue name">{id}</span>. Поскольку у каждого изображения свой ID (он содержит серийный номер), использование <span class="blue name">{id}</span> приведёт к созданию отдельной папки для каждого изображения.<br>
 <br>
 Список токенов именования:<br>
 Совет: нажмите на название токена, чтобы скопировать его.<br>`,
@@ -12619,5 +12650,19 @@ One possible reason: Your Pixiv account has been banned.`,
     `クロール結果の保存に失敗しました：{}`,
     `크롤링 결과 저장에 실패했습니다: {}`,
     `Не удалось сохранить результат сканирования: {}`,
+  ],
+  _提示命名规则里必须有序号: [
+    `为了防止文件名重复，文件名里必须含有序号。这意味着命名规则里必须含有 <span class="blue name">{id}</span>，或者 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span> 的组合。<br>
+    另外，如果你想让单图不带序号，可以在下方的“序号”-“第一张图不带序号”设置里选择“单图作品”。`,
+    `為了防止檔案名稱重複，檔案名稱裡必須含有序號。這意味著命名規則裡必須含有 <span class="blue name">{id}</span>，或者 <span class="blue name">{pid}</span> 和 <span class="blue name">{p}</span> 的組合。<br>
+    另外，如果你想讓單圖作品不帶序號，可以在下方的「序號」-「第一張圖片不包含序號」設定裡選擇「單圖作品」。`,
+    `To prevent duplicate file names, file names must contain a serial number. This means the naming rule must contain <span class="blue name">{id}</span>, or a combination of <span class="blue name">{pid}</span> and <span class="blue name">{p}</span>.<br>
+    Also, if you do not want single image works to have a serial number, you can select "Single image works" in the "Serial number" - "The first image without a serial number" setting below.`,
+    `ファイル名の重複を防ぐため、ファイル名には番号を含める必要があります。つまり、命名規則に <span class="blue name">{id}</span>、または <span class="blue name">{pid}</span> と <span class="blue name">{p}</span> の組み合わせを含める必要があります。<br>
+    また、シングルイメージ作品に番号を付けたくない場合は、下の「番号」-「最初のイメージの番号を削除」設定で「シングルイメージ作品」を選んでください。`,
+    `파일 이름이 중복되는 것을 막기 위해 파일 이름에는 일련번호가 포함되어야 합니다. 즉, 명명 규칙에 <span class="blue name">{id}</span>, 또는 <span class="blue name">{pid}</span> 와 <span class="blue name">{p}</span> 의 조합이 포함되어야 합니다.<br>
+    또한 단일 이미지 작품에 일련번호를 붙이고 싶지 않다면, 아래의 "일련번호" - "일련번호가 없는 첫 번째 이미지" 설정에서 "단일 이미지 작품"을 선택할 수 있습니다.`,
+    `Чтобы имена файлов не повторялись, имя файла должно содержать серийный номер. Это значит, что в правилах названий должно быть <span class="blue name">{id}</span> либо сочетание <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
+    Кроме того, если вы не хотите добавлять серийный номер к работам с одним изображением, выберите «Работа с одним изображением» в настройке «Серийный номер» — «Первое изображение без серийного номера» ниже.`,
   ],
 }
