@@ -667,7 +667,11 @@ class Utils {
     )
   }
 
-  /** 长按事件，长按鼠标左键或长按屏幕触发 */
+  /** 长按事件，长按鼠标左键或长按屏幕触发
+   *
+   * @param callback 触发长按时调用，**会把触发长按的事件（mousedown / touchstart）传给它**，
+   * 调用方可以据此判断长按发生在哪个元素上
+   */
   static longPress(el: HTMLElement, callback: Function, delay: number = 500) {
     let timer: ReturnType<typeof setTimeout> | null = null
     let isLongPress = false
@@ -693,7 +697,7 @@ class Utils {
       timer = setTimeout(() => {
         timer = null
         isLongPress = true
-        callback()
+        callback(e)
       }, delay)
     }
 

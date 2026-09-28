@@ -53310,10 +53310,24 @@ class PinOptions {
                 continue;
             }
             option.dataset.pinBound = 'true';
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.longPress(option, () => {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.longPress(option, (ev) => {
+                // 在输入框等元素上长按时，用户通常只是想选择文本或调出上下文菜单，不应该切换置顶
+                if (this.isTextInput(ev.target)) {
+                    return;
+                }
                 this.togglePinOption(Number.parseInt(no));
             });
         }
+    }
+    /** 判断长按是否发生在输入框等元素里
+     *
+     * 这些元素上的长按通常是想选择文本（或调出上下文菜单），不应该被当成「长按设置项」处理
+     */
+    isTextInput(target) {
+        if (!(target instanceof Element)) {
+            return false;
+        }
+        return !!target.closest('input, textarea, select, [contenteditable="true"], [contenteditable=""]');
     }
     togglePinOption(noNum) {
         if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.pinnedOptionsV2.includes(noNum)) {
@@ -79167,7 +79181,11 @@ class Utils {
     static removeEmojis(str) {
         return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
     }
-    /** 长按事件，长按鼠标左键或长按屏幕触发 */
+    /** 长按事件，长按鼠标左键或长按屏幕触发
+     *
+     * @param callback 触发长按时调用，**会把触发长按的事件（mousedown / touchstart）传给它**，
+     * 调用方可以据此判断长按发生在哪个元素上
+     */
     static longPress(el, callback, delay = 500) {
         let timer = null;
         let isLongPress = false;
@@ -79191,7 +79209,7 @@ class Utils {
             timer = setTimeout(() => {
                 timer = null;
                 isLongPress = true;
-                callback();
+                callback(e);
             }, delay);
         };
         const cancel = () => {

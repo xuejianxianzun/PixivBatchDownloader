@@ -45,10 +45,29 @@ class PinOptions {
       }
 
       option.dataset.pinBound = 'true'
-      Utils.longPress(option, () => {
+      Utils.longPress(option, (ev: MouseEvent | TouchEvent) => {
+        // 在输入框等元素上长按时，用户通常只是想选择文本或调出上下文菜单，不应该切换置顶
+        if (this.isTextInput(ev.target)) {
+          return
+        }
+
         this.togglePinOption(Number.parseInt(no))
       })
     }
+  }
+
+  /** 判断长按是否发生在输入框等元素里
+   *
+   * 这些元素上的长按通常是想选择文本（或调出上下文菜单），不应该被当成「长按设置项」处理
+   */
+  private isTextInput(target: EventTarget | null) {
+    if (!(target instanceof Element)) {
+      return false
+    }
+
+    return !!target.closest(
+      'input, textarea, select, [contenteditable="true"], [contenteditable=""]'
+    )
   }
 
   private togglePinOption(noNum: number) {
