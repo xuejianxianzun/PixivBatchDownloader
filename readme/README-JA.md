@@ -97,11 +97,13 @@ Android のブラウザにこの拡張機能をインストールしたい場合
 
 - [光の軌跡](https://github.com/jiaer24)さん　- 日本語への翻訳
 
-- [bropines](https://github.com/bropines)さん - ロシア語への翻訳
-
 - [KOZ39](https://github.com/KOZ39)さん - 韓国語への翻訳
 
-- [z2n](https://github.com/z2n)さん - プログラムの改良
+- [bropines](https://github.com/bropines)さん - ロシア語への翻訳
+
+- [Reinford0](https://github.com/Reinford0)さん - 本ツールのテストと改良
+
+- [z2n](https://github.com/z2n)さん - 本ツールのプロジェクトのビルドの改良
 
 # 開発
 

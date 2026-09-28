@@ -197,12 +197,102 @@ export const langText = {
     `Количество <span class="key">закладок</span>`,
   ],
   _设置收藏数量的提示: [
-    `如果作品的收藏数小于设置的数字，作品不会被下载。`,
-    `只會下載設定收藏數範圍內的作品。`,
-    `If the number of bookmarks of the work is less than the set number, the work will not be downloaded.`,
-    `作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。`,
-    `작품의 북마크 수가 설정된 값보다 적을 경우 작품은 다운로드되지 않습니다.`,
-    `Если количество закладок произведения меньше заданного, произведение не будет загружено`,
+    `最小值和最大值：<br>
+    你可以设置作品的收藏数量范围，以排除不需要的作品。<br>
+    <br>
+    日均收藏数量：<br>
+    这是一个补充设置，目的是筛选<strong>近期新发布的</strong>高质量作品，你可以根据需要启用它。<br>
+    日均收藏数量是用作品收藏数量除以发布天数得到的平均值。如果一个作品发布了 3 天，有 600 个收藏，那么它的日均收藏数量就是 200。<br>
+    使用场景示例：<br>
+    你希望抓取高质量作品，所以设置了收藏数量的最小值为 3000。但是对于新发布的作品，即使质量比较高，也可能无法在一两天之内达到 3000 收藏。<br>
+    此时你可以启用“日均收藏数量”作为补充。该设置的默认值是 600，这意味着对于一个发布了 3 天的作品，只要其收藏数量大于 1800，下载器就会抓取它。<br>
+    备注：<br>
+    如果一个作品发布不足 4 小时，下载器会按照 4 小时计算日均收藏数量，也就是把它的收藏数量乘以 6。这意味着在 4 个小时内，如果它的收藏数量大于 100，就可以满足日均收藏数量 600 的要求。<br>
+    如果发布时间大于 4 小时，下载器会正常按照收藏数量除以发布天数计算日均收藏数量。<br>
+    <br>
+    提示：<br>
+    收藏数量范围和日均收藏数量是两个独立的筛选条件。只要作品满足这两个条件中的任意一种，就会被抓取。<br>
+    日均收藏数量适合作为补充手段来筛选近期发布的作品。它不适合用来筛选发布很久的作品，因为作品发布越久，日均收藏数量就越低。`,
+    `最小值和最大值：<br>
+    你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
+    <br>
+    日均收藏數量：<br>
+    這是一個補充設定，目的是篩選<strong>近期新發布的</strong>高品質作品，你可以根據需要啟用它。<br>
+    日均收藏數量是用作品收藏數量除以發布天數得到的平均值。如果一個作品發布了 3 天，有 600 個收藏，那麼它的日均收藏數量就是 200。<br>
+    使用場景示例：<br>
+    你希望抓取高品質作品，所以設定了收藏數量的最小值為 3000。但是對於新發布的作品，即使品質比較高，也可能無法在幾天之內達到 3000 收藏。<br>
+    此時你可以啟用「日均收藏數量」作為補充。該設定的預設值是 600，這意味著對於一個發布了 3 天的作品，只要其收藏數量大於 1800，下載器就會抓取它。<br>
+    備註：<br>
+    如果一個作品發布不足 4 小時，下載器會按照 4 小時計算日均收藏數量，也就是把它的收藏數量乘以 6。這意味著在 4 個小時內，如果它的收藏數量大於 100，就可以滿足日均收藏數量 600 的要求。<br>
+    如果發布時間大於 4 小時，下載器會正常按照收藏數量除以發布天數計算日均收藏數量。<br>
+    <br>
+    提示：<br>
+    收藏數量範圍和日均收藏數量是兩個獨立的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被抓取。<br>
+    日均收藏數量適合作為補充手段來篩選近期發布的作品。它不適合用來篩選發布很久的作品，因為作品發布越久，日均收藏數量就越低。`,
+    `Minimum and maximum:<br>
+    You can set a bookmark count range for works, to exclude the ones you do not need.<br>
+    <br>
+    Average number of daily bookmarks:<br>
+    This is a supplementary setting, aimed at filtering <strong>recently published</strong> high-quality works. You can enable it as needed.<br>
+    The average number of daily bookmarks is the work's bookmark count divided by the number of days since it was posted. If a work was posted 3 days ago and has 600 bookmarks, then its average number of daily bookmarks is 200.<br>
+    Example use case:<br>
+    You want to crawl high-quality works, so you set the minimum bookmark count to 3000. But for newly published works, even if their quality is high, they may not reach 3000 bookmarks within a few days.<br>
+    In this case you can enable "Average number of daily bookmarks" as a supplement. Its default value is 600, which means that for a work posted 3 days ago, the downloader will crawl it as long as its bookmark count is greater than 1800.<br>
+    Note:<br>
+    If a work was posted less than 4 hours ago, the downloader calculates the average using 4 hours, that is, it multiplies the bookmark count by 6. This means that within 4 hours, if its bookmark count is greater than 100, it meets the requirement of 600 bookmarks per day on average.<br>
+    If it was posted more than 4 hours ago, the downloader calculates the average in the normal way, dividing the bookmark count by the number of days since it was posted.<br>
+    <br>
+    Tips:<br>
+    The bookmark count range and the average number of daily bookmarks are two independent filter conditions. A work will be crawled as long as it meets either one of them.<br>
+    The average number of daily bookmarks is suitable as a supplementary way to filter recently published works. It is not suitable for filtering works published long ago, because the longer a work has been published, the lower its average number of daily bookmarks becomes.`,
+    `最小値と最大値：<br>
+    作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
+    <br>
+    1 日の平均ブックマーク数：<br>
+    これは補助的な設定で、<strong>最近公開された</strong>高品質な作品を絞り込むことが目的です。必要に応じて有効にしてください。<br>
+    1 日の平均ブックマーク数は、作品のブックマーク数を公開からの日数で割った平均値です。ある作品が 3 日前に公開され、ブックマーク数が 600 の場合、1 日の平均ブックマーク数は 200 になります。<br>
+    使用例：<br>
+    高品質な作品をクロールしたいので、ブックマーク数の最小値を 3000 に設定したとします。しかし新しく公開された作品は、品質が高くても数日以内に 3000 ブックマークに達しないことがあります。<br>
+    このような場合は「1 日の平均ブックマーク数」を補助として有効にできます。この設定の既定値は 600 です。つまり 3 日前に公開された作品であれば、ブックマーク数が 1800 より多ければダウンローダーはクロールします。<br>
+    備考：<br>
+    作品が公開されてから 4 時間未満の場合、ダウンローダーは 4 時間として 1 日の平均ブックマーク数を計算します。つまりブックマーク数を 6 倍します。これは、4 時間以内にブックマーク数が 100 より多ければ、1 日の平均ブックマーク数 600 の条件を満たすことを意味します。<br>
+    公開から 4 時間以上経っている場合、ダウンローダーは通常どおりブックマーク数を公開からの日数で割って 1 日の平均ブックマーク数を計算します。<br>
+    <br>
+    ヒント：<br>
+    ブックマーク数の範囲と 1 日の平均ブックマーク数は、独立した 2 つの絞り込み条件です。作品はどちらか一方を満たせばクロールされます。<br>
+    1 日の平均ブックマーク数は、最近公開された作品を絞り込む補助手段として適しています。公開されてから時間が経つほど 1 日の平均ブックマーク数は低くなるため、ずっと前に公開された作品の絞り込みには適していません。`,
+    `최솟값과 최댓값:<br>
+    작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
+    <br>
+    일일 평균 북마크 수:<br>
+    이것은 <strong>최근에 게시된</strong> 고품질 작품을 선별하기 위한 보조 설정입니다. 필요에 따라 사용할 수 있습니다.<br>
+    일일 평균 북마크 수는 작품의 북마크 수를 게시 후 일수로 나눈 평균값입니다. 어떤 작품이 3일 전에 게시되었고 북마크 수가 600이라면, 일일 평균 북마크 수는 200입니다.<br>
+    사용 예시:<br>
+    고품질 작품을 크롤링하고 싶어서 북마크 수의 최솟값을 3000으로 설정했습니다. 하지만 새로 게시된 작품은 품질이 높더라도 며칠 안에 북마크 3000에 도달하지 못할 수 있습니다.<br>
+    이때 "일일 평균 북마크 수"를 보조로 사용할 수 있습니다. 이 설정의 기본값은 600이며, 이는 3일 전에 게시된 작품이라면 북마크 수가 1800보다 많기만 하면 다운로더가 크롤링한다는 의미입니다.<br>
+    참고:<br>
+    작품이 게시된 지 4시간이 되지 않았다면, 다운로더는 4시간을 기준으로 일일 평균 북마크 수를 계산합니다. 즉 북마크 수에 6을 곱합니다. 이는 4시간 이내에 북마크 수가 100보다 많으면 일일 평균 북마크 수 600 조건을 충족한다는 의미입니다.<br>
+    게시된 지 4시간이 지났다면, 다운로더는 평소처럼 북마크 수를 게시 후 일수로 나누어 일일 평균 북마크 수를 계산합니다.<br>
+    <br>
+    팁:<br>
+    북마크 수 범위와 일일 평균 북마크 수는 서로 독립적인 두 개의 선별 조건입니다. 작품은 둘 중 하나만 만족해도 크롤링됩니다.<br>
+    일일 평균 북마크 수는 최근에 게시된 작품을 선별하는 보조 수단으로 적합합니다. 게시된 지 오래된 작품을 선별하는 데는 적합하지 않습니다. 게시된 지 오래될수록 일일 평균 북마크 수가 낮아지기 때문입니다.`,
+    `Минимум и максимум:<br>
+    Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
+    <br>
+    Среднее количество ежедневных закладок:<br>
+    Это дополнительная настройка, предназначенная для отбора <strong>недавно опубликованных</strong> высококачественных работ. Вы можете включить её при необходимости.<br>
+    Среднее количество ежедневных закладок — это количество закладок у работы, делённое на количество дней с момента публикации. Если работа опубликована 3 дня назад и у неё 600 закладок, то её среднее количество ежедневных закладок равно 200.<br>
+    Пример использования:<br>
+    Вы хотите сканировать высококачественные работы и установили минимальное количество закладок 3000. Но у недавно опубликованных работ, даже если их качество высоко, может не получиться набрать 3000 закладок за несколько дней.<br>
+    В этом случае вы можете включить «Среднее количество ежедневных закладок» как дополнение. Значение по умолчанию — 600, это значит, что для работы, опубликованной 3 дня назад, загрузчик отсканирует её, если количество закладок больше 1800.<br>
+    Примечание:<br>
+    Если работа опубликована менее 4 часов назад, загрузчик рассчитывает среднее количество ежедневных закладок по 4 часам, то есть умножает количество закладок на 6. Это значит, что в течение 4 часов, если количество закладок больше 100, условие 600 закладок в среднем в день выполняется.<br>
+    Если с момента публикации прошло больше 4 часов, загрузчик рассчитывает среднее количество ежедневных закладок обычным способом: делит количество закладок на количество дней с момента публикации.<br>
+    <br>
+    Советы:<br>
+    Диапазон количества закладок и среднее количество ежедневных закладок — это два независимых условия отбора. Работа будет отсканирована, если выполняется любое из них.<br>
+    Среднее количество ежедневных закладок подходит как дополнительный способ отбора недавно опубликованных работ. Оно не подходит для отбора давно опубликованных работ, потому что чем дольше работа опубликована, тем ниже её среднее количество ежедневных закладок.`,
   ],
   _筛选收藏数的提示文字: [
     `请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。`,
@@ -1563,12 +1653,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `Числовой ID работы, без порядкового номера, например <span class="blue">85633671</span>.`,
   ],
   _命名标记p: [
-    `图片在作品内的序号，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。小说作品没有这个属性，下载器会忽略它。`,
-    `圖片在作品內的序號，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每個作品都會重新計數。小說作品沒有這個屬性，下載器會忽略它。`,
-    `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it.`,
-    `作品内の画像のシーケンス番号、例：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 各作品で再カウントされます。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。`,
-    `작품 내 이미지의 순서 번호, 예: <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 각 작품마다 다시 카운트됩니다. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.`,
-    `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его.`,
+    `图片在作品内的序号，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。小说作品没有这个属性，下载器会忽略它。另外，如果你启用了“序号”设置里的“第一张图不带序号”，那么下载对应类型的作品时，<span class="blue">{p}</span> 也会被忽略。`,
+    `圖片在作品內的序號，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每個作品都會重新計數。小說作品沒有這個屬性，下載器會忽略它。另外，如果你啟用了「序號」設定裡的「第一張圖片不包含序號」，那麼下載對應類型的作品時，<span class="blue">{p}</span> 也會被忽略。`,
+    `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it. In addition, if you have enabled "The first image without a serial number" in the "Serial" setting, then <span class="blue">{p}</span> will also be ignored when downloading works of the corresponding type.`,
+    `作品内の画像のシーケンス番号、例：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 各作品で再カウントされます。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。また、「連番」設定の「最初のイメージの番号を削除」を有効にしている場合、対応するタイプの作品をダウンロードするときは <span class="blue">{p}</span> も無視されます。`,
+    `작품 내 이미지의 순서 번호, 예: <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 각 작품마다 다시 카운트됩니다. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다. 또한 "일련번호" 설정에서 "일련번호가 없는 첫 번째 이미지"를 사용한 경우, 해당 유형의 작품을 다운로드할 때 <span class="blue">{p}</span>도 무시됩니다.`,
+    `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его. Кроме того, если вы включили настройку «Первое изображение без серийного номера» в разделе «Нумерация», то при загрузке работ соответствующего типа <span class="blue">{p}</span> также будет игнорироваться.`,
   ],
   _命名标记_sl: [
     `图像作品的 sanity_level 属性，值是以下数字之一：<span class="blue">0</span>、<span class="blue">2</span>、<span class="blue">4</span>、<span class="blue">6</span>。小说作品没有这个属性，会忽略这个标记。`,
@@ -1579,12 +1669,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `Атрибут sanity_level изображений работ принимает одно из следующих значений: <span class="blue">0</span>, <span class="blue">2</span>, <span class="blue">4</span>, <span class="blue">6</span>. Новеллы не имеют этого атрибута и будут игнорировать эту метку.`,
   ],
   _命名标记_multi_image_folder: [
-    `它代表“为多图作品添加一层文件夹”里设置的文件夹规则。如果你启用了这个设置，那么下载器在为多图作品创建文件名时，会把它替换为你设置的文件夹规则。非多图作品会忽略这个标记。`,
-    `它代表「為多圖作品添加一層資料夾」裡設定的資料夾規則。如果你啟用了這個設定，那麼下載器在為多圖作品建立檔名時，會把它替換為你設定的資料夾規則。非多圖作品會忽略這個標記。`,
-    `It represents the folder rule set in "Add a folder layer for multi-image works". If you have enabled this setting, the downloader will replace it with the folder rule you set when creating the filename for multi-image works. Non-multi-image works will ignore this marker.`,
-    `これは「複数画像作品に1層のフォルダを追加」で設定したフォルダ規則を表します。この設定を有効にしている場合、ダウンローダーは複数画像作品のファイル名を作成する際に、それをあなたが設定したフォルダ規則に置き換えます。非複数画像作品はこのマーカーを無視します。`,
-    `이는 "다중 이미지 작품에 한 층의 폴더 추가"에서 설정한 폴더 규칙을 나타냅니다. 이 설정을 활성화한 경우, 다운로더는 다중 이미지 작품의 파일명을 생성할 때 이를 설정한 폴더 규칙으로 대체합니다. 비다중 이미지 작품은 이 마커를 무시합니다.`,
-    `Оно представляет правило папки, установленное в «Добавить слой папки для многоизображных работ». Если вы включили эту настройку, загрузчик при создании имени файла для многоизображных работ заменит его на правило папки, которое вы задали. Работы, не являющиеся многоизображными, будут игнорировать эту метку.`,
+    `它代表“为多图作品添加一层文件夹”里设置的文件夹规则。如果你启用了这个设置，那么下载器在为多图作品创建文件名时，会把它替换为你设置的文件夹规则。非多图作品（单图、动图、小说）会忽略这个标记。`,
+    `它代表「為多圖作品添加一層資料夾」裡設定的資料夾規則。如果你啟用了這個設定，那麼下載器在為多圖作品建立檔名時，會把它替換為你設定的資料夾規則。非多圖作品（單圖、動圖、小說）會忽略這個標記。`,
+    `It represents the folder rule set in "Add a folder layer for multi-image works". If you have enabled this setting, the downloader will replace it with the folder rule you set when creating the file name for multi-image works. Works that are not multi-image works (single image works, Ugoira, novels) will ignore this marker.`,
+    `これは「複数画像作品に1層のフォルダを追加」で設定したフォルダ規則を表します。この設定を有効にしている場合、ダウンローダーは複数画像作品のファイル名を作成する際に、それをあなたが設定したフォルダ規則に置き換えます。複数画像作品以外の作品（シングルイメージ作品、うごイラ、小説）はこのマーカーを無視します。`,
+    `이는 "다중 이미지 작품에 한 층의 폴더 추가"에서 설정한 폴더 규칙을 나타냅니다. 이 설정을 활성화한 경우, 다운로더는 다중 이미지 작품의 파일 이름을 만들 때 이를 설정한 폴더 규칙으로 대체합니다. 다중 이미지 작품이 아닌 작품(단일 이미지 작품, 움직이는 일러스트, 소설)은 이 마커를 무시합니다.`,
+    `Оно представляет правило папки, установленное в настройке «Добавить слой папки для многоизображных работ». Если вы включили эту настройку, загрузчик при создании имени файла для многоизображных работ заменит его на правило папки, которое вы задали. Работы, не являющиеся многоизображными (работа с одним изображением, Ugoira, новелла), будут игнорировать эту метку.`,
   ],
   _命名标记_r18_g_folder: [
     `它代表“为 R-18(G) 作品添加一层文件夹”里设置的文件夹规则。如果你启用了这个设置，下载器在为 R-18(G) 作品生成文件名时，会把它替换为你设置的文件夹规则。非 R-18(G) 作品会忽略这个标记。`,
@@ -2821,24 +2911,54 @@ Quick download tasks are triggered by these actions:<br>
     `<span class="key">Предварительный просмотр</span> результатов сканирования на странице поиска`,
   ],
   _预览搜索页面的抓取结果说明: [
-    `当你在搜索页面（/tags 和 /search）里抓取时，下载器可以把抓取到的作品显示在页面上，并且按照收藏数量从高到低排序。<br>
+    `当你在搜索页面（/tags 和 /search）里抓取插画、漫画作品时，下载器可以把抓取到的作品显示在页面上，并且按照收藏数量从高到低排序。<br>
+    <br>
     启用预览功能时，下载器不会自动开始下载，这是为了让用户可以对抓取结果再次进行筛选。<br>
-    当抓取结果较多时，下载器会分页显示，以降低性能压力。你可以设置每页显示的作品数量。`,
-    `當你在搜尋頁面（/tags 和 /search）裡抓取時，下載器可以把抓取到的作品顯示在頁面上，並且按照收藏數量從高到低排序。<br>
-    啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對抓取結果再次進行篩選。<br>
-    當抓取結果較多時，下載器會分頁顯示，以降低效能壓力。你可以設定每頁顯示的作品數量。`,
-    `When you crawl in the search page (/tags and /search), the downloader can display the crawled works on the page and sort them from high to low by the number of bookmarks.<br>
-    When the preview function is enabled, the downloader will not start downloading automatically, so that you can filter the crawl results again.<br>
-    When there are many crawl results, the downloader shows them page by page to reduce the performance load. You can set how many works to show per page.`,
-    `検索ページ（/tags と /search）でクロールすると、ダウンローダーはクロールした作品をページ上に表示し、ブックマーク数の多い順に並べ替えることができます。<br>
-    プレビュー機能を有効にすると、ダウンローダーは自動的にダウンロードを開始しません。これは、クロール後にクロール結果を再度フィルタリングできるようにするためです。<br>
-    クロール結果が多い場合、ダウンローダーはページに分割して表示し、パフォーマンスへの負荷を抑えます。1 ページに表示する作品数は設定できます。`,
-    `검색 페이지(/tags 및 /search)에서 크롤링하면 다운로더가 긁어온 작품을 페이지에 표시하고 북마크 수가 많은 순서대로 정렬할 수 있습니다.<br>
-    미리보기 기능을 활성화하면 다운로더가 자동으로 다운로드를 시작하지 않습니다. 크롤링 후 크롤링 결과를 다시 필터링할 수 있도록 하기 위한 것입니다.<br>
-    크롤링 결과가 많으면 다운로더가 페이지로 나누어 표시하여 성능 부담을 줄입니다. 페이지당 표시할 작품 수를 설정할 수 있습니다.`,
-    `Когда вы выполняете сканирование на странице поиска (/tags и /search), загрузчик может показывать просканированные работы на странице и сортировать их по убыванию количества закладок.<br>
-    Когда включена функция предварительного просмотра, загрузчик не начинает загрузку автоматически, чтобы вы могли снова отфильтровать результаты сканирования.<br>
-    Когда результатов сканирования много, загрузчик показывает их постранично, чтобы снизить нагрузку на производительность. Вы можете задать количество работ на странице.`,
+    在这些页面上，你可以使用设置面板里的这些按钮调整抓取结果：<br>
+    - 修改抓取条件后点击在结果中筛选；<br>
+    - 清除多图作品、清除动图作品、手动删除作品、手动排除作品。<br>
+    <br>
+    另外，当抓取结果较多时，下载器会分页显示，以降低性能压力。你可以设置每页显示的作品数量。`,
+    `當你在搜尋頁面（/tags 和 /search）裡擷取插畫、漫畫作品時，下載器可以把擷取到的作品顯示在頁面上，並且按照收藏數量從高到低排序。<br>
+    <br>
+    啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對擷取結果再次進行篩選。<br>
+    在這些頁面上，你可以使用設定面板裡的這些按鈕調整擷取結果：<br>
+    - 修改擷取條件後點擊在結果中篩選；<br>
+    - 清除多圖作品、清除動圖作品、手動刪除作品、手動排除作品。<br>
+    <br>
+    另外，當擷取結果較多時，下載器會分頁顯示，以降低效能壓力。你可以設定每頁顯示的作品數量。`,
+    `When you crawl illustrations and manga on search pages (/tags and /search), the downloader can display the crawled works on the page, sorted by bookmark count from highest to lowest.<br>
+    <br>
+    When the preview feature is enabled, the downloader will not start downloading automatically, so that you can filter the crawl results again.<br>
+    On these pages, you can use these buttons in the settings panel to adjust the crawl results:<br>
+    - After changing the crawl conditions, click "Screen in results";<br>
+    - Remove multi-image works, remove ugoira works, manually delete works, manually exclude works.<br>
+    <br>
+    In addition, when there are many crawl results, the downloader will display them in pages to reduce performance pressure. You can set the number of works shown per page.`,
+    `検索ページ（/tags と /search）でイラストやマンガ作品をクロールするとき、ダウンローダーはクロールした作品をページ上に表示し、ブックマークの数が多い順に並べ替えることができます。<br>
+    <br>
+    プレビュー機能を有効にしているとき、ダウンローダーは自動的にダウンロードを開始しません。これはユーザーがクロール結果を再度スクリーニングできるようにするためです。<br>
+    これらのページでは、設定パネルにある以下のボタンでクロール結果を調整できます：<br>
+    - クロール条件を変更したあとに「結果の中からスクリーニング」をクリックする；<br>
+    - 複数画像をクリア、うごイラ作品を削除する、作品を手動で削除する、手動で作品を除外。<br>
+    <br>
+    また、クロール結果が多い場合、ダウンローダーはパフォーマンスへの負荷を下げるためにページ分割して表示します。1 ページに表示する作品数を設定できます。`,
+    `검색 페이지(/tags 및 /search)에서 일러스트와 만화 작품을 크롤링할 때, 다운로더는 크롤링한 작품을 페이지에 표시하고 북마크 수가 높은 순서대로 정렬할 수 있습니다.<br>
+    <br>
+    미리보기 기능을 사용하면 다운로더가 자동으로 다운로드를 시작하지 않습니다. 사용자가 크롤링 결과를 다시 선별할 수 있도록 하기 위함입니다.<br>
+    이 페이지에서는 설정 패널의 다음 버튼으로 크롤링 결과를 조정할 수 있습니다:<br>
+    - 크롤링 조건을 수정한 뒤 "결과 중에서 선별"을 클릭합니다;<br>
+    - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 지우기, 수동 제외.<br>
+    <br>
+    또한 크롤링 결과가 많을 때 다운로더는 성능 부담을 줄이기 위해 페이지로 나누어 표시합니다. 페이지당 표시할 작품 수를 설정할 수 있습니다.`,
+    `При сканировании иллюстраций и манги на страницах поиска (/tags и /search) загрузчик может отображать найденные работы на странице, отсортированные по количеству закладок от большего к меньшему.<br>
+    <br>
+    Когда функция предварительного просмотра включена, загрузчик не начинает загрузку автоматически — это сделано для того, чтобы вы могли снова отфильтровать результаты сканирования.<br>
+    На этих страницах вы можете изменить результаты сканирования с помощью этих кнопок на панели настроек:<br>
+    - Изменив условия сканирования, нажмите «Экран результатов»;<br>
+    - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное удаление, ручное исключение.<br>
+    <br>
+    Кроме того, когда результатов сканирования много, загрузчик отображает их постранично, чтобы снизить нагрузку на производительность. Вы можете настроить количество работ на странице.`,
   ],
   _提示启用预览搜索页面的抓取结果时不会自动开始下载: [
     `💡由于启用了“预览搜索页面的抓取结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。`,
@@ -4186,14 +4306,6 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `일일 평균 북마크 수 조건을 충족`,
     `Удовлетворяют условию среднего количества ежедневных закладок`,
   ],
-  _日均收藏数量的提示: [
-    `你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。`,
-    `您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。`,
-    `You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.`,
-    `作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。`,
-    `작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.`,
-    `Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.`,
-  ],
   _获取关注列表失败: [
     `获取关注列表失败`,
     `獲取關注列表失敗`,
@@ -5285,12 +5397,12 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     `Добавить область быстрого <span class="key">поиска</span> на странице поиска`,
   ],
   _在搜索页面添加快捷搜索区域的说明: [
-    `在搜索页面（/tags 和 /search）的顶部，下载器可以显示一些收藏数量标签，例如“10000users入り”，点击就可以把它添加到当前标签的后面，进行快速搜索。`,
-    `在搜尋頁面（/tags 和 /search）的頂部，下載器可以顯示一些收藏數量標籤，例如「10000users入り」，點擊就可以把它新增到目前標籤的後面，進行快速搜尋。`,
-    `At the top of the search page (/tags and /search), the downloader can show some bookmark count tags, such as "10000users入り". Click one to append it to the current tag for a quick search.`,
-    `検索ページ（/tags と /search）の上部に、「10000users入り」などのブックマーク数タグを表示できます。クリックすると現在のタグの後ろに追加され、すばやく検索できます。`,
-    `검색 페이지(/tags 및 /search) 상단에 "10000users入り" 같은 북마크 수 태그를 표시할 수 있습니다. 클릭하면 현재 태그 뒤에 추가되어 빠르게 검색할 수 있습니다.`,
-    `В верхней части страницы поиска (/tags и /search) загрузчик может показывать теги с количеством закладок, например «10000users入り». Нажмите на такой тег, чтобы добавить его к текущему тегу и выполнить быстрый поиск.`,
+    `在搜索页面（/tags 和 /search）的顶部，下载器会显示一些收藏数量标签，例如“10000users入り”。当你点击这些标签时，下载器会把它添加到当前搜索词的后面，并自动搜索。`,
+    `在搜尋頁面（/tags 和 /search）的頂部，下載器會顯示一些收藏數量標籤，例如「10000users入り」。當你點擊這些標籤時，下載器會把它新增到目前搜尋字詞的後面，並自動搜尋。`,
+    `At the top of search pages (/tags and /search), the downloader displays some bookmark count tags, for example "10000users入り". When you click one of these tags, the downloader appends it to the end of the current search keyword and searches automatically.`,
+    `検索ページ（/tags と /search）の上部に、ダウンローダーは「10000users入り」などのブックマーク数のタグをいくつか表示します。これらのタグをクリックすると、ダウンローダーはそれを現在の検索キーワードの後ろに追加し、自動的に検索します。`,
+    `검색 페이지(/tags 및 /search) 상단에 다운로더는 "10000users入り"와 같은 북마크 수 태그를 몇 개 표시합니다. 이 태그를 클릭하면 다운로더가 현재 검색어 뒤에 그것을 추가하고 자동으로 검색합니다.`,
+    `В верхней части страниц поиска (/tags и /search) загрузчик отображает несколько тегов с количеством закладок, например «10000users入り». Когда вы нажимаете такой тег, загрузчик добавляет его в конец текущего поискового запроса и выполняет поиск автоматически.`,
   ],
   _保存作品的元数据: [
     `保存作品的<span class="key">元数据</span>`,
@@ -10334,6 +10446,7 @@ If the work matches either blocking condition, the downloader will not preview i
 建立文件夹的说明：<br>
 - 如果你想为每个作品建立一层文件夹，可以在文件名前面添加一层文件夹。使用作品 ID <span class="blue name">{pid}</span> 作为文件夹名字是一个通用的选择，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。当然你也可以根据自己的需要使用对应的标记。<br>
 - 如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 <span class="blue name">{AI}</span> 标记，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 使用 <span class="blue">pixiv/{pid}/{p}</span>，并在下方的“序号”-“第一张图不带序号”设置里选择“单图作品”，就可以实现这样的效果：单图的文件名是 <span class="blue">{pid}</span>（没有序号），多图则会建立文件夹，并使用序号保存文件。<br>
 - 如果你想根据作品类型建立文件夹，可以使用 <span class="blue name">{type}</span> 标记，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
@@ -10351,6 +10464,7 @@ If the work matches either blocking condition, the downloader will not preview i
 建立資料夾的說明：<br>
 - 如果你想為每個作品建立一層資料夾，可以在檔名前面添加一層資料夾。使用作品 ID <span class="blue name">{pid}</span> 作為資料夾名字是一個通用的選擇，例如 <span class="blue">pixiv/{user}/{pid}/{id}</span>。當然你也可以根據自己的需要使用對應的標記。<br>
 - 如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 <span class="blue name">{AI}</span> 標記，例如：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- 使用 <span class="blue">pixiv/{pid}/{p}</span>，並在下方的「序號」-「第一張圖片不包含序號」設定裡選擇「單圖作品」，就可以實現這樣的效果：單圖的檔名是 <span class="blue">{pid}</span>（沒有序號），多圖則會建立資料夾，並使用序號保存檔案。<br>
 - 如果你想根據作品類型建立資料夾，可以使用 <span class="blue name">{type}</span> 標記，例如：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 提示：<br>
@@ -10368,6 +10482,7 @@ If the work matches either blocking condition, the downloader will not preview i
 Notes on creating folders:<br>
 - If you want to create a folder for each work, add a folder level before the file name. Using the work ID <span class="blue name">{pid}</span> as the folder name is a common choice, for example: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Of course, you can use other tokens based on your needs.<br>
 - If you want to put AI-generated works in a separate folder, use the <span class="blue name">{AI}</span> token, for example: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- Use <span class="blue">pixiv/{pid}/{p}</span> and select "Single image works" in the "Serial number" - "The first image without a serial number" setting below. This way, the file name of a single image work is <span class="blue">{pid}</span> (without a serial number), while multi-image works get a folder and their files are saved with serial numbers.<br>
 - If you want to create folders by work type, use the <span class="blue name">{type}</span> token, for example: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Tips:<br>
@@ -10385,6 +10500,7 @@ Tip: Click a token name to copy it.<br>`,
 フォルダー作成の説明：<br>
 - 各 作品 ごとにフォルダーを作りたい場合は、ファイル名の前にフォルダー階層を追加してください。作品 ID <span class="blue name">{pid}</span> をフォルダー名に使うのが一般的な選択です。例：<span class="blue">pixiv/{user}/{pid}/{id}</span>。もちろん必要に応じて他のトークンを使うこともできます。<br>
 - AI 生成の 作品 を別のフォルダーに入れたい場合は <span class="blue name">{AI}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- <span class="blue">pixiv/{pid}/{p}</span> を使い、下の「番号」-「最初のイメージの番号を削除」設定で「シングルイメージ作品」を選ぶと、次のような結果になります：シングルイメージ 作品 のファイル名は <span class="blue">{pid}</span>（番号なし）になり、複数画像 作品 はフォルダーが作られ、番号付きでファイルが保存されます。<br>
 - 作品 の種類別にフォルダーを作りたい場合は <span class="blue name">{type}</span> トークンを使います。例：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 ヒント：<br>
@@ -10402,6 +10518,7 @@ Tip: Click a token name to copy it.<br>`,
 폴더 생성 설명：<br>
 - 각 작품마다 폴더를 만들고 싶다면 파일 이름 앞에 폴더 레벨을 추가하세요. 작품 ID <span class="blue name">{pid}</span> 을 폴더 이름으로 사용하는 것이 일반적인 선택입니다. 예：<span class="blue">pixiv/{user}/{pid}/{id}</span>. 물론 필요에 따라 다른 토큰을 사용할 수도 있습니다.<br>
 - AI로 생성된 작품을 별도의 폴더에 넣고 싶다면 <span class="blue name">{AI}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- <span class="blue">pixiv/{pid}/{p}</span> 를 사용하고 아래의 "일련번호" - "일련번호가 없는 첫 번째 이미지" 설정에서 "단일 이미지 작품"을 선택하면 다음과 같은 결과를 얻을 수 있습니다: 단일 이미지 작품의 파일 이름은 <span class="blue">{pid}</span>(일련번호 없음)이고, 여러 이미지 작품은 폴더가 만들어지고 일련번호를 사용하여 파일이 저장됩니다.<br>
 - 작품 유형별로 폴더를 만들고 싶다면 <span class="blue name">{type}</span> 토큰을 사용하세요. 예：<span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 팁：<br>
@@ -10419,6 +10536,7 @@ Tip: Click a token name to copy it.<br>`,
 Пояснения по созданию папок:<br>
 - Если вы хотите создать папку для каждой работы, добавьте уровень папки перед именем файла. Использование ID работы <span class="blue name">{pid}</span> в качестве имени папки — универсальный вариант, например: <span class="blue">pixiv/{user}/{pid}/{id}</span>. Разумеется, вы можете использовать другие токены по своему усмотрению.<br>
 - Если вы хотите поместить работы, созданные с помощью ИИ, в отдельную папку, используйте токен <span class="blue name">{AI}</span>, например: <span class="blue">pixiv/{user}/{AI}/{id}</span><br>
+- Используйте <span class="blue">pixiv/{pid}/{p}</span> и выберите «Работа с одним изображением» в настройке «Серийный номер» — «Первое изображение без серийного номера» ниже. Тогда имя файла для работы с одним изображением будет <span class="blue">{pid}</span> (без серийного номера), а для работ с несколькими изображениями будет создана папка, и файлы сохранятся с серийными номерами.<br>
 - Если вы хотите создавать папки по типу работы, используйте токен <span class="blue name">{type}</span>, например: <span class="blue">pixiv/{user}/{type}/{id}</span><br>
 <br>
 Советы:<br>

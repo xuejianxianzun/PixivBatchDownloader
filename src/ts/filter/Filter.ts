@@ -554,7 +554,16 @@ class Filter {
   }
 
   private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
-  private readonly minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
+  /** 计算日均收藏数量时，作品发表天数的下限（这里是 4 小时）
+   *
+   * 作品刚发表时收藏数量增长得很快，此时用「收藏数量 ÷ 发表天数」会外推出严重偏高的日均收藏数量，非常不可靠。
+   * 例如：一个发表了 0.5 小时、有 30 个收藏的作品，会被算成日均 1440 个收藏，
+   * 而实际上它之后的增速会放缓，很可能达不到日均 1440。
+   * 所以发表时长不足 4 小时的作品，一律按 4 小时计算。
+   *
+   * ⚠️ 这里必须用「取下限」而不是「跳过检查」：跳过会在 4 小时处产生一个断崖
+   * （同一个作品在 3 小时 59 分和 4 小时 01 分会得到完全相反的结果），取下限则是连续的。 */
+  private readonly minimumDay = 12 / 24
 
   /** 检查收藏数要求 */
   private checkBMK(
@@ -577,14 +586,16 @@ class Filter {
     const createTime = new Date(date).getTime()
     const nowTime = Date.now()
 
-    // 如果作品发表时间太短（小于 4 小时）
-    if (nowTime - createTime < this.minimumTime) {
-      // 如果 4 小时里的收藏数量已经达到要求，则保留这个作品
-      // 如果 4 小时里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
-      return bmk >= settings.BMKNumAverage ? true : checkNumber
-    }
-
-    const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
+    // 计算作品发表以来的天数。发表时长不足 minimumDay（4 小时）的按 minimumDay 计算。
+    // 因为发表时长很短的作品，其日均收藏数量非常不可靠（会被外推出虚高的值）
+    // 例如一个发表 2 小时的作品，有 200 个收藏。如果直接用 2 小时推算日均收藏数量，会得到非常高的值：
+    // 200 / (2 / 24) = 2400，但实际上它之后的增速会放缓，2400 很可能是虚高的。
+    // 现在的计算方法是把发布不足 4 小时的作品，按 4 小时推算，这样得到的日均收藏数量是：
+    // 200 / (4 / 24) = 1200，减小了虚高的可能性。
+    const day = Math.max(
+      (nowTime - createTime) / this.oneDayTime,
+      this.minimumDay
+    )
     const average = bmk / day
     const checkAverage = average >= settings.BMKNumAverage
 

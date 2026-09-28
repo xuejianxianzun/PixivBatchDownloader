@@ -95,13 +95,15 @@ Android 브라우저에 이 확장 프로그램을 설치하려면 Quetta 브라
 
 - [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) 중국어 번체로 번역해 주셔서 감사합니다.
 
-- [KOZ39](https://github.com/KOZ39) 한국어로 번역해 주셔서 감사합니다.
-
-- 러시아 번역에 대해 [bropines](https://github.com/bropines)에게 감사드립니다.
-
 - [光の軌跡](https://github.com/jiaer24) 일본어로 번역해 주셔서 감사합니다.
 
-- [z2n](https://github.com/z2n) 프로그램을 개선해 주셔서 감사합니다.
+- [KOZ39](https://github.com/KOZ39) 한국어로 번역해 주셔서 감사합니다.
+
+- [bropines](https://github.com/bropines) 러시아어로 번역해 주셔서 감사합니다.
+
+- [Reinford0](https://github.com/Reinford0) 이 도구의 테스트와 개선에 도움을 주셔서 감사합니다.
+
+- [z2n](https://github.com/z2n) 이 도구의 프로젝트 빌드를 개선해 주셔서 감사합니다.
 
 # 개발
 

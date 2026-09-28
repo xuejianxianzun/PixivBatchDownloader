@@ -93,9 +93,9 @@ Firefox 瀏覽器可從 **[Add-Ons](https://addons.mozilla.org/firefox/addon/pow
 
 - 感謝 [光の軌跡](https://github.com/jiaer24) 翻譯日語。
 
-- 感謝 [KOZ39](https://github.com/KOZ39) 翻译韩語。
+- 感謝 [KOZ39](https://github.com/KOZ39) 翻譯韓語。
 
-- 感谢 [bropines](https://github.com/bropines) 翻译俄语。
+- 感謝 [bropines](https://github.com/bropines) 翻譯俄語。
 
 - 感謝 [Reinford0](https://github.com/Reinford0) 對本工具的測試和改進。
 

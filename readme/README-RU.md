@@ -88,13 +88,15 @@ Russian
 
 - Спасибо [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) за перевод традиционного китайского языка.
 
-- Спасибо [KOZ39](https://github.com/KOZ39) за перевод традиционного корейского языка.
+- Спасибо [光の軌跡](https://github.com/jiaer24) за перевод японского языка.
 
-- Спасибо [bropines](https://github.com/bropines) за русский перевод.
+- Спасибо [KOZ39](https://github.com/KOZ39) за перевод корейского языка.
 
-- Спасибо [光の軌跡](https://github.com/jiaer24) за перевод традиционного японского языка.
+- Спасибо [bropines](https://github.com/bropines) за перевод русского языка.
 
-- Спасибо [z2n](https://github.com/z2n) за улучшение программы.
+- Спасибо [Reinford0](https://github.com/Reinford0) за тестирование и улучшение этого инструмента.
+
+- Спасибо [z2n](https://github.com/z2n) за улучшение сборки проекта этого инструмента.
 
 - Ну типа я перевел, спасибо Pinus.
 
