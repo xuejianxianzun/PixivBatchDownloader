@@ -41,8 +41,6 @@ class Download {
   private downloadStatesIndex: number
 
   private retry = 0 // 重试次数
-  private lastRequestTime = 0 // 最后一次发起请求的时间戳
-  private retryInterval: number[] = [] // 保存每次到达重试环节时，距离上一次请求的时间差
 
   private sizeChecked = false // 是否对文件体积进行了检查
   private skip = false // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
@@ -118,7 +116,6 @@ class Download {
     this.setProgressBar(_fileName, 0, 0)
 
     await downloadInterval.wait()
-    this.lastRequestTime = Date.now()
 
     if (result.type === 3) {
       // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
@@ -268,13 +265,6 @@ class Download {
 
       console.error('Download error:', error)
 
-      // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
-      // 储存重试的时间戳等信息
-      if (this.retryInterval.length > Config.retryMax) {
-        this.retryInterval.shift()
-      }
-      this.retryInterval.push(Date.now() - this.lastRequestTime)
-
       progressBar.errorColor(this.progressBarIndex, true)
       this.retry++
 
@@ -283,6 +273,9 @@ class Download {
         this.afterReTryMax(status, arg.id)
       } else {
         // 开始重试
+        // ⚠️ 重试之前必须等待一段时间，否则会立刻重新发送请求
+        // 连续请求不仅可能失败得更快，也容易被服务器当成异常流量
+        await Utils.sleep(1000)
         return this.download(arg)
       }
     }
@@ -319,24 +312,8 @@ class Download {
       })
     }
 
-    // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
-    // 超时也会返回状态码 0
-    if (status === 0) {
-      // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-      // 如果是超时，那么等待时间会比较长，可能超过 20 秒
-      const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
-      const result = this.retryInterval.filter((val) => val <= timeLimit)
-      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
-      if (result.length > 9) {
-        log.error(errorMsg)
-        const tip = lang.transl('_状态码为0的错误提示')
-        log.error(tip)
-        msgBox.error(tip)
-        return EVT.fire('requestPauseDownload')
-      }
-    }
-
-    // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+    // 其他状态码（包括网络错误导致的 0），暂时跳过这个任务，
+    // 但最后还是会尝试重新下载它
     log.log(lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'))
     this.error = true
     EVT.fire('downloadError', fileId)
@@ -681,6 +658,8 @@ class Download {
       } catch (error) {
         // 如果网络请求失败，重试最多 3 次
         if (retryCount <= 3) {
+          // 重试之前等待一段时间，避免连续发送请求
+          await Utils.sleep(1000)
           return this.downloadUgoiraThumbnail(
             result,
             newFileName,

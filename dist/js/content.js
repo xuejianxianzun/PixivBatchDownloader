@@ -25126,8 +25126,6 @@ class Download {
     progressBarIndex;
     downloadStatesIndex;
     retry = 0; // 重试次数
-    lastRequestTime = 0; // 最后一次发起请求的时间戳
-    retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
     sizeChecked = false; // 是否对文件体积进行了检查
     skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
     error = false; // 在下载过程中是否出现了无法解决的错误
@@ -25189,7 +25187,6 @@ class Download {
         // 重置当前下载记录条
         this.setProgressBar(_fileName, 0, 0);
         await _DownloadInterval__WEBPACK_IMPORTED_MODULE_17__.downloadInterval.wait();
-        this.lastRequestTime = Date.now();
         if (result.type === 3) {
             // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
             const blob = await this.getNovelFileURL(result.novelMeta, _fileName);
@@ -25314,12 +25311,6 @@ class Download {
                 return;
             }
             console.error('Download error:', error);
-            // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
-            // 储存重试的时间戳等信息
-            if (this.retryInterval.length > _Config__WEBPACK_IMPORTED_MODULE_12__.Config.retryMax) {
-                this.retryInterval.shift();
-            }
-            this.retryInterval.push(Date.now() - this.lastRequestTime);
             _ProgressBar__WEBPACK_IMPORTED_MODULE_6__.progressBar.errorColor(this.progressBarIndex, true);
             this.retry++;
             if (this.retry >= _Config__WEBPACK_IMPORTED_MODULE_12__.Config.retryMax) {
@@ -25328,6 +25319,9 @@ class Download {
             }
             else {
                 // 开始重试
+                // ⚠️ 重试之前必须等待一段时间，否则会立刻重新发送请求
+                // 连续请求不仅可能失败得更快，也容易被服务器当成异常流量
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(1000);
                 return this.download(arg);
             }
         }
@@ -25354,23 +25348,8 @@ class Download {
                 reason: status.toString(),
             });
         }
-        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
-        // 超时也会返回状态码 0
-        if (status === 0) {
-            // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
-            const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
-            const result = this.retryInterval.filter((val) => val <= timeLimit);
-            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
-            if (result.length > 9) {
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
-                const tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码为0的错误提示');
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_13__.msgBox.error(tip);
-                return _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestPauseDownload');
-            }
-        }
-        // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+        // 其他状态码（包括网络错误导致的 0），暂时跳过这个任务，
+        // 但最后还是会尝试重新下载它
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'));
         this.error = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
@@ -25658,6 +25637,8 @@ class Download {
             catch (error) {
                 // 如果网络请求失败，重试最多 3 次
                 if (retryCount <= 3) {
+                    // 重试之前等待一段时间，避免连续发送请求
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sleep(1000);
                     return this.downloadUgoiraThumbnail(result, newFileName, zipFile, retryCount + 1);
                 }
                 else {
@@ -39076,14 +39057,6 @@ Note: After enabling this setting, the downloader will overwrite your current na
 Если вы хотите задать отдельные правила именования для определённых страниц — например, использовать разные правила на странице поиска и на странице профиля автора — включите эту настройку. Тогда загрузчик будет сохранять уникальное правило именования для каждого типа страницы.<br>
 <br>
 Обратите внимание: после включения этой настройки загрузчик перезапишет ваше текущее правило именования предустановленными правилами. После этого вы можете изменить их по своему усмотрению, например задать разные правила для страницы поиска и страницы профиля автора.`,
-    ],
-    _状态码为0的错误提示: [
-        `下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。<br><br>3. 可以尝试重启浏览器，或者禁用此扩展然后重新启用，并刷新这个标签页。`,
-        `下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。<br><br>3. 可以嘗試重啟瀏覽器，或者禁用此擴充套件然後重新啟用，並重新整理這個標籤頁。`,
-        `An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.<br><br>3. You can try to restart the browser, or disable and re-enable the extension, and refresh the tab.`,
-        `ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。<br><br>3. ブラウザを再起動するか、拡張機能を無効にしてから再度有効にして、タブを更新してみてください。`,
-        `다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.<br><br>3. 브라우저를 다시 시작하거나 확장 프로그램을 비활성화했다가 다시 활성화하고 탭을 새로 고칠 수 있습니다.`,
-        `Во время загрузки произошла ошибка, код состояния равен 0, и запрос был выполнен неудачно. Возможные причины: <br><br>1. Оставшегося места на системном диске может быть недостаточно (обычно это диск C) (рекомендуется, чтобы оставшееся место было больше 4 ГБ). Пожалуйста, попробуйте освободить место на системном диске, а затем перезапустите браузер, чтобы продолжить незаконченную загрузку. <br><br>2. Ошибка сети. Это может быть проблема, вызванная сетевым прокси-сервером.<br><br>3. Вы можете попробовать перезапустить браузер или отключить и снова включить расширение и обновить вкладку.`,
     ],
     _下载完成后显示通知: [
         `下载完成后显示<span class="key">通知</span>`,
