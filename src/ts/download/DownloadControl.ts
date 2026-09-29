@@ -288,9 +288,15 @@ class DownloadControl {
           EVT.fire('saveFileError')
 
           // 如果因为文件名里含有非法字符，导致浏览器无法建立下载，就显示针对性的提示
-          // 例如 Firefox 此时的错误信息是：
+          // Chrome 的报错信息是：
+          // Invalid filename
+          // Firefox 的报错信息是：
           // filename must not contain illegal characters
-          if (reason.includes('filename') && reason.includes('illegal')) {
+          reason = reason.toLowerCase()
+          if (
+            reason.includes('filename') &&
+            (reason.includes('illegal') || reason.includes('invalid'))
+          ) {
             log.warning(lang.transl('_filename_contains_illegal_characters'))
           }
 

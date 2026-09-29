@@ -753,8 +753,8 @@ class Download {
       browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')
     } catch (error) {
-      let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(
-        '_请刷新页面'
+      let msg = `${lang.transl('_发生错误原因')}<br>{}<br>${lang.transl(
+        '_请刷新这个网页'
       )}`
       if ((error as Error).message.includes('Extension context invalidated')) {
         msg = msg.replace('{}', lang.transl('_扩展程序已更新'))

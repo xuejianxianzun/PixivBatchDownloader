@@ -1,0 +1,90 @@
+<svg width="100%" viewBox="0 0 680 400" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--font-sans)">
+<title>日均收藏数量的压制曲线：12 个刻度上的倍率与系数</title>
+<desc>横轴为作品发布时长（2 到 24 小时）。上图是倍率：2 小时时为 12，之后线性增加到 24 小时时的正常值 24。下图是据此算出的系数（收藏数量乘以它得到日均收藏数量），从 6 降到 1，并与不压制时的系数对比。</desc>
+<text x="70" y="18" font-size="13" font-weight="500" fill="#2C2C2A">倍率 R：2 小时为 12，到 24 小时线性增加到正常的 24</text>
+<text x="640" y="18" font-size="11" fill="#5F5E5A" text-anchor="end">R = 12 + 12 × (时长 - 2) / 22</text>
+<line x1="70" y1="180" x2="640" y2="180" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="184" font-size="11" fill="#5F5E5A" text-anchor="end">0</text>
+<line x1="70" y1="145.4" x2="640" y2="145.4" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="149.4" font-size="11" fill="#5F5E5A" text-anchor="end">6</text>
+<line x1="70" y1="110.8" x2="640" y2="110.8" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="114.8" font-size="11" fill="#5F5E5A" text-anchor="end">12</text>
+<line x1="70" y1="76.2" x2="640" y2="76.2" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="80.2" font-size="11" fill="#5F5E5A" text-anchor="end">18</text>
+<line x1="70" y1="41.5" x2="640" y2="41.5" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="45.5" font-size="11" fill="#5F5E5A" text-anchor="end">24</text>
+<path d="M70,110.8 L121.8,104.5 L173.6,98.2 L225.5,91.9 L277.3,85.6 L329.1,79.3 L380.9,73 L432.7,66.7 L484.5,60.4 L536.4,54.1 L588.2,47.8 L640,41.5 L640,41.5 L70,41.5 Z" fill="#E6F1FB" stroke="none"/>
+<path d="M70,110.8 L121.8,104.5 L173.6,98.2 L225.5,91.9 L277.3,85.6 L329.1,79.3 L380.9,73 L432.7,66.7 L484.5,60.4 L536.4,54.1 L588.2,47.8 L640,41.5" fill="none" stroke="#185FA5" stroke-width="2"/>
+<line x1="70" y1="41.5" x2="640" y2="41.5" stroke="#888780" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="640" y="35.5" font-size="11" fill="#5F5E5A" text-anchor="end">不压制时的倍率</text>
+<text x="79" y="114.8" font-size="11" fill="#185FA5">12.00</text>
+<text x="636" y="55.5" font-size="11" fill="#185FA5" text-anchor="end">24.00</text>
+<circle cx="70" cy="110.8" r="3" fill="#185FA5"/>
+<circle cx="121.8" cy="104.5" r="3" fill="#185FA5"/>
+<circle cx="173.6" cy="98.2" r="3" fill="#185FA5"/>
+<circle cx="225.5" cy="91.9" r="3" fill="#185FA5"/>
+<circle cx="277.3" cy="85.6" r="3" fill="#185FA5"/>
+<circle cx="329.1" cy="79.3" r="3" fill="#185FA5"/>
+<circle cx="380.9" cy="73" r="3" fill="#185FA5"/>
+<circle cx="432.7" cy="66.7" r="3" fill="#185FA5"/>
+<circle cx="484.5" cy="60.4" r="3" fill="#185FA5"/>
+<circle cx="536.4" cy="54.1" r="3" fill="#185FA5"/>
+<circle cx="588.2" cy="47.8" r="3" fill="#185FA5"/>
+<circle cx="640" cy="41.5" r="3" fill="#185FA5"/>
+<text x="127.8" y="71.5" font-size="11" fill="#5F5E5A">被压制掉的部分（减半 → 0）</text>
+<text x="70" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">2</text>
+<text x="121.8" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">4</text>
+<text x="173.6" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">6</text>
+<text x="225.5" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">8</text>
+<text x="277.3" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">10</text>
+<text x="329.1" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">12</text>
+<text x="380.9" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">14</text>
+<text x="432.7" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">16</text>
+<text x="484.5" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">18</text>
+<text x="536.4" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">20</text>
+<text x="588.2" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">22</text>
+<text x="640" y="196" font-size="11" fill="#5F5E5A" text-anchor="middle">24</text>
+<text x="70" y="232" font-size="13" font-weight="500" fill="#2C2C2A">系数 K = 倍率 / 时长（收藏数 × K = 日均收藏数量）</text>
+<text x="640" y="232" font-size="11" fill="#5F5E5A" text-anchor="end">不足 2 小时按 2 小时算</text>
+<line x1="70" y1="374" x2="640" y2="374" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="378" font-size="11" fill="#5F5E5A" text-anchor="end">0</text>
+<line x1="70" y1="342.8" x2="640" y2="342.8" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="346.8" font-size="11" fill="#5F5E5A" text-anchor="end">3</text>
+<line x1="70" y1="311.6" x2="640" y2="311.6" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="315.6" font-size="11" fill="#5F5E5A" text-anchor="end">6</text>
+<line x1="70" y1="280.4" x2="640" y2="280.4" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="284.4" font-size="11" fill="#5F5E5A" text-anchor="end">9</text>
+<line x1="70" y1="249.2" x2="640" y2="249.2" stroke="#2C2C2A" stroke-opacity="0.12" stroke-width="1"/>
+<text x="56" y="253.2" font-size="11" fill="#5F5E5A" text-anchor="end">12</text>
+<path d="M70,249.2 L121.8,311.6 L173.6,332.4 L225.5,342.8 L277.3,349 L329.1,353.2 L380.9,356.2 L432.7,358.4 L484.5,360.1 L536.4,361.5 L588.2,362.7 L640,363.6" fill="none" stroke="#888780" stroke-width="1.5" stroke-dasharray="4 3"/>
+<path d="M70,311.6 L121.8,340 L173.6,349.4 L225.5,354.1 L277.3,357 L329.1,358.9 L380.9,360.2 L432.7,361.2 L484.5,362 L536.4,362.7 L588.2,363.2 L640,363.6" fill="none" stroke="#0F6E56" stroke-width="2"/>
+<text x="173.6" y="330.3" font-size="11" fill="#5F5E5A">不压制时：24 / 时长</text>
+<text x="79" y="307.6" font-size="11" fill="#0F6E56">6.00</text>
+<text x="636" y="355.6" font-size="11" fill="#0F6E56" text-anchor="end">1.00</text>
+<circle cx="70" cy="311.6" r="3" fill="#0F6E56"/>
+<circle cx="121.8" cy="340" r="3" fill="#0F6E56"/>
+<circle cx="173.6" cy="349.4" r="3" fill="#0F6E56"/>
+<circle cx="225.5" cy="354.1" r="3" fill="#0F6E56"/>
+<circle cx="277.3" cy="357" r="3" fill="#0F6E56"/>
+<circle cx="329.1" cy="358.9" r="3" fill="#0F6E56"/>
+<circle cx="380.9" cy="360.2" r="3" fill="#0F6E56"/>
+<circle cx="432.7" cy="361.2" r="3" fill="#0F6E56"/>
+<circle cx="484.5" cy="362" r="3" fill="#0F6E56"/>
+<circle cx="536.4" cy="362.7" r="3" fill="#0F6E56"/>
+<circle cx="588.2" cy="363.2" r="3" fill="#0F6E56"/>
+<circle cx="640" cy="363.6" r="3" fill="#0F6E56"/>
+<text x="440" y="341.6" font-size="11" fill="#5F5E5A">压制后（更靠下 = 更难通过）</text>
+<text x="70" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">2</text>
+<text x="121.8" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">4</text>
+<text x="173.6" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">6</text>
+<text x="225.5" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">8</text>
+<text x="277.3" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">10</text>
+<text x="329.1" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">12</text>
+<text x="380.9" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">14</text>
+<text x="432.7" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">16</text>
+<text x="484.5" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">18</text>
+<text x="536.4" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">20</text>
+<text x="588.2" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">22</text>
+<text x="640" y="390" font-size="11" fill="#5F5E5A" text-anchor="middle">24</text>
+<text x="70" y="398" font-size="11" fill="#5F5E5A">发布时长（小时，2 小时为粒度）</text>
+</svg>
