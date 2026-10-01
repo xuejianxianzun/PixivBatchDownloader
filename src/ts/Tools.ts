@@ -632,10 +632,25 @@ class Tools {
    * 'transl' 获取翻译后的 tag。只有图片作品有翻译，小说作品的 tag 没有翻译。如果某个 tag 没有翻译，则会保存它的原版 tag
    *
    * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
+   *
+   * 可选参数 purpose:
+   *
+   * 'save' 表示提取标签用于保存抓取结果（会在文件名里使用），'check' 表示提取标签用于检查、显示。
+   * 默认值是 'check'
+   *
+   * 只有当 type 为 'transl' 或 'both' 时才需要使用 purpose 参数，因为它影响的是返回的翻译后的标签。
+   *
+   * 行为差异：
+   * 如果一个标签原本是中文的，而翻译后的标签是英文的，那么：
+   *
+   * 当 purpose 为 'save' 时，只会使用中文（原版 tag），不会使用翻译后的英文标签。
+   * 当 purpose 为 'check' 时，则会同时使用原版 tag 和翻译后的标签。这是为了应对标签检查的需要。
+   *
    */
   static extractTags(
     data: ArtworkData | NovelData,
-    type: 'origin' | 'transl' | 'both' = 'origin'
+    type: 'origin' | 'transl' | 'both' = 'origin',
+    purpose: 'save' | 'check' = 'check'
   ) {
     const tags: string[] = []
     const tagsTransl: string[] = []
@@ -648,17 +663,20 @@ class Tools {
       tags.push(tagData.tag)
 
       // 添加翻译的 tag
-      // 缺省使用原标签
-      let useOriginTag = true
-      if (this.isArtworkTags(tagData)) {
+      // 备注：在小说的数据里，tag 都没有翻译
+      if (type === 'transl' || type === 'both') {
         // 不管是什么语种的翻译结果，都保存在 en 属性里
-        if (tagData.translation && tagData.translation.en) {
-          useOriginTag = false
-          // 如果用户在 Pixiv 的页面语言是中文，则应用优化策略
-          // 如果翻译后的标签是纯英文，则判断原标签是否含有至少一部分中文，如果是则使用原标签
-          // 这是为了解决一些中文标签被翻译成英文的问题，如 原神 被翻译为 Genshin Impact
-          // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
-          // 但是如果原标签里没有中文则依然会使用翻译后的标签，如 フラミンゴ flamingo
+        if (
+          this.isArtworkTags(tagData) &&
+          tagData.translation &&
+          tagData.translation.en
+        ) {
+          // 如果用户在 Pixiv 的页面语言是中文，则检查这种情况：
+          // 原标签全部或部分是中文，并且翻译后的标签是纯英文
+          // 例如：原神 被翻译为 Genshin Impact
+          // 能代(アズールレーン) 被翻译为 Noshiro (Azur Lane)
+          // 绝区零 被翻译为 Zenless Zone Zero
+          let originTagIsChineseAndTranslatedTagIsEnglish = false
           if (lang.htmlLangType === 'zh-cn' || lang.htmlLangType === 'zh-tw') {
             const allEnglish = [].every.call(
               tagData.translation.en,
@@ -666,16 +684,28 @@ class Tools {
                 return s.charCodeAt(0) < 128
               }
             )
-            if (allEnglish) {
-              useOriginTag = this.chineseRegexp.test(tagData.tag)
+            if (allEnglish && this.chineseRegexp.test(tagData.tag)) {
+              originTagIsChineseAndTranslatedTagIsEnglish = true
             }
           }
+
+          if (
+            originTagIsChineseAndTranslatedTagIsEnglish &&
+            purpose === 'save'
+          ) {
+            // 当原标签是中文，翻译后的标签是纯英文
+            // 并且用途是保存抓取结果时，则使用原标签，而不是翻译后的标签
+            // 这是为了缩短文件名，并优先使用中文作为文件名
+            tagsTransl.push(tagData.tag)
+          } else {
+            // 如果原标签不是中文或者翻译后的标签不是纯英文，直接使用翻译后的标签
+            tagsTransl.push(tagData.translation.en)
+          }
+        } else {
+          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签
+          tagsTransl.push(tagData.tag)
         }
       }
-
-      tagsTransl.push(
-        useOriginTag ? tagData.tag : (tagData as any).translation.en
-      )
     }
 
     if (type === 'origin') {

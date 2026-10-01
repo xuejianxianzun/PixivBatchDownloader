@@ -1442,7 +1442,7 @@ class OptionConfigs {
     },
     {
       no: 100,
-      nameKey: '_高亮显示关键字',
+      nameKey: '_高亮显示设置名称里的关键字',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'appearance',

@@ -3709,10 +3709,10 @@ class CopyWorkInfo {
         const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data).map((str) => '#' + str);
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both').map((str) => '#' + str);
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both', 'check').map((str) => '#' + str);
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'transl', 'check').map((str) => '#' + str);
         // 判断是不是 AI 生成的作品
-        const tagsWithTransl2 = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both');
+        const tagsWithTransl2 = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both', 'check');
         let aiType = body.aiType;
         if (aiType !== 2) {
             if (_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.checkAIFromTags(tagsWithTransl2)) {
@@ -9750,7 +9750,7 @@ class PreviewWork {
     </span>`);
             }
             // 判断是不是 AI 生成的作品
-            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.extractTags(workData, 'both');
+            const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.extractTags(workData, 'both', 'check');
             let aiType = body.aiType;
             if (aiType !== 2) {
                 if (_Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.checkAIFromTags(tagsWithTransl)) {
@@ -10091,7 +10091,7 @@ class PreviewWorkDetailInfo {
         }
         // 判断是不是 AI 生成的作品
         let aiHTML = '';
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractTags(workData, 'both');
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractTags(workData, 'both', 'check');
         let aiType = workData.body.aiType;
         if (aiType !== 2) {
             if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkAIFromTags(tagsWithTransl)) {
@@ -13775,8 +13775,22 @@ class Tools {
      * 'transl' 获取翻译后的 tag。只有图片作品有翻译，小说作品的 tag 没有翻译。如果某个 tag 没有翻译，则会保存它的原版 tag
      *
      * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
+     *
+     * 可选参数 purpose:
+     *
+     * 'save' 表示提取标签用于保存抓取结果（会在文件名里使用），'check' 表示提取标签用于检查、显示。
+     * 默认值是 'check'
+     *
+     * 只有当 type 为 'transl' 或 'both' 时才需要使用 purpose 参数，因为它影响的是返回的翻译后的标签。
+     *
+     * 行为差异：
+     * 如果一个标签原本是中文的，而翻译后的标签是英文的，那么：
+     *
+     * 当 purpose 为 'save' 时，只会使用中文（原版 tag），不会使用翻译后的英文标签。
+     * 当 purpose 为 'check' 时，则会同时使用原版 tag 和翻译后的标签。这是为了应对标签检查的需要。
+     *
      */
-    static extractTags(data, type = 'origin') {
+    static extractTags(data, type = 'origin', purpose = 'check') {
         const tags = [];
         const tagsTransl = [];
         const tagArr = data.body.tags.tags;
@@ -13784,28 +13798,43 @@ class Tools {
             // 添加原版 tag
             tags.push(tagData.tag);
             // 添加翻译的 tag
-            // 缺省使用原标签
-            let useOriginTag = true;
-            if (this.isArtworkTags(tagData)) {
+            // 备注：在小说的数据里，tag 都没有翻译
+            if (type === 'transl' || type === 'both') {
                 // 不管是什么语种的翻译结果，都保存在 en 属性里
-                if (tagData.translation && tagData.translation.en) {
-                    useOriginTag = false;
-                    // 如果用户在 Pixiv 的页面语言是中文，则应用优化策略
-                    // 如果翻译后的标签是纯英文，则判断原标签是否含有至少一部分中文，如果是则使用原标签
-                    // 这是为了解决一些中文标签被翻译成英文的问题，如 原神 被翻译为 Genshin Impact
-                    // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
-                    // 但是如果原标签里没有中文则依然会使用翻译后的标签，如 フラミンゴ flamingo
+                if (this.isArtworkTags(tagData) &&
+                    tagData.translation &&
+                    tagData.translation.en) {
+                    // 如果用户在 Pixiv 的页面语言是中文，则检查这种情况：
+                    // 原标签全部或部分是中文，并且翻译后的标签是纯英文
+                    // 例如：原神 被翻译为 Genshin Impact
+                    // 能代(アズールレーン) 被翻译为 Noshiro (Azur Lane)
+                    // 绝区零 被翻译为 Zenless Zone Zero
+                    let originTagIsChineseAndTranslatedTagIsEnglish = false;
                     if (_Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType === 'zh-tw') {
                         const allEnglish = [].every.call(tagData.translation.en, function (s) {
                             return s.charCodeAt(0) < 128;
                         });
-                        if (allEnglish) {
-                            useOriginTag = this.chineseRegexp.test(tagData.tag);
+                        if (allEnglish && this.chineseRegexp.test(tagData.tag)) {
+                            originTagIsChineseAndTranslatedTagIsEnglish = true;
                         }
                     }
+                    if (originTagIsChineseAndTranslatedTagIsEnglish &&
+                        purpose === 'save') {
+                        // 当原标签是中文，翻译后的标签是纯英文
+                        // 并且用途是保存抓取结果时，则使用原标签，而不是翻译后的标签
+                        // 这是为了缩短文件名，并优先使用中文作为文件名
+                        tagsTransl.push(tagData.tag);
+                    }
+                    else {
+                        // 如果原标签不是中文或者翻译后的标签不是纯英文，直接使用翻译后的标签
+                        tagsTransl.push(tagData.translation.en);
+                    }
+                }
+                else {
+                    // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签
+                    tagsTransl.push(tagData.tag);
                 }
             }
-            tagsTransl.push(useOriginTag ? tagData.tag : tagData.translation.en);
         }
         if (type === 'origin') {
             return tags;
@@ -25975,7 +26004,8 @@ class DownloadControl {
                     // Firefox 的报错信息是：
                     // filename must not contain illegal characters
                     reason = reason.toLowerCase();
-                    if (reason.includes('filename') && (reason.includes('illegal') || reason.includes('invalid'))) {
+                    if (reason.includes('filename') &&
+                        (reason.includes('illegal') || reason.includes('invalid'))) {
                         _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_filename_contains_illegal_characters'));
                     }
                     this.pauseDownload();
@@ -33794,12 +33824,72 @@ const langText = {
         `<span class="key">Исключить</span> ярлык`,
     ],
     _排除tag的提示文字: [
-        `您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。<br>不区分大小写；如需排除多个标签，请使用英文逗号分隔。<br>请注意，要排除的标签的优先级大于要包含的标签的优先级。`,
-        `可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品。<br>不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。<br>請注意，要排除的標籤優先於要包含的標籤。`,
-        `Before downloading, you can set the tag you want to exclude. <br>Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. <br>The excluded tag takes precedence over the included tag`,
-        `ダウンロード前に、除外するタグを設定できます。<br>大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。<br>除外されたタグは、必要なタグよりも優先されます`,
-        `다운로드하기 전에 제외해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다. 제외된 태그가 포함된 태그보다 우선합니다.`,
-        `Перед загрузкой можно задать тег, который необходимо исключить. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,). Исключенный тег имеет приоритет над включенным тегом`,
+        `您可在下载前设置要排除的标签，这样下载器不会下载含有这些标签的作品。<br>
+    你可以添加多个标签，中间用英文逗号 <span class="blue">,</span> 分割。<br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 下载器会使用你设置的标签与作品的标签逐个进行对比。<br>
+    - 总是任一：如果你设置了多个标签，那么作品只要含有其中任意一个，就不会被下载。<br>
+    - 默认是<span class="blue">全字匹配</span>，你设置的 <span class="blue">ab</span> 只会匹配到 <span class="blue">ab</span> 标签。<span class="blue">部分一致</span>是部分匹配，你设置的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 标签。<br>
+    <br>
+    优先级：<br>
+    “不能含有标签”的优先级高于“必须含有标签”。如果一个作品同时符合这两个设置，下载器就不会抓取它。`,
+        `您可在下載前設定要排除的標籤，這樣下載器不會下載含有這些標籤的作品。<br>
+    你可以加入多個標籤，中間用半形逗號 <span class="blue">,</span> 分隔。<br>
+    <br>
+    匹配方式：<br>
+    - 不區分大小寫。<br>
+    - 下載器會使用你設定的標籤與作品的標籤逐個進行比對。<br>
+    - 總是任一：如果你設定了多個標籤，那麼作品只要含有其中任意一個，就不會被下載。<br>
+    - 預設是<span class="blue">全字匹配</span>，你設定的 <span class="blue">ab</span> 只會匹配到 <span class="blue">ab</span> 標籤。<span class="blue">部分一致</span>是部分匹配，你設定的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 標籤。<br>
+    <br>
+    優先級：<br>
+    「不能含有標籤」的優先級高於「必須含有標籤」。如果一個作品同時符合這兩個設定，下載器就不會抓取它。`,
+        `Before downloading, you can set the tags to exclude, so the downloader will not download works that contain these tags.<br>
+    You can add multiple tags, separated by a comma <span class="blue">,</span>.<br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - The downloader compares the tags you set with the tags of the work one by one.<br>
+    - Always one: if you set multiple tags, a work will not be downloaded as long as it contains any one of them.<br>
+    - The default is <span class="blue">Exact match</span>: the <span class="blue">ab</span> you set will only match the <span class="blue">ab</span> tag. <span class="blue">Partial match</span> matches part of a tag: the <span class="blue">ab</span> you set can match the <span class="blue">abc</span> tag.<br>
+    <br>
+    Priority:<br>
+    "Exclude tag" has a higher priority than "Include tag". If a work matches both settings, the downloader will not crawl it.`,
+        `ダウンロード前に除外するタグを設定できます。設定すると、ダウンローダーはこれらのタグを含む作品をダウンロードしません。<br>
+    タグは複数追加でき、英語のカンマ <span class="blue">,</span> で区切ります。<br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - ダウンローダーは設定したタグと作品のタグを 1 つずつ比較します。<br>
+    - 常にいずれか：複数のタグを設定した場合、作品がいずれか 1 つを含んでいればダウンロードされません。<br>
+    - 既定は<span class="blue">完全一致</span>で、設定した <span class="blue">ab</span> は <span class="blue">ab</span> タグにだけマッチします。<span class="blue">部分一致</span>は部分マッチで、設定した <span class="blue">ab</span> は <span class="blue">abc</span> タグにマッチします。<br>
+    <br>
+    優先度：<br>
+    「タグを除外する」は「必要なタグ」より優先度が高いです。1 つの作品が両方の設定に当てはまる場合、ダウンローダーはその作品をクロールしません。`,
+        `다운로드 전에 제외할 태그를 설정할 수 있으며, 이렇게 하면 다운로더는 해당 태그가 포함된 작품을 다운로드하지 않습니다.<br>
+    태그는 여러 개 추가할 수 있으며, 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 다운로더는 설정한 태그와 작품의 태그를 하나씩 비교합니다.<br>
+    - 항상 하나만: 태그를 여러 개 설정했다면, 작품에 그중 하나라도 포함되어 있으면 다운로드되지 않습니다.<br>
+    - 기본값은 <span class="blue">전체 일치</span>이며, 설정한 <span class="blue">ab</span> 는 <span class="blue">ab</span> 태그에만 매칭됩니다. <span class="blue">부분 일치</span>는 부분 매칭으로, 설정한 <span class="blue">ab</span> 가 <span class="blue">abc</span> 태그에 매칭될 수 있습니다.<br>
+    <br>
+    우선순위:<br>
+    "제외 태그"가 "포함 태그"보다 우선순위가 높습니다. 작품이 두 설정에 모두 해당하면 다운로더는 그 작품을 크롤링하지 않습니다.`,
+        `Перед загрузкой можно задать теги для исключения: тогда загрузчик не будет скачивать работы, содержащие эти теги.<br>
+    Можно добавить несколько тегов, разделяя их запятой <span class="blue">,</span>.<br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Загрузчик поочерёдно сравнивает заданные вами теги с тегами работы.<br>
+    - Всегда «любой»: если задано несколько тегов, работа не будет скачана, если содержит хотя бы один из них.<br>
+    - По умолчанию — <span class="blue">полное совпадение</span>: заданный <span class="blue">ab</span> совпадёт только с тегом <span class="blue">ab</span>. <span class="blue">Частичное совпадение</span> — это совпадение по части: заданный <span class="blue">ab</span> может совпасть с тегом <span class="blue">abc</span>.<br>
+    <br>
+    Приоритет:<br>
+    «Исключить ярлык» имеет более высокий приоритет, чем «Включать ярлык». Если работа соответствует обеим настройкам, загрузчик не будет её сканировать.`,
     ],
     _设置了排除tag之后的提示: [
         `排除标签：`,
@@ -33818,12 +33908,72 @@ const langText = {
         `<span class="key">Включать</span> ярлык`,
     ],
     _必须tag的提示文字: [
-        `您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。`,
-        `可在下載前設定作品裡必須包含的標籤，不區分大小寫；如需包含多個標籤，請使用半形逗號（,）分隔。`,
-        `Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated.`,
-        `ダウンロードする前に、必要なタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。`,
-        `다운로드하기 전에 포함해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다.`,
-        `Перед загрузкой можно задать тег, который должен быть включен. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,).`,
+        `你可以要求作品必须包含某些标签，下载器只会抓取含有这些标签的作品。<br>
+    你可以添加多个标签，中间用英文逗号 <span class="blue">,</span> 分割。<br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 下载器会使用你设置的标签与作品的标签逐个进行对比。<br>
+    - 匹配模式：<span class="blue">全部</span>：作品必须含有你设置的所有标签；<span class="blue">任一</span>：作品只需要含有你设置的任意一个标签。<br>
+    - 全字匹配。如果你设置了 ab，就只会匹配到 ab，不会匹配到 a、b、abc。<br>
+    <br>
+    工作方式：<br>
+    - 有些标签可能会显示翻译后的标签，例如 <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下载器会同时检查作品的原始标签和翻译后的标签。如果原始标签里没有你设置的标签，但翻译后的标签里含有你设置的标签，那么下载器也会抓取这个作品。`,
+        `你可以要求作品必須包含某些標籤，下載器只會抓取含有這些標籤的作品。<br>
+    你可以加入多個標籤，中間用半形逗號 <span class="blue">,</span> 分隔。<br>
+    <br>
+    匹配方式：<br>
+    - 不區分大小寫。<br>
+    - 下載器會使用你設定的標籤與作品的標籤逐個進行比對。<br>
+    - 匹配模式：<span class="blue">全部</span>：作品必須含有你設定的所有標籤；<span class="blue">任一</span>：作品只需要含有你設定的任意一個標籤。<br>
+    - 全字匹配。如果你設定了 ab，就只會匹配到 ab，不會匹配到 a、b、abc。<br>
+    <br>
+    運作方式：<br>
+    - 有些標籤可能會顯示翻譯後的標籤，例如 <span class="blue">絕區零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下載器會同時檢查作品的原始標籤和翻譯後的標籤。如果原始標籤裡沒有你設定的標籤，但翻譯後的標籤裡含有你設定的標籤，那麼下載器也會抓取這個作品。`,
+        `You can require works to contain certain tags. The downloader will only crawl works that contain these tags.<br>
+    You can add multiple tags, separated by a comma <span class="blue">,</span>.<br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - The downloader compares the tags you set with the tags of the work one by one.<br>
+    - Match mode: <span class="blue">All</span>: the work must contain all the tags you set; <span class="blue">One</span>: the work only needs to contain any one of the tags you set.<br>
+    - Exact match. If you set ab, only ab will match; a, b and abc will not.<br>
+    <br>
+    How it works:<br>
+    - Some tags may show a translated tag, such as <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> and <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. The downloader checks both the original tags and the translated tags of the work. If the original tags do not contain the tag you set, but the translated tags do, the downloader will still crawl the work.`,
+        `作品に特定のタグが含まれていることを必須にできます。ダウンローダーは、これらのタグを含む作品だけをクロールします。<br>
+    タグは複数追加でき、英語のカンマ <span class="blue">,</span> で区切ります。<br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - ダウンローダーは設定したタグと作品のタグを 1 つずつ比較します。<br>
+    - マッチモード：<span class="blue">すべて</span>：作品に設定したすべてのタグが含まれている必要があります；<span class="blue">何れか</span>：作品に設定したいずれか 1 つのタグが含まれていればよいです。<br>
+    - 完全一致。ab と設定した場合、ab にだけマッチし、a、b、abc にはマッチしません。<br>
+    <br>
+    動作：<br>
+    - タグによっては翻訳後のタグが表示されることがあります。例えば <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span> です。ダウンローダーは作品の元のタグと翻訳後のタグの両方を確認します。元のタグに設定したタグがなくても、翻訳後のタグに設定したタグが含まれていれば、ダウンローダーはその作品もクロールします。`,
+        `작품에 특정 태그가 반드시 포함되도록 설정할 수 있습니다. 다운로더는 이 태그가 포함된 작품만 크롤링합니다.<br>
+    태그는 여러 개 추가할 수 있으며, 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 다운로더는 설정한 태그와 작품의 태그를 하나씩 비교합니다.<br>
+    - 매치 모드: <span class="blue">전부</span>: 작품에 설정한 모든 태그가 포함되어야 합니다; <span class="blue">하나만</span>: 작품에 설정한 태그 중 하나만 포함되면 됩니다.<br>
+    - 전체 일치. ab 로 설정하면 ab 에만 매칭되고, a, b, abc 에는 매칭되지 않습니다.<br>
+    <br>
+    동작 방식:<br>
+    - 일부 태그에는 번역된 태그가 표시될 수 있습니다. 예: <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>, <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. 다운로더는 작품의 원본 태그와 번역된 태그를 모두 확인합니다. 원본 태그에 설정한 태그가 없더라도 번역된 태그에 설정한 태그가 포함되어 있으면, 다운로더는 그 작품도 크롤링합니다.`,
+        `Вы можете потребовать, чтобы работы обязательно содержали определённые теги: загрузчик будет сканировать только те работы, в которых есть эти теги.<br>
+    Можно добавить несколько тегов, разделяя их запятой <span class="blue">,</span>.<br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Загрузчик поочерёдно сравнивает заданные вами теги с тегами работы.<br>
+    - Режим совпадения: <span class="blue">Все</span>: работа должна содержать все заданные теги; <span class="blue">Один</span>: достаточно, чтобы работа содержала любой один из заданных тегов.<br>
+    - Полное совпадение. Если задать ab, совпадёт только ab, но не a, b или abc.<br>
+    <br>
+    Как это работает:<br>
+    - У некоторых тегов может отображаться переведённый тег, например <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> и <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. Загрузчик проверяет и исходные теги работы, и переведённые теги. Если в исходных тегах нет заданного вами тега, но он есть среди переведённых тегов, загрузчик всё равно просканирует эту работу.`,
     ],
     _设置了必须tag之后的提示: [
         `包含标签：`,
@@ -33841,13 +33991,73 @@ const langText = {
         `<span class="key">종횡비</span>`,
         `Соотношение <span class="key">сторон</span>`,
     ],
-    _设置宽高比例Title: [
-        `设置宽高比例，也可以手动输入宽高比`,
-        `設定寬高比，也可以手動輸入寬高比。`,
-        `Set the aspect ratio, or manually type the aspect ratio`,
-        `縦横比を設定する、手動で縦横比を入力することもできる`,
-        `종횡비를 설정하거나, 값을 수동으로 입력할 수 있습니다.`,
-        `Установите соотношение сторон или введите соотношение сторон вручную`,
+    _设置宽高比例的说明: [
+        `你可以设置只下载指定形状的图片：<br>
+    横图、竖图、正方形。<br>
+    如果你需要使用更精确的条件，也可以手动设置宽高比。<br>
+    <br>
+    宽高比：<br>
+    宽高比是宽度除以高度得到的数字。宽高比小于 1 时，图片是竖图。宽高比大于 1 时，图片是横图。宽高比越大，图片越扁长。<br>
+    示例：如果你想下载宽高比例为 16:9 以及更扁的图片，就可以设置宽高比 >= 1.78。<br>
+    <br>
+    工作细节：<br>
+    对于单图作品（只有一张图片的作品），下载器会在抓取时检查图片的形状；<br>
+    对于多图作品，下载器不会在抓取时进行检查，而是等到下载每张图片之前再进行检查。这是因为多图作品里每张图片的宽高可能不同，但抓取时只有第一张图片的宽高数据，所以无法在抓取时检查。`,
+        `你可以設定只下載指定形狀的圖片：<br>
+    橫圖、豎圖、正方形。<br>
+    如果你需要使用更精確的條件，也可以手動設定寬高比。<br>
+    <br>
+    寬高比：<br>
+    寬高比是寬度除以高度得到的數字。寬高比小於 1 時，圖片是豎圖。寬高比大於 1 時，圖片是橫圖。寬高比越大，圖片越扁長。<br>
+    範例：如果你想下載寬高比例為 16:9 以及更扁的圖片，就可以設定寬高比 >= 1.78。<br>
+    <br>
+    工作細節：<br>
+    對於單圖作品（只有一張圖片的作品），下載器會在抓取時檢查圖片的形狀；<br>
+    對於多圖作品，下載器不會在抓取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但抓取時只有第一張圖片的寬高資料，所以無法在抓取時檢查。`,
+        `You can set it to download only images with a specified shape:<br>
+    Horizontal, vertical, and square.<br>
+    If you need more precise conditions, you can also set the aspect ratio manually.<br>
+    <br>
+    Aspect ratio:<br>
+    The aspect ratio is the number you get by dividing the width by the height. When the aspect ratio is less than 1, the image is vertical. When the aspect ratio is greater than 1, the image is horizontal. The larger the aspect ratio, the more elongated the image.<br>
+    Example: if you want to download images with an aspect ratio of 16:9 or wider, set the aspect ratio to >= 1.78.<br>
+    <br>
+    How it works:<br>
+    For single image works (works that contain only one image), the downloader checks the shape of the image while crawling;<br>
+    For multi-image works, the downloader does not check while crawling. Instead, it checks just before downloading each image. This is because the width and height of each image in a multi-image work may differ, but while crawling only the width and height of the first image are available, so it cannot check at that time.`,
+        `ダウンロードする画像の形を指定できます：<br>
+    横長、縦長、正方形。<br>
+    より細かい条件が必要な場合は、縦横比を手動で設定することもできます。<br>
+    <br>
+    縦横比：<br>
+    縦横比は幅を高さで割った値です。縦横比が 1 未満の場合、画像は縦長です。縦横比が 1 より大きい場合、画像は横長です。縦横比が大きいほど、画像は横長になります。<br>
+    例：縦横比が 16:9 以上の横長な画像をダウンロードしたい場合は、縦横比を >= 1.78 に設定します。<br>
+    <br>
+    動作の詳細：<br>
+    シングルイメージ作品（画像が 1 枚だけの作品）の場合、ダウンローダーはクロール時に画像の形を確認します；<br>
+    複数画像作品の場合、ダウンローダーはクロール時には確認せず、各画像をダウンロードする直前に確認します。これは、複数画像作品では画像ごとに幅と高さが異なる場合がありますが、クロール時には最初の画像の幅と高さのデータしかないため、クロール時に確認できないためです。`,
+        `다운로드할 이미지의 모양을 지정할 수 있습니다:<br>
+    가로 이미지, 세로 이미지, 정사각형.<br>
+    더 정확한 조건이 필요하다면 종횡비를 수동으로 설정할 수도 있습니다.<br>
+    <br>
+    종횡비:<br>
+    종횡비는 너비를 높이로 나눈 숫자입니다. 종횡비가 1보다 작으면 이미지는 세로 이미지입니다. 종횡비가 1보다 크면 이미지는 가로 이미지입니다. 종횡비가 클수록 이미지는 더 길쭉합니다.<br>
+    예시: 종횡비가 16:9 이상인 이미지를 다운로드하려면 종횡비를 >= 1.78로 설정하면 됩니다.<br>
+    <br>
+    동작 세부 사항:<br>
+    단일 이미지 작품(이미지가 한 장뿐인 작품)의 경우, 다운로더는 크롤링 시 이미지의 모양을 확인합니다;<br>
+    여러 이미지 작품의 경우, 다운로더는 크롤링 시에는 확인하지 않고 각 이미지를 다운로드하기 직전에 확인합니다. 이는 여러 이미지 작품에서는 이미지마다 너비와 높이가 다를 수 있지만, 크롤링 시에는 첫 번째 이미지의 너비와 높이 데이터만 있기 때문에 크롤링 시에는 확인할 수 없기 때문입니다.`,
+        `Вы можете настроить загрузку только изображений заданной формы:<br>
+    горизонтальные, вертикальные, квадратные.<br>
+    Если вам нужны более точные условия, можно также задать соотношение сторон вручную.<br>
+    <br>
+    Соотношение сторон:<br>
+    Соотношение сторон — это число, полученное делением ширины на высоту. Когда соотношение сторон меньше 1, изображение вертикальное. Когда соотношение сторон больше 1, изображение горизонтальное. Чем больше соотношение сторон, тем более вытянутое изображение.<br>
+    Пример: если вы хотите скачивать изображения с соотношением сторон 16:9 и более широкие, задайте соотношение сторон >= 1.78.<br>
+    <br>
+    Как это работает:<br>
+    Для работ с одним изображением (работ, в которых только одно изображение) загрузчик проверяет форму изображения во время сканирования;<br>
+    Для работ с несколькими изображениями загрузчик не проверяет во время сканирования, а проверяет непосредственно перед загрузкой каждого изображения. Это связано с тем, что ширина и высота каждого изображения в работе с несколькими изображениями могут различаться, но во время сканирования доступны только ширина и высота первого изображения, поэтому проверить в это время невозможно.`,
     ],
     _不限制: [
         `不限制`,
@@ -33894,12 +34104,48 @@ const langText = {
         `<span class="key">Ширина</span> и высота`,
     ],
     _图片的宽高的说明: [
-        `请输入最小宽度和最小高度，不会下载不符合要求的图片。`,
-        `請輸入最小寬度和最小高度，只會下載符合要求的圖片。`,
-        `Please type the minimum width and minimum height. Will not download images that do not meet the requirements`,
-        `最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。`,
-        `최소 너비와 최소 높이를 입력해주세요, 요구 사항을 충족하지 않는 이미지는 다운로드하지 않습니다.`,
-        `Введите минимальную ширину и минимальную высоту. Не соответствующие требованиям изображения, загружаться не будут`,
+        `你可以设置图片的宽高条件，以确保下载的图片符合你的需求。<br>
+    你可以分别设置宽度、高度的数值和比较方式。<br>
+    备注：如果把宽度或高度设置为 0，就表示不检查该条件。<br>
+    <br>
+    工作细节：<br>
+    对于单图作品（只有一张图片的作品），下载器会在抓取时检查宽高；<br>
+    对于多图作品，下载器不会在抓取时进行检查，而是等到下载每张图片之前再进行检查。这是因为多图作品里每张图片的宽高可能不同，但抓取时只有第一张图片的宽高数据，所以无法在抓取时检查。`,
+        `你可以設定圖片的寬高條件，以確保下載的圖片符合你的需求。<br>
+    你可以分別設定寬度、高度的數值和比較方式。<br>
+    備註：如果把寬度或高度設定為 0，就表示不檢查該條件。<br>
+    <br>
+    工作細節：<br>
+    對於單圖作品（只有一張圖片的作品），下載器會在抓取時檢查寬高；<br>
+    對於多圖作品，下載器不會在抓取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但抓取時只有第一張圖片的寬高資料，所以無法在抓取時檢查。`,
+        `You can set width and height conditions for images, to make sure the downloaded images meet your needs.<br>
+    You can set the value and the comparison operator for the width and the height separately.<br>
+    Note: if you set the width or the height to 0, that condition will not be checked.<br>
+    <br>
+    How it works:<br>
+    For single image works (works that contain only one image), the downloader checks the width and height while crawling;<br>
+    For multi-image works, the downloader does not check while crawling. Instead, it checks just before downloading each image. This is because the width and height of each image in a multi-image work may differ, but while crawling only the width and height of the first image are available, so it cannot check at that time.`,
+        `画像の幅と高さの条件を設定して、ダウンロードする画像が目的に合うようにできます。<br>
+    幅と高さの数値と比較方法は、それぞれ設定できます。<br>
+    備考：幅または高さを 0 に設定すると、その条件は確認されません。<br>
+    <br>
+    動作の詳細：<br>
+    シングルイメージ作品（画像が 1 枚だけの作品）の場合、ダウンローダーはクロール時に幅と高さを確認します；<br>
+    複数画像作品の場合、ダウンローダーはクロール時には確認せず、各画像をダウンロードする直前に確認します。これは、複数画像作品では画像ごとに幅と高さが異なる場合がありますが、クロール時には最初の画像の幅と高さのデータしかないため、クロール時に確認できないためです。`,
+        `이미지의 너비와 높이 조건을 설정하여 다운로드하는 이미지가 원하는 조건에 맞도록 할 수 있습니다.<br>
+    너비와 높이의 값과 비교 방식은 각각 설정할 수 있습니다.<br>
+    참고: 너비나 높이를 0으로 설정하면 해당 조건은 확인하지 않습니다.<br>
+    <br>
+    동작 세부 사항:<br>
+    단일 이미지 작품(이미지가 한 장뿐인 작품)의 경우, 다운로더는 크롤링 시 너비와 높이를 확인합니다;<br>
+    여러 이미지 작품의 경우, 다운로더는 크롤링 시에는 확인하지 않고 각 이미지를 다운로드하기 직전에 확인합니다. 이는 여러 이미지 작품에서는 이미지마다 너비와 높이가 다를 수 있지만, 크롤링 시에는 첫 번째 이미지의 너비와 높이 데이터만 있기 때문에 크롤링 시에는 확인할 수 없기 때문입니다.`,
+        `Вы можете задать условия по ширине и высоте изображений, чтобы скачиваемые изображения соответствовали вашим требованиям.<br>
+    Значение и способ сравнения для ширины и высоты можно задать отдельно.<br>
+    Примечание: если задать ширину или высоту равной 0, это условие проверяться не будет.<br>
+    <br>
+    Как это работает:<br>
+    Для работ с одним изображением (работ, в которых только одно изображение) загрузчик проверяет ширину и высоту во время сканирования;<br>
+    Для работ с несколькими изображениями загрузчик не проверяет во время сканирования, а проверяет непосредственно перед загрузкой каждого изображения. Это связано с тем, что ширина и высота каждого изображения в работе с несколькими изображениями могут различаться, но во время сканирования доступны только ширина и высота первого изображения, поэтому проверить в это время невозможно.`,
     ],
     _本次输入的数值无效: [
         `本次输入的数值无效`,
@@ -35442,12 +35688,12 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `Это результат совпадения второго списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
     ],
     _命名标记tags_trans: [
-        `作品的标签列表，没有附带翻译后的标签`,
-        `作品的標籤列表，沒有附帶翻譯後的標籤`,
-        `The tag list of the work, without translated tags`,
-        `翻訳タグなしの作品のタグリスト`,
-        `번역 태그 없이 작품의 태그 목록만 포함`,
-        `Список тегов работы без переведённых тегов`,
+        `作品的标签列表，并且附带翻译后的标签`,
+        `作品的標籤清單，並且附帶翻譯後的標籤`,
+        `The tag list of the work, with translated tags included`,
+        `翻訳後のタグを含む作品のタグリスト`,
+        `번역된 태그를 포함한 작품의 태그 목록`,
+        `Список тегов работы вместе с переведёнными тегами`,
     ],
     _命名标记tags_transl_only: [
         `翻译后的标签列表`,
@@ -36533,12 +36779,48 @@ Quick download tasks are triggered by these actions:<br>
         `<span class="key">ID</span> диапазон`,
     ],
     _设置id范围提示: [
-        `您可以输入一个作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（旧作品）`,
-        `您可以輸入一個作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）`,
-        `You can enter a work ID to crawl works with IDs larger than it (new works) or smaller than it (old works)`,
-        `作品 ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます`,
-        `작품 ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다`,
-        `Вы можете ввести ID работы, чтобы собрать работы с ID больше него (новые работы) или меньше него (старые работы)`,
+        `你可以输入一个作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（旧作品）。<br>
+    <br>
+    它分为 3 种作品类型：<br>
+    - 图像作品：包括插画、漫画、动图<br>
+    - 小说<br>
+    - 系列小说<br>
+    你可以根据自己的需要，在对应的类型里设置 id 范围。`,
+        `你可以輸入一個作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）。<br>
+    <br>
+    它分為 3 種作品類型：<br>
+    - 圖像作品：包括插畫、漫畫、動圖<br>
+    - 小說<br>
+    - 系列小說<br>
+    你可以根據自己的需要，在對應的類型裡設定 id 範圍。`,
+        `You can enter a work ID to crawl works with IDs larger than it (new works) or smaller than it (old works).<br>
+    <br>
+    It is divided into 3 work types:<br>
+    - Image works: including illustrations, manga and Ugoira<br>
+    - Novels<br>
+    - Novel series<br>
+    You can set the ID range for the type you need.`,
+        `作品 ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます。<br>
+    <br>
+    作品は 3 つの種類に分かれます：<br>
+    - 画像作品：イラスト、マンガ、うごイラを含む<br>
+    - 小説<br>
+    - シリーズ小説<br>
+    必要な種類ごとに ID 範囲を設定できます。`,
+        `작품 ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다.<br>
+    <br>
+    3가지 작품 유형으로 나뉩니다:<br>
+    - 이미지 작품: 일러스트, 만화, 움직이는 일러스트 포함<br>
+    - 소설<br>
+    - 시리즈 소설<br>
+    필요한 유형에 맞게 ID 범위를 설정할 수 있습니다.`,
+        `Вы можете ввести ID работы, чтобы сканировать работы с ID больше него (новые работы) или меньше него (старые работы).<br>
+    <br>
+    Работы делятся на 3 типа:<br>
+    - Работы с изображениями: включая иллюстрации, мангу и Ugoira<br>
+    - Новеллы<br>
+    - Серия романов<br>
+    Вы можете задать диапазон ID для нужного типа.`,
     ],
     _大于: [`大于`, `大於`, `Bigger than`, `より大きい`, `보다 큼`, `Больше чем`],
     _小于: [`小于`, `小於`, `Less than`, `より小さい`, `보다 작음`, `Меньше чем`],
@@ -36551,12 +36833,78 @@ Quick download tasks are triggered by these actions:<br>
         `<span class="key">Дата</span> публикации`,
     ],
     _设置投稿时间提示: [
-        `您可以下载指定时间内发布的作品`,
-        `可以下載指定時間內發布的作品。`,
-        `You can download works posted in a specified period of time`,
-        `指定された時間内に配信された作品をダウンロードすることができます`,
-        `지정된 기간 내에 게시된 작품을 다운로드할 수 있습니다.`,
-        `Вы можете загружать работы, размещенные за определенный период времени`,
+        `你可以只下载某个时间范围里发布的作品。<br>
+    <br>
+    使用示例：<br>
+    如果你想下载在某个时间之后发表的作品，可以把“起始时间”设置为该时间，“截止时间”设置为未来的时间。<br>
+    如果你想下载在某个时间之前发表的作品，可以把“起始时间”设置为过去的时间，“截止时间”设置为该时间。<br>
+    如果你想下载指定时间段内发表的作品（如一年、一个月），可以分别设置起始和截止时间。<br>
+    <br>
+    输入时间的方式：<br>
+    - 你可以点击输入框右侧的图标来使用浏览器提供的时间和日期选择器。<br>
+    - 你可以点击输入框，手动输入数字。<br>
+    - 你可以使用点击“过去”、“现在”、“未来”按钮来快速设置时间。<br>
+    注意：当你手动输入时，需要输入完整的时间和日期，不能缺小时和分钟。`,
+        `你可以只下載某個時間範圍裡發布的作品。<br>
+    <br>
+    使用範例：<br>
+    如果你想下載在某個時間之後發表的作品，可以把「起始時間」設定為該時間，「截止時間」設定為未來的時間。<br>
+    如果你想下載在某個時間之前發表的作品，可以把「起始時間」設定為過去的時間，「截止時間」設定為該時間。<br>
+    如果你想下載指定時間段內發表的作品（如一年、一個月），可以分別設定起始和截止時間。<br>
+    <br>
+    輸入時間的方式：<br>
+    - 你可以點擊輸入框右側的圖示來使用瀏覽器提供的時間和日期選擇器。<br>
+    - 你可以點擊輸入框，手動輸入數字。<br>
+    - 你可以點擊「過去」、「現在」、「未來」按鈕來快速設定時間。<br>
+    注意：當你手動輸入時，需要輸入完整的時間和日期，不能缺少小時和分鐘。`,
+        `You can download only works posted within a certain time range.<br>
+    <br>
+    Examples:<br>
+    If you want to download works posted after a certain time, set the "Start time" to that time and the "End time" to a time in the future.<br>
+    If you want to download works posted before a certain time, set the "Start time" to a time in the past and the "End time" to that time.<br>
+    If you want to download works posted within a specified period (such as a year or a month), set the start time and the end time separately.<br>
+    <br>
+    How to enter the time:<br>
+    - You can click the icon on the right side of the input box to use the time and date picker provided by the browser.<br>
+    - You can click the input box and type the numbers manually.<br>
+    - You can click the "Past", "Now" and "Future" buttons to set the time quickly.<br>
+    Note: when typing manually, you must enter the complete time and date, including the hour and minute.`,
+        `一定の期間内に投稿された作品だけをダウンロードできます。<br>
+    <br>
+    使用例：<br>
+    ある時点より後に投稿された作品をダウンロードしたい場合は、「開始時間」をその時刻に、「終了時間」を未来の時刻に設定します。<br>
+    ある時点より前に投稿された作品をダウンロードしたい場合は、「開始時間」を過去の時刻に、「終了時間」をその時刻に設定します。<br>
+    特定の期間内（1 年、1 か月など）に投稿された作品をダウンロードしたい場合は、開始時間と終了時間をそれぞれ設定します。<br>
+    <br>
+    時刻の入力方法：<br>
+    - 入力欄の右側にあるアイコンをクリックすると、ブラウザが提供する日時の選択機能を使用できます。<br>
+    - 入力欄をクリックして、数字を手動で入力できます。<br>
+    - 「過去」「今」「未来」ボタンをクリックすると、時刻をすばやく設定できます。<br>
+    注意：手動で入力する場合は、時刻と日付を完全に入力する必要があり、時間と分を省略できません。`,
+        `특정 기간 내에 게시된 작품만 다운로드할 수 있습니다.<br>
+    <br>
+    사용 예시:<br>
+    특정 시점 이후에 게시된 작품을 다운로드하려면 "시작 시간"을 그 시점으로, "종료 시간"을 미래 시점으로 설정하면 됩니다.<br>
+    특정 시점 이전에 게시된 작품을 다운로드하려면 "시작 시간"을 과거 시점으로, "종료 시간"을 그 시점으로 설정하면 됩니다.<br>
+    특정 기간(예: 1년, 1개월) 내에 게시된 작품을 다운로드하려면 시작 시간과 종료 시간을 각각 설정하면 됩니다.<br>
+    <br>
+    시간 입력 방법:<br>
+    - 입력 상자 오른쪽의 아이콘을 클릭하면 브라우저에서 제공하는 시간 및 날짜 선택기를 사용할 수 있습니다.<br>
+    - 입력 상자를 클릭하여 숫자를 수동으로 입력할 수 있습니다.<br>
+    - "과거", "지금", "미래" 버튼을 클릭하면 시간을 빠르게 설정할 수 있습니다.<br>
+    주의: 수동으로 입력할 때는 시간과 날짜를 완전히 입력해야 하며, 시와 분을 빠뜨릴 수 없습니다.`,
+        `Вы можете скачивать только работы, опубликованные в определённом временном диапазоне.<br>
+    <br>
+    Примеры использования:<br>
+    Если вы хотите скачать работы, опубликованные после определённого момента, задайте «Начальное время» как этот момент, а «Конечное время» — как время в будущем.<br>
+    Если вы хотите скачать работы, опубликованные до определённого момента, задайте «Начальное время» как время в прошлом, а «Конечное время» — как этот момент.<br>
+    Если вы хотите скачать работы, опубликованные за определённый период (например, за год или месяц), задайте начальное и конечное время отдельно.<br>
+    <br>
+    Способы ввода времени:<br>
+    - Вы можете нажать на значок справа от поля ввода, чтобы воспользоваться выбором времени и даты, который предоставляет браузер.<br>
+    - Вы можете нажать на поле ввода и ввести числа вручную.<br>
+    - Вы можете нажать кнопки «Прошлое», «Сейчас» и «Будущее», чтобы быстро задать время.<br>
+    Обратите внимание: при ручном вводе нужно указать полное время и дату, не пропуская часы и минуты.`,
     ],
     _时间范围: [
         `时间范围`,
@@ -37834,12 +38182,102 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `Функция <span class="key">закладок</span> загрузчика (✩)`,
     ],
     _下载器的收藏功能的说明: [
-        `当你使用下载器的收藏功能时，可以设置是否添加作品本身的标签，以及是否公开。`,
-        `當你使用下載器的收藏功能時，可以設定是否新增作品本身的標籤，以及是否公開。`,
-        `When using the downloader's bookmark feature, you can choose whether to add the work's own tags and make the bookmark public.`,
-        `ダウンローダーのブックマーク機能を使用する際、作品自体のタグを追加するかどうかと、公開するかどうかを設定できます。`,
-        `다운로더의 북마크 기능을 사용할 때 작품 자체의 태그를 추가할지, 북마크를 공개할지 설정할 수 있습니다.`,
-        `При использовании функции закладок загрузчика можно настроить, добавлять ли теги самой работы и делать ли закладку публичной.`,
+        `你可以通过这个设置控制下载器收藏作品时的行为。<br>
+    <br>
+    下载器的收藏功能指的是：<br>
+    - 下载器显示的五角星（✩）收藏按钮。<br>
+    - 在预览作品时、使用图片查看器时，使用快捷键（B）让下载器收藏这个作品。<br>
+    - 使用“下载之后收藏作品”功能、在一些页面里使用“附加功能”的按钮管理收藏。<br>
+    <br>
+    是否添加标签：<br>
+    是否添加作品本身的标签。<br>
+    <br>
+    是否公开：<br>
+    添加为公开收藏或者非公开收藏。<br>
+    <br>
+    备注：<br>
+    - Pixiv 原本的收藏按钮（心形）不受此设置影响。<br>
+    - 你可以对一个作品重复添加收藏，最后一次的状态（是否添加标签、是否公开）会覆盖之前的状态。`,
+        `你可以透過這個設定控制下載器收藏作品時的行為。<br>
+    <br>
+    下載器的收藏功能指的是：<br>
+    - 下載器顯示的五角星（✩）收藏按鈕。<br>
+    - 在預覽作品時、使用圖片查看器時，使用快捷鍵（B）讓下載器收藏這個作品。<br>
+    - 使用「下載之後收藏作品」功能、在一些頁面裡使用「附加功能」的按鈕管理收藏。<br>
+    <br>
+    是否添加標籤：<br>
+    是否添加作品本身的標籤。<br>
+    <br>
+    是否公開：<br>
+    添加為公開收藏或者非公開收藏。<br>
+    <br>
+    備註：<br>
+    - Pixiv 原本的收藏按鈕（心形）不受此設定影響。<br>
+    - 你可以對一個作品重複添加收藏，最後一次的狀態（是否添加標籤、是否公開）會覆蓋之前的狀態。`,
+        `You can use this setting to control the downloader's behavior when bookmarking works.<br>
+    <br>
+    The downloader's bookmark feature refers to:<br>
+    - The star (✩) bookmark button shown by the downloader.<br>
+    - Bookmarking a work with the downloader by using the shortcut key (B) while previewing a work or using the image viewer.<br>
+    - Managing bookmarks with the "Bookmark works after downloading" feature, or with the buttons in "Extra features" on some pages.<br>
+    <br>
+    Whether to add tags:<br>
+    Whether to add the tags of the work itself.<br>
+    <br>
+    Public:<br>
+    Add the bookmark as a public bookmark or a private bookmark.<br>
+    <br>
+    Note:<br>
+    - Pixiv's own bookmark button (heart) is not affected by this setting.<br>
+    - You can bookmark a work repeatedly; the last state (whether tags are added, whether it is public) overwrites the previous state.`,
+        `この設定で、作品をブックマークするときのダウンローダーの動作を制御できます。<br>
+    <br>
+    ダウンローダーのブックマーク機能とは：<br>
+    - ダウンローダーが表示する星（✩）のブックマークボタン。<br>
+    - 作品をプレビューするときや画像ビューアを使うときに、ショートカットキー（B）でこの作品をブックマークする。<br>
+    - 「ダウンロードした作品をブックマークする」機能や、一部のページの「追加機能」のボタンでブックマークを管理する。<br>
+    <br>
+    タグを追加するかどうか：<br>
+    作品自体のタグを追加するかどうか。<br>
+    <br>
+    公開するか：<br>
+    公開ブックマークまたは非公開ブックマークとして追加します。<br>
+    <br>
+    備考：<br>
+    - Pixiv 本来のブックマークボタン（ハート）はこの設定の影響を受けません。<br>
+    - 1 つの作品に繰り返しブックマークを追加できます。最後の状態（タグを追加するか、公開するか）が以前の状態を上書きします。`,
+        `이 설정으로 작품을 북마크할 때 다운로더의 동작을 제어할 수 있습니다.<br>
+    <br>
+    다운로더의 북마크 기능이란:<br>
+    - 다운로더가 표시하는 별(✩) 북마크 버튼.<br>
+    - 작품을 미리 볼 때나 이미지 뷰어를 사용할 때 단축키(B)로 이 작품을 북마크하는 것.<br>
+    - "다운로드 후 작품 북마크" 기능이나 일부 페이지의 "부가 기능" 버튼으로 북마크를 관리하는 것.<br>
+    <br>
+    태그 추가 여부:<br>
+    작품 자체의 태그를 추가할지 여부.<br>
+    <br>
+    공개 여부:<br>
+    공개 북마크 또는 비공개 북마크로 추가합니다.<br>
+    <br>
+    참고:<br>
+    - Pixiv 자체의 북마크 버튼(하트)은 이 설정의 영향을 받지 않습니다.<br>
+    - 한 작품에 북마크를 반복해서 추가할 수 있으며, 마지막 상태(태그 추가 여부, 공개 여부)가 이전 상태를 덮어씁니다.`,
+        `С помощью этой настройки можно управлять поведением загрузчика при добавлении работ в закладки.<br>
+    <br>
+    Функция закладок загрузчика — это:<br>
+    - Кнопка закладки в виде звезды (✩), которую показывает загрузчик.<br>
+    - Добавление работы в закладки загрузчика с помощью горячей клавиши (B) при предпросмотре работы или в просмотрщике изображений.<br>
+    - Управление закладками с помощью функции «Закладка работ после загрузки» или кнопок «Дополнительные функции» на некоторых страницах.<br>
+    <br>
+    Добавлять теги или нет:<br>
+    Добавлять ли теги самой работы.<br>
+    <br>
+    Публичный:<br>
+    Добавить закладку как публичную или приватную.<br>
+    <br>
+    Примечание:<br>
+    - Собственная кнопка закладок Pixiv (сердечко) на эту настройку не влияет.<br>
+    - Работу можно добавлять в закладки повторно: последнее состояние (добавлены ли теги, публичная ли закладка) перезапишет предыдущее.`,
     ],
     _下载器的收藏按钮默认会添加作品的标签: [
         `点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。`,
@@ -37906,14 +38344,6 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `빠르게 사용자 차단`,
         `Быстрая блокировка пользователей`,
     ],
-    _快捷屏蔽用户的说明: [
-        `当你把鼠标指针停留在任意用户的名字上时，下载器会显示一个屏蔽按钮，点击按钮即可屏蔽这个用户。`,
-        `當你把滑鼠指標停留在任意使用者的名字上時，下載器會顯示一個封鎖按鈕，點擊按鈕即可封鎖這個使用者。`,
-        `When you hover your pointer over any user's name, the downloader shows a block button. Click it to block that user.`,
-        `任意のユーザー名にマウスポインターを合わせると、ダウンローダーにブロックボタンが表示されます。そのボタンをクリックすると、そのユーザーをブロックできます。`,
-        `사용자 이름 위에 마우스 포인터를 올리면 다운로더에 차단 버튼이 표시됩니다. 버튼을 클릭하면 해당 사용자를 차단할 수 있습니다.`,
-        `Когда вы наведете указатель мыши на имя любого пользователя, загрузчик покажет кнопку блокировки. Нажмите её, чтобы заблокировать этого пользователя.`,
-    ],
     _用户阻止名单: [
         `用户阻止名单`,
         `使用者阻止名單`,
@@ -37921,20 +38351,6 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `ユーザーブロックリスト`,
         `유저 차단 목록`,
         `Список заблокированных пользователей`,
-    ],
-    _用户屏蔽名单的说明: [
-        `不下载这些用户的作品。需要输入用户 id。<br>
-    如果有多个用户 id，使用英文逗号,分割。`,
-        `不下載這些使用者的作品。需要輸入使用者 id。<br>
-    若有多個使用者 id，使用半形逗號（,）分隔。`,
-        `The works of these users will not be downloaded. Need to type the user ID.<br>
-    If there are multiple user IDs, use a comma (,) to separate them.`,
-        `これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。<br>
-    複数のユーザ ID は "," で区切ってください。`,
-        `이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>
-    여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.`,
-        `Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя.<br>
-    Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).`,
     ],
     _全部: [`全部`, `全部`, `All`, `すべて`, `전부`, `Все`],
     _任一: [`任一`, `任一`, `One`, `何れか`, `하나만`, `Один`],
@@ -38507,12 +38923,54 @@ How it works: When the downloader generates file names for multi-image works, it
         `Блокировать <span class="key">теги</span> для определенных пользователей`,
     ],
     _针对特定用户屏蔽tag的提示: [
-        `例如，抓取用户 123456 的作品时，排除特定的标签。`,
-        `例如，抓取使用者 123456 的作品時，排除特定的標籤。`,
-        `For example, when crawling the works of user 123456, exclude specific tags.`,
-        `たとえば、ユーザー 123456 の作品をクロールする場合は、特定のタグを除外します。`,
-        `예를 들어, 사용자 123456의 작품을 크롤링할 때 특정 태그를 제외합니다.`,
-        `Например, при сканировании работ пользователя 123456 исключите определенные теги.`,
+        `你可以添加多个配置，每个配置对应一个用户 ID 和你设置的排除标签。<br>
+    下载器抓取这个用户的作品时，会排除含有这些标签的作品。<br>
+    你可以输入多个标签，例如：排除用户 ID 123456 的 标签1,标签2,标签3<br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 部分匹配：你设置的 ab 可以匹配到作品的 abc 标签。<br>
+    - 任一：只要作品的标签中包含你设置的任意一个标签，就会被排除。`,
+        `你可以加入多個設定，每個設定對應一個使用者 ID 和你設定的排除標籤。<br>
+    下載器抓取這個使用者的作品時，會排除含有這些標籤的作品。<br>
+    你可以輸入多個標籤，例如：排除使用者 ID 123456 的 標籤1,標籤2,標籤3<br>
+    <br>
+    匹配方式：<br>
+    - 不區分大小寫。<br>
+    - 部分匹配：你設定的 ab 可以匹配到作品的 abc 標籤。<br>
+    - 任一：只要作品的標籤中包含你設定的任意一個標籤，就會被排除。`,
+        `You can add multiple configurations, each one for a user ID and the tags you want to exclude.<br>
+    When the downloader crawls this user's works, it will exclude works that contain these tags.<br>
+    You can enter multiple tags, for example: exclude tag1,tag2,tag3 for user ID 123456<br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - Partial match: the ab you set can match the abc tag of a work.<br>
+    - One: as long as a work's tags contain any one of the tags you set, the work will be excluded.`,
+        `複数の設定を追加でき、それぞれにユーザー ID と除外するタグを設定します。<br>
+    ダウンローダーがこのユーザーの作品をクロールするとき、これらのタグを含む作品を除外します。<br>
+    タグは複数入力できます。例：ユーザー ID 123456 の tag1,tag2,tag3 を除外<br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - 部分一致：設定した ab は作品の abc タグにマッチします。<br>
+    - いずれか：作品のタグに設定したいずれか 1 つが含まれていれば、その作品は除外されます。`,
+        `설정을 여러 개 추가할 수 있으며, 각 설정은 사용자 ID 하나와 제외할 태그로 이루어집니다.<br>
+    다운로더가 이 사용자의 작품을 크롤링할 때, 해당 태그가 포함된 작품을 제외합니다.<br>
+    태그는 여러 개 입력할 수 있습니다. 예: 사용자 ID 123456의 tag1,tag2,tag3 제외<br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 부분 일치: 설정한 ab 는 작품의 abc 태그에 매칭됩니다.<br>
+    - 하나만: 작품의 태그에 설정한 태그 중 하나라도 포함되어 있으면 제외됩니다.`,
+        `Можно добавить несколько настроек: каждая из них соответствует одному ID пользователя и заданным вами тегам для исключения.<br>
+    Когда загрузчик сканирует работы этого пользователя, он исключает работы, содержащие эти теги.<br>
+    Можно ввести несколько тегов, например: исключить tag1,tag2,tag3 для пользователя с ID 123456<br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Частичное совпадение: заданный ab может совпасть с тегом abc у работы.<br>
+    - Любой: если теги работы содержат хотя бы один из заданных вами тегов, работа будет исключена.`,
     ],
     _展开收起: [
         `展开/收起`,
@@ -39069,12 +39527,54 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `<span class="key">Добавьте 0</span> перед серийным номером`,
     ],
     _在序号前面填充0的说明: [
-        `这可以解决一些软件不能正确的按照文件名来排序文件的问题。`,
-        `這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。`,
-        `This can solve the problem that some software cannot correctly sort files by file name.`,
-        `これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。`,
-        `이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.`,
-        `Это может решить проблему того, что некоторые программы не могут правильно сортировать файлы по имени файла.`,
+        `默认的序号没有填充 0，看起来是这样的：0，1，2，3，… 11，12，13。<br>
+    有些文件管理器不能正确排序，可能会导致这样的排序：0，1，11，12，13，… 2，3。这种情况通常发生在移动设备的文件管理器里，Windows 的资源管理器没有这个问题。<br>
+    如果你遇到了这种排序问题，可以启用此设置，下载器会在序号前面填充 0，例如：<br>
+    000，001，002，003，… 011，012，013<br>
+    这样可以让序号正确排序。<br>
+    <br>
+    序号总长度：<br>
+    在填充 0 之后，序号长度是几个字符。默认值 3 通常是最合适的，因为一个作品里的图片数量不会超过 200。`,
+        `預設的序號沒有填充 0，看起來是這樣的：0，1，2，3，… 11，12，13。<br>
+    有些檔案管理員不能正確排序，可能會導致這樣的排序：0，1，11，12，13，… 2，3。這種情況通常發生在行動裝置的檔案管理員裡，Windows 的檔案總管沒有這個問題。<br>
+    如果你遇到了這種排序問題，可以啟用此設定，下載器會在序號前面填充 0，例如：<br>
+    000，001，002，003，… 011，012，013<br>
+    這樣可以讓序號正確排序。<br>
+    <br>
+    序號總長度：<br>
+    在填充 0 之後，序號長度是幾個字元。預設值 3 通常是最合適的，因為一個作品裡的圖片數量不會超過 200。`,
+        `By default the serial number is not padded with 0, so it looks like this: 0, 1, 2, 3, … 11, 12, 13.<br>
+    Some file managers cannot sort correctly, which may result in sorting like this: 0, 1, 11, 12, 13, … 2, 3. This usually happens in the file managers on mobile devices; Windows File Explorer does not have this problem.<br>
+    If you run into this sorting problem, you can enable this setting, and the downloader will pad the serial number with 0, for example:<br>
+    000, 001, 002, 003, … 011, 012, 013<br>
+    This makes the serial numbers sort correctly.<br>
+    <br>
+    Total length of serial number:<br>
+    How many characters long the serial number is after padding with 0. The default value 3 is usually the most suitable, because a work will not contain more than 200 images.`,
+        `既定ではシリアル番号に 0 が埋め込まれないため、0、1、2、3、… 11、12、13 のようになります。<br>
+    一部のファイルマネージャーは正しく並べ替えられず、0、1、11、12、13、… 2、3 のように並ぶことがあります。これは通常モバイル端末のファイルマネージャーで起こり、Windows のエクスプローラーではこの問題はありません。<br>
+    この並べ替えの問題が起きた場合は、この設定を有効にすると、ダウンローダーがシリアル番号の前に 0 を埋め込みます。例えば：<br>
+    000、001、002、003、… 011、012、013<br>
+    これでシリアル番号が正しく並べ替えられます。<br>
+    <br>
+    シリアル番号の全長：<br>
+    0 を埋め込んだ後のシリアル番号の文字数です。既定値の 3 が通常は最適です。1 つの作品に含まれる画像は 200 枚を超えないためです。`,
+        `기본적으로 일련번호에는 0이 채워지지 않아서 0, 1, 2, 3, … 11, 12, 13 처럼 보입니다.<br>
+    일부 파일 관리자는 정렬을 올바르게 하지 못해 0, 1, 11, 12, 13, … 2, 3 처럼 정렬될 수 있습니다. 이런 현상은 보통 모바일 기기의 파일 관리자에서 발생하며, Windows 탐색기에는 이 문제가 없습니다.<br>
+    이런 정렬 문제가 발생하면 이 설정을 활성화할 수 있습니다. 그러면 다운로더가 일련번호 앞에 0을 채웁니다. 예:<br>
+    000, 001, 002, 003, … 011, 012, 013<br>
+    이렇게 하면 일련번호가 올바르게 정렬됩니다.<br>
+    <br>
+    일련번호 전체 길이:<br>
+    0을 채운 후 일련번호의 글자 수입니다. 기본값 3이 보통 가장 적합합니다. 한 작품에 포함되는 이미지 수는 200을 넘지 않기 때문입니다.`,
+        `По умолчанию серийный номер не дополняется нулями и выглядит так: 0, 1, 2, 3, … 11, 12, 13.<br>
+    Некоторые файловые менеджеры не могут правильно сортировать и могут выдать такой порядок: 0, 1, 11, 12, 13, … 2, 3. Обычно это происходит в файловых менеджерах на мобильных устройствах; в Проводнике Windows такой проблемы нет.<br>
+    Если вы столкнулись с такой проблемой сортировки, включите эту настройку, и загрузчик добавит нули перед серийным номером, например:<br>
+    000, 001, 002, 003, … 011, 012, 013<br>
+    Так серийные номера будут сортироваться правильно.<br>
+    <br>
+    Общая длина серийного номера:<br>
+    Сколько символов в серийном номере после добавления нулей. Значение по умолчанию 3 обычно подходит лучше всего, потому что в одной работе не бывает больше 200 изображений.`,
     ],
     _序号总长度: [
         `序号总长度`,
@@ -39084,17 +39584,17 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `일련번호 전체 길이`,
         `Общая длина серийного номера`,
     ],
-    _完全一致: [
+    _全字匹配: [
+        `全字匹配`,
+        `全字匹配`,
+        `Exact match`,
         `完全一致`,
-        `完全一致`,
-        `Perfect match`,
-        `完全一致`,
-        `완전 일치`,
-        `Идеальное совпадение`,
+        `전체 일치`,
+        `Полное совпадение`,
     ],
-    _部分一致: [
-        `部分一致`,
-        `部分一致`,
+    _部分匹配: [
+        `部分匹配`,
+        `部分匹配`,
         `Partial match`,
         `部分一致`,
         `부분 일치`,
@@ -39112,12 +39612,12 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `<span class="key">Максимальное количество</span> изображений для работ с несколькими изображениями`,
     ],
     _多图作品的图片数量上限提示: [
-        `如果一个多图作品里的图片数量大于设置的数字，下载器就不会抓取这个作品。`,
-        `如果一個多圖作品裡的圖片數量大於設置的數字，下載器就不會抓取這個作品。`,
-        `If the number of images in a multi-image work exceeds the set number, the downloader will not crawl this work.`,
-        `マルチ画像作品の画像数が設定値を超える場合、ダウンロードツールはこの作品をクロールしません。`,
-        `멀티 이미지 작품의 이미지 수가 설정된 숫자를 초과하면, 다운로더는 이 작품을 크롤링하지 않습니다.`,
-        `Если количество изображений в многоизображной работе превышает установленное число, загрузчик не будет скачивать эту работу.`,
+        `你可以设置多图作品的图片数量上限。<br>下载器在抓取多图作品时，如果它的图片数量超过了你设置的数字，下载器就不会抓取它。`,
+        `你可以設定多圖作品的圖片數量上限。<br>下載器在抓取多圖作品時，如果它的圖片數量超過了你設定的數字，下載器就不會抓取它。`,
+        `You can set a maximum number of images for multi-image works.<br>When crawling a multi-image work, if its number of images exceeds the number you set, the downloader will not crawl it.`,
+        `複数画像作品の画像数の上限を設定できます。<br>複数画像作品をクロールするとき、その画像数が設定した数字を超えている場合、ダウンローダーはその作品をクロールしません。`,
+        `여러 이미지 작품의 이미지 수 상한을 설정할 수 있습니다.<br>여러 이미지 작품을 크롤링할 때 이미지 수가 설정한 숫자를 초과하면, 다운로더는 그 작품을 크롤링하지 않습니다.`,
+        `Вы можете задать максимальное количество изображений для работ с несколькими изображениями.<br>При сканировании работы с несколькими изображениями, если количество её изображений превышает заданное вами число, загрузчик не будет её сканировать.`,
     ],
     _在搜索页面添加快捷搜索区域: [
         `在搜索页面添加快捷<span class="key">搜索</span>区域`,
@@ -39136,38 +39636,74 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `В верхней части страниц поиска (/tags и /search) загрузчик отображает несколько тегов с количеством закладок, например «10000users入り». Когда вы нажимаете такой тег, загрузчик добавляет его в конец текущего поискового запроса и выполняет поиск автоматически.`,
     ],
     _保存作品的元数据: [
-        `保存作品的<span class="key">元数据</span>`,
-        `儲存作品的<span class="key">元資料</span>`,
-        `Save the <span class="key">metadata</span> of the work`,
-        `作品の<span class="key">メタデータ</span>を保存する`,
-        `작품 <span class="key">메타데이터</span> 저장`,
-        `Сохранить <span class="key">метаданные</span> работы`,
+        `把作品的<span class="key">元数据</span>保存到单独的文件里`,
+        `把作品的<span class="key">元資料</span>儲存到單獨的檔案裡`,
+        `Save the <span class="key">metadata</span> of the work to a separate file`,
+        `作品の<span class="key">メタデータ</span>を別のファイルに保存する`,
+        `작품 <span class="key">메타데이터</span>를 별도 파일로 저장`,
+        `Сохранить <span class="key">метаданные</span> работы в отдельный файл`,
     ],
     _保存作品的元数据说明: [
-        `下载器可以为每个作品生成一个同名文件（但扩展名不同），保存它的元数据。<br>
-你可以选择为哪些类型的作品生成元数据文件，并且可以选择 TXT 格式或（和）JSON 格式。<br>
-TXT 格式易于阅读，但只包含比较常用的数据。<br>
-JSON 格式是下载器的内部数据，保存了更多的数据。`,
-        `下載器可以為每個作品生成一個同名檔案（但副檔名不同），儲存它的元數據。<br>
-你可以選擇為哪些類型的作品生成元數據檔案，並且可以選擇 TXT 格式或（和）JSON 格式。<br>
-TXT 格式易於閱讀，但只包含比較常用的資料。<br>
-JSON 格式是下載器的內部資料，儲存了更多的資料。`,
-        `The downloader can generate a file with the same name (but different extension) for each work to save its metadata.<br>
-You can choose which types of works to generate metadata files for, and you can choose TXT format or (and) JSON format.<br>
-TXT format is easy to read but only contains relatively common data.<br>
-JSON format is the downloader's internal data and saves more information.`,
-        `ダウンロードツールは、各作品に対して同名のファイル（拡張子は異なる）を生成し、そのメタデータを保存できます。<br>
-どのタイプの作品に対してメタデータファイルを生成するかを選択でき、TXT形式または（および）JSON形式を選択できます。<br>
-TXT形式は読みやすいですが、比較的よく使われるデータのみを含みます。<br>
-JSON形式はダウンロードツールの内部データで、より多くの情報を保存します。`,
-        `다운로더는 각 작품에 대해 동일한 이름의 파일(확장자만 다름)을 생성하여 메타데이터를 저장할 수 있습니다.<br>
-어떤 유형의 작품에 대해 메타데이터 파일을 생성할지 선택할 수 있으며, TXT 형식 또는 (및) JSON 형식을 선택할 수 있습니다.<br>
-TXT 형식은 읽기 쉽지만 비교적 일반적인 데이터만 포함합니다.<br>
-JSON 형식은 다운로더의 내부 데이터로, 더 많은 정보를 저장합니다.`,
-        `Загрузчик может создать для каждого произведения файл с тем же именем (но с другим расширением) для сохранения его метаданных.<br>
-Вы можете выбрать, для каких типов произведений генерировать файлы метаданных, а также выбрать формат TXT или (и) JSON.<br>
-Формат TXT удобен для чтения, но содержит только наиболее часто используемые данные.<br>
-Формат JSON — это внутренние данные загрузчика, сохраняющие гораздо больше информации.`,
+        `把每个作品的元数据保存到单独的文件里。<br>
+    下载器可以为每个作品生成一个同名文件（但扩展名不同），保存它的元数据。<br>
+    <br>
+    作品类型：<br>
+    你可以选择为哪些类型的作品生成元数据文件。<br>
+    <br>
+    文件格式：<br>
+    - TXT：易于阅读，但只包含比较常用的数据。<br>
+    - JSON：下载器的内部数据（其实就是抓取结果），保存了更多的数据。<br>
+    你可以同时选择这两种格式。`,
+        `把每個作品的元資料儲存到單獨的檔案裡。<br>
+    下載器可以為每個作品生成一個同名檔案（但副檔名不同），儲存它的元資料。<br>
+    <br>
+    作品類型：<br>
+    你可以選擇為哪些類型的作品生成元資料檔案。<br>
+    <br>
+    檔案格式：<br>
+    - TXT：易於閱讀，但只包含比較常用的資料。<br>
+    - JSON：下載器的內部資料（其實就是抓取結果），儲存了更多的資料。<br>
+    你可以同時選擇這兩種格式。`,
+        `Save the metadata of each work to a separate file.<br>
+    The downloader can generate a file with the same name (but a different extension) for each work to save its metadata.<br>
+    <br>
+    Type of work:<br>
+    You can choose which types of works to generate metadata files for.<br>
+    <br>
+    File format:<br>
+    - TXT: easy to read, but only contains relatively common data.<br>
+    - JSON: the downloader's internal data (which is actually the crawl results), which saves more information.<br>
+    You can select both formats at the same time.`,
+        `各作品のメタデータを別のファイルに保存します。<br>
+    ダウンローダーは、各作品に対して同名のファイル（拡張子は異なる）を生成し、そのメタデータを保存できます。<br>
+    <br>
+    作品の種類：<br>
+    どの種類の作品に対してメタデータファイルを生成するかを選択できます。<br>
+    <br>
+    ファイル形式：<br>
+    - TXT：読みやすいですが、比較的よく使われるデータのみを含みます。<br>
+    - JSON：ダウンローダーの内部データ（実はクロール結果です）で、より多くの情報を保存します。<br>
+    この 2 つの形式を同時に選択できます。`,
+        `각 작품의 메타데이터를 별도 파일로 저장합니다.<br>
+    다운로더는 각 작품에 대해 같은 이름의 파일(확장자만 다름)을 생성하여 메타데이터를 저장할 수 있습니다.<br>
+    <br>
+    작품 유형:<br>
+    어떤 유형의 작품에 대해 메타데이터 파일을 생성할지 선택할 수 있습니다.<br>
+    <br>
+    파일 형식:<br>
+    - TXT: 읽기 쉽지만 비교적 일반적인 데이터만 포함합니다.<br>
+    - JSON: 다운로더의 내부 데이터(실제로는 크롤링 결과입니다)로, 더 많은 정보를 저장합니다.<br>
+    두 형식을 동시에 선택할 수 있습니다.`,
+        `Сохранять метаданные каждой работы в отдельный файл.<br>
+    Загрузчик может создать для каждой работы файл с тем же именем (но с другим расширением) и сохранить в нём её метаданные.<br>
+    <br>
+    Тип работы:<br>
+    Вы можете выбрать, для каких типов работ создавать файлы метаданных.<br>
+    <br>
+    Формат файла:<br>
+    - TXT: легко читается, но содержит только относительно часто используемые данные.<br>
+    - JSON: внутренние данные загрузчика (фактически это результаты сканирования), в которых сохраняется больше информации.<br>
+    Можно выбрать оба формата одновременно.`,
     ],
     _在不同的页面类型中使用不同的命名规则: [
         `在不同的页面类型中使用<span class="key">不同</span>的命名规则`,
@@ -39212,28 +39748,32 @@ Note: After enabling this setting, the downloader will overwrite your current na
         `Показать <span class="key">уведомление</span> после завершения загрузки`,
     ],
     _下载完成后显示通知的说明: [
-        `当所有文件下载完成后显示一条系统通知。可能会请求通知权限。`,
-        `當所有檔案下載完成後顯示一條系統通知。可能會請求通知許可權。`,
-        `Show a system notification when all files have been downloaded. May require notification permission.`,
-        `すべてのファイルのダウンロードが完了したらシステム通知を表示します。通知の許可が必要になる場合があります。`,
-        `모든 파일이 다운로드되면 시스템 알림을 표시합니다. 알림 권한이 필요할 수 있습니다.`,
-        `Показывать системное уведомление, когда все файлы будут загружены. Может потребоваться разрешение на уведомление.`,
+        `当所有文件下载完成后显示一条系统通知。可能会请求通知权限。<br>
+    <br>
+    备注：有时操作系统会默认隐藏通知，导致你看不到通知。如果你有需要的话，可以在系统设置里查看通知设置，也许可以调整这个浏览器的优先级，使它的通知始终显示。`,
+        `當所有檔案下載完成後顯示一條系統通知。可能會請求通知許可權。<br>
+    <br>
+    備註：有時作業系統會預設隱藏通知，導致你看不到通知。如果你有需要的話，可以在系統設定裡查看通知設定，也許可以調整這個瀏覽器的優先級，使它的通知始終顯示。`,
+        `Show a system notification when all files have been downloaded. May require notification permission.<br>
+    <br>
+    Note: sometimes the operating system hides notifications by default, so you cannot see them. If needed, you can check the notification settings in your system settings; you may be able to raise this browser's priority so that its notifications are always shown.`,
+        `すべてのファイルのダウンロードが完了したらシステム通知を表示します。通知の許可が必要になる場合があります。<br>
+    <br>
+    備考：OS が既定で通知を非表示にするため、通知が見えないことがあります。必要であれば、システム設定で通知設定を確認してください。このブラウザの優先度を調整して、通知が常に表示されるようにできる場合があります。`,
+        `모든 파일이 다운로드되면 시스템 알림을 표시합니다. 알림 권한이 필요할 수 있습니다.<br>
+    <br>
+    참고: 운영체제가 기본적으로 알림을 숨겨서 알림이 보이지 않을 수 있습니다. 필요하다면 시스템 설정에서 알림 설정을 확인해 보세요. 이 브라우저의 우선순위를 조정하여 알림이 항상 표시되도록 할 수 있을지도 모릅니다.`,
+        `Показывать системное уведомление, когда все файлы будут загружены. Может потребоваться разрешение на уведомление.<br>
+    <br>
+    Примечание: иногда операционная система по умолчанию скрывает уведомления, из-за чего вы их не видите. При необходимости проверьте настройки уведомлений в системных настройках — возможно, удастся поднять приоритет этого браузера, чтобы его уведомления всегда отображались.`,
     ],
-    _高亮显示关键字: [
-        `<span class="key">高亮</span>显示关键字`,
-        `<span class="key">標明</span>顯示關鍵字`,
-        `<span class="key">Highlight</span> keywords`,
-        `<span class="key">強調</span>表示キーワード`,
-        `<span class="key">강조</span> 키워드 표시`,
-        `<span class="key">Выделить</span> ключевые слова`,
-    ],
-    _高亮显示关键字的说明: [
-        `高亮显示每个设置名称里的关键字，以便你可以快速找到需要的设置。`,
-        `高亮顯示每個設定名稱裡的關鍵字，以便你可以快速找到需要的設定。`,
-        `Highlight the keywords in each setting name so that you can quickly find the settings you need.`,
-        `各設定名のキーワードをハイライト表示して、必要な設定を素早く見つけられるようにします。`,
-        `각 설정 이름의 키워드를 강조 표시하여 필요한 설정을 빠르게 찾을 수 있습니다.`,
-        `Подсвечивать ключевые слова в названиях каждого параметра, чтобы вы могли быстро найти нужные настройки.`,
+    _高亮显示设置名称里的关键字: [
+        `<span class="key">高亮</span>显示设置名称里的关键字`,
+        `<span class="key">高亮</span>顯示設定名稱裡的關鍵字`,
+        `<span class="key">Highlight</span> keywords in setting names`,
+        `<span class="key">強調</span>表示する設定名のキーワード`,
+        `<span class="key">강조표시</span>하는 설정 이름의 키워드`,
+        `<span class="key">Выделять</span> ключевые слова в названиях настроек`,
     ],
     _抓取标签列表: [
         `抓取标签列表`,
@@ -39300,12 +39840,60 @@ Note: After enabling this setting, the downloader will overwrite your current na
         `Автоматически <span class="key">экспортировать</span> результаты сканирования`,
     ],
     _自动导出抓取结果的说明: [
-        `抓取完成后自动导出抓取结果。<br>可以使用两种格式：CSV 格式易于阅读，JSON 格式则可以用于导入抓取结果。`,
-        `抓取完成後自動匯出抓取結果。<br>可以使用兩種格式：CSV 格式易於閱讀，JSON 格式則可以用於匯入抓取結果。`,
-        `The crawl results can be automatically exported when the crawl is completed. <br>Two formats are available: CSV format is easy to read, and JSON format can be used to import crawl results.`,
-        `クロールが完了すると、クロール結果が自動的にエクスポートされます。 <br>簡単に読める CSV とクロール結果をインポートするための JSON の 2 つの形式が利用可能です。`,
-        `크롤링이 완료되면 크롤링 결과가 자동으로 내보내집니다. <br>두 가지 형식을 사용할 수 있습니다. 읽기 쉬운 CSV 형식과 크롤링 결과를 가져오는 JSON 형식입니다.`,
-        `После завершения сканирования результаты сканирования автоматически экспортируются. <br>Доступны два формата: CSV для удобного чтения и JSON для импорта результатов сканирования.`,
+        `在抓取完成后自动导出抓取结果。<br>
+    <br>
+    当抓取结果大于指定数量时启用：<br>
+    如果你只想在有较多抓取结果时导出，可以使用这个设置。<br>
+    备注：如果设置为 0，那么只要有一条抓取结果就会导出。<br>
+    <br>
+    文件格式：<br>
+    - CSV：它是纯文本的表格数据，可以使用 Excel 等表格软件打开，易于阅读。<br>
+    - JSON：它适合使用代码进行分析，也可以在下载器里导入抓取结果。`,
+        `在抓取完成後自動匯出抓取結果。<br>
+    <br>
+    當抓取結果大於指定數量時啟用：<br>
+    如果你只想在有較多抓取結果時匯出，可以使用這個設定。<br>
+    備註：如果設定為 0，那麼只要有一條抓取結果就會匯出。<br>
+    <br>
+    檔案格式：<br>
+    - CSV：它是純文字的表格資料，可以使用 Excel 等表格軟體開啟，易於閱讀。<br>
+    - JSON：它適合使用程式碼進行分析，也可以在下載器裡匯入抓取結果。`,
+        `Automatically export the crawl results when the crawl is complete.<br>
+    <br>
+    Enable when the crawl results exceed a specified number:<br>
+    If you only want to export when there are many crawl results, you can use this setting.<br>
+    Note: if it is set to 0, the results will be exported as long as there is at least one crawl result.<br>
+    <br>
+    File format:<br>
+    - CSV: plain-text tabular data, which can be opened with spreadsheet software such as Excel and is easy to read.<br>
+    - JSON: suitable for analysis with code, and can also be imported into the downloader as crawl results.`,
+        `クロール完了後にクロール結果を自動的にエクスポートします。<br>
+    <br>
+    クロール結果が指定した数を超えたときに有効：<br>
+    クロール結果が多いときだけエクスポートしたい場合は、この設定を使用します。<br>
+    備考：0 に設定すると、クロール結果が 1 件でもあればエクスポートされます。<br>
+    <br>
+    ファイル形式：<br>
+    - CSV：プレーンテキストの表形式データで、Excel などの表計算ソフトで開くことができ、読みやすいです。<br>
+    - JSON：コードで分析するのに適しており、ダウンローダーにクロール結果としてインポートすることもできます。`,
+        `크롤링이 완료되면 크롤링 결과를 자동으로 내보냅니다.<br>
+    <br>
+    크롤링 결과가 지정한 수를 초과할 때 사용:<br>
+    크롤링 결과가 많을 때만 내보내고 싶다면 이 설정을 사용할 수 있습니다.<br>
+    참고: 0으로 설정하면 크롤링 결과가 하나만 있어도 내보냅니다.<br>
+    <br>
+    파일 형식:<br>
+    - CSV: 일반 텍스트 표 형식 데이터로, Excel 같은 표 계산 소프트웨어로 열 수 있어 읽기 쉽습니다.<br>
+    - JSON: 코드로 분석하기에 적합하며, 다운로더에 크롤링 결과로 가져올 수도 있습니다.`,
+        `Автоматически экспортировать результаты сканирования после его завершения.<br>
+    <br>
+    Включить, когда результатов больше заданного количества:<br>
+    Если вы хотите экспортировать данные только тогда, когда результатов много, используйте эту настройку.<br>
+    Примечание: если задать 0, результаты будут экспортированы при наличии хотя бы одного результата.<br>
+    <br>
+    Формат файла:<br>
+    - CSV: обычный текстовый табличный формат, который можно открыть в Excel и подобных программах; легко читается.<br>
+    - JSON: подходит для анализа с помощью кода, а также может быть импортирован в загрузчик как результаты сканирования.`,
     ],
     _文件格式: [
         `文件格式：`,
@@ -39479,12 +40067,18 @@ Note: After enabling this setting, the downloader will overwrite your current na
         `Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения`,
     ],
     _替换方形缩略图以显示图片比例的说明: [
-        `Pixiv 的缩略图是正方形的，不能看到图片的全貌，也看不出是横图还是竖图。<br>下载器可以显示完整的缩略图，以显示图片比例。`,
-        `Pixiv 的縮圖是正方形的，不能看到圖片的全貌，也看不出是橫圖還是豎圖。<br>下載器可以顯示完整的縮圖，以顯示圖片比例。`,
-        `Pixiv's thumbnails are square, so you can't see the whole picture or whether it's horizontal or vertical. <br>The downloader can display the full thumbnail to show the image ratio.`,
-        `Pixivのサムネイルは正方形なので、全体像や縦横比の確認ができません。<br>ダウンローダーではサムネイル全体を表示することで画像の比率を確認できます。`,
-        `Pixiv의 썸네일은 정사각형이므로 전체 그림을 볼 수 없고 가로인지 세로인지도 알 수 없습니다. <br>다운로더는 이미지 비율을 보여주기 위해 전체 썸네일을 표시할 수 있습니다.`,
-        `Миниатюры Pixiv квадратные, поэтому вы не можете увидеть всю картинку или определить, горизонтальная она или вертикальная. <br>Загрузчик может отобразить полную миниатюру, чтобы показать соотношение сторон изображения.`,
+        `Pixiv 默认的缩略图是正方形的，看不到图片的全貌，也看不出是横图还是竖图。<br>
+    当你启用此设置之后，下载器会把原本的缩略图替换为 540px 的缩略图，以显示图片比例。`,
+        `Pixiv 預設的縮圖是正方形的，看不到圖片的全貌，也看不出是橫圖還是豎圖。<br>
+    當你啟用此設定之後，下載器會把原本的縮圖替換為 540px 的縮圖，以顯示圖片比例。`,
+        `Pixiv's default thumbnails are square, so you cannot see the whole image, nor whether it is horizontal or vertical.<br>
+    After you enable this setting, the downloader will replace the original thumbnail with a 540px thumbnail, to show the image ratio.`,
+        `Pixiv の既定のサムネイルは正方形なので、画像の全体像も、横長か縦長かも分かりません。<br>
+    この設定を有効にすると、ダウンローダーは元のサムネイルを 540px のサムネイルに置き換えて、画像の比率を表示します。`,
+        `Pixiv의 기본 썸네일은 정사각형이라서 이미지 전체를 볼 수 없고, 가로 이미지인지 세로 이미지인지도 알 수 없습니다.<br>
+    이 설정을 활성화하면 다운로더가 원래 썸네일을 540px 썸네일로 교체하여 이미지 비율을 표시합니다.`,
+        `Миниатюры Pixiv по умолчанию квадратные, поэтому не видно всей картинки и не понять, горизонтальная она или вертикальная.<br>
+    После включения этой настройки загрузчик заменит исходную миниатюру на миниатюру 540px, чтобы показать соотношение сторон изображения.`,
     ],
     _不创建文件夹: [
         `<span class="key">不创建</span>文件夹`,
@@ -39609,24 +40203,49 @@ This setting does not apply to collection files generated after merging a novel 
         `Настроить <span class="key">имя пользователя</span>`,
     ],
     _自定义用户名的说明: [
-        `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
-    你也可以为用户设置别名。<br>
-    当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
-        `有些使用者可能會改名，如果你想使用他原來的名字，你可以在這裡手動設定他的名字。<br>
-    你也可以為使用者設定別名。<br>
-    當你在命名規則中使用 {user} 標記時，下載器會優先使用你設定的名字。`,
-        `Some users may change their name. If you want to use his original name, you can manually set his name here. <br>
-    You can also set aliases for users. <br>
-    When you use the {user} tag in the naming rule, the downloader will give priority to the name you set.`,
-        `ユーザーによっては名前を変更する場合があります。元の名前を使いたい場合は、ここで名前を手動で設定することができます。<br>
-    また、ユーザーの別名を設定することも可能です。<br>
-    命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
-        `일부 유저는 이름을 바꿀 수 있습니다. 만약 당신이 그의 원래 이름을 사용하고 싶다면, 당신은 여기에서 그의 이름을 수동으로 설정할 수 있습니다.<br>
-    사용자의 별칭을 설정할 수도 있습니다. <br>
-    명명 규칙에 {user} 태그를 사용할 때 다운로드더가 사용자 정의 유저명을 우선시합니다.`,
-        `Некоторые пользователи могут изменить свое имя. Если вы хотите использовать его оригинальное имя, вы можете вручную задать его имя здесь. <br>
-    Вы также можете задать псевдонимы для пользователей. <br>
-    Когда вы используете тег {user} в правиле именования, загрузчик будет отдавать приоритет имени, которое вы задали.`,
+        `有些用户可能会经常改名，导致下载时的文件名不稳定。如果你想在下载时为他设置一个固定的名字，就可以在这里添加一条规则。<br>
+    在每条规则里，你需要输入该用户的 ID，以及你为他设置的名字。<br>
+    当你在命名规则中使用 <span class="blue">{user}</span> 标记时，下载器会优先使用你设置的名字。<br>
+    <br>
+    使用示例：<br>
+    有些用户会在名字后添加摊位信息，如“ショーンC99木東ユ40b”，并且摊位信息还会经常变化。你可以把他的名字设置为固定的“ショーン”。<br>
+    你也可以为用户设置别名。如果某个用户的作品有某种特点，你可以在这里为他设置一个别名，这样在下载之后，你可以更方便的在本地搜索他的作品。如果某个用户的名字不容易记住，或者不容易使用输入法打出来，你也可以给他起一个易于使用的名字。<br>
+    `,
+        `有些使用者可能會經常改名，導致下載時的檔名不穩定。如果你想在下載時為他設定一個固定的名字，就可以在這裡新增一條規則。<br>
+    在每條規則裡，你需要輸入該使用者的 ID，以及你為他設定的名字。<br>
+    當你在命名規則中使用 <span class="blue">{user}</span> 標記時，下載器會優先使用你設定的名字。<br>
+    <br>
+    使用範例：<br>
+    有些使用者會在名字後添加攤位資訊，如「ショーンC99木東ユ40b」，並且攤位資訊還會經常變化。你可以把他的名字設定為固定的「ショーン」。<br>
+    你也可以為使用者設定別名。如果某個使用者的作品有某種特點，你可以在這裡為他設定一個別名，這樣在下載之後，你可以更方便的在本地搜尋他的作品。如果某個使用者的名字不容易記住，或者不容易使用輸入法打出來，你也可以給他起一個易於使用的名字。<br>`,
+        `Some users change their name frequently, which makes the file names unstable when downloading. If you want to set a fixed name for a user when downloading, you can add a rule here.<br>
+    In each rule, you need to enter the user's ID and the name you set for them.<br>
+    When you use the <span class="blue">{user}</span> token in the naming rule, the downloader will give priority to the name you set.<br>
+    <br>
+    Example:<br>
+    Some users add booth information after their name, such as "ショーンC99木東ユ40b", and the booth information changes frequently. You can set their name to the fixed "ショーン".<br>
+    You can also set an alias for a user. If a user's works have a certain characteristic, you can set an alias for them here, so that after downloading you can search for their works locally more easily. If a user's name is hard to remember, or hard to type with an input method, you can also give them an easy-to-use name.<br>`,
+        `ユーザーによっては頻繁に名前を変更するため、ダウンロード時のファイル名が安定しません。ダウンロード時にそのユーザーの名前を固定したい場合は、ここにルールを追加できます。<br>
+    各ルールには、そのユーザーの ID と、設定する名前を入力します。<br>
+    命名規則で <span class="blue">{user}</span> トークンを使用すると、ダウンローダーは設定した名前を優先して使用します。<br>
+    <br>
+    使用例：<br>
+    ユーザーによっては名前にサークルスペース情報を追加することがあり、例えば「ショーンC99木東ユ40b」のようになり、しかもこの情報は頻繁に変わります。その場合は名前を固定の「ショーン」に設定できます。<br>
+    ユーザーに別名を設定することもできます。あるユーザーの作品に何らかの特徴がある場合、ここでそのユーザーに別名を設定しておくと、ダウンロード後にローカルでその作品を探しやすくなります。ユーザー名が覚えにくい場合や、入力メソッドで打ちにくい場合も、使いやすい名前を付けてあげられます。<br>`,
+        `일부 사용자는 이름을 자주 바꾸기 때문에 다운로드할 때 파일 이름이 안정적이지 않습니다. 다운로드할 때 그 사용자의 이름을 고정하고 싶다면 여기에 규칙을 추가할 수 있습니다.<br>
+    각 규칙에는 해당 사용자의 ID와 설정할 이름을 입력해야 합니다.<br>
+    명명 규칙에서 <span class="blue">{user}</span> 토큰을 사용하면 다운로더가 설정한 이름을 우선적으로 사용합니다.<br>
+    <br>
+    사용 예시:<br>
+    일부 사용자는 이름 뒤에 부스 정보를 추가하는데, 예를 들어 "ショーンC99木東ユ40b"처럼 되고 이 부스 정보는 자주 바뀝니다. 이런 경우 이름을 고정된 "ショーン"으로 설정할 수 있습니다.<br>
+    사용자에게 별칭을 설정할 수도 있습니다. 어떤 사용자의 작품에 특정한 특징이 있다면 여기에서 그 사용자에게 별칭을 설정해 두면, 다운로드한 뒤 로컬에서 그의 작품을 더 쉽게 검색할 수 있습니다. 사용자의 이름이 기억하기 어렵거나 입력기로 치기 어렵다면 사용하기 쉬운 이름을 지어줄 수도 있습니다.<br>`,
+        `Некоторые пользователи часто меняют имя, из-за чего имена файлов при загрузке становятся нестабильными. Если вы хотите задать фиксированное имя для такого пользователя при загрузке, добавьте правило здесь.<br>
+    В каждом правиле нужно указать ID этого пользователя и заданное вами имя.<br>
+    Когда вы используете токен <span class="blue">{user}</span> в правилах названий, загрузчик будет отдавать приоритет заданному вами имени.<br>
+    <br>
+    Пример использования:<br>
+    Некоторые пользователи добавляют к имени информацию о месте на ярмарке, например «ショーンC99木東ユ40b», причём эта информация часто меняется. Вы можете задать для него фиксированное имя «ショーン».<br>
+    Также можно задать пользователю псевдоним. Если работы какого-то пользователя имеют определённую особенность, задайте ему псевдоним здесь — так после загрузки вам будет удобнее искать его работы локально. Если имя пользователя трудно запомнить или трудно набрать с помощью метода ввода, можно придумать ему удобное имя.<br>`,
     ],
     _移除用户名中的at和后续字符: [
         `移除用户名中的 <span class="key">@</span> 和后续字符`,
@@ -39758,12 +40377,66 @@ This setting does not apply to collection files generated after merging a novel 
         `Показывать <span class="key">большие</span> миниатюры`,
     ],
     _显示更大的缩略图的说明: [
-        `Pixiv 默认的缩略图比较小，下载器可以显示更大的缩略图以方便预览。<br>这个功能不太稳定，因为 Pixiv 的代码更新可能会导致此功能部分失效。`,
-        `Pixiv 預設的縮圖比較小，下載器可以顯示更大的縮圖以方便預覽。<br>這個功能不太穩定，因為 Pixiv 的程式碼更新可能會導致此功能部分失效。`,
-        `Pixiv's default thumbnails are relatively small, and the downloader can display larger thumbnails for easier preview.<br>This feature is not very stable, because Pixiv's code updates may cause this feature to partially fail.`,
-        `Pixiv のデフォルトのサムネイルは比較的小さく、ダウンローダーはプレビューを容易にするために大きなサムネイルを表示できます。<br>この機能はあまり安定しておらず、Pixiv のコード更新によりこの機能が部分的に失敗する可能性があります。`,
-        `Pixiv의 기본 썸네일은 비교적 작고, 다운로더는 더 큰 썸네일을 표시하여 더 쉽게 미리 볼 수 있습니다.<br>이 기능은 그다지 안정적이지 않습니다. Pixiv의 코드 업데이트로 인해 이 기능이 부분적으로 실패할 수 있기 때문입니다.`,
-        `Миниатюры Pixiv по умолчанию относительно небольшие, а загрузчик может отображать более крупные миниатюры для более удобного предварительного просмотра.<br>Эта функция не очень стабильна, поскольку обновления кода Pixiv могут привести к частичному сбою этой функции.`,
+        `Pixiv 默认的缩略图比较小，显示尺寸通常是 184px（虽然缩略图本身的尺寸可能更大）。这导致了一些问题：<br>
+    - 看不清楚细节，经常需要点击进入作品页面才能知道自己喜不喜欢这个作品。<br>
+    - 看久了比较累眼。<br>
+    所以我添加了这个功能。<br>
+    启用该功能之后，下载器会增加作品列表容器的宽度，并让缩略图显示为它们的原始大小，这样可以显示更大的缩略图。<br>
+    <br>
+    备注：<br>
+    - 根据缩略图的原始尺寸不同，它们的显示尺寸可能变成 250px、360px 或 540px。<br>
+    - 如果你启用了下面的“替换方形缩略图以显示图片比例”功能，缩略图的尺寸会固定使用 540px。<br>
+    - 这个功能不太稳定，因为 Pixiv 的代码更新可能会导致此功能在一些页面里失效。`,
+        `Pixiv 預設的縮圖比較小，顯示尺寸通常是 184px（雖然縮圖本身的尺寸可能更大）。這導致了一些問題：<br>
+    - 看不清楚細節，經常需要點擊進入作品頁面才能知道自己喜不喜歡這個作品。<br>
+    - 看久了比較累眼。<br>
+    所以我加入了這個功能。<br>
+    啟用該功能之後，下載器會增加作品列表容器的寬度，並讓縮圖顯示為它們的原始大小，這樣可以顯示更大的縮圖。<br>
+    <br>
+    備註：<br>
+    - 根據縮圖的原始尺寸不同，它們的顯示尺寸可能變成 250px、360px 或 540px。<br>
+    - 如果你啟用了下面的「替換方形縮圖以顯示圖片比例」功能，縮圖的尺寸會固定使用 540px。<br>
+    - 這個功能不太穩定，因為 Pixiv 的程式碼更新可能會導致此功能在一些頁面裡失效。`,
+        `Pixiv's default thumbnails are rather small; the display size is usually 184px (although the thumbnail itself may be larger). This caused some problems:<br>
+    - You cannot see the details clearly, so you often have to click into the work page to know whether you like the work.<br>
+    - Looking at them for a long time is tiring for the eyes.<br>
+    So I added this feature.<br>
+    After you enable it, the downloader increases the width of the work list container and displays the thumbnails at their original size, so that larger thumbnails are shown.<br>
+    <br>
+    Note:<br>
+    - Depending on the original size of each thumbnail, its display size may become 250px, 360px or 540px.<br>
+    - If you enable the "Replace square thumbnails to show image ratio" feature below, the thumbnail size will always be 540px.<br>
+    - This feature is not very stable, because Pixiv's code updates may cause it to fail on some pages.`,
+        `Pixiv の既定のサムネイルは比較的小さく、表示サイズは通常 184px です（サムネイル自体のサイズはもっと大きい場合があります）。これによりいくつかの問題がありました：<br>
+    - 細部がよく見えず、この作品が好きかどうかを知るためによく作品ページを開く必要がありました。<br>
+    - 長時間見ていると目が疲れます。<br>
+    そこでこの機能を追加しました。<br>
+    この機能を有効にすると、ダウンローダーは作品リストのコンテナの幅を広げ、サムネイルを元のサイズで表示するようにします。これにより、より大きなサムネイルを表示できます。<br>
+    <br>
+    備考：<br>
+    - サムネイルの元のサイズによって、表示サイズは 250px、360px、540px のいずれかになります。<br>
+    - 下の「正方形のサムネイルを置き換えて、画像のスケールを表示」機能を有効にすると、サムネイルのサイズは 540px に固定されます。<br>
+    - この機能はあまり安定していません。Pixiv のコード更新により、一部のページで機能しなくなる可能性があります。`,
+        `Pixiv의 기본 썸네일은 비교적 작아서 표시 크기가 보통 184px입니다(썸네일 자체의 크기는 더 클 수 있습니다). 이로 인해 몇 가지 문제가 있었습니다:<br>
+    - 세부 사항이 잘 보이지 않아, 이 작품이 마음에 드는지 알기 위해 자주 작품 페이지로 들어가야 했습니다.<br>
+    - 오래 보면 눈이 피로합니다.<br>
+    그래서 이 기능을 추가했습니다.<br>
+    이 기능을 활성화하면 다운로더가 작품 목록 컨테이너의 너비를 늘리고 썸네일을 원래 크기로 표시합니다. 이렇게 하면 더 큰 썸네일을 표시할 수 있습니다.<br>
+    <br>
+    참고:<br>
+    - 썸네일의 원래 크기에 따라 표시 크기가 250px, 360px, 540px이 될 수 있습니다.<br>
+    - 아래의 "이미지 종횡비를 표시하기 위해 정사각형 썸네일 교체" 기능을 활성화하면 썸네일 크기가 항상 540px로 고정됩니다.<br>
+    - 이 기능은 그다지 안정적이지 않습니다. Pixiv의 코드 업데이트로 인해 일부 페이지에서 작동하지 않을 수 있습니다.`,
+        `Миниатюры Pixiv по умолчанию довольно маленькие: размер отображения обычно 184px (хотя сама миниатюра может быть больше). Это создавало несколько проблем:<br>
+    - Детали плохо видны, поэтому часто приходилось открывать страницу работы, чтобы понять, нравится она вам или нет.<br>
+    - Долгий просмотр утомляет глаза.<br>
+    Поэтому я добавил эту функцию.<br>
+    После её включения загрузчик увеличивает ширину контейнера списка работ и отображает миниатюры в их исходном размере — так показываются более крупные миниатюры.<br>
+    <br>
+    Примечание:<br>
+    - В зависимости от исходного размера миниатюры её размер отображения может стать 250px, 360px или 540px.<br>
+    - Если вы включите расположенную ниже функцию «Замените квадратные миниатюры, чтобы показать соотношение сторон изображения», размер миниатюр всегда будет 540px.<br>
+    - Эта функция не очень стабильна: обновления кода Pixiv могут привести к тому, что она перестанет работать на некоторых страницах.`,
     ],
     _该功能默认启用: [
         `这个功能默认启用。`,
@@ -40436,13 +41109,13 @@ Mouse wheel: zoom in or out of the image<br>
         `작품 내 이미지 수가 지정된 수를 초과할 때 활성화: `,
         `Включить, когда количество изображений в работе превышает указанное количество: `,
     ],
-    _当文件数量大于: [
-        `当文件数量超过指定数量时启用：`,
-        `當檔案數量超過指定數量時啟用：`,
-        `Enable when the number of files exceeds the specified number: `,
-        `ファイル数が指定数を超えたときに有効にする：`,
-        `파일 수가 지정된 수를 초과할 때 활성화: `,
-        `Включить, когда количество файлов превышает указанное: `,
+    _当抓取结果数量大于: [
+        `当抓取结果数量超过指定数量时启用：`,
+        `當抓取結果數量超過指定數量時啟用：`,
+        `Enable when the number of crawl results exceeds a specified number: `,
+        `クロール結果の数が指定した数を超えたときに有効：`,
+        `크롤링 결과 수가 지정한 수를 초과할 때 사용: `,
+        `Включить, когда количество результатов сканирования превышает заданное число: `,
     ],
     _慢速抓取: [
         `慢速抓取，以避免触发 429 限制`,
@@ -41031,12 +41704,36 @@ There is also a button at the bottom of the log area for manually exporting logs
         `<span class="key">Выделить</span> следующих пользователей`,
     ],
     _高亮关注的用户的说明: [
-        `你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。`,
-        `你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。`,
-        `The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.`,
-        `フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。`,
-        `팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.`,
-        `Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя`,
+        `启用此功能之后，下载器会高亮显示你关注（Following）的用户的名字，这便于你确认自己是否关注了某个用户。<br>
+    <br>
+    高亮效果：<br>
+    当你的 Pixiv 网页使用浅色主题时，用户名会具有黄色背景；<br>
+    当你的 Pixiv 网页使用暗色主题时，用户名会显示为黄色。`,
+        `啟用此功能之後，下載器會高亮顯示你關注（Following）的使用者的名字，這便於你確認自己是否關注了某個使用者。<br>
+    <br>
+    高亮效果：<br>
+    當你的 Pixiv 網頁使用淺色主題時，使用者名稱會具有黃色背景；<br>
+    當你的 Pixiv 網頁使用暗色主題時，使用者名稱會顯示為黃色。`,
+        `After you enable this feature, the downloader will highlight the names of users you are following (Following), which makes it easy to confirm whether you follow a certain user.<br>
+    <br>
+    Highlight effect:<br>
+    When your Pixiv page uses a light theme, the user name will have a yellow background;<br>
+    When your Pixiv page uses a dark theme, the user name will be displayed in yellow.`,
+        `この機能を有効にすると、ダウンローダーはフォローしている（Following）ユーザーの名前を強調表示します。特定のユーザーをフォローしているかどうかを確認するのに便利です。<br>
+    <br>
+    強調表示の効果：<br>
+    Pixiv のページがライトテーマの場合、ユーザー名の背景が黄色になります；<br>
+    Pixiv のページがダークテーマの場合、ユーザー名が黄色で表示されます。`,
+        `이 기능을 활성화하면 다운로더가 팔로우(Following)하는 사용자의 이름을 강조 표시합니다. 특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.<br>
+    <br>
+    강조 표시 효과:<br>
+    Pixiv 페이지가 라이트 테마를 사용할 때는 사용자 이름에 노란색 배경이 적용됩니다;<br>
+    Pixiv 페이지가 다크 테마를 사용할 때는 사용자 이름이 노란색으로 표시됩니다.`,
+        `После включения этой функции загрузчик будет выделять имена пользователей, на которых вы подписаны (Following): так удобнее проверять, подписаны ли вы на того или иного пользователя.<br>
+    <br>
+    Эффект выделения:<br>
+    Если страница Pixiv использует светлую тему, имя пользователя получит жёлтый фон;<br>
+    Если страница Pixiv использует тёмную тему, имя пользователя будет отображаться жёлтым цветом.`,
     ],
     _正在加载关注用户列表: [
         `正在加载关注用户列表`,
@@ -41230,12 +41927,66 @@ type может быть "illusts", "novels" или "novelSeries".`,
         `После получения списка идентификаторов работ экспортируйте <span class="key">список идентификаторов</span> и остановите задачу`,
     ],
     _导出ID列表的说明: [
-        `此时只会运行抓取，不会开始下载。<br>并且会忽略大多数过滤条件。`,
-        `此時只會執行抓取，不會開始下載。<br>並且會忽略大多數過濾條件。`,
-        `Only a crawl will be run, no download will be started. <br>Most filters are ignored.`,
-        `この時点ではフェッチのみが実行され、ダウンロードは開始されません。 <br>ほとんどのフィルターは無視されます。`,
-        `지금은 가져오기만 실행되고 다운로드는 시작되지 않습니다. <br>대부분의 필터는 무시됩니다.`,
-        `В этот раз будет запущена только сканирование, загрузка не начнется. <br>Большинство фильтров игнорируются.`,
+        `如果你启用了这个设置，那么下载器在抓取阶段的早期，获取到作品 ID 列表之后就会立刻停止抓取，并导出作品 ID 列表。<br>
+    此时下载器不会运行完整的抓取流程，也不会开始下载，并且会忽略大多数过滤条件（因为此时没有作品的详细数据）。<br>
+    <br>
+    该功能通常用于调试，不过有时也有实际用途，例如：<br>
+    当你需要抓取的作品来自多个不同页面时，但你想把它们汇总为一次抓取任务时，可以这样做：<br>
+    - 启用此设置<br>
+    - 获取每个页面里的作品 ID 列表<br>
+    - 汇总到一起（将所有作品 ID 放在同一个 JSON 文件中）<br>
+    - 关闭此设置<br>
+    - 使用首页的“导入 ID 列表”功能开始抓取<br>`,
+        `如果你啟用了這個設定，那麼下載器在抓取階段的早期，獲取到作品 ID 列表之後就會立刻停止抓取，並匯出作品 ID 列表。<br>
+    此時下載器不會執行完整的抓取流程，也不會開始下載，並且會忽略大多數過濾條件（因為此時沒有作品的詳細資料）。<br>
+    <br>
+    該功能通常用於偵錯，不過有時也有實際用途，例如：<br>
+    當你需要抓取的作品來自多個不同頁面時，但你想把它們彙總為一次抓取任務時，可以這樣做：<br>
+    - 啟用此設定<br>
+    - 獲取每個頁面裡的作品 ID 列表<br>
+    - 彙總到一起（將所有作品 ID 放在同一個 JSON 檔案中）<br>
+    - 關閉此設定<br>
+    - 使用首頁的「匯入 ID 列表」功能開始抓取<br>`,
+        `If you enable this setting, the downloader will stop crawling as soon as it obtains the work ID list early in the crawl phase, and export the work ID list.<br>
+    In this case the downloader will not run the complete crawl process, will not start downloading, and will ignore most filter conditions (because there is no detailed data about the works at that point).<br>
+    <br>
+    This feature is usually used for debugging, but it also has practical uses sometimes, for example:<br>
+    When the works you need to crawl come from several different pages, but you want to combine them into a single crawl task, you can do this:<br>
+    - Enable this setting<br>
+    - Get the work ID list from each page<br>
+    - Combine them together (put all the work IDs in the same JSON file)<br>
+    - Disable this setting<br>
+    - Use the "Import ID list" feature on the home page to start crawling<br>`,
+        `この設定を有効にすると、ダウンローダーはクロール段階の早い時点で作品 ID リストを取得した直後にクロールを停止し、作品 ID リストをエクスポートします。<br>
+    このときダウンローダーは完全なクロール処理を実行せず、ダウンロードも開始せず、ほとんどのフィルター条件を無視します（この時点では作品の詳細データがないためです）。<br>
+    <br>
+    この機能は通常デバッグ用ですが、実際に役立つ場合もあります。例えば：<br>
+    クロールしたい作品が複数の異なるページにあり、それらを 1 回のクロールタスクにまとめたい場合は、次のようにします：<br>
+    - この設定を有効にする<br>
+    - 各ページの作品 ID リストを取得する<br>
+    - 1 つにまとめる（すべての作品 ID を同じ JSON ファイルに入れる）<br>
+    - この設定を無効にする<br>
+    - ホームの「インポートIDリスト」機能を使ってクロールを開始する<br>`,
+        `이 설정을 활성화하면 다운로더는 크롤링 단계 초반에 작품 ID 목록을 가져온 직후 크롤링을 중지하고, 작품 ID 목록을 내보냅니다.<br>
+    이때 다운로더는 전체 크롤링 과정을 실행하지 않고 다운로드도 시작하지 않으며, 대부분의 필터 조건을 무시합니다(이 시점에는 작품의 상세 데이터가 없기 때문입니다).<br>
+    <br>
+    이 기능은 보통 디버깅용이지만, 때로는 실제로도 유용합니다. 예를 들어:<br>
+    크롤링할 작품이 여러 다른 페이지에 있고, 그것들을 하나의 크롤링 작업으로 모으고 싶다면 다음과 같이 하면 됩니다:<br>
+    - 이 설정 활성화<br>
+    - 각 페이지의 작품 ID 목록 가져오기<br>
+    - 하나로 모으기(모든 작품 ID를 같은 JSON 파일에 넣기)<br>
+    - 이 설정 비활성화<br>
+    - 홈의 "ID 목록 가져오기" 기능으로 크롤링 시작<br>`,
+        `Если вы включите эту настройку, загрузчик остановит сканирование сразу после получения списка ID работ на раннем этапе сканирования и экспортирует список ID работ.<br>
+    В этом случае загрузчик не выполнит полный процесс сканирования, не начнёт загрузку и проигнорирует большинство условий фильтрации (поскольку на этом этапе нет подробных данных о работах).<br>
+    <br>
+    Обычно эта функция используется для отладки, но иногда у неё есть и практическое применение, например:<br>
+    Если нужные вам работы находятся на нескольких разных страницах, а вы хотите объединить их в одну задачу сканирования, можно сделать так:<br>
+    - Включите эту настройку<br>
+    - Получите список ID работ с каждой страницы<br>
+    - Объедините их вместе (поместите все ID работ в один файл JSON)<br>
+    - Отключите эту настройку<br>
+    - Используйте функцию «Список идентификаторов импорта» на главной странице, чтобы начать сканирование<br>`,
     ],
     _导入的用户ID数量: [
         `导入的用户 ID 数量：`,
@@ -41458,12 +42209,12 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
         `На странице работы с несколькими изображениями отображайте список <span class="key">миниатюр</span>`,
     ],
     _在多图作品页面里显示缩略图列表的说明: [
-        `在多图作品页面里（/artworks/)，下载器可以显示每一张图片的预览图。`,
-        `在多圖作品頁面裡（/artworks/)，下載器可以顯示每一張圖片的預覽圖。`,
-        `On a multi-image artwork page (/artworks/), the downloader can display a preview of each image.`,
-        `複数画像のアートワーク ページ (/artworks/) では、ダウンローダーは各画像のプレビューを表示できます。`,
-        `여러 이미지로 구성된 아트워크 페이지(/artworks/)에서 다운로더는 각 이미지의 미리보기를 표시할 수 있습니다.`,
-        `На странице с несколькими изображениями (/artworks/) загрузчик может отображать предварительный просмотр каждого изображения.`,
+        `在多图作品页面里，下载器会在作品大图区域下方添加缩略图列表。你不仅可以查看每一张图片的预览图，还可以快速下载单张图片，或者选择一部分图片然后下载。`,
+        `在多圖作品頁面裡，下載器會在作品大圖區域下方添加縮圖列表。你不僅可以查看每一張圖片的預覽圖，還可以快速下載單張圖片，或者選擇一部分圖片然後下載。`,
+        `On multi-image work pages, the downloader adds a thumbnail list below the large image area. You can not only view a preview of each image, but also quickly download a single image, or select some of the images and download them.`,
+        `複数画像作品のページでは、ダウンローダーが作品の大きな画像エリアの下にサムネイル一覧を追加します。各画像のプレビューを確認できるだけでなく、1 枚だけをすばやくダウンロードしたり、一部の画像を選択してダウンロードしたりできます。`,
+        `여러 이미지 작품 페이지에서 다운로더는 작품의 큰 이미지 영역 아래에 썸네일 목록을 추가합니다. 각 이미지의 미리보기를 볼 수 있을 뿐만 아니라, 이미지 한 장을 빠르게 다운로드하거나 일부 이미지를 선택해서 다운로드할 수 있습니다.`,
+        `На страницах работ с несколькими изображениями загрузчик добавляет список миниатюр под областью с большим изображением. Вы можете не только просматривать предпросмотр каждого изображения, но и быстро скачать отдельное изображение либо выбрать часть изображений и скачать их.`,
     ],
     _提交: [`提交`, `提交`, `Submit`, `提出する`, `제출하다`, `Отправить`],
     _已导出被删除的作品的ID列表: [
@@ -41679,12 +42430,12 @@ You can view this hotkey list anytime in the "Preview works" settings`,
         `{} существующих закладок пропущено`,
     ],
     _保存作品的简介: [
-        `保存作品<span class="key">简介</span>`,
-        `儲存作品<span class="key">說明</span>`,
-        `Save work <span class="key">description</span>`,
-        `作品<span class="key">説明</span>の保存`,
-        `작품 <span class="key">설명</span> 저장`,
-        `Сохранить <span class="key">описание</span> работы`,
+        `保存作品<span class="key">简介</span>到 TXT 文件里`,
+        `儲存作品<span class="key">說明</span>到 TXT 檔案裡`,
+        `Save work <span class="key">description</span> to a TXT file`,
+        `作品<span class="key">説明</span>を TXT ファイルに保存する`,
+        `작품 <span class="key">설명</span>을 TXT 파일로 저장`,
+        `Сохранить <span class="key">описание</span> работы в файл TXT`,
     ],
     _介绍: [`介绍`, `介紹`, `Introduction`, `紹介`, `소개`, `Введение`],
     _保存作品的简介2: [
@@ -41696,12 +42447,96 @@ You can view this hotkey list anytime in the "Preview works" settings`,
         `Сохранить описание работы`,
     ],
     _保存作品简介的说明: [
-        `生成 TXT 文件保存作品简介。`,
-        `生成 TXT 檔案儲存作品說明`,
-        `Create a TXT file to save the work description`,
-        `作業説明を保存するためのTXTファイルを作成します。`,
-        `작업 설명을 저장하려면 TXT 파일을 만드세요.`,
-        `Создайте файл TXT для сохранения описания работы.`,
+        `下载器可以生成 TXT 文件保存作品的简介。<br>
+    <br>
+    作品类型：<br>
+    你可以选择为哪些类型的作品保存简介。默认没有选择“小说”，因为下载器默认会在小说的开头保存简介，不需要在这里重复保存。<br>
+    <br>
+    有两种保存方式，并且可以同时启用：<br>
+    <br>
+    每个作品分别保存：<br>
+    为每个作品生成一个单独的 TXT 文件保存简介。<br>
+    备注：<br>
+    - 如果作品简介里含有超链接，下载器会在文件名末尾添加“links”标记。<br>
+    - 有些作品没有简介，所以下载器不会为其生成 TXT 文件。<br>
+    <br>
+    汇总到一个文件：<br>
+    把所有作品的简介汇总到一个 TXT 文件里。<br>`,
+        `下載器可以生成 TXT 檔案儲存作品的說明。<br>
+    <br>
+    作品類型：<br>
+    你可以選擇為哪些類型的作品儲存說明。預設沒有選擇「小說」，因為下載器預設會在小說的開頭儲存說明，不需要在這裡重複儲存。<br>
+    <br>
+    有兩種儲存方式，並且可以同時啟用：<br>
+    <br>
+    每個作品分別儲存：<br>
+    為每個作品生成一個單獨的 TXT 檔案儲存說明。<br>
+    備註：<br>
+    - 如果作品說明裡含有超連結，下載器會在檔名末尾添加「links」標記。<br>
+    - 有些作品沒有說明，所以下載器不會為其生成 TXT 檔案。<br>
+    <br>
+    彙總到一個檔案：<br>
+    把所有作品的說明彙總到一個 TXT 檔案裡。<br>`,
+        `The downloader can create a TXT file to save the work description.<br>
+    <br>
+    Type of work:<br>
+    You can choose which types of works to save descriptions for. "Novels" is not selected by default, because the downloader saves the description at the beginning of the novel by default, so there is no need to save it again here.<br>
+    <br>
+    There are two ways to save, and they can be enabled at the same time:<br>
+    <br>
+    Save each work separately:<br>
+    Create a separate TXT file for each work to save its description.<br>
+    Note:<br>
+    - If the work description contains hyperlinks, the downloader will add a "links" marker at the end of the file name.<br>
+    - Some works have no description, so the downloader will not create a TXT file for them.<br>
+    <br>
+    Combine into one file:<br>
+    Combine the descriptions of all works into one TXT file.<br>`,
+        `ダウンローダーは TXT ファイルを生成して作品の説明を保存できます。<br>
+    <br>
+    作品の種類：<br>
+    どの種類の作品の説明を保存するかを選択できます。既定では「小説」が選択されていません。これは、ダウンローダーが既定で小説の冒頭に説明を保存するため、ここで重複して保存する必要がないからです。<br>
+    <br>
+    保存方法は 2 つあり、同時に有効にできます：<br>
+    <br>
+    作品ごとに個別に保存：<br>
+    各作品に対して個別の TXT ファイルを生成して説明を保存します。<br>
+    備考：<br>
+    - 作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」マークを追加します。<br>
+    - 説明がない作品もあるため、その場合は TXT ファイルを生成しません。<br>
+    <br>
+    1 つのファイルにまとめる：<br>
+    すべての作品の説明を 1 つの TXT ファイルにまとめます。<br>`,
+        `다운로더는 TXT 파일을 생성하여 작품 설명을 저장할 수 있습니다.<br>
+    <br>
+    작품 유형:<br>
+    어떤 유형의 작품 설명을 저장할지 선택할 수 있습니다. 기본적으로 "소설"은 선택되어 있지 않습니다. 다운로더가 기본적으로 소설의 시작 부분에 설명을 저장하므로 여기에서 중복해서 저장할 필요가 없기 때문입니다.<br>
+    <br>
+    저장 방식은 두 가지이며 동시에 활성화할 수 있습니다:<br>
+    <br>
+    작품별로 따로 저장:<br>
+    각 작품에 대해 별도의 TXT 파일을 생성하여 설명을 저장합니다.<br>
+    참고:<br>
+    - 작품 설명에 하이퍼링크가 포함되어 있으면 다운로더가 파일 이름 끝에 "links" 표시를 추가합니다.<br>
+    - 설명이 없는 작품도 있으므로 다운로더는 그런 작품의 TXT 파일을 생성하지 않습니다.<br>
+    <br>
+    하나의 파일로 모으기:<br>
+    모든 작품의 설명을 하나의 TXT 파일로 모읍니다.<br>`,
+        `Загрузчик может создать файл TXT и сохранить в нём описание работы.<br>
+    <br>
+    Тип работы:<br>
+    Вы можете выбрать, для каких типов работ сохранять описания. По умолчанию «Новеллы» не выбраны, потому что загрузчик по умолчанию сохраняет описание в начале новеллы, и дублировать его здесь не нужно.<br>
+    <br>
+    Есть два способа сохранения, и их можно включить одновременно:<br>
+    <br>
+    Сохранять каждую работу отдельно:<br>
+    Создавать для каждой работы отдельный файл TXT с её описанием.<br>
+    Примечание:<br>
+    - Если в описании работы есть гиперссылки, загрузчик добавит в конец имени файла метку "links".<br>
+    - У некоторых работ нет описания, поэтому загрузчик не будет создавать для них файл TXT.<br>
+    <br>
+    Объединить в один файл:<br>
+    Объединить описания всех работ в один файл TXT.<br>`,
     ],
     _简介: [`简介`, `說明`, `description`, `説明`, `설명`, `описание`],
     _简介汇总: [
@@ -41719,14 +42554,6 @@ You can view this hotkey list anytime in the "Preview works" settings`,
         `作品ごとに分けて保存する`,
         `각 작품을 별도로 저장`,
         `Сохраняйте каждую работу отдельно`,
-    ],
-    _简介的Links标记: [
-        `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记。<br>有些作品没有简介，此时下载器不会为其生成 TXT 文件。`,
-        `將每個作品的說明儲存到個別的 TXT 檔案裡。<br>如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記。<br>有些作品沒有說明，此時下載器不會為其建立 TXT 檔案。`,
-        `Save each work's description in a separate TXT file.<br>If a work's description contains hyperlinks, the downloader adds a 'links' tag to the end of the filename.<br>Some works have no description, so no TXT file is created for them.`,
-        `各作品の説明を個別の TXT ファイルに保存します。<br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。<br>説明がない作品については、TXT ファイルを作成しません。`,
-        `각 작품의 설명을 별도의 TXT 파일로 저장합니다.<br>작품 설명에 하이퍼링크가 포함되어 있으면 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.<br>설명이 없는 작품에는 TXT 파일을 만들지 않습니다.`,
-        `Описание каждой работы сохраняется в отдельный TXT-файл.<br>Если описание работы содержит гиперссылки, загрузчик добавляет тег «links» в конце имени файла.<br>Для работ без описания TXT-файл не создаётся.`,
     ],
     _汇总到一个文件: [
         `汇总到一个文件`,
@@ -41770,30 +42597,66 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     ],
     _秒: [`秒`, `秒`, `seconds`, `秒`, `초`, `секунд`],
     _下载间隔的说明: [
-        `每隔一定时间开始一次下载。<br>
-如果把间隔时间设置为 0，下载器就不会添加延迟时间。<br>
-如果设置为 1 秒（默认值），那么每小时最多会下载 3600 个抓取结果（不计算附带下载的文件，例如小说的封面图片和内嵌的图片）。<br>
-这是因为连续下载很多文件（特别是小说）时，你的 Pixiv 账号可能会被警告或封禁。设置间隔时间可以缓解此问题。<br>`,
-        `每隔一定時間開始一次下載。<br>
-如果把間隔時間設置為 0，下載器就不會添加延遲時間。<br>
-如果設置為 1 秒（默認值），那麼每小時最多會下載 3600 個抓取結果（不計算附帶下載的文件，例如小說的封面圖片和內嵌的圖片）。<br>
-這是因為連續下載很多文件（特別是小說）時，你的 Pixiv 賬號可能會被警告或封禁。設置間隔時間可以緩解此問題。<br>`,
-        `Start a download every certain interval of time.<br>
-If the interval time is set to 0, the downloader will not add delay time.<br>
-If set to 1 second (default value), then up to 3600 crawl results will be downloaded per hour (not counting attached download files, such as novel cover images and embedded images).<br>
-This is because when continuously downloading many files (especially novels), your Pixiv account may be warned or banned. Setting the interval time can alleviate this issue.<br>`,
-        `一定の間隔でダウンロードを開始します。<br>
-間隔時間を 0 に設定すると、ダウンロードツールは遅延時間を追加しません。<br>
-1 秒（デフォルト値）に設定すると、1 時間あたり最大 3600 個のクロール結果をダウンロードします（小説の表紙画像や埋め込み画像などの付属ダウンロードファイルは計算に含めません）。<br>
-これは、連続して多くのファイル（特に小説）をダウンロードすると、Pixiv アカウントが警告またはBANされる可能性があるためです。間隔時間を設定することで、この問題を緩和できます。<br>`,
-        `일정 간격으로 다운로드를 시작합니다.<br>
-간격 시간을 0으로 설정하면 다운로더가 지연 시간을 추가하지 않습니다.<br>
-1초(기본값)로 설정하면, 시간당 최대 3600개의 크롤 결과(소설 표지 이미지나 내장 이미지와 같은 부수적 다운로드 파일은 계산하지 않음)를 다운로드합니다.<br>
-이는 많은 파일(특히 소설)을 연속으로 다운로드하면 Pixiv 계정이 경고되거나 차단될 수 있기 때문입니다. 간격 시간을 설정하면 이 문제를 완화할 수 있습니다.<br>`,
-        `Запускать загрузку через определенные интервалы времени.<br>
-Если установить время интервала на 0, загрузчик не добавит задержку.<br>
-Если установить на 1 секунду (значение по умолчанию), то максимум 3600 результатов сканирования будет загружено в час (не считая дополнительные файлы для загрузки, такие как обложки романов и встроенные изображения).<br>
-Это потому, что при непрерывной загрузке множества файлов (особенно романов) ваш аккаунт Pixiv может быть предупрежден или заблокирован. Установка интервала времени может смягчить эту проблему.<br>`,
+        `你可以设置每隔多少秒允许下载器开始一次下载。<br>
+    这个设置的目的是在大量下载时降低下载频率，以减少账号被 pixiv 封禁的可能性。<br>
+    <br>
+    当抓取结果数量超过指定数量时启用：<br>
+    当抓取结果数量较多时才有必要添加间隔时间。你可以设置这个阈值。<br>
+    如果抓取结果数量小于阈值，下载器就不会应用间隔时间。<br>
+    <br>
+    间隔时间：<br>
+    默认值是 1 秒，这意味着下载器在一小时里最多会下载 3600 个文件。<br>
+    对于大部分用户（下载量不会很极端），默认值已经足够使用。如果你经常下载非常多的文件，可以适当增加间隔时间。3 秒已经足够安全，4 秒几乎绝对安全。`,
+        `你可以設定每隔多少秒允許下載器開始一次下載。<br>
+    這個設定的目的是在大量下載時降低下載頻率，以減少帳號被 pixiv 封禁的可能性。<br>
+    <br>
+    當抓取結果數量超過指定數量時啟用：<br>
+    當抓取結果數量較多時才有必要添加間隔時間。你可以設定這個閾值。<br>
+    如果抓取結果數量小於閾值，下載器就不會應用間隔時間。<br>
+    <br>
+    間隔時間：<br>
+    預設值是 1 秒，這意味著下載器在一小時裡最多會下載 3600 個檔案。<br>
+    對於大部分使用者（下載量不會很極端），預設值已經足夠使用。如果你經常下載非常多的檔案，可以適當增加間隔時間。3 秒已經足夠安全，4 秒幾乎絕對安全。`,
+        `You can set how many seconds must pass before the downloader is allowed to start another download.<br>
+    The purpose of this setting is to slow down the download rate during large downloads, to reduce the chance of your account being banned by pixiv.<br>
+    <br>
+    Enable when the number of crawl results exceeds a specified number:<br>
+    Adding an interval is only necessary when there are many crawl results. You can set this threshold here.<br>
+    If the number of crawl results is less than the threshold, the downloader will not apply the interval.<br>
+    <br>
+    Interval time:<br>
+    The default value is 1 second, which means the downloader will download at most 3600 files per hour.<br>
+    For most users (whose download volume is not extreme), the default value is enough. If you often download a very large number of files, you can increase the interval appropriately. 3 seconds is safe enough, and 4 seconds is almost absolutely safe.`,
+        `ダウンローダーが次のダウンロードを開始できるようになるまで、何秒待つかを設定できます。<br>
+    この設定の目的は、大量にダウンロードするときにダウンロード頻度を下げ、Pixiv によってアカウントが凍結される可能性を減らすことです。<br>
+    <br>
+    クロール結果の数が指定した数を超えたときに有効：<br>
+    クロール結果が多い場合にのみ、間隔を追加する必要があります。このしきい値を設定できます。<br>
+    クロール結果の数がしきい値より少ない場合、ダウンローダーは間隔を適用しません。<br>
+    <br>
+    インターバル時間：<br>
+    既定値は 1 秒で、これはダウンローダーが 1 時間に最大 3600 個のファイルをダウンロードすることを意味します。<br>
+    ほとんどのユーザー（ダウンロード量が極端でない場合）には、既定値で十分です。非常に多くのファイルを頻繁にダウンロードする場合は、間隔を適切に増やしてください。3 秒で十分安全で、4 秒ならほぼ確実に安全です。`,
+        `다운로더가 다음 다운로드를 시작할 수 있을 때까지 몇 초를 기다릴지 설정할 수 있습니다.<br>
+    이 설정의 목적은 대량으로 다운로드할 때 다운로드 빈도를 낮춰서 Pixiv에 의해 계정이 정지될 가능성을 줄이는 것입니다.<br>
+    <br>
+    크롤링 결과 수가 지정한 수를 초과할 때 사용:<br>
+    크롤링 결과가 많을 때만 간격을 추가할 필요가 있습니다. 이 임계값을 설정할 수 있습니다.<br>
+    크롤링 결과 수가 임계값보다 적으면 다운로더는 간격을 적용하지 않습니다.<br>
+    <br>
+    간격 시간:<br>
+    기본값은 1초이며, 이는 다운로더가 한 시간에 최대 3600개의 파일을 다운로드한다는 뜻입니다.<br>
+    대부분의 사용자(다운로드량이 극단적이지 않은 경우)에게는 기본값으로 충분합니다. 파일을 매우 많이 자주 다운로드한다면 간격을 적절히 늘리세요. 3초면 충분히 안전하고, 4초면 거의 확실히 안전합니다.`,
+        `Вы можете задать, через сколько секунд загрузчику разрешено начинать следующую загрузку.<br>
+    Цель этой настройки — снизить частоту загрузок при больших объёмах, чтобы уменьшить вероятность блокировки аккаунта со стороны pixiv.<br>
+    <br>
+    Включить, когда количество результатов сканирования превышает заданное число:<br>
+    Добавлять интервал имеет смысл только тогда, когда результатов сканирования много. Здесь можно задать этот порог.<br>
+    Если количество результатов сканирования меньше порога, загрузчик не будет применять интервал.<br>
+    <br>
+    Интервал времени:<br>
+    Значение по умолчанию — 1 секунда, то есть загрузчик скачает не более 3600 файлов в час.<br>
+    Для большинства пользователей (у которых объём загрузок не экстремальный) значения по умолчанию достаточно. Если вы часто скачиваете очень много файлов, интервал можно немного увеличить. 3 секунды — уже достаточно безопасно, 4 секунды — почти абсолютно безопасно.`,
     ],
     _从页面上移除他们的作品: [
         `从页面上移除他们的作品`,
@@ -41811,19 +42674,67 @@ This is because when continuously downloading many files (especially novels), yo
         `사용자 {} 의 작품이 제거되었습니다.`,
         `Удалены работы пользователя {}`,
     ],
-    _用户屏蔽名单的说明2: [
-        `下载器不会抓取“用户屏蔽名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。<br>
-PS：在被屏蔽的用户的主页里不会移除他们的作品，所以你可以正常查看他们的主页。`,
-        `下載器不會抓取「使用者封鎖名單」裡的使用者的作品，而且還可以從頁面上移除他們的作品，這樣你就不會看到不喜歡的使用者的作品了。<br>
-PS：在被封鎖的使用者的主頁裡不會移除他們的作品，所以你可以正常查看他們的主頁。`,
-        `The downloader will not crawl works by users on the "User block list". It can also remove their works from pages, so you will not see works by users you dislike.<br>
-PS: Works are not removed on a blocked user's profile page, so you can view their profile normally.`,
-        `ダウンローダーは「ユーザーブロックリスト」に登録したユーザーの作品をクロールしません。また、ページからそのユーザーの作品を削除できるため、好みでないユーザーの作品を見ずに済みます。<br>
-PS：ブロックしたユーザーのプロフィールページでは作品を削除しないため、そのプロフィールページは通常どおり閲覧できます。`,
-        `다운로더는 "사용자 차단 목록"에 있는 사용자의 작품을 크롤하지 않습니다. 또한 페이지에서 해당 사용자의 작품을 제거할 수 있으므로, 원하지 않는 사용자의 작품을 보지 않아도 됩니다.<br>
-PS: 차단한 사용자의 프로필 페이지에서는 작품을 제거하지 않으므로, 해당 프로필 페이지는 정상적으로 볼 수 있습니다.`,
-        `Загрузчик не будет сканировать работы пользователей из «Списка заблокированных пользователей». Также он может удалять их работы со страниц, поэтому вы не увидите работы пользователей, которые вам не нравятся.<br>
-PS: На странице профиля заблокированного пользователя его работы не удаляются, поэтому вы можете просматривать его профиль как обычно.`,
+    _用户屏蔽名单的说明: [
+        `你可以设置用户屏蔽名单，下载器不会抓取这些用户的作品。<br>
+    需要输入用户 ID 而不是用户名，因为用户名可能会变化。<br>
+    你可以屏蔽多个用户 ID，在每个 ID 之间使用英文逗号<span class="blue">,</span>分割。<br>
+    <br>
+    快捷屏蔽用户：<br>
+    当你把鼠标指针停留在任意用户的名字上时，下载器会显示一个屏蔽按钮，点击按钮即可屏蔽这个用户。<br>
+    <br>
+    从页面上移除他们的作品：<br>
+    这样你就不会看到不喜欢的用户的作品了。<br>
+    PS：在被屏蔽的用户的主页里不会移除他们的作品，这是为了让你可以正常查看他们的主页。`,
+        `你可以設定使用者封鎖名單，下載器不會抓取這些使用者的作品。<br>
+    需要輸入使用者 ID 而不是使用者名稱，因為使用者名稱可能會變化。<br>
+    你可以封鎖多個使用者 ID，在每個 ID 之間使用半形逗號<span class="blue">,</span>分隔。<br>
+    <br>
+    快速封鎖使用者：<br>
+    當你把滑鼠指標停留在任意使用者的名字上時，下載器會顯示一個封鎖按鈕，點擊按鈕即可封鎖這個使用者。<br>
+    <br>
+    從頁面上移除他們的作品：<br>
+    這樣你就不會看到不喜歡的使用者的作品了。<br>
+    PS：在被封鎖的使用者主頁裡不會移除他們的作品，這是為了讓你可以正常查看他們的主頁。`,
+        `You can set a user block list. The downloader will not crawl works by these users.<br>
+    You need to enter the user ID instead of the user name, because user names may change.<br>
+    You can block multiple user IDs, separating each ID with a comma<span class="blue">,</span>.<br>
+    <br>
+    Quickly block users:<br>
+    When you hover the mouse pointer over any user's name, the downloader will show a block button. Click the button to block this user.<br>
+    <br>
+    Remove their works from the page:<br>
+    This way you will not see works by users you do not like.<br>
+    PS: Their works will not be removed on a blocked user's own home page, so that you can still view their home page normally.`,
+        `ユーザーブロックリストを設定できます。ダウンローダーはこれらのユーザーの作品をクロールしません。<br>
+    ユーザー名は変更される可能性があるため、ユーザー名ではなくユーザー ID を入力してください。<br>
+    複数のユーザー ID をブロックできます。各 ID の間は英語のカンマ<span class="blue">,</span>で区切ります。<br>
+    <br>
+    ユーザーをすばやくブロック：<br>
+    任意のユーザー名の上にマウスポインターを置くと、ダウンローダーがブロックボタンを表示します。ボタンをクリックすると、そのユーザーをブロックできます。<br>
+    <br>
+    ページから作品を削除：<br>
+    こうすると、好まないユーザーの作品が表示されなくなります。<br>
+    PS：ブロックしたユーザーのホームページでは作品は削除されません。これは、そのユーザーのホームページを正常に閲覧できるようにするためです。`,
+        `사용자 차단 목록을 설정할 수 있습니다. 다운로더는 이 사용자들의 작품을 크롤링하지 않습니다.<br>
+    사용자 이름은 변경될 수 있으므로 사용자 이름이 아니라 사용자 ID를 입력해야 합니다.<br>
+    여러 사용자 ID를 차단할 수 있으며, 각 ID 사이는 영어 쉼표<span class="blue">,</span>로 구분합니다.<br>
+    <br>
+    빠르게 사용자 차단:<br>
+    아무 사용자의 이름 위에 마우스 포인터를 올리면 다운로더가 차단 버튼을 표시합니다. 버튼을 클릭하면 그 사용자를 차단할 수 있습니다.<br>
+    <br>
+    페이지에서 그들의 작품 제거:<br>
+    이렇게 하면 좋아하지 않는 사용자의 작품이 보이지 않습니다.<br>
+    PS: 차단한 사용자의 홈페이지에서는 그들의 작품이 제거되지 않습니다. 이는 그 사용자의 홈페이지를 정상적으로 볼 수 있게 하기 위해서입니다.`,
+        `Вы можете задать список заблокированных пользователей: загрузчик не будет сканировать работы этих пользователей.<br>
+    Нужно вводить ID пользователя, а не имя, потому что имена пользователей могут меняться.<br>
+    Можно заблокировать несколько ID пользователей, разделяя каждый ID запятой<span class="blue">,</span>.<br>
+    <br>
+    Быстрая блокировка пользователей:<br>
+    Когда вы наводите указатель мыши на имя любого пользователя, загрузчик показывает кнопку блокировки. Нажмите её, чтобы заблокировать этого пользователя.<br>
+    <br>
+    Удалять их работы со страницы:<br>
+    Так вы не будете видеть работы нелюбимых пользователей.<br>
+    PS: На главной странице заблокированного пользователя их работы не удаляются — так вы сможете нормально просматривать их страницу.`,
     ],
     _移除用户屏蔽名单里的用户的作品: [
         `移除“用户屏蔽名单”里的用户的作品`,
@@ -42002,24 +42913,42 @@ PS: На странице профиля заблокированного пол
         `Отображать кнопку <span class="key">копирования</span> на миниатюре работы`,
     ],
     _显示复制按钮的提示: [
-        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。
-<br>
-你可以自定义要复制的数据和格式。`,
-        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。
-<br>
-你可以自訂要複製的資料和格式。`,
-        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data.
-<br>
-You can customize the data and format to be copied.`,
-        `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。
-<br>
-コピーするデータとフォーマットをカスタマイズできます。`,
-        `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.
-<br>
-복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
-        `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные.
-<br>
-Вы можете настроить данные и формат для копирования.`,
+        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。<br>
+    你可以自定义要复制的数据和格式。<br>
+    <br>
+    备注：<br>
+    - 有些场景里没有复制按钮（例如预览作品时），可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。<br>
+    - 在粘贴时，不同软件的行为可能不同。这个问题主要发生在使用“text/html”格式时：下载器会同时复制图片和文本，但是在一些软件里粘贴时（例如 Telegram），它可能只会使用文本，不会使用图片。所以有时你需要根据目标软件调整复制的内容，比如只选择图片格式“image/png”。`,
+        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。<br>
+    你可以自訂要複製的資料和格式。<br>
+    <br>
+    備註：<br>
+    - 有些場景裡沒有複製按鈕（例如預覽作品時），可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。<br>
+    - 在貼上時，不同軟體的行為可能不同。這個問題主要發生在使用「text/html」格式時：下載器會同時複製圖片和文字，但是在一些軟體裡貼上時（例如 Telegram），它可能只會使用文字，不會使用圖片。所以有時你需要根據目標軟體調整複製的內容，比如只選擇圖片格式「image/png」。`,
+        `The downloader will show a copy button on work thumbnails and inside the work page. Click it to copy the work's image and some data.<br>
+    You can customize the data and format to copy.<br>
+    <br>
+    Note:<br>
+    - In some situations there is no copy button (for example, when previewing a work); you can use the shortcut <span class="blue">Alt</span> + <span class="blue">C</span> to copy instead.<br>
+    - When pasting, different software may behave differently. This problem mainly happens with the "text/html" format: the downloader copies both the image and the text, but when pasting in some software (for example Telegram), it may use only the text and not the image. So sometimes you need to adjust what is copied according to the target software, for example by selecting only the image format "image/png".`,
+        `ダウンローダーは、作品のサムネイル上と作品ページ内にコピーボタンを表示します。クリックすると、作品の画像とデータをコピーできます。<br>
+    コピーするデータと形式はカスタマイズできます。<br>
+    <br>
+    備考：<br>
+    - 一部の場面ではコピーボタンがありません（例えば作品をプレビューするとき）。その場合はショートカット <span class="blue">Alt</span> + <span class="blue">C</span> でコピーできます。<br>
+    - 貼り付けるときの動作はソフトウェアによって異なる場合があります。この問題は主に「text/html」形式を使うときに起こります。ダウンローダーは画像とテキストを同時にコピーしますが、一部のソフトウェア（例えば Telegram）に貼り付けると、テキストだけが使われ、画像は使われないことがあります。そのため、目的のソフトウェアに合わせてコピー内容を調整する必要がある場合があります。例えば画像形式「image/png」だけを選ぶなどです。`,
+        `다운로더는 작품 썸네일 위와 작품 페이지 안에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.<br>
+    복사할 데이터와 형식을 사용자 지정할 수 있습니다.<br>
+    <br>
+    참고:<br>
+    - 일부 상황에서는 복사 버튼이 없습니다(예: 작품을 미리 볼 때). 이때는 단축키 <span class="blue">Alt</span> + <span class="blue">C</span> 로 복사할 수 있습니다.<br>
+    - 붙여넣을 때 소프트웨어마다 동작이 다를 수 있습니다. 이 문제는 주로 "text/html" 형식을 사용할 때 발생합니다. 다운로더는 이미지와 텍스트를 동시에 복사하지만, 일부 소프트웨어(예: Telegram)에 붙여넣으면 텍스트만 사용되고 이미지는 사용되지 않을 수 있습니다. 그래서 때로는 대상 소프트웨어에 맞게 복사 내용을 조정해야 합니다. 예를 들어 이미지 형식 "image/png"만 선택하는 것입니다.`,
+        `Загрузчик показывает кнопку копирования на миниатюрах работ и внутри страницы работы. Нажмите её, чтобы скопировать изображение работы и некоторые данные.<br>
+    Вы можете настроить, какие данные и в каком формате копировать.<br>
+    <br>
+    Примечание:<br>
+    - В некоторых случаях кнопки копирования нет (например, при предпросмотре работы) — тогда можно скопировать с помощью сочетания клавиш <span class="blue">Alt</span> + <span class="blue">C</span>.<br>
+    - При вставке разное программное обеспечение может вести себя по-разному. Эта проблема возникает в основном при использовании формата "text/html": загрузчик копирует и изображение, и текст, но при вставке в некоторых программах (например, Telegram) может использоваться только текст, без изображения. Поэтому иногда нужно подстраивать копируемое содержимое под нужную программу, например выбрать только формат изображения "image/png".`,
     ],
     _内容格式: [
         `内容格式`,
@@ -42907,12 +43836,36 @@ If you want to use this feature, please note:
         `Автоматически <span class="key">объединять</span> серии романов`,
     ],
     _自动合并系列小说的说明: [
-        `抓取作品时，如果一个小说属于某个系列，就自动抓取这个系列里的所有小说并且合并。`,
-        `抓取作品時，如果一個小說屬於某個系列，就自動抓取這個系列裡的所有小說並且合併。`,
-        `When crawling works, if a novel belongs to a series, automatically crawl all novels in that series and merge them.`,
-        `作品をクロールする際、小説がシリーズに属する場合、そのシリーズ内のすべての小説を自動的にクロールしてマージします。`,
-        `작품을 크롤링할 때, 소설이 특정 시리즈에 속하면 해당 시리즈의 모든 소설을 자동으로 크롤링하여 병합합니다.`,
-        `При сканировании работ, если роман принадлежит серии, автоматически сканировать все романы в этой серии и объединять их.`,
+        `抓取作品时，如果一个小说属于某个系列，就自动抓取这个系列里的所有小说并且合并。<br>
+    <br>
+    不再单独下载系列里的小说：<br>
+    当你启用了“自动合并系列小说”时，通常没有必要单独下载系列里的小说，因为它们已经包含在合并后的小说文件里了。<br>
+    如果你仍然想单独下载它们，可以关闭这个子设置。`,
+        `抓取作品時，如果一個小說屬於某個系列，就自動抓取這個系列裡的所有小說並且合併。<br>
+    <br>
+    不再單獨下載系列裡的小說：<br>
+    當你啟用了「自動合併系列小說」時，通常沒有必要單獨下載系列裡的小說，因為它們已經包含在合併後的小說檔案裡了。<br>
+    如果你仍然想單獨下載它們，可以關閉這個子設定。`,
+        `When crawling works, if a novel belongs to a series, automatically crawl all novels in that series and merge them.<br>
+    <br>
+    No longer download novels in the series individually:<br>
+    When you enable "Automatically merge novel series", it is usually not necessary to download the novels in the series individually, because they are already included in the merged novel file.<br>
+    If you still want to download them individually, you can turn off this sub-setting.`,
+        `作品をクロールする際、小説がシリーズに属する場合、そのシリーズ内のすべての小説を自動的にクロールしてマージします。<br>
+    <br>
+    シリーズ内の小説を個別にダウンロードしない：<br>
+    「自動マージシリーズ小説」を有効にしている場合、通常はシリーズ内の小説を個別にダウンロードする必要はありません。それらはマージ後の小説ファイルに含まれているためです。<br>
+    それでも個別にダウンロードしたい場合は、このサブ設定をオフにできます。`,
+        `작품을 크롤링할 때, 소설이 특정 시리즈에 속하면 해당 시리즈의 모든 소설을 자동으로 크롤링하여 병합합니다.<br>
+    <br>
+    시리즈 내 소설을 개별적으로 다운로드하지 않음:<br>
+    "자동 병합 시리즈 소설"을 활성화한 경우, 보통 시리즈 내 소설을 개별적으로 다운로드할 필요가 없습니다. 이미 병합된 소설 파일에 포함되어 있기 때문입니다.<br>
+    그래도 개별적으로 다운로드하고 싶다면 이 하위 설정을 끄면 됩니다.`,
+        `При сканировании работ, если роман принадлежит серии, автоматически сканировать все романы в этой серии и объединять их.<br>
+    <br>
+    Больше не скачивать романы в серии по отдельности:<br>
+    Когда вы включаете «Автоматически объединять серии романов», обычно нет необходимости скачивать романы в серии по отдельности, потому что они уже включены в объединённый файл романа.<br>
+    Если вы всё же хотите скачать их по отдельности, можно отключить эту поднастройку.`,
     ],
     _不再单独下载系列里的小说: [
         `不再单独下载系列里的小说`,
@@ -42921,14 +43874,6 @@ If you want to use this feature, please note:
         `シリーズ内の小説を個別にダウンロードしない`,
         `시리즈 내 소설을 개별적으로 다운로드하지 않음`,
         `Больше не скачивать романы в серии по отдельности`,
-    ],
-    _不再单独下载系列里的小说的说明: [
-        `当你启用了“自动合并系列小说”时，通常没有必要单独下载系列里的小说，因为它们已经包含在合并后的小说文件里了。<br>如果你仍然想下载它们，可以取消选择这个子设置项。`,
-        `當你啟用了「自動合併系列小說」時，通常沒有必要單獨下載系列裡的小說，因為它們已經包含在合併後的小說檔案裡了。<br>如果你仍然想下載它們，可以取消選擇這個子設置項。`,
-        `When you enable "Automatically merge series novels", there is usually no need to download novels in the series individually, as they are already included in the merged novel file.<br>If you still want to download them, you can uncheck this sub-setting.`,
-        `「自動的にシリーズ小説をマージ」を有効にすると、通常、シリーズ内の小説を個別にダウンロードする必要はありません。それらはすでにマージされた小説ファイルに含まれています。<br>それでもダウンロードしたい場合は、このサブ設定をオフにできます。`,
-        `"시리즈 소설 자동 병합"을 활성화하면, 시리즈 내 소설을 개별적으로 다운로드할 필요가 거의 없습니다. 왜냐하면 그것들이 이미 병합된 소설 파일에 포함되어 있기 때문입니다.<br>그래도 다운로드하고 싶다면 이 하위 설정을 해제할 수 있습니다.`,
-        `При включении «Автоматическое объединение серий романов» обычно нет необходимости скачивать романы в серии по отдельности, поскольку они уже включены в объединенный файл романа.<br>Если вы все же хотите скачать их, вы можете отменить выбор этого поднастройки.`,
     ],
     _自动合并系列小说时提示会添加间隔时间: [
         `开始自动合并系列小说<br>由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率`,
@@ -43565,24 +44510,48 @@ After crawling is complete, you can start the normal download to save the standa
         `<span class="key">Заголовок</span> должен содержать`,
     ],
     _标题必须含有的说明: [
-        `你可以要求作品的标题里必须含有特定字符。不区分大小写。<br>
-你可以设置多条字符，每条之间使用逗号(,)分割。<br>
-匹配模式是“任一”，即只要标题里含有任意一条设置的字符，下载器就会抓取它。`,
-        `你可以要求作品的標題裡必須含有特定字元。不區分大小寫。<br>
-你可以設定多條字元，每條之間使用逗號(,)分割。<br>
-匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，下載器就會抓取它。`,
-        `You can require that the work's title must contain specific characters. Case-insensitive.<br>
-You can set multiple strings, separated by commas (,).<br>
-The matching mode is "any one", meaning as long as the title contains any one of the specified strings, the downloader will crawl it.`,
-        `作品のタイトルに特定の文字列を必ず含めるよう要求できます。大文字小文字は区別しません。<br>
-複数の文字列を設定でき、それぞれをカンマ(,)で区切ります。<br>
-マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれていれば、ダウンロードツールはその作品をクロールします。`,
-        `작품 제목에 특정 문자를 반드시 포함하도록 요구할 수 있습니다. 대소문자 구분 없음.<br>
-여러 문자열을 설정할 수 있으며, 각 문자열은 쉼표(,)로 구분합니다.<br>
-매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 해당 작품을 크롤링합니다.`,
-        `Вы можете потребовать, чтобы в названии работы обязательно содержались определённые символы. Без учёта регистра.<br>
-Можно задать несколько строк, разделяя их запятыми (,).<br>
-Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и загрузчик будет сканировать эту работу.`,
+        `你可以要求作品的标题里必须含有特定字符，这样下载器才会抓取它。<br>
+    如果作品标题里没有你设置的字符，下载器就不会抓取它。<br>
+    你可以设置多条字符，每条之间使用英语逗号 <span class="blue">,</span> 分割。<br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 任一：只要标题里含有你设置的任意一条字符，下载器就会抓取它。`,
+        `你可以要求作品的標題裡必須含有特定字元，這樣下載器才會抓取它。<br>
+    如果作品標題裡沒有你設定的字元，下載器就不會抓取它。<br>
+    你可以設定多條字元，每條之間使用半形逗號 <span class="blue">,</span> 分隔。<br>
+    <br>
+    匹配方式：<br>
+    - 不區分大小寫。<br>
+    - 任一：只要標題裡含有你設定的任意一條字元，下載器就會抓取它。`,
+        `You can require the title of a work to contain specific characters; only then will the downloader crawl it.<br>
+    If the title does not contain the characters you set, the downloader will not crawl it.<br>
+    You can set multiple entries, separated by a comma <span class="blue">,</span>.<br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - One: as long as the title contains any one of the entries you set, the downloader will crawl it.`,
+        `作品のタイトルに特定の文字列が必ず含まれていることを要求できます。そうでなければダウンローダーはその作品をクロールしません。<br>
+    作品のタイトルに設定した文字列が含まれていない場合、ダウンローダーはその作品をクロールしません。<br>
+    複数の文字列を設定でき、それぞれを英語のカンマ <span class="blue">,</span> で区切ります。<br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - いずれか：タイトルに設定したいずれか 1 つの文字列が含まれていれば、ダウンローダーはその作品をクロールします。`,
+        `작품 제목에 특정 문자를 반드시 포함하도록 요구할 수 있으며, 그래야 다운로더가 그 작품을 크롤링합니다.<br>
+    작품 제목에 설정한 문자가 없으면 다운로더는 그 작품을 크롤링하지 않습니다.<br>
+    여러 문자열을 설정할 수 있으며, 각 문자열은 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 하나만: 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 그 작품을 크롤링합니다.`,
+        `Вы можете потребовать, чтобы в названии работы обязательно содержались определённые символы — только тогда загрузчик просканирует её.<br>
+    Если в названии работы нет заданных вами символов, загрузчик не будет её сканировать.<br>
+    Можно задать несколько строк, разделяя их запятой <span class="blue">,</span>.<br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Любой: достаточно, чтобы в названии присутствовала любая одна из заданных строк, и загрузчик просканирует работу.`,
     ],
     _标题不能含有: [
         `<span class="key">标题</span>不能含有`,
@@ -43593,30 +44562,84 @@ The matching mode is "any one", meaning as long as the title contains any one of
         `<span class="key">Заголовок</span> не должен содержать`,
     ],
     _标题不能含有的说明: [
-        `你可以要求作品的标题里不能含有特定字符。不区分大小写。<br>
-你可以设置多条字符，每条之间使用逗号(,)分割。<br>
-匹配模式是“任一”，即只要标题里含有任意一条设置的字符，下载器就不会抓取它。<br>
-排除的优先级大于包含的优先级。`,
-        `你可以要求作品的標題裡不能含有特定字元。不區分大小寫。<br>
-你可以設定多條字元，每條之間使用逗號(,)分割。<br>
-匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，下載器就不會抓取它。<br>
-排除的優先級大於包含的優先級。`,
-        `You can require that the work's title must not contain specific characters. Case-insensitive.<br>
-You can set multiple strings, separated by commas (,).<br>
-The matching mode is "any one", meaning if the title contains any one of the specified strings, the downloader will not crawl it.<br>
-Exclusion takes priority over inclusion.`,
-        `作品のタイトルに特定の文字列を含まないよう要求できます。大文字小文字は区別しません。<br>
-複数の文字列を設定でき、それぞれをカンマ(,)で区切ります。<br>
-マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれている場合、ダウンロードツールはその作品をクロールしません。<br>
-除外条件の優先度が包含条件より高くなります。`,
-        `작품 제목에 특정 문자를 포함하지 않도록 요구할 수 있습니다. 대소문자 구분 없음.<br>
-여러 문자열을 설정할 수 있으며, 각 문자열은 쉼표(,)로 구분합니다.<br>
-매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 해당 작품을 크롤링하지 않습니다.<br>
-제외 조건의 우선순위가 포함 조건보다 높습니다.`,
-        `Вы можете потребовать, чтобы в названии работы не содержались определённые символы. Без учёта регистра.<br>
-Можно задать несколько строк, разделяя их запятыми (,).<br>
-Режим соответствия — «любой», то есть если в названии присутствует хотя бы одна из указанных строк, загрузчик не будет сканировать эту работу.<br>
-Условия исключения имеют приоритет над условиями включения.`,
+        `你可以要求作品的标题里不能含有特定字符。<br>
+    如果作品标题里含有你设置的字符，下载器就不会抓取它。<br>
+    你可以设置多条字符，每条之间使用英语逗号 <span class="blue">,</span> 分割。<br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 任一：只要标题里含有你设置的任意一条字符，下载器就不会抓取它。<br>
+    <br>
+    也检查系列标题：<br>
+    如果你启用了“也检查系列标题”，那么当作品属于一个系列时，下载器也会检查系列标题里是否含有需要排除的字符。如果有的话，就不会抓取这个系列。<br>
+    <br>
+    优先级：<br>
+    排除的优先级大于包含的优先级。如果一个作品的标题同时满足“标题必须含有”和“标题不能含有”的条件，下载器不会抓取它。`,
+        `你可以要求作品的標題裡不能含有特定字元。<br>
+    如果作品標題裡含有你設定的字元，下載器就不會抓取它。<br>
+    你可以設定多條字元，每條之間使用半形逗號 <span class="blue">,</span> 分隔。<br>
+    <br>
+    匹配方式：<br>
+    - 不區分大小寫。<br>
+    - 任一：只要標題裡含有你設定的任意一條字元，下載器就不會抓取它。<br>
+    <br>
+    也檢查系列標題：<br>
+    如果你啟用了「也檢查系列標題」，那麼當作品屬於一個系列時，下載器也會檢查系列標題裡是否含有需要排除的字元。如果有的話，就不會抓取這個系列。<br>
+    <br>
+    優先級：<br>
+    排除的優先級大於包含的優先級。如果一個作品的標題同時滿足「標題必須含有」和「標題不能含有」的條件，下載器不會抓取它。`,
+        `You can require the title of a work not to contain specific characters.<br>
+    If the title contains the characters you set, the downloader will not crawl it.<br>
+    You can set multiple entries, separated by a comma <span class="blue">,</span>.<br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - One: as long as the title contains any one of the entries you set, the downloader will not crawl it.<br>
+    <br>
+    Also check series title:<br>
+    If you enable "Also check series title", then when a work belongs to a series, the downloader will also check whether the series title contains the characters to be excluded. If it does, the downloader will not crawl this series.<br>
+    <br>
+    Priority:<br>
+    Exclusion takes priority over inclusion. If a work's title satisfies both "Title must contain" and "Title must not contain", the downloader will not crawl it.`,
+        `作品のタイトルに特定の文字列が含まれていないことを要求できます。<br>
+    作品のタイトルに設定した文字列が含まれている場合、ダウンローダーはその作品をクロールしません。<br>
+    複数の文字列を設定でき、それぞれを英語のカンマ <span class="blue">,</span> で区切ります。<br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - いずれか：タイトルに設定したいずれか 1 つの文字列が含まれている場合、ダウンローダーはその作品をクロールしません。<br>
+    <br>
+    シリーズタイトルもチェック：<br>
+    「シリーズタイトルもチェック」を有効にすると、作品がシリーズに属している場合、ダウンローダーはシリーズタイトルに除外する文字列が含まれているかどうかも確認します。含まれている場合、そのシリーズはクロールされません。<br>
+    <br>
+    優先度：<br>
+    除外の優先度は包含より高くなります。作品のタイトルが「タイトルは必ず含む」と「タイトルは含まない」の両方の条件に当てはまる場合、ダウンローダーはその作品をクロールしません。`,
+        `작품 제목에 특정 문자가 포함되지 않도록 요구할 수 있습니다.<br>
+    작품 제목에 설정한 문자가 포함되어 있으면 다운로더는 그 작품을 크롤링하지 않습니다.<br>
+    여러 문자열을 설정할 수 있으며, 각 문자열은 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 하나만: 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더는 그 작품을 크롤링하지 않습니다.<br>
+    <br>
+    시리즈 제목도 확인:<br>
+    "시리즈 제목도 확인"을 활성화하면, 작품이 시리즈에 속해 있을 때 다운로더가 시리즈 제목에 제외할 문자가 포함되어 있는지도 확인합니다. 포함되어 있으면 그 시리즈는 크롤링되지 않습니다.<br>
+    <br>
+    우선순위:<br>
+    제외가 포함보다 우선순위가 높습니다. 작품 제목이 "제목 반드시 포함"과 "제목 포함하지 않음" 조건을 모두 만족하면, 다운로더는 그 작품을 크롤링하지 않습니다.`,
+        `Вы можете потребовать, чтобы в названии работы не содержались определённые символы.<br>
+    Если в названии работы есть заданные вами символы, загрузчик не будет её сканировать.<br>
+    Можно задать несколько строк, разделяя их запятой <span class="blue">,</span>.<br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Любой: если в названии присутствует любая одна из заданных строк, загрузчик не будет сканировать работу.<br>
+    <br>
+    Также проверять заголовок серии:<br>
+    Если вы включите «Также проверять заголовок серии», то когда работа принадлежит серии, загрузчик также проверит, есть ли в заголовке серии символы, которые нужно исключить. Если есть, серия не будет просканирована.<br>
+    <br>
+    Приоритет:<br>
+    Исключение имеет приоритет над включением. Если название работы одновременно удовлетворяет условиям «Заголовок должен содержать» и «Заголовок не должен содержать», загрузчик не будет её сканировать.`,
     ],
     _系列标题不能含有: [
         `系列标题不能含有`,
@@ -43633,14 +44656,6 @@ Exclusion takes priority over inclusion.`,
         `シリーズタイトルもチェック`,
         `시리즈 제목도 확인`,
         `Также проверять заголовок серии`,
-    ],
-    _也检查系列标题的说明: [
-        `如果作品属于一个系列，启用此设置可以同时检查系列标题是否符合条件。`,
-        `如果作品屬於一個系列，啟用此設定可以同時檢查系列標題是否符合條件。`,
-        `If the work belongs to a series, enabling this setting will also check if the series title meets the conditions.`,
-        `作品がシリーズに属する場合、この設定を有効にするとシリーズタイトルも条件に合致するかチェックされます。`,
-        `작품이 시리즈에 속할 경우, 이 설정을 활성화하면 시리즈 제목도 조건을 충족하는지 함께 확인합니다.`,
-        `Если работа входит в серию, включение этой настройки позволит также проверить, соответствует ли заголовок серии условиям.`,
     ],
     _跳过这个系列: [
         `跳过这个系列`,
@@ -53210,7 +54225,7 @@ class OptionConfigs {
         },
         {
             no: 100,
-            nameKey: '_高亮显示关键字',
+            nameKey: '_高亮显示设置名称里的关键字',
             name: '',
             categoryLevel1: 'general',
             categoryLevel2: 'appearance',
@@ -53345,7 +54360,7 @@ const optionConfigs = new OptionConfigs();
 /***/ ((module) => {
 
 "use strict";
-module.exports = "<!-- 设置项的编号是递增的，现在最大值是 107\n帮助按钮上的文字有两种：\n- 如果帮助文字使用 MsgBox 显示，则使用“_帮助”\n- 如果帮助文字直接在设置面板里显示，则使用“_提示” -->\n<div class=\"option\" data-no=\"0\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少作品\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantWork\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取多少作品\"\n    data-msg=\"_抓取多少作品的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"1\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少页面\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantPage\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取多少页面\"\n    data-msg=\"_抓取多少页面的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"2\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须大于0\"\n  >\n    <span data-xztext=\"_抓取每个用户最新的几个作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlLatestFewWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"crawlLatestFewWorks\">\n    <input\n      type=\"text\"\n      name=\"crawlLatestFewWorksNumber\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"3\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_作品类型\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downType0\"\n    id=\"setWorkType0\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span\n    class=\"beautify_checkbox\"\n    tabindex=\"0\"\n    aria-labelledby=\"setWorkType0\"\n  ></span>\n  <label for=\"setWorkType0\" data-xztext=\"_插画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType1\"\n    id=\"setWorkType1\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\" data-xztitle=\"_漫画\"></span>\n  <label for=\"setWorkType1\" data-xztext=\"_漫画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType2\"\n    id=\"setWorkType2\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType2\" data-xztext=\"_动图\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType3\"\n    id=\"setWorkType3\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType3\" data-xztext=\"_小说\"></label>\n</div>\n\n<div class=\"option\" data-no=\"4\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_年龄限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downAllAges\"\n    id=\"downAllAges\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downAllAges\" data-xztext=\"_全年龄\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18\"\n    id=\"downR18\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18\"> R-18</label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18G\"\n    id=\"downR18G\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18G\"> R-18G</label>\n</div>\n\n<div class=\"option\" data-no=\"5\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_AI作品带高亮\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"AIGenerated\"\n    id=\"AIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"AIGenerated\" data-xztext=\"_AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"notAIGenerated\"\n    id=\"notAIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"notAIGenerated\" data-xztext=\"_非AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"UnknownAI\"\n    id=\"UnknownAI\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label\n    for=\"UnknownAI\"\n    data-xztext=\"_未知\"\n    class=\"has_tip\"\n    data-xztip=\"_AI未知作品的说明\"\n  ></label>\n</div>\n\n<div class=\"option\" data-no=\"6\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_原创作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlOriginalWork\"\n    id=\"setCrawlOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlOriginalWork\" data-xztext=\"_原创\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"crawlNonOriginalWork\"\n    id=\"setCrawlNonOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlNonOriginalWork\" data-xztext=\"_非原创\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <input\n    type=\"checkbox\"\n    name=\"looseMatchOriginal\"\n    id=\"looseMatchOriginal\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"looseMatchOriginal\" data-xztext=\"_宽松匹配\"></label>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_原创作品\"\n    data-msg=\"_宽松匹配原创作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"7\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片色彩\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downColorImg\"\n    id=\"setDownColorImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownColorImg\" data-xztext=\"_彩色图片\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBlackWhiteImg\"\n    id=\"setDownBlackWhiteImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBlackWhiteImg\" data-xztext=\"_黑白图片\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <span data-xztext=\"_彩色占比阈值\"></span>\n  <input\n    type=\"text\"\n    name=\"coloredRatio\"\n    class=\"setinput_style blue w50\"\n    value=\"25\"\n  />\n  <span>%</span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_图片色彩\"\n    data-msg=\"_图片色彩的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"8\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downSingleImg\"\n    id=\"setDownSingleImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownSingleImg\" data-xztext=\"_单图作品\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downMultiImg\"\n    id=\"setDownMultiImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownMultiImg\" data-xztext=\"_多图作品\"></label>\n</div>\n\n<div class=\"option\" data-no=\"9\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downNotBookmarked\"\n    id=\"setDownNotBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownNotBookmarked\" data-xztext=\"_未收藏\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBookmarked\"\n    id=\"setDownBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBookmarked\" data-xztext=\"_已收藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"10\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"BMKNumSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_收藏数量\"\n    data-msg=\"_设置收藏数量的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"BMKNumSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_最小值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMin\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"0\"\n      />\n\n      &nbsp;\n      <span data-xztext=\"_最大值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMax\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"__BOOKMARK_COUNT_LIMIT__\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_或者\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"BMKNumAverageSwitch\">\n        <span data-xztext=\"_满足日均收藏数量条件\"></span>\n      </label>\n      <input\n        type=\"checkbox\"\n        name=\"BMKNumAverageSwitch\"\n        id=\"BMKNumAverageSwitch\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <div class=\"subOptionWrap\" data-show=\"BMKNumAverageSwitch\">\n        &gt;=&nbsp;\n        <input\n          type=\"text\"\n          name=\"BMKNumAverage\"\n          class=\"setinput_style blue bmkNum\"\n          value=\"600\"\n        />\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"11\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片的宽高\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"setWHSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_图片的宽高\"\n    data-msg=\"_图片的宽高的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setWHSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\"></span>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison3\">&lt;=</label>\n\n      <input\n        type=\"text\"\n        name=\"setWidth\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr1\"\n        class=\"need_beautify radio\"\n        value=\"&\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr1\" data-xztext=\"_并且\"></label>\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr2\"\n        class=\"need_beautify radio\"\n        value=\"|\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr2\" data-xztext=\"_或者\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_高度\"></span>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"setHeight\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"12\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置宽高比例Title\"\n  >\n    <span data-xztext=\"_图片的宽高比例\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"ratioSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"ratioSwitch\">\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio1\"\n      class=\"need_beautify radio\"\n      value=\"horizontal\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio1\" data-xztext=\"_横图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio2\"\n      class=\"need_beautify radio\"\n      value=\"vertical\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio2\" data-xztext=\"_竖图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio0\"\n      class=\"need_beautify radio\"\n      value=\"square\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio0\" data-xztext=\"_正方形\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio3\"\n      class=\"need_beautify radio\"\n      value=\"userSet\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <span class=\"has_tip settingNameStyle\" data-xztip=\"_宽高比的提示\">\n      <label for=\"ratio3\" style=\"padding: 0\" data-xztext=\"_宽高比\"></label>\n      <span class=\"gray\"> ? </span>\n    </span>\n    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->\n    <input\n      type=\"checkbox\"\n      name=\"userSetChecked\"\n      class=\"need_beautify checkbox_switch\"\n      style=\"display: none\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\" style=\"display: none\"></span>\n    <div class=\"subOptionWrap\" data-show=\"userSetChecked\">\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"userRatio\"\n        class=\"setinput_style blue\"\n        value=\"1.4\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"13\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置id范围提示\"\n  >\n    <span data-xztext=\"_id范围\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"idRangeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"idRangeSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_图像作品\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForImageWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_系列小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelSeries\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"14\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_设置投稿时间提示\"\n  >\n    <span data-xztext=\"_投稿时间\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"postDate\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"postDate\">\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_起始时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateStart\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2009-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"2009-01-01T00:00\"\n        data-xztext=\"_过去\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_截止时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateEnd\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2100-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"2100-01-01T00:00\"\n        data-xztext=\"_未来\"\n      ></button>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"15\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须tag的提示文字\"\n  >\n    <span data-xztext=\"_必须含有tag\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"needTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"needTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode1\"\n      class=\"need_beautify radio\"\n      value=\"all\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode1\" data-xztext=\"_全部\"></label>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode2\"\n      class=\"need_beautify radio\"\n      value=\"one\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode2\" data-xztext=\"_任一\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"needTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"16\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_排除tag的提示文字\"\n  >\n    <span data-xztext=\"_不能含有tag\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"notNeedTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"notNeedTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <span class=\"gray\" data-xztext=\"_任一\"></span>\n    <span class=\"verticalSplit\"></span>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode2\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"whole\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode2\" data-xztext=\"_完全一致\"></label>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode1\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"partial\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode1\" data-xztext=\"_部分一致\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"notNeedTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"17\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_针对特定用户屏蔽tag的提示\"\n  >\n    <span data-xztext=\"_针对特定用户屏蔽标签\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"blockTagsForSpecificUser\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"blockTagsForSpecificUser\">\n    <slot data-name=\"blockTagsForSpecificUser\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"18\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题必须含有的说明\"\n  >\n    <span data-xztext=\"_标题必须含有\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleIncludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleIncludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleIncludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"19\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_标题不能含有的说明\"\n  >\n    <span data-xztext=\"_标题不能含有\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleExcludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleExcludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleExcludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n\n    <label\n      for=\"alsoCheckSeriesTitle\"\n      class=\"has_tip\"\n      data-xztext=\"_也检查系列标题\"\n      data-xztip=\"_也检查系列标题的说明\"\n    ></label>\n    <span class=\"gray mr4\"> ? </span>\n    <input\n      type=\"checkbox\"\n      name=\"alsoCheckSeriesTitle\"\n      id=\"alsoCheckSeriesTitle\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"20\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_多图作品的图片数量上限提示\"\n  >\n    <span data-xztext=\"_多图作品的图片数量上限\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"multiImageWorkImageLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"multiImageWorkImageLimitSwitch\">\n    &lt;=&nbsp;\n    <input\n      type=\"text\"\n      name=\"multiImageWorkImageLimit\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"21\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlFirstFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlFirstFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlFirstFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取前几张图片\"\n    data-msg=\"_多图作品只抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"22\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlLastFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlLastFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlLastFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取后几张图片\"\n    data-msg=\"_多图作品只抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"23\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlFirstImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlFirstImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlFirstImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取前几张图片\"\n    data-msg=\"_多图作品不抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"24\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlLastImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlLastImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlLastImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取后几张图片\"\n    data-msg=\"_多图作品不抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"25\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_特定用户的多图作品不下载最后几张图片\"></span>\n  </a>\n  <slot data-name=\"DoNotDownloadLastFewImagesSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"26\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_不抓取下载过的作品的说明\"\n  >\n    <span data-xztext=\"_不抓取下载过的作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"DonotCrawlAlreadyDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_不抓取下载过的作品\"\n    data-msg=\"_不抓取下载过的作品的帮助信息\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"27\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_用户屏蔽名单的说明\"\n  >\n    <span data-xztext=\"_用户屏蔽名单\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"userBlockList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_用户屏蔽名单\"\n    data-msg=\"_用户屏蔽名单的说明2\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"userBlockList\">\n    <div class=\"optionLine\">\n      <textarea\n        class=\"centerPanelTextArea beautify_scrollbar\"\n        name=\"blockList\"\n        rows=\"1\"\n        placeholder=\"11111,22222,33333\"\n      ></textarea>\n    </div>\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"quicklyBlockUsers\"\n        id=\"setQuicklyBlockUsers\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setQuicklyBlockUsers\" data-xztext=\"_快捷屏蔽用户\"></label>\n      <button\n        type=\"button\"\n        class=\"gray textButton showMsgBtn\"\n        data-title=\"_快捷屏蔽用户\"\n        data-msg=\"_快捷屏蔽用户的说明\"\n        data-xztext=\"_帮助\"\n      ></button>\n    </div>\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"removeBlockedUsersWork\"\n        id=\"setRemoveBlockedUsersWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"setRemoveBlockedUsersWork\"\n        data-xztext=\"_从页面上移除他们的作品\"\n      ></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"28\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_减慢抓取速度的说明\"\n  >\n    <span data-xztext=\"_减慢抓取速度\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"slowCrawl\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"slowCrawl\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当作品数量超过指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"100\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlDealy\"\n        id=\"slowCrawlDealy\"\n        class=\"setinput_style blue\"\n        value=\"1600\"\n        placeholder=\"1600\"\n      />\n      ms\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"29\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_定时抓取的间隔时间的说明\"\n  >\n    <span data-xztext=\"_定时抓取的间隔时间\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"timedCrawlInterval\"\n    class=\"setinput_style blue\"\n    value=\"30\"\n  />\n  <span class=\"mr4\" data-xztext=\"_分钟\"></span>\n</div>\n\n<div class=\"option\" data-no=\"30\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动导出抓取结果的说明\"\n  >\n    <span data-xztext=\"_自动导出抓取结果\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportResult\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportResult\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当抓取结果大于指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"autoExportResultNumber\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_文件格式\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultCSV\"\n        id=\"autoExportResultCSV\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultCSV\"> CSV </label>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultJSON\"\n        id=\"autoExportResultJSON\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultJSON\"> JSON </label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"31\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_导出ID列表的说明\"\n  >\n    <span data-xztext=\"_导出ID列表\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"exportIDList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"32\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_图像作品的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForArtwork\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTip\"\n        data-for-no=\"32\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelect\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList artwork\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetName\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_ARTWORK__\"\n  >\n__DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea\n  >\n  <div class=\"secondary_hint is-hidden mb4\" id=\"tipNameRuleMustHaveIndex\">\n    <span data-xztext=\"_提示命名规则里必须有序号\"></span>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTip\">\n    <span data-xztext=\"_命名标记的提示\"></span>\n    <!-- __NAMING_RULE_HELP_HTML__ -->\n  </p>\n\n  <p>\n    <button\n      type=\"button\"\n      class=\"showFileNameTip textButton toggleArea longTextButton\"\n      data-toggle-Target=\"#tipOptionalSegment\"\n      data-for-no=\"32\"\n      data-xztext=\"_小技巧_可选片段\"\n    ></button>\n  </p>\n  <p class=\"tip fileNameTip namingTipArea\" id=\"tipOptionalSegment\">\n    <span data-xztext=\"_可选片段的说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"33\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_小说的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForNovel\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTipForNovel\"\n        data-for-no=\"33\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelectForNovel\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n        <option value=\"{follow_artwork}\">{follow_artwork}</option>\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList novel\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetNameForNovel\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_NOVEL__\"\n  >\n__DEFAULT_NAME_RULE_FOR_NOVEL__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTipForNovel\">\n    <span data-xztext=\"_小说的命名标记的提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"34\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在不同的页面类型中使用不同的命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setNameRuleForEachPageType\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在不同的页面类型中使用不同的命名规则\"\n    data-msg=\"_在不同的页面类型中使用不同的命名规则的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"35\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_如果作品含有某些标签则对这个作品使用另一种命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n  >\n    <slot data-name=\"UseDifferentNameRuleIfWorkHasTagSlot\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"36\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_合并系列小说时的命名规则\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"showFileNameTip textButton toggleArea\"\n    data-toggle-Target=\"#seriesNovelNameTip\"\n    data-for-no=\"36\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"seriesNovelNameRule\"\n      rows=\"1\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"seriesNovelNameTip\">\n    <span data-xztext=\"_系列小说的命名标记提醒\"></span>\n    <br />\n    <span class=\"blue name\">{series_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_title\"></span>\n    <br />\n    <span class=\"blue name\">{series_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_id\"></span>\n    <br />\n    <span class=\"blue name\">{user}</span>\n    <span data-xztext=\"_系列小说的命名标记_user\"></span>\n    <br />\n    <span class=\"blue name\">{user_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_user_id\"></span>\n    <br />\n    * <span class=\"blue name\">{part}</span>\n    <span data-xztext=\"_系列小说的命名标记_part\"></span>\n    <br />\n    <span class=\"blue name\">{ext}</span>\n    <span data-xztext=\"_系列小说的命名标记_ext\"></span>\n    <br />\n    <span class=\"blue name\">{age}</span>\n    <span data-xztext=\"_系列小说的命名标记_age\"></span>\n    <br />\n    * <span class=\"blue name\">{age_r}</span>\n    <span data-xztext=\"_系列小说的命名标记_age_r\"></span>\n    <br />\n    * <span class=\"blue name\">{AI}</span>\n    <span data-xztext=\"_系列小说的命名标记_AI\"></span>\n    <br />\n    <span class=\"blue name\">{bmk}</span>\n    <span data-xztext=\"_系列小说的命名标记_bmk\"></span>\n    <br />\n    <span class=\"blue name\">{total}</span>\n    <span data-xztext=\"_系列小说的命名标记_total\"></span>\n    <br />\n    <span class=\"blue name\">{char_count}</span>\n    <span data-xztext=\"_系列小说的命名标记_char_count\"></span>\n    <br />\n    <span class=\"blue name\">{create_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_create_date\"></span>\n    <br />\n    <span class=\"blue name\">{last_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_last_date\"></span>\n    <br />\n    <span class=\"blue name\">{task_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_task_date\"></span>\n    <br />\n    <span class=\"blue name\">{lang}</span>\n    <span data-xztext=\"_系列小说的命名标记_lang\"></span>\n    <br />\n    <span class=\"blue name\">{first_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_first_id\"></span>\n    <br />\n    <span class=\"blue name\">{latest_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_latest_id\"></span>\n    <br />\n    <span class=\"blue name\">{tags}</span>\n    <span data-xztext=\"_系列小说的命名标记_tags\"></span>\n    <br />\n    * <span class=\"blue name\">{page_tag}</span>\n    <span data-xztext=\"_文件夹标记page_tag\"></span>\n    <br />\n    <span class=\"blue name\">{page_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_page_title\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"37\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_标签分隔符号\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"tagsSeparator\"\n    class=\"setinput_style blue\"\n    value=\",\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray textButton toggleArea\"\n    data-toggle-Target=\"#tagsSeparatorTip\"\n    data-for-no=\"37\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"tagsSeparatorTip\">\n    <span data-xztext=\"_标签分隔符号提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"38\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_日期格式\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"dateFormat\"\n    class=\"setinput_style blue w200\"\n    value=\"YYYY-MM-DD\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray textButton toggleArea\"\n    data-toggle-Target=\"#dateFormatTip\"\n    data-for-no=\"38\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"dateFormatTip\">\n    <span data-xztext=\"_日期格式提示\"></span>\n    <br />\n    <span class=\"blue\">YYYY</span> <span>2021</span>\n    <br />\n    <span class=\"blue\">YY</span> <span>21</span>\n    <br />\n    <span class=\"blue\">MM</span> <span>04</span>\n    <br />\n    <span class=\"blue\">MMM</span> <span>Apr</span>\n    <br />\n    <span class=\"blue\">MMMM</span> <span>April</span>\n    <br />\n    <span class=\"blue\">DD</span> <span>30</span>\n    <br />\n    <span class=\"blue\">hh</span> <span>06</span>\n    <br />\n    <span class=\"blue\">mm</span> <span>40</span>\n    <br />\n    <span class=\"blue\">ss</span> <span>08</span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"39\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_文件名长度限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"fullNameLengthLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap\" data-show=\"fullNameLengthLimitSwitch\">\n    <input\n      type=\"text\"\n      name=\"fullNameLengthLimit\"\n      class=\"setinput_style blue\"\n      value=\"210\"\n    />\n    <button\n      type=\"button\"\n      class=\"gray textButton showMsgBtn\"\n      data-title=\"_文件名长度限制\"\n      data-msg=\"_文件名长度限制的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"40\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_不创建文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noFolderSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_不创建文件夹\"\n    data-msg=\"_不创建文件夹的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap noGrow flexBasis100\" data-show=\"noFolderSwitch\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownload1Image\"\n        id=\"noFolderWhenDownload1Image\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownload1Image\"\n        data-xztext=\"_从插画漫画里下载1张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownloadMultipleImages\"\n        id=\"noFolderWhenDownloadMultipleImages\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownloadMultipleImages\"\n        data-xztext=\"_从插画漫画里下载多张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenUgoira\"\n        id=\"noFolderWhenUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenNovel\"\n        id=\"noFolderWhenNovel\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenNovel\" data-xztext=\"_小说\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"41\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为多图作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"folderForMultiImageWorksSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_为多图作品添加一层文件夹\"\n    data-msg=\"_为多图作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap flexBasis100 namingTipArea\"\n    data-show=\"folderForMultiImageWorksSwitch\"\n  >\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksImageNumber\"\n        class=\"pr0\"\n        data-xztext=\"_当作品里的图片大于指定数量时启用\"\n      ></label>\n      <input\n        class=\"setinput_style blue w50 noGrow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksImageNumber\"\n        id=\"folderForMultiImageWorksImageNumber\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksRule\"\n        class=\"pr0\"\n        data-xztext=\"_要添加的这层文件夹的规则\"\n      ></label>\n      <input\n        class=\"setinput_style blue w150 grow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksRule\"\n        id=\"folderForMultiImageWorksRule\"\n        value=\"{pid}\"\n        style=\"min-width: 100px\"\n      />\n    </div>\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_multi_image_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"42\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为r18作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"r18Folder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_为r18作品添加一层文件夹\"\n    data-msg=\"_为r18作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100 namingTipArea\" data-show=\"r18Folder\">\n    <label\n      for=\"r18FolderName\"\n      class=\"pr0\"\n      data-xztext=\"_要添加的这层文件夹的规则\"\n    ></label>\n    <input\n      type=\"text\"\n      name=\"r18FolderName\"\n      id=\"r18FolderName\"\n      class=\"setinput_style blue grow\"\n      value=\"[R-18&R-18G]\"\n      style=\"min-width: 100px\"\n    />\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_r18_g_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"43\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_使用第一个匹配的标签建立文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"createFolderByTag\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_使用第一个匹配的标签建立文件夹\"\n    data-msg=\"_使用第一个匹配的标签建立文件夹的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap namingTipArea flexBasis100\"\n    data-show=\"createFolderByTag\"\n  >\n    <span class=\"name\">{match_tag_folder1}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <span class=\"name\">{match_tag_folder2}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList2\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_match_tag_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"44\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标签别名\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_标签别名\"\n    data-msg=\"_标签别名的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <p class=\"flexBasis100 shrink0\">\n    <label\n      for=\"useTagAliasForTagsNamingRule\"\n      data-xztext=\"_应用到文件名里的tags系列标记\"\n    ></label>\n    <input\n      type=\"checkbox\"\n      name=\"useTagAliasForTagsNamingRule\"\n      id=\"useTagAliasForTagsNamingRule\"\n      class=\"need_beautify checkbox_switch\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </p>\n\n  <slot data-name=\"setTagAliasSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"45\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自定义用户名的说明\"\n  >\n    <span data-xztext=\"_自定义用户名\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <slot data-name=\"setUserNameSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"46\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_序号起始值的说明\"\n  >\n    <span data-xztext=\"_序号起始值\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart0\"\n    class=\"need_beautify radio\"\n    value=\"0\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart0\"> 0 </label>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart1\"\n    class=\"need_beautify radio\"\n    value=\"1\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart1\"> 1 </label>\n</div>\n\n<div class=\"option\" data-no=\"47\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_第一张图不带序号说明\"\n  >\n    <span data-xztext=\"_第一张图不带序号\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noSerialNo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"noSerialNo\">\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForSingleImg\"\n      id=\"setNoSerialNoForSingleImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForSingleImg\" data-xztext=\"_单图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForMultiImg\"\n      id=\"setNoSerialNoForMultiImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForMultiImg\" data-xztext=\"_多图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForUgoira\"\n      id=\"setNoSerialNoForUgoira\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForUgoira\" data-xztext=\"_动图\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"48\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在序号前面填充0的说明\"\n  >\n    <span data-xztext=\"_在序号前面填充0\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"zeroPadding\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"zeroPadding\">\n    <span data-xztext=\"_序号总长度\"></span>\n    <input\n      type=\"text\"\n      name=\"zeroPaddingLength\"\n      class=\"setinput_style blue\"\n      value=\"3\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"49\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_移除文件名里的emoji\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeEmoji\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"50\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_移除用户名中的at和后续字符的说明\"\n  >\n    <span data-xztext=\"_移除用户名中的at和后续字符\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeAtFromUsername\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"52\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_抓取完成后自动开始下载\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取完成后自动开始下载\"\n    data-msg=\"_自动开始下载的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_应用到\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"autoStartDownload\"\n      id=\"autoStartDownload\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"autoStartDownload\" data-xztext=\"_普通下载任务\"> </label>\n    <input\n      type=\"checkbox\"\n      name=\"autoStartDownloadForQuickDownload\"\n      id=\"autoStartDownloadForQuickDownload\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"autoStartDownloadForQuickDownload\" data-xztext=\"_快速下载任务\">\n    </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"51\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_同时下载多少个文件\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"downloadThread\"\n    class=\"has_tip setinput_style blue\"\n    data-xztip=\"_下载线程的说明\"\n    value=\"3\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"53\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载之后收藏作品的提示\"\n  >\n    <span data-xztext=\"_下载之后收藏作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bmkAfterDL\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"54\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击收藏按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickBookmark\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"55\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击点赞按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickLike\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"56\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载间隔的说明\"\n  >\n    <span data-xztext=\"_下载间隔\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadIntervalSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"downloadIntervalSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当文件数量大于\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadIntervalOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"150\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadInterval\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n      <span data-xztext=\"_秒\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"57\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_文件下载顺序\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setFileDownloadOrder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setFileDownloadOrder\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序依据\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy1\"\n        class=\"need_beautify radio\"\n        value=\"ID\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy1\" data-xztext=\"_作品ID\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy2\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkCount\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy2\" data-xztext=\"_收藏数量2\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy3\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkID\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy3\" data-xztext=\"_收藏时间\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序方式\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder1\"\n        class=\"need_beautify radio\"\n        value=\"desc\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder1\" data-xztext=\"_降序\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder2\"\n        class=\"need_beautify radio\"\n        value=\"asc\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder2\" data-xztext=\"_升序\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"58\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_优先下载动图\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadUgoiraFirst\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"59\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_文件体积限制的说明\"\n  >\n    <span data-xztext=\"_文件体积限制\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"sizeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"sizeSwitch\">\n    <input\n      type=\"text\"\n      name=\"sizeMin\"\n      class=\"setinput_style blue\"\n      value=\"0\"\n    />MiB &nbsp;-&nbsp;\n    <input\n      type=\"text\"\n      name=\"sizeMax\"\n      class=\"setinput_style blue\"\n      value=\"100\"\n    />MiB\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"60\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_使用前请先查看提示\"\n  >\n    <span data-xztext=\"_把文件保存到用户上次选择的位置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"rememberTheLastSaveLocation\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_把文件保存到用户上次选择的位置\"\n    data-msg=\"_把文件保存到用户上次选择的位置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"rememberTheLastSaveLocation\"\n  >\n    <div class=\"secondary_hint\">\n      <span data-xztext=\"_提示如果你启用了这个设置下载器不会创建文件夹\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"61\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载完成后显示通知的说明\"\n  >\n    <span data-xztext=\"_下载完成后显示通知\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showNotificationAfterDownloadComplete\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"62\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_管理下载记录\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_管理下载记录\"\n    data-msg=\"_管理下载记录的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"exportDownloadRecord\"\n      data-event=\"exportDownloadRecord\"\n      data-xztext=\"_导出\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"importDownloadRecord\"\n      data-event=\"importDownloadRecord\"\n      data-xztext=\"_导入\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"importDownloadRecordTXT\"\n      data-event=\"importDownloadRecordTXT\"\n      data-xztext=\"_导入txt\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"clearDownloadRecord\"\n      data-event=\"clearDownloadRecord\"\n      data-xztext=\"_清除\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"63\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_不下载重复文件\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"deduplication\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"deduplication\">\n    <span data-xztext=\"_策略\"></span>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy2\"\n      class=\"need_beautify radio\"\n      value=\"loose\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy2\"\n      data-xztip=\"_宽松模式说明\"\n      data-xztext=\"_宽松\"\n    ></label>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy1\"\n      class=\"need_beautify radio\"\n      value=\"strict\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy1\"\n      data-xztip=\"_严格模式说明\"\n      data-xztext=\"_严格\"\n    ></label>\n  </div>\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_不下载重复文件\"\n    data-msg=\"_不下载重复文件的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"64\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载图片时的尺寸\"\n  ></a>\n\n  <div class=\"optionLine\">\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize2\" data-xztext=\"_普通\"></label>\n    <label for=\"imageSize2\" class=\"gray\">(1200px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize3\"\n      class=\"need_beautify radio\"\n      value=\"small\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize3\" data-xztext=\"_小图\"></label>\n    <label for=\"imageSize3\" class=\"gray\">(540px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize4\"\n      class=\"need_beautify radio\"\n      value=\"thumb\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize4\" data-xztext=\"_方形缩略图\"></label>\n    <label for=\"imageSize4\" class=\"gray\">(250px)</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"65\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_动图保存格式\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_动图保存格式\"\n    data-msg=\"_动图保存格式的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" style=\"display: inline-flex\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebP\"\n        id=\"ugoiraSaveAsWebP\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebP\" data-xztext=\"_webp图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebM\"\n        id=\"ugoiraSaveAsWebM\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebM\" data-xztext=\"_webmVideo\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsGIF\"\n        id=\"ugoiraSaveAsGIF\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsGIF\" data-xztext=\"_gif图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsAPNG\"\n        id=\"ugoiraSaveAsAPNG\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsAPNG\" data-xztext=\"_apng图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsZIP\"\n        id=\"ugoiraSaveAsZIP\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsZIP\" data-xztext=\"_zip文件\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsUgoira\"\n        id=\"ugoiraSaveAsUgoira\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsUgoira\" data-xztext=\"_Ugoira文件\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_WebP图像质量\"></span>\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality0\"\n        class=\"need_beautify radio\"\n        value=\"lossy\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality0\" data-xztext=\"_有损\"></label>\n\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality1\"\n        class=\"need_beautify radio\"\n        value=\"lossless\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality1\" data-xztext=\"_无损\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"saveThumbnailForUgoira\"\n        data-xztext=\"_为动图保存一张缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveThumbnailForUgoira\"\n        id=\"saveThumbnailForUgoira\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"66\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_同时转换多少个动图的说明\"\n  >\n    <span data-xztext=\"_同时转换多少个动图\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"convertUgoiraThread\"\n    class=\"setinput_style blue\"\n    value=\"1\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"67\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_小说保存格式的说明\"\n  >\n    <span data-xztext=\"_小说保存格式\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs2\"\n    class=\"need_beautify radio\"\n    value=\"epub\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs2\"> EPUB </label>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs1\"\n    class=\"need_beautify radio\"\n    value=\"txt\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs1\"> TXT </label>\n</div>\n\n<div class=\"option\" data-no=\"68\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在小说里保存元数据提示\"\n  >\n    <span data-xztext=\"_在小说里保存元数据\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveNovelMeta\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"69\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说的封面图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelCoverImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"70\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说里的内嵌图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelEmbeddedImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"downloadNovelEmbeddedImage\"\n  >\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSizeOriginal\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSizeOriginal\" data-xztext=\"_原图\"></label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize1200\"\n      class=\"need_beautify radio\"\n      value=\"1200\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize1200\">1200px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize480\"\n      class=\"need_beautify radio\"\n      value=\"480\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize480\">480px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize240\"\n      class=\"need_beautify radio\"\n      value=\"240\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize240\">240px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize128\"\n      class=\"need_beautify radio\"\n      value=\"128\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize128\">128px</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"71\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_自动合并系列小说的说明\"\n  >\n    <span data-xztext=\"_自动合并系列小说\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoMergeNovel\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"autoMergeNovel\">\n    <label\n      for=\"skipNovelsInSeriesWhenAutoMerge\"\n      data-xztext=\"_不再单独下载系列里的小说\"\n      class=\"has_tip\"\n      data-xztip=\"_不再单独下载系列里的小说的说明\"\n    ></label>\n    <span class=\"gray\"> ? &nbsp;</span>\n    <input\n      type=\"checkbox\"\n      name=\"skipNovelsInSeriesWhenAutoMerge\"\n      id=\"skipNovelsInSeriesWhenAutoMerge\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"104\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span\n      data-xztext=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    ></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveAllSeriesNovelsIfOneMatches\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    data-msg=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"72\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_合并系列小说时的分割阈值\"></span>\n  </a>\n\n  <input\n    type=\"text\"\n    name=\"singleEPUBFileSizeLimit\"\n    class=\"setinput_style blue\"\n    value=\"200\"\n  />\n  <span>MiB</span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_合并系列小说时的分割阈值\"\n    data-msg=\"_合并系列小说时的分割阈值的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"73\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品的元数据说明\"\n  >\n    <span data-xztext=\"_保存作品的元数据\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType0\"\n      id=\"setSaveMetaType0\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType0\" data-xztext=\"_插画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType1\"\n      id=\"setSaveMetaType1\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType1\" data-xztext=\"_漫画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType2\"\n      id=\"setSaveMetaType2\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType2\" data-xztext=\"_动图\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType3\"\n      id=\"setSaveMetaType3\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType3\" data-xztext=\"_小说\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_文件格式\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatTXT\"\n      id=\"saveMetaFormatTXT\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatTXT\"> TXT </label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatJSON\"\n      id=\"saveMetaFormatJSON\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatJSON\"> JSON </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"74\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_保存作品简介的说明\"\n  >\n    <span data-xztext=\"_保存作品的简介\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveWorkDescription\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"saveWorkDescription\">\n    <div class=\"optionLine\">\n      <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType0\"\n        id=\"setSaveDescriptionType0\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType0\" data-xztext=\"_插画\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType1\"\n        id=\"setSaveDescriptionType1\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType1\" data-xztext=\"_漫画\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType2\"\n        id=\"setSaveDescriptionType2\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType2\" data-xztext=\"_动图\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType3\"\n        id=\"setSaveDescriptionType3\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType3\" data-xztext=\"_小说\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"saveEachDescription\"\n        data-xztext=\"_每个作品分别保存\"\n        class=\"has_tip\"\n        data-xztip=\"_简介的Links标记\"\n      ></label>\n      <span class=\"gray\"> ? &nbsp;</span>\n      <input\n        type=\"checkbox\"\n        name=\"saveEachDescription\"\n        id=\"saveEachDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"summarizeDescription\" data-xztext=\"_汇总到一个文件\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"summarizeDescription\"\n        id=\"summarizeDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"75\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的说明\"\n  >\n    <span data-xztext=\"_预览作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWork\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWork\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"previewSingleImageWork\"\n        id=\"previewSingleImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewSingleImageWork\" data-xztext=\"_单图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewMultiImageWork\"\n        id=\"previewMultiImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewMultiImageWork\" data-xztext=\"_多图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewUgoira\"\n        id=\"previewUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize2\" data-xztext=\"_普通\"></label>\n      <label for=\"prevWorkSize2\" class=\"gray\">(1200px)</label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize3\"\n        class=\"need_beautify radio\"\n        value=\"small\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize3\" data-xztext=\"_小图\"></label>\n      <label for=\"prevWorkSize3\" class=\"gray\">(540px)</label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"allowPreviewCoverThumbnail\"\n        data-xztext=\"_允许预览图遮挡缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"allowPreviewCoverThumbnail\"\n        id=\"allowPreviewCoverThumbnail\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray textButton showMsgBtn\"\n        data-title=\"_允许预览图遮挡缩略图\"\n        data-msg=\"_允许预览图遮挡缩略图的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"checkBlockTagsForPreviewWork\"\n        data-xztext=\"_检查屏蔽的标签\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"checkBlockTagsForPreviewWork\"\n        id=\"checkBlockTagsForPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray textButton showMsgBtn\"\n        data-title=\"_检查屏蔽的标签\"\n        data-msg=\"_检查屏蔽的标签的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"has_tip\"\n        data-xztext=\"_使用鼠标滚轮切换作品里的图片\"\n        data-xztip=\"_这可能会阻止页面滚动\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"wheelScrollSwitchImageOnPreviewWork\"\n        id=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"swicthImageByKeyboard\"\n        class=\"has_tip\"\n        data-xztext=\"_使用方向键和空格键切换图片\"\n        data-xztip=\"_使用方向键和空格键切换图片的提示\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"swicthImageByKeyboard\"\n        id=\"swicthImageByKeyboard\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"previewWorkWait\" data-xztext=\"_等待时间\"></label>\n      <input\n        type=\"text\"\n        name=\"previewWorkWait\"\n        id=\"previewWorkWait\"\n        class=\"setinput_style blue\"\n        value=\"400\"\n      />\n      <span>ms</span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"showPreviewWorkTip\" data-xztext=\"_显示摘要信息\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"showPreviewWorkTip\"\n        id=\"showPreviewWorkTip\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray textButton toggleArea pl0\"\n        data-toggle-Target=\"#previewWorkShortcutTip\"\n        data-for-no=\"75\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"previewWorkShortcutTip\">\n    <span data-xztext=\"_预览作品的快捷键说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"76\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_长按右键显示大图\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showOriginImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"showOriginImage\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray textButton toggleArea pl0\"\n        data-toggle-Target=\"#showOriginImageShortcutTip\"\n        data-for-no=\"76\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"showOriginImageShortcutTip\">\n    <span data-xztext=\"_查看作品大图时的快捷键\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"77\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的详细信息的说明\"\n  >\n    <span data-xztext=\"_预览作品的详细信息\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWorkDetailInfo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWorkDetailInfo\">\n    <span data-xztext=\"_显示区域宽度\"></span>&nbsp;\n    <input\n      type=\"text\"\n      name=\"PreviewDetailInfoWidth\"\n      class=\"setinput_style blue\"\n      value=\"400\"\n    />\n    <span>&nbsp;px</span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"78\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示更大的缩略图的说明\"\n  >\n    <span data-xztext=\"_显示更大的缩略图\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showLargerThumbnails\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"79\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_替换方形缩略图以显示图片比例的说明\"\n  >\n    <span data-xztext=\"_替换方形缩略图以显示图片比例\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"replaceSquareThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"80\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在多图作品页面里显示缩略图列表的说明\"\n  >\n    <span data-xztext=\"_在多图作品页面里显示缩略图列表\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"displayThumbnailListOnMultiImageWorkPage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"81\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_把图片显示为灰色\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"imageToGray\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"82\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle has_tip\"\n    data-xztip=\"_缩略图上按钮的位置的说明\"\n  >\n    <span data-xztext=\"_缩略图上按钮的位置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition1\"\n    class=\"need_beautify radio\"\n    value=\"left\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition1\" data-xztext=\"_左侧\"></label>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition2\"\n    class=\"need_beautify radio\"\n    value=\"right\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition2\" data-xztext=\"_右侧\"></label>\n</div>\n\n<div class=\"option\" data-no=\"83\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示图片查看器按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"magnifier\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"magnifier\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize2\" data-xztext=\"_普通\"></label>\n    </div>\n    <button\n      type=\"button\"\n      class=\"gray textButton toggleArea pl0\"\n      data-toggle-target=\"#showMagnifierTip\"\n      data-for-no=\"83\"\n      data-xztext=\"_快捷键列表\"\n    ></button>\n  </div>\n  <p class=\"tip\" id=\"showMagnifierTip\">\n    <span data-xztext=\"_图片查看器的快捷键列表\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"84\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在缩略图上显示复制按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showCopyBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"85\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示下载按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showDownloadBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"86\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮关注的用户的说明\"\n  >\n    <span data-xztext=\"_高亮关注的用户\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"highlightFollowingUsers\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"87\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在下载过的作品上显示边框\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showBorderOnDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"showBorderOnDownloadedWorks\"\n  >\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\" class=\"mr4\"></span>\n      <input\n        type=\"text\"\n        name=\"borderWidth\"\n        class=\"setinput_style blue w40\"\n        value=\"3\"\n      />\n      px\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_颜色\" class=\"mr4\"></span> (Hex)\n      <input\n        type=\"text\"\n        name=\"borderColor\"\n        class=\"setinput_style blue w80\"\n        id=\"borderColor\"\n        value=\"#ff4060\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"88\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载器的收藏功能的说明\"\n  >\n    <span data-xztext=\"_下载器的收藏功能\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否添加标签\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag1\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag1\" data-xztext=\"_添加\"></label>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag2\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag2\" data-xztext=\"_不添加\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否公开\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict1\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict1\" data-xztext=\"_公开\"></label>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict2\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict2\" data-xztext=\"_不公开\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"89\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_显示复制按钮的提示\"\n  >\n    <span data-xztext=\"_复制作品信息带高亮关键字\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_复制内容\" class=\"mr4\"></span>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatImage\"\n      id=\"setCopyFormatImage\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatImage\">image/png</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatText\"\n      id=\"setCopyFormatText\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatText\">text/plain</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatHtml\"\n      id=\"setCopyFormatHtml\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatHtml\">text/html</label>\n    <button\n      type=\"button\"\n      class=\"gray textButton showMsgBtn\"\n      data-title=\"_复制内容\"\n      data-msg=\"_对复制的内容的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize2\" data-xztext=\"_普通\"></label>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span data-xztext=\"_文本格式\" class=\"mr4\"></span>\n    <button\n      type=\"button\"\n      class=\"gray textButton toggleArea\"\n      data-toggle-Target=\"#copyWorkInfoFormatTip\"\n      data-for-no=\"89\"\n      data-xztext=\"_提示\"\n    ></button>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"copyWorkInfoFormat\"\n      rows=\"1\"\n      placeholder=\"id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip namingTipArea\" id=\"copyWorkInfoFormatTip\">\n    <span data-xztext=\"_复制内容的格式的提示\"></span>\n    <br />\n    <span class=\"blue name\">{url}</span>\n    <span data-xztext=\"_url标记的说明\"></span>\n    <br />\n    <span class=\"blue name\">{n}</span>\n    <span data-xztext=\"_换行标记的说明\"></span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"90\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在搜索页面添加快捷搜索区域\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showFastSearchArea\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在搜索页面添加快捷搜索区域\"\n    data-msg=\"_在搜索页面添加快捷搜索区域的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"91\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_过滤搜索页面的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"filterSearchResults\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_过滤搜索页面的作品\"\n    data-msg=\"_过滤搜索页面的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"92\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在搜索页面里移除已关注用户的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeWorksOfFollowedUsersOnSearchPage\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在搜索页面里移除已关注用户的作品\"\n    data-msg=\"_在搜索页面里移除已关注用户的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"93\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_预览搜索页面的抓取结果\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"previewResult\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_预览搜索页面的抓取结果\"\n    data-msg=\"_预览搜索页面的抓取结果说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"previewResult\">\n    <div class=\"optionLine\">\n      <label\n        for=\"previewResultPageSize\"\n        data-xztext=\"_每页显示的作品数量\"\n      ></label>\n      <input\n        type=\"text\"\n        name=\"previewResultPageSize\"\n        id=\"previewResultPageSize\"\n        class=\"setinput_style blue w80\"\n        value=\"100\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"94\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\"\n    ><span class=\"key\">Language</span></a\n  >\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang2\"\n    class=\"need_beautify radio\"\n    value=\"zh-cn\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang2\">简体中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang3\"\n    class=\"need_beautify radio\"\n    value=\"zh-tw\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang3\">繁體中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang4\"\n    class=\"need_beautify radio\"\n    value=\"ja\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang4\">日本語</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang5\"\n    class=\"need_beautify radio\"\n    value=\"en\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang5\">English</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang6\"\n    class=\"need_beautify radio\"\n    value=\"ko\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang6\">한국어</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang7\"\n    class=\"need_beautify radio\"\n    value=\"ru\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang7\">Русский</label>\n</div>\n\n<div class=\"option\" data-no=\"95\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_选项卡切换方式的说明\"\n  >\n    <span data-xztext=\"_选项卡切换方式\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar1\"\n    class=\"need_beautify radio\"\n    value=\"over\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar1\" data-xztext=\"_鼠标经过\"></label>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar2\"\n    class=\"need_beautify radio\"\n    value=\"click\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar2\" data-xztext=\"_鼠标点击\"></label>\n</div>\n\n<div class=\"option\" data-no=\"96\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置卡片时切换它的开关状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickOptionCardToToggleSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_点击设置卡片时切换它的开关状态\"\n    data-msg=\"_点击设置卡片时切换它的开关状态的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"97\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置名字时打开wiki链接\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickSettingNameOpenWiki\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"107\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自定义快捷键\"></span>\n  </a>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自定义快捷键\"\n    data-msg=\"_自定义快捷键的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <slot data-name=\"hotkeysEditor\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"98\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_颜色主题\"\n  ></a>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme2\"\n    class=\"need_beautify radio\"\n    value=\"white\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme2\">White</label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme3\"\n    class=\"need_beautify radio\"\n    value=\"dark\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme3\">Dark</label>\n</div>\n\n<div class=\"option\" data-no=\"99\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_背景图片的说明\"\n  >\n    <span data-xztext=\"_背景图片\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bgDisplay\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"bgDisplay\">\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent borderButton\"\n        data-event=\"selectBG\"\n        id=\"selectBG\"\n        data-xztext=\"_选择文件\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent borderButton\"\n        data-event=\"clearBG\"\n        id=\"clearBG\"\n        data-xztext=\"_清除\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_对齐方式\"></span>&nbsp;\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition1\"\n        class=\"need_beautify radio\"\n        value=\"center\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition1\" data-xztext=\"_居中\"></label>\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition2\"\n        class=\"need_beautify radio\"\n        value=\"top\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition2\" data-xztext=\"_顶部\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_不透明度\" class=\"mr4\"></span>\n      <input name=\"bgOpacity\" type=\"range\" />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"100\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_高亮显示关键字的说明\"\n  >\n    <span data-xztext=\"_高亮显示关键字\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"boldKeywords\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"101\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_日志区域的默认可见性的说明\"\n  >\n    <span data-xztext=\"_日志区域的默认可见性\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault1\"\n    class=\"need_beautify radio\"\n    value=\"show\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault1\" data-xztext=\"_显示\"></label>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault2\"\n    class=\"need_beautify radio\"\n    value=\"hide\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault2\" data-xztext=\"_隐藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"102\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_自动导出日志\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"exportLog\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动导出日志\"\n    data-msg=\"_自动导出日志的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"exportLog\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_导出时机\"></span>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming1\"\n        class=\"need_beautify radio\"\n        value=\"crawlComplete\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming1\" data-xztext=\"_抓取完毕2\"></label>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming2\"\n        class=\"need_beautify radio\"\n        value=\"downloadComplete\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming2\" data-xztext=\"_下载完毕\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_日志类型\"></span>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogNormal\"\n        id=\"exportLogNormal\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogNormal\" data-xztext=\"_正常\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogError\"\n        id=\"exportLogError\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogError\" data-xztext=\"_错误\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_排除关键字\"></span>&nbsp;\n      <input\n        type=\"text\"\n        name=\"exportLogExclude\"\n        class=\"setinput_style blue setinput_tag\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"105\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_当你修改设置时其他标签页\"></span>\n    <span class=\"mr4\">:</span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"settingsAcrossDifferentTabs\"\n    id=\"settingsAcrossDifferentTabs1\"\n    class=\"need_beautify radio\"\n    value=\"synchronizeChanges\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"settingsAcrossDifferentTabs1\" data-xztext=\"_同步变化\"></label>\n  <input\n    type=\"radio\"\n    name=\"settingsAcrossDifferentTabs\"\n    id=\"settingsAcrossDifferentTabs2\"\n    class=\"need_beautify radio\"\n    value=\"doNotSynchronizeChanges\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"settingsAcrossDifferentTabs2\">\n    <span data-xztext=\"_保持不变\"></span>\n    <span class=\"gray\" data-xztext=\"_旧版行为\"></span>\n  </label>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_当你修改设置时其他标签页\"\n    data-msg=\"_当你修改设置时其他标签页的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"106\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动导出设置\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportSettings\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动导出设置\"\n    data-msg=\"_自动导出设置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportSettings\">\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"autoExportSettingsStrategy\"\n        id=\"autoExportSettingsStrategyTimed\"\n        class=\"need_beautify radio\"\n        value=\"timed\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"autoExportSettingsStrategyTimed\">\n        <span data-xztext=\"_定时导出间隔\"></span>\n        <input\n          type=\"text\"\n          name=\"autoExportSettingsInterval\"\n          class=\"setinput_style blue\"\n          value=\"24\"\n        />\n        <span data-xztext=\"_小时\"></span>\n      </label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"autoExportSettingsStrategy\"\n        id=\"autoExportSettingsStrategyOnChange\"\n        class=\"need_beautify radio\"\n        value=\"onSettingChange\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label\n        for=\"autoExportSettingsStrategyOnChange\"\n        data-xztext=\"_每当设置变化后立即导出\"\n      ></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"103\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_管理设置的说明\"\n  >\n    <span data-xztext=\"_管理设置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"exportSettings\"\n      id=\"exportSettings\"\n      data-xztext=\"_导出设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"importSettings\"\n      id=\"importSettings\"\n      data-xztext=\"_导入设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetSettings\"\n      id=\"resetSettings\"\n      data-xztext=\"_重置设置\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetFollowingData\"\n      id=\"resetFollowingData\"\n      data-xztext=\"_清除下载器保存的关注数据\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetHelpTip\"\n      id=\"resetHelpTip\"\n      data-xztext=\"_重新显示帮助\"\n    ></button>\n  </div>\n</div>\n";
+module.exports = "<!-- 设置项的编号是递增的，现在最大值是 107\n帮助按钮上的文字有两种：\n- 如果帮助文字使用 MsgBox 显示，则使用“_帮助”\n- 如果帮助文字直接在设置面板里显示，则使用“_提示” -->\n<div class=\"option\" data-no=\"0\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少作品\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantWork\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取多少作品\"\n    data-msg=\"_抓取多少作品的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"1\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span class=\"textTip\" data-xztext=\"_抓取多少页面\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"setWantPage\"\n    class=\"setinput_style blue\"\n    value=\"-1\"\n  />\n  <button\n    type=\"button\"\n    class=\"textButton grayButton mr0\"\n    role=\"setMin\"\n  ></button>\n  <button type=\"button\" class=\"textButton grayButton\" role=\"setMax\"></button>\n  <span class=\"gray\" data-xztext=\"_负1或者大于0\" role=\"tip\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取多少页面\"\n    data-msg=\"_抓取多少页面的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"2\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_必须大于0\"\n  >\n    <span data-xztext=\"_抓取每个用户最新的几个作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlLatestFewWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"crawlLatestFewWorks\">\n    <input\n      type=\"text\"\n      name=\"crawlLatestFewWorksNumber\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"3\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_作品类型\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downType0\"\n    id=\"setWorkType0\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span\n    class=\"beautify_checkbox\"\n    tabindex=\"0\"\n    aria-labelledby=\"setWorkType0\"\n  ></span>\n  <label for=\"setWorkType0\" data-xztext=\"_插画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType1\"\n    id=\"setWorkType1\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\" data-xztitle=\"_漫画\"></span>\n  <label for=\"setWorkType1\" data-xztext=\"_漫画\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType2\"\n    id=\"setWorkType2\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType2\" data-xztext=\"_动图\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downType3\"\n    id=\"setWorkType3\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setWorkType3\" data-xztext=\"_小说\"></label>\n</div>\n\n<div class=\"option\" data-no=\"4\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_年龄限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downAllAges\"\n    id=\"downAllAges\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downAllAges\" data-xztext=\"_全年龄\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18\"\n    id=\"downR18\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18\"> R-18</label>\n  <input\n    type=\"checkbox\"\n    name=\"downR18G\"\n    id=\"downR18G\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"downR18G\"> R-18G</label>\n</div>\n\n<div class=\"option\" data-no=\"5\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_AI作品带高亮\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"AIGenerated\"\n    id=\"AIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"AIGenerated\" data-xztext=\"_AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"notAIGenerated\"\n    id=\"notAIGenerated\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"notAIGenerated\" data-xztext=\"_非AI生成\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"UnknownAI\"\n    id=\"UnknownAI\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label\n    for=\"UnknownAI\"\n    data-xztext=\"_未知\"\n    class=\"has_tip\"\n    data-xztip=\"_AI未知作品的说明\"\n  ></label>\n</div>\n\n<div class=\"option\" data-no=\"6\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_原创作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"crawlOriginalWork\"\n    id=\"setCrawlOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlOriginalWork\" data-xztext=\"_原创\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"crawlNonOriginalWork\"\n    id=\"setCrawlNonOriginalWork\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setCrawlNonOriginalWork\" data-xztext=\"_非原创\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <input\n    type=\"checkbox\"\n    name=\"looseMatchOriginal\"\n    id=\"looseMatchOriginal\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"looseMatchOriginal\" data-xztext=\"_宽松匹配\"></label>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_原创作品\"\n    data-msg=\"_宽松匹配原创作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"7\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片色彩\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downColorImg\"\n    id=\"setDownColorImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownColorImg\" data-xztext=\"_彩色图片\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBlackWhiteImg\"\n    id=\"setDownBlackWhiteImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBlackWhiteImg\" data-xztext=\"_黑白图片\"></label>\n\n  <span class=\"verticalSplit\"></span>\n  <span data-xztext=\"_彩色占比阈值\"></span>\n  <input\n    type=\"text\"\n    name=\"coloredRatio\"\n    class=\"setinput_style blue w50\"\n    value=\"25\"\n  />\n  <span>%</span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_图片色彩\"\n    data-msg=\"_图片色彩的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"8\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downSingleImg\"\n    id=\"setDownSingleImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownSingleImg\" data-xztext=\"_单图作品\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downMultiImg\"\n    id=\"setDownMultiImg\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownMultiImg\" data-xztext=\"_多图作品\"></label>\n</div>\n\n<div class=\"option\" data-no=\"9\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downNotBookmarked\"\n    id=\"setDownNotBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownNotBookmarked\" data-xztext=\"_未收藏\"></label>\n  <input\n    type=\"checkbox\"\n    name=\"downBookmarked\"\n    id=\"setDownBookmarked\"\n    class=\"need_beautify checkbox_common\"\n    checked\n  />\n  <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n  <label for=\"setDownBookmarked\" data-xztext=\"_已收藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"10\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_收藏数量\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"BMKNumSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_收藏数量\"\n    data-msg=\"_设置收藏数量的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"BMKNumSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_最小值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMin\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"0\"\n      />\n\n      &nbsp;\n      <span data-xztext=\"_最大值\"></span>\n      <input\n        type=\"text\"\n        name=\"BMKNumMax\"\n        class=\"setinput_style blue bmkNum\"\n        value=\"__BOOKMARK_COUNT_LIMIT__\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_或者\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"BMKNumAverageSwitch\">\n        <span data-xztext=\"_满足日均收藏数量条件\"></span>\n      </label>\n      <input\n        type=\"checkbox\"\n        name=\"BMKNumAverageSwitch\"\n        id=\"BMKNumAverageSwitch\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <div class=\"subOptionWrap\" data-show=\"BMKNumAverageSwitch\">\n        &gt;=&nbsp;\n        <input\n          type=\"text\"\n          name=\"BMKNumAverage\"\n          class=\"setinput_style blue bmkNum\"\n          value=\"600\"\n        />\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"11\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片的宽高\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"setWHSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_图片的宽高\"\n    data-msg=\"_图片的宽高的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setWHSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\"></span>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"widthComparison\"\n        id=\"widthComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"widthComparison3\">&lt;=</label>\n\n      <input\n        type=\"text\"\n        name=\"setWidth\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr1\"\n        class=\"need_beautify radio\"\n        value=\"&\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr1\" data-xztext=\"_并且\"></label>\n      <input\n        type=\"radio\"\n        name=\"setWidthAndOr\"\n        id=\"setWidth_AndOr2\"\n        class=\"need_beautify radio\"\n        value=\"|\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"setWidth_AndOr2\" data-xztext=\"_或者\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_高度\"></span>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"heightComparison\"\n        id=\"heightComparison3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"heightComparison3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"setHeight\"\n        class=\"setinput_style blue\"\n        value=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"12\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_图片的宽高比例\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"ratioSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_图片的宽高比例\"\n    data-msg=\"_设置宽高比例的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"ratioSwitch\">\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio1\"\n      class=\"need_beautify radio\"\n      value=\"horizontal\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio1\" data-xztext=\"_横图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio2\"\n      class=\"need_beautify radio\"\n      value=\"vertical\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio2\" data-xztext=\"_竖图\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio0\"\n      class=\"need_beautify radio\"\n      value=\"square\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"ratio0\" data-xztext=\"_正方形\"></label>\n    <input\n      type=\"radio\"\n      name=\"ratio\"\n      id=\"ratio3\"\n      class=\"need_beautify radio\"\n      value=\"userSet\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <span class=\"has_tip settingNameStyle\" data-xztip=\"_宽高比的提示\">\n      <label for=\"ratio3\" style=\"padding: 0\" data-xztext=\"_宽高比\"></label>\n      <span class=\"gray\"> ? </span>\n    </span>\n    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->\n    <input\n      type=\"checkbox\"\n      name=\"userSetChecked\"\n      class=\"need_beautify checkbox_switch\"\n      style=\"display: none\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\" style=\"display: none\"></span>\n    <div class=\"subOptionWrap\" data-show=\"userSetChecked\">\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit1\"\n        class=\"need_beautify radio\"\n        value=\">=\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit1\">&gt;=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit2\"\n        class=\"need_beautify radio\"\n        value=\"=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit2\">=</label>\n      <input\n        type=\"radio\"\n        name=\"userRatioLimit\"\n        id=\"userRatioLimit3\"\n        class=\"need_beautify radio\"\n        value=\"<=\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"userRatioLimit3\">&lt;=</label>\n      <input\n        type=\"text\"\n        name=\"userRatio\"\n        class=\"setinput_style blue\"\n        value=\"1.4\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"13\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_id范围\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"idRangeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_id范围\"\n    data-msg=\"_设置id范围提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap\" data-show=\"idRangeSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_图像作品\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForImageWorks\"\n        id=\"idRangeComparisonForImageWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForImageWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForImageWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelWorks\"\n        id=\"idRangeComparisonForNovelWorks2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelWorks2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelWorks\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_系列小说\"></span>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries1\"\n        class=\"need_beautify radio\"\n        value=\">\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries1\">&gt;</label>\n      <input\n        type=\"radio\"\n        name=\"idRangeComparisonForNovelSeries\"\n        id=\"idRangeComparisonForNovelSeries2\"\n        class=\"need_beautify radio\"\n        value=\"<\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"idRangeComparisonForNovelSeries2\">&lt;</label>\n      <input\n        type=\"text\"\n        name=\"idRangeValueForNovelSeries\"\n        class=\"setinput_style w100 blue\"\n        value=\"0\"\n        placeholder=\"0\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"14\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_投稿时间\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"postDate\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_投稿时间\"\n    data-msg=\"_设置投稿时间提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap\" data-show=\"postDate\">\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_起始时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateStart\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2009-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"2009-01-01T00:00\"\n        data-xztext=\"_过去\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateStart\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"pr4\" data-xztext=\"_截止时间\"></span>\n      <input\n        type=\"datetime-local\"\n        name=\"postDateEnd\"\n        placeholder=\"yyyy-MM-dd HH:mm\"\n        class=\"setinput_style postDate blue\"\n        value=\"2100-01-01T00:00\"\n      />\n      <button\n        type=\"button\"\n        class=\"textButton grayButton mr0\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"now\"\n        data-xztext=\"_现在\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton grayButton\"\n        role=\"setDate\"\n        data-for=\"postDateEnd\"\n        data-value=\"2100-01-01T00:00\"\n        data-xztext=\"_未来\"\n      ></button>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"15\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_必须含有tag\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"needTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_必须含有tag\"\n    data-msg=\"_必须tag的提示文字\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"needTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode1\"\n      class=\"need_beautify radio\"\n      value=\"all\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode1\" data-xztext=\"_全部\"></label>\n    <input\n      type=\"radio\"\n      name=\"needTagMode\"\n      id=\"needTagMode2\"\n      class=\"need_beautify radio\"\n      value=\"one\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"needTagMode2\" data-xztext=\"_任一\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"needTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"16\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_不能含有tag\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"notNeedTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_不能含有tag\"\n    data-msg=\"_排除tag的提示文字\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"notNeedTagSwitch\">\n    <span data-xztext=\"_匹配模式\"></span>\n    <span class=\"gray\" data-xztext=\"_任一\"></span>\n    <span class=\"verticalSplit\"></span>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode2\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"whole\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode2\" data-xztext=\"_全字匹配\"></label>\n    <input\n      type=\"radio\"\n      id=\"tagMatchMode1\"\n      class=\"need_beautify radio\"\n      name=\"tagMatchMode\"\n      value=\"partial\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"tagMatchMode1\" data-xztext=\"_部分匹配\"></label>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"notNeedTag\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"17\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_针对特定用户屏蔽标签\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"blockTagsForSpecificUser\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_针对特定用户屏蔽标签\"\n    data-msg=\"_针对特定用户屏蔽tag的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"blockTagsForSpecificUser\">\n    <slot data-name=\"blockTagsForSpecificUser\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"18\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标题必须含有\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleIncludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_标题必须含有\"\n    data-msg=\"_标题必须含有的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleIncludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleIncludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"19\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标题不能含有\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"titleExcludeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_标题不能含有\"\n    data-msg=\"_标题不能含有的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"titleExcludeSwitch\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"titleExcludeList\"\n      rows=\"1\"\n      placeholder=\"word1,word2,word3\"\n    ></textarea>\n\n    <label for=\"alsoCheckSeriesTitle\" data-xztext=\"_也检查系列标题\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"alsoCheckSeriesTitle\"\n      id=\"alsoCheckSeriesTitle\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"20\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品的图片数量上限\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"multiImageWorkImageLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品的图片数量上限\"\n    data-msg=\"_多图作品的图片数量上限提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap\" data-show=\"multiImageWorkImageLimitSwitch\">\n    &lt;=&nbsp;\n    <input\n      type=\"text\"\n      name=\"multiImageWorkImageLimit\"\n      class=\"setinput_style blue\"\n      value=\"10\"\n    />\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"21\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlFirstFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlFirstFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlFirstFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取前几张图片\"\n    data-msg=\"_多图作品只抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"22\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品只抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"onlyCrawlLastFewImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"onlyCrawlLastFewImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"onlyCrawlLastFewImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品只抓取后几张图片\"\n    data-msg=\"_多图作品只抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"23\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取前几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlFirstImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlFirstImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlFirstImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取前几张图片\"\n    data-msg=\"_多图作品不抓取前几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"24\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_多图作品不抓取后几张图片\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"doNotCrawlLastImagesSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"doNotCrawlLastImagesSwitch\">\n    <input\n      type=\"text\"\n      name=\"doNotCrawlLastImagesCount\"\n      class=\"setinput_style blue\"\n      value=\"1\"\n    />\n  </div>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_多图作品不抓取后几张图片\"\n    data-msg=\"_多图作品不抓取后几张图片的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"25\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_特定用户的多图作品不下载最后几张图片\"></span>\n  </a>\n  <slot data-name=\"DoNotDownloadLastFewImagesSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"26\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_不抓取下载过的作品的说明\"\n  >\n    <span data-xztext=\"_不抓取下载过的作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"DonotCrawlAlreadyDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_不抓取下载过的作品\"\n    data-msg=\"_不抓取下载过的作品的帮助信息\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"27\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_用户屏蔽名单\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"userBlockList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_用户屏蔽名单\"\n    data-msg=\"_用户屏蔽名单的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"userBlockList\">\n    <div class=\"optionLine\">\n      <textarea\n        class=\"centerPanelTextArea beautify_scrollbar\"\n        name=\"blockList\"\n        rows=\"1\"\n        placeholder=\"11111,22222,33333\"\n      ></textarea>\n    </div>\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"quicklyBlockUsers\"\n        id=\"setQuicklyBlockUsers\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setQuicklyBlockUsers\" data-xztext=\"_快捷屏蔽用户\"></label>\n    </div>\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"removeBlockedUsersWork\"\n        id=\"setRemoveBlockedUsersWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"setRemoveBlockedUsersWork\"\n        data-xztext=\"_从页面上移除他们的作品\"\n      ></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"28\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_减慢抓取速度的说明\"\n  >\n    <span data-xztext=\"_减慢抓取速度\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"slowCrawl\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"slowCrawl\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当作品数量超过指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"100\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"slowCrawlDealy\"\n        id=\"slowCrawlDealy\"\n        class=\"setinput_style blue\"\n        value=\"1600\"\n        placeholder=\"1600\"\n      />\n      ms\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"29\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_定时抓取的间隔时间的说明\"\n  >\n    <span data-xztext=\"_定时抓取的间隔时间\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"timedCrawlInterval\"\n    class=\"setinput_style blue\"\n    value=\"30\"\n  />\n  <span class=\"mr4\" data-xztext=\"_分钟\"></span>\n</div>\n\n<div class=\"option\" data-no=\"30\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动导出抓取结果\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportResult\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动导出抓取结果\"\n    data-msg=\"_自动导出抓取结果的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportResult\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当抓取结果大于指定数量时启用\"></span>\n      <input\n        type=\"text\"\n        name=\"autoExportResultNumber\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_文件格式\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultCSV\"\n        id=\"autoExportResultCSV\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultCSV\"> CSV </label>\n      <input\n        type=\"checkbox\"\n        name=\"autoExportResultJSON\"\n        id=\"autoExportResultJSON\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"autoExportResultJSON\"> JSON </label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"31\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_导出ID列表\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"exportIDList\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_导出ID列表\"\n    data-msg=\"_导出ID列表的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"32\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_图像作品的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForArtwork\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTip\"\n        data-for-no=\"32\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelect\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList artwork\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetName\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_ARTWORK__\"\n  >\n__DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea\n  >\n  <div class=\"secondary_hint is-hidden mb4\" id=\"tipNameRuleMustHaveIndex\">\n    <span data-xztext=\"_提示命名规则里必须有序号\"></span>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTip\">\n    <span data-xztext=\"_命名标记的提示\"></span>\n    <!-- __NAMING_RULE_HELP_HTML__ -->\n  </p>\n\n  <p>\n    <button\n      type=\"button\"\n      class=\"showFileNameTip textButton toggleArea longTextButton\"\n      data-toggle-Target=\"#tipOptionalSegment\"\n      data-for-no=\"32\"\n      data-xztext=\"_小技巧_可选片段\"\n    ></button>\n  </p>\n  <p class=\"tip fileNameTip namingTipArea\" id=\"tipOptionalSegment\">\n    <span data-xztext=\"_可选片段的说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"33\">\n  <span class=\"fileNameRuleLine1\">\n    <a\n      href=\"\"\n      target=\"_blank\"\n      class=\"settingNameStyle optionName\"\n      data-xztext=\"_小说的命名规则\"\n    ></a>\n\n    <span class=\"fileNameRuleBtnsArea\">\n      <slot data-name=\"saveNamingRuleForNovel\"></slot>\n      <button\n        type=\"button\"\n        class=\"showFileNameTip textButton toggleArea\"\n        data-toggle-Target=\"#fileNameTipForNovel\"\n        data-for-no=\"33\"\n        data-xztext=\"_提示\"\n      ></button>\n      &nbsp;\n      <select name=\"fileNameSelectForNovel\" class=\"beautify_scrollbar\">\n        <option value=\"default\">…</option>\n        <!-- __NAMING_RULE_OPTION_LIST__ -->\n        <option value=\"{follow_artwork}\">{follow_artwork}</option>\n      </select>\n    </span>\n  </span>\n\n  <ul class=\"namingRuleList novel\"></ul>\n\n  <textarea\n    class=\"centerPanelTextArea beautify_scrollbar grow fileNameRule\"\n    name=\"userSetNameForNovel\"\n    rows=\"1\"\n    placeholder=\"__DEFAULT_NAME_RULE_FOR_NOVEL__\"\n  >\n__DEFAULT_NAME_RULE_FOR_NOVEL__</textarea\n  >\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"fileNameTipForNovel\">\n    <span data-xztext=\"_小说的命名标记的提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"34\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在不同的页面类型中使用不同的命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setNameRuleForEachPageType\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在不同的页面类型中使用不同的命名规则\"\n    data-msg=\"_在不同的页面类型中使用不同的命名规则的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"35\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_如果作品含有某些标签则对这个作品使用另一种命名规则\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"UseDifferentNameRuleIfWorkHasTagSwitch\"\n  >\n    <slot data-name=\"UseDifferentNameRuleIfWorkHasTagSlot\"></slot>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"36\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_合并系列小说时的命名规则\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"showFileNameTip textButton toggleArea\"\n    data-toggle-Target=\"#seriesNovelNameTip\"\n    data-for-no=\"36\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"seriesNovelNameRule\"\n      rows=\"1\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip fileNameTip namingTipArea\" id=\"seriesNovelNameTip\">\n    <span data-xztext=\"_系列小说的命名标记提醒\"></span>\n    <br />\n    <span class=\"blue name\">{series_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_title\"></span>\n    <br />\n    <span class=\"blue name\">{series_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_series_id\"></span>\n    <br />\n    <span class=\"blue name\">{user}</span>\n    <span data-xztext=\"_系列小说的命名标记_user\"></span>\n    <br />\n    <span class=\"blue name\">{user_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_user_id\"></span>\n    <br />\n    * <span class=\"blue name\">{part}</span>\n    <span data-xztext=\"_系列小说的命名标记_part\"></span>\n    <br />\n    <span class=\"blue name\">{ext}</span>\n    <span data-xztext=\"_系列小说的命名标记_ext\"></span>\n    <br />\n    <span class=\"blue name\">{age}</span>\n    <span data-xztext=\"_系列小说的命名标记_age\"></span>\n    <br />\n    * <span class=\"blue name\">{age_r}</span>\n    <span data-xztext=\"_系列小说的命名标记_age_r\"></span>\n    <br />\n    * <span class=\"blue name\">{AI}</span>\n    <span data-xztext=\"_系列小说的命名标记_AI\"></span>\n    <br />\n    <span class=\"blue name\">{bmk}</span>\n    <span data-xztext=\"_系列小说的命名标记_bmk\"></span>\n    <br />\n    <span class=\"blue name\">{total}</span>\n    <span data-xztext=\"_系列小说的命名标记_total\"></span>\n    <br />\n    <span class=\"blue name\">{char_count}</span>\n    <span data-xztext=\"_系列小说的命名标记_char_count\"></span>\n    <br />\n    <span class=\"blue name\">{create_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_create_date\"></span>\n    <br />\n    <span class=\"blue name\">{last_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_last_date\"></span>\n    <br />\n    <span class=\"blue name\">{task_date}</span>\n    <span data-xztext=\"_系列小说的命名标记_task_date\"></span>\n    <br />\n    <span class=\"blue name\">{lang}</span>\n    <span data-xztext=\"_系列小说的命名标记_lang\"></span>\n    <br />\n    <span class=\"blue name\">{first_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_first_id\"></span>\n    <br />\n    <span class=\"blue name\">{latest_id}</span>\n    <span data-xztext=\"_系列小说的命名标记_latest_id\"></span>\n    <br />\n    <span class=\"blue name\">{tags}</span>\n    <span data-xztext=\"_系列小说的命名标记_tags\"></span>\n    <br />\n    * <span class=\"blue name\">{page_tag}</span>\n    <span data-xztext=\"_文件夹标记page_tag\"></span>\n    <br />\n    <span class=\"blue name\">{page_title}</span>\n    <span data-xztext=\"_系列小说的命名标记_page_title\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"37\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_标签分隔符号\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"tagsSeparator\"\n    class=\"setinput_style blue\"\n    value=\",\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray textButton toggleArea\"\n    data-toggle-Target=\"#tagsSeparatorTip\"\n    data-for-no=\"37\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"tagsSeparatorTip\">\n    <span data-xztext=\"_标签分隔符号提示\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"38\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_日期格式\"\n  ></a>\n  <input\n    type=\"text\"\n    name=\"dateFormat\"\n    class=\"setinput_style blue w200\"\n    value=\"YYYY-MM-DD\"\n  />\n  <button\n    type=\"button\"\n    class=\"gray textButton toggleArea\"\n    data-toggle-Target=\"#dateFormatTip\"\n    data-for-no=\"38\"\n    data-xztext=\"_提示\"\n  ></button>\n\n  <p class=\"tip\" id=\"dateFormatTip\">\n    <span data-xztext=\"_日期格式提示\"></span>\n    <br />\n    <span class=\"blue\">YYYY</span> <span>2021</span>\n    <br />\n    <span class=\"blue\">YY</span> <span>21</span>\n    <br />\n    <span class=\"blue\">MM</span> <span>04</span>\n    <br />\n    <span class=\"blue\">MMM</span> <span>Apr</span>\n    <br />\n    <span class=\"blue\">MMMM</span> <span>April</span>\n    <br />\n    <span class=\"blue\">DD</span> <span>30</span>\n    <br />\n    <span class=\"blue\">hh</span> <span>06</span>\n    <br />\n    <span class=\"blue\">mm</span> <span>40</span>\n    <br />\n    <span class=\"blue\">ss</span> <span>08</span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"39\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_文件名长度限制\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"fullNameLengthLimitSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap\" data-show=\"fullNameLengthLimitSwitch\">\n    <input\n      type=\"text\"\n      name=\"fullNameLengthLimit\"\n      class=\"setinput_style blue\"\n      value=\"210\"\n    />\n    <button\n      type=\"button\"\n      class=\"gray textButton showMsgBtn\"\n      data-title=\"_文件名长度限制\"\n      data-msg=\"_文件名长度限制的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"40\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_不创建文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noFolderSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_不创建文件夹\"\n    data-msg=\"_不创建文件夹的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap noGrow flexBasis100\" data-show=\"noFolderSwitch\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownload1Image\"\n        id=\"noFolderWhenDownload1Image\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownload1Image\"\n        data-xztext=\"_从插画漫画里下载1张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenDownloadMultipleImages\"\n        id=\"noFolderWhenDownloadMultipleImages\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label\n        for=\"noFolderWhenDownloadMultipleImages\"\n        data-xztext=\"_从插画漫画里下载多张图片时\"\n      ></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenUgoira\"\n        id=\"noFolderWhenUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"noFolderWhenNovel\"\n        id=\"noFolderWhenNovel\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"noFolderWhenNovel\" data-xztext=\"_小说\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"41\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为多图作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"folderForMultiImageWorksSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_为多图作品添加一层文件夹\"\n    data-msg=\"_为多图作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap flexBasis100 namingTipArea\"\n    data-show=\"folderForMultiImageWorksSwitch\"\n  >\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksImageNumber\"\n        class=\"pr0\"\n        data-xztext=\"_当作品里的图片大于指定数量时启用\"\n      ></label>\n      <input\n        class=\"setinput_style blue w50 noGrow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksImageNumber\"\n        id=\"folderForMultiImageWorksImageNumber\"\n        value=\"1\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"folderForMultiImageWorksRule\"\n        class=\"pr0\"\n        data-xztext=\"_要添加的这层文件夹的规则\"\n      ></label>\n      <input\n        class=\"setinput_style blue w150 grow\"\n        type=\"text\"\n        name=\"folderForMultiImageWorksRule\"\n        id=\"folderForMultiImageWorksRule\"\n        value=\"{pid}\"\n        style=\"min-width: 100px\"\n      />\n    </div>\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_multi_image_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"42\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_为r18作品添加一层文件夹\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"r18Folder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_为r18作品添加一层文件夹\"\n    data-msg=\"_为r18作品添加一层文件夹的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div class=\"subOptionWrap flexBasis100 namingTipArea\" data-show=\"r18Folder\">\n    <label\n      for=\"r18FolderName\"\n      class=\"pr0\"\n      data-xztext=\"_要添加的这层文件夹的规则\"\n    ></label>\n    <input\n      type=\"text\"\n      name=\"r18FolderName\"\n      id=\"r18FolderName\"\n      class=\"setinput_style blue grow\"\n      value=\"[R-18&R-18G]\"\n      style=\"min-width: 100px\"\n    />\n\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_r18_g_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"43\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_使用第一个匹配的标签建立文件夹\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"createFolderByTag\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_使用第一个匹配的标签建立文件夹\"\n    data-msg=\"_使用第一个匹配的标签建立文件夹的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <div\n    class=\"subOptionWrap namingTipArea flexBasis100\"\n    data-show=\"createFolderByTag\"\n  >\n    <span class=\"name\">{match_tag_folder1}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <span class=\"name\">{match_tag_folder2}</span>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"createFolderTagList2\"\n      rows=\"1\"\n      placeholder=\"tag1,tag2,tag3\"\n    ></textarea>\n    <div class=\"secondary_hint\">\n      <span\n        data-xztext=\"_提示还需要添加特定命名规则才能创建文件夹_match_tag_folder\"\n      ></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"44\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_标签别名\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_标签别名\"\n    data-msg=\"_标签别名的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <p class=\"flexBasis100 shrink0\">\n    <label\n      for=\"useTagAliasForTagsNamingRule\"\n      data-xztext=\"_应用到文件名里的tags系列标记\"\n    ></label>\n    <input\n      type=\"checkbox\"\n      name=\"useTagAliasForTagsNamingRule\"\n      id=\"useTagAliasForTagsNamingRule\"\n      class=\"need_beautify checkbox_switch\"\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </p>\n\n  <slot data-name=\"setTagAliasSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"45\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自定义用户名\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自定义用户名\"\n    data-msg=\"_自定义用户名的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <slot data-name=\"setUserNameSlot\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"46\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_序号起始值的说明\"\n  >\n    <span data-xztext=\"_序号起始值\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart0\"\n    class=\"need_beautify radio\"\n    value=\"0\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart0\"> 0 </label>\n  <input\n    type=\"radio\"\n    name=\"serialNoStart\"\n    id=\"serialNoStart1\"\n    class=\"need_beautify radio\"\n    value=\"1\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"serialNoStart1\"> 1 </label>\n</div>\n\n<div class=\"option\" data-no=\"47\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_第一张图不带序号说明\"\n  >\n    <span data-xztext=\"_第一张图不带序号\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"noSerialNo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"noSerialNo\">\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForSingleImg\"\n      id=\"setNoSerialNoForSingleImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForSingleImg\" data-xztext=\"_单图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForMultiImg\"\n      id=\"setNoSerialNoForMultiImg\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForMultiImg\" data-xztext=\"_多图作品\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"noSerialNoForUgoira\"\n      id=\"setNoSerialNoForUgoira\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setNoSerialNoForUgoira\" data-xztext=\"_动图\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"48\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在序号前面填充0\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"zeroPadding\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap noGrow\" data-show=\"zeroPadding\">\n    <span data-xztext=\"_序号总长度\"></span>\n    <input\n      type=\"text\"\n      name=\"zeroPaddingLength\"\n      class=\"setinput_style blue\"\n      value=\"3\"\n    />\n  </div>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在序号前面填充0\"\n    data-msg=\"_在序号前面填充0的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"49\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_移除文件名里的emoji\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeEmoji\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"50\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_移除用户名中的at和后续字符的说明\"\n  >\n    <span data-xztext=\"_移除用户名中的at和后续字符\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeAtFromUsername\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"52\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_抓取完成后自动开始下载\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_抓取完成后自动开始下载\"\n    data-msg=\"_自动开始下载的帮助内容\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_应用到\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"autoStartDownload\"\n      id=\"autoStartDownload\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"autoStartDownload\" data-xztext=\"_普通下载任务\"> </label>\n    <input\n      type=\"checkbox\"\n      name=\"autoStartDownloadForQuickDownload\"\n      id=\"autoStartDownloadForQuickDownload\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"autoStartDownloadForQuickDownload\" data-xztext=\"_快速下载任务\">\n    </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"51\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_同时下载多少个文件\"></span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"downloadThread\"\n    class=\"has_tip setinput_style blue\"\n    data-xztip=\"_下载线程的说明\"\n    value=\"3\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"53\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_下载之后收藏作品的提示\"\n  >\n    <span data-xztext=\"_下载之后收藏作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bmkAfterDL\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"54\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击收藏按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickBookmark\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"55\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击点赞按钮时下载作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadOnClickLike\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"56\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_下载间隔\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadIntervalSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_下载间隔\"\n    data-msg=\"_下载间隔的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"downloadIntervalSwitch\">\n    <div class=\"optionLine\">\n      <span data-xztext=\"_当抓取结果数量大于\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadIntervalOnWorksNumber\"\n        class=\"setinput_style blue\"\n        value=\"150\"\n      />\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_间隔时间\"></span>\n      <input\n        type=\"text\"\n        name=\"downloadInterval\"\n        class=\"setinput_style blue\"\n        value=\"1\"\n      />\n      <span data-xztext=\"_秒\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"57\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_文件下载顺序\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"setFileDownloadOrder\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"setFileDownloadOrder\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序依据\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy1\"\n        class=\"need_beautify radio\"\n        value=\"ID\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy1\" data-xztext=\"_作品ID\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy2\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkCount\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy2\" data-xztext=\"_收藏数量2\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrderSortBy\"\n        id=\"downloadOrderSortBy3\"\n        class=\"need_beautify radio\"\n        value=\"bookmarkID\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrderSortBy3\" data-xztext=\"_收藏时间\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_排序方式\"></span>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder1\"\n        class=\"need_beautify radio\"\n        value=\"desc\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder1\" data-xztext=\"_降序\"></label>\n      <input\n        type=\"radio\"\n        name=\"downloadOrder\"\n        id=\"downloadOrder2\"\n        class=\"need_beautify radio\"\n        value=\"asc\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"downloadOrder2\" data-xztext=\"_升序\"></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"58\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_优先下载动图\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadUgoiraFirst\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"59\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_文件体积限制的说明\"\n  >\n    <span data-xztext=\"_文件体积限制\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"sizeSwitch\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap\" data-show=\"sizeSwitch\">\n    <input\n      type=\"text\"\n      name=\"sizeMin\"\n      class=\"setinput_style blue\"\n      value=\"0\"\n    />MiB &nbsp;-&nbsp;\n    <input\n      type=\"text\"\n      name=\"sizeMax\"\n      class=\"setinput_style blue\"\n      value=\"100\"\n    />MiB\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"60\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_使用前请先查看提示\"\n  >\n    <span data-xztext=\"_把文件保存到用户上次选择的位置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"rememberTheLastSaveLocation\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_把文件保存到用户上次选择的位置\"\n    data-msg=\"_把文件保存到用户上次选择的位置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"rememberTheLastSaveLocation\"\n  >\n    <div class=\"secondary_hint\">\n      <span data-xztext=\"_提示如果你启用了这个设置下载器不会创建文件夹\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"61\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_下载完成后显示通知\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showNotificationAfterDownloadComplete\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_下载完成后显示通知\"\n    data-msg=\"_下载完成后显示通知的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"62\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_管理下载记录\"\n  ></a>\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_管理下载记录\"\n    data-msg=\"_管理下载记录的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"exportDownloadRecord\"\n      data-event=\"exportDownloadRecord\"\n      data-xztext=\"_导出\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"importDownloadRecord\"\n      data-event=\"importDownloadRecord\"\n      data-xztext=\"_导入\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"importDownloadRecordTXT\"\n      data-event=\"importDownloadRecordTXT\"\n      data-xztext=\"_导入txt\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      id=\"clearDownloadRecord\"\n      data-event=\"clearDownloadRecord\"\n      data-xztext=\"_清除\"\n    ></button>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"63\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_不下载重复文件\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"deduplication\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap noGrow\" data-show=\"deduplication\">\n    <span data-xztext=\"_策略\"></span>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy2\"\n      class=\"need_beautify radio\"\n      value=\"loose\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy2\"\n      data-xztip=\"_宽松模式说明\"\n      data-xztext=\"_宽松\"\n    ></label>\n    <input\n      type=\"radio\"\n      name=\"dupliStrategy\"\n      id=\"dupliStrategy1\"\n      class=\"need_beautify radio\"\n      value=\"strict\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label\n      class=\"has_tip\"\n      for=\"dupliStrategy1\"\n      data-xztip=\"_严格模式说明\"\n      data-xztext=\"_严格\"\n    ></label>\n  </div>\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_不下载重复文件\"\n    data-msg=\"_不下载重复文件的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"64\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载图片时的尺寸\"\n  ></a>\n\n  <div class=\"optionLine\">\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize2\" data-xztext=\"_普通\"></label>\n    <label for=\"imageSize2\" class=\"gray\">(1200px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize3\"\n      class=\"need_beautify radio\"\n      value=\"small\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize3\" data-xztext=\"_小图\"></label>\n    <label for=\"imageSize3\" class=\"gray\">(540px)</label>\n    <input\n      type=\"radio\"\n      name=\"imageSize\"\n      id=\"imageSize4\"\n      class=\"need_beautify radio\"\n      value=\"thumb\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"imageSize4\" data-xztext=\"_方形缩略图\"></label>\n    <label for=\"imageSize4\" class=\"gray\">(250px)</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"65\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_动图保存格式\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_动图保存格式\"\n    data-msg=\"_动图保存格式的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" style=\"display: inline-flex\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebP\"\n        id=\"ugoiraSaveAsWebP\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebP\" data-xztext=\"_webp图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsWebM\"\n        id=\"ugoiraSaveAsWebM\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsWebM\" data-xztext=\"_webmVideo\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsGIF\"\n        id=\"ugoiraSaveAsGIF\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsGIF\" data-xztext=\"_gif图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsAPNG\"\n        id=\"ugoiraSaveAsAPNG\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsAPNG\" data-xztext=\"_apng图片\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsZIP\"\n        id=\"ugoiraSaveAsZIP\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsZIP\" data-xztext=\"_zip文件\"></label>\n\n      <input\n        type=\"checkbox\"\n        name=\"ugoiraSaveAsUgoira\"\n        id=\"ugoiraSaveAsUgoira\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"ugoiraSaveAsUgoira\" data-xztext=\"_Ugoira文件\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_WebP图像质量\"></span>\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality0\"\n        class=\"need_beautify radio\"\n        value=\"lossy\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality0\" data-xztext=\"_有损\"></label>\n\n      <input\n        type=\"radio\"\n        name=\"animatedWebPQuality\"\n        id=\"webpUgoiraQuality1\"\n        class=\"need_beautify radio\"\n        value=\"lossless\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"webpUgoiraQuality1\" data-xztext=\"_无损\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"saveThumbnailForUgoira\"\n        data-xztext=\"_为动图保存一张缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveThumbnailForUgoira\"\n        id=\"saveThumbnailForUgoira\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"66\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_同时转换多少个动图的说明\"\n  >\n    <span data-xztext=\"_同时转换多少个动图\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"text\"\n    name=\"convertUgoiraThread\"\n    class=\"setinput_style blue\"\n    value=\"1\"\n  />\n</div>\n\n<div class=\"option\" data-no=\"67\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_小说保存格式的说明\"\n  >\n    <span data-xztext=\"_小说保存格式\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs2\"\n    class=\"need_beautify radio\"\n    value=\"epub\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs2\"> EPUB </label>\n  <input\n    type=\"radio\"\n    name=\"novelSaveAs\"\n    id=\"novelSaveAs1\"\n    class=\"need_beautify radio\"\n    value=\"txt\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"novelSaveAs1\"> TXT </label>\n</div>\n\n<div class=\"option\" data-no=\"68\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_在小说里保存元数据提示\"\n  >\n    <span data-xztext=\"_在小说里保存元数据\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveNovelMeta\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"69\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说的封面图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelCoverImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"70\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_下载小说里的内嵌图片\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"downloadNovelEmbeddedImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"downloadNovelEmbeddedImage\"\n  >\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSizeOriginal\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSizeOriginal\" data-xztext=\"_原图\"></label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize1200\"\n      class=\"need_beautify radio\"\n      value=\"1200\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize1200\">1200px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize480\"\n      class=\"need_beautify radio\"\n      value=\"480\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize480\">480px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize240\"\n      class=\"need_beautify radio\"\n      value=\"240\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize240\">240px</label>\n\n    <input\n      type=\"radio\"\n      name=\"novelEmbeddedImageSize\"\n      id=\"novelEmbeddedImageSize128\"\n      class=\"need_beautify radio\"\n      value=\"128\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"novelEmbeddedImageSize128\">128px</label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"71\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动合并系列小说\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoMergeNovel\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动合并系列小说\"\n    data-msg=\"_自动合并系列小说的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoMergeNovel\">\n    <label\n      for=\"skipNovelsInSeriesWhenAutoMerge\"\n      data-xztext=\"_不再单独下载系列里的小说\"\n    ></label>\n    <input\n      type=\"checkbox\"\n      name=\"skipNovelsInSeriesWhenAutoMerge\"\n      id=\"skipNovelsInSeriesWhenAutoMerge\"\n      class=\"need_beautify checkbox_switch\"\n      checked\n    />\n    <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"104\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span\n      data-xztext=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    ></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveAllSeriesNovelsIfOneMatches\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"textButton gray showMsgBtn\"\n    data-title=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说\"\n    data-msg=\"_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"72\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_合并系列小说时的分割阈值\"></span>\n  </a>\n\n  <input\n    type=\"text\"\n    name=\"singleEPUBFileSizeLimit\"\n    class=\"setinput_style blue\"\n    value=\"200\"\n  />\n  <span>MiB</span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_合并系列小说时的分割阈值\"\n    data-msg=\"_合并系列小说时的分割阈值的帮助\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"73\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_保存作品的元数据\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_保存作品的元数据\"\n    data-msg=\"_保存作品的元数据说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType0\"\n      id=\"setSaveMetaType0\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType0\" data-xztext=\"_插画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType1\"\n      id=\"setSaveMetaType1\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType1\" data-xztext=\"_漫画\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType2\"\n      id=\"setSaveMetaType2\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType2\" data-xztext=\"_动图\"></label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaType3\"\n      id=\"setSaveMetaType3\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setSaveMetaType3\" data-xztext=\"_小说\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span class=\"mb4\" data-xztext=\"_文件格式\"> </span>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatTXT\"\n      id=\"saveMetaFormatTXT\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatTXT\"> TXT </label>\n    <input\n      type=\"checkbox\"\n      name=\"saveMetaFormatJSON\"\n      id=\"saveMetaFormatJSON\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"saveMetaFormatJSON\"> JSON </label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"74\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_保存作品的简介\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"saveWorkDescription\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_保存作品的简介\"\n    data-msg=\"_保存作品简介的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"saveWorkDescription\">\n    <div class=\"optionLine\">\n      <span class=\"mb4\" data-xztext=\"_作品类型带冒号\"> </span>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType0\"\n        id=\"setSaveDescriptionType0\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType0\" data-xztext=\"_插画\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType1\"\n        id=\"setSaveDescriptionType1\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType1\" data-xztext=\"_漫画\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType2\"\n        id=\"setSaveDescriptionType2\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType2\" data-xztext=\"_动图\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveDescriptionType3\"\n        id=\"setSaveDescriptionType3\"\n        class=\"need_beautify checkbox_common\"\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"setSaveDescriptionType3\" data-xztext=\"_小说\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"saveEachDescription\" data-xztext=\"_每个作品分别保存\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"saveEachDescription\"\n        id=\"saveEachDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"summarizeDescription\" data-xztext=\"_汇总到一个文件\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"summarizeDescription\"\n        id=\"summarizeDescription\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"75\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的说明\"\n  >\n    <span data-xztext=\"_预览作品\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWork\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWork\">\n    <div class=\"optionLine\">\n      <input\n        type=\"checkbox\"\n        name=\"previewSingleImageWork\"\n        id=\"previewSingleImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewSingleImageWork\" data-xztext=\"_单图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewMultiImageWork\"\n        id=\"previewMultiImageWork\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewMultiImageWork\" data-xztext=\"_多图作品\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"previewUgoira\"\n        id=\"previewUgoira\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"previewUgoira\" data-xztext=\"_动图\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize2\" data-xztext=\"_普通\"></label>\n      <label for=\"prevWorkSize2\" class=\"gray\">(1200px)</label>\n      <input\n        type=\"radio\"\n        name=\"prevWorkSize\"\n        id=\"prevWorkSize3\"\n        class=\"need_beautify radio\"\n        value=\"small\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"prevWorkSize3\" data-xztext=\"_小图\"></label>\n      <label for=\"prevWorkSize3\" class=\"gray\">(540px)</label>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"allowPreviewCoverThumbnail\"\n        data-xztext=\"_允许预览图遮挡缩略图\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"allowPreviewCoverThumbnail\"\n        id=\"allowPreviewCoverThumbnail\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray textButton showMsgBtn\"\n        data-title=\"_允许预览图遮挡缩略图\"\n        data-msg=\"_允许预览图遮挡缩略图的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"checkBlockTagsForPreviewWork\"\n        data-xztext=\"_检查屏蔽的标签\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"checkBlockTagsForPreviewWork\"\n        id=\"checkBlockTagsForPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n      <button\n        type=\"button\"\n        class=\"gray textButton showMsgBtn\"\n        data-title=\"_检查屏蔽的标签\"\n        data-msg=\"_检查屏蔽的标签的帮助\"\n        data-xztext=\"_帮助\"\n      >\n        帮助\n      </button>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"has_tip\"\n        data-xztext=\"_使用鼠标滚轮切换作品里的图片\"\n        data-xztip=\"_这可能会阻止页面滚动\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"wheelScrollSwitchImageOnPreviewWork\"\n        id=\"wheelScrollSwitchImageOnPreviewWork\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label\n        for=\"swicthImageByKeyboard\"\n        class=\"has_tip\"\n        data-xztext=\"_使用方向键和空格键切换图片\"\n        data-xztip=\"_使用方向键和空格键切换图片的提示\"\n      ></label>\n      <input\n        type=\"checkbox\"\n        name=\"swicthImageByKeyboard\"\n        id=\"swicthImageByKeyboard\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"previewWorkWait\" data-xztext=\"_等待时间\"></label>\n      <input\n        type=\"text\"\n        name=\"previewWorkWait\"\n        id=\"previewWorkWait\"\n        class=\"setinput_style blue\"\n        value=\"400\"\n      />\n      <span>ms</span>\n    </div>\n\n    <div class=\"optionLine\">\n      <label for=\"showPreviewWorkTip\" data-xztext=\"_显示摘要信息\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"showPreviewWorkTip\"\n        id=\"showPreviewWorkTip\"\n        class=\"need_beautify checkbox_switch\"\n        checked\n      />\n      <span class=\"beautify_switch\" tabindex=\"0\"></span>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray textButton toggleArea pl0\"\n        data-toggle-Target=\"#previewWorkShortcutTip\"\n        data-for-no=\"75\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"previewWorkShortcutTip\">\n    <span data-xztext=\"_预览作品的快捷键说明\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"76\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_长按右键显示大图\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showOriginImage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"showOriginImage\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"showOriginImageSize\"\n        id=\"showOriginImageSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"showOriginImageSize2\" data-xztext=\"_普通\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"gray textButton toggleArea pl0\"\n        data-toggle-Target=\"#showOriginImageShortcutTip\"\n        data-for-no=\"76\"\n        data-xztext=\"_快捷键列表\"\n      ></button>\n    </div>\n  </div>\n\n  <p class=\"tip\" id=\"showOriginImageShortcutTip\">\n    <span data-xztext=\"_查看作品大图时的快捷键\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"77\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_预览作品的详细信息的说明\"\n  >\n    <span data-xztext=\"_预览作品的详细信息\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"PreviewWorkDetailInfo\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"PreviewWorkDetailInfo\">\n    <span data-xztext=\"_显示区域宽度\"></span>&nbsp;\n    <input\n      type=\"text\"\n      name=\"PreviewDetailInfoWidth\"\n      class=\"setinput_style blue\"\n      value=\"400\"\n    />\n    <span>&nbsp;px</span>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"78\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_显示更大的缩略图\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showLargerThumbnails\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_显示更大的缩略图\"\n    data-msg=\"_显示更大的缩略图的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"79\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_替换方形缩略图以显示图片比例\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"replaceSquareThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_替换方形缩略图以显示图片比例\"\n    data-msg=\"_替换方形缩略图以显示图片比例的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"80\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在多图作品页面里显示缩略图列表\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"displayThumbnailListOnMultiImageWorkPage\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在多图作品页面里显示缩略图列表\"\n    data-msg=\"_在多图作品页面里显示缩略图列表的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"81\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_把图片显示为灰色\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"imageToGray\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"82\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle has_tip\"\n    data-xztip=\"_缩略图上按钮的位置的说明\"\n  >\n    <span data-xztext=\"_缩略图上按钮的位置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition1\"\n    class=\"need_beautify radio\"\n    value=\"left\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition1\" data-xztext=\"_左侧\"></label>\n  <input\n    type=\"radio\"\n    name=\"magnifierPosition\"\n    id=\"magnifierPosition2\"\n    class=\"need_beautify radio\"\n    value=\"right\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"magnifierPosition2\" data-xztext=\"_右侧\"></label>\n</div>\n\n<div class=\"option\" data-no=\"83\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示图片查看器按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"magnifier\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"magnifier\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_查看的图片尺寸\"></span>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize1\"\n        class=\"need_beautify radio\"\n        value=\"original\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize1\" data-xztext=\"_原图\"></label>\n      <input\n        type=\"radio\"\n        name=\"magnifierSize\"\n        id=\"magnifierSize2\"\n        class=\"need_beautify radio\"\n        value=\"regular\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"magnifierSize2\" data-xztext=\"_普通\"></label>\n    </div>\n    <button\n      type=\"button\"\n      class=\"gray textButton toggleArea pl0\"\n      data-toggle-target=\"#showMagnifierTip\"\n      data-for-no=\"83\"\n      data-xztext=\"_快捷键列表\"\n    ></button>\n  </div>\n  <p class=\"tip\" id=\"showMagnifierTip\">\n    <span data-xztext=\"_图片查看器的快捷键列表\"></span>\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"84\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在缩略图上显示复制按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showCopyBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"85\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在作品缩略图上显示下载按钮\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showDownloadBtnOnThumb\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"86\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_高亮关注的用户\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"highlightFollowingUsers\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_高亮关注的用户\"\n    data-msg=\"_高亮关注的用户的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"87\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_在下载过的作品上显示边框\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"showBorderOnDownloadedWorks\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div\n    class=\"subOptionWrap flexBasis100\"\n    data-show=\"showBorderOnDownloadedWorks\"\n  >\n    <div class=\"optionLine\">\n      <span data-xztext=\"_宽度\" class=\"mr4\"></span>\n      <input\n        type=\"text\"\n        name=\"borderWidth\"\n        class=\"setinput_style blue w40\"\n        value=\"3\"\n      />\n      px\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_颜色\" class=\"mr4\"></span> (Hex)\n      <input\n        type=\"text\"\n        name=\"borderColor\"\n        class=\"setinput_style blue w80\"\n        id=\"borderColor\"\n        value=\"#ff4060\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"88\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_下载器的收藏功能\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_下载器的收藏功能\"\n    data-msg=\"_下载器的收藏功能的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否添加标签\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag1\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag1\" data-xztext=\"_添加\"></label>\n    <input\n      type=\"radio\"\n      name=\"widthTag\"\n      id=\"widthTag2\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"widthTag2\" data-xztext=\"_不添加\"></label>\n  </div>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_是否公开\" class=\"mr4\"></span>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict1\"\n      class=\"need_beautify radio\"\n      value=\"no\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict1\" data-xztext=\"_公开\"></label>\n    <input\n      type=\"radio\"\n      name=\"restrict\"\n      id=\"restrict2\"\n      class=\"need_beautify radio\"\n      value=\"yes\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"restrict2\" data-xztext=\"_不公开\"></label>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"89\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_复制作品信息带高亮关键字\"></span>\n  </a>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_复制作品信息带高亮关键字\"\n    data-msg=\"_显示复制按钮的提示\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"optionLine\">\n    <span data-xztext=\"_复制内容\" class=\"mr4\"></span>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatImage\"\n      id=\"setCopyFormatImage\"\n      class=\"need_beautify checkbox_common\"\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatImage\">image/png</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatText\"\n      id=\"setCopyFormatText\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatText\">text/plain</label>\n    <input\n      type=\"checkbox\"\n      name=\"copyFormatHtml\"\n      id=\"setCopyFormatHtml\"\n      class=\"need_beautify checkbox_common\"\n      checked\n    />\n    <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n    <label for=\"setCopyFormatHtml\">text/html</label>\n    <button\n      type=\"button\"\n      class=\"gray textButton showMsgBtn\"\n      data-title=\"_复制内容\"\n      data-msg=\"_对复制的内容的说明\"\n      data-xztext=\"_帮助\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span class=\"mr4\" data-xztext=\"_图片尺寸\"></span>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize1\"\n      class=\"need_beautify radio\"\n      value=\"original\"\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize1\" data-xztext=\"_原图\"></label>\n    <input\n      type=\"radio\"\n      name=\"copyImageSize\"\n      id=\"copyImageSize2\"\n      class=\"need_beautify radio\"\n      value=\"regular\"\n      checked\n    />\n    <span class=\"beautify_radio\" tabindex=\"0\"></span>\n    <label for=\"copyImageSize2\" data-xztext=\"_普通\"></label>\n  </div>\n\n  <div class=\"optionLine nowrap\">\n    <span data-xztext=\"_文本格式\" class=\"mr4\"></span>\n    <button\n      type=\"button\"\n      class=\"gray textButton toggleArea\"\n      data-toggle-Target=\"#copyWorkInfoFormatTip\"\n      data-for-no=\"89\"\n      data-xztext=\"_提示\"\n    ></button>\n    <textarea\n      class=\"centerPanelTextArea beautify_scrollbar\"\n      name=\"copyWorkInfoFormat\"\n      rows=\"1\"\n      placeholder=\"id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}\"\n    ></textarea>\n  </div>\n\n  <p class=\"tip namingTipArea\" id=\"copyWorkInfoFormatTip\">\n    <span data-xztext=\"_复制内容的格式的提示\"></span>\n    <br />\n    <span class=\"blue name\">{url}</span>\n    <span data-xztext=\"_url标记的说明\"></span>\n    <br />\n    <span class=\"blue name\">{n}</span>\n    <span data-xztext=\"_换行标记的说明\"></span>\n    <br />\n  </p>\n</div>\n\n<div class=\"option\" data-no=\"90\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在搜索页面添加快捷搜索区域\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"showFastSearchArea\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在搜索页面添加快捷搜索区域\"\n    data-msg=\"_在搜索页面添加快捷搜索区域的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"91\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_过滤搜索页面的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"filterSearchResults\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_过滤搜索页面的作品\"\n    data-msg=\"_过滤搜索页面的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"92\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_在搜索页面里移除已关注用户的作品\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"removeWorksOfFollowedUsersOnSearchPage\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_在搜索页面里移除已关注用户的作品\"\n    data-msg=\"_在搜索页面里移除已关注用户的作品的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"93\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_预览搜索页面的抓取结果\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"previewResult\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_预览搜索页面的抓取结果\"\n    data-msg=\"_预览搜索页面的抓取结果说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"previewResult\">\n    <div class=\"optionLine\">\n      <label\n        for=\"previewResultPageSize\"\n        data-xztext=\"_每页显示的作品数量\"\n      ></label>\n      <input\n        type=\"text\"\n        name=\"previewResultPageSize\"\n        id=\"previewResultPageSize\"\n        class=\"setinput_style blue w80\"\n        value=\"100\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"94\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\"\n    ><span class=\"key\">Language</span></a\n  >\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang2\"\n    class=\"need_beautify radio\"\n    value=\"zh-cn\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang2\">简体中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang3\"\n    class=\"need_beautify radio\"\n    value=\"zh-tw\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang3\">繁體中文</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang4\"\n    class=\"need_beautify radio\"\n    value=\"ja\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang4\">日本語</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang5\"\n    class=\"need_beautify radio\"\n    value=\"en\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang5\">English</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang6\"\n    class=\"need_beautify radio\"\n    value=\"ko\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang6\">한국어</label>\n  <input\n    type=\"radio\"\n    name=\"userSetLang\"\n    id=\"userSetLang7\"\n    class=\"need_beautify radio\"\n    value=\"ru\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"userSetLang7\">Русский</label>\n</div>\n\n<div class=\"option\" data-no=\"95\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_选项卡切换方式的说明\"\n  >\n    <span data-xztext=\"_选项卡切换方式\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar1\"\n    class=\"need_beautify radio\"\n    value=\"over\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar1\" data-xztext=\"_鼠标经过\"></label>\n  <input\n    type=\"radio\"\n    name=\"switchTabBar\"\n    id=\"switchTabBar2\"\n    class=\"need_beautify radio\"\n    value=\"click\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"switchTabBar2\" data-xztext=\"_鼠标点击\"></label>\n</div>\n\n<div class=\"option\" data-no=\"96\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置卡片时切换它的开关状态\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickOptionCardToToggleSwitch\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_点击设置卡片时切换它的开关状态\"\n    data-msg=\"_点击设置卡片时切换它的开关状态的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"97\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_点击设置名字时打开wiki链接\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"clickSettingNameOpenWiki\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"107\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自定义快捷键\"></span>\n  </a>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自定义快捷键\"\n    data-msg=\"_自定义快捷键的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n  <slot data-name=\"hotkeysEditor\"></slot>\n</div>\n\n<div class=\"option\" data-no=\"98\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_颜色主题\"\n  ></a>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme1\"\n    class=\"need_beautify radio\"\n    value=\"auto\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme1\" data-xztext=\"_自动检测\"></label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme2\"\n    class=\"need_beautify radio\"\n    value=\"white\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme2\">White</label>\n  <input\n    type=\"radio\"\n    name=\"theme\"\n    id=\"theme3\"\n    class=\"need_beautify radio\"\n    value=\"dark\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"theme3\">Dark</label>\n</div>\n\n<div class=\"option\" data-no=\"99\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_背景图片的说明\"\n  >\n    <span data-xztext=\"_背景图片\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"bgDisplay\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"bgDisplay\">\n    <div class=\"optionLine\">\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent borderButton\"\n        data-event=\"selectBG\"\n        id=\"selectBG\"\n        data-xztext=\"_选择文件\"\n      ></button>\n      <button\n        type=\"button\"\n        class=\"textButton fireEvent borderButton\"\n        data-event=\"clearBG\"\n        id=\"clearBG\"\n        data-xztext=\"_清除\"\n      ></button>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_对齐方式\"></span>&nbsp;\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition1\"\n        class=\"need_beautify radio\"\n        value=\"center\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition1\" data-xztext=\"_居中\"></label>\n      <input\n        type=\"radio\"\n        name=\"bgPositionY\"\n        id=\"bgPosition2\"\n        class=\"need_beautify radio\"\n        value=\"top\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"bgPosition2\" data-xztext=\"_顶部\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_不透明度\" class=\"mr4\"></span>\n      <input name=\"bgOpacity\" type=\"range\" />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"100\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_高亮显示设置名称里的关键字\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"boldKeywords\"\n    class=\"need_beautify checkbox_switch\"\n    checked\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n</div>\n\n<div class=\"option\" data-no=\"101\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_日志区域的默认可见性的说明\"\n  >\n    <span data-xztext=\"_日志区域的默认可见性\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault1\"\n    class=\"need_beautify radio\"\n    value=\"show\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault1\" data-xztext=\"_显示\"></label>\n  <input\n    type=\"radio\"\n    name=\"logVisibleDefault\"\n    id=\"logVisibleDefault2\"\n    class=\"need_beautify radio\"\n    value=\"hide\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"logVisibleDefault2\" data-xztext=\"_隐藏\"></label>\n</div>\n\n<div class=\"option\" data-no=\"102\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"settingNameStyle\"\n    data-xztext=\"_自动导出日志\"\n  ></a>\n  <input\n    type=\"checkbox\"\n    name=\"exportLog\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动导出日志\"\n    data-msg=\"_自动导出日志的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"exportLog\">\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_导出时机\"></span>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming1\"\n        class=\"need_beautify radio\"\n        value=\"crawlComplete\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming1\" data-xztext=\"_抓取完毕2\"></label>\n      <input\n        type=\"radio\"\n        name=\"exportLogTiming\"\n        id=\"exportLogTiming2\"\n        class=\"need_beautify radio\"\n        value=\"downloadComplete\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"exportLogTiming2\" data-xztext=\"_下载完毕\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span class=\"settingNameStyle\" data-xztext=\"_日志类型\"></span>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogNormal\"\n        id=\"exportLogNormal\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogNormal\" data-xztext=\"_正常\"></label>\n      <input\n        type=\"checkbox\"\n        name=\"exportLogError\"\n        id=\"exportLogError\"\n        class=\"need_beautify checkbox_common\"\n        checked\n      />\n      <span class=\"beautify_checkbox\" tabindex=\"0\"></span>\n      <label for=\"exportLogError\" data-xztext=\"_错误\"></label>\n    </div>\n\n    <div class=\"optionLine\">\n      <span data-xztext=\"_排除关键字\"></span>&nbsp;\n      <input\n        type=\"text\"\n        name=\"exportLogExclude\"\n        class=\"setinput_style blue setinput_tag\"\n      />\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"105\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_当你修改设置时其他标签页\"></span>\n    <span class=\"mr4\">:</span>\n  </a>\n  <input\n    type=\"radio\"\n    name=\"settingsAcrossDifferentTabs\"\n    id=\"settingsAcrossDifferentTabs1\"\n    class=\"need_beautify radio\"\n    value=\"synchronizeChanges\"\n    checked\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"settingsAcrossDifferentTabs1\" data-xztext=\"_同步变化\"></label>\n  <input\n    type=\"radio\"\n    name=\"settingsAcrossDifferentTabs\"\n    id=\"settingsAcrossDifferentTabs2\"\n    class=\"need_beautify radio\"\n    value=\"doNotSynchronizeChanges\"\n  />\n  <span class=\"beautify_radio\" tabindex=\"0\"></span>\n  <label for=\"settingsAcrossDifferentTabs2\">\n    <span data-xztext=\"_保持不变\"></span>\n    <span class=\"gray\" data-xztext=\"_旧版行为\"></span>\n  </label>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_当你修改设置时其他标签页\"\n    data-msg=\"_当你修改设置时其他标签页的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n</div>\n\n<div class=\"option\" data-no=\"106\">\n  <a href=\"\" target=\"_blank\" class=\"settingNameStyle\">\n    <span data-xztext=\"_自动导出设置\"></span>\n  </a>\n  <input\n    type=\"checkbox\"\n    name=\"autoExportSettings\"\n    class=\"need_beautify checkbox_switch\"\n  />\n  <span class=\"beautify_switch\" tabindex=\"0\"></span>\n  <button\n    type=\"button\"\n    class=\"gray textButton showMsgBtn\"\n    data-title=\"_自动导出设置\"\n    data-msg=\"_自动导出设置的说明\"\n    data-xztext=\"_帮助\"\n  ></button>\n\n  <div class=\"subOptionWrap flexBasis100\" data-show=\"autoExportSettings\">\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"autoExportSettingsStrategy\"\n        id=\"autoExportSettingsStrategyTimed\"\n        class=\"need_beautify radio\"\n        value=\"timed\"\n        checked\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label for=\"autoExportSettingsStrategyTimed\">\n        <span data-xztext=\"_定时导出间隔\"></span>\n        <input\n          type=\"text\"\n          name=\"autoExportSettingsInterval\"\n          class=\"setinput_style blue\"\n          value=\"24\"\n        />\n        <span data-xztext=\"_小时\"></span>\n      </label>\n    </div>\n\n    <div class=\"optionLine\">\n      <input\n        type=\"radio\"\n        name=\"autoExportSettingsStrategy\"\n        id=\"autoExportSettingsStrategyOnChange\"\n        class=\"need_beautify radio\"\n        value=\"onSettingChange\"\n      />\n      <span class=\"beautify_radio\" tabindex=\"0\"></span>\n      <label\n        for=\"autoExportSettingsStrategyOnChange\"\n        data-xztext=\"_每当设置变化后立即导出\"\n      ></label>\n    </div>\n  </div>\n</div>\n\n<div class=\"option\" data-no=\"103\">\n  <a\n    href=\"\"\n    target=\"_blank\"\n    class=\"has_tip settingNameStyle\"\n    data-xztip=\"_管理设置的说明\"\n  >\n    <span data-xztext=\"_管理设置\"></span>\n    <span class=\"gray\"> ? </span>\n  </a>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"exportSettings\"\n      id=\"exportSettings\"\n      data-xztext=\"_导出设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"importSettings\"\n      id=\"importSettings\"\n      data-xztext=\"_导入设置\"\n    ></button>\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetSettings\"\n      id=\"resetSettings\"\n      data-xztext=\"_重置设置\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetFollowingData\"\n      id=\"resetFollowingData\"\n      data-xztext=\"_清除下载器保存的关注数据\"\n    ></button>\n  </div>\n\n  <div class=\"optionLine\">\n    <button\n      type=\"button\"\n      class=\"textButton fireEvent borderButton\"\n      data-event=\"resetHelpTip\"\n      id=\"resetHelpTip\"\n      data-xztext=\"_重新显示帮助\"\n    ></button>\n  </div>\n</div>\n";
 
 /***/ }),
 
@@ -55181,7 +56196,7 @@ class Settings {
         debugForWiki: false,
         singleEPUBFileSizeLimit: 200,
         imageToGray: false,
-        clickOptionCardToToggleSwitch: true,
+        clickOptionCardToToggleSwitch: false,
         /** 保存每个可折叠区域的展开/折叠状态 */
         // home 里的二级分类名称是直接在这里指定的。其他导航分类里的二级分类名称来自 OptionConfigs.ts 里的 categorySchema 对象里，对应的一级分类的 level2.id。
         // 每个一级分类里的首个二级分类是默认展开的，这样用户至少可以看到第一个二级分类的内容，不需要手动点击来展开它。
@@ -58908,8 +59923,12 @@ class SaveArtworkData {
         const fullHeight = body.height; // 原图高度
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data); // tag 列表
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        // 保存 tag 列表，附带翻译后的 tag
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data, 'both', 'save');
+        // 保存用于检查的 tag 列表，包含所有的原版 tag 和翻译后的 tag
+        const tagsWithTranslCheck = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data, 'both', 'check');
+        // 保存翻译后的 tag 列表
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data, 'transl', 'save');
         // 添加“原创”对应的标签
         // 对 Pixiv 行为的说明：
         // 只有当 isOriginal 为 true 时，Pixiv 才会认为这是一个原创作品，并且会在标签列表最前面显示加粗的“原创”标签（具体文字会根据页面显示语言变化）
@@ -58921,6 +59940,7 @@ class SaveArtworkData {
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tags, originalMark);
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsWithTransl, originalMark);
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsTranslOnly, originalMark);
+            _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsWithTranslCheck, originalMark);
         }
         // 判断是不是 AI 生成的作品
         let aiType = body.aiType;
@@ -58935,6 +59955,7 @@ class SaveArtworkData {
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tags, aiMarkString);
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsWithTransl, aiMarkString);
             _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsTranslOnly, aiMarkString);
+            _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.unshiftTag(tagsWithTranslCheck, aiMarkString);
         }
         const filterOpt = {
             aiType,
@@ -58942,7 +59963,7 @@ class SaveArtworkData {
             id: body.id,
             isOriginal: body.isOriginal,
             workType: body.illustType,
-            tags: tagsWithTransl,
+            tags: tagsWithTranslCheck,
             title: body.title,
             seriesTitle: body.seriesNavData?.title || '',
             pageCount: body.pageCount,

@@ -18,8 +18,16 @@ class SaveArtworkData {
     const bmk = body.bookmarkCount // 收藏数
 
     const tags: string[] = Tools.extractTags(data) // tag 列表
-    const tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
-    const tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
+    // 保存 tag 列表，附带翻译后的 tag
+    const tagsWithTransl: string[] = Tools.extractTags(data, 'both', 'save')
+    // 保存用于检查的 tag 列表，包含所有的原版 tag 和翻译后的 tag
+    const tagsWithTranslCheck: string[] = Tools.extractTags(
+      data,
+      'both',
+      'check'
+    )
+    // 保存翻译后的 tag 列表
+    const tagsTranslOnly: string[] = Tools.extractTags(data, 'transl', 'save')
 
     // 添加“原创”对应的标签
     // 对 Pixiv 行为的说明：
@@ -32,6 +40,7 @@ class SaveArtworkData {
       Tools.unshiftTag(tags, originalMark)
       Tools.unshiftTag(tagsWithTransl, originalMark)
       Tools.unshiftTag(tagsTranslOnly, originalMark)
+      Tools.unshiftTag(tagsWithTranslCheck, originalMark)
     }
 
     // 判断是不是 AI 生成的作品
@@ -48,6 +57,7 @@ class SaveArtworkData {
       Tools.unshiftTag(tags, aiMarkString)
       Tools.unshiftTag(tagsWithTransl, aiMarkString)
       Tools.unshiftTag(tagsTranslOnly, aiMarkString)
+      Tools.unshiftTag(tagsWithTranslCheck, aiMarkString)
     }
 
     const filterOpt: FilterOption = {
@@ -56,7 +66,7 @@ class SaveArtworkData {
       id: body.id,
       isOriginal: body.isOriginal,
       workType: body.illustType,
-      tags: tagsWithTransl,
+      tags: tagsWithTranslCheck,
       title: body.title,
       seriesTitle: body.seriesNavData?.title || '',
       pageCount: body.pageCount,

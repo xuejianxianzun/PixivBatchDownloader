@@ -214,15 +214,15 @@ class CopyWorkInfo {
     const body = data.body
     const type = 'illustType' in body ? body.illustType : 3
     const tags = Tools.extractTags(data).map((str) => '#' + str)
-    const tagsWithTransl = Tools.extractTags(data, 'both').map(
+    const tagsWithTransl = Tools.extractTags(data, 'both', 'check').map(
       (str) => '#' + str
     )
-    const tagsTranslOnly = Tools.extractTags(data, 'transl').map(
+    const tagsTranslOnly = Tools.extractTags(data, 'transl', 'check').map(
       (str) => '#' + str
     )
 
     // 判断是不是 AI 生成的作品
-    const tagsWithTransl2 = Tools.extractTags(data, 'both')
+    const tagsWithTransl2 = Tools.extractTags(data, 'both', 'check')
     let aiType = body.aiType
     if (aiType !== 2) {
       if (Tools.checkAIFromTags(tagsWithTransl2)) {

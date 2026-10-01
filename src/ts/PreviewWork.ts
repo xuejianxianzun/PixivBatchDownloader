@@ -677,7 +677,11 @@ class PreviewWork {
       }
 
       // 判断是不是 AI 生成的作品
-      const tagsWithTransl: string[] = Tools.extractTags(workData, 'both')
+      const tagsWithTransl: string[] = Tools.extractTags(
+        workData,
+        'both',
+        'check'
+      )
       let aiType = body.aiType
       if (aiType !== 2) {
         if (Tools.checkAIFromTags(tagsWithTransl)) {

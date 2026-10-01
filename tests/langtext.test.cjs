@@ -5,7 +5,8 @@
 //    Lang.transl 是按语言下标取值的，少一条时那种语言会拿到 undefined：
 //    语句里有 {} 占位符时直接抛 TypeError，没有占位符时就把 "undefined" 当作文本显示出来。
 // 2. 同一个 key 的 6 条里 {} 占位符个数必须一致，否则替换之后某些语言会剩下 {}、或者用不上传入的参数。
-// 3. 代码（含 OptionsHtml.html 里的 data-xztext）中用到的字面量 key 必须都已定义，
+// 3. 代码（含 OptionsHtml.html 里的各种 data-* 属性）和设置配置（OptionConfigs 里的
+//    nameKey / searchWordKeys）中用到的字面量 key 必须都已定义，
 //    写错 key 时 Lang.transl 只会往控制台打一行警告，界面上显示的是 key 本身。
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
@@ -164,18 +165,38 @@ test('代码里用到的字面量 key 都已经定义', () => {
     /transl\(\s*'(_[^']+)'/g,
     /transl\(\s*"(_[^"]+)"/g,
     /updateText\(\s*'(_[^']+)'/g,
-    /data-xztext="(_[^"]+)"/g,
+    // 设置面板里的文本和帮助按钮：data-msg / data-title 由 FormHelpManager 读取，
+    // data-xztip 由 Language 翻译成 data-tip 后交给 ShowTip 显示
+    /data-(?:xztext|msg|title|xztip|xzplaceholder)="(_[^"]+)"/g,
+    // OptionConfigs 里声明设置名称时引用的 key
+    /\bnameKey:\s*'(_[^']+)'/g,
   ]
+  // 这些写法把 key 写在数组里，需要先取出数组的内容，再从里面提取每个 key
+  const listPattern = /searchWordKeys:\s*\[([^\]]*)\]/g
+  const keyPattern = /'(_[^']+)'/g
+
   const missing = new Map()
+  const collect = (key, file) => {
+    if (!defined.has(key)) {
+      missing.set(key, path.relative(ROOT, file))
+    }
+  }
+
   for (const file of collectSourceFiles(path.join(ROOT, 'src'))) {
     const content = fs.readFileSync(file, 'utf8')
     for (const pattern of patterns) {
       pattern.lastIndex = 0
       let match
       while ((match = pattern.exec(content))) {
-        if (!defined.has(match[1])) {
-          missing.set(match[1], path.relative(ROOT, file))
-        }
+        collect(match[1], file)
+      }
+    }
+
+    listPattern.lastIndex = 0
+    let listMatch
+    while ((listMatch = listPattern.exec(content))) {
+      for (const keyMatch of listMatch[1].matchAll(keyPattern)) {
+        collect(keyMatch[1], file)
       }
     }
   }
