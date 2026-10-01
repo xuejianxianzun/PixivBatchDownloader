@@ -483,6 +483,35 @@ class Store {
     return url.replace(new RegExp(`${idNum}_p\\d+`), `${idNum}_p0`)
   }
 
+  /** 根据抓取结果构造出 bookmarkData 对象。
+   *
+   * result 里没有保存原本的 bookmarkData 对象，只保存了收藏 id（bmkId）和是否已收藏（bookmarked）。
+   * 返回值有三种情况：
+   * - undefined：抓取结果里没有收藏状态的数据（例如手动编辑过的导入文件），让过滤器跳过这项检查
+   * - null：未收藏
+   * - 对象：已收藏，id 就是收藏 id */
+  public createBookmarkDataFromResult(result: Result):
+    | undefined
+    | null
+    | {
+        id: string
+        private: boolean
+      } {
+    // 没有收藏状态的数据时返回 undefined
+    if (result.bookmarked === undefined) {
+      return undefined
+    }
+    // 未收藏时返回 null
+    if (!result.bookmarked) {
+      return null
+    }
+    return {
+      id: result.bmkId,
+      // 注意：下载器目前的抓取结果里并没有保存收藏的公开/私密状态。这里默认设为 false（公开收藏）
+      private: false,
+    }
+  }
+
   public reset() {
     this.resultMeta = []
     this.artworkIDList = []

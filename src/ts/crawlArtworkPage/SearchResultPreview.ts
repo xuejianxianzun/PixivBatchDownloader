@@ -361,7 +361,7 @@ class SearchResultPreview {
         tags: data.tags,
         title: data.title,
         bookmarkCount: data.bmk,
-        bookmarkData: data.bookmarked,
+        bookmarkData: store.createBookmarkDataFromResult(data),
         width: data.pageCount === 1 ? data.fullWidth : 0,
         height: data.pageCount === 1 ? data.fullHeight : 0,
         createDate: data.date,

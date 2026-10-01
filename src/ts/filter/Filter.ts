@@ -25,8 +25,16 @@ export interface FilterOption {
   pageCount?: number
   tags?: string[]
   bookmarkCount?: number
-  /**是否已收藏。虽然可以传递对象，但在判断时只会判断是否为真 */
-  bookmarkData?: any
+  /**是否已收藏。
+   *
+   * 在检查收藏和未收藏的要求时（checkDownTypeByBmked），只需要判断是否为真 */
+  bookmarkData?:
+    | any
+    | null
+    | {
+        id: string
+        private: boolean
+      }
   width?: number
   height?: number
   yes_rank?: number
@@ -227,6 +235,18 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_id范围'),
         'excludeWorkByIdRange'
+      )
+      return false
+    }
+
+    // 检查收藏 id 范围设置
+    if (!this.checkIdRangeForBookmark(option.bookmarkData)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_id范围') +
+          ': ' +
+          lang.transl('_你收藏的作品'),
+        'excludeWorkByIdRangeForBookmark'
       )
       return false
     }
@@ -950,6 +970,28 @@ class Filter {
     }
 
     return true
+  }
+
+  /** 检查收藏 id 范围设置。
+   *
+   * 只有当用户启用了「ID 范围」，并且传入的数据里有收藏 id（bookmarkData.id）时才进行检查。
+   * 没有收藏数据、只传了布尔值（表示是否已收藏）、或者数据里没有 id 时，都直接通过检查。 */
+  private checkIdRangeForBookmark(bookmarkData: FilterOption['bookmarkData']) {
+    if (!settings.idRangeSwitch || !bookmarkData?.id) {
+      return true
+    }
+
+    // 如果 ID 不可用，则不进行检查
+    const id = Number.parseInt(bookmarkData.id)
+    if (isNaN(id)) {
+      return true
+    }
+
+    if (settings.idRangeComparisonForBookmark === '>') {
+      return id > settings.idRangeValueForBookmark
+    } else {
+      return id < settings.idRangeValueForBookmark
+    }
   }
 
   /** 检查投稿时间设置 */

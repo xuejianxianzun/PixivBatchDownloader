@@ -60,7 +60,7 @@ class ImportResult {
         tags: result.tagsWithTransl,
         title: result.title,
         bookmarkCount: result.bmk,
-        bookmarkData: result.bookmarked,
+        bookmarkData: store.createBookmarkDataFromResult(result),
         width: result.pageCount === 1 ? result.fullWidth : 0,
         height: result.pageCount === 1 ? result.fullHeight : 0,
         createDate: result.date,

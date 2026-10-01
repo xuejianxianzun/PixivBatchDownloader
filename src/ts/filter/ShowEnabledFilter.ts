@@ -422,7 +422,15 @@ class ShowEnabledFilter {
         ' ' +
         settings.idRangeComparisonForNovelSeries +
         ' ' +
-        settings.idRangeValueForNovelSeries
+        settings.idRangeValueForNovelSeries +
+        ','
+    )
+    array.push(
+      lang.transl('_你收藏的作品') +
+        ' ' +
+        settings.idRangeComparisonForBookmark +
+        ' ' +
+        settings.idRangeValueForBookmark
     )
     log.warning('🛸' + array.join(' '))
   }

@@ -31,9 +31,11 @@ export interface FormType extends HTMLFormElement {
   idRangeComparisonForImageWorks: RadioNodeList
   idRangeComparisonForNovelWorks: RadioNodeList
   idRangeComparisonForNovelSeries: RadioNodeList
+  idRangeComparisonForBookmark: RadioNodeList
   idRangeValueForImageWorks: HTMLInputElement
   idRangeValueForNovelWorks: HTMLInputElement
   idRangeValueForNovelSeries: HTMLInputElement
+  idRangeValueForBookmark: HTMLInputElement
   setWidthAndOr: RadioNodeList
   setHeight: HTMLInputElement
   ratio: RadioNodeList

@@ -282,9 +282,11 @@ interface XzSetting {
   idRangeComparisonForImageWorks: '>' | '<'
   idRangeComparisonForNovelWorks: '>' | '<'
   idRangeComparisonForNovelSeries: '>' | '<'
+  idRangeComparisonForBookmark: '>' | '<'
   idRangeValueForImageWorks: number
   idRangeValueForNovelWorks: number
   idRangeValueForNovelSeries: number
+  idRangeValueForBookmark: number
   filterBlackWhite: boolean
   sizeSwitch: boolean
   sizeMin: number
@@ -832,9 +834,11 @@ class Settings {
     idRangeComparisonForImageWorks: '>',
     idRangeComparisonForNovelWorks: '>',
     idRangeComparisonForNovelSeries: '>',
+    idRangeComparisonForBookmark: '>',
     idRangeValueForImageWorks: 0,
     idRangeValueForNovelWorks: 0,
     idRangeValueForNovelSeries: 0,
+    idRangeValueForBookmark: 0,
     needTagSwitch: false,
     notNeedTagSwitch: false,
     filterBlackWhite: false,

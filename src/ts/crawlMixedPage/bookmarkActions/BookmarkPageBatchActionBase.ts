@@ -125,7 +125,7 @@ abstract class BookmarkPageBatchActionBase<T> {
         requestNumber,
       })
 
-      console.log('bookmarkDataList', bookmarkDataList)
+      // console.log('bookmarkDataList', bookmarkDataList)
       await options.onCollected(bookmarkDataList)
     } finally {
       states.slowCrawlMode = false
