@@ -48,7 +48,7 @@ class SaveNamingRule {
 
   private readonly html = `
   <div class="saveNamingRuleWrap">
-    <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+    <button class="nameSave textButton" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
     <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
   </div>`
 

@@ -1735,7 +1735,7 @@ body.mobile #rightButtonContainer {
   color: var(--settings-panel-placeholder-text);
 }
 .centerWrap .centerWrap_con a.settingNameStyle:hover,
-.centerWrap .centerWrap_con .has_tip:hover,
+.centerWrap .centerWrap_con [data-xztip]:hover,
 .centerWrap .centerWrap_con label:hover,
 .centerWrap .centerWrap_con .showFileNameTip:hover,
 .centerWrap .centerWrap_con .showFileNameTip:focus,
@@ -3012,7 +3012,7 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap.theme-dark .blue,
 .centerWrap.theme-dark a.settingNameStyle:hover,
-.centerWrap.theme-dark .has_tip:hover,
+.centerWrap.theme-dark [data-xztip]:hover,
 .centerWrap.theme-dark label:hover,
 .centerWrap.theme-dark .title.active,
 .centerWrap.theme-dark .title:hover,
@@ -3073,7 +3073,7 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap.xzBG .blue,
 .centerWrap.xzBG a.settingNameStyle:hover,
-.centerWrap.xzBG .has_tip:hover,
+.centerWrap.xzBG [data-xztip]:hover,
 .centerWrap.xzBG label,
 .centerWrap.xzBG label:hover,
 .centerWrap.xzBG .title.active,

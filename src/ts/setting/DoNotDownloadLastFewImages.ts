@@ -69,7 +69,7 @@ class DoNotDownloadLastFewImages {
 
         <div class="inputItem value">
           <span class="label nameLabel" data-xztext="_不下载最后几张图片"></span>
-          <input type="text" class="has_tip setinput_style blue addValueInput" data-xztip="_提示0表示不生效" />
+          <input type="text" class="setinput_style blue addValueInput" data-xztip="_提示0表示不生效" />
         </div>
 
         <div class="btns">
@@ -181,7 +181,7 @@ class DoNotDownloadLastFewImages {
       </div>
 
       <div class="inputItem value">
-        <input type="text" class="has_tip setinput_style blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
+        <input type="text" class="setinput_style blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
       </div>
 
       <div class="btns">
