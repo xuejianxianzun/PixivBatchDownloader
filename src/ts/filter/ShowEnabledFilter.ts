@@ -104,8 +104,8 @@ class ShowEnabledFilter {
     ) {
       return this.error(
         lang.transl('_排除了所有作品类型') +
-          ': <br>' +
-          lang.transl('_AI作品带高亮')
+        ': <br>' +
+        lang.transl('_AI作品带高亮')
       )
     }
 
@@ -200,9 +200,9 @@ class ShowEnabledFilter {
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_多图作品的图片数量上限') +
-          '：' +
-          settings.multiImageWorkImageLimit
+        lang.transl('_多图作品的图片数量上限') +
+        '：' +
+        settings.multiImageWorkImageLimit
       )
     }
   }
@@ -212,7 +212,7 @@ class ShowEnabledFilter {
     if (settings.onlyCrawlFirstFewImagesSwitch) {
       log.warning(
         '🛸' +
-          `${lang.transl('_多图作品只抓取前几张图片')}: ${settings.onlyCrawlFirstFewImagesCount}`
+        `${lang.transl('_多图作品只抓取前几张图片')}: ${settings.onlyCrawlFirstFewImagesCount}`
       )
     }
   }
@@ -222,7 +222,7 @@ class ShowEnabledFilter {
     if (settings.onlyCrawlLastFewImagesSwitch) {
       log.warning(
         '🛸' +
-          `${lang.transl('_多图作品只抓取后几张图片')}: ${settings.onlyCrawlLastFewImagesCount}`
+        `${lang.transl('_多图作品只抓取后几张图片')}: ${settings.onlyCrawlLastFewImagesCount}`
       )
     }
   }
@@ -232,7 +232,7 @@ class ShowEnabledFilter {
     if (settings.doNotCrawlFirstImagesSwitch) {
       log.warning(
         '🛸' +
-          `${lang.transl('_多图作品不抓取前几张图片')}: ${settings.doNotCrawlFirstImagesCount}`
+        `${lang.transl('_多图作品不抓取前几张图片')}: ${settings.doNotCrawlFirstImagesCount}`
       )
     }
   }
@@ -242,7 +242,7 @@ class ShowEnabledFilter {
     if (settings.doNotCrawlLastImagesSwitch) {
       log.warning(
         '🛸' +
-          `${lang.transl('_多图作品不抓取后几张图片')}: ${settings.doNotCrawlLastImagesCount}`
+        `${lang.transl('_多图作品不抓取后几张图片')}: ${settings.doNotCrawlLastImagesCount}`
       )
     }
   }
@@ -256,8 +256,8 @@ class ShowEnabledFilter {
     if (settings.needTag.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_设置了必须tag之后的提示') +
-          settings.needTag.toString()
+        lang.transl('_设置了必须tag之后的提示') +
+        settings.needTag.toString()
       )
     }
   }
@@ -271,8 +271,8 @@ class ShowEnabledFilter {
     if (settings.notNeedTag.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_设置了排除tag之后的提示') +
-          settings.notNeedTag.toString()
+        lang.transl('_设置了排除tag之后的提示') +
+        settings.notNeedTag.toString()
       )
     }
   }
@@ -286,9 +286,9 @@ class ShowEnabledFilter {
     if (settings.titleIncludeList.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_标题必须含有') +
-          ': ' +
-          settings.titleIncludeList.join(',')
+        lang.transl('_标题必须含有') +
+        ': ' +
+        settings.titleIncludeList.join(',')
       )
     }
   }
@@ -302,9 +302,9 @@ class ShowEnabledFilter {
     if (settings.titleExcludeList.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_标题不能含有') +
-          ': ' +
-          settings.titleExcludeList.join(',')
+        lang.transl('_标题不能含有') +
+        ': ' +
+        settings.titleExcludeList.join(',')
       )
     }
   }
@@ -319,11 +319,9 @@ class ShowEnabledFilter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthComparison} ${
-        settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.heightComparison} ${
-        settings.setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthComparison} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.heightComparison} ${settings.setHeight
+        }`
       log.warning('🛸' + text)
     }
   }
@@ -385,9 +383,9 @@ class ShowEnabledFilter {
       case 'userSet':
         log.warning(
           '🛸' +
-            lang.transl('_宽高比') +
-            ` ${settings.userRatioLimit} ` +
-            settings.userRatio
+          lang.transl('_宽高比') +
+          ` ${settings.userRatioLimit} ` +
+          settings.userRatio
         )
         break
     }
@@ -403,36 +401,40 @@ class ShowEnabledFilter {
     array.push(lang.transl('_id范围') + ': ')
     array.push(
       lang.transl('_图像作品') +
-        ' ' +
-        settings.idRangeComparisonForImageWorks +
-        ' ' +
-        settings.idRangeValueForImageWorks +
-        ','
+      ' ' +
+      settings.idRangeComparisonForImageWorks +
+      ' ' +
+      settings.idRangeValueForImageWorks
     )
     array.push(
       lang.transl('_小说') +
-        ' ' +
-        settings.idRangeComparisonForNovelWorks +
-        ' ' +
-        settings.idRangeValueForNovelWorks +
-        ','
+      ' ' +
+      settings.idRangeComparisonForNovelWorks +
+      ' ' +
+      settings.idRangeValueForNovelWorks
     )
     array.push(
       lang.transl('_系列小说') +
-        ' ' +
-        settings.idRangeComparisonForNovelSeries +
-        ' ' +
-        settings.idRangeValueForNovelSeries +
-        ','
+      ' ' +
+      settings.idRangeComparisonForNovelSeries +
+      ' ' +
+      settings.idRangeValueForNovelSeries
     )
     array.push(
-      lang.transl('_你收藏的作品') +
-        ' ' +
-        settings.idRangeComparisonForBookmark +
-        ' ' +
-        settings.idRangeValueForBookmark
+      lang.transl('_书签ID_图像作品') +
+      ' ' +
+      settings.idRangeComparisonForBookmarkImageWorks +
+      ' ' +
+      settings.idRangeValueForBookmarkImageWorks
     )
-    log.warning('🛸' + array.join(' '))
+    array.push(
+      lang.transl('_书签ID_小说') +
+      ' ' +
+      settings.idRangeComparisonForBookmarkNovelWorks +
+      ' ' +
+      settings.idRangeValueForBookmarkNovelWorks
+    )
+    log.warning('🛸' + array.join('<br>'))
   }
 
   /** 提示投稿时间设置 */
@@ -460,7 +462,7 @@ class ShowEnabledFilter {
 
     log.warning(
       '🛸' +
-        `${lang.transl('_文件体积限制')}: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`
+      `${lang.transl('_文件体积限制')}: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`
     )
   }
 
@@ -473,8 +475,8 @@ class ShowEnabledFilter {
       if (isNaN(Number.parseInt(uid))) {
         return this.error(
           lang.transl('_用户ID必须是数字') +
-            ': <br>' +
-            lang.transl('_用户屏蔽名单')
+          ': <br>' +
+          lang.transl('_用户屏蔽名单')
         )
       }
     }
@@ -482,9 +484,9 @@ class ShowEnabledFilter {
     if (settings.blockList.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_用户屏蔽名单') +
-          ': ' +
-          settings.blockList.toString()
+        lang.transl('_用户屏蔽名单') +
+        ': ' +
+        settings.blockList.toString()
       )
     }
   }

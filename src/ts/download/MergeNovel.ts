@@ -907,6 +907,7 @@ class MergeNovel {
         title: item.title,
         seriesTitle: this.seriesTitle || '',
         userId: item.userId,
+        workType: 3,
         bookmarkData: item.bookmarkData,
         bookmarkCount: item.bookmarkCount,
         createDate: item.createDate,

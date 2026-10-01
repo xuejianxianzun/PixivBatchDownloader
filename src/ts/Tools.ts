@@ -1155,7 +1155,7 @@ class Tools {
   }
 
   /**根据作品类型字符串，返回对应的数字 */
-  static getWorkType(
+  static getWorkTypeNumber(
     workTypeString: WorkTypeString
   ): 0 | 1 | 2 | 3 | undefined {
     switch (workTypeString) {

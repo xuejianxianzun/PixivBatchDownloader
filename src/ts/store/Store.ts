@@ -485,11 +485,11 @@ class Store {
 
   /** 根据抓取结果构造出 bookmarkData 对象。
    *
-   * result 里没有保存原本的 bookmarkData 对象，只保存了收藏 id（bmkId）和是否已收藏（bookmarked）。
+   * result 里没有保存原本的 bookmarkData 对象，只保存了书签 ID（bmkId）和是否已收藏（bookmarked）。
    * 返回值有三种情况：
    * - undefined：抓取结果里没有收藏状态的数据（例如手动编辑过的导入文件），让过滤器跳过这项检查
    * - null：未收藏
-   * - 对象：已收藏，id 就是收藏 id */
+   * - 对象：已收藏，id 就是书签 ID */
   public createBookmarkDataFromResult(result: Result):
     | undefined
     | null

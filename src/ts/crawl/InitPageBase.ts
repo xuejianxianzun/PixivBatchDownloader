@@ -453,25 +453,6 @@ abstract class InitPageBase {
 
     this.setCrawlThread()
 
-    // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
-    // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
-    // 对于图像作品，优先从缓存读取。其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久，所以就使用缓存了
-    // 不检查 novelSeries 类型的作品，因为目前不会缓存系列小说的数据
-    // 也不检查 novels 类型的作品，因为小说可能属于系列小说，可能需要自动合并系列小说，所以必须走正常抓取流程处理，不能在这里跳过抓取流程
-    if (
-      states.quickCrawl &&
-      store.idList.length === 1 &&
-      ['illusts', 'manga', 'ugoira'].includes(store.idList[0].type)
-    ) {
-      const idData = store.idList[0]
-      const data = cacheWorkData.get(idData.id, 'artwork')
-      if (data) {
-        store.idList = []
-        await saveArtworkData.save(data, idData.downloadIndexes)
-        return this.crawlFinished()
-      }
-    }
-
     // 进入抓取流程
     this.startGetWorksData()
   }

@@ -27,14 +27,17 @@ export interface FilterOption {
   bookmarkCount?: number
   /**是否已收藏。
    *
-   * 在检查收藏和未收藏的要求时（checkDownTypeByBmked），只需要判断是否为真 */
+   * 在检查收藏和未收藏的要求时（checkDownTypeByBmked），只需要判断是否为真
+   *
+   * 其他模块里如果有原始收藏数据，应该优先传递原始数据；没有的时候可以只传递是否已收藏的布尔值
+   */
   bookmarkData?:
-    | any
-    | null
-    | {
-        id: string
-        private: boolean
-      }
+  | any
+  | null
+  | {
+    id: string
+    private: boolean
+  }
   width?: number
   height?: number
   yes_rank?: number
@@ -100,9 +103,9 @@ class Filter {
     if (!this.checkDownType(option.workType)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_作品类型') +
-          ': ' +
-          this.getWorkTypeText(option.workType),
+        lang.transl('_作品类型') +
+        ': ' +
+        this.getWorkTypeText(option.workType),
         'excludeWorkByWorkType' + option.workType
       )
       return false
@@ -111,9 +114,9 @@ class Filter {
     if (!this.checkDownTypeByAge(option.xRestrict)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_年龄限制') +
-          ': ' +
-          Tools.getAgeLimitText(option.xRestrict!),
+        lang.transl('_年龄限制') +
+        ': ' +
+        Tools.getAgeLimitText(option.xRestrict!),
         'excludeWorkByAge' + option.xRestrict
       )
       return false
@@ -122,7 +125,7 @@ class Filter {
     if (!this.checkAIWorkType(option.aiType, option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          Tools.getAITypeText(option.aiType),
+        Tools.getAITypeText(option.aiType),
         'excludeWorkByAIType' + option.aiType
       )
       return false
@@ -143,7 +146,7 @@ class Filter {
     ) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_多图作品的图片数量上限'),
+        lang.transl('_多图作品的图片数量上限'),
         'excludeWorkByMultiImageWorkImageLimit'
       )
       return false
@@ -156,9 +159,9 @@ class Filter {
         : lang.transl('_未收藏')
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_收藏状态') +
-          ': ' +
-          bmkedText,
+        lang.transl('_收藏状态') +
+        ': ' +
+        bmkedText,
         'excludeWorkByAge'
       )
       return false
@@ -202,7 +205,7 @@ class Filter {
     if (!this.checkExcludeSeriesTitle(option.seriesTitle)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_系列标题不能含有'),
+        lang.transl('_系列标题不能含有'),
         'excludeWorkByExcludeSeriesTitle'
       )
       return false
@@ -239,14 +242,19 @@ class Filter {
       return false
     }
 
-    // 检查收藏 id 范围设置
-    if (!this.checkIdRangeForBookmark(option.bookmarkData)) {
+    // 检查书签 ID 范围设置
+    if (!this.checkIdRangeForBookmark(option.bookmarkData, option.workType)) {
+      // 图像作品和小说使用不同的设置值，日志也分别显示，方便用户知道是哪一项排除了作品
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_id范围') +
-          ': ' +
-          lang.transl('_你收藏的作品'),
-        'excludeWorkByIdRangeForBookmark'
+        lang.transl('_id范围') +
+        ': ' +
+        lang.transl(
+          option.workType === 3
+            ? '_书签ID_小说'
+            : '_书签ID_图像作品'
+        ),
+        'excludeWorkByIdRangeForBookmark' + option.workType
       )
       return false
     }
@@ -255,7 +263,7 @@ class Filter {
     if (!(await this.checkMuteUser(option.userId))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_你屏蔽了这个用户'),
+        lang.transl('_你屏蔽了这个用户'),
         'excludeWorkByMuteUser'
       )
       return false
@@ -264,7 +272,7 @@ class Filter {
     if (!(await this.checkMuteTag(option.tags))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_你屏蔽了它的标签'),
+        lang.transl('_你屏蔽了它的标签'),
         'excludeWorkByMuteTag'
       )
       return false
@@ -283,7 +291,7 @@ class Filter {
     if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_针对特定用户屏蔽标签'),
+        lang.transl('_针对特定用户屏蔽标签'),
         'excludeWorkByBlockTagsForSpecificUser'
       )
       return false
@@ -311,7 +319,7 @@ class Filter {
     if (!this.checkDebut(option.yes_rank)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_它不是首次登场的作品'),
+        lang.transl('_它不是首次登场的作品'),
         'excludeWorkByDebut'
       )
       return false
@@ -321,7 +329,7 @@ class Filter {
     if (!(await this.checkDownloadedWorks(option.id, option.IDTypeString))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_不抓取下载过的作品'),
+        lang.transl('_不抓取下载过的作品'),
         'excludeWorkByDownloadedWorks'
       )
       return false
@@ -455,9 +463,9 @@ class Filter {
         pageCount === 1 ? lang.transl('_单图作品') : lang.transl('_多图作品')
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_图片数量') +
-          ': ' +
-          typeText,
+        lang.transl('_图片数量') +
+        ': ' +
+        typeText,
         'excludeWorkByPageCount' + (pageCount === 1 ? 'SingleImg' : 'MultiImg')
       )
     }
@@ -483,9 +491,9 @@ class Filter {
         : lang.transl('_彩色图片')
       log.warning(
         lang.transl('_下载器排除了一些作品或图片原因') +
-          lang.transl('_图片色彩') +
-          ': ' +
-          colorText,
+        lang.transl('_图片色彩') +
+        ': ' +
+        colorText,
         'excludeWorkByColor' + (isBlackAndWhite ? 'BlackWhite' : 'Color')
       )
     }
@@ -926,9 +934,9 @@ class Filter {
 
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_图片的宽高比例') +
-          ': ' +
-          ratioText,
+        lang.transl('_图片的宽高比例') +
+        ': ' +
+        ratioText,
         'excludeWorkByRatio' + ratioText
       )
     }
@@ -972,25 +980,45 @@ class Filter {
     return true
   }
 
-  /** 检查收藏 id 范围设置。
+  /** 检查书签 ID 范围设置。
    *
-   * 只有当用户启用了「ID 范围」，并且传入的数据里有收藏 id（bookmarkData.id）时才进行检查。
-   * 没有收藏数据、只传了布尔值（表示是否已收藏）、或者数据里没有 id 时，都直接通过检查。 */
-  private checkIdRangeForBookmark(bookmarkData: FilterOption['bookmarkData']) {
+   * 只有当用户启用了「ID 范围」，并且传入的数据里有书签 ID（bookmarkData.id）时才进行检查。
+   * 没有收藏数据、只传了布尔值（表示是否已收藏）、或者数据里没有 id 时，都直接通过检查。
+   *
+   * 图像作品和小说的书签 ID 范围是两个独立的设置项，所以需要作品类型来决定使用哪一组设置值。
+   * 缺少 workType 时无法判断，直接跳过检查。 */
+  private checkIdRangeForBookmark(
+    bookmarkData: FilterOption['bookmarkData'],
+    workType: FilterOption['workType']
+  ) {
     if (!settings.idRangeSwitch || !bookmarkData?.id) {
       return true
     }
 
-    // 如果 ID 不可用，则不进行检查
+    // 缺少作品类型时，无法判断该用哪一组设置值，跳过检查
+    if (workType === undefined) {
+      return true
+    }
+
+    // 如果书签 ID 不可用，则不进行检查
     const id = Number.parseInt(bookmarkData.id)
     if (isNaN(id)) {
       return true
     }
 
-    if (settings.idRangeComparisonForBookmark === '>') {
-      return id > settings.idRangeValueForBookmark
+    // workType 为 -1、0、1、2 时都是图像作品（-1 表示笼统的图像作品，不区分插画、漫画、动图），为 3 时是小说
+    if (workType === 3) {
+      if (settings.idRangeComparisonForBookmarkNovelWorks === '>') {
+        return id > settings.idRangeValueForBookmarkNovelWorks
+      } else {
+        return id < settings.idRangeValueForBookmarkNovelWorks
+      }
     } else {
-      return id < settings.idRangeValueForBookmark
+      if (settings.idRangeComparisonForBookmarkImageWorks === '>') {
+        return id > settings.idRangeValueForBookmarkImageWorks
+      } else {
+        return id < settings.idRangeValueForBookmarkImageWorks
+      }
     }
   }
 
@@ -1221,7 +1249,7 @@ class Filter {
     if (excluded) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_手动排除了这个作品'),
+        lang.transl('_手动排除了这个作品'),
         'excludeWork'
       )
       return false

@@ -318,6 +318,10 @@ class InitBookmarkPage extends InitPageBase {
       if (this.filteredNumber >= this.requsetNumber) {
         break
       }
+      const workType =
+        (workData as ArtworkCommonData).illustType === undefined
+          ? 'novels'
+          : Tools.getWorkTypeString((workData as ArtworkCommonData).illustType)
 
       const filterOpt: FilterOption = {
         aiType: workData.aiType,
@@ -325,6 +329,7 @@ class InitBookmarkPage extends InitPageBase {
         isOriginal: workData.isOriginal,
         tags: workData.tags,
         title: workData.title,
+        workType: Tools.getWorkTypeNumber(workType),
         bookmarkData: workData.bookmarkData,
         createDate: workData.createDate,
         userId: workData.userId,
@@ -335,12 +340,7 @@ class InitBookmarkPage extends InitPageBase {
 
       if (await filter.check(filterOpt)) {
         this.idList.push({
-          type:
-            (workData as ArtworkCommonData).illustType === undefined
-              ? 'novels'
-              : Tools.getWorkTypeString(
-                  (workData as ArtworkCommonData).illustType
-                ),
+          type: workType,
           id: workData.id,
         })
       }
