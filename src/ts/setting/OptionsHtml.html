@@ -191,6 +191,30 @@
   ></label>
 </div>
 
+<div class="option" data-no="9">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_收藏状态"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="downNotBookmarked"
+    id="setDownNotBookmarked"
+    class="need_beautify checkbox_common"
+    checked
+  />
+  <span class="beautify_checkbox" tabindex="0"></span>
+  <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
+  <input
+    type="checkbox"
+    name="downBookmarked"
+    id="setDownBookmarked"
+    class="need_beautify checkbox_common"
+    checked
+  />
+  <span class="beautify_checkbox" tabindex="0"></span>
+  <label for="setDownBookmarked" data-xztext="_已收藏"></label>
+</div>
+
 <div class="option" data-no="6">
   <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_原创作品"></span>
@@ -296,30 +320,6 @@
   />
   <span class="beautify_checkbox" tabindex="0"></span>
   <label for="setDownMultiImg" data-xztext="_多图作品"></label>
-</div>
-
-<div class="option" data-no="9">
-  <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_收藏状态"></span>
-  </a>
-  <input
-    type="checkbox"
-    name="downNotBookmarked"
-    id="setDownNotBookmarked"
-    class="need_beautify checkbox_common"
-    checked
-  />
-  <span class="beautify_checkbox" tabindex="0"></span>
-  <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
-  <input
-    type="checkbox"
-    name="downBookmarked"
-    id="setDownBookmarked"
-    class="need_beautify checkbox_common"
-    checked
-  />
-  <span class="beautify_checkbox" tabindex="0"></span>
-  <label for="setDownBookmarked" data-xztext="_已收藏"></label>
 </div>
 
 <div class="option" data-no="10">
@@ -1281,6 +1281,43 @@
     value="30"
   />
   <span class="mr4" data-xztext="_分钟"></span>
+</div>
+
+<div class="option" data-no="93">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_预览搜索页面的抓取结果"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="previewResult"
+    class="need_beautify checkbox_switch"
+    checked
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_预览搜索页面的抓取结果"
+    data-msg="_预览搜索页面的抓取结果说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="previewResult">
+    <div class="optionLine">
+      <label
+        for="previewResultPageSize"
+        data-xztext="_每页显示的作品数量"
+      ></label>
+      <input
+        type="text"
+        name="previewResultPageSize"
+        id="previewResultPageSize"
+        class="setinput_style blue w80"
+        value="100"
+      />
+    </div>
+  </div>
 </div>
 
 <div class="option" data-no="30">
@@ -3808,43 +3845,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     data-msg="_在搜索页面里移除已关注用户的作品的说明"
     data-xztext="_帮助"
   ></button>
-</div>
-
-<div class="option" data-no="93">
-  <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_预览搜索页面的抓取结果"></span>
-  </a>
-  <input
-    type="checkbox"
-    name="previewResult"
-    class="need_beautify checkbox_switch"
-    checked
-  />
-  <span class="beautify_switch" tabindex="0"></span>
-
-  <button
-    type="button"
-    class="gray textButton showMsgBtn"
-    data-title="_预览搜索页面的抓取结果"
-    data-msg="_预览搜索页面的抓取结果说明"
-    data-xztext="_帮助"
-  ></button>
-
-  <div class="subOptionWrap flexBasis100" data-show="previewResult">
-    <div class="optionLine">
-      <label
-        for="previewResultPageSize"
-        data-xztext="_每页显示的作品数量"
-      ></label>
-      <input
-        type="text"
-        name="previewResultPageSize"
-        id="previewResultPageSize"
-        class="setinput_style blue w80"
-        value="100"
-      />
-    </div>
-  </div>
 </div>
 
 <div class="option" data-no="94">
