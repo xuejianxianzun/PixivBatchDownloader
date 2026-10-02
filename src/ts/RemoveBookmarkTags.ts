@@ -94,9 +94,9 @@ class RemoveBookmarkTags {
       const msg =
         completeMsg +
         ' ' +
-        lang.transl('_有x个作品失败请再次执行重试', failed.toString())
+        lang.transl('_有x个作品移除标签失败请再次执行重试', failed.toString())
       log.error(msg)
-      toast.error(lang.transl('_收藏作品完毕但是有一些失败了'))
+      msgBox.error(msg)
     } else {
       log.success(completeMsg)
       toast.success(completeMsg)

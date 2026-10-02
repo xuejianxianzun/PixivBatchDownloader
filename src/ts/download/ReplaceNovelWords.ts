@@ -78,7 +78,25 @@ class ReplaceNovelWords {
 
     let result = content
     for (const item of replaceWordList) {
-      // 注意：不要替换 [] 及其内部的文字。这是因为内嵌的图片、分页标记等都是通过 [] 来标记的，如 [uploadedimage:13309543]。如果替换 [] 内的文字，可能导致标记里的部分文字被替换，从而变成错误的标记。这可能导致内嵌的图片的 id 发生变化，进而导致下载图片时失败。
+      // 注意：如果原单词里含有 []，才会替换 [] 及其内部的文字，否则不要替换 [] 及其内部的文字。
+      // 这是因为内嵌的图片、分页标记等都是通过 [] 来标记的，如 [uploadedimage:13309543]。如果替换 [] 内的文字，可能导致标记里的部分文字被替换，从而变成错误的标记。这可能导致内嵌的图片的 id 发生变化，进而导致下载图片时失败。
+
+      // 处理原单词有 [] 的情况，原样替换
+      // 例如这篇小说：
+      // https://www.pixiv.net/novel/show.php?id=28251896
+      // 它的两个可置换单词都是 [] 包裹的：
+      // [LN:○○]和[カナ:○○]
+      // 以防万一，如果只有 [ 或者只有 ]，也原样替换
+      if (item.rawWord.includes('[') || item.rawWord.includes(']')) {
+        if (result.includes(item.rawWord)) {
+          result = result.replaceAll(item.rawWord, item.word)
+          const logKey = item.rawWord + ' ' + item.word
+          log.log(lang.transl('_已置换单词', item.rawWord, item.word), logKey)
+        }
+        continue
+      }
+
+      // 处理原单词没有 [] 的情况，替换时会避开正文里 [] 内的文字
       // 这个正则的作用：第一部分（ | 前面的）匹配  [...] 文本
       // 第二部分（ | 后面的）匹配普通文字
       // 这样就能把 [] 内的文字和普通文字分开，分别处理
@@ -87,9 +105,13 @@ class ReplaceNovelWords {
         if (text.startsWith('[')) {
           return text
         }
-        const logKey = item.rawWord + ' ' + item.word
-        log.log(lang.transl('_已置换单词', item.rawWord, item.word), logKey)
-        return text.replaceAll(item.rawWord, item.word)
+        const replaced = text.replaceAll(item.rawWord, item.word)
+        // 只有真的发生了替换才输出日志
+        if (replaced !== text) {
+          const logKey = item.rawWord + ' ' + item.word
+          log.log(lang.transl('_已置换单词', item.rawWord, item.word), logKey)
+        }
+        return replaced
       })
     }
     return result

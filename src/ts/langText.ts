@@ -2918,7 +2918,8 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 在作品页面里，抓取推荐作品<br>
 - 点击收藏按钮或点赞按钮建立的下载任务<br>
 - 定时抓取<br>
-- 抓取标签列表`,
+- 抓取标签列表<br>
+- 在首页里输入 ID 进行抓取、抓取 ID 区间`,
     `你可以設定是否自動開始下載。<br>
 <br>
 下載任務分為兩種：<br>
@@ -2933,7 +2934,8 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 在作品頁面裡，抓取推薦作品<br>
 - 點擊收藏按鈕或點讚按鈕建立的下載任務<br>
 - 定時抓取<br>
-- 抓取標籤列表`,
+- 抓取標籤列表<br>
+- 在首頁裡輸入 ID 進行擷取、擷取 ID 區間`,
     `You can set whether to start downloading automatically.<br>
 <br>
 There are two types of download tasks:<br>
@@ -2948,7 +2950,8 @@ Quick download tasks are triggered by these actions:<br>
 - Crawling the recommended works on a work page<br>
 - Download tasks created by clicking the bookmark button or the like button<br>
 - Timed crawl<br>
-- Crawl tag list`,
+- Crawl tag list<br>
+- Entering an ID to crawl or crawling an ID range on the HomePage`,
     `自動でダウンロードを開始するかどうかを設定できます。<br>
 <br>
 ダウンロードタスクは2種類あります：<br>
@@ -2963,7 +2966,8 @@ Quick download tasks are triggered by these actions:<br>
 - 作品ページで推奨作品をダウンロードする<br>
 - ブックマークボタンまたはいいねボタンをクリックして作成されたダウンロードタスク<br>
 - 時限クロール<br>
-- タグのリストをクロール`,
+- タグのリストをクロール<br>
+- ホームで ID を入力してクロールする、または ID 範囲をクロールする`,
     `다운로드를 자동으로 시작할지 여부를 설정할 수 있습니다.<br>
 <br>
 다운로드 작업에는 두 가지 유형이 있습니다:<br>
@@ -2978,7 +2982,8 @@ Quick download tasks are triggered by these actions:<br>
 - 작품 페이지에서 추천 작품 긁어오기<br>
 - 북마크 버튼 또는 좋아요 버튼을 클릭하여 생성된 다운로드 작업<br>
 - 시간 제한 크롤링<br>
-- 태그 긁어오기`,
+- 태그 긁어오기<br>
+- 홈에서 ID를 입력하여 긁어오기 또는 ID 범위 긁어오기`,
     `Вы можете настроить, начинать ли загрузку автоматически.<br>
 <br>
 Задачи загрузки бывают двух типов:<br>
@@ -2993,7 +2998,8 @@ Quick download tasks are triggered by these actions:<br>
 - Сканирование рекомендуемых работ на странице работы<br>
 - Задачи загрузки, созданные нажатием кнопки закладки или кнопки «Нравится»<br>
 - Сканирование по таймеру<br>
-- Сканирование списка тегов`,
+- Сканирование списка тегов<br>
+- Ввод ID для сканирования или сканирование диапазона идентификаторов на главной`,
   ],
   _转换任务提示: [
     `正在转换 {} 个文件`,
@@ -13955,6 +13961,14 @@ One possible reason: Your Pixiv account has been banned.`,
     `ブックマーク作業終了、ただし一部の作品は失敗しました`,
     `북마크 작업 완료, 하지만 일부 작품은 실패했습니다`,
     `Работа над закладками завершена, но часть работ не удалась`,
+  ],
+  _有x个作品移除标签失败请再次执行重试: [
+    `移除收藏标签的任务执行完毕，但其中有 {} 个作品移除标签失败，你可以再次执行这个任务来重试它们。`,
+    `移除收藏標籤的任務執行完畢，但其中有 {} 個作品移除標籤失敗，你可以再次執行這個任務來重試它們。`,
+    `The task of removing bookmark tags finished, but {} works failed to have their tags removed; you can run this task again to retry them.`,
+    `ブックマークタグの削除タスクが完了しましたが、そのうち {} 件の作品でタグの削除に失敗しました。このタスクをもう一度実行すると再試行できます。`,
+    `북마크 태그 제거 작업이 완료되었지만, 그중 {}개 작품의 태그 제거에 실패했습니다. 이 작업을 다시 실행하면 재시도할 수 있습니다.`,
+    `Задача удаления тегов закладок завершена, но у {} работ не удалось удалить теги; можно выполнить эту задачу снова, чтобы повторить их.`,
   ],
   _对状态码0的说明: [
     `这通常是因为网络错误导致无法建立请求，或者请求中断`,

@@ -122,11 +122,31 @@ function environment({ realBookmark = false } = {}) {
     sleep: (ms) => new Promise((resolve) => window.setTimeout(resolve, ms)),
     debounce: (fn) => fn,
   }
+  // BookmarkAfterDL 完成时会调用 bookmark.showCompleteMessage，它内部会输出 toast
+  const toast = {
+    success: (...args) => notices.push({ type: 'toast.success', args }),
+    error: (...args) => notices.push({ type: 'toast.error', args }),
+  }
   let bookmark = {
     add(...args) {
       const pending = deferred()
       writes.push({ args, ...pending })
       return pending.promise
+    },
+    /** 复刻 src/ts/Bookmark.ts 的 showCompleteMessage（⚠️ 改动时要同步这里） */
+    showCompleteMessage(failed) {
+      const completeMsg = '♥️' + language.transl('_收藏作品完毕')
+      if (failed > 0) {
+        log.error(
+          completeMsg +
+            ' ' +
+            language.transl('_有x个作品失败请再次执行重试', String(failed))
+        )
+        toast.error(language.transl('_收藏作品完毕但是有一些失败了'))
+      } else {
+        log.success(completeMsg)
+        toast.success(completeMsg)
+      }
     },
   }
   const imports = {
@@ -168,7 +188,7 @@ function environment({ realBookmark = false } = {}) {
         './Language': { lang },
         './Log': { log },
         './setting/Settings': { settings },
-        './Toast': { toast: { warning() {}, error() {} } },
+        './Toast': { toast: { success() {}, warning() {}, error() {} } },
         './Token': { token },
         './Tools': { Tools: { createWorkLink: (id) => id } },
         './utils/Utils': { Utils },

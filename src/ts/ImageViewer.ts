@@ -204,12 +204,21 @@ class ImageViewer {
     } else {
       this.cfg.showLoading && (loading.show = true)
 
-      const unlisted = pageType.type === pageType.list.Unlisted
-      const data = await API.getArtworkData(this.cfg.workId, unlisted)
-      this.workData = data
-      cacheWorkData.set(data)
-
-      this.cfg.showLoading && (loading.show = false)
+      try {
+        const unlisted = pageType.type === pageType.list.Unlisted
+        const data = await API.getArtworkData(this.cfg.workId, unlisted)
+        this.workData = data
+        cacheWorkData.set(data)
+      } catch (error) {
+        toast.error(lang.transl('_获取作品数据失败'))
+        // 请求失败时 this.workData 仍是 undefined，如果继续往下走，会在取
+        // this.workData.body 时抛异常。这里直接返回，让调用方跳过后续步骤
+        // （调用方已经用 if (wrap) 处理了取不到列表的情况）
+        return undefined
+      } finally {
+        // 无论请求是否成功，都需要隐藏加载提示，否则 loading 动画会一直显示
+        this.cfg.showLoading && (loading.show = false)
+      }
     }
 
     const body = this.workData!.body

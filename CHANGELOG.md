@@ -92,6 +92,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/682
 
 当用户名元素位于可视区域顶部或底部时，屏蔽按钮会遮挡住用户名。现在修复。
 
+### 🐞修复问题：置换小说里的单词时，不会置换以 [] 包裹的单词
+
+现在修复。
+
+相关模块：`src/ts/download/ReplaceNovelWords.ts` 的 `replace` 方法
+
 ### 🐞修复问题：下载途中手动排除作品无效
 
 之前如果在下载途中排除了一个尚未下载的作品，没有实际效果，下载器还是会下载它。现在修复。

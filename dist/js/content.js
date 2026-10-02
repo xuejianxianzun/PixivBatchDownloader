@@ -6650,11 +6650,23 @@ class ImageViewer {
         }
         else {
             this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = true);
-            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
-            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
-            this.workData = data;
-            _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.set(data);
-            this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = false);
+            try {
+                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
+                this.workData = data;
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.set(data);
+            }
+            catch (error) {
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_获取作品数据失败'));
+                // 请求失败时 this.workData 仍是 undefined，如果继续往下走，会在取
+                // this.workData.body 时抛异常。这里直接返回，让调用方跳过后续步骤
+                // （调用方已经用 if (wrap) 处理了取不到列表的情况）
+                return undefined;
+            }
+            finally {
+                // 无论请求是否成功，都需要隐藏加载提示，否则 loading 动画会一直显示
+                this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = false);
+            }
         }
         const body = this.workData.body;
         // 处理插画、漫画、动图作品，不处理其他类型的作品
@@ -10605,9 +10617,9 @@ class RemoveBookmarkTags {
             // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
             const msg = completeMsg +
                 ' ' +
-                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有x个作品失败请再次执行重试', failed.toString());
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有x个作品移除标签失败请再次执行重试', failed.toString());
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_收藏作品完毕但是有一些失败了'));
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
         }
         else {
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(completeMsg);
@@ -29927,7 +29939,23 @@ class ReplaceNovelWords {
         }
         let result = content;
         for (const item of replaceWordList) {
-            // 注意：不要替换 [] 及其内部的文字。这是因为内嵌的图片、分页标记等都是通过 [] 来标记的，如 [uploadedimage:13309543]。如果替换 [] 内的文字，可能导致标记里的部分文字被替换，从而变成错误的标记。这可能导致内嵌的图片的 id 发生变化，进而导致下载图片时失败。
+            // 注意：如果原单词里含有 []，才会替换 [] 及其内部的文字，否则不要替换 [] 及其内部的文字。
+            // 这是因为内嵌的图片、分页标记等都是通过 [] 来标记的，如 [uploadedimage:13309543]。如果替换 [] 内的文字，可能导致标记里的部分文字被替换，从而变成错误的标记。这可能导致内嵌的图片的 id 发生变化，进而导致下载图片时失败。
+            // 处理原单词有 [] 的情况，原样替换
+            // 例如这篇小说：
+            // https://www.pixiv.net/novel/show.php?id=28251896
+            // 它的两个可置换单词都是 [] 包裹的：
+            // [LN:○○]和[カナ:○○]
+            // 以防万一，如果只有 [ 或者只有 ]，也原样替换
+            if (item.rawWord.includes('[') || item.rawWord.includes(']')) {
+                if (result.includes(item.rawWord)) {
+                    result = result.replaceAll(item.rawWord, item.word);
+                    const logKey = item.rawWord + ' ' + item.word;
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已置换单词', item.rawWord, item.word), logKey);
+                }
+                continue;
+            }
+            // 处理原单词没有 [] 的情况，替换时会避开正文里 [] 内的文字
             // 这个正则的作用：第一部分（ | 前面的）匹配  [...] 文本
             // 第二部分（ | 后面的）匹配普通文字
             // 这样就能把 [] 内的文字和普通文字分开，分别处理
@@ -29936,9 +29964,13 @@ class ReplaceNovelWords {
                 if (text.startsWith('[')) {
                     return text;
                 }
-                const logKey = item.rawWord + ' ' + item.word;
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已置换单词', item.rawWord, item.word), logKey);
-                return text.replaceAll(item.rawWord, item.word);
+                const replaced = text.replaceAll(item.rawWord, item.word);
+                // 只有真的发生了替换才输出日志
+                if (replaced !== text) {
+                    const logKey = item.rawWord + ' ' + item.word;
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已置换单词', item.rawWord, item.word), logKey);
+                }
+                return replaced;
             });
         }
         return result;
@@ -36932,7 +36964,8 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 在作品页面里，抓取推荐作品<br>
 - 点击收藏按钮或点赞按钮建立的下载任务<br>
 - 定时抓取<br>
-- 抓取标签列表`,
+- 抓取标签列表<br>
+- 在首页里输入 ID 进行抓取、抓取 ID 区间`,
         `你可以設定是否自動開始下載。<br>
 <br>
 下載任務分為兩種：<br>
@@ -36947,7 +36980,8 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 在作品頁面裡，抓取推薦作品<br>
 - 點擊收藏按鈕或點讚按鈕建立的下載任務<br>
 - 定時抓取<br>
-- 抓取標籤列表`,
+- 抓取標籤列表<br>
+- 在首頁裡輸入 ID 進行擷取、擷取 ID 區間`,
         `You can set whether to start downloading automatically.<br>
 <br>
 There are two types of download tasks:<br>
@@ -36962,7 +36996,8 @@ Quick download tasks are triggered by these actions:<br>
 - Crawling the recommended works on a work page<br>
 - Download tasks created by clicking the bookmark button or the like button<br>
 - Timed crawl<br>
-- Crawl tag list`,
+- Crawl tag list<br>
+- Entering an ID to crawl or crawling an ID range on the HomePage`,
         `自動でダウンロードを開始するかどうかを設定できます。<br>
 <br>
 ダウンロードタスクは2種類あります：<br>
@@ -36977,7 +37012,8 @@ Quick download tasks are triggered by these actions:<br>
 - 作品ページで推奨作品をダウンロードする<br>
 - ブックマークボタンまたはいいねボタンをクリックして作成されたダウンロードタスク<br>
 - 時限クロール<br>
-- タグのリストをクロール`,
+- タグのリストをクロール<br>
+- ホームで ID を入力してクロールする、または ID 範囲をクロールする`,
         `다운로드를 자동으로 시작할지 여부를 설정할 수 있습니다.<br>
 <br>
 다운로드 작업에는 두 가지 유형이 있습니다:<br>
@@ -36992,7 +37028,8 @@ Quick download tasks are triggered by these actions:<br>
 - 작품 페이지에서 추천 작품 긁어오기<br>
 - 북마크 버튼 또는 좋아요 버튼을 클릭하여 생성된 다운로드 작업<br>
 - 시간 제한 크롤링<br>
-- 태그 긁어오기`,
+- 태그 긁어오기<br>
+- 홈에서 ID를 입력하여 긁어오기 또는 ID 범위 긁어오기`,
         `Вы можете настроить, начинать ли загрузку автоматически.<br>
 <br>
 Задачи загрузки бывают двух типов:<br>
@@ -37007,7 +37044,8 @@ Quick download tasks are triggered by these actions:<br>
 - Сканирование рекомендуемых работ на странице работы<br>
 - Задачи загрузки, созданные нажатием кнопки закладки или кнопки «Нравится»<br>
 - Сканирование по таймеру<br>
-- Сканирование списка тегов`,
+- Сканирование списка тегов<br>
+- Ввод ID для сканирования или сканирование диапазона идентификаторов на главной`,
     ],
     _转换任务提示: [
         `正在转换 {} 个文件`,
@@ -47964,6 +48002,14 @@ One possible reason: Your Pixiv account has been banned.`,
         `ブックマーク作業終了、ただし一部の作品は失敗しました`,
         `북마크 작업 완료, 하지만 일부 작품은 실패했습니다`,
         `Работа над закладками завершена, но часть работ не удалась`,
+    ],
+    _有x个作品移除标签失败请再次执行重试: [
+        `移除收藏标签的任务执行完毕，但其中有 {} 个作品移除标签失败，你可以再次执行这个任务来重试它们。`,
+        `移除收藏標籤的任務執行完畢，但其中有 {} 個作品移除標籤失敗，你可以再次執行這個任務來重試它們。`,
+        `The task of removing bookmark tags finished, but {} works failed to have their tags removed; you can run this task again to retry them.`,
+        `ブックマークタグの削除タスクが完了しましたが、そのうち {} 件の作品でタグの削除に失敗しました。このタスクをもう一度実行すると再試行できます。`,
+        `북마크 태그 제거 작업이 완료되었지만, 그중 {}개 작품의 태그 제거에 실패했습니다. 이 작업을 다시 실행하면 재시도할 수 있습니다.`,
+        `Задача удаления тегов закладок завершена, но у {} работ не удалось удалить теги; можно выполнить эту задачу снова, чтобы повторить их.`,
     ],
     _对状态码0的说明: [
         `这通常是因为网络错误导致无法建立请求，或者请求中断`,

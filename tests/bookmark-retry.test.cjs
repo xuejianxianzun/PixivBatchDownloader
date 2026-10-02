@@ -202,7 +202,12 @@ function createHarness() {
     both('Toast', { toast })
     both('Language', { lang })
     both('Log', { log })
-    both('MsgBox', { msgBox: { error() {}, show() {} } })
+    both('MsgBox', {
+      msgBox: {
+        error: (...args) => notices.push({ type: 'msgBoxError', args }),
+        show: (...args) => notices.push({ type: 'msgBoxShow', args }),
+      },
+    })
     both('EVT', { EVT })
     both('filter/Filter', { filter: { checkNotExcluded: () => true } })
     both('setting/Settings', { settings, setSetting() {} })
@@ -246,7 +251,28 @@ function createHarness() {
     },
     warnings: () => notices.filter((item) => item.type === 'warning'),
     errors: () => notices.filter((item) => item.type === 'error'),
+    msgBoxErrors: () => notices.filter((item) => item.type === 'msgBoxError'),
     successes: () => notices.filter((item) => item.type === 'success'),
+    /** 假 bookmark 模块。这些模块完成时会调用 `bookmark.showCompleteMessage`，
+     *  所以假模块也要带上它（行为复刻 src/ts/Bookmark.ts）。
+     *  ⚠️ 改动 `Bookmark.showCompleteMessage` 时这里要同步。 */
+    makeBookmark: (add) => ({
+      add,
+      showCompleteMessage(failed) {
+        const completeMsg = '♥️' + language.transl('_收藏作品完毕')
+        if (failed > 0) {
+          log.error(
+            completeMsg +
+              ' ' +
+              language.transl('_有x个作品失败请再次执行重试', String(failed))
+          )
+          toast.error(language.transl('_收藏作品完毕但是有一些失败了'))
+        } else {
+          log.success(completeMsg)
+          toast.success(completeMsg)
+        }
+      },
+    }),
     /** 相邻两次请求之间的间隔（毫秒） */
     gaps() {
       const result = []
@@ -288,6 +314,10 @@ async function runAdd(harness, promise, ms = 120000) {
 
 const errorSummary = (count) =>
   language.transl('_有x个作品失败请再次执行重试', String(count))
+
+/** 移除标签用的是独立文案（不再复用「收藏」那条），所以摘要要单独算 */
+const rmTagErrorSummary = (count) =>
+  language.transl('_有x个作品移除标签失败请再次执行重试', String(count))
 
 // ============================================================
 // 1. Bookmark.sendRequest 对断网的短重试
@@ -432,7 +462,7 @@ test('BookmarksAddTag counts failures and restores its button', async () => {
   const harness = createHarness()
   const statuses = [0, 200]
   const { BookmarksAddTag } = harness.load('pageFunciton/BookmarksAddTag.ts', {
-    bookmark: { add: async () => statuses.shift() },
+    bookmark: harness.makeBookmark(async () => statuses.shift()),
   })
   const button = makeElement()
   // 先真的禁用按钮，这样「被恢复」才是有效断言
@@ -459,7 +489,7 @@ test('BookmarksAddTag restores its button even when add throws', async () => {
   const harness = createHarness()
   // bookmark 里没有 add，调用时会抛异常
   const { BookmarksAddTag } = harness.load('pageFunciton/BookmarksAddTag.ts', {
-    bookmark: {},
+    bookmark: harness.makeBookmark(),
   })
   const button = makeElement()
   button.setAttribute('disabled', 'disabled')
@@ -477,7 +507,7 @@ test('RemoveBookmarkTags counts failures and resets busy', async () => {
   const harness = createHarness()
   const statuses = [0, 200]
   const { removeBookmarkTags } = harness.load('RemoveBookmarkTags.ts', {
-    bookmark: { add: async () => statuses.shift() },
+    bookmark: harness.makeBookmark(async () => statuses.shift()),
   })
 
   await removeBookmarkTags.start([
@@ -486,9 +516,17 @@ test('RemoveBookmarkTags counts failures and resets busy', async () => {
   ])
 
   assert.equal(harness.states.busy, false, '结束后 states.busy 被复位')
-  assert.equal(harness.lastToast().type, 'error')
   assert.ok(
-    harness.errors().some((item) => item.args[0].includes(errorSummary(1)))
+    harness
+      .msgBoxErrors()
+      .some((item) => item.args[0].includes(rmTagErrorSummary(1))),
+    '用弹窗（msgBox）如实说明失败数量和重试办法'
+  )
+  assert.ok(
+    harness
+      .errors()
+      .some((item) => item.args[0].includes(rmTagErrorSummary(1))),
+    '日志里也有同样的摘要，且用的是「移除标签」的文案'
   )
   assert.equal(
     harness.successes().filter((item) => item.args[0].includes('_完成')).length,
@@ -502,7 +540,7 @@ test('BookmarkAllWorks counts failures and still ends bookmark mode', async () =
   const statuses = [0, 200]
   const { BookmarkAllWorks } = harness.load(
     'pageFunciton/BookmarkAllWorks.ts',
-    { bookmark: { add: async () => statuses.shift() } }
+    { bookmark: harness.makeBookmark(async () => statuses.shift()) }
   )
   const tipWrap = makeElement()
   tipWrap.setAttribute('disabled', 'disabled')
@@ -553,17 +591,15 @@ function result(id = 42, type = 0, index = 0, tags = ['original_tag']) {
  */
 function afterDownload() {
   const harness = createHarness()
-  const bookmark = {
-    add: async () => {
-      const step = harness.fetchPlan.shift() || { status: 200 }
-      harness.fetchCalls.push({
-        url: 'bookmark.add',
-        plan: step,
-        at: harness.now,
-      })
-      return step.reject ? 0 : step.status || 200
-    },
-  }
+  const bookmark = harness.makeBookmark(async () => {
+    const step = harness.fetchPlan.shift() || { status: 200 }
+    harness.fetchCalls.push({
+      url: 'bookmark.add',
+      plan: step,
+      at: harness.now,
+    })
+    return step.reject ? 0 : step.status || 200
+  })
   const { BookmarkAfterDL } = harness.load('download/BookmarkAfterDL.ts', {
     bookmark,
   })
