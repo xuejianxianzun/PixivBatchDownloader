@@ -1256,6 +1256,10 @@ class SearchResultPreview {
             }
           })
           data.el.classList.add(this.bookmarkedClass)
+        } else {
+          const msg = lang.transl('_添加收藏失败')
+          msgBox.error(msg)
+          toast.error(msg)
         }
         break
       }

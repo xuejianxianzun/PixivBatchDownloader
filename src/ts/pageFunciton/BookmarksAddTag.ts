@@ -10,6 +10,7 @@ import {
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
 import { lang } from '../Language'
+import { log } from '../Log'
 import { msgBox } from '../MsgBox'
 
 // 给收藏页面里的未分类作品批量添加 tag
@@ -33,6 +34,8 @@ class BookmarksAddTag {
 
   private addIndex = 0 // 添加 tag 时的计数
 
+  private failedCount = 0 // 添加失败的作品数量，完成时需要如实告诉用户
+
   private btn: HTMLButtonElement
   private textSpan: HTMLSpanElement = document.createElement('span')
 
@@ -47,6 +50,7 @@ class BookmarksAddTag {
       // 每次点击重置状态
       this.addTagList = []
       this.addIndex = 0
+      this.failedCount = 0
 
       this.btn.setAttribute('disabled', 'disabled')
       this.textSpan.textContent = `Checking...`
@@ -150,19 +154,32 @@ class BookmarksAddTag {
 
     const item = this.addTagList[this.addIndex]
 
-    const status = await bookmark.add(
-      item.id,
-      this.type,
-      item.tags,
-      true,
-      item.restrict,
-      true
-    )
+    let status = 0
+    try {
+      status = await bookmark.add(
+        item.id,
+        this.type,
+        item.tags,
+        true,
+        item.restrict,
+        true
+      )
+    } catch (error) {
+      // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+      // 如果抛出去，遍历会静默中断，而且按钮会一直停留在 disabled 状态
+      status = 0
+    }
+
     if (status === 403) {
       this.textSpan.textContent = `× Permission denied`
       const msg = Tools.addBookmark403Error()
       msgBox.error(msg)
       return
+    }
+
+    // 只要不是 200 就说明这个作品没有添加成功，需要如实统计
+    if (status !== 200) {
+      this.failedCount++
     }
 
     if (this.addIndex < this.addTagList.length - 1) {
@@ -174,7 +191,7 @@ class BookmarksAddTag {
       // 添加完成
       this.textSpan.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
-      toast.success(lang.transl('_收藏作品完毕'))
+      bookmark.showCompleteMessage(this.failedCount)
     }
   }
 }

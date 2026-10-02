@@ -135,6 +135,14 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/680
 
 相关模块：src/ts/download/BookmarkAfterDL.ts
 
+### 🐞修复问题：下载后收藏作品时，如果途中断网了，收藏进度会卡住
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/514
+
+现在断网期间失败的收藏请求会显示错误提示，并重新回到等待队列里，可以重试多次；如果一个作品的收藏任务在重试 1 小时还未成功，就放弃添加这个收藏。
+
+同时也对其他添加收藏的模块进行了加固，当一个收藏请求因为网络问题失败时，会重试最多 3 次（`src/ts/Bookmark.ts` 里的 `retryMaxForNetworkError`），并且在任务结束后会显示有多少个收藏任务失败了。用户可以重新执行对应的功能以再次重试。
+
 ### 🐞修复问题：刷新 token 的流程不够严谨，会导致一些问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/pull/679
@@ -200,7 +208,9 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/689
 - 输入框下方会显示一个提示区域进行说明
 - 输入框失去焦点时，会使用轻提示显示“缺少必须的标记，本次修改未保存”
 
-### 💡为一些设置添加了更详细的帮助说明
+### 💡优化了一些设置的帮助信息
+
+### 💡优化了日志里的一些提示
 
 ## 19.4.1 2026-09-04
 

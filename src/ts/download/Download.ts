@@ -322,7 +322,13 @@ class Download {
 
     // 其他状态码（包括网络错误导致的 0），暂时跳过这个任务，
     // 但最后还是会尝试重新下载它
-    log.log(lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'))
+    log.warning(errorMsg)
+    if (status === 0) {
+      log.warning(lang.transl('_对状态码0的说明'))
+    }
+    log.warning(
+      lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它')
+    )
     this.error = true
     EVT.fire('downloadError', fileId)
   }

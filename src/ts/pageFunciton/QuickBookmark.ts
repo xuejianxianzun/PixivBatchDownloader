@@ -15,6 +15,7 @@ import { logErrorStatus } from '../crawl/LogErrorStatus'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
+import { msgBox } from '../MsgBox'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -242,9 +243,13 @@ class QuickBookmark {
       return
     }
 
-    if (status !== 429) {
+    if (status === 200) {
       this.isBookmarked = true
       toast.success(lang.transl('_已收藏'), { position: 'mouse' })
+    } else {
+      const msg = lang.transl('_添加收藏失败')
+      msgBox.error(msg)
+      toast.error(msg)
     }
   }
 

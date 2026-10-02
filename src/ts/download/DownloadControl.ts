@@ -989,7 +989,7 @@ class DownloadControl {
     ) {
       // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
       this.pauseDownload()
-      log.log(lang.transl('_稍后会重试下载失败的文件'))
+      log.warning('🔄' + lang.transl('_稍后会重试下载失败的文件'))
       await Utils.sleep(2000)
       this.startDownload()
     }

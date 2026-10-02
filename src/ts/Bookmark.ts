@@ -48,7 +48,11 @@ class Bookmark {
   /**叫号的号码，当 add 方法的 slowly 参数为 true 时，需要等待叫号到它才能执行 */
   private nextTaskID = 1
 
-  /**添加收藏
+  /**添加收藏。会返回操作完成时的状态码，200 表示成功，0 表示因为网络请求失败导致无法收藏，也可能返回其他状态码。
+   *
+   * 发生一些错误时会重试一定次数，并返回最终的状态码。调用方可以根据需要决定是否要对收藏失败的请求再次进行重试。
+   *
+   * 当添加收藏失败时，会在日志里输出错误信息。调用方可以根据需要决定是否补充其他提示方式，例如弹出消息框或显示 toast。
    *
    * @param id 作品 id
    *
@@ -185,6 +189,8 @@ class Bookmark {
 
     let added = 0
     let skip = 0
+    // 收藏失败的作品数量（例如断网、作品被删除）。完成时要如实告诉用户，不能只说「完毕」
+    let failed = 0
     let tip = ''
     // 是否因为账户被警告而中止了遍历
     let aborted = false
@@ -206,7 +212,24 @@ class Bookmark {
         }
 
         // 慢速收藏（添加等待时间）
-        await this.add(data.id, data.type!, useTags, undefined, undefined, true)
+        let status = 0
+        try {
+          status = await this.add(
+            data.id,
+            data.type!,
+            useTags,
+            undefined,
+            undefined,
+            true
+          )
+        } catch (error) {
+          // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+          // 不能让一个作品出错就中断整批收藏
+          status = 0
+        }
+        if (status !== 200) {
+          failed++
+        }
       } else {
         skip++
       }
@@ -224,21 +247,32 @@ class Bookmark {
     }
 
     log.persistentRefresh('bookmarkAddProgress')
-    const msg = '♥️' + lang.transl('_收藏作品完毕')
-    log.success(msg)
-    toast.success(msg, {
-      position: 'center',
-    })
+    this.showCompleteMessage(failed)
   }
 
-  /** 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。 */
+  /** 请求本身失败（例如断网）时最多重试几次。
+   *
+   * 这类错误通常只持续几秒（切换网络、路由器重连、DNS 抖动），重试几次就能成功，
+   * 调用方也就不会拿到失败。⚠️ 这里只做短重试：add 是串行阻塞的（slowly 模式还要先等号），
+   * 长时间重试会把整条队列冻住。需要扛长时间断网时应该在调用方把作品重新排队（见 BookmarkAfterDL）。 */
+  private readonly retryMaxForNetworkError = 3
+
+  /** 请求本身失败后，每次重试前等待的时间（毫秒），按重试次数递增 */
+  private readonly retryWaitForNetworkError = [2000, 5000, 10000]
+
+  /** 添加收藏的请求。
+   *
+   * 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。
+   *
+   * 请求本身失败（没有状态码，例如断网）时会等待后重试几次（见 retryMaxForNetworkError），如果重试失败会返回 0。 */
   private async sendRequest(
     id: string,
     type: 'illusts' | 'novels',
     tags: string[],
     hide: boolean,
     tokenRefreshed = false,
-    requestToken = token.token
+    requestToken = token.token,
+    networkRetry = 0
   ): Promise<number> {
     try {
       await API.addBookmark(id, type, tags, hide, requestToken)
@@ -279,7 +313,48 @@ class Bookmark {
             return status
         }
       }
+
+      // 走到这里说明请求本身失败了（没有状态码），例如断网。等待一会再重试一次。
+      if (networkRetry < this.retryMaxForNetworkError) {
+        await Utils.sleep(this.retryWaitForNetworkError[networkRetry] ?? 10000)
+        return this.sendRequest(
+          id,
+          type,
+          tags,
+          hide,
+          tokenRefreshed,
+          requestToken,
+          networkRetry + 1
+        )
+      }
+
+      // 重试次数用尽，仍然失败。返回 0 让调用方知道这个作品没有收藏成功（调用方需要如实提示用户）
+      const link = Tools.createWorkLinkByIDData({ id, type })
+      log.error(
+        `${link} ${lang.transl('_添加收藏失败')}`,
+        'bookmarkNetworkRetry' + id
+      )
       return 0
+    }
+  }
+
+  public showCompleteMessage(failed: number) {
+    const completeMsg = '♥️' + lang.transl('_收藏作品完毕')
+    if (failed > 0) {
+      // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
+      const msg =
+        completeMsg +
+        ' ' +
+        lang.transl('_有x个作品失败请再次执行重试', failed.toString())
+      log.error(msg)
+      toast.error(lang.transl('_收藏作品完毕但是有一些失败了'), {
+        position: 'center',
+      })
+    } else {
+      log.success(completeMsg)
+      toast.success(completeMsg, {
+        position: 'center',
+      })
     }
   }
 

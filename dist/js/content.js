@@ -1786,9 +1786,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -1801,12 +1803,12 @@ class AddBookmarkWhenPreviewWorks {
         if (workData?.body.illustId === undefined) {
             return;
         }
-        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
         });
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_0__.bookmark.add(workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(workData));
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_0__.bookmark.add(workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.extractTags(workData));
         if (status === 200) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
             // 将作品缩略图上的收藏按钮变成红色
             if (workEL) {
                 const allSVG = workEL.querySelectorAll('svg');
@@ -1814,7 +1816,7 @@ class AddBookmarkWhenPreviewWorks {
                     // 如果有多个 svg，一般最后一个是收藏按钮
                     let useSVG = allSVG[allSVG.length - 1];
                     // 但有些特殊情况是第一个
-                    if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request) {
+                    if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Request) {
                         useSVG = allSVG[0];
                     }
                     // 多图作品里可能有两个 svg，一个是右上角的图片数量，一个是收藏按钮
@@ -1843,6 +1845,11 @@ class AddBookmarkWhenPreviewWorks {
                     btn.classList.add('on');
                 }
             }
+        }
+        else {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败');
+            _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(msg);
         }
     }
 }
@@ -2492,7 +2499,11 @@ class Bookmark {
     taskID = 0;
     /**叫号的号码，当 add 方法的 slowly 参数为 true 时，需要等待叫号到它才能执行 */
     nextTaskID = 1;
-    /**添加收藏
+    /**添加收藏。会返回操作完成时的状态码，200 表示成功，0 表示因为网络请求失败导致无法收藏，也可能返回其他状态码。
+     *
+     * 发生一些错误时会重试一定次数，并返回最终的状态码。调用方可以根据需要决定是否要对收藏失败的请求再次进行重试。
+     *
+     * 当添加收藏失败时，会在日志里输出错误信息。调用方可以根据需要决定是否补充其他提示方式，例如弹出消息框或显示 toast。
      *
      * @param id 作品 id
      *
@@ -2597,6 +2608,8 @@ class Bookmark {
         list.reverse();
         let added = 0;
         let skip = 0;
+        // 收藏失败的作品数量（例如断网、作品被删除）。完成时要如实告诉用户，不能只说「完毕」
+        let failed = 0;
         let tip = '';
         // 是否因为账户被警告而中止了遍历
         let aborted = false;
@@ -2615,7 +2628,18 @@ class Bookmark {
                     useTags = data.bookmarkTags;
                 }
                 // 慢速收藏（添加等待时间）
-                await this.add(data.id, data.type, useTags, undefined, undefined, true);
+                let status = 0;
+                try {
+                    status = await this.add(data.id, data.type, useTags, undefined, undefined, true);
+                }
+                catch (error) {
+                    // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+                    // 不能让一个作品出错就中断整批收藏
+                    status = 0;
+                }
+                if (status !== 200) {
+                    failed++;
+                }
             }
             else {
                 skip++;
@@ -2632,14 +2656,22 @@ class Bookmark {
             return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('bookmarkAddProgress');
-        const msg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕');
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg, {
-            position: 'center',
-        });
+        this.showCompleteMessage(failed);
     }
-    /** 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。 */
-    async sendRequest(id, type, tags, hide, tokenRefreshed = false, requestToken = _Token__WEBPACK_IMPORTED_MODULE_7__.token.token) {
+    /** 请求本身失败（例如断网）时最多重试几次。
+     *
+     * 这类错误通常只持续几秒（切换网络、路由器重连、DNS 抖动），重试几次就能成功，
+     * 调用方也就不会拿到失败。⚠️ 这里只做短重试：add 是串行阻塞的（slowly 模式还要先等号），
+     * 长时间重试会把整条队列冻住。需要扛长时间断网时应该在调用方把作品重新排队（见 BookmarkAfterDL）。 */
+    retryMaxForNetworkError = 3;
+    /** 请求本身失败后，每次重试前等待的时间（毫秒），按重试次数递增 */
+    retryWaitForNetworkError = [2000, 5000, 10000];
+    /** 添加收藏的请求。
+     *
+     * 400 时只刷新并重试一次，固定本次 token；刷新失败仍返回状态码以释放慢速队列。
+     *
+     * 请求本身失败（没有状态码，例如断网）时会等待后重试几次（见 retryMaxForNetworkError），如果重试失败会返回 0。 */
+    async sendRequest(id, type, tags, hide, tokenRefreshed = false, requestToken = _Token__WEBPACK_IMPORTED_MODULE_7__.token.token, networkRetry = 0) {
         try {
             await _API__WEBPACK_IMPORTED_MODULE_1__.API.addBookmark(id, type, tags, hide, requestToken);
             return 200;
@@ -2674,7 +2706,34 @@ class Bookmark {
                         return status;
                 }
             }
+            // 走到这里说明请求本身失败了（没有状态码），例如断网。等待一会再重试一次。
+            if (networkRetry < this.retryMaxForNetworkError) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(this.retryWaitForNetworkError[networkRetry] ?? 10000);
+                return this.sendRequest(id, type, tags, hide, tokenRefreshed, requestToken, networkRetry + 1);
+            }
+            // 重试次数用尽，仍然失败。返回 0 让调用方知道这个作品没有收藏成功（调用方需要如实提示用户）
+            const link = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLinkByIDData({ id, type });
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${link} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}`, 'bookmarkNetworkRetry' + id);
             return 0;
+        }
+    }
+    showCompleteMessage(failed) {
+        const completeMsg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕');
+        if (failed > 0) {
+            // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
+            const msg = completeMsg +
+                ' ' +
+                _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_有x个作品失败请再次执行重试', failed.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕但是有一些失败了'), {
+                position: 'center',
+            });
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(completeMsg);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(completeMsg, {
+                position: 'center',
+            });
         }
     }
     toastDebounce = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.debounce((msg) => {
@@ -6429,8 +6488,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 // https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -6929,6 +6990,11 @@ class ImageViewer {
             if (btn) {
                 btn.classList.add('bookmarked');
             }
+        }
+        else {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败');
+            _MsgBox__WEBPACK_IMPORTED_MODULE_16__.msgBox.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
         }
     }
 }
@@ -10496,6 +10562,8 @@ class RemoveBookmarkTags {
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
         }
         let number = 0;
+        // 处理失败的作品数量（例如断网、作品被删除）。完成时需要如实告诉用户
+        let failed = 0;
         // 是否因为账户被警告而中止了遍历
         let aborted = false;
         for (const item of list) {
@@ -10511,10 +10579,15 @@ class RemoveBookmarkTags {
                     _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
                     break;
                 }
+                // 只要不是 200 就说明这个作品没有处理成功，需要如实统计
+                if (status !== 200) {
+                    failed++;
+                }
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
                 // 但是也可能出现其他错误，比如因为请求太多而出现 429 错误。因为 429 错误需要等待几分钟后才能重试，这里偷懒不再重试
+                failed++;
             }
             number++;
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${number} / ${total}`, 'removeWorksTagsProgress');
@@ -10527,9 +10600,19 @@ class RemoveBookmarkTags {
         if (aborted) {
             return;
         }
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移除本页面中所有作品的标签') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_完成');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(msg);
+        const completeMsg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移除本页面中所有作品的标签') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_完成');
+        if (failed > 0) {
+            // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
+            const msg = completeMsg +
+                ' ' +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有x个作品失败请再次执行重试', failed.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_收藏作品完毕但是有一些失败了'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(completeMsg);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(completeMsg);
+        }
     }
 }
 const removeBookmarkTags = new RemoveBookmarkTags();
@@ -20268,6 +20351,11 @@ class SearchResultPreview {
                     });
                     data.el.classList.add(this.bookmarkedClass);
                 }
+                else {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败');
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
+                    _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(msg);
+                }
                 break;
             }
         }
@@ -24789,6 +24877,19 @@ class BookmarkAfterDL {
     task = this.createTask();
     /** 原有设置面板中的进度提示，不创建新的 UI。 */
     tipEl = document.createElement('span');
+    /** 网络错误时最多重试的次数。超过后不再重试这个作品。
+     *
+     * 30 次配合下面的递增间隔，一共能覆盖约 1 小时的断网：足够扛过常见的网络波动，
+     * 又不会让一个（例如因为程序错误而一直失败的）作品永远占用队列。 */
+    networkRetryMax = 30;
+    /** 网络错误后重试的等待时间（毫秒）。
+     *
+     * 按重试次数递增、封顶 3 分钟：断网时不会频繁发请求，网络恢复后又能自动把作品补上。
+     * 等待期间这个作品留在队列里，其他作品照常处理。
+     * ⚠️ 只有「请求本身失败」（Bookmark 返回 0）才重试；403、404 这类有状态码的失败不重试，重试也不会成功。 */
+    networkRetryWait(networkRetry) {
+        return Math.min(networkRetry * 15000, 180000);
+    }
     /** 创建空批次；暂停/继续下载不调用此方法。 */
     createTask() {
         return {
@@ -24836,12 +24937,22 @@ class BookmarkAfterDL {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
             return;
         }
+        // 有作品因为网络错误在等待重试时把提示标红，让用户知道进度为什么停住了；
+        // 这些作品全部重试成功后，队列里不再有等待重试的作品，提示会自动变回绿色
+        if (task.queue.some((work) => work.networkRetry > 0)) {
+            this.tipEl.classList.add('red');
+            this.tipEl.classList.remove('green');
+        }
+        else {
+            this.tipEl.classList.remove('red');
+            this.tipEl.classList.add('green');
+        }
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${task.successCount}/${task.ids.size}`);
         if (task.downloadComplete &&
             !task.completionLogged &&
             task.successCount === task.ids.size) {
             task.completionLogged = true;
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('♥️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
+            _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.showCompleteMessage(0);
         }
     }
     /** 丢弃尚未执行的旧队列，已开始的写入仍由同一个循环等待真实结果。 */
@@ -24897,6 +25008,8 @@ class BookmarkAfterDL {
                 needAddTag: _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.widthTagBoolean,
                 restrict: _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.restrictBoolean,
                 slowly: _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30,
+                networkRetry: 0,
+                retryAt: 0,
             });
         }
         else {
@@ -24910,9 +25023,12 @@ class BookmarkAfterDL {
         while (true) {
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(200);
             const task = this.task;
-            const work = task.queue.shift();
-            if (!work)
+            // 取第一个可以执行的作品。正在等待重试的作品留在队列里，不会阻塞其他作品；
+            // 如果全都在等待重试，就等下一轮再看
+            const nextIndex = task.queue.findIndex((work) => work.retryAt <= Date.now());
+            if (nextIndex === -1)
                 continue;
+            const work = task.queue.splice(nextIndex, 1)[0];
             // 用户手动排除的作品不收藏。这里在真正写入之前才判断，
             // 所以排队期间被排除的作品也会被跳过。
             // 跳过的作品计入已完成数量，否则进度会一直差几个，永远等不到「收藏完毕」
@@ -24928,15 +25044,47 @@ class BookmarkAfterDL {
                 status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(work.id, work.type, work.tags, work.needAddTag, work.restrict, work.slowly);
             }
             catch {
-                if (task === this.task)
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${work.id} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败')}`);
+                // bookmark.add 通常不会抛异常（它把错误转成了返回 0），这里只作为兜底。
+                // 不在这里打日志，交给下面的 status === 0 分支按网络错误统一处理
             }
             if (task !== this.task)
                 continue;
             if (status === 200) {
                 task.successCount++;
+                // 之前因为网络错误重试过的作品，成功时补一条日志，让用户知道已经恢复
+                if (work.networkRetry > 0) {
+                    const link = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLinkByIDData({
+                        id: work.id,
+                        type: work.type,
+                    });
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(`${link} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_重试收藏成功')}`);
+                }
                 this.showProgress();
+                continue;
             }
+            // status 为 0 表示「请求本身失败了」（没有状态码），通常是网络错误。
+            // 这类错误往往是暂时的，所以把作品放回队列、过一会儿再重试，而不是直接丢掉 ——
+            // 否则断网期间排队的作品会被永久跳过，进度永远到不了「全部完成」，也永远不会提示收藏完毕。
+            if (status === 0) {
+                work.networkRetry++;
+                // 重试次数用尽：不再重试这个作品，并明确告诉用户，避免它静默地一直差一个
+                if (work.networkRetry > this.networkRetryMax) {
+                    const link = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLinkByIDData({
+                        id: work.id,
+                        type: work.type,
+                    });
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${link} ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败')}: ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_因为网络错误重试多次仍然失败')}`, 'bookmarkNetworkRetry' + work.id);
+                    this.showProgress();
+                    continue;
+                }
+                work.retryAt = Date.now() + this.networkRetryWait(work.networkRetry);
+                task.queue.push(work);
+                // 刷新提示：有作品在等待重试时进度提示会变成红色
+                this.showProgress();
+                continue;
+            }
+            // 剩下的情况是「请求成功但状态码异常」（403、404 等）。重试也不会成功，
+            // 而且 Bookmark 里已经输出过对应的错误日志了，所以这里不重试
         }
     }
 }
@@ -25375,7 +25523,11 @@ class Download {
         }
         // 其他状态码（包括网络错误导致的 0），暂时跳过这个任务，
         // 但最后还是会尝试重新下载它
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(errorMsg);
+        if (status === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_对状态码0的说明'));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'));
         this.error = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
     }
@@ -26525,7 +26677,7 @@ class DownloadControl {
             this.downloaded + this.errorIdList.length === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
             // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
             this.pauseDownload();
-            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_稍后会重试下载失败的文件'));
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning('🔄' + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_稍后会重试下载失败的文件'));
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.sleep(2000);
             this.startDownload();
         }
@@ -41586,12 +41738,12 @@ Mouse wheel: zoom in or out of the image<br>
         `{} осталось.`,
     ],
     _重试收藏成功: [
-        `重试收藏成功。`,
-        `重試收藏成功。`,
-        `Retry bookmark successful.`,
-        `ブックマークの再試行に成功しました。`,
-        `북마크 재시도 성공.`,
-        `Закладка успешно повторена.`,
+        `重试收藏成功`,
+        `重試收藏成功`,
+        `Retry bookmark successful`,
+        `ブックマークの再試行に成功しました`,
+        `북마크 재시도 성공`,
+        `Закладка успешно повторена`,
     ],
     _出现错误请稍后重试: [
         `出现错误，请稍后重试。`,
@@ -47781,6 +47933,46 @@ One possible reason: Your Pixiv account has been banned.`,
         `부분 일치 태그 사용`,
         `Использовать теги частичного совпадения`,
     ],
+    _因为网络错误会自动重试收藏: [
+        `因为网络错误，稍后会自动重试收藏`,
+        `因為網路錯誤，稍後會自動重試收藏`,
+        `A network error occurred; bookmarking will be retried automatically`,
+        `ネットワークエラーが発生しました。ブックマークは後で自動的に再試行します`,
+        `네트워크 오류가 발생했습니다. 북마크는 나중에 자동으로 다시 시도합니다`,
+        `Произошла сетевая ошибка; добавление в закладки будет повторено автоматически`,
+    ],
+    _因为网络错误重试多次仍然失败: [
+        `因为网络错误重试了很多次，仍然失败，不再重试这个作品`,
+        `因為網路錯誤重試了很多次，仍然失敗，不再重試這個作品`,
+        `Retried many times due to a network error but still failed; giving up on this work`,
+        `ネットワークエラーのため何度も再試行しましたが失敗したため、この作品の再試行を中止します`,
+        `네트워크 오류로 여러 번 재시도했지만 실패하여 이 작품의 재시도를 중단합니다`,
+        `Из-за сетевой ошибки выполнено много повторных попыток, но безуспешно; повтор для этой работы прекращён`,
+    ],
+    _有x个作品失败请再次执行重试: [
+        `其中有 {} 个作品添加收藏失败，你可以再次执行这个操作来重试它们。`,
+        `其中有 {} 個作品新增收藏失敗，你可以再次執行這個操作來重試它們。`,
+        `Bookmarking failed for {} works; you can run this operation again to retry them.`,
+        `そのうち {} 件の作品でブックマークの追加に失敗しました。この操作をもう一度実行すると再試行できます。`,
+        `그중 {}개 작품의 북마크 추가에 실패했습니다. 이 작업을 다시 실행하면 재시도할 수 있습니다.`,
+        `Не удалось добавить закладки для {} работ; можно выполнить эту операцию снова, чтобы повторить их.`,
+    ],
+    _收藏作品完毕但是有一些失败了: [
+        `收藏作品完毕，但是有一些作品收藏失败`,
+        `收藏作品完畢，但是有一些作品收藏失敗`,
+        `Bookmark works finished, but some works failed`,
+        `ブックマーク作業終了、ただし一部の作品は失敗しました`,
+        `북마크 작업 완료, 하지만 일부 작품은 실패했습니다`,
+        `Работа над закладками завершена, но часть работ не удалась`,
+    ],
+    _对状态码0的说明: [
+        `这通常是因为网络错误导致无法建立请求，或者请求中断`,
+        `這通常是因為網路錯誤導致無法建立請求，或者請求中斷`,
+        `This usually means a network error prevented the request from being established, or the request was interrupted`,
+        `これは通常、ネットワークエラーによりリクエストを確立できなかった、またはリクエストが中断されたことを意味します`,
+        `이는 일반적으로 네트워크 오류로 인해 요청이 연결되지 않았거나 요청이 중단되었음을 의미합니다`,
+        `Обычно это означает, что из-за сетевой ошибки не удалось установить запрос или запрос был прерван`,
+    ],
 };
 
 
@@ -48567,6 +48759,7 @@ class BookmarkAllWorks {
     }
     idList = [];
     bookmarKData = [];
+    failedCount = 0; // 添加失败的作品数量，完成时需要如实告诉用户
     tipWrap = document.createElement('button');
     textSpan = document.createElement('span');
     matchArtwork = /\/artworks\/(\d*)/;
@@ -48638,6 +48831,7 @@ class BookmarkAllWorks {
     reset() {
         this.idList = [];
         this.bookmarKData = [];
+        this.failedCount = 0;
     }
     // 启动收藏流程
     async startBookmark() {
@@ -48717,11 +48911,23 @@ class BookmarkAllWorks {
                 break;
             }
             this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+            let status = 0;
+            try {
+                status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+            }
+            catch (error) {
+                // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+                // 如果抛出去，遍历会静默中断，界面会一直停留在「收藏中」的状态
+                status = 0;
+            }
             if (status === 403) {
                 const msg = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBookmark403Error();
                 _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg);
                 break;
+            }
+            // 只要不是 200 就说明这个作品没有添加成功，需要如实统计
+            if (status !== 200) {
+                this.failedCount++;
             }
             index++;
         }
@@ -48729,7 +48935,7 @@ class BookmarkAllWorks {
     complete() {
         this.textSpan.textContent = `✓ Complete`;
         this.tipWrap.removeAttribute('disabled');
-        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
+        _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.showCompleteMessage(this.failedCount);
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('bookmarkModeEnd');
     }
 }
@@ -48752,12 +48958,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-
-
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 
 
 
@@ -48779,6 +48981,7 @@ class BookmarksAddTag {
     type = 'illusts'; // 页面是图片还是小说
     addTagList = []; // 需要添加 tag 的作品的数据
     addIndex = 0; // 添加 tag 时的计数
+    failedCount = 0; // 添加失败的作品数量，完成时需要如实告诉用户
     btn;
     textSpan = document.createElement('span');
     once = 100; // 一次请求多少个作品的数据
@@ -48790,6 +48993,7 @@ class BookmarksAddTag {
             // 每次点击重置状态
             this.addTagList = [];
             this.addIndex = 0;
+            this.failedCount = 0;
             this.btn.setAttribute('disabled', 'disabled');
             this.textSpan.textContent = `Checking...`;
             if (window.location.pathname.includes('/novel')) {
@@ -48870,12 +49074,24 @@ class BookmarksAddTag {
             return;
         }
         const item = this.addTagList[this.addIndex];
-        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+        let status = 0;
+        try {
+            status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+        }
+        catch (error) {
+            // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+            // 如果抛出去，遍历会静默中断，而且按钮会一直停留在 disabled 状态
+            status = 0;
+        }
         if (status === 403) {
             this.textSpan.textContent = `× Permission denied`;
             const msg = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBookmark403Error();
-            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
             return;
+        }
+        // 只要不是 200 就说明这个作品没有添加成功，需要如实统计
+        if (status !== 200) {
+            this.failedCount++;
         }
         if (this.addIndex < this.addTagList.length - 1) {
             this.addIndex++;
@@ -48887,7 +49103,7 @@ class BookmarksAddTag {
             // 添加完成
             this.textSpan.textContent = `✓ Complete`;
             this.btn.removeAttribute('disabled');
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_收藏作品完毕'));
+            _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.showCompleteMessage(this.failedCount);
         }
     }
 }
@@ -49824,6 +50040,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
 
 
 
@@ -50022,9 +50240,14 @@ class QuickBookmark {
         if (status === 403) {
             return;
         }
-        if (status !== 429) {
+        if (status === 200) {
             this.isBookmarked = true;
             _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已收藏'), { position: 'mouse' });
+        }
+        else {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败');
+            _MsgBox__WEBPACK_IMPORTED_MODULE_16__.msgBox.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(msg);
         }
     }
     async delBookmark() {

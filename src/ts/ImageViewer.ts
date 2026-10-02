@@ -17,6 +17,7 @@ import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { DateFormat } from './utils/DateFormat'
 import { settings } from './setting/Settings'
 import { states } from './store/States'
+import { msgBox } from './MsgBox'
 
 interface InitConfig {
   /** 作品 id，如果为空从会 url 中获取作品 id */
@@ -602,6 +603,10 @@ class ImageViewer {
       if (btn) {
         btn.classList.add('bookmarked')
       }
+    } else {
+      const msg = lang.transl('_添加收藏失败')
+      msgBox.error(msg)
+      toast.error(msg)
     }
   }
 }

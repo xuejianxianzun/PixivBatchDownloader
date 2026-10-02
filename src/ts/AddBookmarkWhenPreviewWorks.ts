@@ -2,6 +2,7 @@ import { bookmark } from './Bookmark'
 import { Colors } from './Colors'
 import { ArtworkData } from './crawl/CrawlResult'
 import { lang } from './Language'
+import { msgBox } from './MsgBox'
 import { pageType } from './PageType'
 import { toast } from './Toast'
 import { Tools } from './Tools'
@@ -71,6 +72,10 @@ class AddBookmarkWhenPreviewWorks {
           btn.classList.add('on')
         }
       }
+    } else {
+      const msg = lang.transl('_添加收藏失败')
+      msgBox.error(msg)
+      toast.error(msg)
     }
   }
 }

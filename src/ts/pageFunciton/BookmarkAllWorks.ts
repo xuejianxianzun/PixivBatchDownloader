@@ -1,6 +1,7 @@
 import { canRequestInBatch } from '../AccountWarning'
 import { API } from '../API'
 import { lang } from '../Language'
+import { log } from '../Log'
 import { BookmarkResult } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
 import { toast } from '../Toast'
@@ -42,6 +43,8 @@ class BookmarkAllWorks {
   private idList: IDList[] = []
 
   private bookmarKData: BookmarkData[] = []
+
+  private failedCount = 0 // 添加失败的作品数量，完成时需要如实告诉用户
 
   private tipWrap: HTMLElement = document.createElement('button')
   private textSpan: HTMLSpanElement = document.createElement('span')
@@ -126,6 +129,7 @@ class BookmarkAllWorks {
   private reset() {
     this.idList = []
     this.bookmarKData = []
+    this.failedCount = 0
   }
 
   // 启动收藏流程
@@ -215,19 +219,32 @@ class BookmarkAllWorks {
       }
 
       this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
-      const status = await bookmark.add(
-        data.id,
-        data.type,
-        data.tags,
-        undefined,
-        undefined,
-        true
-      )
+
+      let status = 0
+      try {
+        status = await bookmark.add(
+          data.id,
+          data.type,
+          data.tags,
+          undefined,
+          undefined,
+          true
+        )
+      } catch (error) {
+        // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+        // 如果抛出去，遍历会静默中断，界面会一直停留在「收藏中」的状态
+        status = 0
+      }
 
       if (status === 403) {
         const msg = Tools.addBookmark403Error()
         msgBox.error(msg)
         break
+      }
+
+      // 只要不是 200 就说明这个作品没有添加成功，需要如实统计
+      if (status !== 200) {
+        this.failedCount++
       }
 
       index++
@@ -237,7 +254,7 @@ class BookmarkAllWorks {
   private complete() {
     this.textSpan.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
-    toast.success(lang.transl('_收藏作品完毕'))
+    bookmark.showCompleteMessage(this.failedCount)
     EVT.fire('bookmarkModeEnd')
   }
 }
