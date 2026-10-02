@@ -1956,7 +1956,7 @@ body.mobile #rightButtonContainer {
 }
 .centerWrap .centerWrap_con .settingForm label {
   cursor: pointer;
-  padding-right: 5px;
+  padding-right: 4px;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContent {
   position: relative;

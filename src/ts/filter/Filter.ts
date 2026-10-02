@@ -32,12 +32,12 @@ export interface FilterOption {
    * 其他模块里如果有原始收藏数据，应该优先传递原始数据；没有的时候可以只传递是否已收藏的布尔值
    */
   bookmarkData?:
-  | any
-  | null
-  | {
-    id: string
-    private: boolean
-  }
+    | any
+    | null
+    | {
+        id: string
+        private: boolean
+      }
   width?: number
   height?: number
   yes_rank?: number
@@ -103,9 +103,9 @@ class Filter {
     if (!this.checkDownType(option.workType)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_作品类型') +
-        ': ' +
-        this.getWorkTypeText(option.workType),
+          lang.transl('_作品类型') +
+          ': ' +
+          this.getWorkTypeText(option.workType),
         'excludeWorkByWorkType' + option.workType
       )
       return false
@@ -114,9 +114,9 @@ class Filter {
     if (!this.checkDownTypeByAge(option.xRestrict)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_年龄限制') +
-        ': ' +
-        Tools.getAgeLimitText(option.xRestrict!),
+          lang.transl('_年龄限制') +
+          ': ' +
+          Tools.getAgeLimitText(option.xRestrict!),
         'excludeWorkByAge' + option.xRestrict
       )
       return false
@@ -125,7 +125,7 @@ class Filter {
     if (!this.checkAIWorkType(option.aiType, option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        Tools.getAITypeText(option.aiType),
+          Tools.getAITypeText(option.aiType),
         'excludeWorkByAIType' + option.aiType
       )
       return false
@@ -146,7 +146,7 @@ class Filter {
     ) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_多图作品的图片数量上限'),
+          lang.transl('_多图作品的图片数量上限'),
         'excludeWorkByMultiImageWorkImageLimit'
       )
       return false
@@ -159,9 +159,9 @@ class Filter {
         : lang.transl('_未收藏')
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_收藏状态') +
-        ': ' +
-        bmkedText,
+          lang.transl('_收藏状态') +
+          ': ' +
+          bmkedText,
         'excludeWorkByAge'
       )
       return false
@@ -205,7 +205,7 @@ class Filter {
     if (!this.checkExcludeSeriesTitle(option.seriesTitle)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_系列标题不能含有'),
+          lang.transl('_系列标题不能含有'),
         'excludeWorkByExcludeSeriesTitle'
       )
       return false
@@ -247,13 +247,11 @@ class Filter {
       // 图像作品和小说使用不同的设置值，日志也分别显示，方便用户知道是哪一项排除了作品
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_id范围') +
-        ': ' +
-        lang.transl(
-          option.workType === 3
-            ? '_书签ID_小说'
-            : '_书签ID_图像作品'
-        ),
+          lang.transl('_id范围') +
+          ': ' +
+          lang.transl(
+            option.workType === 3 ? '_书签ID_小说' : '_书签ID_图像作品'
+          ),
         'excludeWorkByIdRangeForBookmark' + option.workType
       )
       return false
@@ -263,7 +261,7 @@ class Filter {
     if (!(await this.checkMuteUser(option.userId))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_你屏蔽了这个用户'),
+          lang.transl('_你屏蔽了这个用户'),
         'excludeWorkByMuteUser'
       )
       return false
@@ -272,7 +270,7 @@ class Filter {
     if (!(await this.checkMuteTag(option.tags))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_你屏蔽了它的标签'),
+          lang.transl('_你屏蔽了它的标签'),
         'excludeWorkByMuteTag'
       )
       return false
@@ -291,7 +289,7 @@ class Filter {
     if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_针对特定用户屏蔽标签'),
+          lang.transl('_针对特定用户屏蔽标签'),
         'excludeWorkByBlockTagsForSpecificUser'
       )
       return false
@@ -319,7 +317,7 @@ class Filter {
     if (!this.checkDebut(option.yes_rank)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_它不是首次登场的作品'),
+          lang.transl('_它不是首次登场的作品'),
         'excludeWorkByDebut'
       )
       return false
@@ -329,7 +327,7 @@ class Filter {
     if (!(await this.checkDownloadedWorks(option.id, option.IDTypeString))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_不抓取下载过的作品'),
+          lang.transl('_不抓取下载过的作品'),
         'excludeWorkByDownloadedWorks'
       )
       return false
@@ -463,9 +461,9 @@ class Filter {
         pageCount === 1 ? lang.transl('_单图作品') : lang.transl('_多图作品')
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_图片数量') +
-        ': ' +
-        typeText,
+          lang.transl('_图片数量') +
+          ': ' +
+          typeText,
         'excludeWorkByPageCount' + (pageCount === 1 ? 'SingleImg' : 'MultiImg')
       )
     }
@@ -491,9 +489,9 @@ class Filter {
         : lang.transl('_彩色图片')
       log.warning(
         lang.transl('_下载器排除了一些作品或图片原因') +
-        lang.transl('_图片色彩') +
-        ': ' +
-        colorText,
+          lang.transl('_图片色彩') +
+          ': ' +
+          colorText,
         'excludeWorkByColor' + (isBlackAndWhite ? 'BlackWhite' : 'Color')
       )
     }
@@ -715,22 +713,48 @@ class Filter {
     return result
   }
 
-  /** 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。 */
+  /** 检查作品是否符合排除 tag 的条件，只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+   *
+   * 全字匹配和部分匹配是两个独立的列表，可以同时生效，所以依次检查它们。
+   * 某个列表为空时，不检查它。 */
   private checkExcludeTag(tags: FilterOption['tags']) {
-    if (
-      !settings.notNeedTagSwitch ||
-      settings.notNeedTag.length === 0 ||
-      tags === undefined
-    ) {
+    if (!settings.notNeedTagSwitch || tags === undefined) {
       return true
     }
 
-    const notNeedTags = settings.notNeedTag.map((str) => str.toLowerCase())
+    // 先检查全字匹配的标签列表
+    if (
+      settings.notNeedTagWholeSwitch &&
+      settings.notNeedTagWhole.length > 0 &&
+      !this.matchExcludeTag(tags, settings.notNeedTagWhole, 'whole')
+    ) {
+      return false
+    }
+
+    // 再检查部分匹配的标签列表
+    if (
+      settings.notNeedTagPartialSwitch &&
+      settings.notNeedTagPartial.length > 0 &&
+      !this.matchExcludeTag(tags, settings.notNeedTagPartial, 'partial')
+    ) {
+      return false
+    }
+
+    return true
+  }
+
+  /** 用指定的匹配模式检查作品的标签，返回值表示是否保留这个作品 */
+  private matchExcludeTag(
+    tags: string[],
+    notNeedTags: string[],
+    mode: 'whole' | 'partial'
+  ) {
+    const list = notNeedTags.map((str) => str.toLowerCase())
 
     for (const tag of tags) {
-      for (const notNeed of notNeedTags) {
+      for (const notNeed of list) {
         // 部分匹配
-        if (settings.tagMatchMode === 'partial') {
+        if (mode === 'partial') {
           if (tag.toLowerCase().includes(notNeed)) {
             // 如果检查到了排除的 tag，进行复查
 
@@ -749,7 +773,7 @@ class Filter {
             }
           }
         } else {
-          // 全词匹配
+          // 全字匹配
           if (tag.toLowerCase() === notNeed) {
             return false
           }
@@ -934,9 +958,9 @@ class Filter {
 
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_图片的宽高比例') +
-        ': ' +
-        ratioText,
+          lang.transl('_图片的宽高比例') +
+          ': ' +
+          ratioText,
         'excludeWorkByRatio' + ratioText
       )
     }
@@ -1249,7 +1273,7 @@ class Filter {
     if (excluded) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
-        lang.transl('_手动排除了这个作品'),
+          lang.transl('_手动排除了这个作品'),
         'excludeWork'
       )
       return false

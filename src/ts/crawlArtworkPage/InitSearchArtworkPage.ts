@@ -532,6 +532,8 @@ class InitSearchArtworkPage extends InitPageBase {
         pageCount: work.pageCount,
         bookmarkData: work.bookmarkData,
         workType: work.illustType,
+        // 此时的 work.tags 只是原始标签的列表，不包含翻译后的标签，
+        // 因此在这里抓取列表页数据时，只能对原始标签进行检查，无法检查翻译后的标签
         tags: work.tags,
         title: work.title,
         userId: work.userId,

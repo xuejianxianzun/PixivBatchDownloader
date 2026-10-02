@@ -933,34 +933,50 @@
   ></button>
 
   <div class="subOptionWrap flexBasis100" data-show="notNeedTagSwitch">
-    <span data-xztext="_匹配模式"></span>
-    <span class="gray" data-xztext="_任一"></span>
-    <span class="verticalSplit"></span>
-    <input
-      type="radio"
-      id="tagMatchMode2"
-      class="need_beautify radio"
-      name="tagMatchMode"
-      value="whole"
-      checked
-    />
-    <span class="beautify_radio" tabindex="0"></span>
-    <label for="tagMatchMode2" data-xztext="_全字匹配"></label>
-    <input
-      type="radio"
-      id="tagMatchMode1"
-      class="need_beautify radio"
-      name="tagMatchMode"
-      value="partial"
-    />
-    <span class="beautify_radio" tabindex="0"></span>
-    <label for="tagMatchMode1" data-xztext="_部分匹配"></label>
-    <textarea
-      class="centerPanelTextArea beautify_scrollbar"
-      name="notNeedTag"
-      rows="1"
-      placeholder="tag1,tag2,tag3"
-    ></textarea>
+    <div class="optionLine">
+      <label for="notNeedTagWholeSwitch">
+        <span data-xztext="_使用全字匹配的标签"></span>
+      </label>
+      <input
+        type="checkbox"
+        name="notNeedTagWholeSwitch"
+        id="notNeedTagWholeSwitch"
+        class="need_beautify checkbox_switch"
+      />
+      <span class="beautify_switch" tabindex="0"></span>
+      <div class="subOptionWrap flexBasis100" data-show="notNeedTagWholeSwitch">
+        <textarea
+          class="centerPanelTextArea beautify_scrollbar"
+          name="notNeedTagWhole"
+          rows="1"
+          placeholder="tag1,tag2,tag3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="optionLine">
+      <label for="notNeedTagPartialSwitch">
+        <span data-xztext="_使用部分匹配的标签"></span>
+      </label>
+      <input
+        type="checkbox"
+        name="notNeedTagPartialSwitch"
+        id="notNeedTagPartialSwitch"
+        class="need_beautify checkbox_switch"
+      />
+      <span class="beautify_switch" tabindex="0"></span>
+      <div
+        class="subOptionWrap flexBasis100"
+        data-show="notNeedTagPartialSwitch"
+      >
+        <textarea
+          class="centerPanelTextArea beautify_scrollbar"
+          name="notNeedTagPartial"
+          rows="1"
+          placeholder="tag1,tag2,tag3"
+        ></textarea>
+      </div>
+    </div>
   </div>
 </div>
 

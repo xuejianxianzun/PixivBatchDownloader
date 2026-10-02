@@ -46,7 +46,8 @@ export interface FormType extends HTMLFormElement {
   postDateStart: HTMLInputElement
   postDateEnd: HTMLInputElement
   needTag: HTMLInputElement
-  notNeedTag: HTMLInputElement
+  notNeedTagWhole: HTMLTextAreaElement
+  notNeedTagPartial: HTMLTextAreaElement
   autoStartDownload: HTMLInputElement
   autoStartDownloadForQuickDownload: HTMLInputElement
   downloadThread: HTMLInputElement
@@ -65,6 +66,8 @@ export interface FormType extends HTMLFormElement {
   idRangeSwitch: HTMLInputElement
   needTagSwitch: HTMLInputElement
   notNeedTagSwitch: HTMLInputElement
+  notNeedTagWholeSwitch: HTMLInputElement
+  notNeedTagPartialSwitch: HTMLInputElement
   convertUgoiraThread: HTMLInputElement
   sizeSwitch: HTMLInputElement
   sizeMin: HTMLInputElement
@@ -104,7 +107,6 @@ export interface FormType extends HTMLFormElement {
   switchTabBar: RadioNodeList
   zeroPadding: HTMLInputElement
   zeroPaddingLength: HTMLInputElement
-  tagMatchMode: RadioNodeList
   showFastSearchArea: HTMLInputElement
   saveMetaType0: HTMLInputElement
   saveMetaType1: HTMLInputElement

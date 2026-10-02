@@ -60,7 +60,13 @@ export const langText = {
     - 不区分大小写。<br>
     - 下载器会使用你设置的标签与作品的标签逐个进行对比。<br>
     - 总是任一：如果你设置了多个标签，那么作品只要含有其中任意一个，就不会被下载。<br>
-    - 默认是<span class="blue">全字匹配</span>，你设置的 <span class="blue">ab</span> 只会匹配到 <span class="blue">ab</span> 标签。<span class="blue">部分一致</span>是部分匹配，你设置的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 标签。<br>
+    - 全字匹配和部分匹配各有一个输入框和开关，可以分别设置、分别开关。<br>
+    - 使用全字匹配的标签：你设置的 <span class="blue">ab</span> 只会匹配到 <span class="blue">ab</span> 标签。<br>
+    - 使用部分匹配的标签：你设置的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 标签。<br>
+    <br>
+    工作方式：<br>
+    - 有些标签可能会显示翻译后的标签，例如 <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下载器会同时检查作品的原始标签和翻译后的标签。<br>
+    - 推荐优先使用原始标签，这样在某些场景里可以更早执行检查。<br>
     <br>
     优先级：<br>
     “不能含有标签”的优先级高于“必须含有标签”。如果一个作品同时符合这两个设置，下载器就不会抓取它。`,
@@ -71,7 +77,13 @@ export const langText = {
     - 不區分大小寫。<br>
     - 下載器會使用你設定的標籤與作品的標籤逐個進行比對。<br>
     - 總是任一：如果你設定了多個標籤，那麼作品只要含有其中任意一個，就不會被下載。<br>
-    - 預設是<span class="blue">全字匹配</span>，你設定的 <span class="blue">ab</span> 只會匹配到 <span class="blue">ab</span> 標籤。<span class="blue">部分一致</span>是部分匹配，你設定的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 標籤。<br>
+    - 全字匹配和部分匹配各有一個輸入框和開關，可以分別設定、分別開關。<br>
+    - 使用全字匹配的標籤：你設定的 <span class="blue">ab</span> 只會匹配到 <span class="blue">ab</span> 標籤。<br>
+    - 使用部分匹配的標籤：你設定的 <span class="blue">ab</span> 可以匹配到 <span class="blue">abc</span> 標籤。<br>
+    <br>
+    運作方式：<br>
+    - 有些標籤可能會顯示翻譯後的標籤，例如 <span class="blue">絕區零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下載器會同時檢查作品的原始標籤和翻譯後的標籤。<br>
+    - 建議優先使用原始標籤，這樣在某些場景裡可以更早執行檢查。<br>
     <br>
     優先級：<br>
     「不能含有標籤」的優先級高於「必須含有標籤」。如果一個作品同時符合這兩個設定，下載器就不會抓取它。`,
@@ -82,7 +94,13 @@ export const langText = {
     - Case-insensitive.<br>
     - The downloader compares the tags you set with the tags of the work one by one.<br>
     - Always one: if you set multiple tags, a work will not be downloaded as long as it contains any one of them.<br>
-    - The default is <span class="blue">Exact match</span>: the <span class="blue">ab</span> you set will only match the <span class="blue">ab</span> tag. <span class="blue">Partial match</span> matches part of a tag: the <span class="blue">ab</span> you set can match the <span class="blue">abc</span> tag.<br>
+    - Exact match and partial match each have their own input box and switch, so you can set and turn them on or off separately.<br>
+    - Use exact match tags: the <span class="blue">ab</span> you set will only match the <span class="blue">ab</span> tag.<br>
+    - Use partial match tags: the <span class="blue">ab</span> you set can match the <span class="blue">abc</span> tag.<br>
+    <br>
+    How it works:<br>
+    - Some tags may show a translated tag, such as <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> and <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. The downloader checks both the original tags and the translated tags of the work.<br>
+    - It is recommended to use original tags first, so the check can be performed earlier in some cases.<br>
     <br>
     Priority:<br>
     "Exclude tag" has a higher priority than "Include tag". If a work matches both settings, the downloader will not crawl it.`,
@@ -93,7 +111,13 @@ export const langText = {
     - 大文字と小文字は区別しません。<br>
     - ダウンローダーは設定したタグと作品のタグを 1 つずつ比較します。<br>
     - 常にいずれか：複数のタグを設定した場合、作品がいずれか 1 つを含んでいればダウンロードされません。<br>
-    - 既定は<span class="blue">完全一致</span>で、設定した <span class="blue">ab</span> は <span class="blue">ab</span> タグにだけマッチします。<span class="blue">部分一致</span>は部分マッチで、設定した <span class="blue">ab</span> は <span class="blue">abc</span> タグにマッチします。<br>
+    - 完全一致と部分一致にはそれぞれ入力欄とスイッチがあり、個別に設定・オンオフできます。<br>
+    - 完全一致のタグを使用：設定した <span class="blue">ab</span> は <span class="blue">ab</span> タグにだけマッチします。<br>
+    - 部分一致のタグを使用：設定した <span class="blue">ab</span> は <span class="blue">abc</span> タグにもマッチします。<br>
+    <br>
+    動作：<br>
+    - タグによっては翻訳後のタグが表示されることがあります。例えば <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span> です。ダウンローダーは作品の元のタグと翻訳後のタグの両方を確認します。<br>
+    - 元のタグを優先して使用することをおすすめします。一部の場面では、より早くチェックを実行できます。<br>
     <br>
     優先度：<br>
     「タグを除外する」は「必要なタグ」より優先度が高いです。1 つの作品が両方の設定に当てはまる場合、ダウンローダーはその作品をクロールしません。`,
@@ -104,7 +128,13 @@ export const langText = {
     - 대소문자를 구분하지 않습니다.<br>
     - 다운로더는 설정한 태그와 작품의 태그를 하나씩 비교합니다.<br>
     - 항상 하나만: 태그를 여러 개 설정했다면, 작품에 그중 하나라도 포함되어 있으면 다운로드되지 않습니다.<br>
-    - 기본값은 <span class="blue">전체 일치</span>이며, 설정한 <span class="blue">ab</span> 는 <span class="blue">ab</span> 태그에만 매칭됩니다. <span class="blue">부분 일치</span>는 부분 매칭으로, 설정한 <span class="blue">ab</span> 가 <span class="blue">abc</span> 태그에 매칭될 수 있습니다.<br>
+    - 전체 일치와 부분 일치에는 각각 입력란과 스위치가 있어 개별적으로 설정하고 켜거나 끌 수 있습니다.<br>
+    - 전체 일치 태그 사용: 설정한 <span class="blue">ab</span> 는 <span class="blue">ab</span> 태그에만 매칭됩니다.<br>
+    - 부분 일치 태그 사용: 설정한 <span class="blue">ab</span> 가 <span class="blue">abc</span> 태그에도 매칭될 수 있습니다.<br>
+    <br>
+    동작 방식:<br>
+    - 일부 태그에는 번역된 태그가 표시될 수 있습니다. 예: <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>, <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. 다운로더는 작품의 원본 태그와 번역된 태그를 모두 확인합니다.<br>
+    - 원본 태그를 우선적으로 사용하는 것을 권장합니다. 일부 상황에서는 더 일찍 검사를 실행할 수 있습니다.<br>
     <br>
     우선순위:<br>
     "제외 태그"가 "포함 태그"보다 우선순위가 높습니다. 작품이 두 설정에 모두 해당하면 다운로더는 그 작품을 크롤링하지 않습니다.`,
@@ -115,12 +145,18 @@ export const langText = {
     - Регистр не учитывается.<br>
     - Загрузчик поочерёдно сравнивает заданные вами теги с тегами работы.<br>
     - Всегда «любой»: если задано несколько тегов, работа не будет скачана, если содержит хотя бы один из них.<br>
-    - По умолчанию — <span class="blue">полное совпадение</span>: заданный <span class="blue">ab</span> совпадёт только с тегом <span class="blue">ab</span>. <span class="blue">Частичное совпадение</span> — это совпадение по части: заданный <span class="blue">ab</span> может совпасть с тегом <span class="blue">abc</span>.<br>
+    - У полного и частичного совпадения отдельные поля ввода и переключатели, их можно настраивать и включать или выключать по отдельности.<br>
+    - Использовать теги полного совпадения: заданный <span class="blue">ab</span> совпадёт только с тегом <span class="blue">ab</span>.<br>
+    - Использовать теги частичного совпадения: заданный <span class="blue">ab</span> может совпасть с тегом <span class="blue">abc</span>.<br>
+    <br>
+    Как это работает:<br>
+    - У некоторых тегов может отображаться переведённый тег, например <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> и <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. Загрузчик проверяет и исходные теги работы, и переведённые теги.<br>
+    - Рекомендуется использовать исходные теги: в некоторых случаях это позволяет выполнить проверку раньше.<br>
     <br>
     Приоритет:<br>
     «Исключить ярлык» имеет более высокий приоритет, чем «Включать ярлык». Если работа соответствует обеим настройкам, загрузчик не будет её сканировать.`,
   ],
-  _设置了排除tag之后的提示: [
+  _排除标签: [
     `排除标签：`,
     `排除標籤：`,
     `Excludes tag: `,
@@ -143,66 +179,78 @@ export const langText = {
     匹配方式：<br>
     - 不区分大小写。<br>
     - 下载器会使用你设置的标签与作品的标签逐个进行对比。<br>
-    - 匹配模式：<span class="blue">全部</span>：作品必须含有你设置的所有标签；<span class="blue">任一</span>：作品只需要含有你设置的任意一个标签。<br>
-    - 全字匹配。如果你设置了 ab，就只会匹配到 ab，不会匹配到 a、b、abc。<br>
+    - 匹配模式：全部：如果你设置了多个标签，那么作品必须含有你设置的所有标签才会被抓取。<br>
+    - 匹配模式：任一：如果你设置了多个标签，那么作品只需要含有你设置的任意一个标签就会被抓取。<br>
+    - 该设置始终使用全字匹配。如果你设置了 <span class="blue">ab</span>，就只会匹配到 <span class="blue">ab</span>，不会匹配到 <span class="blue">abc</span>。<br>
     <br>
     工作方式：<br>
-    - 有些标签可能会显示翻译后的标签，例如 <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下载器会同时检查作品的原始标签和翻译后的标签。如果原始标签里没有你设置的标签，但翻译后的标签里含有你设置的标签，那么下载器也会抓取这个作品。`,
+    - 有些标签可能会显示翻译后的标签，例如 <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下载器会同时检查作品的原始标签和翻译后的标签。<br>
+    - 推荐优先使用原始标签，这样在某些场景里可以更早执行检查。`,
     `你可以要求作品必須包含某些標籤，下載器只會抓取含有這些標籤的作品。<br>
     你可以加入多個標籤，中間用半形逗號 <span class="blue">,</span> 分隔。<br>
     <br>
     匹配方式：<br>
     - 不區分大小寫。<br>
     - 下載器會使用你設定的標籤與作品的標籤逐個進行比對。<br>
-    - 匹配模式：<span class="blue">全部</span>：作品必須含有你設定的所有標籤；<span class="blue">任一</span>：作品只需要含有你設定的任意一個標籤。<br>
-    - 全字匹配。如果你設定了 ab，就只會匹配到 ab，不會匹配到 a、b、abc。<br>
+    - 匹配模式：<span class="blue">全部</span>：如果你設定了多個標籤，那麼作品必須含有你設定的所有標籤才會被抓取。<br>
+    - 匹配模式：<span class="blue">任一</span>：如果你設定了多個標籤，那麼作品只需要含有你設定的任意一個標籤就會被抓取。<br>
+- 此設定始終使用全字匹配。如果你設定了 <span class="blue">ab</span>，就只會匹配到 <span class="blue">ab</span>，不會匹配到 <span class="blue">abc</span>。<br>
     <br>
     運作方式：<br>
-    - 有些標籤可能會顯示翻譯後的標籤，例如 <span class="blue">絕區零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下載器會同時檢查作品的原始標籤和翻譯後的標籤。如果原始標籤裡沒有你設定的標籤，但翻譯後的標籤裡含有你設定的標籤，那麼下載器也會抓取這個作品。`,
+    - 有些標籤可能會顯示翻譯後的標籤，例如 <span class="blue">絕區零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下載器會同時檢查作品的原始標籤和翻譯後的標籤。<br>
+    - 建議優先使用原始標籤，這樣在某些場景裡可以更早執行檢查。`,
     `You can require works to contain certain tags. The downloader will only crawl works that contain these tags.<br>
     You can add multiple tags, separated by a comma <span class="blue">,</span>.<br>
     <br>
     Matching rules:<br>
     - Case-insensitive.<br>
     - The downloader compares the tags you set with the tags of the work one by one.<br>
-    - Match mode: <span class="blue">All</span>: the work must contain all the tags you set; <span class="blue">One</span>: the work only needs to contain any one of the tags you set.<br>
-    - Exact match. If you set ab, only ab will match; a, b and abc will not.<br>
+    - Match mode: <span class="blue">All</span>: if you set multiple tags, the work must contain all of them to be crawled.<br>
+    - Match mode: <span class="blue">One</span>: if you set multiple tags, the work only needs to contain any one of them to be crawled.<br>
+- This setting always uses exact match. If you set <span class="blue">ab</span>, it will only match <span class="blue">ab</span>, not <span class="blue">abc</span>.<br>
     <br>
     How it works:<br>
-    - Some tags may show a translated tag, such as <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> and <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. The downloader checks both the original tags and the translated tags of the work. If the original tags do not contain the tag you set, but the translated tags do, the downloader will still crawl the work.`,
+    - Some tags may show a translated tag, such as <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> and <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. The downloader checks both the original tags and the translated tags of the work.<br>
+    - It is recommended to use original tags first, so the check can be performed earlier in some cases.`,
     `作品に特定のタグが含まれていることを必須にできます。ダウンローダーは、これらのタグを含む作品だけをクロールします。<br>
     タグは複数追加でき、英語のカンマ <span class="blue">,</span> で区切ります。<br>
     <br>
     マッチ方式：<br>
     - 大文字と小文字は区別しません。<br>
     - ダウンローダーは設定したタグと作品のタグを 1 つずつ比較します。<br>
-    - マッチモード：<span class="blue">すべて</span>：作品に設定したすべてのタグが含まれている必要があります；<span class="blue">何れか</span>：作品に設定したいずれか 1 つのタグが含まれていればよいです。<br>
-    - 完全一致。ab と設定した場合、ab にだけマッチし、a、b、abc にはマッチしません。<br>
+    - マッチモード：<span class="blue">すべて</span>：複数のタグを設定した場合、作品に設定したすべてのタグが含まれていないとクロールされません。<br>
+    - マッチモード：<span class="blue">何れか</span>：複数のタグを設定した場合、作品に設定したいずれか 1 つのタグが含まれていればクロールされます。<br>
+- この設定は常に完全一致を使用します。<span class="blue">ab</span> と設定した場合、<span class="blue">ab</span> にだけマッチし、<span class="blue">abc</span> にはマッチしません。<br>
     <br>
     動作：<br>
-    - タグによっては翻訳後のタグが表示されることがあります。例えば <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span> です。ダウンローダーは作品の元のタグと翻訳後のタグの両方を確認します。元のタグに設定したタグがなくても、翻訳後のタグに設定したタグが含まれていれば、ダウンローダーはその作品もクロールします。`,
+    - タグによっては翻訳後のタグが表示されることがあります。例えば <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span> です。ダウンローダーは作品の元のタグと翻訳後のタグの両方を確認します。<br>
+    - 元のタグを優先して使用することをおすすめします。一部の場面では、より早くチェックを実行できます。`,
     `작품에 특정 태그가 반드시 포함되도록 설정할 수 있습니다. 다운로더는 이 태그가 포함된 작품만 크롤링합니다.<br>
     태그는 여러 개 추가할 수 있으며, 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
     <br>
     매칭 방식:<br>
     - 대소문자를 구분하지 않습니다.<br>
     - 다운로더는 설정한 태그와 작품의 태그를 하나씩 비교합니다.<br>
-    - 매치 모드: <span class="blue">전부</span>: 작품에 설정한 모든 태그가 포함되어야 합니다; <span class="blue">하나만</span>: 작품에 설정한 태그 중 하나만 포함되면 됩니다.<br>
-    - 전체 일치. ab 로 설정하면 ab 에만 매칭되고, a, b, abc 에는 매칭되지 않습니다.<br>
+    - 매치 모드: <span class="blue">전부</span>: 태그를 여러 개 설정했다면, 작품에 설정한 모든 태그가 포함되어야 크롤링됩니다.<br>
+    - 매치 모드: <span class="blue">하나만</span>: 태그를 여러 개 설정했다면, 작품에 설정한 태그 중 하나만 포함되어도 크롤링됩니다.<br>
+- 이 설정은 항상 전체 일치를 사용합니다. <span class="blue">ab</span>을(를) 설정하면 <span class="blue">ab</span>에만 매칭되고, <span class="blue">abc</span>에는 매칭되지 않습니다.<br>
     <br>
     동작 방식:<br>
-    - 일부 태그에는 번역된 태그가 표시될 수 있습니다. 예: <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>, <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. 다운로더는 작품의 원본 태그와 번역된 태그를 모두 확인합니다. 원본 태그에 설정한 태그가 없더라도 번역된 태그에 설정한 태그가 포함되어 있으면, 다운로더는 그 작품도 크롤링합니다.`,
+    - 일부 태그에는 번역된 태그가 표시될 수 있습니다. 예: <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>, <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. 다운로더는 작품의 원본 태그와 번역된 태그를 모두 확인합니다.<br>
+    - 원본 태그를 우선적으로 사용하는 것을 권장합니다. 일부 상황에서는 더 일찍 검사를 실행할 수 있습니다.`,
     `Вы можете потребовать, чтобы работы обязательно содержали определённые теги: загрузчик будет сканировать только те работы, в которых есть эти теги.<br>
     Можно добавить несколько тегов, разделяя их запятой <span class="blue">,</span>.<br>
     <br>
     Правила сопоставления:<br>
     - Регистр не учитывается.<br>
     - Загрузчик поочерёдно сравнивает заданные вами теги с тегами работы.<br>
-    - Режим совпадения: <span class="blue">Все</span>: работа должна содержать все заданные теги; <span class="blue">Один</span>: достаточно, чтобы работа содержала любой один из заданных тегов.<br>
-    - Полное совпадение. Если задать ab, совпадёт только ab, но не a, b или abc.<br>
+    - Режим совпадения: <span class="blue">Все</span>: если задано несколько тегов, работа должна содержать все заданные теги, чтобы быть отсканированной.<br>
+    - Режим совпадения: <span class="blue">Один</span>: если задано несколько тегов, работе достаточно содержать любой один из заданных тегов, чтобы быть отсканированной.<br>
+- Этот параметр всегда использует полное совпадение. Если задать <span class="blue">ab</span>, совпадёт только <span class="blue">ab</span>, но не <span class="blue">abc</span>.<br>
     <br>
     Как это работает:<br>
-    - У некоторых тегов может отображаться переведённый тег, например <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> и <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. Загрузчик проверяет и исходные теги работы, и переведённые теги. Если в исходных тегах нет заданного вами тега, но он есть среди переведённых тегов, загрузчик всё равно просканирует эту работу.`,
+    - У некоторых тегов может отображаться переведённый тег, например <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> и <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. Загрузчик проверяет и исходные теги работы, и переведённые теги.<br>
+    - Рекомендуется использовать исходные теги: в некоторых случаях это позволяет выполнить проверку раньше.`,
   ],
   _设置了必须tag之后的提示: [
     `包含标签：`,
@@ -3030,7 +3078,10 @@ Quick download tasks are triggered by these actions:<br>
     怎么获得一个特定作品的书签 ID 呢？一种办法是：<br>
     - 把鼠标放到这个作品上，点击下载按钮单独下载它<br>
     - 点击下载区域的“导出抓取结果”按钮<br>
-    - 使用文本编辑器打开导出的 JSON 文件，其中“bmkId”后面的数字就是它的书签 ID。`,
+    - 使用文本编辑器打开导出的 JSON 文件，其中“bmkId”后面的数字就是它的书签 ID。<br>
+    <br>
+    备注：<br>
+    书签 ID 只能用于你已经收藏的作品，所以下载器不会对你没有收藏的作品检查书签 ID 设置。`,
     `你可以輸入一個 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）。<br>
     <br>
     你可以為不同的作品類型分別設定 id 範圍：<br>
@@ -3044,10 +3095,14 @@ Quick download tasks are triggered by these actions:<br>
     它是為了在你的收藏頁面裡篩選新添加的收藏而設計的。<br>
     在收藏頁面裡，作品的顯示順序不是作品 ID 的大小，而是你把它加入收藏的時間順序，最後收藏的作品會顯示在最前面。<br>
     你的每個收藏都有一個書籤 ID，用來標識它在收藏頁面裡的順序。因此，如果你想下載「在這個收藏之後新增的收藏」，就需要使用書籤 ID 來進行篩選。<br>
+    <br>
     怎麼取得一個特定作品的書籤 ID 呢？一種辦法是：<br>
     - 把滑鼠放到這個作品上，點擊下載按鈕單獨下載它<br>
     - 點擊下載區域的「匯出擷取結果」按鈕<br>
-    - 使用文字編輯器開啟匯出的 JSON 檔案，其中「bmkId」後面的數字就是它的書籤 ID。`,
+    - 使用文字編輯器開啟匯出的 JSON 檔案，其中「bmkId」後面的數字就是它的書籤 ID。<br>
+    <br>
+    備註：<br>
+    書籤 ID 只能用於你已經收藏的作品，所以下載器不會對你沒有收藏的作品檢查書籤 ID 設定。`,
     `You can enter an ID to crawl works with IDs larger than it (new works) or smaller than it (old works).<br>
     <br>
     You can set the ID range separately for different work types:<br>
@@ -3061,10 +3116,14 @@ Quick download tasks are triggered by these actions:<br>
     This is designed for filtering newly added bookmarks on your bookmarks page.<br>
     On the bookmarks page, works are not ordered by work ID but by the time you added them to your bookmarks; the most recently bookmarked works are shown first.<br>
     Each of your bookmarks has a Bookmark ID, which identifies its position on the bookmarks page. So if you want to download "the bookmarks added after this one", you need to filter by Bookmark ID.<br>
+    <br>
     How do you get the Bookmark ID of a specific work? One way is:<br>
     - Hover over this work and click the download button to download it on its own<br>
     - Click the "Export results" button in the download area<br>
-    - Open the exported JSON file with a text editor; the number after "bmkId" is its Bookmark ID.`,
+    - Open the exported JSON file with a text editor; the number after "bmkId" is its Bookmark ID.<br>
+    <br>
+    Note:<br>
+    A bookmark ID only exists for works you have already bookmarked, so the downloader does not check the bookmark ID setting for works you have not bookmarked.`,
     `ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます。<br>
     <br>
     作品の種類ごとに ID 範囲を設定できます：<br>
@@ -3078,10 +3137,14 @@ Quick download tasks are triggered by these actions:<br>
     これは、ブックマークページで新しく追加したブックマークを絞り込むためのものです。<br>
     ブックマークページでは、作品は作品 ID の順ではなく、ブックマークに追加した時間順に並び、最後にブックマークした作品が先頭に表示されます。<br>
     ブックマークにはそれぞれブックマーク ID があり、ブックマークページでの位置を示します。そのため、「このブックマークより後に追加したブックマーク」をダウンロードしたい場合は、ブックマーク ID で絞り込む必要があります。<br>
+    <br>
     特定の作品のブックマーク ID を取得する方法の 1 つは次のとおりです：<br>
     - この作品にマウスを合わせ、ダウンロードボタンをクリックして単独でダウンロードします<br>
     - ダウンロードエリアの「クロール結果をエクスポート」ボタンをクリックします<br>
-    - エクスポートした JSON ファイルをテキストエディタで開くと、「bmkId」の後ろの数字がそのブックマーク ID です。`,
+    - エクスポートした JSON ファイルをテキストエディタで開くと、「bmkId」の後ろの数字がそのブックマーク ID です。<br>
+    <br>
+    備考：<br>
+    ブックマーク ID はすでにブックマークした作品にのみ存在するため、ダウンローダーはブックマークしていない作品に対してブックマーク ID の設定をチェックしません。`,
     `ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다.<br>
     <br>
     작품 유형별로 ID 범위를 따로 설정할 수 있습니다:<br>
@@ -3095,10 +3158,14 @@ Quick download tasks are triggered by these actions:<br>
     이것은 북마크 페이지에서 새로 추가한 북마크를 걸러내기 위한 것입니다.<br>
     북마크 페이지에서는 작품이 작품 ID 순서가 아니라 북마크에 추가한 시간 순서로 표시되며, 마지막으로 북마크한 작품이 맨 앞에 표시됩니다.<br>
     북마크마다 북마크 ID가 있어 북마크 페이지에서의 순서를 나타냅니다. 따라서 "이 북마크 이후에 추가된 북마크"를 다운로드하려면 북마크 ID로 걸러내야 합니다.<br>
+    <br>
     특정 작품의 북마크 ID를 얻는 방법 중 하나는 다음과 같습니다:<br>
     - 이 작품 위에 마우스를 올리고 다운로드 버튼을 클릭하여 따로 다운로드합니다<br>
     - 다운로드 영역의 "결과 내보내기" 버튼을 클릭합니다<br>
-    - 내보낸 JSON 파일을 텍스트 편집기로 열면 "bmkId" 뒤의 숫자가 그 북마크 ID입니다.`,
+    - 내보낸 JSON 파일을 텍스트 편집기로 열면 "bmkId" 뒤의 숫자가 그 북마크 ID입니다.<br>
+    <br>
+    참고:<br>
+    북마크 ID는 이미 북마크한 작품에만 있으므로, 다운로더는 북마크하지 않은 작품에 대해 북마크 ID 설정을 검사하지 않습니다.`,
     `Вы можете ввести ID, чтобы сканировать работы с ID больше него (новые работы) или меньше него (старые работы).<br>
     <br>
     Диапазон ID можно задать отдельно для разных типов работ:<br>
@@ -3112,10 +3179,14 @@ Quick download tasks are triggered by these actions:<br>
     Он предназначен для отбора недавно добавленных закладок на странице ваших закладок.<br>
     На странице закладок работы располагаются не по ID работы, а по времени добавления в закладки: последние добавленные закладки показываются первыми.<br>
     У каждой вашей закладки есть идентификатор закладки (Bookmark ID), который определяет её позицию на странице закладок. Поэтому, если вы хотите скачать «закладки, добавленные после этой», нужно отбирать их по идентификатору закладки.<br>
+    <br>
     Как узнать идентификатор закладки конкретной работы? Один из способов:<br>
     - Наведите указатель мыши на эту работу и нажмите кнопку загрузки, чтобы скачать её отдельно<br>
     - Нажмите кнопку «Экспорт результатов» в области загрузки<br>
-    - Откройте экспортированный файл JSON в текстовом редакторе: число после "bmkId" — это идентификатор её закладки.`,
+    - Откройте экспортированный файл JSON в текстовом редакторе: число после "bmkId" — это идентификатор её закладки.<br>
+    <br>
+    Примечание:<br>
+    ID закладки существует только у работ, которые вы уже добавили в закладки, поэтому загрузчик не проверяет настройку ID закладки для работ, которых нет в ваших закладках.`,
   ],
   _大于: [`大于`, `大於`, `Bigger than`, `より大きい`, `보다 큼`, `Больше чем`],
   _小于: [`小于`, `小於`, `Less than`, `より小さい`, `보다 작음`, `Меньше чем`],
@@ -13836,5 +13907,21 @@ One possible reason: Your Pixiv account has been banned.`,
     또한 단일 이미지 작품에 일련번호를 붙이고 싶지 않다면, 아래의 "일련번호" - "일련번호가 없는 첫 번째 이미지" 설정에서 "단일 이미지 작품"을 선택할 수 있습니다.`,
     `Чтобы имена файлов не повторялись, имя файла должно содержать серийный номер. Это значит, что в правилах названий должно быть <span class="blue name">{id}</span> либо сочетание <span class="blue name">{pid}</span> и <span class="blue name">{p}</span>.<br>
     Кроме того, если вы не хотите добавлять серийный номер к работам с одним изображением, выберите «Работа с одним изображением» в настройке «Серийный номер» — «Первое изображение без серийного номера» ниже.`,
+  ],
+  _使用全字匹配的标签: [
+    `使用全字匹配的标签`,
+    `使用全字匹配的標籤`,
+    `Use exact match tags`,
+    `完全一致のタグを使用`,
+    `전체 일치 태그 사용`,
+    `Использовать теги полного совпадения`,
+  ],
+  _使用部分匹配的标签: [
+    `使用部分匹配的标签`,
+    `使用部分匹配的標籤`,
+    `Use partial match tags`,
+    `部分一致のタグを使用`,
+    `부분 일치 태그 사용`,
+    `Использовать теги частичного совпадения`,
   ],
 }

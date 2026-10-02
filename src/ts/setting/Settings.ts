@@ -244,7 +244,14 @@ interface XzSetting {
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   needTag: string[]
-  notNeedTag: string[]
+  /** 是否启用全字匹配模式。关闭时不检查全字匹配的标签列表 */
+  notNeedTagWholeSwitch: boolean
+  /** 全字匹配模式下要排除的标签。作品的标签与这里的标签完全相同时，排除这个作品 */
+  notNeedTagWhole: string[]
+  /** 是否启用部分匹配模式。关闭时不检查部分匹配的标签列表 */
+  notNeedTagPartialSwitch: boolean
+  /** 部分匹配模式下要排除的标签。作品的标签包含这里的标签时，排除这个作品 */
+  notNeedTagPartial: string[]
   autoStartDownload: boolean
   autoStartDownloadForQuickDownload: boolean
   downloadThread: number
@@ -343,7 +350,6 @@ interface XzSetting {
   switchTabBar: 'over' | 'click'
   zeroPadding: boolean
   zeroPaddingLength: number
-  tagMatchMode: 'partial' | 'whole'
   showFastSearchArea: boolean
   saveMetaType0: boolean
   saveMetaType1: boolean
@@ -797,7 +803,10 @@ class Settings {
     saveThumbnailForUgoira: false,
     convertUgoiraThread: 1,
     needTag: [],
-    notNeedTag: [],
+    notNeedTagWholeSwitch: true,
+    notNeedTagWhole: [],
+    notNeedTagPartialSwitch: true,
+    notNeedTagPartial: [],
     autoStartDownload: true,
     autoStartDownloadForQuickDownload: true,
     downloadThread: 3,
@@ -889,7 +898,6 @@ class Settings {
     switchTabBar: 'over',
     zeroPadding: false,
     zeroPaddingLength: 3,
-    tagMatchMode: 'whole',
     showFastSearchArea: true,
     saveMetaType0: false,
     saveMetaType1: false,
@@ -1185,7 +1193,8 @@ class Settings {
     'namingRuleListForNovel',
     'blockList',
     'needTag',
-    'notNeedTag',
+    'notNeedTagWhole',
+    'notNeedTagPartial',
     'createFolderTagList',
     'createFolderTagList2',
     'exportLogExclude',
@@ -1359,6 +1368,8 @@ class Settings {
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置覆盖新的设置
   private assignSettings(data: XzSetting) {
     const origin = Utils.deepCopy(data)
+    // 迁移旧版本的设置数据。例如旧的 notNeedTag 要按照 tagMatchMode 分配给对应的新输入框
+    convertOldSettings.convertExcludeTag(origin)
     for (const [key, value] of Object.entries(origin)) {
       this.setSetting(key as SettingKeys, value)
     }
@@ -1408,7 +1419,7 @@ class Settings {
       }
 
       for (const [key, value] of Object.entries(remoteSettings)) {
-        const settingKey = key as SettingKeys
+        const settingKey = convertOldSettings.convertKey(key) as SettingKeys
         if (
           settingKey === 'settingsAcrossDifferentTabs' ||
           !this.allSettingKeys.includes(settingKey) ||
@@ -1532,6 +1543,9 @@ class Settings {
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(key: SettingKeys, value: SettingValue) {
+    // 把旧版本里已经废弃的设置名转换成新的设置名，这样旧设置的值会被迁移到新的设置项上，而不是被丢弃
+    key = convertOldSettings.convertKey(key) as SettingKeys
+
     if (!this.allSettingKeys.includes(key)) {
       return
     }
