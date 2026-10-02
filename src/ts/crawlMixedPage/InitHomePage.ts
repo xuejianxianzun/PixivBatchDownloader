@@ -125,7 +125,6 @@ class InitHomePage extends InitPageBase {
     this.checkPageType()
 
     const input = new Input({
-      width: 400,
       type: 'textarea',
       rows: 6,
       instruction:
@@ -168,7 +167,6 @@ class InitHomePage extends InitPageBase {
 
     // 接收起点
     const startInput = new Input({
-      width: 400,
       instruction:
         lang.transl('_抓取id区间说明') +
         '<br><br>' +
@@ -196,7 +194,6 @@ class InitHomePage extends InitPageBase {
 
     // 接收终点
     const endInput = new Input({
-      width: 400,
       instruction: lang.transl('_抓取id区间终点'),
       placeholder: '200',
     })

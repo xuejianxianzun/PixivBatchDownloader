@@ -30,7 +30,6 @@ class TimedCrawl {
         '_分钟'
       )})`,
       value: settings.timedCrawlInterval.toString(),
-      width: 500,
     })
     const value = await input.submit()
     if (!value) {

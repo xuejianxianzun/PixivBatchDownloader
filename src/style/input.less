@@ -12,7 +12,8 @@
   box-shadow: 0 0 15px var(--box-shadow-blue);
   box-sizing: border-box;
   padding: 20px 20px;
-  max-width: 90vw;
+  width: 90vw;
+  max-width: 600px;
   height: max-content;
   font-size: 16px;
   border-radius: 8px;
@@ -26,8 +27,9 @@
 
   .XZInputContainer {
     display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
 
     .XZInput {
       color: #333;
@@ -35,7 +37,9 @@
       box-sizing: border-box;
       font-size: 16px;
       line-height: 24px;
-      flex-basis: 600px;
+      width: 100%;
+      // 纵向排列时 flex-basis 会作用于高度，需重置为 auto（宽度由 width: 100% 控制）
+      flex-basis: auto;
       flex-grow: 0;
       padding: 2px 8px;
       border-radius: 6px;
@@ -52,9 +56,9 @@
 
     .XZInputButtons {
       display: flex;
-      align-items: center;
-      flex-shrink: 0;
-      margin-left: 10px;
+      margin-left: 0;
+      margin-top: 10px;
+      justify-content: flex-end;
 
       // 按钮之间的距离
       .XZInputButton + .XZInputButton {
@@ -105,27 +109,11 @@
     line-height: 22px;
   }
 
-  // 移动端：输入框独占一行（撑满容器宽度），提交/取消按钮换到下一行
-  .XZInputContainer {
-    flex-direction: column;
-    align-items: stretch;
-
-    .XZInput {
-      width: 100%;
-      // 纵向排列时 flex-basis 会作用于高度，需重置为 auto（宽度由 width: 100% 控制）
-      flex-basis: auto;
-    }
-
-    .XZInputButtons {
-      margin-left: 0;
-      margin-top: 10px;
-      justify-content: flex-end;
-
-      button {
-        height: 28px;
-        line-height: 28px;
-        padding: 0px 20px;
-      }
+  .XZInputButtons {
+    button {
+      height: 28px;
+      line-height: 28px;
+      padding: 0px 20px;
     }
   }
 

@@ -7183,7 +7183,6 @@ class Input {
         this.init(option);
     }
     defultOption = {
-        width: 600,
         type: 'input',
         rows: 3,
         instruction: '',
@@ -7218,8 +7217,6 @@ class Input {
         wrap.classList.add('XZInputWrap');
         _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && wrap.classList.add('mobile');
         wrap.id = this.id;
-        // 这里设置的宽度是粗略值，后面会再修改
-        wrap.style.width = option.width + 200 + 'px';
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
         if (option.instruction) {
             const p = document.createElement('p');
@@ -7232,11 +7229,6 @@ class Input {
         const input = document.createElement(option.type);
         input.classList.add('XZInput');
         input.setAttribute('placeholder', option.placeholder);
-        // 桌面端：输入框用 flex-basis 指定宽度
-        // 移动端：输入框会撑满整个容器宽度（按钮被移到下一行），无需 flex-basis
-        if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            input.style.flexBasis = option.width + 'px';
-        }
         if (option.type === 'input') {
             input.setAttribute('type', 'text');
             input.setAttribute('value', option.value);
@@ -7269,26 +7261,11 @@ class Input {
         buttonsWrap.append(submitButton);
         container.append(buttonsWrap);
         wrap.append(container);
-        // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
-        // 移动端：按钮在输入框下方，wrap 宽度只需要等于输入框的宽度
-        wrap.style.opacity = '0';
+        // ⚠️ 必须把组件插入到页面上，否则它完全不会显示（组件是 position: fixed，直接挂在 body 下）。
+        // 以前这一段里还有「先插入 → 读取按钮实际宽度 → 按 输入框宽度 + 按钮宽度 重设 wrap 宽度」的逻辑，
+        // 因为那时按钮排在输入框右侧、wrap 的宽度要考虑按钮。现在两端（PC / 移动）都是纵向排列，
+        // 宽度完全由 CSS 控制，所以测量逻辑已移除 —— 但「插入 DOM」这一步与宽度无关，不能一起删掉。
         document.body.append(wrap);
-        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            wrap.style.width = option.width + 'px';
-        }
-        else {
-            // 根据按钮宽度，重设 wrap 宽度
-            const submitRect = submitButton.getClientRects();
-            const cancelRect = cancelButton.getClientRects();
-            // 14 是按钮的 margin-left 值
-            wrap.style.width =
-                option.width +
-                    14 +
-                    submitRect[0].width +
-                    14 +
-                    cancelRect[0].width +
-                    'px';
-        }
         wrap.style.opacity = '1';
         input.focus();
         if (option.value) {
@@ -17133,7 +17110,6 @@ class TimedCrawl {
         const input = new _Input__WEBPACK_IMPORTED_MODULE_6__.Input({
             instruction: `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间2')} (${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
             value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
-            width: 500,
         });
         const value = await input.submit();
         if (!value) {
@@ -21775,7 +21751,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeSettingsPanel');
         this.checkPageType();
         const input = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
-            width: 400,
             type: 'textarea',
             rows: 6,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_输入id进行抓取的提示文字') +
@@ -21810,7 +21785,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         let end = 0;
         // 接收起点
         const startInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
-            width: 400,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间说明') +
                 '<br><br>' +
                 _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.type === 'illusts'
@@ -21835,7 +21809,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         // 接收终点
         const endInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
-            width: 400,
             instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间终点'),
             placeholder: '200',
         });

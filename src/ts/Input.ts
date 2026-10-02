@@ -4,8 +4,6 @@ import { theme } from './Theme'
 import { Utils } from './utils/Utils'
 
 interface Option {
-  /**可选，输入框的最大宽度。注意：如果页面(或父元素）的宽度不够，输入框的宽度会自动缩小。 */
-  width?: number
   /**输入框的 HTML 标签是 input 还是 textarea。默认为 input */
   type?: 'input' | 'textarea'
   /**仅当输入框为 textarea 时，可以通过 rows 设置高度（行数） */
@@ -27,7 +25,6 @@ class Input {
   }
 
   private defultOption: Option = {
-    width: 600,
     type: 'input',
     rows: 3,
     instruction: '',
@@ -68,8 +65,6 @@ class Input {
     wrap.classList.add('XZInputWrap')
     Config.mobile && wrap.classList.add('mobile')
     wrap.id = this.id
-    // 这里设置的宽度是粗略值，后面会再修改
-    wrap.style.width = option.width! + 200 + 'px'
     theme.register(wrap)
 
     if (option.instruction) {
@@ -85,11 +80,6 @@ class Input {
     const input = document.createElement(option.type!)
     input.classList.add('XZInput')
     input.setAttribute('placeholder', option.placeholder!)
-    // 桌面端：输入框用 flex-basis 指定宽度
-    // 移动端：输入框会撑满整个容器宽度（按钮被移到下一行），无需 flex-basis
-    if (!Config.mobile) {
-      input.style.flexBasis = option.width! + 'px'
-    }
     if (option.type === 'input') {
       input.setAttribute('type', 'text')
       input.setAttribute('value', option.value!)
@@ -127,26 +117,12 @@ class Input {
 
     wrap.append(container)
 
-    // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
-    // 移动端：按钮在输入框下方，wrap 宽度只需要等于输入框的宽度
-    wrap.style.opacity = '0'
+    // ⚠️ 必须把组件插入到页面上，否则它完全不会显示（组件是 position: fixed，直接挂在 body 下）。
+    // 以前这一段里还有「先插入 → 读取按钮实际宽度 → 按 输入框宽度 + 按钮宽度 重设 wrap 宽度」的逻辑，
+    // 因为那时按钮排在输入框右侧、wrap 的宽度要考虑按钮。现在两端（PC / 移动）都是纵向排列，
+    // 宽度完全由 CSS 控制，所以测量逻辑已移除 —— 但「插入 DOM」这一步与宽度无关，不能一起删掉。
     document.body.append(wrap)
 
-    if (Config.mobile) {
-      wrap.style.width = option.width! + 'px'
-    } else {
-      // 根据按钮宽度，重设 wrap 宽度
-      const submitRect = submitButton.getClientRects()
-      const cancelRect = cancelButton.getClientRects()
-      // 14 是按钮的 margin-left 值
-      wrap.style.width =
-        option.width! +
-        14 +
-        submitRect[0].width +
-        14 +
-        cancelRect[0].width +
-        'px'
-    }
     wrap.style.opacity = '1'
 
     input.focus()

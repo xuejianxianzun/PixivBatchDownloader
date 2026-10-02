@@ -4143,7 +4143,8 @@ iframe[name='expandedFooter'] {
   box-shadow: 0 0 15px var(--box-shadow-blue);
   box-sizing: border-box;
   padding: 20px 20px;
-  max-width: 90vw;
+  width: 90vw;
+  max-width: 600px;
   height: max-content;
   font-size: 16px;
   border-radius: 8px;
@@ -4156,8 +4157,9 @@ iframe[name='expandedFooter'] {
 }
 .XZInputWrap .XZInputContainer {
   display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
 }
 .XZInputWrap .XZInputContainer .XZInput {
   color: #333;
@@ -4165,7 +4167,8 @@ iframe[name='expandedFooter'] {
   box-sizing: border-box;
   font-size: 16px;
   line-height: 24px;
-  flex-basis: 600px;
+  width: 100%;
+  flex-basis: auto;
   flex-grow: 0;
   padding: 2px 8px;
   border-radius: 6px;
@@ -4179,9 +4182,9 @@ iframe[name='expandedFooter'] {
 }
 .XZInputWrap .XZInputContainer .XZInputButtons {
   display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: 10px;
+  margin-left: 0;
+  margin-top: 10px;
+  justify-content: flex-end;
 }
 .XZInputWrap .XZInputContainer .XZInputButtons .XZInputButton + .XZInputButton {
   margin-left: 10px;
@@ -4221,20 +4224,7 @@ iframe[name='expandedFooter'] {
   margin: 0px 0 8px 0;
   line-height: 22px;
 }
-.mobile.XZInputWrap .XZInputContainer {
-  flex-direction: column;
-  align-items: stretch;
-}
-.mobile.XZInputWrap .XZInputContainer .XZInput {
-  width: 100%;
-  flex-basis: auto;
-}
-.mobile.XZInputWrap .XZInputContainer .XZInputButtons {
-  margin-left: 0;
-  margin-top: 10px;
-  justify-content: flex-end;
-}
-.mobile.XZInputWrap .XZInputContainer .XZInputButtons button {
+.mobile.XZInputWrap .XZInputButtons button {
   height: 28px;
   line-height: 28px;
   padding: 0px 20px;

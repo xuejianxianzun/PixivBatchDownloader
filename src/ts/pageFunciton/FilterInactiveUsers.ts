@@ -59,7 +59,6 @@ class FilterInactiveUsers {
     const input = new Input({
       instruction: `${lang.transl('_筛选不活跃的用户的输入提示')}`,
       value: '6',
-      width: 500,
     })
     const value = await input.submit()
     if (!value) {
