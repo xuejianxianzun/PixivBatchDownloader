@@ -1641,6 +1641,15 @@ class Settings {
     }
 
     // 对于一些不合法的值，重置为默认值
+    if (key === 'downloadThread') {
+      if ((value as number) < 1) {
+        value = 1
+      }
+      if ((value as number) > Config.downloadThreadMax) {
+        value = Config.downloadThreadMax
+      }
+    }
+
     if (key === 'slowCrawlDealy' && (value as number) < 1000) {
       value = 1000
     }

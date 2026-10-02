@@ -161,6 +161,16 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/687
 
 作品标题里有一个不可见的特殊字符，导致 Firefox 无法保存该文件。现在修复。
 
+### 🛠️当前台的 fetch 请求因失败而重试时，会绕过缓存，这在某些边缘场景里可能能解决错误
+
+在 src/ts/download/Download.ts 模块里，一个文件下载失败时：
+1. 会先重试 10 次
+2. 如果 10 次之后还无法成功，就先跳过它，等到其他文件下载完毕后再重试下载它
+
+这次加固后，在这两种情况里都会为 fetch 请求添加 `cache: 'reload'` 参数，绕过 HTTP 缓存并更新缓存。
+
+这个措施可能很少有能发挥作用的时候，emmm 聊胜于无吧。
+
 ### ♻️拆分了“预览搜索页面的筛选结果”功能的代码
 
 之前 `InitSearchArtworkPage.ts` 模块同时负责抓取和预览抓取结果，但是后者是个重量级功能，两者的逻辑混在一起增加了维护难度。现在把后者拆分成单独的 `SearchResultPreview.ts` 模块，并优化了很多逻辑。

@@ -150,7 +150,15 @@ class Download {
     let status = 0
 
     try {
-      const response = await fetch(url, { signal: controller.signal })
+      // 重试时绕过 HTTP 缓存：极少数情况下缓存里的响应有问题，不使用缓存重新请求可以成功。
+      // 两种情况都算重试：
+      // 1. this.retry > 0：本次下载内的快速重试（失败后等待 1 秒再试）
+      // 2. arg.isRetry：下载器级别的重试（其他文件下载完毕后，由 DownloadControl 新建实例重试）
+      // 用 'reload' 而不是 'no-store'，这样重新请求到的响应会顺便把缓存里那份有问题的更新掉
+      const response = await fetch(url, {
+        signal: controller.signal,
+        cache: this.retry > 0 || arg.isRetry ? 'reload' : 'default',
+      })
       const contentType = response.headers
         .get('Content-Type')
         ?.split(';')[0]

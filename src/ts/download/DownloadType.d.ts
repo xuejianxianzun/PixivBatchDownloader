@@ -13,6 +13,8 @@ export interface downloadArgument {
   index: number
   progressBarIndex: number
   taskBatch: number
+  /** 这个文件是不是「之前下载出错、现在重试」。重试时会绕过 HTTP 缓存 */
+  isRetry?: boolean
 }
 
 // 前台向后台发送的任务信息

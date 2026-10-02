@@ -86,6 +86,16 @@ class DownloadControl {
   // 这不是 SW 让浏览器保存文件时的失败
   private errorIdList: string[] = []
 
+  /** 本轮下载里需要重试的文件 id（文件级 id，形如 123_p0；动图和小说是 123）。
+   *
+   * 这是在 startDownload() 里、reset() 之前从 errorIdList 快照而来的。
+   * 因为 reset() 会清空 errorIdList，而重试时会新建 Download 实例（retry 从 0 开始）、
+   * downloadStates 里这些文件的状态也会被 resume() 复位成 -1（和「从没下载过」一样），
+   * 所以只有通过它才能让 Download 知道哪些文件是出错重试的。
+   *
+   * 首次开始下载（以及用户手动重新开始）时它是空的。 */
+  private retryFileIds = new Set<string>()
+
   private downloaded = 0 // 已下载的任务数量
 
   private stop = false // 是否已经停止下载
@@ -575,6 +585,11 @@ class DownloadControl {
       downloadStates.init()
     }
 
+    // 记下本轮需要重试的文件。必须放在 reset() 之前：reset() 会清空 errorIdList，
+    // 之后就无法区分「之前出错、现在重试」和「第一次下载」的文件了。
+    // 首次开始下载时 errorIdList 是空的，所以这个集合也是空的
+    this.retryFileIds = new Set(this.errorIdList)
+
     this.reset()
     this.taskBatch = Date.now() // 修改本批下载任务的标记
     this.taskList = {} // 重置下载任务列表
@@ -951,6 +966,8 @@ class DownloadControl {
         index: index,
         progressBarIndex: progressBarIndex,
         taskBatch: this.taskBatch,
+        // 这个文件是不是「之前出错、现在重试」的？Download 会据此绕过 HTTP 缓存
+        isRetry: this.retryFileIds.has(workData.id),
       }
 
       // 保存任务信息
