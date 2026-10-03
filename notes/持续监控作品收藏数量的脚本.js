@@ -28,6 +28,10 @@
  *   - 发表时间取 date / uploadDate / createDate 里第一个有值的；如果都没有，会在第一次成功
  *     抓取后用接口返回的 createDate 补上。
  *
+ * 可以在多个标签页里同时运行：断点续跑的数据按「数据源里的作品 id」区分，
+ * 每个标签页、每一批作品的缓存互不影响。脚本启动时会列出所有未完成的监控，
+ * 可以逐个选择继续或删除。
+ *
  * ⚠️ 追踪期间不要关闭这个标签页、不要让电脑睡眠。后台标签页的定时器会被浏览器降频。
  * ⚠️ 请求总量 = 作品数 × 48，请先估算一下（例如 300 个作品就是 14400 次请求）。
  * 控制台里可以用 window.pbdBmkMonitor 查看队列、手动导出或停止。
@@ -46,8 +50,14 @@
     maxRetry429: 5,
     /** 累计执行多少轮后结束。第 1 轮在脚本运行时立即执行，所以 49 轮 = 48 个 30 分钟间隔 = 24 小时 */
     totalRounds: 49,
-    /** 断点续跑用的 localStorage 键名 */
-    saveKey: 'pbd-bmk-monitor',
+    /** 断点续跑用的 localStorage 键名前缀。
+     * 完整键名 = 前缀 + 这批数据的指纹（见 buildSaveKey），
+     * 这样多个标签页监控不同的作品批次时，各自的缓存互不影响 */
+    saveKeyPrefix: 'pbd-bmk-monitor:',
+    /** 旧版本用的固定键名（不区分批次）。启动时只读一次，用来列出和清理旧存档 */
+    legacySaveKey: 'pbd-bmk-monitor',
+    /** 存档「刚刚还在更新」的判定阈值（毫秒）。小于它时提示「可能另一个标签页在跑同一批数据」 */
+    activeThresholdMs: 2 * 60 * 1000,
   }
 
   // ==================== 小工具 ====================
@@ -93,6 +103,10 @@
   let lastRoundStart = null
   /** 每次遍历与上一次遍历之间的间隔（分钟）。用来检查定时器有没有被浏览器延长 */
   let roundGaps = []
+  /** 当前任务使用的完整 localStorage 键名（由数据源指纹决定）。开始或继续时才会被设置 */
+  let saveKey = null
+  /** 本次运行的标签页标识，用来提示「同一批数据可能正在另一个标签页里监控」 */
+  const tabId = Math.random().toString(36).slice(2, 10)
 
   // ==================== 建立结果队列 ====================
 
@@ -394,10 +408,84 @@
 
   // ==================== 断点续跑 ====================
 
+  /** 把字符串散列成一个短标识（FNV-1a 变体），用来做「这批数据」的指纹 */
+  const hashText = (text) => {
+    let hash = 0x811c9dc5
+    for (let i = 0; i < text.length; i++) {
+      hash ^= text.charCodeAt(i)
+      hash = Math.imul(hash, 0x01000193) >>> 0
+    }
+    return hash.toString(36)
+  }
+
+  /** 由结果队列算出这串存档的键名。
+   *
+   * 只要数据源里的作品 id 相同，算出来就是同一个键名，所以刷新后还能接着上次的进度；
+   * id 不同（例如另一个标签页在监控别的批次）就会落到不同的键名上，两边互不影响。
+   * id 会先排序，因此和数据源里的先后顺序无关。 */
+  const buildSaveKey = (list) => {
+    const ids = list.map((item) => item.id).sort()
+    return (
+      CONFIG.saveKeyPrefix +
+      hashText(ids.length + '|' + ids.join(',')) +
+      '-' +
+      ids.length
+    )
+  }
+
+  /** 读出某个键名下的存档；不存在、解析失败、结构不对都返回 null */
+  const readSave = (key) => {
+    try {
+      const raw = localStorage.getItem(key)
+      if (!raw) {
+        return null
+      }
+      const data = JSON.parse(raw)
+      return data && Array.isArray(data.queue) && data.queue.length ? data : null
+    } catch (err) {
+      return null
+    }
+  }
+
+  const removeSave = (key) => {
+    try {
+      localStorage.removeItem(key)
+    } catch (err) {
+      // 忽略
+    }
+  }
+
+  /** 列出所有未完成的存档（含旧版本的固定键名），最近保存的排在前面 */
+  const listSaved = () => {
+    const result = []
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (!key) {
+          continue
+        }
+        const isLegacy = key === CONFIG.legacySaveKey
+        if (!isLegacy && !key.startsWith(CONFIG.saveKeyPrefix)) {
+          continue
+        }
+        const data = readSave(key)
+        if (data) {
+          result.push({ key, data, isLegacy })
+        }
+      }
+    } catch (err) {
+      // 忽略
+    }
+    return result.sort((a, b) => (b.data.savedAt || 0) - (a.data.savedAt || 0))
+  }
+
   const save = () => {
+    if (!saveKey) {
+      return
+    }
     try {
       localStorage.setItem(
-        CONFIG.saveKey,
+        saveKey,
         JSON.stringify({
           queue,
           removed,
@@ -406,6 +494,7 @@
           roundGaps,
           rounds,
           sourceName,
+          tabId,
           savedAt: Date.now(),
         })
       )
@@ -414,23 +503,18 @@
     }
   }
 
-  const load = () => {
-    try {
-      const raw = localStorage.getItem(CONFIG.saveKey)
-      return raw ? JSON.parse(raw) : null
-    } catch (err) {
-      return null
-    }
-  }
-
+  /** 清掉「当前任务」的存档（不会影响其他标签页、其他批次的存档） */
   const clearSaved = () => {
-    try {
-      localStorage.removeItem(CONFIG.saveKey)
-    } catch (err) {
-      // 忽略
+    if (saveKey) {
+      removeSave(saveKey)
     }
   }
 
+  /** 清掉所有存档，含其他标签页正在跑的批次和旧版本的固定键名 */
+  const clearAllSaved = () => {
+    listSaved().forEach((item) => removeSave(item.key))
+    removeSave(CONFIG.legacySaveKey)
+  }
   // ==================== 界面 ====================
 
   let panelMessage = null
@@ -450,6 +534,7 @@
       ? `上次间隔 ${roundGaps[roundGaps.length - 1]} 分钟`
       : '还未比较过间隔'
     panelMessage.innerHTML =
+      `<span style="color:#888">${sourceName || '（未记录数据源）'}</span><br>` +
       `已完成 <b>${rounds}</b> / ${CONFIG.totalRounds} 轮 ｜ 队列 <b>${queue.length}</b> 个 ｜ 已删除 ${removed.length} 个<br>` +
       `已运行 ${used} 小时 ｜ 采样 ${samples} 次 ｜ ${lastGap}<br>` +
       (running
@@ -460,7 +545,41 @@
       `<br><span style="color:#888">请勿关闭此标签页（每 ${CONFIG.roundIntervalMinutes} 分钟一轮）</span>`
   }
 
-  /** 显示选文件的面板 */
+  /** 画一条「未完成的监控」，带继续 / 删除按钮 */
+  const buildSavedRow = (item, refresh) => {
+    const row = document.createElement('div')
+    row.style.cssText =
+      'border:1px solid #ddd;border-radius:6px;padding:6px 8px;margin-bottom:6px;background:#fafafa'
+    const info = document.createElement('div')
+    const savedAt = item.data.savedAt
+      ? new Date(item.data.savedAt).toLocaleString('zh-CN')
+      : '—'
+    info.innerHTML =
+      `${item.isLegacy ? '【旧版存档】' : ''}<b>${item.data.sourceName || '（未记录数据源）'}</b><br>` +
+      `${item.data.rounds || 0} / ${CONFIG.totalRounds} 轮 ｜ 队列 ${item.data.queue.length} 个<br>` +
+      `<span style="color:#888">保存于 ${savedAt}</span>`
+    const btns = document.createElement('div')
+    btns.style.cssText = 'margin-top:4px;display:flex;gap:6px'
+    const resumeBtn = document.createElement('button')
+    resumeBtn.textContent = '继续'
+    resumeBtn.onclick = () => {
+      if (saveKey && !confirm('当前标签页正在监控另一批数据，继续这个会切换过去。要继续吗？')) {
+        return
+      }
+      resume(item.data, item.key)
+    }
+    const delBtn = document.createElement('button')
+    delBtn.textContent = '删除'
+    delBtn.onclick = () => {
+      removeSave(item.key)
+      refresh()
+    }
+    btns.append(resumeBtn, delBtn)
+    row.append(info, btns)
+    return row
+  }
+
+  /** 显示面板：上面是「其他未完成的监控」列表，下面是选数据源 */
   const buildPanel = () => {
     const old = document.getElementById('pbdBmkMonitorPanel')
     if (old) {
@@ -471,13 +590,15 @@
     box.style.cssText =
       'position:fixed;top:10px;right:10px;z-index:999999;background:#fff;color:#222;' +
       'border:1px solid #ccc;border-radius:8px;padding:10px 12px;font:12px/1.7 sans-serif;' +
-      'box-shadow:0 2px 10px rgba(0,0,0,.18);max-width:320px'
+      'box-shadow:0 2px 10px rgba(0,0,0,.18);max-width:340px;max-height:80vh;overflow:auto'
     const title = document.createElement('div')
     title.style.cssText = 'font-weight:bold;margin-bottom:6px'
     title.textContent = '持续监控作品收藏数量'
+
     panelMessage = document.createElement('div')
     panelMessage.style.cssText = 'margin-bottom:8px;color:#444'
     panelMessage.textContent = '请选择数据源 JSON 文件'
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.json,application/json'
@@ -495,15 +616,63 @@
         alert('读取数据源失败：' + (err && err.message ? err.message : err))
       }
     }
-    box.append(title, panelMessage, input)
+
+    // 其他未完成的监控（当前任务不列出来，避免和自己重复）
+    const savedList = document.createElement('div')
+    const refresh = () => {
+      savedList.innerHTML = ''
+      const items = listSaved().filter((item) => item.key !== saveKey)
+      if (!items.length) {
+        savedList.style.display = 'none'
+        return
+      }
+      savedList.style.display = 'block'
+      const caption = document.createElement('div')
+      caption.style.cssText = 'color:#888;margin-bottom:4px'
+      caption.textContent = `其他未完成的监控（${items.length} 个）`
+      savedList.append(caption)
+      items.forEach((item) => savedList.append(buildSavedRow(item, refresh)))
+    }
+    refresh()
+
+    box.append(title, panelMessage, savedList, input)
     document.body.append(box)
   }
-
   // ==================== 启动 ====================
 
   /** 用数据源开始监控 */
   const start = (data, fileName = '') => {
     const built = buildQueue(data)
+    if (built.queue.length === 0) {
+      alert('数据源里没有可用的作品（缺少 id 或数据为空），无法开始监控。')
+      return
+    }
+
+    // 先算出这批数据的指纹，看看有没有同一批数据留下的存档
+    const key = buildSaveKey(built.queue)
+    const existing = readSave(key)
+    if (existing) {
+      const recent =
+        existing.tabId !== tabId &&
+        Date.now() - (existing.savedAt || 0) < CONFIG.activeThresholdMs
+      const message =
+        '发现这批数据上次未完成的监控：\n' +
+        `已完成 ${existing.rounds || 0} 轮，队列 ${existing.queue.length} 个作品\n` +
+        `这次选择的数据源：${fileName || '（未命名）'}\n` +
+        `上次的数据源：${existing.sourceName || '（未记录）'}\n` +
+        `保存于：${new Date(existing.savedAt || 0).toLocaleString('zh-CN')}\n` +
+        (recent
+          ? '\n⚠️ 这份存档刚刚还在更新，可能另一个标签页正在监控同一批数据。\n'
+          : '') +
+        '\n点「确定」继续上次的监控；点「取消」忽略它、从头开始。'
+      if (confirm(message)) {
+        resume(existing, key)
+        return
+      }
+      removeSave(key)
+    }
+
+    saveKey = key
     queue = built.queue
     removed = []
     rounds = 0
@@ -520,13 +689,7 @@
       `计划：每 ${CONFIG.roundIntervalMinutes} 分钟一轮，共 ${CONFIG.totalRounds} 轮，` +
         `预计请求 ${queue.length * CONFIG.totalRounds} 次`
     )
-
-    if (queue.length === 0) {
-      clearSaved()
-      updatePanel()
-      alert('数据源里没有可用的作品（缺少 id 或数据为空），无法开始监控。')
-      return
-    }
+    log(`这次的存档键：${saveKey}（只有作品 id 相同的批次才会共用它）`)
 
     save()
     updatePanel()
@@ -539,9 +702,9 @@
     log('立即执行第一轮遍历')
     runRound()
   }
-
-  /** 继续上次未完成的监控 */
-  const resume = (saved) => {
+  /** 继续上次未完成的监控（key 是这份存档的键名） */
+  const resume = (saved, key) => {
+    saveKey = key
     queue = saved.queue || []
     removed = saved.removed || []
     rounds = saved.rounds || 0
@@ -571,7 +734,12 @@
     start: buildPanel, // 重新选数据源
     stop, // 停止定时器
     exportNow: exportResults, // 立刻导出当前结果
-    clearSaved, // 清掉断点续跑的数据
+    clearSaved, // 清掉「当前任务」的断点数据
+    clearAllSaved, // 清掉所有任务（含其他标签页的）的断点数据
+    listSaved, // 列出所有未完成的监控
+    get saveKey() {
+      return saveKey
+    },
     get queue() {
       return queue
     },
@@ -587,19 +755,20 @@
     },
   }
 
-  // 如果有上次未完成的监控，先问是否继续
-  const saved = load()
-  if (saved && (saved.queue || []).length) {
-    const yes = confirm(
-      `发现上次未完成的监控（已完成 ${saved.rounds || 0} 轮，队列 ${
-        (saved.queue || []).length
-      } 个作品）。\n\n点「确定」继续上次的监控；点「取消」忽略它、重新选数据源。`
+  // 启动：列出所有未完成的监控（可能来自不同标签页、不同批次），由用户选择继续哪个
+  const unfinished = listSaved()
+  if (unfinished.length) {
+    log(
+      `发现 ${unfinished.length} 个未完成的监控（存档已按批次区分）：` +
+        unfinished
+          .map(
+            (item) =>
+              '\n  · ' +
+              (item.data.sourceName || '（未记录数据源）') +
+              `（${item.data.rounds || 0} 轮 / 队列 ${item.data.queue.length} 个）`
+          )
+          .join('')
     )
-    if (yes) {
-      resume(saved)
-      return
-    }
-    clearSaved()
   }
   buildPanel()
 })()
