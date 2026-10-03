@@ -30,6 +30,7 @@ class NamingRuleConfig {
     { name: '{type_ugoira}', mayEmpty: true, help: '_命名标记type_ugoira' },
     { name: '{type_novel}', mayEmpty: true, help: '_命名标记type_novel' },
     { name: '{AI}', mayEmpty: true, help: '_命名标记AI' },
+    { name: '{human}', mayEmpty: true, help: '_命名标记human' },
     { name: '{age}', mayEmpty: false, help: '_命名标记age' },
     { name: '{age_r}', mayEmpty: true, help: '_命名标记age_r' },
     { name: '{like}', mayEmpty: false, help: '_命名标记like' },

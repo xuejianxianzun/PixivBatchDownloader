@@ -90,6 +90,9 @@ class FileName {
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const pid = (data.idNum || parseInt(data.id)).toString()
     const p = this.createPNum(data)
+    // 判断是不是 AI 生成的作品。这里的判据必须和其他模块保持一致
+    // （CopyWorkInfo、MergeNovelFileName 也使用 Tools.checkAIFromTags，它匹配所有语言的 AI 标签）
+    const isAI = data.aiType === 2 || Tools.checkAIFromTags(data.tags)
     Object.assign(schema, {
       '{p_title}': {
         value: store.title,
@@ -258,7 +261,11 @@ class FileName {
         safe: true,
       },
       '{AI}': {
-        value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
+        value: isAI ? 'AI' : '',
+        safe: true,
+      },
+      '{human}': {
+        value: !isAI ? 'Human' : '',
         safe: true,
       },
       '{series_title}': {

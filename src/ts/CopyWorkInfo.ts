@@ -240,7 +240,8 @@ class CopyWorkInfo {
         Tools.unshiftTag(tagsTranslOnly, AITag)
       }
     }
-    const AI = aiType === 2 || tags.includes(AITag)
+    // aiType 在上面已经用 Tools.checkAIFromTags 修正过了，所以这里不需要再从 tags 里判断一次
+    const AI = aiType === 2
 
     const seriesNavData = body.seriesNavData
 
@@ -317,6 +318,7 @@ class CopyWorkInfo {
       '{task_date}': DateFormat.format(new Date(), settings.dateFormat),
       '{type}': Config.worksTypeName[type],
       '{AI}': AI ? 'AI' : '',
+      '{human}': !AI ? 'Human' : '',
       '{series_title}': seriesTitle,
       '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
       '{series_id}': seriesNavData ? seriesNavData.seriesId : '',
