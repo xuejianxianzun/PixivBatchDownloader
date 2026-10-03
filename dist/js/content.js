@@ -1944,6 +1944,9 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[style="width: 184px;"]>div:first-child',
                 // 约稿页面里的图像作品
                 'ul li>div>div:first-child',
+                // 群组页面，如：
+                // https://www.pixiv.net/group/?id=37051&max=1790097466
+                '.imagecontainer',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
             // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -2018,6 +2021,10 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
             if (selector === '#viewerWarpper li' &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork) {
+                continue;
+            }
+            // 只在不支持的页面里使用
+            if (selector === '.imagecontainer' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unsupported) {
                 continue;
             }
             // div[size="184"] 在这些页面里使用
