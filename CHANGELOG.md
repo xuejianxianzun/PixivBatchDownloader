@@ -1,6 +1,6 @@
 # CHANGLOG
 
-## next
+## 19.5.9 2026-10-04
 
 ### 🏷️新增命名标记：{human}
 
@@ -234,6 +234,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/689
 ### 💡优化了一些设置的帮助信息
 
 ### 💡优化了日志里的一些提示
+
+### 🕑更新了作品发布时间数据
 
 ## 19.4.1 2026-09-04
 
