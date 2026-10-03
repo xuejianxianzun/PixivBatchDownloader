@@ -536,7 +536,8 @@ class DownloadControl {
     // 在插画漫画搜索页面里，如果启用了“预览搜索页面的抓取结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
-      settings.previewResult
+      settings.previewResult &&
+      !Config.mobile
     ) {
       // 对于普通下载任务，阻止自动下载
       if (!states.quickCrawl && !states.crawlTagList) {

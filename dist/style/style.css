@@ -5067,8 +5067,3 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
     opacity: 0;
   }
 }
-body.mobile .ppd-workThumbnail {
-  position: relative;
-  overflow: visible !important;
-  z-index: 1;
-}

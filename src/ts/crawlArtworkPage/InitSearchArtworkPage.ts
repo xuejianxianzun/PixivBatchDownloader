@@ -267,7 +267,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   /** 计算搜索结果页数并开始抓取列表 */
   protected async nextStep() {
-    if (settings.previewResult && !states.timedCrawlMode) {
+    if (!Config.mobile && settings.previewResult && !states.timedCrawlMode) {
       log.warning(
         lang.transl('_提示启用预览搜索页面的抓取结果时不会自动开始下载')
       )

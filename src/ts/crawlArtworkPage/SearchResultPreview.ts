@@ -12,6 +12,7 @@ import { store } from '../store/Store'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
 import { msgBox } from '../MsgBox'
+import { Config } from '../Config'
 
 type AddBMKData = {
   id: number
@@ -100,6 +101,11 @@ class SearchResultPreview {
 
   /** 初始化预览、结果变更和收藏相关事件 */
   public init() {
+    // 在移动端不启用此功能
+    if (Config.mobile) {
+      return
+    }
+
     this.destroyed = false
     this.createPaginationControls()
     window.addEventListener(EVT.list.addResult, this.showCount)

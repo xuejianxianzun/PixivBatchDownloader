@@ -1946,6 +1946,10 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'ul li>div>div:first-child',
                 // 群组页面，如：
                 // https://www.pixiv.net/group/?id=37051&max=1790097466
+                // 已知问题：
+                // 1. 群组页面里有些缩略图容器里只有图片，没有作品链接（可能是用户手动上传的图片），
+                // 所以不会被当做有效的缩略图。这是该页面本身的问题，和本模块无关
+                // 2. 该页面右侧“最近的图片”列表里也没有作品链接，所以无需处理它
                 '.imagecontainer',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
@@ -2024,7 +2028,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 continue;
             }
             // 只在不支持的页面里使用
-            if (selector === '.imagecontainer' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unsupported) {
+            if (selector === '.imagecontainer' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unsupported) {
                 continue;
             }
             // div[size="184"] 在这些页面里使用
@@ -15186,12 +15191,6 @@ class WorkThumbnail {
             return;
         }
         const cssText = `
-    .${this.className} {
-      position: relative;           /* 必须 */
-      overflow: visible !important; /* 尽量让伪元素可见 */
-      z-index: 1;
-    }
-
     .${this.className}::after {
       content: '';
       position: absolute;
@@ -16020,6 +16019,8 @@ class DownloadBtnOnThumbOnMobile {
         });
     }
     addBtn(target) {
+        // 让缩略图成为定位上下文，下载按钮才能贴在它的角落上
+        this.makePositioned(target);
         const btn = document.createElement('button');
         btn.id = this.btnId;
         btn.classList.add('btnOnThumb');
@@ -16039,6 +16040,28 @@ class DownloadBtnOnThumbOnMobile {
         btn.style.display = 'flex';
         target.appendChild(btn);
         return btn;
+    }
+    /**
+     * 让缩略图元素成为定位上下文，这样绝对定位的下载按钮才能贴在它的角落上。
+     *
+     * **只在缩略图原本不是定位元素时才修改**，因为：
+     * - pixiv 自己的很多缩略图已经是 relative / absolute，直接用就行；
+     * - 强行覆盖成 relative 会破坏那些依靠 `absolute inset-0` 铺满父容器的缩略图
+     *   （discovery 页的搜索浮层里就有这种），覆盖后 inset 不再撑开尺寸，
+     *   元素塌陷成 0x0，里面的图片也不显示。
+     * 这就是以前用 CSS 无条件写 `position: relative` 时出问题的原因。
+     *
+     * 这里也不能设置 z-index: 1：那会让缩略图盖住 pixiv 原本的收藏按钮 ——
+     * 收藏按钮是缩略图**外面**的元素（兄弟/叔侄关系），自身 z-index 为 auto，会被压在下面。
+     * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮的 z-index: 99999
+     * 限制在缩略图内部，避免按钮盖住页面上其他内容。
+     */
+    makePositioned(target) {
+        if (getComputedStyle(target).position !== 'static') {
+            return;
+        }
+        target.style.position = 'relative';
+        target.style.zIndex = '0';
     }
     clickNovelBtn(el) {
         // 点击小说上的下载按钮时，重新获取当前作品的 id 和类型，并触发抓取事件
@@ -18947,7 +18970,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     /** 计算搜索结果页数并开始抓取列表 */
     async nextStep() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult && !_store_States__WEBPACK_IMPORTED_MODULE_12__.states.timedCrawlMode) {
+        if (!_Config__WEBPACK_IMPORTED_MODULE_17__.Config.mobile && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult && !_store_States__WEBPACK_IMPORTED_MODULE_12__.states.timedCrawlMode) {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示启用预览搜索页面的抓取结果时不会自动开始下载'));
         }
         this.setSlowCrawl();
@@ -19340,6 +19363,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -19419,6 +19444,10 @@ class SearchResultPreview {
     }
     /** 初始化预览、结果变更和收藏相关事件 */
     init() {
+        // 在移动端不启用此功能
+        if (_Config__WEBPACK_IMPORTED_MODULE_13__.Config.mobile) {
+            return;
+        }
         this.destroyed = false;
         this.createPaginationControls();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.addResult, this.showCount);
@@ -26314,7 +26343,7 @@ class DownloadControl {
         // 是否自动开始下载
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的抓取结果”
         if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.ArtworkSearch &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.previewResult) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.previewResult && !_Config__WEBPACK_IMPORTED_MODULE_16__.Config.mobile) {
             // 对于普通下载任务，阻止自动下载
             if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
                 openPanel && _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('openSettingsPanel');

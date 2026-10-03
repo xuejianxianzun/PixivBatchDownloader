@@ -294,12 +294,6 @@ abstract class WorkThumbnail {
     }
 
     const cssText = `
-    .${this.className} {
-      position: relative;           /* 必须 */
-      overflow: visible !important; /* 尽量让伪元素可见 */
-      z-index: 1;
-    }
-
     .${this.className}::after {
       content: '';
       position: absolute;
