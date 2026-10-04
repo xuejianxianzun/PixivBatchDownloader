@@ -293,7 +293,21 @@ abstract class WorkThumbnail {
       return
     }
 
+    // 在 PC 端，缩略图元素本身并不需要相对定位，但是在添加伪元素显示边框时，
+    // 为了确保边框能够正确显示，需要给缩略图设置相对定位。
+    // 移动端不需要在这里添加定位，因为其他模块已经添加了定位。
+    let pcStyle = ''
+    if (!Config.mobile) {
+      pcStyle = `.${this.className} {
+        position: relative;           /* 必须 */
+        overflow: visible !important; /* 尽量让伪元素可见 */
+        z-index: 1;
+      }`
+    }
+
     const cssText = `
+    ${pcStyle}
+
     .${this.className}::after {
       content: '';
       position: absolute;

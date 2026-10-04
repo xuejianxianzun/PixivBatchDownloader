@@ -95,13 +95,15 @@ Thank you for your support!
 
 - Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
-- Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
+- Thanks [光の軌跡](https://github.com/jiaer24) for translating Japanese.
 
-- Thanks [bropines](https://github.com/bropines) for translating traditional Russia.
+- Thanks [KOZ39](https://github.com/KOZ39) for translating Korean.
 
-- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
+- Thanks [bropines](https://github.com/bropines) for translating Russian.
 
-- Thanks [z2n](https://github.com/z2n) for improvements to the program.
+- Thanks [Reinford0](https://github.com/Reinford0) for testing and improving this tool.
+
+- Thanks [z2n](https://github.com/z2n) for improvements to the project build of this tool.
 
 # Development
 

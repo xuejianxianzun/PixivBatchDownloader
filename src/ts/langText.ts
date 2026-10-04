@@ -13994,4 +13994,168 @@ One possible reason: Your Pixiv account has been banned.`,
     `이는 일반적으로 네트워크 오류로 인해 요청이 연결되지 않았거나 요청이 중단되었음을 의미합니다`,
     `Обычно это означает, что из-за сетевой ошибки не удалось установить запрос или запрос был прерван`,
   ],
+  _EPUB文件的排版方向: [
+    `EPUB 文件的<span class="key">排版</span>方向`,
+    `EPUB 檔案的<span class="key">排版</span>方向`,
+    `Text <span class="key">layout</span> direction of the EPUB file`,
+    `EPUB ファイルの<span class="key">組版</span>方向`,
+    `EPUB 파일의 <span class="key">조판</span> 방향`,
+    `Направление <span class="key">вёрстки</span> в файле EPUB`,
+  ],
+  _EPUB文字方向横排: [
+    `横排`,
+    `橫排`,
+    `Horizontal`,
+    `横組み`,
+    `가로쓰기`,
+    `Горизонтальное`,
+  ],
+  _EPUB文字方向竖排: [
+    `竖排`,
+    `直排`,
+    `Vertical`,
+    `縦書き`,
+    `세로쓰기`,
+    `Вертикальное`,
+  ],
+  _EPUB文字方向指定语言竖排: [
+    `对这些语言的小说使用竖排：`,
+    `對這些語言的小說使用直排：`,
+    `Use vertical for novels in these languages:`,
+    `これらの言語の小説に縦書きを使用する：`,
+    `이 언어들의 소설에 세로쓰기 사용:`,
+    `Использовать вертикальное написание для романов на этих языках:`,
+  ],
+  _EPUB文件的排版方向的说明: [
+    `设置 EPUB 小说正文的文字方向。<br>
+    <br>
+    选项：<br>
+    - 横排：文字从左到右横向排列。<br>
+    - 竖排：文字从上到下纵向排列，并且翻页方向从右到左。<br>
+    - 对这些语言的小说使用竖排：只对你指定的语言使用竖排，其他语言使用横排。你可以输入一个或多个语言代码，多个代码之间使用英语逗号 <span class="blue">,</span> 分隔，例如 <span class="blue">ja,zh-tw</span>。<br>
+    <br>
+    注意：<br>
+    - 使用「对这些语言的小说使用竖排」时，会依据 EPUB 文件实际使用的语言标签来判断，也就是「EPUB 文件的语言标签」设置所决定的值。<br>
+    - 并非所有小说阅读器都支持竖排，有些阅读器会忽略竖排设置，或者显示不正常。对于后者，你可以尝试把阅读器的排版方向设置为竖排。`,
+    `設定 EPUB 小說正文的文字方向。<br>
+    <br>
+    選項：<br>
+    - 橫排：文字從左到右橫向排列。<br>
+    - 直排：文字從上到下縱向排列，並且翻頁方向從右到左。<br>
+    - 對這些語言的小說使用直排：只對你指定的語言使用直排，其他語言使用橫排。你可以輸入一個或多個語言代碼，多個代碼之間使用英語逗號 <span class="blue">,</span> 分隔，例如 <span class="blue">ja,zh-tw</span>。<br>
+    <br>
+    注意：<br>
+    - 使用「對這些語言的小說使用直排」時，會依據 EPUB 檔案實際使用的語言標籤來判斷，也就是「EPUB 檔案的語言標籤」設定所決定的值。<br>
+    - 並非所有小說閱讀器都支援直排，有些閱讀器會忽略直排設定，或者顯示不正常。對於後者，你可以嘗試把閱讀器的排版方向設定為直排。`,
+    `Set the text direction of the body text in EPUB novels.<br>
+    <br>
+    Options:<br>
+    - Horizontal: text is laid out from left to right.<br>
+    - Vertical: text is laid out from top to bottom, and pages progress from right to left.<br>
+    - Use vertical for novels in these languages: use vertical only for the languages you specify, and horizontal for other languages. You can enter one or more language codes, separated by an English comma <span class="blue">,</span>, for example <span class="blue">ja,zh-tw</span>.<br>
+    <br>
+    Notes:<br>
+    - When using "Use vertical for novels in these languages", the direction is determined by the language tag actually used in the EPUB file, which is the value decided by the "language tag of the EPUB file" setting.<br>
+    - Not all novel readers support vertical text. Some readers ignore the vertical setting or display it incorrectly. For the latter, you can try setting the text direction of the reader to vertical.`,
+    `EPUB 小説の本文の文字方向を設定します。<br>
+    <br>
+    オプション：<br>
+    - 横組み：文字を左から右へ並べます。<br>
+    - 縦書き：文字を上から下へ並べ、ページの進行方向は右から左になります。<br>
+    - これらの言語の小説に縦書きを使用する：指定した言語の小説にのみ縦書きを使用し、他の言語では横組みを使用します。言語コードは 1 つ以上入力でき、複数のコードは英語のコンマ <span class="blue">,</span> で区切ります。例：<span class="blue">ja,zh-tw</span><br>
+    <br>
+    注意：<br>
+    - 「これらの言語の小説に縦書きを使用する」を選んだ場合、EPUB ファイルで実際に使用される言語タグ（「EPUB ファイルの言語タグ」の設定で決まる値）をもとに判断します。<br>
+    - 縦書きに対応していない小説リーダーもあります。縦書きの設定が無視されたり、正しく表示されなかったりする場合があります。後者の場合は、リーダーの文字方向を縦書きに設定してみてください。`,
+    `EPUB 소설 본문의 텍스트 방향을 설정합니다.<br>
+    <br>
+    옵션:<br>
+    - 가로쓰기: 텍스트가 왼쪽에서 오른쪽으로 배치됩니다.<br>
+    - 세로쓰기: 텍스트가 위에서 아래로 배치되며, 페이지 진행 방향은 오른쪽에서 왼쪽입니다.<br>
+    - 이 언어들의 소설에 세로쓰기 사용: 지정한 언어의 소설에만 세로쓰기를 사용하고 다른 언어에는 가로쓰기를 사용합니다. 언어 코드를 하나 이상 입력할 수 있으며, 여러 코드는 영어 쉼표 <span class="blue">,</span> 로 구분합니다. 예: <span class="blue">ja,zh-tw</span><br>
+    <br>
+    주의:<br>
+    - 「이 언어들의 소설에 세로쓰기 사용」을 선택하면 EPUB 파일에 실제로 사용되는 언어 태그(「EPUB 파일의 언어 태그」설정에서 결정되는 값)를 기준으로 판단합니다.<br>
+    - 모든 소설 리더가 세로쓰기를 지원하는 것은 아닙니다. 세로쓰기 설정을 무시하거나 잘못 표시하는 리더도 있습니다. 후자의 경우 리더의 텍스트 방향을 세로쓰기로 설정해 볼 수 있습니다.`,
+    `Устанавливает направление текста основной части в EPUB-романах.<br>
+    <br>
+    Варианты:<br>
+    - Горизонтальное: текст располагается слева направо.<br>
+    - Вертикальное: текст располагается сверху вниз, страницы перелистываются справа налево.<br>
+    - Использовать вертикальное написание для романов на этих языках: вертикальное написание применяется только к указанным языкам, для остальных используется горизонтальное. Можно ввести один или несколько языковых тегов, разделяя их английским символом <span class="blue">,</span>, например <span class="blue">ja,zh-tw</span>.<br>
+    <br>
+    Примечания:<br>
+    - При выборе «Использовать вертикальное написание для романов на этих языках» направление определяется по языковому тегу, фактически используемому в файле EPUB, то есть по значению, заданному настройкой «языковой тег файла EPUB».<br>
+    - Не все программы для чтения поддерживают вертикальное написание. Некоторые игнорируют эту настройку или отображают текст некорректно. В последнем случае можно попробовать вручную установить вертикальное направление текста в программе для чтения.`,
+  ],
+  _EPUB文件的语言标签: [
+    `EPUB 文件的<span class="key">语言</span>标签`,
+    `EPUB 檔案的<span class="key">語言</span>標籤`,
+    `The <span class="key">language</span> tag of the EPUB file`,
+    `EPUB ファイルの<span class="key">言語</span>タグ`,
+    `EPUB 파일의 <span class="key">언어</span> 태그`,
+    `<span class="key">Языковой</span> тег файла EPUB`,
+  ],
+  _EPUB文件的语言标签的说明: [
+    `这个设置决定了 EPUB 文件的 dc:language 和 xml:lang 属性使用什么语言标签。<br>
+    <br>
+    选项：<br>
+    - 使用小说的语言：使用小说 JSON 数据里的语言（language 属性）。<br>
+    - 使用下载器的语言：下载器的界面支持多种语言。如果你选择此项，那么 EPUB 文件的语言标签会使用下载器的界面语言。<br>
+    - 自定义：使用你设置的语言代码。`,
+    `這個設定決定了 EPUB 檔案的 dc:language 和 xml:lang 屬性使用什麼語言標籤。<br>
+    <br>
+    選項：<br>
+    - 使用小說的語言：使用小說 JSON 資料裡的語言（language 屬性）。<br>
+    - 使用下載器的語言：下載器的介面支援多種語言。如果你選擇此項，那麼 EPUB 檔案的語言標籤會使用下載器的介面語言。<br>
+    - 自訂：使用你設定的語言代碼。`,
+    `This setting determines which language tag is used for the dc:language and xml:lang attributes of the EPUB file.<br>
+    <br>
+    Options:<br>
+    - Use the novel's language: use the language in the novel's JSON data (the language attribute).<br>
+    - Use the downloader's language: the downloader's interface supports multiple languages. If you select this option, the language tag of the EPUB file will use the downloader's interface language.<br>
+    - Custom: use the language code you set.`,
+    `この設定は、EPUB ファイルの dc:language 属性と xml:lang 属性に使用される言語タグを決定します。<br>
+    <br>
+    オプション：<br>
+    - 小説の言語を使用する：小説の JSON データ内の言語（language 属性）を使用します。<br>
+    - ダウンローダーの言語を使用する：ダウンローダーのインターフェースは複数の言語に対応しています。この項目を選択した場合、EPUB ファイルの言語タグにはダウンローダーのインターフェースの言語が使用されます。<br>
+    - カスタム：あなたが設定した言語コードを使用します。`,
+    `이 설정은 EPUB 파일의 dc:language 및 xml:lang 속성에 사용되는 언어 태그를 결정합니다.<br>
+    <br>
+    옵션:<br>
+    - 소설의 언어 사용: 소설 JSON 데이터의 언어(language 속성)를 사용합니다.<br>
+    - 다운로더의 언어 사용: 다운로더 인터페이스는 여러 언어를 지원합니다. 이 항목을 선택하면 EPUB 파일의 언어 태그에 다운로더 인터페이스의 언어가 사용됩니다.<br>
+    - 사용자 지정: 직접 설정한 언어 코드를 사용합니다.`,
+    `Этот параметр определяет, какой языковой тег используется в атрибутах dc:language и xml:lang файла EPUB.<br>
+    <br>
+    Варианты:<br>
+    - Использовать язык новеллы: используется язык из JSON-данных новеллы (атрибут language).<br>
+    - Использовать язык загрузчика: интерфейс загрузчика поддерживает несколько языков. Если вы выберете этот вариант, в языковом теге файла EPUB будет указан язык интерфейса загрузчика.<br>
+    - Пользовательский: используется указанный вами языковой код.`,
+  ],
+  _使用小说的语言: [
+    `使用小说的语言`,
+    `使用小說的語言`,
+    `Use the novel's language`,
+    `小説の言語を使用する`,
+    `소설의 언어 사용`,
+    `Использовать язык новеллы`,
+  ],
+  _使用下载器的语言: [
+    `使用下载器的语言`,
+    `使用下載器的語言`,
+    `Use the downloader's language`,
+    `ダウンローダーの言語を使用する`,
+    `다운로더의 언어 사용`,
+    `Использовать язык загрузчика`,
+  ],
+  _自定义语言标签: [
+    `自定义`,
+    `自訂`,
+    `Custom`,
+    `カスタム`,
+    `사용자 지정`,
+    `Пользовательский`,
+  ],
 }

@@ -2260,7 +2260,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <input
     type="text"
     name="downloadThread"
-    class="setinput_style blue"
+    class="setinput_style blue w40"
     data-xztip="_下载线程的说明"
     value="3"
   />
@@ -2343,7 +2343,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       <input
         type="text"
         name="downloadInterval"
-        class="setinput_style blue"
+        class="setinput_style blue w40"
         value="1"
       />
       <span data-xztext="_秒"></span>
@@ -2829,6 +2829,123 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   />
   <span class="beautify_radio" tabindex="0"></span>
   <label for="novelSaveAs1"> TXT </label>
+</div>
+
+<div class="option" data-no="109">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_EPUB文件的语言标签"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_EPUB文件的语言标签"
+    data-msg="_EPUB文件的语言标签的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceNovelLang"
+      class="need_beautify radio"
+      value="novelLang"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="epubLangSourceNovelLang" data-xztext="_使用小说的语言"></label>
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceDownloaderLang"
+      class="need_beautify radio"
+      value="downloaderLang"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubLangSourceDownloaderLang"
+      data-xztext="_使用下载器的语言"
+    ></label>
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceCustom"
+      class="need_beautify radio"
+      value="custom"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="epubLangSourceCustom" data-xztext="_自定义语言标签"></label>
+    <input
+      type="text"
+      name="epubCustomLang"
+      id="epubCustomLang"
+      class="setinput_style blue w50"
+      value="ja"
+    />
+  </div>
+</div>
+
+<div class="option" data-no="108">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_EPUB文件的排版方向"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_EPUB文件的排版方向"
+    data-msg="_EPUB文件的排版方向的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeHorizontal"
+      class="need_beautify radio"
+      value="horizontal"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeHorizontal"
+      data-xztext="_EPUB文字方向横排"
+    ></label>
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeVertical"
+      class="need_beautify radio"
+      value="vertical"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeVertical"
+      data-xztext="_EPUB文字方向竖排"
+    ></label>
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeLangList"
+      class="need_beautify radio"
+      value="verticalForLangList"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeLangList"
+      data-xztext="_EPUB文字方向指定语言竖排"
+    ></label>
+    <input
+      type="text"
+      name="epubVerticalLangList"
+      id="epubVerticalLangList"
+      class="setinput_style blue w200"
+      placeholder="ja,zh-tw"
+      value="ja,zh-tw"
+    />
+  </div>
 </div>
 
 <div class="option" data-no="68">

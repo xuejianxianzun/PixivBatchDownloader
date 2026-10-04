@@ -2,6 +2,22 @@
 
 ## 19.5.9 2026-10-04
 
+### 📚新增设置：EPUB 文件的语言标签
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/686
+
+现在下载器默认会使用小说的语言来作为 EPUB 文件的语言标签。
+
+### 📚新增设置：EPUB 文件的排版方向
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/686
+
+你可以设置小说内容使用横排还是竖排，也可以只为特定语言的小说使用竖排。
+
+![](./notes/images/20261004_185649.png)
+
+相关文档：`notes/一些小说阅读器对竖排 EPUB 的支持情况.md`
+
 ### 🏷️新增命名标记：{human}
 
 `{human}`：当作品不是 AI 生成的作品时，输出 `Human`，否则忽略这个标记。它与 `{AI}` 相反，可以用来把人工创作的作品和 AI 生成的作品分开保存。

@@ -74,6 +74,10 @@ export interface FormType extends HTMLFormElement {
   sizeMax: HTMLInputElement
   novelSaveAs: RadioNodeList
   saveNovelMeta: HTMLInputElement
+  epubWritingMode: RadioNodeList
+  epubVerticalLangList: HTMLInputElement
+  epubLangSource: RadioNodeList
+  epubCustomLang: HTMLInputElement
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
   tagsSeparator: HTMLInputElement

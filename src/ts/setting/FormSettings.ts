@@ -207,6 +207,8 @@ class FormSettings {
       'novelEmbeddedImageSize',
       'settingsAcrossDifferentTabs',
       'autoExportSettingsStrategy',
+      'epubWritingMode',
+      'epubLangSource',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -253,6 +255,8 @@ class FormSettings {
       'doNotCrawlFirstImagesCount',
       'singleEPUBFileSizeLimit',
       'autoExportSettingsInterval',
+      'epubCustomLang',
+      'epubVerticalLangList',
     ],
     textarea: [
       'notNeedTagWhole',

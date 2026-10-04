@@ -9,6 +9,7 @@ import { DateFormat } from '../utils/DateFormat'
 import { Config } from '../Config'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { EPUBSetting } from './EPUBSetting'
 import { replaceNovelWords } from './ReplaceNovelWords'
 
 declare const jEpub: any
@@ -93,16 +94,37 @@ class MakeSingleNovelFile {
 
     let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
+    // 决定 EPUB 文件的语言标签与排版方向
+    const { langCode, writingMode } = EPUBSetting.resolve(data.language)
+
     // 添加元数据
     if (settings.saveNovelMeta) {
-      content =
-        this.makeMeta(data) +
-        `----- ${lang.transl('_下面是正文')} -----\n\n` +
-        content
+      if (writingMode === 'vertical') {
+        // 竖排模式下，不显示分隔符
+        const metaHtml = `<div>${Tools.replaceEPUBTextWithP(this.makeMeta(data))}</div>`
+        content = metaHtml + Tools.replaceEPUBTextWithP(content)
+        // 备注：未采用以下处理方式：将元数据区域单独设置为横向
+        // <div style="writing-mode: horizontal-tb;">metaHtml</div>
+        // 原因：在阅读器的竖排模式下，如果窗口高度较小，不足以把元数据区域的标签完整显示，那么超出窗口的部分可能会被截断，或者和下一页的内容重叠。
+        // Thorium Reader 里的截图如：
+        // 第一张：元数据完整显示：
+        // notes/images/20261004_185829.png
+        // 第二张：窗口高度不足时，最下面两行元数据不会显示，用户也无法看到：
+        // notes/images/20261004_185840.png
+        // calibre 里的截图：元数据底部的一些内容因高度不足而被挤到下一页，内容重叠：
+        // notes/images/20261004_190316.png
+      } else {
+        content =
+          this.makeMeta(data) +
+          `----- ${lang.transl('_下面是正文')} -----\n\n` +
+          content
+        // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
+        content = Tools.replaceEPUBTextWithP(content)
+      }
+    } else {
+      // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
+      content = Tools.replaceEPUBTextWithP(content)
     }
-
-    // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
-    content = Tools.replaceEPUBTextWithP(content)
 
     const userName = Tools.replaceEPUBText(
       Utils.replaceUnsafeStr(data.userName)
@@ -117,7 +139,7 @@ class MakeSingleNovelFile {
       i18n: lang.type,
       // 对 EPUB 左侧的一些文字进行本地化
       i18n_config: {
-        code: lang.type,
+        code: langCode,
         cover: 'Cover',
         toc: lang.transl('_目录'),
         info: lang.transl('_Information'),
@@ -133,6 +155,7 @@ class MakeSingleNovelFile {
       //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
       description:
         `<p>${date}</p>` + Tools.replaceEPUBTextWithP(data.description),
+      writing_mode: writingMode,
     })
 
     jepub.uuid(novelURL)

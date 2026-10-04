@@ -302,6 +302,27 @@ interface XzSetting {
   sizeMax: number
   novelSaveAs: 'txt' | 'epub'
   saveNovelMeta: boolean
+  /**
+   * EPUB 排版方向。horizontal 横排（默认），vertical 竖排（适合日语等 CJK 小说），
+   * verticalForLangList 只对 epubVerticalLangList 里的语言使用竖排
+   *（依据 EPUB 实际使用的语言标签判断）。
+   *
+   * ⚠️ 不能直接使用这个值的字面量，因为它可能是不确定的（verticalForLangList）。
+   * 需要排版方向时必须用 `EPUBSetting.resolve()` 计算实际的方向。
+   */
+  epubWritingMode: 'horizontal' | 'vertical' | 'verticalForLangList'
+  /**
+   * epubWritingMode 为 verticalForLangList 时，对这些语言的小说使用竖排。
+   * 每一项是一个语言标签，如 ja、zh-tw；只写主标签（如 zh）会匹配它的所有变体
+   */
+  epubVerticalLangList: string[]
+  /**
+   * EPUB 语言标签的来源，会写入 EPUB 的 dc:language 和 xml:lang。
+   * novelLang 使用小说的语言；downloaderLang 使用下载器的界面语言；custom 使用用户自定义的语言代码
+   */
+  epubLangSource: 'novelLang' | 'downloaderLang' | 'custom'
+  /** 用户自定义的 EPUB 语言标签，仅在 epubLangSource 为 custom 时生效 */
+  epubCustomLang: string
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
@@ -860,6 +881,10 @@ class Settings {
     sizeMax: 100,
     novelSaveAs: 'epub',
     saveNovelMeta: true,
+    epubWritingMode: 'horizontal',
+    epubVerticalLangList: ['ja', 'zh-tw'],
+    epubLangSource: 'novelLang',
+    epubCustomLang: 'ja',
     deduplication: false,
     dupliStrategy: 'loose',
     tagsSeparator: ',',
@@ -1200,6 +1225,7 @@ class Settings {
     'exportLogExclude',
     'titleIncludeList',
     'titleExcludeList',
+    'epubVerticalLangList',
   ]
 
   // 以默认设置作为初始设置

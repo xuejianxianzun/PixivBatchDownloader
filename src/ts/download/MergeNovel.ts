@@ -22,6 +22,7 @@ import { filter } from '../filter/Filter'
 import { states } from '../store/States'
 import { downloadRecord, DownloadRecordType } from './DownloadRecord'
 import { workSelection } from '../WorkSelection'
+import { EPUBSetting } from './EPUBSetting'
 
 declare const jEpub: any
 
@@ -78,6 +79,9 @@ class MergeNovel {
   private novelName = ''
 
   private seriesData: NovelSeriesData | null = null
+  /** 系列小说第一篇的语言标签。只会获取一次，之后复用 */
+  private seriesLanguage?: string
+  private seriesLanguageFetched = false
   /** 在获取系列中的小说 ID 列表时，保存通过了过滤器检查的小说 ID */
   private novelIdListFiltered: string[] = []
   /** 在获取系列中的小说 ID 列表时，保存所有小说的 ID 列表（不应用过滤器） */
@@ -539,7 +543,7 @@ class MergeNovel {
       this.pushSizeLog()
       this.addSize(currentDescription.length)
 
-      const jepub = this.createEPUB(link, date, currentDescription)
+      const jepub = await this.createEPUB(link, date, currentDescription)
 
       // 实际下载设定资料里的图片
       await this.addGlossaryImagesToEPUB(jepub, needSaveGlossaryImages)
@@ -685,15 +689,64 @@ class MergeNovel {
     return result
   }
 
+  /**
+   * 获取系列小说实际使用的语言标签。
+   *
+   * ⚠️注意：对于系列小说，不能使用其系列数据里的 language 属性作为系列 EPUB 文件的语言标签，
+   * 因为系列数据里的语言总是 ja
+   * 也就是说，不管系列里的小说是否使用其他语言，系列数据里的 language 属性总是 ja
+   * 例如这个系列里的小说都是韩语：
+   * https://www.pixiv.net/novel/series/578454
+   * 但是系列数据里的 language 属性仍然是 ja
+   * https://www.pixiv.net/ajax/novel/series/578454?lang=zh
+   * 因此需要获取第一篇小说的数据，使用其 language 属性作为系列 EPUB 文件的语言标签。
+   *
+   * 结果会被缓存：系列可能被分割成多个文件，每个文件都会调用 createEPUB，不应该重复请求。
+   */
+  private async getSeriesLanguage(): Promise<string | undefined> {
+    if (this.seriesLanguageFetched) {
+      return this.seriesLanguage
+    }
+    this.seriesLanguageFetched = true
+
+    const fallback = this.seriesData?.body.language
+
+    if (settings.epubLangSource !== 'novelLang') {
+      this.seriesLanguage = fallback
+      return this.seriesLanguage
+    }
+
+    const firstNovelId = this.seriesData?.body.firstNovelId
+    if (!firstNovelId) {
+      this.seriesLanguage = fallback
+      return this.seriesLanguage
+    }
+
+    try {
+      const novelData = await API.getNovelData(firstNovelId)
+      this.seriesLanguage = novelData?.body.language || fallback
+    } catch {
+      // 获取失败时回退到系列数据里的语言，不能让它中断整个系列的下载
+      this.seriesLanguage = fallback
+    }
+
+    return this.seriesLanguage
+  }
+
   /** 创建并初始化一个新的 EPUB 对象。 */
-  private createEPUB(link: string, date: Date, description: string) {
+  private async createEPUB(link: string, date: Date, description: string) {
+    // 决定 EPUB 文件的语言标签与排版方向
+    const { langCode, writingMode } = EPUBSetting.resolve(
+      await this.getSeriesLanguage()
+    )
+
     // 初始化 EPUB 文件
     const jepub = new jEpub()
     jepub.init({
       i18n: lang.type,
       // 对 EPUB 左侧的一些文字进行本地化
       i18n_config: {
-        code: lang.type,
+        code: langCode,
         cover: 'Cover',
         toc: lang.transl('_目录'),
         info: lang.transl('_Information'),
@@ -704,6 +757,7 @@ class MergeNovel {
       publisher: link,
       tags: this.seriesTags,
       description,
+      writing_mode: writingMode,
     })
     jepub.uuid(link)
     jepub.date(date)
