@@ -323,6 +323,14 @@ interface XzSetting {
   epubLangSource: 'novelLang' | 'downloaderLang' | 'custom'
   /** 用户自定义的 EPUB 语言标签，仅在 epubLangSource 为 custom 时生效 */
   epubCustomLang: string
+  /**
+   * 转换小说文本的用字。none 不转换（默认）；cn2tw 简体转繁体；tw2cn 繁体转简体。
+   * 转换的范围是小说正文、元数据里的标题与简介、系列的设定资料；不转换文件名、标签列表。
+   *
+   * 转换需要加载对应的 opencc 字典文件，由 `ConvertNovelText` 模块按需加载。
+   * 只对能判断出字形的中文生效，而且原文已经是目标用字时不会转换。
+   */
+  convertNovelText: 'none' | 'cn2tw' | 'tw2cn'
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
@@ -885,6 +893,7 @@ class Settings {
     epubVerticalLangList: ['ja', 'zh-tw'],
     epubLangSource: 'novelLang',
     epubCustomLang: 'ja',
+    convertNovelText: 'none',
     deduplication: false,
     dupliStrategy: 'loose',
     tagsSeparator: ',',

@@ -1078,6 +1078,18 @@ class OptionConfigs {
       addedAt: 1790208000000,
     },
     {
+      no: 110,
+      nameKey: '_简繁转换',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'novel',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1791158400000,
+    },
+    {
       no: 68,
       nameKey: '_在小说里保存元数据',
       name: '',

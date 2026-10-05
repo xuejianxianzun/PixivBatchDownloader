@@ -23,6 +23,7 @@ import { states } from '../store/States'
 import { downloadRecord, DownloadRecordType } from './DownloadRecord'
 import { workSelection } from '../WorkSelection'
 import { EPUBSetting } from './EPUBSetting'
+import { convertNovelText } from './ConvertNovelText'
 
 declare const jEpub: any
 
@@ -42,6 +43,8 @@ interface NovelSummary {
   updateDateShort: string
   tags: string[]
   description: string
+  /** 这篇小说的语言标签，如 ja、zh-cn。用于判断是否需要转换用字 */
+  language: string
   content: string
   coverUrl: string
   embeddedImages: null | {
@@ -69,6 +72,17 @@ class MergeNovel {
   /** 系列小说的收藏数，是系列里所有小说的收藏数量之和 */
   private seriesBookmarkCount = 0
   private seriesCaption = ''
+  /** 转换用字后的系列标题，用于元数据。未启用简繁转换时与 seriesTitle 相同 */
+  private metaSeriesTitle = ''
+  /** 转换用字后的系列简介，用于元数据。未启用简繁转换时与 seriesCaption 相同 */
+  private metaSeriesCaption = ''
+  /** 转换用字后的设定资料，用于元数据。未启用简繁转换时与 seriesGlossaryText 相同 */
+  private metaSeriesGlossary = ''
+  /** 每篇小说转换用字后的标题与简介，key 是小说 id */
+  private metaNovelText = new Map<
+    string,
+    { title: string; description: string }
+  >()
   private seriesGlossaryText = ''
   private glossaryImages: GlossaryImageItem[] = []
   private seriesTags: string[] = []
@@ -309,11 +323,65 @@ class MergeNovel {
 
   /** 根据用户选择的保存格式进入 TXT 或 EPUB 合并流程。 */
   private async mergeByFormat(body: NovelSeriesData['body']) {
+    // 转换系列里的每篇小说正文时，只输出一次日志
+    convertNovelText.logStart(
+      {
+        id: this.seriesId,
+        type: 'novelSeries',
+        title: this.seriesTitle,
+      },
+      // 系列数据里没有语言标签，所以使用系列里第一篇小说的语言
+      this.allNovelData[0]?.language
+    )
+
+    // 元数据里的标题和简介也要转换用字。这里统一转换一次，避免在每个章节里重复转换
+    await this.convertMetaText()
+
     if (settings.novelSaveAs === 'txt') {
       await this.mergeTXT()
     } else {
       await this.mergeEPUB(body)
     }
+  }
+
+  /**
+   * 把元数据里使用的标题和简介转换成指定的用字。
+   * 只影响元数据，不影响文件名（文件名在此之前已经生成完毕）。
+   */
+  private async convertMetaText() {
+    // 系列本身没有语言标签，所以使用系列里第一篇小说的语言
+    const language = this.allNovelData[0]?.language
+    this.metaSeriesTitle = await convertNovelText.convert(
+      this.seriesTitle,
+      language
+    )
+    this.metaSeriesCaption = await convertNovelText.convert(
+      this.seriesCaption,
+      language
+    )
+    this.metaSeriesGlossary = await convertNovelText.convert(
+      this.seriesGlossaryText,
+      language
+    )
+    for (const data of this.allNovelData) {
+      this.metaNovelText.set(data.id, {
+        title: await convertNovelText.convert(data.title, data.language),
+        description: await convertNovelText.convert(
+          data.description || '',
+          data.language
+        ),
+      })
+    }
+  }
+
+  /** 获取这篇小说在元数据里使用的标题（已转换用字） */
+  private metaNovelTitle(data: NovelSummary) {
+    return this.metaNovelText.get(data.id)?.title ?? data.title
+  }
+
+  /** 获取这篇小说在元数据里使用的简介（已转换用字） */
+  private metaNovelDescription(data: NovelSummary) {
+    return this.metaNovelText.get(data.id)?.description ?? data.description
   }
 
   /** 把系列封面单独保存为图像文件。 */
@@ -432,7 +500,7 @@ class MergeNovel {
     const CRLF_2 = this.CRLF2
 
     // 系列标题
-    result.push(this.seriesTitle)
+    result.push(this.metaSeriesTitle)
     result.push(CRLF_2)
     // 作者
     result.push(`${lang.transl('_作者')}: ` + this.userName)
@@ -450,25 +518,25 @@ class MergeNovel {
       result.push(CRLF_2)
     }
     // 系列简介
-    if (this.seriesCaption) {
+    if (this.metaSeriesCaption) {
       result.push(lang.transl('_系列简介') + ': ')
       result.push(CRLF_2)
-      result.push(this.seriesCaption)
+      result.push(this.metaSeriesCaption)
       result.push(CRLF_2)
     }
     // 本次合并包含的章节
     result.push(lang.transl('_本次合并包含的章节') + ': ')
     result.push(CRLF_2)
     for (const data of this.allNovelData) {
-      result.push(`#${data.no} ${data.title}`)
+      result.push(`#${data.no} ${this.metaNovelTitle(data)}`)
       result.push(this.CRLF)
     }
     result.push(this.CRLF)
     // 设定资料
-    if (this.seriesGlossaryText) {
+    if (this.metaSeriesGlossary) {
       result.push(lang.transl('_设定资料') + ': ')
       result.push(CRLF_2)
-      result.push(Utils.htmlToText(Utils.htmlDecode(this.seriesGlossaryText)))
+      result.push(Utils.htmlToText(Utils.htmlDecode(this.metaSeriesGlossary)))
       // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
       result.push(this.CRLF)
     }
@@ -488,7 +556,7 @@ class MergeNovel {
     // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
     // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
     text.push(this.CRLF2)
-    text.push(data.title)
+    text.push(this.metaNovelTitle(data))
     text.push(this.CRLF2)
 
     // 添加小说的元数据，内容包含：
@@ -504,9 +572,9 @@ class MergeNovel {
       const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`
       text.push(tags)
       text.push(this.CRLF2)
-      text.push(data.description)
+      text.push(this.metaNovelDescription(data))
       text.push(this.CRLF2)
-      text.push(`----- ${lang.transl('_下面是正文')} -----`)
+      text.push(`----------`)
       text.push(this.CRLF2)
     }
 
@@ -516,6 +584,7 @@ class MergeNovel {
       .replace(/<br \/>/g, this.CRLF)
       .replace(/<\/?.+?>/g, '')
     content = await replaceNovelWords.replace(this.seriesId, content)
+    content = await convertNovelText.convert(content, data.language)
     text.push(content)
     // 在正文结尾添加换行标记，使得不同章节之间区分开来
     text.push(this.CRLF.repeat(4))
@@ -583,7 +652,7 @@ class MergeNovel {
 
         // 添加正文，这会在 EPUB 里生成一个新的章节
         // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
-        const title = this.buildEPUBChapterTitle(data.title)
+        const title = this.buildEPUBChapterTitle(this.metaNovelTitle(data))
         jepub.add(`${this.chapterNo(data.no)} ${title}`, content)
 
         if (index === this.allNovelData.length - 1) {
@@ -606,7 +675,7 @@ class MergeNovel {
 
   /** 生成 EPUB 信息页里使用的系列描述文本。 */
   private buildEPUBDescription() {
-    let description = this.handleEPUBDescription(this.seriesCaption)
+    let description = this.handleEPUBDescription(this.metaSeriesCaption)
 
     // 生成元数据
     // EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
@@ -633,17 +702,17 @@ class MergeNovel {
       otherMeta.push(this.br)
       otherMeta.push('<p>')
       for (const data of this.allNovelData) {
-        otherMeta.push(`#${data.no} ${data.title}`)
+        otherMeta.push(`#${data.no} ${this.metaNovelTitle(data)}`)
         otherMeta.push(this.br)
       }
       otherMeta.pop()
       otherMeta.push('</p>')
       otherMeta.push(this.br)
       // 添加设定资料
-      if (this.seriesGlossaryText) {
+      if (this.metaSeriesGlossary) {
         otherMeta.push(lang.transl('_设定资料') + ': ')
         otherMeta.push(this.br)
-        otherMeta.push(this.handleEPUBDescription(this.seriesGlossaryText))
+        otherMeta.push(this.handleEPUBDescription(this.metaSeriesGlossary))
         otherMeta.push(this.br)
       }
       description = otherMeta.join('')
@@ -752,7 +821,7 @@ class MergeNovel {
         info: lang.transl('_Information'),
         note: 'Notes',
       },
-      title: this.seriesTitle,
+      title: this.metaSeriesTitle,
       author: this.userName,
       publisher: link,
       tags: this.seriesTags,
@@ -882,10 +951,10 @@ class MergeNovel {
     const link = `<p><a href="${url}" target="_blank">${url}</a></p>`
     const date = `<p>${lang.transl('_更新日期') + ': ' + data.updateDateShort}</p>`
     const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`
-    const meta = `${link}${date}${tags}${Tools.replaceEPUBText(data.description)}`
-    return (
-      meta + `<br/><br/>----- ${lang.transl('_下面是正文')} -----<br/><br/>`
-    )
+    const meta = `${link}${date}${tags}${Tools.replaceEPUBText(
+      this.metaNovelDescription(data)
+    )}`
+    return meta + `<br/><br/>----------<br/><br/>`
   }
 
   /** 生成单篇小说章节正文的 HTML。 */
@@ -896,6 +965,7 @@ class MergeNovel {
   ) {
     // 组合封面图片和简介，使封面图片位于所有文字内容之前
     let content = await replaceNovelWords.replace(this.seriesId, data.content)
+    content = await convertNovelText.convert(content, data.language)
     content = Tools.replaceEPUBTextWithP(content)
     return coverHtml + metaHtml + content
   }
@@ -1123,6 +1193,7 @@ class MergeNovel {
       title: Utils.replaceUnsafeStr(title),
       tags,
       description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
+      language: data.body.language,
       content: Tools.replaceNovelContentFlag(data.body.content),
       coverUrl: data.body.coverUrl,
       embeddedImages: Tools.extractEmbeddedImages(data),
@@ -1275,6 +1346,10 @@ class MergeNovel {
     this.seriesTags = []
     this.seriesId = ''
     this.seriesTitle = ''
+    this.metaSeriesTitle = ''
+    this.metaSeriesCaption = ''
+    this.metaSeriesGlossary = ''
+    this.metaNovelText.clear()
     this.novelName = ''
   }
 }

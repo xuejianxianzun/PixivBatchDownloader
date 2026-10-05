@@ -3865,12 +3865,60 @@ Quick download tasks are triggered by these actions:<br>
     `Сохранить <span class="key">новеллу</span> как`,
   ],
   _小说保存格式的说明: [
-    `TXT 是纯文本文件。选择 TXT 格式时，小说里的图片会单独保存。<br>EPUB 是电子书格式，小说里的图片会内嵌到 EPUB 文件里。`,
-    `TXT 是純文字檔案。選擇 TXT 格式時，小說裡的圖片會單獨儲存。<br>EPUB 是電子書格式，小說裡的圖片會內嵌到 EPUB 檔案裡。`,
-    `TXT is a plain text file. When you select TXT format, the pictures in the novel will be saved separately. <br>EPUB is an e-book format, and the pictures in the novel will be embedded in the EPUB file.`,
-    `TXTはプレーンテキストファイルです。TXT形式を選択すると、小説内の画像は別途保存されます。<br>EPUBは電子書籍形式で、小説内の画像はEPUBファイルに埋め込まれます。`,
-    `TXT는 일반 텍스트 파일입니다. TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다. <br>EPUB는 전자책 형식이며, 소설의 그림이 EPUB 파일에 포함됩니다.`,
-    `TXT — это простой текстовый файл. При выборе формата TXT изображения в романе будут сохранены отдельно. <br>EPUB — это формат электронной книги, и изображения в романе будут встроены в файл EPUB.`,
+    `EPUB：<br>
+    - 它是电子书格式，需要使用小说阅读器打开（例如 Koodo Reader、Thorium Reader、calibre 等，也有一些网站可以在浏览器里打开 EPUB 文件进行阅读）。<br>
+    - 当小说分为多个章节时，阅读器可以准确识别章节目录。<br>
+    - 小说里的图片会内嵌到 EPUB 文件里。<br>
+    <br>
+    TXT：<br>
+    - 它是纯文本文件。<br>
+    - 虽然它也能用小说阅读器打开，但是对于章节的识别往往不准确。<br>
+    - 由于 TXT 文件里无法保存图片，因此当你选择 TXT 格式时，小说里的图片会单独保存。`,
+    `EPUB：<br>
+    - 它是電子書格式，需要使用小說閱讀器開啟（例如 Koodo Reader、Thorium Reader、calibre 等，也有一些網站可以在瀏覽器裡開啟 EPUB 檔案進行閱讀）。<br>
+    - 當小說分為多個章節時，閱讀器可以準確識別章節目錄。<br>
+    - 小說裡的圖片會內嵌到 EPUB 檔案裡。<br>
+    <br>
+    TXT：<br>
+    - 它是純文字檔案。<br>
+    - 雖然它也能用小說閱讀器開啟，但是對於章節的識別往往不準確。<br>
+    - 由於 TXT 檔案裡無法儲存圖片，因此當你選擇 TXT 格式時，小說裡的圖片會單獨儲存。`,
+    `EPUB:<br>
+    - It is an e-book format, so it needs to be opened with a novel reader (for example, Koodo Reader, Thorium Reader, calibre, etc. There are also some websites that can open EPUB files for reading in the browser).<br>
+    - When the novel is divided into multiple chapters, the reader can accurately recognize the chapter list.<br>
+    - The pictures in the novel will be embedded in the EPUB file.<br>
+    <br>
+    TXT:<br>
+    - It is a plain text file.<br>
+    - Although it can also be opened with a novel reader, chapters are often not recognized accurately.<br>
+    - Since pictures cannot be saved in a TXT file, when you select the TXT format, the pictures in the novel will be saved separately.`,
+    `EPUB：<br>
+    - 電子書籍形式です。小説リーダーで開く必要があります（例：Koodo Reader、Thorium Reader、calibre など。ブラウザで EPUB ファイルを開いて読めるウェブサイトもあります）。<br>
+    - 小説が複数の章に分かれている場合、リーダーは章の目次を正確に認識できます。<br>
+    - 小説内の画像は EPUB ファイルに埋め込まれます。<br>
+    <br>
+    TXT：<br>
+    - プレーンテキストファイルです。<br>
+    - 小説リーダーで開くこともできますが、章の認識はしばしば不正確です。<br>
+    - TXT ファイルには画像を保存できないため、TXT 形式を選択した場合、小説内の画像は別途保存されます。`,
+    `EPUB:<br>
+    - 전자책 형식이므로 소설 리더로 열어야 합니다(예: Koodo Reader, Thorium Reader, calibre 등. 브라우저에서 EPUB 파일을 열어 읽을 수 있는 웹사이트도 있습니다).<br>
+    - 소설이 여러 장으로 나뉘어 있을 때 리더는 장 목록을 정확하게 인식할 수 있습니다.<br>
+    - 소설의 그림은 EPUB 파일에 포함됩니다.<br>
+    <br>
+    TXT:<br>
+    - 일반 텍스트 파일입니다.<br>
+    - 소설 리더로 열 수도 있지만, 장을 정확하게 인식하지 못하는 경우가 많습니다.<br>
+    - TXT 파일에는 그림을 저장할 수 없으므로 TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다.`,
+    `EPUB:<br>
+    - Это формат электронной книги, для открытия нужна программа для чтения (например, Koodo Reader, Thorium Reader, calibre и др.; есть также сайты, которые открывают файлы EPUB для чтения в браузере).<br>
+    - Если роман разделён на несколько глав, программа для чтения может точно распознать список глав.<br>
+    - Изображения в романе будут встроены в файл EPUB.<br>
+    <br>
+    TXT:<br>
+    - Это простой текстовый файл.<br>
+    - Его тоже можно открыть программой для чтения, но главы часто распознаются неточно.<br>
+    - Поскольку в файле TXT невозможно сохранить изображения, при выборе формата TXT изображения в романе будут сохранены отдельно.`,
   ],
   _在小说里保存元数据: [
     `在小说里保存<span class="key">元数据</span>`,
@@ -3881,12 +3929,30 @@ Quick download tasks are triggered by these actions:<br>
     `Сохранить <span class="key">метаданные</span> новеллы`,
   ],
   _在小说里保存元数据提示: [
-    `把小说的标题、作者、标签等信息保存到小说开头。<br>在合并系列小说时，如果你需要保存设定资料，也需要启用这个设置。`,
-    `把小說的標題、作者、標籤等資訊儲存到小說開頭。<br>在合併系列小說時，如果你需要保存設定資料，也需要啟用這個設定。`,
-    `Save the novel's title, author, tags and other information to the beginning of the novel. <br>When merging series novels, if you need to save the glossary, you also need to enable this setting.`,
-    `小説のタイトル、著者、タグなどの情報を小説の冒頭に保存します。<br>シリーズ小説をマージする場合、設定資料も保存する必要があるときは、この設定も有効にする必要があります。`,
-    `소설의 제목, 저자, 태그 및 기타 정보를 소설의 시작 부분에 저장합니다. <br>시리즈 소설을 병합할 때 용어집도 저장하려면 이 설정도 활성화해야 합니다.`,
-    `Сохраните название романа, автора, теги и другую информацию в начале романа. <br>При объединении серии романов, если вы хотите сохранить глоссарий, также необходимо включить эту настройку.`,
+    `把小说的标题、作者、标签等信息保存到小说开头。<br>
+    <br>
+    备注：<br>
+    在合并系列小说时，如果你需要保存设定资料，也需要启用这个设置。`,
+    `把小說的標題、作者、標籤等資訊儲存到小說開頭。<br>
+    <br>
+    備註：<br>
+    在合併系列小說時，如果你需要儲存設定資料，也需要啟用這個設定。`,
+    `Save the novel's title, author, tags and other information to the beginning of the novel.<br>
+    <br>
+    Note:<br>
+    When merging series novels, if you need to save the glossary, you also need to enable this setting.`,
+    `小説のタイトル、著者、タグなどの情報を小説の冒頭に保存します。<br>
+    <br>
+    備考：<br>
+    シリーズ小説をマージする場合、設定資料も保存したいときは、この設定も有効にする必要があります。`,
+    `소설의 제목, 저자, 태그 및 기타 정보를 소설의 시작 부분에 저장합니다.<br>
+    <br>
+    참고:<br>
+    시리즈 소설을 병합할 때 설정 자료도 저장하려면 이 설정도 활성화해야 합니다.`,
+    `Сохраняет название романа, автора, теги и другую информацию в начале романа.<br>
+    <br>
+    Примечание:<br>
+    При объединении серии романов, если вы хотите сохранить глоссарий, также необходимо включить эту настройку.`,
   ],
   _作者: [`作者`, `作者`, `Author`, `作者`, `작가`, `Автор`],
   _由于下载已暂停或停止所以不再下载小说里剩余的图片: [
@@ -14088,6 +14154,110 @@ One possible reason: Your Pixiv account has been banned.`,
     - При выборе «Использовать вертикальное написание для романов на этих языках» направление определяется по языковому тегу, фактически используемому в файле EPUB, то есть по значению, заданному настройкой «языковой тег файла EPUB».<br>
     - Не все программы для чтения поддерживают вертикальное написание. Некоторые игнорируют эту настройку или отображают текст некорректно. В последнем случае можно попробовать вручную установить вертикальное направление текста в программе для чтения.`,
   ],
+  _简繁转换: [
+    `简繁<span class="key">转换</span>`,
+    `簡繁<span class="key">轉換</span>`,
+    `Simplified-Traditional <span class="key">conversion</span>`,
+    `簡体字・繁体字の<span class="key">変換</span>`,
+    `간체-번체 <span class="key">변환</span>`,
+    `<span class="key">Преобразование</span> между упрощённым и традиционным китайским`,
+  ],
+  _简繁转换的说明: [
+    `说明：<br>
+    - 只有当小说的原语言是中文时，简繁转换才会生效。其他语言的小说不会进行转换。<br>
+    - 对 TXT 和 EPUB 格式都生效。<br>
+    - 对单篇小说和系列小说都生效。<br>
+    - 在生成的小说文件里，下载器会转换标题、简介、设定资料、正文。<br>
+    <br>
+    不会转换的内容：<br>
+    - 下载器不会转换作者名字、标签列表、文件名。<br>
+    - 下载器不会转换除了小说文件之外的文件。所以在导出的抓取结果里、在单独的文件里保存的小说元数据、简介文件里，始终都是原始内容。`,
+    `說明：<br>
+    - 只有當小說的原語言是中文時，簡繁轉換才會生效。其他語言的小說不會進行轉換。<br>
+    - 對 TXT 和 EPUB 格式都生效。<br>
+    - 對單篇小說和系列小說都生效。<br>
+    - 在生成的小說檔案裡，下載器會轉換標題、簡介、設定資料、正文。<br>
+    <br>
+    不會轉換的內容：<br>
+    - 下載器不會轉換作者名字、標籤清單、檔案名稱。<br>
+    - 下載器不會轉換除了小說檔案之外的檔案。所以在匯出的抓取結果裡、在單獨的檔案裡儲存的小說中繼資料裡、在簡介檔案裡，始終都是原始內容。`,
+    `Explanation:<br>
+    - The conversion only takes effect when the original language of the novel is Chinese. Novels in other languages are not converted.<br>
+    - It takes effect for both the TXT and EPUB formats.<br>
+    - It takes effect for both single novels and series novels.<br>
+    - In the generated novel file, the downloader converts the title, description, glossary and body text.<br>
+    <br>
+    What is not converted:<br>
+    - The downloader does not convert the author name, the tag list, or the file name.<br>
+    - The downloader does not convert any file other than the novel file. So in the exported crawl results, in the novel metadata saved in a separate file, and in the description file, the original content is always kept.`,
+    `説明：<br>
+    - 小説の元の言語が中国語の場合にのみ、簡体字・繁体字の変換が適用されます。他の言語の小説は変換されません。<br>
+    - TXT 形式と EPUB 形式の両方に適用されます。<br>
+    - 単一の小説とシリーズ小説の両方に適用されます。<br>
+    - 生成された小説ファイル内で、ダウンローダーはタイトル、説明、設定資料、本文を変換します。<br>
+    <br>
+    変換されない内容：<br>
+    - ダウンローダーは作者名、タグ一覧、ファイル名を変換しません。<br>
+    - ダウンローダーは小説ファイル以外のファイルを変換しません。そのため、エクスポートしたクロール結果や、別のファイルに保存される小説のメタデータ、説明ファイルには、常に元の内容が保存されます。`,
+    `설명:<br>
+    - 소설의 원본 언어가 중국어일 때만 간체-번체 변환이 적용됩니다. 다른 언어의 소설은 변환되지 않습니다.<br>
+    - TXT와 EPUB 형식 모두에 적용됩니다.<br>
+    - 단일 소설과 시리즈 소설 모두에 적용됩니다.<br>
+    - 생성된 소설 파일에서 다운로더는 제목, 설명, 설정 자료, 본문을 변환합니다.<br>
+    <br>
+    변환되지 않는 내용:<br>
+    - 다운로더는 작가 이름, 태그 목록, 파일 이름을 변환하지 않습니다.<br>
+    - 다운로더는 소설 파일 이외의 파일은 변환하지 않습니다. 따라서 내보낸 크롤링 결과, 별도 파일에 저장된 소설 메타데이터, 설명 파일에는 항상 원본 내용이 그대로 저장됩니다.`,
+    `Пояснение:<br>
+    - Преобразование применяется только в том случае, если исходный язык романа — китайский. Романы на других языках не преобразуются.<br>
+    - Оно применяется для форматов TXT и EPUB.<br>
+    - Оно применяется как для отдельных романов, так и для серий романов.<br>
+    - В созданном файле романа загрузчик преобразует название, описание, глоссарий и основной текст.<br>
+    <br>
+    Что не преобразуется:<br>
+    - Загрузчик не преобразует имя автора, список тегов и имя файла.<br>
+    - Загрузчик не преобразует файлы, кроме файла романа. Поэтому в экспортированных результатах сканирования, в метаданных романа, сохранённых в отдельном файле, и в файле описания всегда остаётся исходное содержимое.`,
+  ],
+  _不转换: [
+    `不转换`,
+    `不轉換`,
+    `No conversion`,
+    `変換しない`,
+    `변환 안 함`,
+    `Без преобразования`,
+  ],
+  _简体转繁体: [
+    `简体转繁体`,
+    `簡體轉繁體`,
+    `Simplified to Traditional`,
+    `簡体字から繁体字へ`,
+    `간체에서 번체로`,
+    `Из упрощённого в традиционное`,
+  ],
+  _繁体转简体: [
+    `繁体转简体`,
+    `繁體轉簡體`,
+    `Traditional to Simplified`,
+    `繁体字から簡体字へ`,
+    `번체에서 간체로`,
+    `Из традиционного в упрощённое`,
+  ],
+  _转换这篇小说的语言: [
+    `转换这篇小说的语言（{}）：{}`,
+    `轉換這篇小說的語言（{}）：{}`,
+    `Converting the language of this novel ({}): {}`,
+    `この小説の言語を変換します（{}）：{}`,
+    `이 소설의 언어를 변환합니다（{}）：{}`,
+    `Преобразование языка этого романа ({}): {}`,
+  ],
+  _转换小说的语言失败: [
+    `转换小说的语言失败，已使用原文：{}`,
+    `轉換小說的語言失敗，已使用原文：{}`,
+    `Failed to convert the language of the novel, the original text is used: {}`,
+    `小説の言語の変換に失敗したため、原文を使用します：{}`,
+    `소설의 언어 변환에 실패하여 원문을 사용합니다：{}`,
+    `Не удалось преобразовать язык романа, используется исходный текст: {}`,
+  ],
   _EPUB文件的语言标签: [
     `EPUB 文件的<span class="key">语言</span>标签`,
     `EPUB 檔案的<span class="key">語言</span>標籤`,
@@ -14102,37 +14272,61 @@ One possible reason: Your Pixiv account has been banned.`,
     选项：<br>
     - 使用小说的语言：使用小说 JSON 数据里的语言（language 属性）。<br>
     - 使用下载器的语言：下载器的界面支持多种语言。如果你选择此项，那么 EPUB 文件的语言标签会使用下载器的界面语言。<br>
-    - 自定义：使用你设置的语言代码。`,
+    - 自定义：使用你设置的语言代码。<br>
+    <br>
+    注意：<br>
+    当你选择“使用小说的语言”时，简体中文和繁体中文小说的最终语言会受到“简繁转换”设置的影响。<br>
+    例如，一篇小说本来是简体中文，但用户启用了简体转繁体，那么 EPUB 文件的语言标签会是转换后的 zh-tw。反之亦然。`,
     `這個設定決定了 EPUB 檔案的 dc:language 和 xml:lang 屬性使用什麼語言標籤。<br>
     <br>
     選項：<br>
     - 使用小說的語言：使用小說 JSON 資料裡的語言（language 屬性）。<br>
     - 使用下載器的語言：下載器的介面支援多種語言。如果你選擇此項，那麼 EPUB 檔案的語言標籤會使用下載器的介面語言。<br>
-    - 自訂：使用你設定的語言代碼。`,
+    - 自訂：使用你設定的語言代碼。<br>
+    <br>
+    注意：<br>
+    當你選擇「使用小說的語言」時，簡體中文和繁體中文小說的最終語言會受到「簡繁轉換」設定的影響。<br>
+    例如，一篇小說本來是簡體中文，但使用者啟用了簡體轉繁體，那麼 EPUB 檔案的語言標籤會是轉換後的 zh-tw。反之亦然。`,
     `This setting determines which language tag is used for the dc:language and xml:lang attributes of the EPUB file.<br>
     <br>
     Options:<br>
     - Use the novel's language: use the language in the novel's JSON data (the language attribute).<br>
     - Use the downloader's language: the downloader's interface supports multiple languages. If you select this option, the language tag of the EPUB file will use the downloader's interface language.<br>
-    - Custom: use the language code you set.`,
+    - Custom: use the language code you set.<br>
+    <br>
+    Note:<br>
+    When you select "Use the novel's language", the final language of Simplified Chinese and Traditional Chinese novels is affected by the "Simplified-Traditional conversion" setting.<br>
+    For example, if a novel is originally in Simplified Chinese but you enable Simplified to Traditional, the language tag of the EPUB file will be zh-tw after conversion, and vice versa.`,
     `この設定は、EPUB ファイルの dc:language 属性と xml:lang 属性に使用される言語タグを決定します。<br>
     <br>
     オプション：<br>
     - 小説の言語を使用する：小説の JSON データ内の言語（language 属性）を使用します。<br>
     - ダウンローダーの言語を使用する：ダウンローダーのインターフェースは複数の言語に対応しています。この項目を選択した場合、EPUB ファイルの言語タグにはダウンローダーのインターフェースの言語が使用されます。<br>
-    - カスタム：あなたが設定した言語コードを使用します。`,
+    - カスタム：あなたが設定した言語コードを使用します。<br>
+    <br>
+    注意：<br>
+    「小説の言語を使用する」を選択した場合、簡体字中国語と繁体字中国語の小説の最終的な言語は、「簡体字・繁体字の変換」設定の影響を受けます。<br>
+    例えば、小説がもともと簡体字中国語で、ユーザーが「簡体字から繁体字へ」を有効にしている場合、EPUB ファイルの言語タグは変換後の zh-tw になります。逆の場合も同様です。`,
     `이 설정은 EPUB 파일의 dc:language 및 xml:lang 속성에 사용되는 언어 태그를 결정합니다.<br>
     <br>
     옵션:<br>
     - 소설의 언어 사용: 소설 JSON 데이터의 언어(language 속성)를 사용합니다.<br>
     - 다운로더의 언어 사용: 다운로더 인터페이스는 여러 언어를 지원합니다. 이 항목을 선택하면 EPUB 파일의 언어 태그에 다운로더 인터페이스의 언어가 사용됩니다.<br>
-    - 사용자 지정: 직접 설정한 언어 코드를 사용합니다.`,
+    - 사용자 지정: 직접 설정한 언어 코드를 사용합니다.<br>
+    <br>
+    주의:<br>
+    「소설의 언어 사용」을 선택하면 간체 중국어와 번체 중국어 소설의 최종 언어는 「간체-번체 변환」 설정의 영향을 받습니다.<br>
+    예를 들어 소설이 원래 간체 중국어인데 사용자가 간체에서 번체로를 사용하도록 설정했다면, EPUB 파일의 언어 태그는 변환 후의 zh-tw가 됩니다. 반대의 경우도 마찬가지입니다.`,
     `Этот параметр определяет, какой языковой тег используется в атрибутах dc:language и xml:lang файла EPUB.<br>
     <br>
     Варианты:<br>
     - Использовать язык новеллы: используется язык из JSON-данных новеллы (атрибут language).<br>
     - Использовать язык загрузчика: интерфейс загрузчика поддерживает несколько языков. Если вы выберете этот вариант, в языковом теге файла EPUB будет указан язык интерфейса загрузчика.<br>
-    - Пользовательский: используется указанный вами языковой код.`,
+    - Пользовательский: используется указанный вами языковой код.<br>
+    <br>
+    Примечание:<br>
+    При выборе варианта «Использовать язык новеллы» итоговый язык новелл на упрощённом и традиционном китайском зависит от настройки «Преобразование между упрощённым и традиционным китайским».<br>
+    Например, если новелла изначально на упрощённом китайском, а вы включили «Из упрощённого в традиционное», то языковым тегом файла EPUB будет zh-tw после преобразования, и наоборот.`,
   ],
   _使用小说的语言: [
     `使用小说的语言`,

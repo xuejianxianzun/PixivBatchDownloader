@@ -2801,34 +2801,39 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="67">
-  <a
-    href=""
-    target="_blank"
-    class="settingNameStyle"
-    data-xztip="_小说保存格式的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_小说保存格式"></span>
-    <span class="gray"> ? </span>
   </a>
-  <input
-    type="radio"
-    name="novelSaveAs"
-    id="novelSaveAs2"
-    class="need_beautify radio"
-    value="epub"
-    checked
-  />
-  <span class="beautify_radio" tabindex="0"></span>
-  <label for="novelSaveAs2"> EPUB </label>
-  <input
-    type="radio"
-    name="novelSaveAs"
-    id="novelSaveAs1"
-    class="need_beautify radio"
-    value="txt"
-  />
-  <span class="beautify_radio" tabindex="0"></span>
-  <label for="novelSaveAs1"> TXT </label>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_小说保存格式"
+    data-msg="_小说保存格式的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="novelSaveAs"
+      id="novelSaveAs2"
+      class="need_beautify radio"
+      value="epub"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelSaveAs2"> EPUB </label>
+    <input
+      type="radio"
+      name="novelSaveAs"
+      id="novelSaveAs1"
+      class="need_beautify radio"
+      value="txt"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelSaveAs1"> TXT </label>
+  </div>
 </div>
 
 <div class="option" data-no="109">
@@ -2948,15 +2953,54 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   </div>
 </div>
 
+<div class="option" data-no="110">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_简繁转换"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_简繁转换"
+    data-msg="_简繁转换的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextNone"
+      class="need_beautify radio"
+      value="none"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextNone" data-xztext="_不转换"></label>
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextCn2tw"
+      class="need_beautify radio"
+      value="cn2tw"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextCn2tw" data-xztext="_简体转繁体"></label>
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextTw2cn"
+      class="need_beautify radio"
+      value="tw2cn"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextTw2cn" data-xztext="_繁体转简体"></label>
+  </div>
+</div>
+
 <div class="option" data-no="68">
-  <a
-    href=""
-    target="_blank"
-    class="settingNameStyle"
-    data-xztip="_在小说里保存元数据提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在小说里保存元数据"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2964,6 +3008,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在小说里保存元数据"
+    data-msg="_在小说里保存元数据提示"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="69">

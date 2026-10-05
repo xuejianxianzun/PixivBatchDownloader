@@ -209,6 +209,7 @@ class FormSettings {
       'autoExportSettingsStrategy',
       'epubWritingMode',
       'epubLangSource',
+      'convertNovelText',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',

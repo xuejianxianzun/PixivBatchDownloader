@@ -101,6 +101,9 @@
         "lib/gif.worker.js",
         "lib/listen_history_change.js",
         "lib/api_interceptor.js",
+        "lib/opencc-cn2t.js",
+        "lib/opencc-t2cn.js",
+        "lib/opencc.worker.js",
         "manifest.json",
         "icons/logo128.png",
         "style/showLargerThumbnails.css"

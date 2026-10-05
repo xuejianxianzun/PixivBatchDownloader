@@ -78,6 +78,7 @@ export interface FormType extends HTMLFormElement {
   epubVerticalLangList: HTMLInputElement
   epubLangSource: RadioNodeList
   epubCustomLang: HTMLInputElement
+  convertNovelText: RadioNodeList
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
   tagsSeparator: HTMLInputElement

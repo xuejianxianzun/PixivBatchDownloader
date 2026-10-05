@@ -10,6 +10,7 @@ import { Config } from '../Config'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { EPUBSetting } from './EPUBSetting'
+import { convertNovelText } from './ConvertNovelText'
 import { replaceNovelWords } from './ReplaceNovelWords'
 
 declare const jEpub: any
@@ -58,6 +59,17 @@ class MakeSingleNovelFile {
 
     let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
+    // 转换小说正文的用字（简体与繁体互换），不影响文件名
+    convertNovelText.logStart(
+      {
+        id: data.id,
+        type: 'novels',
+        title: data.title,
+      },
+      data.language
+    )
+    content = await convertNovelText.convert(content, data.language)
+
     // 下载小说里的内嵌图片
     await downloadNovelEmbeddedImage.TXT(
       data.id,
@@ -72,10 +84,14 @@ class MakeSingleNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
+      // 元数据里的标题和简介也要转换用字，但文件名不受影响
+      const title = await convertNovelText.convert(data.title, data.language)
+      const description = await convertNovelText.convert(
+        data.description,
+        data.language
+      )
       content =
-        this.makeMeta(data) +
-        `----- ${lang.transl('_下面是正文')} -----\n\n` +
-        content
+        this.makeMeta(data, title, description) + `----------\n\n` + content
     }
 
     // 替换换行标签，移除 html 标签
@@ -94,14 +110,35 @@ class MakeSingleNovelFile {
 
     let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
-    // 决定 EPUB 文件的语言标签与排版方向
+    // 转换小说正文的用字（简体与繁体互换），不影响文件名
+    convertNovelText.logStart(
+      {
+        id: data.id,
+        type: 'novels',
+        title: data.title,
+      },
+      data.language
+    )
+    content = await convertNovelText.convert(content, data.language)
+
+    // 元数据里的标题和简介也要转换用字，但文件名不受影响
+    const metaTitle = await convertNovelText.convert(data.title, data.language)
+    const metaDescription = await convertNovelText.convert(
+      data.description,
+      data.language
+    )
+
+    // 决定 EPUB 文件的语言标签与排版方向。
+    // 注意：传入小说原本的语言即可，resolve 内部会根据简繁转换设置修正语言标签
     const { langCode, writingMode } = EPUBSetting.resolve(data.language)
 
     // 添加元数据
     if (settings.saveNovelMeta) {
       if (writingMode === 'vertical') {
         // 竖排模式下，不显示分隔符
-        const metaHtml = `<div>${Tools.replaceEPUBTextWithP(this.makeMeta(data))}</div>`
+        const metaHtml = `<div>${Tools.replaceEPUBTextWithP(
+          this.makeMeta(data, metaTitle, metaDescription)
+        )}</div>`
         content = metaHtml + Tools.replaceEPUBTextWithP(content)
         // 备注：未采用以下处理方式：将元数据区域单独设置为横向
         // <div style="writing-mode: horizontal-tb;">metaHtml</div>
@@ -115,8 +152,8 @@ class MakeSingleNovelFile {
         // notes/images/20261004_190316.png
       } else {
         content =
-          this.makeMeta(data) +
-          `----- ${lang.transl('_下面是正文')} -----\n\n` +
+          this.makeMeta(data, metaTitle, metaDescription) +
+          `----------\n\n` +
           content
         // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
         content = Tools.replaceEPUBTextWithP(content)
@@ -129,7 +166,7 @@ class MakeSingleNovelFile {
     const userName = Tools.replaceEPUBText(
       Utils.replaceUnsafeStr(data.userName)
     )
-    const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
+    const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(metaTitle))
     const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`
 
     // 开始生成 EPUB 文件
@@ -154,7 +191,7 @@ class MakeSingleNovelFile {
       tags: data.tags || [],
       //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
       description:
-        `<p>${date}</p>` + Tools.replaceEPUBTextWithP(data.description),
+        `<p>${date}</p>` + Tools.replaceEPUBTextWithP(metaDescription),
       writing_mode: writingMode,
     })
 
@@ -197,8 +234,11 @@ class MakeSingleNovelFile {
     return blob
   }
 
-  /** 生成 meta 数据，每条数据之间有两个换行 \n，结尾也有两个换行 \n */
-  private makeMeta(data: NovelMeta) {
+  /**
+   * 生成 meta 数据，每条数据之间有两个换行 \n，结尾也有两个换行 \n。
+   * title 和 description 需要传入转换用字之后的文本。
+   */
+  private makeMeta(data: NovelMeta, title: string, description: string) {
     const array: string[] = []
     const date = DateFormat.format(data.uploadDate, settings.dateFormat)
     // meta 依次是：
@@ -209,12 +249,12 @@ class MakeSingleNovelFile {
     // tag 列表
     // 简介
     array.push(
-      data.title,
+      title,
       data.userName,
       `https://www.pixiv.net/novel/show.php?id=${data.id}`,
       date,
       data.tags.map((tag) => `#${tag}`).join('\n'),
-      data.description
+      description
     )
     return array.join('\n\n') + '\n\n'
   }

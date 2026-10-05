@@ -1,6 +1,6 @@
 # CHANGLOG
 
-## 19.5.9 2026-10-04
+## 19.5.0 2026-10-06
 
 ### 📚新增设置：EPUB 文件的语言标签
 
@@ -17,6 +17,18 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/686
 ![](./notes/images/20261004_185649.png)
 
 相关文档：`notes/一些小说阅读器对竖排 EPUB 的支持情况.md`
+
+### 📚新增设置：简繁转换
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/397
+
+下载器在下载小说时，可以把简体中文转换为繁体中文保存，或者反过来。默认不转换。
+
+备注：
+- 使用 [opencc-js](https://github.com/nk2028/opencc-js) 进行简繁转换。
+- 在转换时，繁体一方用的是 `twp`，也就是会转换台湾常用词。
+
+相关文档：`notes/小说的简体中文和繁体中文转换.md`
 
 ### 🏷️新增命名标记：{human}
 
