@@ -30,13 +30,34 @@ export interface ToastArgOptional {
   leave?: 'up' | 'fade' | 'none'
   /**提示出现的位置
    *
-   * topCenter 出现在屏幕上方，水平居中
+   * mouse 默认值，提示出现在鼠标光标附近。
+   * 通常用于用户点击了某个元素而启动任务时的提示。
+   * 如果这个提示是紧随着用户的点击出现的，推荐使用 mouse 位置。
    *
-   * center 出现在屏幕正中央（实际上会稍微偏上一点点）
+   * center 出现在屏幕正中央（实际上会稍微偏上一点点）。
+   * 通常用于任务完成的提示，或者警告消息。
+   * 此时距离用户点击可能已经过去了一段时间，也可能这个任务/警告不是由用户点击而触发的，
+   * 所以使用与鼠标位置无关的 center 位置。
    *
-   * mouse 默认值，提示出现在鼠标光标附近
+   * topCenter 出现在屏幕上方，水平居中。
+   * 通常用于任务开始的提示，并且这个任务是下载器自动执行的，不是由用户点击触发的，
+   * 所以使用与鼠标位置无关的 center 位置。
+   *
    */
-  position?: 'topCenter' | 'center' | 'mouse'
+  position?: 'mouse' | 'center' | 'topCenter'
+}
+
+/**轻提示出现的位置 */
+type ToastPosition = ToastArg['position']
+
+/**队列里的一个轻提示元素 */
+interface ToastQueueItem {
+  /**轻提示元素 */
+  el: HTMLElement
+  /**这个元素的 top 值 */
+  top: number
+  /**这个元素的高度 */
+  height: number
 }
 
 // 完整的参数
@@ -76,6 +97,25 @@ class Toast {
 
   private mousePosition = { x: 0, y: 0 }
   private readonly minTop = 20
+  private readonly gap = 10 // 多个轻提示之间的垂直间距，单位 px
+
+  /**
+   * 后出现的轻提示显示在已有提示的下方还是上方
+   *
+   * below 显示在已有提示的下方
+   *
+   * above 显示在已有提示的上方
+   *
+   * 当指定方向上的空间不足时，会显示在另一个方向上
+   */
+  private readonly stackDirection: 'below' | 'above' = 'above'
+
+  /**每个 position 维护一个队列，里面保存着尚未被移除的轻提示元素 */
+  private readonly queues: Record<ToastPosition, ToastQueueItem[]> = {
+    topCenter: [],
+    center: [],
+    mouse: [],
+  }
 
   private readonly once = 1 // 每一帧移动多少像素
   private readonly total = 20 // 移动多少像素后消失
@@ -157,23 +197,32 @@ class Toast {
     span.style.left = left + 'px'
 
     // 设置 top
-    let lastTop = 0
+
+    // 先计算出这个轻提示原本的 top 值
+    let baseTop = 0
 
     if (arg.position === 'topCenter') {
-      lastTop = this.minTop
+      baseTop = this.minTop
     }
     if (arg.position === 'center') {
-      lastTop = window.innerHeight / 2 - this.minTop
+      baseTop = window.innerHeight / 2 - this.minTop
     }
     if (arg.position === 'mouse') {
       // 跟随鼠标位置
       // top 值减去一点高度，使文字出现在鼠标上方
-      let y = this.mousePosition.y - 40
-      if (y < this.minTop) {
-        y = this.minTop
-      }
-      lastTop = y
+      baseTop = this.mousePosition.y - 40
     }
+
+    // 再检查同一个 position 下是否已经有尚未移除的轻提示
+    // 如果有的话就调整 top 值，避免它们重叠在一起
+    const lastTop = this.getTop(baseTop, rect.height, arg.position)
+
+    // 把这个轻提示添加到对应的队列里，供之后出现的轻提示计算位置
+    this.queues[arg.position].push({
+      el: span,
+      top: lastTop,
+      height: rect.height,
+    })
 
     // 出现动画
     if (arg.enter === 'none') {
@@ -191,6 +240,61 @@ class Toast {
         this.leave(span, arg.leave, lastTop)
       }
     }, arg.stay)
+  }
+
+  /**
+   * 计算轻提示的 top 值
+   * 如果同一个 position 里已经存在尚未被移除的轻提示，就需要调整位置以避免重叠：
+   * 优先显示在 stackDirection 指定的方向上，该方向空间不足时显示在另一个方向上
+   * @param baseTop 这个轻提示原本的 top 值
+   * @param height 这个轻提示的高度
+   * @param position 这个轻提示的位置
+   */
+  private getTop(baseTop: number, height: number, position: ToastPosition) {
+    // 把 top 值限制在可视区域里，避免轻提示超出窗口
+    const maxTop = window.innerHeight - height - this.minTop
+    const clamp = (top: number) => Math.max(this.minTop, Math.min(top, maxTop))
+
+    const queue = this.cleanQueue(position)
+
+    if (queue.length === 0) {
+      return clamp(baseTop)
+    }
+
+    // 查找已有提示占据的最下端和最上端
+    let bottom = 0
+    let uppermost = Infinity
+    for (const item of queue) {
+      bottom = Math.max(bottom, item.top + item.height)
+      uppermost = Math.min(uppermost, item.top)
+    }
+
+    // 显示在已有提示下方、上方时各自的 top 值，以及这个方向是否放得下
+    const below = bottom + this.gap
+    const above = uppermost - height - this.gap
+    const belowFits = below + height <= window.innerHeight - this.minTop
+    const aboveFits = above >= this.minTop
+
+    if (this.stackDirection === 'above') {
+      // 上方空间不足时，显示在已有提示的下方
+      return aboveFits ? above : clamp(below)
+    }
+
+    // 下方空间不足时，显示在已有提示的上方
+    return belowFits ? below : clamp(above)
+  }
+
+  /**清除指定队列里已经被移除的元素，返回剩余的元素 */
+  private cleanQueue(position: ToastPosition) {
+    const queue = this.queues[position]
+
+    for (let i = queue.length - 1; i >= 0; i--) {
+      if (!queue[i].el.isConnected) {
+        queue.splice(i, 1)
+      }
+    }
+
+    return queue
   }
 
   // 提示出现的动画

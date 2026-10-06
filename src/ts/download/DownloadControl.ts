@@ -360,9 +360,9 @@ class DownloadControl {
       window.addEventListener(evt, () => {
         // 如果有等待中的下载任务，则开始下载等待中的任务
         if (store.waitingIdList.length === 0) {
-          toast.success(lang.transl('_下载完毕'), {
-            position: 'center',
-          })
+          // 显示下载完毕的轻提示。考虑到快速下载是个高频使用场景，
+          // 从建立下载到完成下载的间隔通常很短，因此让这个轻提示显示在鼠标位置。
+          toast.success(lang.transl('_下载完毕'))
 
           // 通知后台清除保存的此标签页的 idList
           browser.runtime.sendMessage({

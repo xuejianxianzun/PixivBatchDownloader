@@ -263,6 +263,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/689
 
 ### 💡优化了日志里的一些提示
 
+### 💬优化了轻提示：短时间内出现多个轻提示时，彼此错开，不会重叠在一起
+
 ### 🕑更新了作品发布时间数据
 
 ## 19.4.1 2026-09-04

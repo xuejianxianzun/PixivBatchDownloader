@@ -63,7 +63,7 @@ class UnBookmarkWorks {
     const msg = lang.transl('_取消收藏作品') + ' ' + lang.transl('_完成')
     log.success(msg)
     toast.success(msg, {
-      position: 'topCenter',
+      position: 'center',
     })
   }
 

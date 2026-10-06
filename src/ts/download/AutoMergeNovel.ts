@@ -181,11 +181,7 @@ class AutoMergeNovel {
     if (this.enableTip) {
       this.enableTip = false
 
-      // 在窗口中间显示轻提示，这是因为“开始抓取”的提示也位于中间，保持一致
-      toast.warning(lang.transl('_自动合并系列小说'), {
-        position: 'center',
-      })
-
+      toast.show(lang.transl('_自动合并系列小说'))
       log.warning(lang.transl('_自动合并系列小说时提示会添加间隔时间'))
       if (settings.skipNovelsInSeriesWhenAutoMerge) {
         log.warning(lang.transl('_不再单独下载系列里的小说'))

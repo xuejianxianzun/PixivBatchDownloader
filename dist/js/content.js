@@ -13056,6 +13056,23 @@ class Toast {
     tipClassName = 'xzToast';
     mousePosition = { x: 0, y: 0 };
     minTop = 20;
+    gap = 10; // 多个轻提示之间的垂直间距，单位 px
+    /**
+     * 后出现的轻提示显示在已有提示的下方还是上方
+     *
+     * below 显示在已有提示的下方
+     *
+     * above 显示在已有提示的上方
+     *
+     * 当指定方向上的空间不足时，会显示在另一个方向上
+     */
+    stackDirection = 'above';
+    /**每个 position 维护一个队列，里面保存着尚未被移除的轻提示元素 */
+    queues = {
+        topCenter: [],
+        center: [],
+        mouse: [],
+    };
     once = 1; // 每一帧移动多少像素
     total = 20; // 移动多少像素后消失
     bindEvents() {
@@ -13122,22 +13139,28 @@ class Toast {
         }
         span.style.left = left + 'px';
         // 设置 top
-        let lastTop = 0;
+        // 先计算出这个轻提示原本的 top 值
+        let baseTop = 0;
         if (arg.position === 'topCenter') {
-            lastTop = this.minTop;
+            baseTop = this.minTop;
         }
         if (arg.position === 'center') {
-            lastTop = window.innerHeight / 2 - this.minTop;
+            baseTop = window.innerHeight / 2 - this.minTop;
         }
         if (arg.position === 'mouse') {
             // 跟随鼠标位置
             // top 值减去一点高度，使文字出现在鼠标上方
-            let y = this.mousePosition.y - 40;
-            if (y < this.minTop) {
-                y = this.minTop;
-            }
-            lastTop = y;
+            baseTop = this.mousePosition.y - 40;
         }
+        // 再检查同一个 position 下是否已经有尚未移除的轻提示
+        // 如果有的话就调整 top 值，避免它们重叠在一起
+        const lastTop = this.getTop(baseTop, rect.height, arg.position);
+        // 把这个轻提示添加到对应的队列里，供之后出现的轻提示计算位置
+        this.queues[arg.position].push({
+            el: span,
+            top: lastTop,
+            height: rect.height,
+        });
         // 出现动画
         if (arg.enter === 'none') {
             span.style.top = lastTop + 'px';
@@ -13155,6 +13178,51 @@ class Toast {
                 this.leave(span, arg.leave, lastTop);
             }
         }, arg.stay);
+    }
+    /**
+     * 计算轻提示的 top 值
+     * 如果同一个 position 里已经存在尚未被移除的轻提示，就需要调整位置以避免重叠：
+     * 优先显示在 stackDirection 指定的方向上，该方向空间不足时显示在另一个方向上
+     * @param baseTop 这个轻提示原本的 top 值
+     * @param height 这个轻提示的高度
+     * @param position 这个轻提示的位置
+     */
+    getTop(baseTop, height, position) {
+        // 把 top 值限制在可视区域里，避免轻提示超出窗口
+        const maxTop = window.innerHeight - height - this.minTop;
+        const clamp = (top) => Math.max(this.minTop, Math.min(top, maxTop));
+        const queue = this.cleanQueue(position);
+        if (queue.length === 0) {
+            return clamp(baseTop);
+        }
+        // 查找已有提示占据的最下端和最上端
+        let bottom = 0;
+        let uppermost = Infinity;
+        for (const item of queue) {
+            bottom = Math.max(bottom, item.top + item.height);
+            uppermost = Math.min(uppermost, item.top);
+        }
+        // 显示在已有提示下方、上方时各自的 top 值，以及这个方向是否放得下
+        const below = bottom + this.gap;
+        const above = uppermost - height - this.gap;
+        const belowFits = below + height <= window.innerHeight - this.minTop;
+        const aboveFits = above >= this.minTop;
+        if (this.stackDirection === 'above') {
+            // 上方空间不足时，显示在已有提示的下方
+            return aboveFits ? above : clamp(below);
+        }
+        // 下方空间不足时，显示在已有提示的上方
+        return belowFits ? below : clamp(above);
+    }
+    /**清除指定队列里已经被移除的元素，返回剩余的元素 */
+    cleanQueue(position) {
+        const queue = this.queues[position];
+        for (let i = queue.length - 1; i >= 0; i--) {
+            if (!queue[i].el.isConnected) {
+                queue.splice(i, 1);
+            }
+        }
+        return queue;
     }
     // 提示出现的动画
     enter(el, way, lastTop) {
@@ -14752,7 +14820,7 @@ class UnBookmarkWorks {
         const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消收藏作品') + ' ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_完成');
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg, {
-            position: 'topCenter',
+            position: 'center',
         });
     }
     async waitSlowMode(slowMode) {
@@ -23169,9 +23237,7 @@ class FindBookmark404Action extends _Bookmark404ActionBase__WEBPACK_IMPORTED_MOD
         btn.addEventListener('click', () => {
             const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_查找所有已被删除的作品');
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(msg, {
-                position: 'topCenter',
-            });
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(msg);
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('closeSettingsPanel');
             this.reset();
             void this.run({
@@ -24882,10 +24948,7 @@ class AutoMergeNovel {
         // 每次抓取期间只显示一次提示
         if (this.enableTip) {
             this.enableTip = false;
-            // 在窗口中间显示轻提示，这是因为“开始抓取”的提示也位于中间，保持一致
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说'), {
-                position: 'center',
-            });
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说'));
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说时提示会添加间隔时间'));
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.skipNovelsInSeriesWhenAutoMerge) {
                 _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_不再单独下载系列里的小说'));
@@ -26499,9 +26562,9 @@ class DownloadControl {
             window.addEventListener(evt, () => {
                 // 如果有等待中的下载任务，则开始下载等待中的任务
                 if (_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.waitingIdList.length === 0) {
-                    _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'), {
-                        position: 'center',
-                    });
+                    // 显示下载完毕的轻提示。考虑到快速下载是个高频使用场景，
+                    // 从建立下载到完成下载的间隔通常很短，因此让这个轻提示显示在鼠标位置。
+                    _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'));
                     // 通知后台清除保存的此标签页的 idList
                     webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
                         msg: 'clearDownloadsTempData',
@@ -29214,6 +29277,7 @@ class MergeNovel {
     /** 输出合并开始时的提示日志。 */
     logMergeStart(link) {
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(`📚${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说')} ${link}`);
+        _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说'));
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示可以只合并部分小说'), 'tipOnlyMergeSomeNovels');
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示合并系列小说时可以跳过已合并的小说'), 'tipMergeNovelSkipMergedNovels');
         // 如果用户选择的保存格式是 txt，则提示使用 EPUB 格式。这是因为很多小说阅读器都无法识别 txt 里的章节标记，所以使用 EPUB 格式是更好的选择
@@ -45498,32 +45562,32 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
     ],
     _启用了整合相同系列小说时的提示: [
-        `提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
+        `💡提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
 对于系列小说，下载器会在抓取时直接合并它，并且不会单独下载它里面的单篇小说。<br>
 对于单篇小说，下载器不会在抓取时下载它们，而是会保存到抓取结果里。<br>
 因此，在抓取阶段，你可能会看到下载器只保存了系列小说，没有保存任何单篇小说。这是正常的，因为它们是分开处理的。<br>
 等到抓取完毕之后，正常开始下载即可保存单篇小说。`,
-        `提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
+        `💡提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
 對於系列小說，下載器會在抓取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
 對於單篇小說，下載器不會在抓取時下載它們，而是會保存到抓取結果裡。<br>
 因此，在抓取階段，你可能會看到下載器只保存了系列小說，沒有保存任何單篇小說。這是正常的，因為它們是分開處理的。<br>
 等到抓取完畢之後，正常開始下載即可保存單篇小說。`,
-        `Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
+        `💡Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
 For series novels, the downloader will merge them directly during crawling and will not download individual chapters inside them separately.<br>
 For standalone novels, the downloader will not download them during crawling, but will save them to the crawl results.<br>
 Therefore, during the crawling phase, you may see that the downloader only saved series novels and did not save any standalone novels. This is normal because they are handled separately.<br>
 After crawling is complete, you can start the normal download to save the standalone novels.`,
-        `ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
+        `💡ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
 シリーズ小説については、ダウンロードツールはクロール時に直接マージし、中の個別エピソードを単独でダウンロードしません。<br>
 単発小説については、クロール時にダウンロードせず、クロール結果に保存します。<br>
 したがって、クロール段階ではダウンロードツールがシリーズ小説のみを保存し、単発小説を保存していないように見えることがあります。これは正常です。なぜなら別々に処理されるからです。<br>
 クロール完了後、通常のダウンロードを開始すれば単発小説が保存されます。`,
-        `팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
+        `💡팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
 시리즈 소설의 경우 다운로더는 크롤링 시 직접 병합하며, 내부의 개별 편을 따로 다운로드하지 않습니다.<br>
 단편 소설의 경우 크롤링 시 다운로드하지 않고 크롤링 결과에 저장합니다.<br>
 따라서 크롤링 단계에서는 다운로더가 시리즈 소설만 저장하고 단편 소설은 저장하지 않은 것처럼 보일 수 있습니다. 이는 정상입니다. 왜냐하면 별도로 처리되기 때문입니다.<br>
 크롤링 완료 후 정상적인 다운로드를 시작하면 단편 소설이 저장됩니다.`,
-        `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
+        `💡Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
 Для серий романов загрузчик во время сканирования сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
 Для отдельных романов загрузчик не будет скачивать их во время сканирования, а сохранит в результаты сканирования.<br>
 Поэтому на этапе сканирования вы можете увидеть, что загрузчик сохранил только серии романов и не сохранил ни одного отдельного романа. Это нормально, поскольку они обрабатываются отдельно.<br>
@@ -48836,20 +48900,20 @@ One possible reason: Your Pixiv account has been banned.`,
         `Из традиционного в упрощённое`,
     ],
     _转换这篇小说的语言: [
-        `转换这篇小说的语言（{}）：{}`,
-        `轉換這篇小說的語言（{}）：{}`,
-        `Converting the language of this novel ({}): {}`,
-        `この小説の言語を変換します（{}）：{}`,
-        `이 소설의 언어를 변환합니다（{}）：{}`,
-        `Преобразование языка этого романа ({}): {}`,
+        `🔄转换这篇小说的语言（{}）：{}`,
+        `🔄轉換這篇小說的語言（{}）：{}`,
+        `🔄Converting the language of this novel ({}): {}`,
+        `🔄この小説の言語を変換します（{}）：{}`,
+        `🔄이 소설의 언어를 변환합니다（{}）：{}`,
+        `🔄Преобразование языка этого романа ({}): {}`,
     ],
     _转换小说的语言失败: [
-        `转换小说的语言失败，已使用原文：{}`,
-        `轉換小說的語言失敗，已使用原文：{}`,
-        `Failed to convert the language of the novel, the original text is used: {}`,
-        `小説の言語の変換に失敗したため、原文を使用します：{}`,
-        `소설의 언어 변환에 실패하여 원문을 사용합니다：{}`,
-        `Не удалось преобразовать язык романа, используется исходный текст: {}`,
+        `❌转换小说的语言失败，已使用原文：{}`,
+        `❌轉換小說的語言失敗，已使用原文：{}`,
+        `❌Failed to convert the language of the novel, the original text is used: {}`,
+        `❌小説の言語の変換に失敗したため、原文を使用します：{}`,
+        `❌소설의 언어 변환에 실패하여 원문을 사용합니다：{}`,
+        `❌Не удалось преобразовать язык романа, используется исходный текст: {}`,
     ],
     _EPUB文件的语言标签: [
         `EPUB 文件的<span class="key">语言</span>标签`,

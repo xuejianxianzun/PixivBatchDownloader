@@ -212,6 +212,7 @@ class MergeNovel {
   /** 输出合并开始时的提示日志。 */
   private logMergeStart(link: string) {
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
+    toast.show(lang.transl('_合并系列小说'))
 
     log.warning(
       lang.transl('_提示可以只合并部分小说'),
