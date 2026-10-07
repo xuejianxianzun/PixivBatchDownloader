@@ -8248,7 +8248,11 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 'section li>div',
                 // 在小说排行榜页面里使用
                 'li[id]',
+                // 在小说分类页面里使用
+                '.bg-background1 ul li',
+                // 在发现页面里使用
                 '.gtm-illust-recommend-zone li',
+                // 在约稿-小说页面里使用
                 'li',
             ];
         }
@@ -8257,6 +8261,10 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
     }
     selectors = [];
     findThumbnail(parent) {
+        if (parent.nodeName === 'LI') {
+            console.log('父元素是 LI:', parent);
+            console.log('querySelectorAll', !!parent.querySelectorAll);
+        }
         if (!parent.querySelectorAll) {
             return;
         }
@@ -8333,23 +8341,31 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.SearchUsers) {
                     continue;
                 }
-                // 这个选择器只在约稿-小说页面里使用：
-                // https://www.pixiv.net/request/creators/works/novels
+                if (selector === '.bg-background1 ul li' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelGenre) {
+                    continue;
+                }
+                // li 是个宽泛的选择器，尽量只做兜底使用，所以只在少数页面里使用
                 if (selector === 'li' &&
-                    window.location.pathname !== '/request/creators/works/novels') {
+                    (window.location.pathname !== '/request/creators/works/novels')) {
                     continue;
                 }
             }
+            console.log('继续查找');
             let elements = parent.querySelectorAll(selector);
             // 处理特殊的动态添加的元素
             // 有些动态添加的元素不能被选择器选中
             // 在一些小说页面里，动态添加的元素就是 li 元素，直接使用它
             if ((_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSeries ||
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking) &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking ||
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelGenre) &&
                 parent.nodeName === 'LI') {
+                console.log('直接使用 LI 元素:', parent);
                 elements = [parent];
             }
             for (const el of elements) {
+                if (parent.nodeName === 'LI') {
+                    console.log('在 LI 元素里查找:', parent);
+                }
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findWorkIdFromElement(el, 'novels');
                 // 分为两种情况：单篇小说 和 系列小说
                 // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
@@ -8529,10 +8545,13 @@ __webpack_require__.r(__webpack_exports__);
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
-// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
+// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字变得和之前不一样，就会读取到错误的配置
+// 备注：有些页面类型并没有单独的模块，因为它不需要使用特有的抓取流程或附加功能。添加这种分类只是为了方便判断。
+// 例如  NovelGenre 是小说分类页面，但并没有单独的模块处理它，它在初始化时会使用“不支持的页面”（Unsupported）的逻辑。
 var PageName;
 (function (PageName) {
     /** -1 不支持的页面 */
+    // 在这种页面里，没有该页面特有的抓取按钮和抓取流程；用户只能使用通用的“手动选择作品”、快速下载等功能进行下载。
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
     /** 0 主页 */
     PageName[PageName["Home"] = 0] = "Home";
@@ -8595,6 +8614,10 @@ var PageName;
     PageName[PageName["SearchUsers"] = 26] = "SearchUsers";
     /** 27 用户主页里的约稿分类页面 */
     PageName[PageName["UserRequest"] = 27] = "UserRequest";
+    /** 28 小说分类页面 */
+    // 在这个页面类型里，每页只有数量不多的作品，没有分页，也不会加载新作品，
+    // 使用“手动选择作品”、全选功能即可满足下载需求，所以我没有为它添加单独的模块进行初始化。
+    PageName[PageName["NovelGenre"] = 28] = "NovelGenre";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -8747,6 +8770,9 @@ class PageType {
         }
         else if (path.startsWith('/search/users')) {
             return PageName.SearchUsers;
+        }
+        else if (path.startsWith('/genre/novel')) {
+            return PageName.NovelGenre;
         }
         else {
             // 没有匹配到可用的页面类型
@@ -8903,6 +8929,10 @@ class PageType {
             {
                 type: PageName.UserRequest,
                 url: 'https://www.pixiv.net/users/42787448/request',
+            },
+            {
+                type: PageName.NovelGenre,
+                url: 'https://www.pixiv.net/genre/novel',
             },
         ];
         for (const item of testPageList) {
@@ -16992,7 +17022,13 @@ class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
         this.init();
     }
     // 在不支持的页面类型里，不会添加专门用于当前页面的抓取按钮
-    // 只会由 SelectWork 模块添加通用的“手动抓取”功能
+    // 只能通过这些方式建立下载：
+    // 1. 通用的“手动选择作品”功能，由 SelectWork 模块提供支持。
+    // 2. 通用的快速下载功能（在作品缩略图上点击下载按钮），由以下模块提供支持：
+    // ButtonsOnArtworkThumbOnPC
+    // ButtonsOnNovelThumbOnPC
+    // DownloadBtnOnThumbOnMobile
+    // 备注：以上两种方式都依赖 WorkThumbnail 模块来识别作品缩略图，这样才能抓取作品。
     addCrawlBtns() { }
 }
 
@@ -57476,6 +57512,14 @@ class Settings {
                 value: -1,
                 tip: '_负1或者大于0',
             },
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelGenre]: {
+                work: false,
+                page: false,
+                min: 0,
+                max: 0,
+                value: 0,
+                tip: '',
+            },
         },
         onlyCrawlFirstFewImagesSwitch: false,
         onlyCrawlFirstFewImagesCount: 1,
@@ -57644,6 +57688,7 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.SearchUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserRequest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelGenre]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
         },
         nameRuleForEachPageTypeForNovel: {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
@@ -57675,6 +57720,7 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Contest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.SearchUsers]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserRequest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelGenre]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
         },
         showNotificationAfterDownloadComplete: false,
         boldKeywords: true,

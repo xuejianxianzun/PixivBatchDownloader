@@ -52,7 +52,11 @@ class NovelThumbnail extends WorkThumbnail {
         'section li>div',
         // 在小说排行榜页面里使用
         'li[id]',
+        // 在小说分类页面里使用
+        '.bg-background1 ul li',
+        // 在发现页面里使用
         '.gtm-illust-recommend-zone li',
+        // 在约稿-小说页面里使用
         'li',
       ]
     }
@@ -180,8 +184,14 @@ class NovelThumbnail extends WorkThumbnail {
           continue
         }
 
-        // 这个选择器只在约稿-小说页面里使用：
-        // https://www.pixiv.net/request/creators/works/novels
+        if (
+          selector === '.bg-background1 ul li' &&
+          pageType.type !== pageType.list.NovelGenre
+        ) {
+          continue
+        }
+
+        // li 是个宽泛的选择器，尽量只做兜底使用，所以只在少数页面里使用
         if (
           selector === 'li' &&
           window.location.pathname !== '/request/creators/works/novels'
@@ -189,6 +199,7 @@ class NovelThumbnail extends WorkThumbnail {
           continue
         }
       }
+
       let elements: HTMLElement[] | NodeListOf<HTMLElement> =
         parent.querySelectorAll<HTMLElement>(selector)
       // 处理特殊的动态添加的元素
@@ -197,7 +208,8 @@ class NovelThumbnail extends WorkThumbnail {
       // 在一些小说页面里，动态添加的元素就是 li 元素，直接使用它
       if (
         (pageType.type === pageType.list.NovelSeries ||
-          pageType.type === pageType.list.NovelRanking) &&
+          pageType.type === pageType.list.NovelRanking ||
+          pageType.type === pageType.list.NovelGenre) &&
         parent.nodeName === 'LI'
       ) {
         elements = [parent]
