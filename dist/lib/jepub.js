@@ -4,6 +4,25 @@
 
 const usedForPixiv = true
 
+// 附带了章节里数字的显示规则（纵中横）
+function getWritingModeStyle(data) {
+	return data.writing_mode === 'vertical'
+		? `body {writing-mode: vertical-rl;}
+			.chapter-number {
+				-webkit-text-combine: horizontal;
+				text-combine-upright: all; /* 让数字组合成一个方块字大小；并让数字在纵排时也能正常显示 */
+			}`
+		: ''
+}
+
+// 从章节标题里查找所有数字（最多连续 3 位），并使用 span.chapter-number 包裹。
+// 这主要是为了让章节的数字编号可以正常显示（像横排时一样，数字是竖着的），便于查看。
+// 如果标题里有其他数字，也可以一并正常显示。
+// 但由于数字位数太多时，所有数字都会变小（宽度变窄），不利于查看，因此只处理最多连续 3 位的数字。
+function highlightChapterNumber(title) {
+	return title.replace(/(\d{1,3})/g, '<span class="chapter-number">$1</span>')
+}
+
 function createTitlePage (data) {
 	const createTags = function (tags) {
 		// 从原模板的设计来看，tags 有可能是字符串数组，也有可能是组合好的 html 字符串
@@ -22,11 +41,14 @@ function createTitlePage (data) {
 <head>
 	<title>${data.i18n.info}</title>
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+	<style>
+		${getWritingModeStyle(data)}
+	</style>
 </head>
 
 <body>
 	<div id="title-page">
-		<h1 class="title">${data.title}</h1>
+		<h1 class="title">${highlightChapterNumber(data.title)}</h1>
 		<h2 class="subtitle"></h2>
 		<h3 class="author">${data.author}</h3>
 		<h4 class="publisher">${data.publisher}</h4>
@@ -101,11 +123,6 @@ function createPage (data) {
 		return content
 	}
 
-	// 纵排模式：writing-mode: vertical-rl（从右向左竖排，适合日语等 CJK 小说）
-	const writingModeStyle = data.writing_mode === 'vertical'
-		? 'writing-mode: vertical-rl;'
-		: ''
-
 	const temp = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${data.i18n.code}">
@@ -114,18 +131,18 @@ function createPage (data) {
 	<title>${data.title}</title>
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
 	<style>
-	img {max-width: 100vw;}
-	body {${writingModeStyle}}
+		img {max-width: 100vw;}
+		${getWritingModeStyle(data)}
 	</style>
 </head>
 
 <body>
 	<div class="chapter type-1">
 		<div class="chapter-title-wrap">
-			<h2 class="chapter-title">${data.title}</h2>
+			<h2 class="chapter-title">${highlightChapterNumber(data.title)}</h2>
 		</div>
 		<div class="ugc chapter-ugc">
-            ${createContent(data.content)}
+			${createContent(data.content)}
 		</div>
 	</div>
 </body>
@@ -233,7 +250,7 @@ function createTOC (data) {
 			return `
 			<li class="chaptertype-1">
 					<a href="page-${index}.html">
-							<span class="toc-chapter-title">${title}</span>
+							<span class="toc-chapter-title">${highlightChapterNumber(title)}</span>
 					</a>
 			</li>`
 		})
@@ -247,6 +264,9 @@ function createTOC (data) {
 <head>
 	<title>${data.i18n.toc}</title>
 	<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+	<style>
+		${getWritingModeStyle(data)}
+	</style>
 </head>
 
 <body>
@@ -544,7 +564,8 @@ function createTOC_ncx (data) {
 								author: this._Info.author,
 								publisher: this._Info.publisher,
 								description: utils.parseDOM(this._Info.description),
-								tags: this._Info.tags
+								tags: this._Info.tags,
+								writing_mode: this._WritingMode
 							}));
 
 							return this;
@@ -717,7 +738,8 @@ function createTOC_ncx (data) {
 
 							this._Zip.file('OEBPS/table-of-contents.html', createTOC({
 								i18n: this._I18n,
-								pages: this._Pages
+								pages: this._Pages,
+								writing_mode: this._WritingMode
 							}));
 
 							this._Zip.file('toc.ncx', createTOC_ncx({

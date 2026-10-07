@@ -7459,13 +7459,26 @@ class Lang {
                 return 'en'; // English
         }
     }
-    // translate
+    /** 使用下载器的界面用户语言进行翻译 */
     transl(name, ...args) {
         if (name in _langText__WEBPACK_IMPORTED_MODULE_0__.langText === false) {
             console.warn(`LangText not found: ${name}`);
             return name;
         }
         let content = _langText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(this.type)];
+        args.forEach((arg) => (content = content.replace('{}', arg)));
+        return content;
+    }
+    /** 使用指定的语言进行翻译。如果指定的语言无效，则回退至下载器的界面语言 */
+    translWithLang(name, lang, ...args) {
+        if (name in _langText__WEBPACK_IMPORTED_MODULE_0__.langText === false) {
+            console.warn(`LangText not found: ${name}`);
+            return name;
+        }
+        if (!lang || !this.langTypes.includes(lang)) {
+            return this.transl(name, ...args);
+        }
+        let content = _langText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(lang)];
         args.forEach((arg) => (content = content.replace('{}', arg)));
         return content;
     }
@@ -8261,10 +8274,6 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
     }
     selectors = [];
     findThumbnail(parent) {
-        if (parent.nodeName === 'LI') {
-            console.log('父元素是 LI:', parent);
-            console.log('querySelectorAll', !!parent.querySelectorAll);
-        }
         if (!parent.querySelectorAll) {
             return;
         }
@@ -8341,16 +8350,16 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.SearchUsers) {
                     continue;
                 }
-                if (selector === '.bg-background1 ul li' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelGenre) {
+                if (selector === '.bg-background1 ul li' &&
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelGenre) {
                     continue;
                 }
                 // li 是个宽泛的选择器，尽量只做兜底使用，所以只在少数页面里使用
                 if (selector === 'li' &&
-                    (window.location.pathname !== '/request/creators/works/novels')) {
+                    window.location.pathname !== '/request/creators/works/novels') {
                     continue;
                 }
             }
-            console.log('继续查找');
             let elements = parent.querySelectorAll(selector);
             // 处理特殊的动态添加的元素
             // 有些动态添加的元素不能被选择器选中
@@ -8359,13 +8368,9 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking ||
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelGenre) &&
                 parent.nodeName === 'LI') {
-                console.log('直接使用 LI 元素:', parent);
                 elements = [parent];
             }
             for (const el of elements) {
-                if (parent.nodeName === 'LI') {
-                    console.log('在 LI 元素里查找:', parent);
-                }
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findWorkIdFromElement(el, 'novels');
                 // 分为两种情况：单篇小说 和 系列小说
                 // 实际上这两种情况经常同时发生，例如在单篇小说的缩略图里附带了它的系列页面链接
@@ -29225,9 +29230,19 @@ class MergeNovel {
     // 如果需要分割成多个文件，那么在分割时生成新的文件名在局部使用即可
     novelName = '';
     seriesData = null;
-    /** 系列小说第一篇的语言标签。只会获取一次，之后复用 */
+    /**
+     * 系列小说的语言标签，即系列里第一篇小说使用的语言。只会计算一次，之后复用。
+     *
+     * ⚠️这里保存的始终是小说本身的语言，不经过 epubLangSource 设置的处理。
+     * EPUB 文件的语言标签由 EPUBSetting 按 epubLangSource 设置另行计算（见 createEPUB），
+     * 本类不应该重复处理这个设置，否则翻译元数据标签所用的语言也会被该设置改变。
+     */
     seriesLanguage;
-    seriesLanguageFetched = false;
+    /**
+     * 系列最终使用的语言，即在 seriesLanguage 的基础上，应用简繁转换之后的语言。
+     * 元数据里的标签文字也会被简繁转换，所以翻译这些标签时必须使用这里的语言。
+     */
+    seriesFinalLanguage;
     /** 在获取系列中的小说 ID 列表时，保存通过了过滤器检查的小说 ID */
     novelIdListFiltered = [];
     /** 在获取系列中的小说 ID 列表时，保存所有小说的 ID 列表（不应用过滤器） */
@@ -29280,6 +29295,7 @@ class MergeNovel {
         await this.loadGlossaryData(seriesId);
         const body = await this.loadSeriesData();
         this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData, this.seriesBookmarkCount);
+        this.getSeriesLanguage();
         await this.mergeByFormat(body);
         await this.downloadSeriesCoverFile(body.cover.urls.original);
         this.logMergeFinished(link);
@@ -29526,13 +29542,16 @@ class MergeNovel {
         result.push(this.metaSeriesTitle);
         result.push(CRLF_2);
         // 作者
-        result.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作者')}: ` + this.userName);
+        result.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_作者', this.getFinalLanguage())}: ` +
+            this.userName);
         result.push(CRLF_2);
         // 系列网址
         result.push(`https://www.pixiv.net/novel/series/${this.seriesId}`);
         result.push(CRLF_2);
         // 更新日期
-        result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
+        result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_更新日期', this.getFinalLanguage()) +
+            ': ' +
+            this.seriesUpdateDate);
         result.push(CRLF_2);
         // 系列 tags
         if (this.seriesTags.length > 0) {
@@ -29542,13 +29561,13 @@ class MergeNovel {
         }
         // 系列简介
         if (this.metaSeriesCaption) {
-            result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
+            result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_系列简介', this.getFinalLanguage()) + ': ');
             result.push(CRLF_2);
             result.push(this.metaSeriesCaption);
             result.push(CRLF_2);
         }
         // 本次合并包含的章节
-        result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_本次合并包含的章节') + ': ');
+        result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_本次合并包含的章节', this.getFinalLanguage()) + ': ');
         result.push(CRLF_2);
         for (const data of this.allNovelData) {
             result.push(`#${data.no} ${this.metaNovelTitle(data)}`);
@@ -29557,13 +29576,13 @@ class MergeNovel {
         result.push(this.CRLF);
         // 设定资料
         if (this.metaSeriesGlossary) {
-            result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
+            result.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_设定资料', this.getFinalLanguage()) + ': ');
             result.push(CRLF_2);
             result.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(this.metaSeriesGlossary)));
             // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
             result.push(this.CRLF);
         }
-        result.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列小说的元数据部分结束')} -----`);
+        result.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_系列小说的元数据部分结束', this.getFinalLanguage())} -----`);
         result.push(this.CRLF.repeat(3));
         return result.join('');
     }
@@ -29571,11 +29590,15 @@ class MergeNovel {
     async buildTXTNovelSection(data) {
         const text = [];
         // 添加章节编号
-        // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
-        text.push(`${this.chapterNo(data.no)}`);
-        // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
-        // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
-        text.push(this.CRLF2);
+        const chapterString = this.chapterNo(data.no);
+        if (chapterString) {
+            // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
+            text.push(chapterString);
+            // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
+            // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+            text.push(this.CRLF2);
+        }
+        // 添加章节标题
         text.push(this.metaNovelTitle(data));
         text.push(this.CRLF2);
         // 添加小说的元数据，内容包含：
@@ -29586,7 +29609,9 @@ class MergeNovel {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
             text.push(`https://www.pixiv.net/novel/show.php?id=${data.id}`);
             text.push(this.CRLF2);
-            text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDateShort);
+            text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_更新日期', this.getFinalLanguage()) +
+                ': ' +
+                data.updateDateShort);
             text.push(this.CRLF2);
             const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
             text.push(tags);
@@ -29612,6 +29637,7 @@ class MergeNovel {
     async mergeEPUB(body) {
         const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
         const date = new Date(this.seriesUpdateDate);
+        this.getSeriesLanguage();
         const description = this.buildEPUBDescription();
         // 每次创建 EPUB 文件时，从第几篇小说开始添加
         let index = 0;
@@ -29642,7 +29668,7 @@ class MergeNovel {
                 // 添加正文，这会在 EPUB 里生成一个新的章节
                 // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
                 const title = this.buildEPUBChapterTitle(this.metaNovelTitle(data));
-                jepub.add(`${this.chapterNo(data.no)} ${title}`, content);
+                jepub.add(title, content);
                 if (index === this.allNovelData.length - 1) {
                     await this.saveEPUBFile(jepub, true);
                     return;
@@ -29672,29 +29698,29 @@ class MergeNovel {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
             const otherMeta = [];
             // 添加 date
-            otherMeta.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期')}: ${this.seriesUpdateDate}`);
+            otherMeta.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_更新日期', this.getFinalLanguage())}: ${this.seriesUpdateDate}`);
             otherMeta.push(this.br2);
             // 添加简介
             if (description) {
-                otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
+                otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_系列简介', this.getFinalLanguage()) + ': ');
                 otherMeta.push(this.br);
                 otherMeta.push(description);
                 otherMeta.push(this.br);
             }
             // 本次合并包含的章节
-            otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_本次合并包含的章节') + ': ');
+            otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_本次合并包含的章节', this.getFinalLanguage()) +
+                ': ');
             otherMeta.push(this.br);
-            otherMeta.push('<p>');
+            otherMeta.push('<ul>');
             for (const data of this.allNovelData) {
-                otherMeta.push(`#${data.no} ${this.metaNovelTitle(data)}`);
-                otherMeta.push(this.br);
+                const title = `#${data.no} ${this.metaNovelTitle(data)}`;
+                otherMeta.push(`<li>${this.highlightChapterNumber(title)}</li>`);
             }
-            otherMeta.pop();
-            otherMeta.push('</p>');
+            otherMeta.push('</ul>');
             otherMeta.push(this.br);
             // 添加设定资料
             if (this.metaSeriesGlossary) {
-                otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
+                otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_设定资料', this.getFinalLanguage()) + ': ');
                 otherMeta.push(this.br);
                 otherMeta.push(this.handleEPUBDescription(this.metaSeriesGlossary));
                 otherMeta.push(this.br);
@@ -29733,48 +29759,48 @@ class MergeNovel {
         return result;
     }
     /**
-     * 获取系列小说实际使用的语言标签。
+     * 获取系列小说的语言标签，即系列里第一篇小说使用的语言。
      *
-     * ⚠️注意：对于系列小说，不能使用其系列数据里的 language 属性作为系列 EPUB 文件的语言标签，
-     * 因为系列数据里的语言总是 ja
-     * 也就是说，不管系列里的小说是否使用其他语言，系列数据里的 language 属性总是 ja
+     * ⚠️注意：不能使用系列数据里的 language 属性，因为系列数据里的语言总是 ja。
+     * 也就是说，不管系列里的小说是否使用其他语言，系列数据里的 language 属性总是 ja。
      * 例如这个系列里的小说都是韩语：
      * https://www.pixiv.net/novel/series/578454
      * 但是系列数据里的 language 属性仍然是 ja
      * https://www.pixiv.net/ajax/novel/series/578454?lang=zh
-     * 因此需要获取第一篇小说的数据，使用其 language 属性作为系列 EPUB 文件的语言标签。
+     * 因此需要使用系列里的小说数据里的语言。
      *
-     * 结果会被缓存：系列可能被分割成多个文件，每个文件都会调用 createEPUB，不应该重复请求。
+     * ⚠️注意：返回值是小说本身的语言，没有经过 epubLangSource 设置的处理。
+     * EPUB 文件的语言标签由 EPUBSetting 按 epubLangSource 设置计算（见 createEPUB），
+     * 所以这里不再判断该设置。
      */
-    async getSeriesLanguage() {
-        if (this.seriesLanguageFetched) {
-            return this.seriesLanguage;
-        }
-        this.seriesLanguageFetched = true;
-        const fallback = this.seriesData?.body.language;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.epubLangSource !== 'novelLang') {
-            this.seriesLanguage = fallback;
-            return this.seriesLanguage;
-        }
-        const firstNovelId = this.seriesData?.body.firstNovelId;
-        if (!firstNovelId) {
-            this.seriesLanguage = fallback;
-            return this.seriesLanguage;
-        }
-        try {
-            const novelData = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelData(firstNovelId);
-            this.seriesLanguage = novelData?.body.language || fallback;
-        }
-        catch {
-            // 获取失败时回退到系列数据里的语言，不能让它中断整个系列的下载
-            this.seriesLanguage = fallback;
+    getSeriesLanguage() {
+        if (!this.seriesLanguage) {
+            // 调用这个方法时，系列里的小说数据已经抓取完毕，直接使用第一篇小说的语言即可，
+            // 不需要为了获取语言而额外请求一次小说数据
+            this.seriesLanguage = this.allNovelData[0]?.language || _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type;
         }
         return this.seriesLanguage;
+    }
+    /**
+     * 获取系列最终使用的语言。
+     *
+     * 开启了简繁转换时，写入文件的文字用字会被转换，文件的语言也就随之改变了
+     * （例如原本是简体中文的小说，开启了「简体转繁体」之后，文件里的文字其实是繁体中文）。
+     * 元数据里的标签文字同样会被转换，所以翻译这些标签时必须使用转换之后的语言。
+     *
+     * ⚠️这里只应用简繁转换，不应用 epubLangSource 设置 ——
+     * 该设置只影响 EPUB 文件的语言标签，与本方法无关（见 getSeriesLanguage 的注释）。
+     */
+    getFinalLanguage() {
+        if (!this.seriesFinalLanguage) {
+            this.seriesFinalLanguage = _EPUBSetting__WEBPACK_IMPORTED_MODULE_23__.EPUBSetting.applyNovelTextConvert(this.getSeriesLanguage());
+        }
+        return this.seriesFinalLanguage;
     }
     /** 创建并初始化一个新的 EPUB 对象。 */
     async createEPUB(link, date, description) {
         // 决定 EPUB 文件的语言标签与排版方向
-        const { langCode, writingMode } = _EPUBSetting__WEBPACK_IMPORTED_MODULE_23__.EPUBSetting.resolve(await this.getSeriesLanguage());
+        const { langCode, writingMode } = _EPUBSetting__WEBPACK_IMPORTED_MODULE_23__.EPUBSetting.resolve(this.getSeriesLanguage());
         // 初始化 EPUB 文件
         const jepub = new jEpub();
         jepub.init({
@@ -29884,7 +29910,7 @@ class MergeNovel {
         }
         const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
         const link = `<p><a href="${url}" target="_blank">${url}</a></p>`;
-        const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDateShort}</p>`;
+        const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.translWithLang('_更新日期', this.getFinalLanguage()) + ': ' + data.updateDateShort}</p>`;
         const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`;
         const meta = `${link}${date}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(this.metaNovelDescription(data))}`;
         return meta + `<br/><br/>----------<br/><br/>`;
@@ -30159,19 +30185,31 @@ class MergeNovel {
     handleEPUBDescription(htmlString) {
         return _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTextWithP(_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(htmlString))));
     }
-    // 在每个小说的开头加上章节编号
+    // 在每个小说的开头加上章节编号。只对特定语言生效，其他语言不会添加这个编号
     // 在 TXT 格式的小说里添加章节编号，可以使小说阅读软件能够识别章节、显示目录，提高阅读体验
     // 对于 EPUB 格式的小说，由于其内部自带分章结构，所以并不依赖这里的章节编号
     chapterNo(number) {
-        // 对于中文区，使用“第N章”。这样最容易被国内的小说阅读软件识别出来
-        if (_Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'zh-tw' || _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'ja') {
+        if (!this.seriesLanguage) {
+            return '';
+        }
+        // 如果小说语言是中文，添加“第N章”。这样最容易被国内的小说阅读软件识别出来
+        if (['zh-cn', 'zh-tw'].includes(this.seriesLanguage)) {
             return `第${number}章`;
         }
-        else {
-            // 对于其他地区，使用 `Chapter N`
+        if (this.seriesLanguage === 'en') {
+            // 对于英语小说，添加 `Chapter N`
             return `Chapter ${number}`;
         }
+        return '';
         // 我还尝试过使用 #1 这样的编号，但是阅读器对这种编号的识别情况不够好
+    }
+    // 从章节标题里查找所有数字（最多连续 3 位），并使用 span.chapter-number 包裹。
+    // 这主要是为了让章节的数字编号可以正常显示（像横排时一样，数字是竖着的），便于查看。
+    // 如果标题里有其他数字，也可以一并正常显示。
+    // 但由于数字位数太多时，所有数字都会变小（宽度变窄），不利于查看，因此只处理最多连续 3 位的数字。
+    // 备注：该方法的实现应该与 jepub.js 中的 highlightChapterNumber 方法保持一致。
+    highlightChapterNumber(title) {
+        return title.replace(/(\d{1,3})/g, '<span class="chapter-number">$1</span>');
     }
     /** 输出下载系列封面图片时的日志。 */
     logDownloadSeriesCover() {

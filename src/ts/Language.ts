@@ -38,7 +38,7 @@ class Lang {
     'ru',
   ] as const
 
-  private readonly flagIndex: Map<LangTypes, number> = new Map([
+  public readonly flagIndex: Map<LangTypes, number> = new Map([
     ['zh-cn', 0],
     ['zh-tw', 1],
     ['en', 2],
@@ -118,13 +118,29 @@ class Lang {
     }
   }
 
-  // translate
+  /** 使用下载器的界面用户语言进行翻译 */
   public transl(name: LangTextKey, ...args: string[]) {
     if (name in langText === false) {
       console.warn(`LangText not found: ${name}`)
       return name
     }
     let content = langText[name][this.flagIndex.get(this.type)!]
+    args.forEach((arg) => (content = content.replace('{}', arg)))
+    return content
+  }
+
+  /** 使用指定的语言进行翻译。如果指定的语言无效，则回退至下载器的界面语言 */
+  public translWithLang(name: LangTextKey, lang?: string, ...args: string[]) {
+    if (name in langText === false) {
+      console.warn(`LangText not found: ${name}`)
+      return name
+    }
+
+    if (!lang || !(this.langTypes as readonly string[]).includes(lang)) {
+      return this.transl(name, ...args)
+    }
+
+    let content = langText[name][this.flagIndex.get(lang as LangTypes)!]
     args.forEach((arg) => (content = content.replace('{}', arg)))
     return content
   }
