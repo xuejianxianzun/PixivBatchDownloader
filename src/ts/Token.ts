@@ -85,6 +85,19 @@ class Token {
       }
     }
 
+    // 在某些老页面里，例如书签列表页面：
+    // https://www.pixiv.net/novel/marker_all.php
+    // token 保存在 head 里的 script 标签里，格式如：
+    // pixiv.context.token = "ea0088c6cdf36817f720236efb2d942c";
+    if (!value) {
+      const match = document.head.innerHTML.match(
+        /pixiv\.context\.token\s*=\s*"(\w*)?"/
+      )
+      if (match && match[1] && match[1].length === 32) {
+        value = match[1]
+      }
+    }
+
     // 如果在当前网页里没有找到，则从作品页面的源码里获取 token
     if (!value) value = await this.fetchToken()
 

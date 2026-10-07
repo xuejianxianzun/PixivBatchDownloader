@@ -614,7 +614,7 @@ class Filter {
     bmk: FilterOption['bookmarkCount'],
     date: FilterOption['createDate']
   ) {
-    if (bmk === undefined || !settings.BMKNumSwitch) {
+    if (bmk === undefined || isNaN(bmk) || !settings.BMKNumSwitch) {
       return true
     }
 

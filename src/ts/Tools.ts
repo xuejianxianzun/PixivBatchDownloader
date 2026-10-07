@@ -285,6 +285,7 @@ class Tools {
   }
 
   static readonly userIDRegExp = /\/users\/(\d+)/
+  /** 从 URL 中提取用户 ID，如果找不到则返回空字符串 */
   static getUserID(url: string) {
     const test = url.match(this.userIDRegExp)
     if (test && test.length > 1) {
@@ -1538,6 +1539,13 @@ class Tools {
       (str.includes('{pid}') && str.includes('{p}')) ||
       (str.includes('{id_num}') && str.includes('{p_num}'))
     return check
+  }
+
+  /** 从小说标题里查找所有数字，并使用 span.chapter-number 包裹。 */
+  // 这主要是为了让章节的数字编号在竖排时可以正常显示（像横排时一样，数字是竖着的），便于查看。
+  // 该方法的实现应该与 jepub.js 中的 highlightNumber 方法保持一致。
+  static highlightNumber(title: string) {
+    return title.replace(/(\d{1})/g, '<span class="chapter-number">$1</span>')
   }
 }
 

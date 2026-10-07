@@ -20,6 +20,8 @@ import { InitSearchNovelPage } from './crawlNovelPage/InitSearchNovelPage'
 import { InitRankingNovelPageOld } from './crawlNovelPage/InitRankingNovelPageOld'
 import { InitRankingNovelPageNew } from './crawlNovelPage/InitRankingNovelPageNew'
 import { InitNewNovelFromAllUsersPage } from './crawlNovelPage/InitNewNovelFromAllUsersPage'
+import { InitNovelMarkerAllPageOnPC } from './crawlNovelPage/InitNovelMarkerAllPageOnPC'
+import { InitNovelMarkerAllPageOnMobile } from './crawlNovelPage/InitNovelMarkerAllPageOnMobile'
 import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
 import { InitUnsupportedPage } from './crawl/InitUnsupportedPage'
@@ -28,6 +30,7 @@ import { InitRequestPage } from './crawl/InitRequestPage'
 import { InitDashboardPage } from './crawlMixedPage/InitDashboardPage'
 import { InitContestPage } from './crawlMixedPage/InitContestPage'
 import { InitUserRequestPage } from './crawlMixedPage/InitUserRequestPage'
+import { Config } from './Config'
 
 class InitPage {
   constructor() {
@@ -67,6 +70,11 @@ class InitPage {
         return new InitDiscoveryPage()
       case pageType.list.NewArtworkFromAllUsers:
         return new InitNewArtworkFromAllUsersPage()
+      case pageType.list.NovelMarkerAll:
+        if (Config.mobile) {
+          return new InitNovelMarkerAllPageOnMobile()
+        }
+        return new InitNovelMarkerAllPageOnPC()
       case pageType.list.Novel:
         return new InitNovelPage()
       case pageType.list.NovelSeries:

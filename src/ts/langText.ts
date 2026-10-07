@@ -994,6 +994,14 @@ And so on.
     `{} 페이지 크롤링 (페이지당 최대 50개 작품)`,
     `Собрать {} страниц (максимум 50 работ на страницу)`,
   ],
+  _抓取x页_每页最多含有x个作品: [
+    `抓取 {} 页（每页最多含有 {} 个作品）`,
+    `抓取 {} 頁（每頁最多含有 {} 個作品）`,
+    `Crawl {} pages (up to {} works per page)`,
+    `{} ページをクロール（1ページあたり最大{}作品）`,
+    `{} 페이지 크롤링 (페이지당 최대 {}작품)`,
+    `Собрать {} страниц (максимум {} работ на страницу)`,
+  ],
   _从本页开始下载x个: [
     `从本页开始下载 {} 个作品`,
     `從本頁開始下載 {} 個作品`,
@@ -12419,6 +12427,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   用于为小说生成 EPUB 文件<br>
   <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  用于把小说在简体中文与繁体中文之间转换<br>
+  <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   用于读写 ZIP 文件<br>
   <br>
@@ -12445,6 +12456,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <br>
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   用於為小說產生 EPUB 檔案<br>
+  <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  用於把小說在簡體中文與繁體中文之間轉換<br>
   <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   用於讀寫 ZIP 檔案<br>
@@ -12473,6 +12487,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   Used to generate EPUB files for novels<br>
   <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  Used to convert novels between Simplified Chinese and Traditional Chinese<br>
+  <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   Used to read and write ZIP files<br>
   <br>
@@ -12499,6 +12516,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <br>
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   小説の EPUB ファイル生成に使用<br>
+  <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  小説を簡体字中国語と繁体字中国語の間で変換するために使用<br>
   <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   ZIP ファイルの読み書きに使用<br>
@@ -12527,6 +12547,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   novel용 EPUB 파일을 생성하는 데 사용<br>
   <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  소설을 간체 중국어와 번체 중국어 사이에서 변환하는 데 사용<br>
+  <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   ZIP 파일을 읽고 쓰는 데 사용<br>
   <br>
@@ -12553,6 +12576,9 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   <br>
   <a href="https://github.com/lelinhtinh/jEpub" target="_blank">jEpub</a><br>
   Используется для создания EPUB-файлов для романов<br>
+  <br>
+  <a href="https://github.com/nk2028/opencc-js" target="_blank">opencc-js</a><br>
+  Используется для преобразования новелл между упрощённым и традиционным китайским языком<br>
   <br>
   <a href="https://github.com/Stuk/jszip" target="_blank">jszip</a><br>
   Используется для чтения и записи ZIP-файлов<br>
@@ -14351,5 +14377,29 @@ One possible reason: Your Pixiv account has been banned.`,
     `カスタム`,
     `사용자 지정`,
     `Пользовательский`,
+  ],
+  _抓取列表页时遇到错误结束抓取: [
+    `抓取列表页时遇到错误，结束抓取`,
+    `抓取清單頁面時遇到錯誤，結束擷取`,
+    `An error occurred while crawling the list page, crawling stopped`,
+    `リストページの取得中にエラーが発生したため、取得を終了します`,
+    `목록 페이지를 긁어오는 중 오류가 발생하여 캐내기를 종료합니다`,
+    `При сканировании страницы списка произошла ошибка, сканирование остановлено`,
+  ],
+  _小说书签列表页面: [
+    `小说书签列表页面`,
+    `小說書籤列表頁面`,
+    `Novel markers Page`,
+    `小説のしおり一覧ページ`,
+    `소설 책갈피 목록 페이지`,
+    `Страница списка закладок новеллы`,
+  ],
+  _未登录用户无法抓取: [
+    `未登录用户无法抓取`,
+    `未登入使用者無法擷取`,
+    `Cannot crawl without logging in`,
+    `ログインしていないユーザーは取得できません`,
+    `로그인하지 않은 사용자는 크롤링할 수 없습니다`,
+    `Невозможно сканировать без входа в систему`,
   ],
 }

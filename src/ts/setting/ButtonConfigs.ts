@@ -124,6 +124,11 @@ class ButtonConfigs {
           order: 12,
           nameKey: '_用户的约稿页面',
         },
+        NovelMarkerAll: {
+          id: 'NovelMarkerAll',
+          order: 13,
+          nameKey: '_小说书签列表页面',
+        },
       },
     },
     downloadArea: {
@@ -401,6 +406,13 @@ class ButtonConfigs {
       nameKey: '_抓取约稿作品',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'UserRequest',
+    },
+    // startCrawl - NovelMarkerAll
+    {
+      id: 'crawlNovelMarkerAllWorks',
+      nameKey: '_开始抓取',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'NovelMarkerAll',
     },
     // downloadArea - CrawlResults
     {

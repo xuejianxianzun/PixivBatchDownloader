@@ -15,15 +15,21 @@ function getWritingModeStyle(data) {
 		: ''
 }
 
-// 从章节标题里查找所有数字（最多连续 3 位），并使用 span.chapter-number 包裹。
-// 这主要是为了让章节的数字编号可以正常显示（像横排时一样，数字是竖着的），便于查看。
-// 如果标题里有其他数字，也可以一并正常显示。
-// 但由于数字位数太多时，所有数字都会变小（宽度变窄），不利于查看，因此只处理最多连续 3 位的数字。
-function highlightChapterNumber(title) {
-	return title.replace(/(\d{1,3})/g, '<span class="chapter-number">$1</span>')
+/** 从小说标题里查找所有数字，并使用 span.chapter-number 包裹。 */
+// 这是为了让章节的数字编号在竖排时可以正常显示（像横排时一样，数字是竖着的），便于查看。
+// 备注：
+// 这个方法只用来处理标题，没有用来处理其他内容。具体说明：
+// 1. 不处理简介：简介（title-page.html）里包含网址、更新日期（"2026-10-08"），对于这样的长数字不应该进行特殊处理，让它们保持躺着是更符合排版规则的。
+// 2. 不处理正文：
+//   1. 正文里通常会包含每篇小说的元数据，和简介的情况相同，不需要处理。
+//   2. 正文里有一些处于 [] 和 "" 包裹里的数字，它们不是用来显示的数字，所以不能进行特殊处理，否则会破坏内容，或者导致语法错误。
+function highlightNumber(title, writing_mode) {
+	return writing_mode === 'vertical'
+		? title.replace(/(\d{1})/g, '<span class="chapter-number">$1</span>')
+		: title
 }
 
-function createTitlePage (data) {
+function createTitlePage(data) {
 	const createTags = function (tags) {
 		// 从原模板的设计来看，tags 有可能是字符串数组，也有可能是组合好的 html 字符串
 		// 不过 demo 里是 html 字符串，所以不清楚何时会是字符串数组
@@ -48,7 +54,7 @@ function createTitlePage (data) {
 
 <body>
 	<div id="title-page">
-		<h1 class="title">${highlightChapterNumber(data.title)}</h1>
+		<h1 class="title">${highlightNumber(data.title, data.writing_mode)}</h1>
 		<h2 class="subtitle"></h2>
 		<h3 class="author">${data.author}</h3>
 		<h4 class="publisher">${data.publisher}</h4>
@@ -69,7 +75,7 @@ function createTitlePage (data) {
 	return temp
 }
 
-function createFrontCover (data) {
+function createFrontCover(data) {
 	const temp = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${data.i18n.code}">
@@ -90,7 +96,7 @@ function createFrontCover (data) {
 	return temp
 }
 
-function createNotes (data) {
+function createNotes(data) {
 	const temp = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${data.i18n.code}">
@@ -113,13 +119,14 @@ function createNotes (data) {
 	return temp
 }
 
-function createPage (data) {
+function createPage(data) {
 	const createContent = function (content) {
 		// 从原模板的设计来看，content 有可能是字符串数组，也有可能是包含了 html 标签的字符串
 		if (Array.isArray(content) && content.length) {
 			const array = content.map(str => `<p class="indent">${str}</p>`)
 			return array.join('\n')
 		}
+		// 下载器生成小说时，正文是一个字符串，而非数组
 		return content
 	}
 
@@ -139,7 +146,7 @@ function createPage (data) {
 <body>
 	<div class="chapter type-1">
 		<div class="chapter-title-wrap">
-			<h2 class="chapter-title">${highlightChapterNumber(data.title)}</h2>
+			<h2 class="chapter-title">${highlightNumber(data.title, data.writing_mode)}</h2>
 		</div>
 		<div class="ugc chapter-ugc">
 			${createContent(data.content)}
@@ -152,7 +159,7 @@ function createPage (data) {
 	return temp
 }
 
-function createBookOpf (data) {
+function createBookOpf(data) {
 	const createTags = function (tags) {
 		if (Array.isArray(tags) && tags.length) {
 			const array = tags.map(tag => `<dc:subject>${tag}</dc:subject>`)
@@ -204,7 +211,7 @@ function createBookOpf (data) {
 		}
 		<item id="title-page" href="OEBPS/title-page.html" media-type="application/xhtml+xml" />
 	${data.notes ?
-		'<item id="notes" href="OEBPS/notes.html" media-type="application/xhtml+xml" />' : ''
+			'<item id="notes" href="OEBPS/notes.html" media-type="application/xhtml+xml" />' : ''
 		}
 		<item id="table-of-contents" href="OEBPS/table-of-contents.html" media-type="application/xhtml+xml" />
 		${pagesStr(data.pages, '<item id="page-${index}" href="OEBPS/page-${index}.html" media-type="application/xhtml+xml" />')}
@@ -244,13 +251,13 @@ function createBookOpf (data) {
 	return temp
 }
 
-function createTOC (data) {
+function createTOC(data) {
 	const pageList = function (pages) {
 		const array = pages.map((title, index) => {
 			return `
 			<li class="chaptertype-1">
 					<a href="page-${index}.html">
-							<span class="toc-chapter-title">${highlightChapterNumber(title)}</span>
+							<span class="toc-chapter-title">${highlightNumber(title, data.writing_mode)}</span>
 					</a>
 			</li>`
 		})
@@ -284,7 +291,7 @@ function createTOC (data) {
 	return temp
 }
 
-function createTOC_ncx (data) {
+function createTOC_ncx(data) {
 	const pageNav = function (pages) {
 		const array = pages.map((title, index) => {
 			return `
@@ -345,7 +352,7 @@ function createTOC_ncx (data) {
 	return temp
 }
 
-(function webpackUniversalModuleDefinition (root, factory) {
+(function webpackUniversalModuleDefinition(root, factory) {
 	if (typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if (typeof define === 'function' && define.amd)
@@ -364,7 +371,7 @@ function createTOC_ncx (data) {
   \**********************************************************************/
 /***/ ((module) => {
 
-					function _interopRequireDefault (obj) {
+					function _interopRequireDefault(obj) {
 						return obj && obj.__esModule ? obj : {
 							"default": obj
 						};
@@ -383,18 +390,18 @@ function createTOC_ncx (data) {
 
 					var _typeof = __webpack_require__(/*! ../helpers/typeof */ "./node_modules/@babel/runtime/helpers/typeof.js");
 
-					function _getRequireWildcardCache () {
+					function _getRequireWildcardCache() {
 						if (typeof WeakMap !== "function") return null;
 						var cache = new WeakMap();
 
-						_getRequireWildcardCache = function _getRequireWildcardCache () {
+						_getRequireWildcardCache = function _getRequireWildcardCache() {
 							return cache;
 						};
 
 						return cache;
 					}
 
-					function _interopRequireWildcard (obj) {
+					function _interopRequireWildcard(obj) {
 						if (obj && obj.__esModule) {
 							return obj;
 						}
@@ -446,15 +453,15 @@ function createTOC_ncx (data) {
   \*******************************************************/
 /***/ ((module) => {
 
-					function _typeof (obj) {
+					function _typeof(obj) {
 						"@babel/helpers - typeof";
 
 						if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-							module.exports = _typeof = function _typeof (obj) {
+							module.exports = _typeof = function _typeof(obj) {
 								return typeof obj;
 							};
 						} else {
-							module.exports = _typeof = function _typeof (obj) {
+							module.exports = _typeof = function _typeof(obj) {
 								return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 							};
 						}
@@ -522,7 +529,7 @@ function createTOC_ncx (data) {
 							this._WritingMode = 'horizontal';
 						}
 
-						init (details) {
+						init(details) {
 							if (details instanceof JSZip) {
 								this._Zip = details;
 								return this;
@@ -538,7 +545,7 @@ function createTOC_ncx (data) {
 							}, details);
 
 							// 用于 Pixiv 时，我传入了自定义的 i18n 配置信息。将其添加到原有的 i18n 配置里
-							if(usedForPixiv && details.i18n_config){
+							if (usedForPixiv && details.i18n_config) {
 								_i18n.default[details.i18n] = details.i18n_config
 							}
 
@@ -571,11 +578,11 @@ function createTOC_ncx (data) {
 							return this;
 						}
 
-						static html2text (html, noBr = false) {
+						static html2text(html, noBr = false) {
 							return utils.html2text(html, noBr);
 						}
 
-						date (date) {
+						date(date) {
 							if (date instanceof Date) {
 								this._Date = utils.getISODate(date);
 								return this;
@@ -584,7 +591,7 @@ function createTOC_ncx (data) {
 							}
 						}
 
-						uuid (id) {
+						uuid(id) {
 							if (utils.isEmpty(id)) {
 								throw 'UUID value is empty';
 							} else {
@@ -598,7 +605,7 @@ function createTOC_ncx (data) {
 							}
 						}
 
-						cover (data) {
+						cover(data) {
 							let ext, mime;
 
 							if (data instanceof Blob) {
@@ -631,7 +638,7 @@ function createTOC_ncx (data) {
 							return this;
 						}
 
-						image (data, name) {
+						image(data, name) {
 							let ext, mime;
 
 							if (data instanceof Blob) {
@@ -657,7 +664,7 @@ function createTOC_ncx (data) {
 							return this;
 						}
 
-						notes (content) {
+						notes(content) {
 							if (utils.isEmpty(content)) {
 								throw 'Notes is empty';
 							} else {
@@ -670,7 +677,7 @@ function createTOC_ncx (data) {
 							}
 						}
 
-						add (title, content, index = this._Pages.length) {
+						add(title, content, index = this._Pages.length) {
 							if (utils.isEmpty(title)) {
 								throw 'Title is empty';
 							} else if (utils.isEmpty(content)) {
@@ -713,7 +720,7 @@ function createTOC_ncx (data) {
 							}
 						}
 
-						generate (type = 'blob', onUpdate) {
+						generate(type = 'blob', onUpdate) {
 							if (!JSZip.support[type]) throw "This browser does not support ".concat(type);
 
 							let notes = this._Zip.file('OEBPS/notes.html');
@@ -795,7 +802,7 @@ function createTOC_ncx (data) {
 					 * @see https://stackoverflow.com/a/2117523
 					 * @returns {string} uuid
 					 */
-					function uuidv4 () {
+					function uuidv4() {
 						return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 					}
 					/**
@@ -805,7 +812,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function isObject (obj) {
+					function isObject(obj) {
 						const type = typeof obj;
 						return type === 'function' || type === 'object' && !!obj;
 					}
@@ -815,7 +822,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function isEmpty (val) {
+					function isEmpty(val) {
 						if (val === null) {
 							return true;
 						} else if (typeof val === 'string') {
@@ -831,7 +838,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function getISODate (date = new Date()) {
+					function getISODate(date = new Date()) {
 						return date.toISOString();
 					}
 					/**
@@ -841,7 +848,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function parseDOM (html, outText = false) {
+					function parseDOM(html, outText = false) {
 						let doc = new DOMParser().parseFromString("<!doctype html><body>".concat(html), 'text/html');
 						if (outText) return doc.body.textContent.trim();
 						doc = new XMLSerializer().serializeToString(doc.body);
@@ -854,7 +861,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function html2text (html, noBr = false) {
+					function html2text(html, noBr = false) {
 						html = html.replace(/<style([\s\S]*?)<\/style>/gi, '');
 						html = html.replace(/<script([\s\S]*?)<\/script>/gi, '');
 						html = html.replace(/<\/(div|p|li|dd|h[1-6])>/gi, '\n');
@@ -872,7 +879,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function validateUrl (value) {
+					function validateUrl(value) {
 						return /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
 					}
 					/**
@@ -881,7 +888,7 @@ function createTOC_ncx (data) {
 					 */
 
 
-					function mime2ext (mime) {
+					function mime2ext(mime) {
 						let ext = null;
 
 						switch (mime) {
@@ -936,7 +943,7 @@ function createTOC_ncx (data) {
 					const oxmlContentTypes = toBytes('[Content_Types].xml');
 					const oxmlRels = toBytes('_rels/.rels');
 
-					function readUInt64LE (buf, offset = 0) {
+					function readUInt64LE(buf, offset = 0) {
 						let n = buf[offset];
 						let mul = 1;
 						let i = 0;
@@ -2052,7 +2059,7 @@ function createTOC_ncx (data) {
 /******/ 	var __webpack_module_cache__ = {};
 /******/
 /******/ 	// The require function
-/******/ 	function __webpack_require__ (moduleId) {
+/******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
 /******/ 		var cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {

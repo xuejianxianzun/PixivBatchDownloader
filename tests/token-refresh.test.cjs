@@ -88,7 +88,9 @@ function environment(options = {}) {
     return id
   }
   window.clearTimeout = (id) => timers.delete(id)
+  // head 用于老式页面（如 novel/marker_all.php）里 pixiv.context.token 所在的 script
   const document = {
+    head: { innerHTML: options.head ?? '' },
     querySelector: () =>
       options.script === undefined ? null : { textContent: options.script },
   }
@@ -339,6 +341,54 @@ test('invalid NEXT_DATA token falls back to the original page parser', async () 
   const result = e.token.reset()
   e.requests[0].resolve(response())
   assert.equal(await result, 'new_test_token')
+})
+
+test('an old page token in head is available synchronously without a request', async () => {
+  const value = 'b'.repeat(32)
+  const e = environment({
+    storage: {},
+    head: String.raw`<script>pixiv.context.token = "${value}";</script>`,
+  })
+  assert.equal(e.token.token, value)
+  assert.equal(e.storage.get('xzToken'), value)
+  assert.equal(e.requests.length, 0)
+  assert.equal(await e.token.reset(), value)
+  assert.equal(e.timers.size, 0)
+})
+
+for (const [name, head] of [
+  ['too short', String.raw`pixiv.context.token = "short";`],
+  ['no head script', ''],
+]) {
+  test(`head ${name} falls back to the original page parser`, async () => {
+    const e = environment({ storage: {}, head })
+    assert.equal(e.requests.length, 1)
+    const result = e.token.reset()
+    e.requests[0].resolve(response())
+    assert.equal(await result, 'new_test_token')
+  })
+}
+
+test('an unrelated pixiv.context assignment cannot supply a token', async () => {
+  const e = environment({
+    storage: {},
+    head: String.raw`pixiv.context.other = "${'c'.repeat(32)}";`,
+  })
+  assert.equal(e.requests.length, 1)
+  const result = e.token.reset()
+  e.requests[0].resolve(response())
+  assert.equal(await result, 'new_test_token')
+})
+
+test('NEXT_DATA is preferred over the head token', async () => {
+  const value = 'd'.repeat(32)
+  const e = environment({
+    storage: {},
+    script: String.raw`token\":\"${value}\",`,
+    head: String.raw`pixiv.context.token = "${'e'.repeat(32)}";`,
+  })
+  assert.equal(e.token.token, value)
+  assert.equal(e.requests.length, 0)
 })
 
 for (const [name, storage, refresh] of [

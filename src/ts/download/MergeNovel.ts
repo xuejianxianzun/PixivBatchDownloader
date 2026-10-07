@@ -715,13 +715,13 @@ class MergeNovel {
     let description = this.handleEPUBDescription(this.metaSeriesCaption)
 
     // 生成元数据
-    // EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+    // EPUB 小说里有个“信息”页面（title-page），会显示如下数据（就是在下面的 jepub.init 里定义的）：
     // title 系列标题
     // author 作者
     // publisher 系列小说的 URL
     // tags 系列小说的标签列表
     // description 系列小说的简介
-    // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
+    // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面（title-page）里显示出来
     if (settings.saveNovelMeta) {
       const otherMeta: string[] = []
       // 添加 date
@@ -746,8 +746,14 @@ class MergeNovel {
       otherMeta.push(this.br)
       otherMeta.push('<ul>')
       for (const data of this.allNovelData) {
-        const title = `#${data.no} ${this.metaNovelTitle(data)}`
-        otherMeta.push(`<li>${this.highlightChapterNumber(title)}</li>`)
+        let title = `#${data.no} ${this.metaNovelTitle(data)}`
+        // 让标题里的章节编号数字保持竖着显示
+        // 这一步必须在这里处理（而不是 jepub 里处理），因为 jepub 里接收到这份数据时，已经混杂了其他内容（即这个方法返回的 description），难以单独区分这一部分内容了。
+        // 所以这部分内容在这里处理是最方便的
+        if (settings.epubWritingMode !== 'horizontal') {
+          title = Tools.highlightNumber(title)
+        }
+        otherMeta.push(`<li>${title}</li>`)
       }
       otherMeta.push('</ul>')
       otherMeta.push(this.br)
@@ -1371,15 +1377,6 @@ class MergeNovel {
 
     return ''
     // 我还尝试过使用 #1 这样的编号，但是阅读器对这种编号的识别情况不够好
-  }
-
-  // 从章节标题里查找所有数字（最多连续 3 位），并使用 span.chapter-number 包裹。
-  // 这主要是为了让章节的数字编号可以正常显示（像横排时一样，数字是竖着的），便于查看。
-  // 如果标题里有其他数字，也可以一并正常显示。
-  // 但由于数字位数太多时，所有数字都会变小（宽度变窄），不利于查看，因此只处理最多连续 3 位的数字。
-  // 备注：该方法的实现应该与 jepub.js 中的 highlightChapterNumber 方法保持一致。
-  private highlightChapterNumber(title: string) {
-    return title.replace(/(\d{1,3})/g, '<span class="chapter-number">$1</span>')
   }
 
   /** 输出下载系列封面图片时的日志。 */

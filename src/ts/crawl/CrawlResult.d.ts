@@ -2176,3 +2176,125 @@ export interface BottomRecommendedWorksOnNovelPage {
     }
   }
 }
+
+export type NovelMarkerAllItem = {
+  /**小说 id */
+  id: string
+  /**小说标题 */
+  title: string
+  /**小说简介 */
+  comment: string
+  /**作者的用户 id */
+  user_id: string
+  /**不清楚。观测到的值有 '1'、'3' */
+  scene: string
+  /**作品的公开范围
+   *
+   * '0' 公开
+   *
+   * '1' 仅好P友可见
+   */
+  restrict: '0' | '1'
+  /**作品的年龄限制
+   *
+   * '0' 全年龄（普通）
+   *
+   * '1' R-18
+   *
+   * '2' R-18G
+   */
+  x_restrict: '0' | '1' | '2'
+  /**作者是否设置了“不允许其他用户编辑标签” */
+  tag_full_lock: '0' | '1'
+  /**不清楚。观测到的值只有 '0' */
+  response_auto: string
+  /**是否为原创作品 */
+  is_original: '0' | '1'
+  /**小说的语言，如 "ja"、"zh-cn"、"zh-tw" */
+  language: string
+  /**小说的标签。是单个字符串，每个标签之间用空格分隔，如 "R-18 中文 原创" */
+  tag: string
+  /**不清楚。观测到的值只有空字符串 */
+  tool: string
+  /**封面图片的类型，如 "png"、"jpg" */
+  cover_type: string
+  /**不清楚。观测到的值只有 '0' */
+  cover_id: string
+  /**不清楚。观测到的值只有空字符串 */
+  hash: string
+  /**一个 JSON 字符串，里面是这篇小说的排版设置，如 {"view_mode":0,"theme_background":0,"theme_size":0,"theme_spacing":0,"length":16421} */
+  serialized_value: string
+  /**字符数量（适用于 CJK 文本），是字符串类型的数字 */
+  character_count: string
+  /**单词数量（适用于非 CJK 文本），是字符串类型的数字 */
+  word_count: string
+  /**小说的创建日期，如 "2026-07-19 15:19:10" */
+  cdate: string
+  /**小说最后一次更新（修改）的日期 */
+  mdate: string
+  /**封面图片的路径部分，不含域名，如 "/img/2026/07/19/15/20260719151910_ci28638469_78203e7bff92e30a3ed5d5546c046733" */
+  novel_cover_img_name: string
+  /**封面图片的扩展名，如 "png"、"jpg" */
+  novel_cover_img_ext: string
+  /**作者是否关闭了评论区
+   *
+   * '0' 未关闭
+   *
+   * '1' 关闭
+   */
+  comment_off_setting: '0' | '1'
+  /**是否为 AI 生成。'0' 无标记（早期作品），'1' 不是，'2' 是 */
+  ai_type: '0' | '1' | '2'
+  /**作品类型，这里总是 'novel' */
+  type: 'novel'
+  /**小说正文。在这个列表数据里总是 null */
+  text: null
+  /**推测与作品的屏蔽有关。观测到的 mask 值有 0、1 */
+  mask_rule_set: {
+    mask: 0 | 1
+  }
+  /**小说的正文长度（字数） */
+  text_length: number
+  /**作者的账户名（登录时使用的账户名） */
+  user_account: string
+  /**作者的用户名 */
+  user_name: string
+  /**作者的状态。观测到的值只有 '0' */
+  user_status: string
+  /**小说的标签列表 */
+  tag_a: string[]
+  /**小说的封面图片 */
+  url: string
+  /**这篇小说所属的系列的 id。如果不属于某个系列，则为 0 */
+  series_id: number
+  /**这篇小说所属的系列的标题。如果不属于某个系列，则为 null */
+  series_title: string | null
+  /**这篇小说在系列中的序号，是字符串类型的数字。如果不属于某个系列，则为 null */
+  series_content_display_order: string | null
+  /**小说的类别，是字符串类型的数字。观测到的值有 '0'、'1'、'10'、'17' */
+  genre: string
+  /**小说的标记数量。推测是添加了阅读进度标记的数量，它不等于下面的收藏数量 */
+  marker_count: number
+  /**小说的收藏数量 */
+  bookmark_count: number
+  /**小说的评论数量 */
+  comment_count: number
+  /**给这篇小说点赞（评价）的人数 */
+  rating_count: number
+  /**小说的评分总分。pixiv 的满分是 10 分，所以这个值大约是 rating_count 的 10 倍 */
+  rating_score: number
+  /**小说的浏览数量 */
+  rating_view: number
+  /**不清楚与 rating_view 的区别。观测到的数值通常很小，可能是从首页等地方进入后的浏览数量 */
+  rating_view_from_home: number
+  /**不清楚。观测到的值只有 0 */
+  viewable_type: number
+  /**是否可以浏览这篇小说 */
+  viewable: boolean
+  /**当前用户是否给这篇小说添加了书签。在这个页面里总是 true */
+  is_marker: boolean
+  /**添加书签时的场景。观测到的值只有 '1' */
+  marked_scene: string
+}
+/** 在小说书签列表页面里，通过 API 获得的数据。每页 10 条数据，纯数组。 */
+export type NovelMarkerAllData = NovelMarkerAllItem[]

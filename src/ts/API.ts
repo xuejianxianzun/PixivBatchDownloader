@@ -30,6 +30,7 @@ import {
   UserRequestPageInfo,
   UserRequestSentPageInfo,
   RequestWorksData,
+  NovelMarkerAllData,
 } from './crawl/CrawlResult'
 
 import {
@@ -750,6 +751,19 @@ class API {
     }
 
     return idList
+  }
+
+  /** 获取小说书签列表数据，每页包含的小说数量固定为 10 个。
+   *
+   * userId 是当前登录用户的 Id，p 是页码。
+   *
+   * p 可以超出实际页数，此时会返回空数组。 */
+  static async getNovelMarkerAllData(
+    userId: string,
+    p: number
+  ): Promise<NovelMarkerAllData> {
+    const url = `https://www.pixiv.net/touch/ajax_api/novel_api.php?endpoint=novel&mode=marker_all&id=${userId}&p=${p}`
+    return this.fetch(url)
   }
 }
 

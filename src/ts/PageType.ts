@@ -77,6 +77,8 @@ enum PageName {
   // 在这个页面类型里，每页只有数量不多的作品，没有分页，也不会加载新作品，
   // 使用“手动选择作品”、全选功能即可满足下载需求，所以我没有为它添加单独的模块进行初始化。
   NovelGenre,
+  /** 29 小说书签列表页面 */
+  NovelMarkerAll,
 }
 
 // 获取页面类型
@@ -238,6 +240,8 @@ class PageType {
       return PageName.SearchUsers
     } else if (path.startsWith('/genre/novel')) {
       return PageName.NovelGenre
+    } else if (path.includes('/novel/marker_all.php')) {
+      return PageName.NovelMarkerAll
     } else {
       // 没有匹配到可用的页面类型
       return PageName.Unsupported
@@ -399,6 +403,10 @@ class PageType {
       {
         type: PageName.NovelGenre,
         url: 'https://www.pixiv.net/genre/novel',
+      },
+      {
+        type: PageName.NovelMarkerAll,
+        url: 'https://www.pixiv.net/novel/marker_all.php',
       },
     ]
 
