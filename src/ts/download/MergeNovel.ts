@@ -168,6 +168,10 @@ class MergeNovel {
 
     this.enableSlowModeIfNeeded()
     await this.getAllNovelData()
+    if (this.allNovelData.length === 0) {
+      log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+      return 0
+    }
     await this.loadGlossaryData(seriesId)
     const body = await this.loadSeriesData()
 
@@ -1072,6 +1076,7 @@ class MergeNovel {
       this.novelIdListUnfiltered.push(item.id)
 
       // 然后保存通过了过滤器检查的小说 id
+      // 此时的数据里没有小说的 language，所以无法检查小说的语言
       const check = await filter.check({
         id: item.id,
         isOriginal: item.isOriginal,
@@ -1108,7 +1113,9 @@ class MergeNovel {
       if (this.novelIdListFiltered.length === 0) {
         log.warning(lang.transl('_这个系列里的所有小说都被排除了'))
       } else {
-        // 根据条件决定只合并符合过滤条件的小说，还是合并所有小说
+        // 如果有小说通过检查，那么根据 saveAllSeriesNovelsIfOneMatches 设置决定：
+        // 如果启用了此设置，就合并所有小说
+        // 否则只合并通过过滤器检查的小说
         if (settings.saveAllSeriesNovelsIfOneMatches) {
           this.novelIdList = this.novelIdListUnfiltered
 
@@ -1147,6 +1154,20 @@ class MergeNovel {
       const novelData = await this.createNovelSummary(data)
       if (novelData) {
         this.allNovelData.push(novelData)
+      }
+
+      // 当一篇小说被排除时，检查它是否是因为语言被排除的
+      // 如果是的话，就跳过后续的小说。这是因为系列里每篇小说的语言通常是一致的，所以没必要检查系列里的后续小说。
+      // 这里只检查语言，不调用 filter.check，因为其他过滤条件在前面已经检查过了，
+      // 而且这里只有语言数据，调用 filter.check 会导致其他过滤条件因为缺少数据而无法判断
+      if (!novelData && !filter.checkNovelLanguage(data.body.language)) {
+        // 如果已经获取了一些小说的数据，那么只会跳过剩余的小说，不会跳过整个系列
+        const key =
+          this.allNovelData.length > 0
+            ? '_这个系列小说的语言不符合要求所以跳过剩余小说'
+            : '_这个系列小说的语言不符合要求所以跳过它'
+        log.warning(lang.transl(key, data.body.language))
+        break
       }
 
       // 如果处于快速合并模式，则跳过剩余小说
@@ -1219,10 +1240,21 @@ class MergeNovel {
     const title = data.body.title
     const order = data.body.seriesNavData!.order
 
-    // 如果未启用此设置，则检查一些过滤条件。如果启用了此设置就不进行检查，因为此时需要合并所有小说
+    // 检查小说的语言
+    // 系列里的每篇小说语言通常都是相同的，因此有一篇小说的语言不符合要求的话，整个系列都应该被排除
+    // 无论是否启用 saveAllSeriesNovelsIfOneMatches 都要检查语言
+    if (!filter.checkNovelLanguage(data.body.language)) {
+      const order_title = `#${order} ${title}`
+      const link = Tools.createWorkLink(novelId, order_title, 'novel')
+      log.warning(lang.transl('_排除小说') + ': ' + link)
+      return null
+    }
+
+    // 如果未启用此设置，则检查一些过滤条件。
+    // 如果启用了此设置就不进行检查，因为之后可能需要合并所有小说
     if (settings.saveAllSeriesNovelsIfOneMatches === false) {
-      // 检查年龄限制和标签过滤器
-      // 虽然这里也能检查其他过滤条件，但没有必要，因为前面已经检查过了
+      // 虽然这里也能检查其他一些过滤条件，但没有必要，因为前面已经检查过了
+      // 注意：不要在这个分支里检查语言，否则当 saveAllSeriesNovelsIfOneMatches 为 true 时，不会执行到这个分支，就会导致始终不检查语言，这意味着检查语言的功能失效。
       const check = await filter.check({
         xRestrict: data.body.xRestrict,
         tags,

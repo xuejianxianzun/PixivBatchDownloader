@@ -197,7 +197,9 @@ class Resume {
     const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
-        this.saveData()
+        if (store.result.length > 0) {
+          this.saveData()
+        }
       })
     }
 

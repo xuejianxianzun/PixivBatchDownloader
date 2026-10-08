@@ -173,6 +173,8 @@ class InitRankingNovelPageOld extends InitPageBase {
         bookmarkCount: bmk,
         bookmarkData: bookmarked,
         userId: userId,
+        // item 上有语言标记（data-language）
+        language: item.dataset.language,
       }
 
       // item 上有语言标记，使用它来过滤小说

@@ -13,6 +13,7 @@ import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
 import { workSelection } from '../WorkSelection'
+import { isLangInList } from '../utils/LangCode'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -49,6 +50,13 @@ export interface FilterOption {
   title?: string
   seriesTitle?: string
   isOriginal?: boolean | null
+  /**
+   * 小说的语言，例如 ja、zh-cn。
+   *
+   * 只有小说才有语言。系列小说没有自己的语言，应使用它里面的小说的语言。
+   * 没有传递这个数据时（例如只知道系列 id），对应的过滤器会跳过检查。
+   */
+  language?: string
 }
 
 /**作品类型的数字表示。
@@ -215,6 +223,18 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_标题必须含有'),
         'excludeWorkByIncludeTitle'
+      )
+      return false
+    }
+
+    if (!this.checkNovelLanguage(option.language)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl(
+            '_这篇小说的语言不符合只下载这些语言的小说的要求',
+            option.language!
+          ),
+        'excludeWorkByNovelLanguage' + option.language
       )
       return false
     }
@@ -840,6 +860,22 @@ class Filter {
     }
 
     return false
+  }
+
+  /** 检查小说的语言是否是用户指定的语言之一 */
+  /** 检查小说的语言是否是用户指定的语言之一。外部可以只调用这一项，避免触发其他过滤条件 */
+  public checkNovelLanguage(language: FilterOption['language']) {
+    // 没有传递语言时无法检查，直接保留。
+    // 例如只知道系列 id 时就没有单篇小说的数据，此时会在合并小说时再检查一次
+    if (
+      !settings.novelLanguageSwitch ||
+      settings.novelLanguageList.length === 0 ||
+      !language
+    ) {
+      return true
+    }
+
+    return isLangInList(language, settings.novelLanguageList)
   }
 
   /** 检查作品是否符合过滤宽高的条件 */

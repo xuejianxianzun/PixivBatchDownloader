@@ -171,6 +171,7 @@ class FormSettings {
       'saveAllSeriesNovelsIfOneMatches',
       'autoExportSettings',
       'allowPreviewCoverThumbnail',
+      'novelLanguageSwitch',
     ],
     radio: [
       'novelSaveAs',
@@ -266,6 +267,7 @@ class FormSettings {
       'createFolderTagList',
       'createFolderTagList2',
       'seriesNovelNameRule',
+      'novelLanguageList',
       'titleIncludeList',
       'titleExcludeList',
       'copyWorkInfoFormat',

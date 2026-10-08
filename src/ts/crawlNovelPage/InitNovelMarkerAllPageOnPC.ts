@@ -171,11 +171,13 @@ class InitNovelMarkerAllPageOnPC extends InitPageBase {
           xRestrict = 1
         } else if (tags.includes('R-18G')) {
           xRestrict = 2
-        } else { 
+        } else {
           // 当没有 R-18 和 R-18G 标签时，将其视为普通等级（0）。
           xRestrict = 0
         }
 
+        // 注意：这里没有传递 language，因为这个页面里没有小说的语言数据。
+        // 小说的语言会在保存小说数据时（SaveNovelData）进行检查
         // 过滤器进行检查
         const filterOpt: FilterOption = {
           id: novelId,

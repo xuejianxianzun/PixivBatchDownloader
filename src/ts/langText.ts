@@ -11020,6 +11020,58 @@ After crawling is complete, you can start the normal download to save the standa
     - Регистр не учитывается.<br>
     - Любой: достаточно, чтобы в названии присутствовала любая одна из заданных строк, и загрузчик просканирует работу.`,
   ],
+  _只下载这些语言的小说: [
+    `只下载这些<span class="key">语言</span>的小说`,
+    `只下載這些<span class="key">語言</span>的小說`,
+    `Only download novels in these <span class="key">languages</span>`,
+    `これらの<span class="key">言語</span>の小説のみをダウンロード`,
+    `이러한 <span class="key">언어</span>의 소설만 다운로드`,
+    `Загружать только новеллы на этих <span class="key">языках</span>`,
+  ],
+  _只下载这些语言的小说的说明: [
+    `你可以要求小说的语言必须是特定的语言，这样下载器才会抓取它。<br>
+    下载器会检查每篇小说的语言，包括系列里的小说。<br>
+    你可以设置一种或多种语言代码。多个语言代码之间使用英语逗号 <span class="blue">,</span> 分割。例如：<span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    匹配方式：<br>
+    - 不区分大小写。<br>
+    - 任一：只要小说的语言是你设置的任意一条，下载器就会抓取它。`,
+    `你可以要求小說的語言必須是特定的語言，這樣下載器才會抓取它。<br>
+    下載器會檢查每篇小說的語言，包括系列裡的小說。<br>
+    你可以設定一種或多種語言代碼。多個語言代碼之間使用半形逗號 <span class="blue">,</span> 分隔。例如：<span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    比對方式：<br>
+    - 不區分大小寫。<br>
+    - 任一：只要小說的語言是你設定的任意一條，下載器就會抓取它。`,
+    `You can require the language of a novel to be one of the specific languages; only then will the downloader crawl it.<br>
+    The downloader checks the language of every novel, including the novels in a series.<br>
+    You can set one or more language codes. Separate multiple language codes with a comma <span class="blue">,</span>. For example: <span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    Matching rules:<br>
+    - Case-insensitive.<br>
+    - Any: as long as the novel's language is any one of the entries you set, the downloader will crawl it.`,
+    `小説の言語が特定の言語であることを要求できます。そうでなければダウンローダーはその小説をクロールしません。<br>
+    ダウンローダーはシリーズ内の小説も含め、すべての小説の言語をチェックします。<br>
+    言語コードを 1 つまたは複数設定できます。複数の言語コードは英語のカンマ <span class="blue">,</span> で区切ります。例：<span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    マッチ方式：<br>
+    - 大文字と小文字は区別しません。<br>
+    - いずれか：小説の言語が設定したいずれか 1 つと一致すれば、ダウンローダーはその小説をクロールします。`,
+    `소설의 언어가 특정 언어여야만 다운로더가 크롤링하도록 요구할 수 있습니다.<br>
+    다운로더는 시리즈에 포함된 소설을 포함하여 모든 소설의 언어를 확인합니다.<br>
+    언어 코드를 하나 이상 설정할 수 있습니다. 여러 언어 코드는 영어 쉼표 <span class="blue">,</span> 로 구분합니다. 예: <span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    매칭 방식:<br>
+    - 대소문자를 구분하지 않습니다.<br>
+    - 하나라도: 소설의 언어가 설정한 항목 중 하나라도 일치하면 다운로더가 그 소설을 크롤링합니다.`,
+    `Вы можете потребовать, чтобы язык новеллы был одним из указанных языков — только тогда загрузчик просканирует её.<br>
+    Загрузчик проверяет язык каждой новеллы, включая новеллы в сериях.<br>
+    Можно задать один или несколько языковых кодов. Несколько кодов разделяются запятой <span class="blue">,</span>. Например: <span class="blue">zh-cn,ja,en</span><br>
+    <br>
+    Правила сопоставления:<br>
+    - Регистр не учитывается.<br>
+    - Любой: достаточно, чтобы язык новеллы совпал с любым одним из заданных значений, и загрузчик просканирует её.`,
+  ],
   _标题不能含有: [
     `<span class="key">标题</span>不能含有`,
     `<span class="key">標題</span>不能含有`,
@@ -14401,5 +14453,29 @@ One possible reason: Your Pixiv account has been banned.`,
     `ログインしていないユーザーは取得できません`,
     `로그인하지 않은 사용자는 크롤링할 수 없습니다`,
     `Невозможно сканировать без входа в систему`,
+  ],
+  _这篇小说的语言不符合只下载这些语言的小说的要求: [
+    `这篇小说的语言是 {}，不符合“只下载这些语言的小说”的要求`,
+    `這篇小說的語言是 {}，不符合「只下載這些語言的小說」的要求`,
+    `The language of this novel is {}, which does not meet the requirement of "Only download novels in these languages"`,
+    `この小説の言語は {} です。「これらの言語の小説のみをダウンロード」の条件を満たしません`,
+    `이 소설의 언어는 {}이며, "이러한 언어의 소설만 다운로드" 요구 사항을 충족하지 않습니다`,
+    `Язык этой новеллы — {}, что не соответствует требованию «Загружать только новеллы на этих языках»`,
+  ],
+  _这个系列小说的语言不符合要求所以跳过它: [
+    `⏭️这个系列小说的语言是 {}，不符合“只下载这些语言的小说”的要求，所以下载器会跳过它，不再合并它。`,
+    `⏭️這個系列小說的語言是 {}，不符合「只下載這些語言的小說」的要求，所以下載器會跳過它，不再合併它。`,
+    `⏭️The language of this novel series is {}, which does not meet the requirement of "Only download novels in these languages", so the downloader will skip it and will not merge it.`,
+    `⏭️このシリーズ小説の言語は {} です。「これらの言語の小説のみをダウンロード」の条件を満たさないため、ダウンローダーはこのシリーズをスキップし、マージしません。`,
+    `⏭️이 시리즈 소설의 언어는 {}이며, "이러한 언어의 소설만 다운로드" 요구 사항을 충족하지 않으므로 다운로더는 이 시리즈를 건너뛰고 병합하지 않습니다.`,
+    `⏭️Язык этой серии новелл — {}, что не соответствует требованию «Загружать только новеллы на этих языках», поэтому загрузчик пропустит её и не будет объединять.`,
+  ],
+  _这个系列小说的语言不符合要求所以跳过剩余小说: [
+    `⏭️这个系列小说的语言是 {}，不符合“只下载这些语言的小说”的要求，所以下载器会跳过这个系列里剩余的小说。`,
+    `⏭️這個系列小說的語言是 {}，不符合「只下載這些語言的小說」的要求，所以下載器會跳過這個系列裡剩餘的小說。`,
+    `⏭️The language of this novel series is {}, which does not meet the requirement of "Only download novels in these languages", so the downloader will skip the remaining novels in this series.`,
+    `⏭️このシリーズ小説の言語は {} です。「これらの言語の小説のみをダウンロード」の条件を満たさないため、ダウンローダーはこのシリーズの残りの小説をスキップします。`,
+    `⏭️이 시리즈 소설의 언어는 {}이며, "이러한 언어의 소설만 다운로드" 요구 사항을 충족하지 않으므로 다운로더는 이 시리즈의 남은 소설을 건너뜁니다.`,
+    `⏭️Язык этой серии новелл — {}, что не соответствует требованию «Загружать только новеллы на этих языках», поэтому загрузчик пропустит остальные новеллы этой серии.`,
   ],
 }

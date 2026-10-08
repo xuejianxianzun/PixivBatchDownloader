@@ -164,6 +164,7 @@ class InitRankingNovelPageNew extends InitPageBase {
           bookmarkCount: novel.bookmark_count,
           bookmarkData: novel.is_bookmarked,
           userId: novel.user_id,
+          language: novel.language,
         }
 
         let checkLang = true

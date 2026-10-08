@@ -518,6 +518,10 @@ interface XzSetting {
   tipPinOption: boolean
   tipCloseAskFileSaveLocation: boolean
   tipCloseAskFileSaveLocationOnce: boolean
+  /** 只下载这些语言的小说 */
+  novelLanguageSwitch: boolean
+  /** 小说语言的白名单，例如 ja、zh-cn。只有语言在这个列表里的小说才会被抓取 */
+  novelLanguageList: string[]
   titleIncludeSwitch: boolean
   titleIncludeList: string[]
   titleExcludeSwitch: boolean
@@ -1135,6 +1139,8 @@ class Settings {
     tipCloseAskFileSaveLocation: true,
     tipPinOption: true,
     tipCloseAskFileSaveLocationOnce: true,
+    novelLanguageSwitch: false,
+    novelLanguageList: [],
     titleIncludeSwitch: false,
     titleIncludeList: [],
     titleExcludeSwitch: false,
@@ -1252,6 +1258,7 @@ class Settings {
     'createFolderTagList',
     'createFolderTagList2',
     'exportLogExclude',
+    'novelLanguageList',
     'titleIncludeList',
     'titleExcludeList',
     'epubVerticalLangList',

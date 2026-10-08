@@ -42,6 +42,7 @@ class ShowEnabledFilter {
     this.getExcludeTag()
     this.getTitleInclude()
     this.getTitleExclude()
+    this.getNovelLanguage()
     this.getBlockList()
     this.getSize()
 
@@ -306,6 +307,22 @@ class ShowEnabledFilter {
           lang.transl('_标题必须含有') +
           ': ' +
           settings.titleIncludeList.join(',')
+      )
+    }
+  }
+
+  /** 提示小说的语言要求 */
+  private getNovelLanguage() {
+    if (!settings.novelLanguageSwitch) {
+      return
+    }
+
+    if (settings.novelLanguageList.length > 0) {
+      log.warning(
+        '🛸' +
+          lang.transl('_只下载这些语言的小说') +
+          ': ' +
+          settings.novelLanguageList.join(',')
       )
     }
   }

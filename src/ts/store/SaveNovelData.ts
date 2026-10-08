@@ -51,6 +51,7 @@ class SaveNovelData {
       bookmarkData: body.bookmarkData,
       userId: body.userId,
       xRestrict: body.xRestrict,
+      language: body.language,
     }
 
     // 检查通过

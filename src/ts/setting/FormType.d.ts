@@ -206,6 +206,8 @@ export interface FormType extends HTMLFormElement {
   logVisibleDefault: HTMLInputElement
   fullNameLengthLimitSwitch: HTMLInputElement
   fullNameLengthLimit: HTMLInputElement
+  novelLanguageSwitch: HTMLInputElement
+  novelLanguageList: HTMLInputElement
   titleIncludeSwitch: HTMLInputElement
   titleIncludeList: HTMLInputElement
   titleExcludeSwitch: HTMLInputElement

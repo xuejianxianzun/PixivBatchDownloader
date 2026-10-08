@@ -1,6 +1,7 @@
 import { lang } from '../Language'
 import { settings } from '../setting/Settings'
 import { ChineseLang } from '../utils/ChineseLang'
+import { isLangInList } from '../utils/LangCode'
 
 /** EPUB 文件里实际使用的排版方向 */
 // 文档：notes/EPUB 电子书多语言排版指南.md
@@ -33,7 +34,7 @@ class EPUBSetting {
       return 'vertical'
     }
     if (settings.epubWritingMode === 'verticalForLangList') {
-      return EPUBSetting.isLangInList(langCode, settings.epubVerticalLangList)
+      return isLangInList(langCode, settings.epubVerticalLangList)
         ? 'vertical'
         : 'horizontal'
     }
@@ -87,22 +88,6 @@ class EPUBSetting {
 
     // tw2cn：原本就是简体时保持不变
     return script === 'simplified' ? langCode : 'zh-cn'
-  }
-
-  /** 判断语言标签是否在用户指定的语言列表里。列表项如 ja、zh-tw */
-  private static isLangInList(langCode: string, list: string[]): boolean {
-    const code = (langCode || '').toLowerCase().trim()
-    if (!code) {
-      return false
-    }
-    return (list || []).some((item) => {
-      const target = (item || '').toLowerCase().trim()
-      if (!target) {
-        return false
-      }
-      // 完全匹配（ja === ja），或者列表项只写了主标签（zh 匹配 zh-tw 的 zh 部分）
-      return code === target || code.startsWith(target + '-')
-    })
   }
 }
 

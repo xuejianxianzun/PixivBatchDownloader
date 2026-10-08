@@ -149,6 +149,7 @@ class InitNovelMarkerAllPageOnMobile extends InitPageBase {
           userId: item.user_id,
           xRestrict: Number.parseInt(item.x_restrict) as 0 | 1 | 2,
           isOriginal: item.is_original === '1',
+          language: item.language,
         }
 
         if (await filter.check(filterOpt)) {

@@ -445,6 +445,18 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 111,
+      nameKey: '_只下载这些语言的小说',
+      name: '',
+      categoryLevel1: 'crawl',
+      categoryLevel2: 'workData',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_语言'],
+      searchWords: [],
+      addedAt: 1791417600000,
+    },
+    {
       no: 15,
       nameKey: '_必须含有tag',
       name: '',
