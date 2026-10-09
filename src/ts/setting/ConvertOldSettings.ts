@@ -7,7 +7,7 @@ type StringSettingsMap = Record<settingKey, Record<oldValue, newValue>>
 /** 已经废弃的设置名，以及它的值应当迁移到哪个新的设置名 */
 type RenamedSettingsMap = Record<settingKey, settingKey>
 
-/** 旧版本里与「不能含有标签」相关的数据。
+/** 旧版本里与「标签不能含有」相关的数据。
  *
  * 其中 notNeedTag 和 tagMatchMode 在新版本里已经不存在，
  * notNeedTagWhole 和 notNeedTagPartial 是新版本新增的，
@@ -49,7 +49,7 @@ class ConvertOldSettings {
 
   /** 已经废弃的设置名，以及它的值要迁移到哪个新的设置名。
    *
-   * ⚠️ 这里只能根据设置名进行迁移，所以「不能含有标签」一律迁移到全字匹配
+   * ⚠️ 这里只能根据设置名进行迁移，所以「标签不能含有」一律迁移到全字匹配
    * （旧版本默认就是全字匹配）。如果旧数据里有 tagMatchMode，应当优先用
    * convertExcludeTag 迁移，它会按照 tagMatchMode 分配到正确的输入框。这个映射只是兜底。 */
   private readonly renamedKeys: RenamedSettingsMap = {
@@ -63,7 +63,7 @@ class ConvertOldSettings {
     return this.renamedKeys[key] ?? key
   }
 
-  /** 迁移旧版本里「不能含有标签」的设置数据。会直接修改传入的数据。
+  /** 迁移旧版本里「标签不能含有」的设置数据。会直接修改传入的数据。
    *
    * 旧版本只有一个输入框 notNeedTag，用单选的 tagMatchMode 决定匹配模式。
    * 新版本里全字匹配和部分匹配各有一个输入框，所以这里按照 tagMatchMode 的值，

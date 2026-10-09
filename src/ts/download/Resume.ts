@@ -197,9 +197,12 @@ class Resume {
     const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
-        if (store.result.length > 0) {
-          this.saveData()
-        }
+        // 注意：即使 store.result 为空，也要保存数据。这是为了覆盖之前的数据。
+        // 例如用户在搜索页面先产生了 100  个抓取结果，之后通过筛选条件排除了所有结果，使结果变成 0
+        // 此时依然需要保存抓取结果，以覆盖已经不需要的 100 个结果。
+        // 如果此时不保存抓取结果，那么刷新页面之后，就会恢复之前的 100 个结果。
+        // if (store.result.length > 0) {}
+        this.saveData()
       })
     }
 

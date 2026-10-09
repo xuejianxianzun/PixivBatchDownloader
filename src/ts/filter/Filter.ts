@@ -187,7 +187,7 @@ class Filter {
     // 检查要排除的 tag
     if (!this.checkExcludeTag(option.tags)) {
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_不能含有tag'),
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标签不能含有'),
         'excludeWorkByExcludeTag'
       )
       return false
@@ -196,7 +196,7 @@ class Filter {
     // 检查必须包含的 tag
     if (!this.checkIncludeTag(option.tags)) {
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_必须含有tag'),
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标签必须含有'),
         'excludeWorkByIncludeTag'
       )
       return false
@@ -371,7 +371,7 @@ class Filter {
     return true
   }
 
-  /** 检查作品是否被两个条件排除：不能含有标签；Mute 里屏蔽的标签 */
+  /** 检查作品是否被两个条件排除：标签不能含有；Mute 里屏蔽的标签 */
   public async checkExcludeAndMuteTags(tags: string[]) {
     const checkExcludeTagResult = this.checkExcludeTag(tags)
     if (!checkExcludeTagResult) {
@@ -862,15 +862,17 @@ class Filter {
     return false
   }
 
-  /** 检查小说的语言是否是用户指定的语言之一 */
   /** 检查小说的语言是否是用户指定的语言之一。外部可以只调用这一项，避免触发其他过滤条件 */
   public checkNovelLanguage(language: FilterOption['language']) {
     // 没有传递语言时无法检查，直接保留。
-    // 例如只知道系列 id 时就没有单篇小说的数据，此时会在合并小说时再检查一次
+    // 另外还有 language 字段可能为 'other' 的情况，如：
+    // https://www.pixiv.net/novel/show.php?id=17870298
+    // 此时不知道它实际的语言类型，所以使其通过检查
     if (
       !settings.novelLanguageSwitch ||
       settings.novelLanguageList.length === 0 ||
-      !language
+      !language ||
+      language === 'other'
     ) {
       return true
     }

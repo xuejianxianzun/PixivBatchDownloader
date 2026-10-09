@@ -15,28 +15,9 @@ class SaveNovelData {
     const body = data.body
     const bmk = body.bookmarkCount // 收藏数
 
-    const tags: string[] = Tools.extractTags(data) // tag 列表
+    // 生成 tag 列表，里面会添加小说分类、“原创”、“AI生成”这些标记
     // 小说的标签没有进行翻译，所以没有翻译后的标签
-
-    // 添加“原创”对应的标签
-    if (data.body.isOriginal) {
-      const originalMark = Tools.getOriginalMark()
-      Tools.unshiftTag(tags, originalMark)
-    }
-
-    // 判断是不是 AI 生成的作品
-    let aiType = body.aiType
-    if (aiType !== 2) {
-      if (Tools.checkAIFromTags(tags)) {
-        aiType = 2
-      }
-    }
-
-    // 添加“AI生成”对应的标签
-    const aiMarkString = Tools.getAIGeneratedMark(aiType)
-    if (aiMarkString) {
-      Tools.unshiftTag(tags, aiMarkString)
-    }
+    const { tags, aiType } = Tools.buildNovelTags(data)
 
     const filterOpt: FilterOption = {
       aiType,

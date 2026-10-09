@@ -831,7 +831,7 @@ export interface RankingNovelItem {
   series_id: 0 | number
   /**小说的系列标题。如果不属于某个系列，则为 null */
   series_title: string | null
-  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  /**小说的分类，是字符串形式的数字，如'0' */
   genre: string
   /**阅读时间，单位是秒。在页面上显示时会被转换成分钟 */
   reading_time: number
@@ -1050,14 +1050,19 @@ export interface NovelCommonData {
   }
   createDate: string
   description: string
+  /** 小说的分类，是字符串形式的数字，如'0' */
+  genre: string
   /** 如果这份数据是单篇小说，那么 id 是单篇 id。如果这份数据是系列小说，则 id 是系列 id */
   id: string
   isBookmarkable: boolean
-  isUnlisted: boolean
+  isMasked: boolean
   isOriginal: boolean
+  isUnlisted: boolean
+  language: string
   marker: null
   profileImageUrl: string
-  /**公开范围
+  readingTime: number
+  /**公开范围/可见性
    *
    * 0 公开
    *
@@ -1066,11 +1071,11 @@ export interface NovelCommonData {
    * 2 不公开
    */
   restrict: 0 | 1 | 2
+  seriesContentOrder?: number
+  seriesId?: string
+  seriesTitle?: string
   tags: string[]
   textCount: number
-  wordCount: number
-  readingTime: number
-  useWordCount: boolean
   /** 如果这份数据是单篇小说，那么 title 是单篇小说的标题。如果这份数据是系列小说，则是系列标题 */
   title: string
   titleCaptionTranslation: {
@@ -1078,12 +1083,13 @@ export interface NovelCommonData {
     workCaption: string | null
   }
   updateDate: string
-  xRestrict: 0 | 1 | 2
   url: string
+  useWordCount: boolean
   userId: string
   userName: string
-  seriesId?: string
-  seriesTitle?: string
+  visibilityScope: number
+  wordCount: number
+  xRestrict: 0 | 1 | 2
 }
 
 export interface UserNovelsWithTag {
@@ -1144,6 +1150,8 @@ export interface NovelData {
     language: string
     xRestrict: 0 | 1 | 2
     restrict: 0 | 1 | 2
+    /**小说的分类，是字符串形式的数字，如'0' */
+    genre: string
     content: string
     coverUrl: string
     suggestedSettings: {
@@ -1290,7 +1298,7 @@ export interface NovelSeriesData {
     xRestrict: 0 | 1 | 2
     isOriginal: boolean
     isConcluded: boolean
-    /** 是 string 类型的数字，如 "0" | "1" | "2" | "3"。这个字段或许指的是系列标题上方的 tag 数量 */
+    /** 小说的分类，是 string 类型的数字，如 "0" | "1" | "2" | "3" */
     genreId: string
     /** 系列标题 */
     title: string
@@ -1410,7 +1418,9 @@ export interface NovelSeriesContentData {
   error: boolean
   message: string
   body: {
+    illustSeries: []
     page: {
+      // 备注：seriesContents 里没有小说的 genre 数据，需要在 thumbnails.novel 里获取
       seriesContents: {
         id: string
         userId: string
@@ -1440,6 +1450,16 @@ export interface NovelSeriesContentData {
         }
       }[]
     }
+    requests: []
+    tagTranslation: []
+    thumbnails: {
+      collection: []
+      illust: []
+      novel: NovelCommonData[]
+      novelDraft: []
+      novelSeries: []
+    }
+    users: []
   }
 }
 
@@ -2002,7 +2022,7 @@ interface DashboardNovelThumbnail {
   aiType: 0 | 1 | 2
   id: string
   title: string
-  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  /**小说的分类 */
   genre: string
   restrict: 0 | 1 | 2
   xRestrict: 0 | 1 | 2
@@ -2271,7 +2291,7 @@ export type NovelMarkerAllItem = {
   series_title: string | null
   /**这篇小说在系列中的序号，是字符串类型的数字。如果不属于某个系列，则为 null */
   series_content_display_order: string | null
-  /**小说的类别，是字符串类型的数字。观测到的值有 '0'、'1'、'10'、'17' */
+  /**小说的分类，是字符串类型的数字，如 '0'、'1'、'10'、'17' */
   genre: string
   /**小说的标记数量。推测是添加了阅读进度标记的数量，它不等于下面的收藏数量 */
   marker_count: number

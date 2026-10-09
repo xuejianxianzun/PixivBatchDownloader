@@ -121,7 +121,7 @@ class PreviewWork {
           return
         }
 
-        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        // 检查这个作品是否被“标签不能含有”和 Mute 里屏蔽的标签排除了
         if (settings.checkBlockTagsForPreviewWork) {
           const tags = Tools.extractTags(this.workData, 'origin')
           const checkTag = await filter.checkExcludeAndMuteTags(tags)

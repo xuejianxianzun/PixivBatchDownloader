@@ -266,6 +266,7 @@ class MergeNovel {
       await this.sleep(this.crawlInterval)
       await this.getNovelIds()
     } catch (error) {
+      console.error(error)
       log.error(`❌${lang.transl('_发生错误取消合并这个系列小说')} ${link}`)
       return false
     }
@@ -1076,13 +1077,28 @@ class MergeNovel {
       this.novelIdListUnfiltered.push(item.id)
 
       // 然后保存通过了过滤器检查的小说 id
-      // 此时的数据里没有小说的 language，所以无法检查小说的语言
+      // 备注：此时的数据里没有小说的 language，所以无法检查小说的语言
+
+      let tags = item.tags
+      // 获取完整的标签列表（根据作品属性，可能会添加一些标签）用于检查
+      const findNovelData: any = seriesContents.body.thumbnails.novel.find(
+        (n) => n.id === item.id
+      )
+      if (findNovelData && findNovelData.tags) {
+        // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里
+        findNovelData.tags.tags = []
+        findNovelData.tags.forEach((str: string) => {
+          findNovelData.tags.tags.push({ tag: str })
+        })
+        tags = Tools.buildNovelTags({ body: findNovelData } as NovelData).tags
+      }
+
       const check = await filter.check({
         id: item.id,
         isOriginal: item.isOriginal,
         aiType: item.aiType,
         xRestrict: item.xRestrict,
-        tags: item.tags,
+        tags: tags,
         title: item.title,
         seriesTitle: this.seriesTitle || '',
         userId: item.userId,
@@ -1206,36 +1222,9 @@ class MergeNovel {
     }
   }
 
-  /** 生成单篇小说用于后续处理的标签列表。 */
-  private buildNovelTags(data: NovelData) {
-    const tags: string[] = Tools.extractTags(data)
-
-    // 添加“原创”对应的标签
-    if (data.body.isOriginal) {
-      const originalMark = Tools.getOriginalMark()
-      Tools.unshiftTag(tags, originalMark)
-    }
-
-    // 判断是不是 AI 生成的作品
-    let aiType = data.body.aiType
-    if (aiType !== 2) {
-      if (Tools.checkAIFromTags(tags)) {
-        aiType = 2
-      }
-    }
-
-    // 添加“AI生成”对应的标签
-    const aiMarkString = Tools.getAIGeneratedMark(aiType)
-    if (aiMarkString) {
-      Tools.unshiftTag(tags, aiMarkString)
-    }
-
-    return tags
-  }
-
   /** 从完整小说数据中提取合并流程需要的摘要数据。 */
   private async createNovelSummary(data: NovelData) {
-    const tags = this.buildNovelTags(data)
+    const { tags } = Tools.buildNovelTags(data)
     const novelId = data.body.id
     const title = data.body.title
     const order = data.body.seriesNavData!.order
@@ -1265,6 +1254,12 @@ class MergeNovel {
         log.warning(lang.transl('_排除小说') + ': ' + link)
         return null
       }
+      log.log(
+        '通过检查: ' +
+          Tools.createWorkLink(novelId, `#${order} ${title}`, 'novel') +
+          '，标签: ' +
+          tags.join(', ')
+      )
     }
 
     return {

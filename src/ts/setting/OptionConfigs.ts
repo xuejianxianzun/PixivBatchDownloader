@@ -458,7 +458,7 @@ class OptionConfigs {
     },
     {
       no: 15,
-      nameKey: '_必须含有tag',
+      nameKey: '_标签必须含有',
       name: '',
       categoryLevel1: 'crawl',
       categoryLevel2: 'tagAndTitle',
@@ -469,7 +469,7 @@ class OptionConfigs {
     },
     {
       no: 16,
-      nameKey: '_不能含有tag',
+      nameKey: '_标签不能含有',
       name: '',
       categoryLevel1: 'crawl',
       categoryLevel2: 'tagAndTitle',

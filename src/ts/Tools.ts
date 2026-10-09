@@ -1,6 +1,7 @@
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
+import { novelGenreMap } from './NovelGenreConfig'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
 import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
@@ -1234,6 +1235,7 @@ class Tools {
     }
   }
 
+  /** 储存 Pixiv 每种显示语言里，“原创”标记所使用的文字 */
   static readonly originalMark: Map<string, string> = new Map([
     ['zh-cn', '原创'],
     ['zh-tw', '原創'],
@@ -1249,9 +1251,32 @@ class Tools {
     return this.originalMark.get(lang.htmlLangType) || 'オリジナル'
   }
 
+  /** 获取小说的分类（genre）在当前页面语言里的名称
+   *
+   * 这个名称就是小说页面里和标签列表显示在一起的分类标记。例如 genre 为 '10' 时，标签列表里会显示“ BL”。
+   * 小说的标签列表里通常没有这个分类名称，所以即使用户在下载器的“标签不能含有”里设置了 BL，下载器也无法排除这篇小说。
+   *
+   * 通过这个方法获取分类名称，并添加到标签列表里，
+   * 这样就可以像检查其他标签一样检查小说的分类了。
+   */
+  static getNovelGenreName(genre?: string) {
+    // genre 为 '0' 时表示这个小说没有特定的分类，此时返回空字符串。
+    if (!genre || genre === '0') {
+      return ''
+    }
+
+    const name = novelGenreMap.get(genre)
+    if (!name) {
+      return ''
+    }
+
+    const langType = lang.htmlLangType as keyof typeof name
+    return name[langType] || name.en
+  }
+
   /** 向标签列表前面添加传入的标签 */
-  // 目前用来添加“原创”标记和“AI生成”标记
-  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创
+  // 目前用来添加“原创”标记、“AI生成”标记、小说分类标记
+  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创 分类
   // 测试用例：
   // https://www.pixiv.net/artworks/140494669
   // https://www.pixiv.net/novel/show.php?id=27131021
@@ -1260,6 +1285,47 @@ class Tools {
   // 但在某些情况下，顺序可能依然会错乱，例如：
   // 作品前两个标签是“R-18”和“AI生成”，那么“原创”会被插入到第二位，“AI生成”则变成第三位。
   // 目前我没有处理这种边界情况
+  /** 生成小说的标签列表
+   *
+   * 除了小说自带的标签，还会添加小说分类、“原创”、“AI生成”这些标记，
+   * 因为这些标记会显示在小说页面的标签列表里，但不一定存在于小说的标签数据里。
+   *
+   * @returns tags 标签列表；aiType 是否是 AI 生成的作品，可能会根据标签修正为 2
+   */
+  static buildNovelTags(data: NovelData) {
+    const tags: string[] = this.extractTags(data)
+
+    // 添加小说的分类对应的标签
+    // 它需要显示在“原创”标记后面，unshiftTag 会把新标签添加到最前面，所以先添加它
+    // genre 为 '0' 时表示这个小说没有特定的分类，此时不会添加标签
+    const genreMark = this.getNovelGenreName(data.body.genre)
+    if (genreMark) {
+      this.unshiftTag(tags, genreMark)
+    }
+
+    // 添加“原创”对应的标签
+    if (data.body.isOriginal) {
+      const originalMark = this.getOriginalMark()
+      this.unshiftTag(tags, originalMark)
+    }
+
+    // 判断是不是 AI 生成的作品
+    let aiType = data.body.aiType
+    if (aiType !== 2) {
+      if (this.checkAIFromTags(tags)) {
+        aiType = 2
+      }
+    }
+
+    // 添加“AI生成”对应的标签
+    const aiMarkString = this.getAIGeneratedMark(aiType)
+    if (aiMarkString) {
+      this.unshiftTag(tags, aiMarkString)
+    }
+
+    return { tags, aiType }
+  }
+
   static unshiftTag(tags: string[], tag: string) {
     if (!tags.includes(tag)) {
       // 查找 R-18 或 R-18G 标签的位置

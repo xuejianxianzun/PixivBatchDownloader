@@ -1,19 +1,15 @@
 import { langText, LangTextKey } from './langText'
 import { EVT } from './EVT'
 
-/** 下载器可以使用的显示语言 */
+/** 下载器界面上可以使用的显示语言 */
 type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
 
-/**Pixiv 网页的显示语言，比下载器的显示语言多了两个：泰语 th 和马来语 ms */
-type LangTypesPixiv =
-  | 'zh-cn'
-  | 'zh-tw'
-  | 'en'
-  | 'ja'
-  | 'ko'
-  | 'ru'
-  | 'th'
-  | 'ms'
+/**Pixiv 网页的显示语言。
+ *
+ * 曾经有俄语 ru，但现在没有了。
+ *
+ * 现在还有两个新语言：泰语 th 和马来语 ms，下载器的界面语言里暂时没有这两种语言 */
+type LangTypesPixiv = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'th' | 'ms'
 
 // 语言类
 class Lang {
@@ -73,12 +69,13 @@ class Lang {
     })
   }
 
-  // 获取页面使用的语言，返回语言标记
+  /** 获取页面使用的语言，返回语言标记 */
+  // 通过检查 HTML 文档的 lang 属性来确定页面使用的语言
+  // lang 属性有时含有大写字母，例如 'zh-CN'，但该方法会统一返回小写的值
   private getHtmlLangType(): LangTypesPixiv {
     // 因为现在 Pixiv 官方没有提供俄语选项，所以 htmlLangType 永远不会是 ru
     // 之前我从 navigator.language 判断是否为俄语用户（以便让下载器默认使用俄语显示），但这有时反而带来了困扰
-    // 例如 “AI 生成” 这个标签及其翻译在 Pixiv 的网页上永远不会显示为 `сгенерированный ИИ`，
-    // 但如果浏览器的语言是俄语，下载器就会把它显示为 `сгенерированный ИИ`，这导致用户产生了困惑
+    // 因为浏览器语言并不一定是用户在 Pixiv 网页上使用的语言。
     // 所以现在不再从 navigator.language 判断俄语用户
     // if (navigator.language.startsWith('ru')) {
     // return 'ru'
@@ -101,10 +98,6 @@ class Lang {
 
       case 'ko':
         return 'ko' // 한국어
-
-      case 'ru':
-      case 'ru-RU':
-        return 'ru' // Русский
 
       case 'th':
         return 'th' // ภาษาไทย
@@ -252,4 +245,4 @@ class Lang {
 
 const lang = new Lang()
 
-export { lang, LangTypes }
+export { lang, LangTypes, LangTypesPixiv }

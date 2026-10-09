@@ -44,15 +44,15 @@ export const langText = {
     `작품 유형: `,
     `Тип работы: `,
   ],
-  _不能含有tag: [
-    `<span class="key">不能</span>含有标签`,
-    `<span class="key">不能</span>含有標籤`,
-    `<span class="key">Exclude</span> tag`,
-    `タグを<span class="key">除外</span>する`,
-    `<span class="key">제외</span> 태그`,
-    `<span class="key">Исключить</span> ярлык`,
+  _标签不能含有: [
+    `<span class="key">标签</span>不能含有`,
+    `<span class="key">標籤</span>不能含有`,
+    `<span class="key">Tags</span> must not contain`,
+    `<span class="key">タグ</span>に含めない`,
+    `<span class="key">태그</span>에 포함하면 안 됨`,
+    `<span class="key">Теги</span> не должны содержать`,
   ],
-  _排除tag的提示文字: [
+  _标签不能含有的说明: [
     `您可在下载前设置要排除的标签，这样下载器不会下载含有这些标签的作品。<br>
     你可以添加多个标签，中间用英文逗号 <span class="blue">,</span> 分割。<br>
     <br>
@@ -69,7 +69,7 @@ export const langText = {
     - 推荐优先使用原始标签，这样在某些场景里可以更早执行检查。<br>
     <br>
     优先级：<br>
-    “不能含有标签”的优先级高于“必须含有标签”。如果一个作品同时符合这两个设置，下载器就不会抓取它。`,
+    “标签不能含有”的优先级高于“标签必须含有”。如果一个作品同时符合这两个设置，下载器就不会抓取它。`,
     `您可在下載前設定要排除的標籤，這樣下載器不會下載含有這些標籤的作品。<br>
     你可以加入多個標籤，中間用半形逗號 <span class="blue">,</span> 分隔。<br>
     <br>
@@ -86,7 +86,7 @@ export const langText = {
     - 建議優先使用原始標籤，這樣在某些場景裡可以更早執行檢查。<br>
     <br>
     優先級：<br>
-    「不能含有標籤」的優先級高於「必須含有標籤」。如果一個作品同時符合這兩個設定，下載器就不會抓取它。`,
+    「標籤不能含有」的優先級高於「標籤必須含有」。如果一個作品同時符合這兩個設定，下載器就不會抓取它。`,
     `Before downloading, you can set the tags to exclude, so the downloader will not download works that contain these tags.<br>
     You can add multiple tags, separated by a comma <span class="blue">,</span>.<br>
     <br>
@@ -103,7 +103,7 @@ export const langText = {
     - It is recommended to use original tags first, so the check can be performed earlier in some cases.<br>
     <br>
     Priority:<br>
-    "Exclude tag" has a higher priority than "Include tag". If a work matches both settings, the downloader will not crawl it.`,
+    "Tags must not contain" has a higher priority than "Tags must contain". If a work matches both settings, the downloader will not crawl it.`,
     `ダウンロード前に除外するタグを設定できます。設定すると、ダウンローダーはこれらのタグを含む作品をダウンロードしません。<br>
     タグは複数追加でき、英語のカンマ <span class="blue">,</span> で区切ります。<br>
     <br>
@@ -120,7 +120,7 @@ export const langText = {
     - 元のタグを優先して使用することをおすすめします。一部の場面では、より早くチェックを実行できます。<br>
     <br>
     優先度：<br>
-    「タグを除外する」は「必要なタグ」より優先度が高いです。1 つの作品が両方の設定に当てはまる場合、ダウンローダーはその作品をクロールしません。`,
+    「タグに含めない」は「タグに含める」より優先度が高いです。1 つの作品が両方の設定に当てはまる場合、ダウンローダーはその作品をクロールしません。`,
     `다운로드 전에 제외할 태그를 설정할 수 있으며, 이렇게 하면 다운로더는 해당 태그가 포함된 작품을 다운로드하지 않습니다.<br>
     태그는 여러 개 추가할 수 있으며, 영어 쉼표 <span class="blue">,</span> 로 구분합니다.<br>
     <br>
@@ -137,7 +137,7 @@ export const langText = {
     - 원본 태그를 우선적으로 사용하는 것을 권장합니다. 일부 상황에서는 더 일찍 검사를 실행할 수 있습니다.<br>
     <br>
     우선순위:<br>
-    "제외 태그"가 "포함 태그"보다 우선순위가 높습니다. 작품이 두 설정에 모두 해당하면 다운로더는 그 작품을 크롤링하지 않습니다.`,
+    "태그에 포함하면 안 됨"이 "태그에 포함되어야 함"보다 우선순위가 높습니다. 작품이 두 설정에 모두 해당하면 다운로더는 그 작품을 크롤링하지 않습니다.`,
     `Перед загрузкой можно задать теги для исключения: тогда загрузчик не будет скачивать работы, содержащие эти теги.<br>
     Можно добавить несколько тегов, разделяя их запятой <span class="blue">,</span>.<br>
     <br>
@@ -154,25 +154,17 @@ export const langText = {
     - Рекомендуется использовать исходные теги: в некоторых случаях это позволяет выполнить проверку раньше.<br>
     <br>
     Приоритет:<br>
-    «Исключить ярлык» имеет более высокий приоритет, чем «Включать ярлык». Если работа соответствует обеим настройкам, загрузчик не будет её сканировать.`,
+    «Теги не должны содержать» имеет более высокий приоритет, чем «Теги должны содержать». Если работа соответствует обеим настройкам, загрузчик не будет её сканировать.`,
   ],
-  _排除标签: [
-    `排除标签：`,
-    `排除標籤：`,
-    `Excludes tag: `,
-    `以下のタグを除外：`,
-    `제외 태그: `,
-    `Исключающий тег: `,
+  _标签必须含有: [
+    `<span class="key">标签</span>必须含有`,
+    `<span class="key">標籤</span>必須含有`,
+    `<span class="key">Tags</span> must contain`,
+    `<span class="key">タグ</span>に含める`,
+    `<span class="key">태그</span>에 포함되어야 함`,
+    `<span class="key">Теги</span> должны содержать`,
   ],
-  _必须含有tag: [
-    `<span class="key">必须</span>含有标签`,
-    `<span class="key">必須</span>含有標籤`,
-    `<span class="key">Include</span> tag`,
-    `<span class="key">必要</span>なタグ`,
-    `<span class="key">포함</span> 태그`,
-    `<span class="key">Включать</span> ярлык`,
-  ],
-  _必须tag的提示文字: [
+  _标签必须含有的说明: [
     `你可以要求作品必须包含某些标签，下载器只会抓取含有这些标签的作品。<br>
     你可以添加多个标签，中间用英文逗号 <span class="blue">,</span> 分割。<br>
     <br>
@@ -251,14 +243,6 @@ export const langText = {
     Как это работает:<br>
     - У некоторых тегов может отображаться переведённый тег, например <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span> и <span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>. Загрузчик проверяет и исходные теги работы, и переведённые теги.<br>
     - Рекомендуется использовать исходные теги: в некоторых случаях это позволяет выполнить проверку раньше.`,
-  ],
-  _设置了必须tag之后的提示: [
-    `包含标签：`,
-    `包含標籤：`,
-    `Include tag: `,
-    `以下の タグ を含める：`,
-    `포함 태그: `,
-    `Включающий тег: `,
   ],
   _图片的宽高比例: [
     `图片的宽高<span class="key">比例</span>`,
@@ -11694,27 +11678,27 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
   ],
   _检查屏蔽的标签的帮助: [
     `如果你启用了这个设置，下载器会检查作品是否包含两种标签：<br>
-1. 你在下载器里设置的"不能含有标签"<br>
+1. 你在下载器里设置的"标签不能含有"<br>
 2. 你在 Pixiv 账户设置里 Mute 的标签<br>
 如果作品匹配任意一种屏蔽条件，下载器就不会预览它。`,
     `如果你啟用了這個設定，下載器會檢查作品是否包含兩種標籤：<br>
-1. 你在下載器裡設定的"不能含有標籤"<br>
+1. 你在下載器裡設定的"標籤不能含有"<br>
 2. 你在 Pixiv 帳戶設定裡 Mute 的標籤<br>
 如果作品符合任意一種屏蔽條件，下載器就不會預覽它。`,
     `If you enable this setting, the downloader will check whether a work contains either of these two kinds of tags:<br>
-1. The "Tags to exclude" that you set in the downloader<br>
+1. The "Tags must not contain" that you set in the downloader<br>
 2. The tags you muted in your Pixiv account settings<br>
 If the work matches either blocking condition, the downloader will not preview it.`,
     `この設定を有効にすると、ダウンローダーは作品に次の2種類のタグが含まれているかを確認します。<br>
-1. ダウンローダーで設定した"含めないタグ"<br>
+1. ダウンローダーで設定した「タグに含めない」<br>
 2. Pixivアカウントの設定でミュートしたタグ<br>
 作品がどちらかのブロック条件に一致した場合、ダウンローダーはその作品をプレビューしません。`,
     `이 설정을 활성화하면 다운로더가 작품에 다음 두 종류의 태그가 포함되어 있는지 확인합니다.<br>
-1. 다운로더에서 설정한 "포함하면 안 되는 태그"<br>
+1. 다운로더에서 설정한 "태그에 포함하면 안 됨"<br>
 2. Pixiv 계정 설정에서 뮤트한 태그<br>
 작품이 둘 중 하나의 차단 조건에 해당하면 다운로더는 그 작품을 미리 보여주지 않습니다.`,
     `Если включить эту настройку, загрузчик будет проверять, есть ли у работы два типа тегов:<br>
-1. "Теги, которые не должны содержаться", заданные в загрузчике<br>
+1. «Теги не должны содержать», заданные в загрузчике<br>
 2. Теги, которые вы добавили в Mute в настройках аккаунта Pixiv<br>
 Если работа подпадает хотя бы под одно из этих условий блокировки, загрузчик не будет показывать ее в предпросмотре.`,
   ],

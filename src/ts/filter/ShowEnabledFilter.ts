@@ -256,9 +256,7 @@ class ShowEnabledFilter {
 
     if (settings.needTag.length > 0) {
       log.warning(
-        '🛸' +
-          lang.transl('_设置了必须tag之后的提示') +
-          settings.needTag.toString()
+        '🛸' + lang.transl('_标签必须含有') + ': ' + settings.needTag.toString()
       )
     }
   }
@@ -274,7 +272,8 @@ class ShowEnabledFilter {
     if (settings.notNeedTagWholeSwitch && settings.notNeedTagWhole.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_排除标签') +
+          lang.transl('_标签不能含有') +
+          ': ' +
           lang.transl('_全字匹配') +
           ': <br>' +
           settings.notNeedTagWhole.toString()
@@ -287,7 +286,8 @@ class ShowEnabledFilter {
     ) {
       log.warning(
         '🛸' +
-          lang.transl('_排除标签') +
+          lang.transl('_标签不能含有') +
+          ': ' +
           lang.transl('_部分匹配') +
           ': <br>' +
           settings.notNeedTagPartial.toString()
