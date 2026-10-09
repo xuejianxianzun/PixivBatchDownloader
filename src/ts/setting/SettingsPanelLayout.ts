@@ -4,7 +4,7 @@ import { optionConfigs } from './OptionConfigs'
 import { OptionCategoryLevel1 } from './Settings'
 import { FormType } from './FormType'
 import { SettingsPanelHelp } from './SettingsPanelHelp'
-import { FoldableSection, PageId, pageIds } from './SettingsPanelTypes'
+import { FoldableSection, PageId, PageIds } from './SettingsPanelTypes'
 import { settingsPanelTipCard } from './SettingsPanelTipCard'
 
 type SettingsPanelLayoutResult = {
@@ -113,7 +113,7 @@ class SettingsPanelLayout {
 
     this.cacheNavElements()
 
-    pageIds.forEach((page) => {
+    PageIds.forEach((page) => {
       const pageEl = document.createElement('div')
       pageEl.className = 'settingsPanel_page'
       pageEl.dataset.page = page

@@ -258,7 +258,7 @@ abstract class InitPageBase {
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
-      log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.error(lang.transl('_取消抓取因为某些筛选条件不正确'))
       log.log('')
       return
     }
@@ -333,7 +333,7 @@ abstract class InitPageBase {
 
       const wrongSetting = filter.showTip()
       if (wrongSetting) {
-        log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.error(lang.transl('_取消抓取因为某些筛选条件不正确'))
         log.log('')
         return
       }

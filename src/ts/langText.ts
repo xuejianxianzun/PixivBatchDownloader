@@ -86,7 +86,7 @@ export const langText = {
     - 建議優先使用原始標籤，這樣在某些場景裡可以更早執行檢查。<br>
     <br>
     優先級：<br>
-    「標籤不能含有」的優先級高於「標籤必須含有」。如果一個作品同時符合這兩個設定，下載器就不會抓取它。`,
+    「標籤不能含有」的優先級高於「標籤必須含有」。如果一個作品同時符合這兩個設定，下載器就不會擷取它。`,
     `Before downloading, you can set the tags to exclude, so the downloader will not download works that contain these tags.<br>
     You can add multiple tags, separated by a comma <span class="blue">,</span>.<br>
     <br>
@@ -178,14 +178,14 @@ export const langText = {
     工作方式：<br>
     - 有些标签可能会显示翻译后的标签，例如 <span class="blue">绝区零</span>-<span class="blue">Zenless Zone Zero</span>、<span class="blue">プリキュア</span>-<span class="blue">光之美少女</span>。下载器会同时检查作品的原始标签和翻译后的标签。<br>
     - 推荐优先使用原始标签，这样在某些场景里可以更早执行检查。`,
-    `你可以要求作品必須包含某些標籤，下載器只會抓取含有這些標籤的作品。<br>
+    `你可以要求作品必須包含某些標籤，下載器只會擷取含有這些標籤的作品。<br>
     你可以加入多個標籤，中間用半形逗號 <span class="blue">,</span> 分隔。<br>
     <br>
     匹配方式：<br>
     - 不區分大小寫。<br>
     - 下載器會使用你設定的標籤與作品的標籤逐個進行比對。<br>
-    - 匹配模式：<span class="blue">全部</span>：如果你設定了多個標籤，那麼作品必須含有你設定的所有標籤才會被抓取。<br>
-    - 匹配模式：<span class="blue">任一</span>：如果你設定了多個標籤，那麼作品只需要含有你設定的任意一個標籤就會被抓取。<br>
+    - 匹配模式：<span class="blue">全部</span>：如果你設定了多個標籤，那麼作品必須含有你設定的所有標籤才會被擷取。<br>
+    - 匹配模式：<span class="blue">任一</span>：如果你設定了多個標籤，那麼作品只需要含有你設定的任意一個標籤就會被擷取。<br>
 - 此設定始終使用全字匹配。如果你設定了 <span class="blue">ab</span>，就只會匹配到 <span class="blue">ab</span>，不會匹配到 <span class="blue">abc</span>。<br>
     <br>
     運作方式：<br>
@@ -273,8 +273,8 @@ export const langText = {
     範例：如果你想下載寬高比例為 16:9 以及更扁的圖片，就可以設定寬高比 >= 1.78。<br>
     <br>
     工作細節：<br>
-    對於單圖作品（只有一張圖片的作品），下載器會在抓取時檢查圖片的形狀；<br>
-    對於多圖作品，下載器不會在抓取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但抓取時只有第一張圖片的寬高資料，所以無法在抓取時檢查。`,
+    對於單圖作品（只有一張圖片的作品），下載器會在擷取時檢查圖片的形狀；<br>
+    對於多圖作品，下載器不會在擷取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但擷取時只有第一張圖片的寬高資料，所以無法在擷取時檢查。`,
     `You can set it to download only images with a specified shape:<br>
     Horizontal, vertical, and square.<br>
     If you need more precise conditions, you can also set the aspect ratio manually.<br>
@@ -377,8 +377,8 @@ export const langText = {
     備註：如果把寬度或高度設定為 0，就表示不檢查該條件。<br>
     <br>
     工作細節：<br>
-    對於單圖作品（只有一張圖片的作品），下載器會在抓取時檢查寬高；<br>
-    對於多圖作品，下載器不會在抓取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但抓取時只有第一張圖片的寬高資料，所以無法在抓取時檢查。`,
+    對於單圖作品（只有一張圖片的作品），下載器會在擷取時檢查寬高；<br>
+    對於多圖作品，下載器不會在擷取時進行檢查，而是等到下載每張圖片之前再進行檢查。這是因為多圖作品裡每張圖片的寬高可能不同，但擷取時只有第一張圖片的寬高資料，所以無法在擷取時檢查。`,
     `You can set width and height conditions for images, to make sure the downloaded images meet your needs.<br>
     You can set the value and the comparison operator for the width and the height separately.<br>
     Note: if you set the width or the height to 0, that condition will not be checked.<br>
@@ -468,14 +468,14 @@ export const langText = {
     這是一個補充設定，目的是篩選<strong>近期新發布的</strong>高品質作品，你可以根據需要啟用它。<br>
     日均收藏數量是用作品收藏數量除以發布天數得到的平均值。如果一個作品發布了 3 天，有 600 個收藏，那麼它的日均收藏數量就是 200。<br>
     使用場景示例：<br>
-    你希望抓取高品質作品，所以設定了收藏數量的最小值為 3000。但是對於新發布的作品，即使品質比較高，也可能無法在幾天之內達到 3000 收藏。<br>
-    此時你可以啟用「日均收藏數量」作為補充。該設定的預設值是 600，這意味著對於一個發布了 3 天的作品，只要其收藏數量大於 1800，下載器就會抓取它。<br>
+    你希望擷取高品質作品，所以設定了收藏數量的最小值為 3000。但是對於新發布的作品，即使品質比較高，也可能無法在幾天之內達到 3000 收藏。<br>
+    此時你可以啟用「日均收藏數量」作為補充。該設定的預設值是 600，這意味著對於一個發布了 3 天的作品，只要其收藏數量大於 1800，下載器就會擷取它。<br>
     備註：<br>
     作品的收藏數量往往在剛發表時增加最快，之後逐漸趨緩。因此如果一個作品發布不足一天，下載器會按發表時長給它的收藏數量打個折扣（發表時間越短、折扣越大），估算它在發布滿一天時的日均收藏數量。例如：一個發表了 2 小時的作品，有 200 個收藏，下載器會把它的日均收藏數量估算為 800。<br>
     如果發布時間達到一天或更久，下載器會正常按照收藏數量除以發布天數計算日均收藏數量。<br>
     <br>
     提示：<br>
-    收藏數量範圍和日均收藏數量是兩個獨立、互相補充的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被抓取。<br>
+    收藏數量範圍和日均收藏數量是兩個獨立、互相補充的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被擷取。<br>
     日均收藏數量適合作為補充手段來篩選近期發布的作品。它不適合用來篩選發布很久的作品，因為作品發布越久，日均收藏數量就越低。`,
     `Minimum and maximum:<br>
     You can set a bookmark count range for works, to exclude the ones you do not need.<br>
@@ -610,7 +610,7 @@ export const langText = {
     `你可以设置抓取多少个作品。
 <br>
 <br>
-注意：如果你修改了默认的抓取过滤条件，那么可能会有一些作品被排除。
+注意：如果你修改了一些筛选条件，那么可能会有一些作品被排除。
 <br>
 例如：你设置为抓取 10 个作品，其中有 6 个被排除了，那么下载器就只会保留满足条件的 4 个。
 <br>
@@ -631,34 +631,34 @@ export const langText = {
 <br>
 设置为 -1 表示抓取该页面里的所有作品。
 <br>`,
-    `你可以設置抓取多少個作品。
+    `你可以設定擷取多少個作品。
 <br>
 <br>
-注意：如果你修改了預設的抓取過濾條件，那麼可能會有一些作品被排除。
+注意：如果你修改了一些篩選條件，那麼可能會有一些作品被排除。
 <br>
-例如：你設置為抓取 10 個作品，其中有 6 個被排除了，那麼下載器就只會保留滿足條件的 4 個。
+例如：你設定為擷取 10 個作品，其中有 6 個被排除了，那麼下載器就只會保留滿足條件的 4 個。
 <br>
 <br>
 對不同使用場景的說明：
 <br>
 <br>
-當你位於某個插畫或小說的詳情頁面裡，下載器會從當前作品開始抓取（包含當前作品）。
+當你位於某個插畫或小說的詳情頁面裡，下載器會從當前作品開始擷取（包含當前作品）。
 <br>
-設置為 1 只會抓取當前作品。
+設定為 1 只會擷取當前作品。
 <br>
-設置為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
+設定為 -1 表示不限制擷取數量，下載器會從當前作品開始，擷取到最後一個作品。
 <br>
 <br>
-在其他頁面裡（例如排行榜頁面、關注的用戶的新作品頁面），下載器會從這一頁的第一個作品開始抓取。
+在其他頁面裡（例如排行榜頁面、關注的用戶的新作品頁面），下載器會從這一頁的第一個作品開始擷取。
 <br>
-設置為 1 只會抓取第 1 個作品。
+設定為 1 只會擷取第 1 個作品。
 <br>
-設置為 -1 表示抓取該頁面裡的所有作品。
+設定為 -1 表示擷取該頁面裡的所有作品。
 <br>`,
     `You can set how many works to crawl.
 <br>
 <br>
-Note: If you modify the default crawl filter conditions, some works may be excluded.
+Note: If you modify some filter conditions, some works may be excluded.
 <br>
 For example: If you set to crawl 10 works, and 6 of them are excluded, the downloader will only keep the 4 that meet the conditions.
 <br>
@@ -682,7 +682,7 @@ Setting to -1 means crawl all works on this page.
     `作品のクロール数を設定できます。
 <br>
 <br>
-注意：デフォルトのクロールフィルター条件を変更した場合、いくつかの作品が除外される可能性があります。
+注意：一部のフィルター条件を変更した場合、いくつかの作品が除外される可能性があります。
 <br>
 例：クロール数を10に設定し、そのうち6つが除外された場合、ダウンロードツールは条件を満たす4つだけを保持します。
 <br>
@@ -706,7 +706,7 @@ Setting to -1 means crawl all works on this page.
     `작품 크롤링 수를 설정할 수 있습니다.
 <br>
 <br>
-주의: 기본 크롤링 필터 조건을 수정하면 일부 작품이 제외될 수 있습니다.
+주의: 일부 필터 조건을 수정하면 일부 작품이 제외될 수 있습니다.
 <br>
 예: 크롤링 10개 작품으로 설정하고 그 중 6개가 제외되면, 다운로더는 조건을 만족하는 4개만 유지합니다.
 <br>
@@ -730,7 +730,7 @@ Setting to -1 means crawl all works on this page.
     `Вы можете установить, сколько работ захватывать.
 <br>
 <br>
-Внимание: Если вы измените условия фильтрации захвата по умолчанию, некоторые работы могут быть исключены.
+Внимание: Если вы измените некоторые условия фильтрации, некоторые работы могут быть исключены.
 <br>
 Например: Если вы установите захват 10 работ, и 6 из них исключены, загрузчик сохранит только 4, соответствующие условиям.
 <br>
@@ -777,27 +777,27 @@ Setting to -1 means crawl all works on this page.
 <br>
 以此类推。
 <br>`,
-    `你可以設定抓取多少個頁面裡的作品。
+    `你可以設定擷取多少個頁面裡的作品。
 <br>
-下載器總是從當前頁面開始抓取的：
+下載器總是從當前頁面開始擷取的：
 <br>
-如果你在第 1 頁，就從第 1 頁開始抓取。如果你在第 2 頁，就從第 2 頁開始抓取。
-<br>
-<br>
-設定為 -1 會使下載器抓取到最後一頁。
-<br>
-如果你只需要抓取一部分頁面，可以設定抓取的頁數：
-<br>
-設定為 1 只會抓取這一頁裡的作品。
-<br>
-設定為 2 會抓取這一頁和下一頁，以此類推。
+如果你在第 1 頁，就從第 1 頁開始擷取。如果你在第 2 頁，就從第 2 頁開始擷取。
 <br>
 <br>
-如果你有需要的話，可以把抓取大量頁面的任務拆分成多次。例如：
+設定為 -1 會使下載器擷取到最後一頁。
 <br>
-設定抓取的頁數為 100，然後從第 1 頁開始抓取。下載器會抓取第 1 - 100 頁裡的作品。
+如果你只需要擷取一部分頁面，可以設定擷取的頁數：
 <br>
-下載完成後，跳轉到第 101 頁，開始下一次抓取。下載器會抓取第 101 - 200 頁裡的作品。
+設定為 1 只會擷取這一頁裡的作品。
+<br>
+設定為 2 會擷取這一頁和下一頁，以此類推。
+<br>
+<br>
+如果你有需要的話，可以把擷取大量頁面的任務拆分成多次。例如：
+<br>
+設定擷取的頁數為 100，然後從第 1 頁開始擷取。下載器會擷取第 1 - 100 頁裡的作品。
+<br>
+下載完成後，跳轉到第 101 頁，開始下一次擷取。下載器會擷取第 101 - 200 頁裡的作品。
 <br>
 以此類推。
 <br>`,
@@ -908,7 +908,7 @@ And so on.
   ],
   _抓取所有页面: [
     `抓取所有页面`,
-    `抓取所有頁面`,
+    `擷取所有頁面`,
     `Crawl all pages`,
     `すべてのページをクロール`,
     `모든 페이지 크롤링`,
@@ -964,7 +964,7 @@ And so on.
   ],
   _从本页开始抓取x页: [
     `从本页开始抓取 {} 页`,
-    `從本頁開始抓取 {} 頁`,
+    `從本頁開始擷取 {} 頁`,
     `Start crawling from this page for {} pages`,
     `このページから {} ページをクロール開始`,
     `이 페이지부터 {} 페이지 크롤링 시작`,
@@ -972,7 +972,7 @@ And so on.
   ],
   _抓取x页_每页最多含有50个作品: [
     `抓取 {} 页（每页最多含有 50 个作品）`,
-    `抓取 {} 頁（每頁最多含有 50 個作品）`,
+    `擷取 {} 頁（每頁最多含有 50 個作品）`,
     `Crawl {} pages (up to 50 works per page)`,
     `{} ページをクロール（1ページあたり最大50作品）`,
     `{} 페이지 크롤링 (페이지당 최대 50개 작품)`,
@@ -980,7 +980,7 @@ And so on.
   ],
   _抓取x页_每页最多含有x个作品: [
     `抓取 {} 页（每页最多含有 {} 个作品）`,
-    `抓取 {} 頁（每頁最多含有 {} 個作品）`,
+    `擷取 {} 頁（每頁最多含有 {} 個作品）`,
     `Crawl {} pages (up to {} works per page)`,
     `{} ページをクロール（1ページあたり最大{}作品）`,
     `{} 페이지 크롤링 (페이지당 최대 {}작품)`,
@@ -996,7 +996,7 @@ And so on.
   ],
   _从本页开始抓取x个: [
     `从本页开始抓取 {} 个作品`,
-    `從本頁開始抓取 {} 個作品`,
+    `從本頁開始擷取 {} 個作品`,
     `Start crawling from this page for {} works`,
     `このページから {} 件の作品をクロール開始`,
     `이 페이지부터 {}개 작품 크롤링 시작`,
@@ -1450,7 +1450,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _列表页抓取进度2: [
     `正在抓取列表页 {}/{}`,
-    `正在抓取列表頁 {}/{}`,
+    `正在擷取列表頁 {}/{}`,
     `crawling list page {}/{}`,
     `リストページの取得 {}/{}`,
     `목록 페이지 긁어오는 중 {}/{}`,
@@ -1465,8 +1465,8 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `Список страниц просканирован`,
   ],
   _抓取结果为零的提示: [
-    `抓取完毕，但是没有找到需要下载的作品。<br>这可能是因为该页面里本来就没有作品，或者作品被某些过滤条件排除了。你可以在顶部日志里查看具体原因。`,
-    `抓取完畢，但是沒有找到需要下載的作品。<br>這可能是因為該頁面裡本來就沒有作品，或者作品被某些篩選條件排除了。你可以在頂部日誌裡查看具體原因。`,
+    `抓取完毕，但是没有找到需要下载的作品。<br>这可能是因为该页面里本来就没有作品，或者作品被某些筛选条件排除了。你可以在顶部日志里查看具体原因。`,
+    `擷取完畢，但是沒有找到需要下載的作品。<br>這可能是因為該頁面裡本來就沒有作品，或者作品被某些篩選條件排除了。你可以在頂部日誌裡查看具體原因。`,
     `Crawling is complete, but no works to download were found.<br>This may be because there are no works on this page, or because some filter conditions excluded them. Check the log at the top for the specific reason.`,
     `クロールが完了しましたが、ダウンロードする作品は見つかりませんでした。<br>このページには元々作品がないか、フィルター条件によって作品が除外された可能性があります。詳しい理由は上部のログで確認できます。`,
     `크롤링이 완료되었지만 다운로드할 작품을 찾을 수 없습니다.<br>이 페이지에 원래 작품이 없거나 일부 필터 조건에 의해 작품이 제외되었을 수 있습니다. 자세한 이유는 상단 로그에서 확인할 수 있습니다.`,
@@ -1474,7 +1474,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _抓取结果为零并且所有作品都产生了合并系列小说时的提示: [
     `本次抓取中的所有作品都是系列小说，没有单篇小说需要下载，所以抓取结果是 0。`,
-    `本次抓取中的所有作品都是系列小說，沒有單篇小說需要下載，所以抓取結果是 0。`,
+    `本次擷取中的所有作品都是系列小說，沒有單篇小說需要下載，所以擷取結果是 0。`,
     `All works in this crawl are series novels, and there are no standalone novels to download, so the crawl result is 0.`,
     `今回のクロール対象の作品はすべてシリーズ小説で、単発小説は存在しないため、クロール結果は 0 件です。`,
     `이번 크롤링의 모든 작품이 시리즈 소설이며, 단편 소설은 없으므로 크롤링 결과는 0입니다.`,
@@ -1758,7 +1758,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _共抓取到n个作品产生了n个抓取结果: [
     `共抓取到 {} 个作品，产生了 {} 个抓取结果`,
-    `共抓取到 {} 個作品，產生了 {} 個抓取結果`,
+    `共擷取到 {} 個作品，產生了 {} 個擷取結果`,
     `Crawled a total of {} works, producing {} crawl results`,
     `合計 {} 件の作品をクロールし、{} 件のクロール結果を生成しました`,
     `총 {}개의 작품을 크롤링하여 {}개의 크롤링 결과가 생성되었습니다`,
@@ -2102,7 +2102,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _命名标记page_title: [
     `开始抓取时的页面标题`,
-    `開始抓取時的頁面標題`,
+    `開始擷取時的頁面標題`,
     `Page title when starting the crawl`,
     `クロール開始時のページタイトル`,
     `크롤링 시작 시 페이지 제목`,
@@ -2110,7 +2110,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _命名标记page_type: [
     `开始抓取时的页面类型名称，如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。这是下载器内部划分的页面类型，有二十多种。有时划分的比较笼统，例如首页有插画、漫画、小说等子分类，但类型名称都是 <span class="blue">Home</span>。`,
-    `開始抓取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，共有二十多種。有時分類比較籠統，例如首頁有插畫、漫畫、小說等子分類，但類型名稱都是 <span class="blue">Home</span>。`,
+    `開始擷取時的頁面類型名稱，例如 <span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。這是下載器內部劃分的頁面類型，共有二十多種。有時分類比較籠統，例如首頁有插畫、漫畫、小說等子分類，但類型名稱都是 <span class="blue">Home</span>。`,
     `Page type name when starting the crawl, such as <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, and <span class="blue">Bookmark</span>. These are page types categorized internally by the downloader, and there are more than twenty of them. Sometimes the categories are broad; for example, the home page has subcategories such as illustrations, manga, and novels, but the type name for all of them is <span class="blue">Home</span>.`,
     `クロール開始時のページの種類の名前。例：<span class="blue">Artwork</span>、<span class="blue">UserHome</span>、<span class="blue">Bookmark</span>。ダウンローダーが内部で分類しているページの種類で、20種類以上あります。分類が比較的大まかな場合もあります。例えば、ホームページにはイラスト、漫画、小説などのサブカテゴリがありますが、種類の名前はすべて <span class="blue">Home</span> です。`,
     `크롤링 시작 시 페이지 유형 이름입니다. 예: <span class="blue">Artwork</span>, <span class="blue">UserHome</span>, <span class="blue">Bookmark</span>. 다운로더가 내부적으로 분류한 페이지 유형이며, 20가지가 넘습니다. 분류가 다소 포괄적인 경우도 있습니다. 예를 들어 홈페이지에는 일러스트, 만화, 소설 등의 하위 분류가 있지만 유형 이름은 모두 <span class="blue">Home</span>입니다.`,
@@ -2118,7 +2118,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _命名标记page_id: [
     `开始抓取时的页面 ID。它的设计目的是用页面 ID 来归纳该页面里的多个作品。例如：在作品页面里抓取相关作品时，这个标记会输出该页面的作品 ID（它只有一个），而非每个作品自己的 ID（多个）。只在以下情况有输出：1. 在作品页面里，输出该页面的作品 ID。2. 在用户主页、收藏页面、关注页面里，输出该页面的用户 ID。3. 在系列页面里，输出系列 ID。`,
-    `開始抓取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面抓取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面，輸出該頁面的作品 ID。2. 在用戶主頁、收藏頁面、關注頁面，輸出該頁面的用戶 ID。3. 在系列頁面，輸出系列 ID。`,
+    `開始擷取時的頁面 ID。其設計目的是使用頁面 ID 歸納該頁面中的多個作品。例如：在作品頁面擷取相關作品時，此標記會輸出該頁面的作品 ID（只有一個），而不是每個作品自己的 ID（多個）。僅在以下情況有輸出：1. 在作品頁面，輸出該頁面的作品 ID。2. 在用戶主頁、收藏頁面、關注頁面，輸出該頁面的用戶 ID。3. 在系列頁面，輸出系列 ID。`,
     `Page ID when starting the crawl. It is designed to use the page ID to group multiple works on that page. For example, when crawling related works on a work page, this token outputs the work ID of that page (there is only one), rather than each work's own ID (there are multiple). It only has a value in the following cases: 1. On a work page, it outputs the work ID of that page. 2. On a user's page, bookmark page, or following page, it outputs the user ID of that page. 3. On a series page, it outputs the series ID.`,
     `クロール開始時のページ ID。ページ ID を使って、そのページ内の複数の作品をまとめるために設計されています。例えば、作品ページで関連作品をクロールする場合、このトークンは各作品自身の ID（複数）ではなく、そのページの作品 ID（1つだけ）を出力します。次の場合のみ値があります：1. 作品ページでは、そのページの作品 ID を出力します。2. ユーザーページ、ブックマークページ、フォローページでは、そのページのユーザー ID を出力します。3. シリーズページでは、シリーズ ID を出力します。`,
     `크롤링 시작 시 페이지 ID입니다. 페이지 ID를 사용해 해당 페이지의 여러 작품을 하나로 묶기 위해 설계되었습니다. 예를 들어 작품 페이지에서 관련 작품을 크롤링할 때 이 토큰은 각 작품의 ID(여러 개)가 아니라 해당 페이지의 작품 ID(하나)를 출력합니다. 다음과 같은 경우에만 값이 있습니다. 1. 작품 페이지에서는 해당 페이지의 작품 ID를 출력합니다. 2. 사용자 페이지, 북마크 페이지, 팔로잉 페이지에서는 해당 페이지의 사용자 ID를 출력합니다. 3. 시리즈 페이지에서는 시리즈 ID를 출력합니다.`,
@@ -2134,7 +2134,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _同时下载多少个文件: [
     `同时下载<span class="key">多少个</span>文件`,
-    `同時下載<span class="key">多少個</span>文件`,
+    `同時下載<span class="key">多少個</span>檔案`,
     `Download <span class="key">how many</span> files at the same time`,
     `同時に<span class="key">いくつ</span>のファイルをダウンロードする`,
     `<span class="key">몇 개의</span> 파일을 동시에 다운로드`,
@@ -2222,7 +2222,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _目前没有可用的抓取结果提示: [
     `目前没有可用的抓取结果。你可以在多种页面里点击“开始抓取”按钮来建立下载任务。`,
-    `目前沒有可用的抓取結果。你可以在多種頁面裡點擊「開始擷取」按鈕來建立下載任務。`,
+    `目前沒有可用的擷取結果。你可以在多種頁面裡點擊「開始擷取」按鈕來建立下載任務。`,
     `There are currently no crawl results available. You can click the "Start crawl" button on supported pages to create download tasks.`,
     `現在利用可能なクロール結果はありません。対応ページで「クロールを開始する」ボタンをクリックすると、ダウンロードタスクを作成できます。`,
     `현재 사용 가능한 크롤링 결과가 없습니다. 지원되는 페이지에서 "긁어오기 시작" 버튼을 클릭하여 다운로드 작업을 만들 수 있습니다.`,
@@ -2266,7 +2266,7 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
 - <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
 <br>
 提示：请不要在 Chrome Web Store 的评价里反馈问题，因为有些评价会被 Google 过滤掉，所以我可能无法回复你。`,
-    `你可以通过以下方式來交流、求助和反饋問題：<br>
+    `你可以透過以下方式來交流、求助和反饋問題：<br>
 - <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
 - <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
 <br>
@@ -2378,9 +2378,9 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
     Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险" target="_blank">账号被封禁的风险</a>
     <br>`,
-    `<strong>警告</strong>：頻繁且大量地抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
+    `<strong>警告</strong>：頻繁且大量地擷取（和下載）可能會導致你的 Pixiv 帳號被封禁。
     <br>
-    大多數使用者不會遇到這種情況，而且下載器預設會放慢抓取速度。但如果你的帳號被封禁，下載器概不負責。
+    大多數使用者不會遇到這種情況，而且下載器預設會放慢擷取速度。但如果你的帳號被封禁，下載器概不負責。
     <br>
     如果你計畫進行大量下載，可以考慮註冊 Pixiv 小號。<br>
     Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险" target="_blank">帳號被封禁的風險</a>
@@ -2428,13 +2428,13 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常见问题</a>
     <br><br>`,
 
-    `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
+    `下載的檔案保存在瀏覽器的下載資料夾裡。如果您想保存到其他位置，需要修改瀏覽器的下載資料夾。
     <br><br>
-    建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。
+    建議您在瀏覽器的下載設定中關閉“下載前詢問每個檔案的保存位置”，否則保存每個檔案時都會顯示另存為對話框。
     <br><br>
-    如果下載後的文件名異常，請禁用其他具有下載功能的瀏覽器擴展程序。<br>還有一些擴展程序會導致下載器無法開始下載。
+    如果下載後的檔名異常，請禁用其他具有下載功能的瀏覽器擴充功能。<br>還有一些擴充功能會導致下載器無法開始下載。
     <br><br>
-    如果您的瀏覽器在啟動時會停止響應一段時間，您可以清除瀏覽器的下載記錄來解決此問題。
+    如果您的瀏覽器在啟動時會停止回應一段時間，您可以清除瀏覽器的下載記錄來解決此問題。
     <br><br>
     下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
     <br>
@@ -2559,7 +2559,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   ],
   _抓取此作品: [
     `抓取此作品`,
-    `抓取此作品`,
+    `擷取此作品`,
     `Crawl this work`,
     `この作品をクロールする`,
     `이 작품을 크롤링`,
@@ -2832,7 +2832,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   ],
   _开始抓取等待队列里的作品: [
     `开始抓取等待队列里的作品`,
-    `開始抓取等待隊列裡的作品`,
+    `開始擷取等待隊列裡的作品`,
     `Start crawling the works in the waiting queue`,
     `待機キューの作品のクロールを開始`,
     `대기 큐에 있는 작품 크롤링 시작`,
@@ -2873,7 +2873,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
   _启用: [`启用`, `啟用`, `Enable`, `有効にする`, `활성화`, `Включить`],
   _抓取完成后自动开始下载: [
     `抓取完成后，<span class="key">自动</span>开始下载`,
-    `抓取完成後，<span class="key">自動</span>開始下載`,
+    `擷取完成後，<span class="key">自動</span>開始下載`,
     `Start downloading <span class="key">automatically</span> after crawling is complete`,
     `クロール完了後、<span class="key">自動的</span>にダウンロードを開始`,
     `크롤링 완료 후 <span class="key">자동으로</span> 다운로드 시작`,
@@ -2923,18 +2923,18 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `你可以設定是否自動開始下載。<br>
 <br>
 下載任務分為兩種：<br>
-- 普通下載任務：下載器的「開始抓取」區域裡有多個抓取按鈕，點擊第一排的抓取按鈕通常會建立普通下載任務，只有兩個按鈕例外：「定時抓取」和「抓取標籤列表」。<br>
-- 快速下載任務：直接點擊下載按鈕，或者抓取手動選擇的作品。這些行為有更強烈的「立即下載」或「自動下載」的需求，所以以前下載器總是會自動下載它們。現在你也可以把它們設定為不自動開始下載。<br>
+- 普通下載任務：下載器的「開始擷取」區域裡有多個擷取按鈕，點擊第一排的擷取按鈕通常會建立普通下載任務，只有兩個按鈕例外：「定時擷取」和「擷取標籤列表」。<br>
+- 快速下載任務：直接點擊下載按鈕，或者擷取手動選擇的作品。這些行為有更強烈的「立即下載」或「自動下載」的需求，所以以前下載器總是會自動下載它們。現在你也可以把它們設定為不自動開始下載。<br>
 <br>
 快速下載任務會由這些行為觸發：<br>
 - 點擊作品縮略圖上的下載按鈕<br>
 - 在預覽作品、使用圖片檢視器、查看原圖時，點擊下載按鈕，或者使用快捷鍵建立下載任務<br>
-- 抓取手動選擇的作品或圖片<br>
+- 擷取手動選擇的作品或圖片<br>
 - 在作品頁面裡，點擊頁面右側的快速下載按鈕<br>
-- 在作品頁面裡，抓取推薦作品<br>
+- 在作品頁面裡，擷取推薦作品<br>
 - 點擊收藏按鈕或點讚按鈕建立的下載任務<br>
-- 定時抓取<br>
-- 抓取標籤列表<br>
+- 定時擷取<br>
+- 擷取標籤列表<br>
 - 在首頁裡輸入 ID 進行擷取、擷取 ID 區間`,
     `You can set whether to start downloading automatically.<br>
 <br>
@@ -3088,7 +3088,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     备注：<br>
     书签 ID 只能用于你已经收藏的作品，所以下载器不会对你没有收藏的作品检查书签 ID 设置。`,
-    `你可以輸入一個 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）。<br>
+    `你可以輸入一個 ID，擷取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）。<br>
     <br>
     你可以為不同的作品類型分別設定 id 範圍：<br>
     - 圖像作品：包括插畫、漫畫、動圖<br>
@@ -3371,7 +3371,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     启用预览功能时，下载器不会自动开始下载，这是为了让用户可以对抓取结果再次进行筛选。<br>
     在这些页面上，你可以使用设置面板里的这些按钮调整抓取结果：<br>
-    - 修改抓取条件后点击在结果中筛选；<br>
+    - 修改筛选条件后点击在结果中筛选；<br>
     - 清除多图作品、清除动图作品、手动删除作品、手动排除作品。<br>
     <br>
     另外，当抓取结果较多时，下载器会分页显示，以降低性能压力。你可以设置每页显示的作品数量。`,
@@ -3379,7 +3379,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對擷取結果再次進行篩選。<br>
     在這些頁面上，你可以使用設定面板裡的這些按鈕調整擷取結果：<br>
-    - 修改擷取條件後點擊在結果中篩選；<br>
+    - 修改篩選條件後點擊在結果中篩選；<br>
     - 清除多圖作品、清除動圖作品、手動刪除作品、手動排除作品。<br>
     <br>
     另外，當擷取結果較多時，下載器會分頁顯示，以降低效能壓力。你可以設定每頁顯示的作品數量。`,
@@ -3387,7 +3387,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     When the preview feature is enabled, the downloader will not start downloading automatically, so that you can filter the crawl results again.<br>
     On these pages, you can use these buttons in the settings panel to adjust the crawl results:<br>
-    - After changing the crawl conditions, click "Screen in results";<br>
+    - After changing the filter conditions, click "Screen in results";<br>
     - Remove multi-image works, remove ugoira works, manually delete works, manually exclude works.<br>
     <br>
     In addition, when there are many crawl results, the downloader will display them in pages to reduce performance pressure. You can set the number of works shown per page.`,
@@ -3395,7 +3395,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     プレビュー機能を有効にしているとき、ダウンローダーは自動的にダウンロードを開始しません。これはユーザーがクロール結果を再度スクリーニングできるようにするためです。<br>
     これらのページでは、設定パネルにある以下のボタンでクロール結果を調整できます：<br>
-    - クロール条件を変更したあとに「結果の中からスクリーニング」をクリックする；<br>
+    - フィルター条件を変更したあとに「結果の中からスクリーニング」をクリックする；<br>
     - 複数画像をクリア、うごイラ作品を削除する、作品を手動で削除する、手動で作品を除外。<br>
     <br>
     また、クロール結果が多い場合、ダウンローダーはパフォーマンスへの負荷を下げるためにページ分割して表示します。1 ページに表示する作品数を設定できます。`,
@@ -3403,7 +3403,7 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     미리보기 기능을 사용하면 다운로더가 자동으로 다운로드를 시작하지 않습니다. 사용자가 크롤링 결과를 다시 선별할 수 있도록 하기 위함입니다.<br>
     이 페이지에서는 설정 패널의 다음 버튼으로 크롤링 결과를 조정할 수 있습니다:<br>
-    - 크롤링 조건을 수정한 뒤 "결과 중에서 선별"을 클릭합니다;<br>
+    - 필터 조건을 수정한 뒤 "결과 중에서 선별"을 클릭합니다;<br>
     - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 지우기, 수동 제외.<br>
     <br>
     또한 크롤링 결과가 많을 때 다운로더는 성능 부담을 줄이기 위해 페이지로 나누어 표시합니다. 페이지당 표시할 작품 수를 설정할 수 있습니다.`,
@@ -3411,14 +3411,14 @@ Quick download tasks are triggered by these actions:<br>
     <br>
     Когда функция предварительного просмотра включена, загрузчик не начинает загрузку автоматически — это сделано для того, чтобы вы могли снова отфильтровать результаты сканирования.<br>
     На этих страницах вы можете изменить результаты сканирования с помощью этих кнопок на панели настроек:<br>
-    - Изменив условия сканирования, нажмите «Экран результатов»;<br>
+    - Изменив условия фильтрации, нажмите «Экран результатов»;<br>
     - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное удаление, ручное исключение.<br>
     <br>
     Кроме того, когда результатов сканирования много, загрузчик отображает их постранично, чтобы снизить нагрузку на производительность. Вы можете настроить количество работ на странице.`,
   ],
   _提示启用预览搜索页面的抓取结果时不会自动开始下载: [
     `💡由于启用了“预览搜索页面的抓取结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。`,
-    `💡由於啟用了“預覽搜尋頁面的擷取結果”，本次抓取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在抓取後進一步篩選抓取結果。`,
+    `💡由於啟用了“預覽搜尋頁面的擷取結果”，本次擷取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在擷取後進一步篩選擷取結果。`,
     `💡Since "Preview crawl results of search page" is enabled, the downloader will not automatically start downloading after this crawl is completed.<br>This is to allow users to further filter the crawl results after the crawl.`,
     `💡「検索ページのクロール結果のプレビュー」が有効になっているため、このクロールが完了した後、ダウンローダーは自動的にダウンロードを開始しません。 <br>これは、ユーザーがクロール後にクロール結果をさらにフィルタリングできるようにするためです。`,
     "💡'검색 페이지 크롤링 결과 미리보기'가 활성화되어 있으므로 크롤링이 완료된 후 다운로더가 자동으로 다운로드를 시작하지 않습니다. <br>이는 사용자가 크롤링 후 크롤링 결과를 추가로 필터링할 수 있도록 하기 위한 것입니다.",
@@ -3466,6 +3466,7 @@ Quick download tasks are triggered by these actions:<br>
     `Новая фича`,
   ],
   _抓取: [`抓取`, `擷取`, `Crawl`, `クロール`, `긁어오기`, `Сканирование`],
+  _筛选: [`筛选`, `篩選`, `Filter`, `フィルター`, `필터`, `Фильтр`],
   _下载: [`下载`, `下載`, `Download`, `ダウンロード`, `다운로드`, `Скачивание`],
   _其他: [`其他`, `其他`, `Others`, `その他`, `그 외`, `Другие настройки`],
   _更多: [`更多`, `更多`, `More`, `その他`, `더보기`, `Больше`],
@@ -3630,7 +3631,7 @@ Quick download tasks are triggered by these actions:<br>
   _同时转换多少个动图的说明: [
     `同时转换多个动图会增加资源占用。<br>
     建议不超过3。`,
-    `同時轉換多個動圖會增加資源占用。<br>
+    `同時轉換多個動圖會增加資源佔用。<br>
     建議不超過3。
     `,
     `Converting multiple animations at the same time will increase resource consumption.<br>
@@ -4023,7 +4024,7 @@ Quick download tasks are triggered by these actions:<br>
   ],
   _不下载重复文件的提示: [
     `该功能依赖下载器自己保存的下载记录。<br>如果你启用了该功能，那么下载器会在下载每一个文件前检查下载记录，如果它是重复文件，下载器就会跳过它（不会下载它）。<br>该功能在下载阶段生效。如果你想在抓取时就跳过已下载的文件，可以启用另一个功能：“不抓取下载过的作品”。<br><br>该功能有两种判断重复文件的策略：<br>- 宽松：默认值。该模式只会对比作品 ID 和上传日期，不会对比文件名。如果你希望在修改了文件名规则之后，依然可以跳过之前下载过的文件，则可以选择“宽松”模式。<br>- 严格：该模式会对比三个条件：作品的 ID、上传日期、文件名。如果三个条件都相同，则是重复文件。`,
-    `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器會在下載每一個檔案前檢查下載記錄，如果它是重複檔案，下載器就會跳過它（不會下載它）。<br>該功能在下載階段生效。如果你想在抓取時就跳過已下載的檔案，可以啟用另一個功能：「不抓取下載過的作品」。<br><br>該功能有兩種判斷重複檔案的策略：<br>- 寬鬆：預設值。該模式只會對比作品 ID 和上傳日期，不會對比檔名。如果你希望在修改了檔名規則之後，依然可以跳過之前下載過的檔案，則可以選擇「寬鬆」模式。<br>- 嚴格：該模式會對比三個條件：作品的 ID、上傳日期、檔名。如果三個條件都相同，則是重複檔案。`,
+    `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器會在下載每一個檔案前檢查下載記錄，如果它是重複檔案，下載器就會跳過它（不會下載它）。<br>該功能在下載階段生效。如果你想在擷取時就跳過已下載的檔案，可以啟用另一個功能：「不擷取下載過的作品」。<br><br>該功能有兩種判斷重複檔案的策略：<br>- 寬鬆：預設值。該模式只會對比作品 ID 和上傳日期，不會對比檔名。如果你希望在修改了檔名規則之後，依然可以跳過之前下載過的檔案，則可以選擇「寬鬆」模式。<br>- 嚴格：該模式會對比三個條件：作品的 ID、上傳日期、檔名。如果三個條件都相同，則是重複檔案。`,
     `This feature relies on the download records saved by the downloader itself.<br>If you enable this feature, the downloader will check the download record before downloading each file. If it is a duplicate file, the downloader will skip it (will not download it).<br>This feature takes effect during the download phase. If you want to skip already downloaded files during the crawling phase, you can enable another feature: "Do not crawl downloaded works".<br><br>This feature has two strategies for determining duplicate files:<br>- Loose: Default value. This mode only compares the work ID and upload date, and does not compare the filename. If you want to still skip previously downloaded files after modifying the naming rule, you can choose the "Loose" mode.<br>- Strict: This mode compares three conditions: the work's ID, upload date, and filename. If all three conditions are the same, it is considered a duplicate file.`,
     `この機能はダウンローダーが自身で保存したダウンロード記録に依存します。<br>この機能を有効にすると、ダウンローダーは各ファイルをダウンロードする前にダウンロード記録を確認し、重複ファイルの場合はスキップします（ダウンロードしません）。<br>この機能はダウンロード段階で有効になります。クローリング時にすでにダウンロード済みのファイルをスキップしたい場合は、別の機能「ダウンロード済みの作品をクロールしない」を有効にできます。<br><br>この機能には重複ファイルを判断する2つの戦略があります：<br>- 緩やか：デフォルト値。このモードは作品IDとアップロード日のみ比較し、ファイル名は比較しません。命名規則を変更した後も以前にダウンロードしたファイルをスキップしたい場合は、「緩やか」モードを選択できます。<br>- 厳格：このモードは3つの条件を比較します：作品のID、アップロード日、ファイル名。3つの条件がすべて同じ場合、重複ファイルとみなされます。`,
     `이 기능은 다운로더가 자체적으로 저장한 다운로드 기록에 의존합니다.<br>이 기능을 활성화하면 다운로더는 각 파일을 다운로드하기 전에 다운로드 기록을 확인하고, 중복 파일인 경우 건너뜁니다(다운로드하지 않습니다).<br>이 기능은 다운로드 단계에서 적용됩니다. 크롤링 시 이미 다운로드된 파일을 건너뛰고 싶다면 다른 기능 "다운로드된 작품을 크롤링하지 않음"을 활성화할 수 있습니다.<br><br>이 기능에는 중복 파일을 판단하는 두 가지 전략이 있습니다:<br>- 느슨함: 기본값. 이 모드는 작품 ID와 업로드 날짜만 비교하며 파일명은 비교하지 않습니다. 파일명 규칙을 수정한 후에도 이전에 다운로드한 파일을 계속 건너뛰고 싶다면 "느슨함" 모드를 선택할 수 있습니다.<br>- 엄격함: 이 모드는 세 가지 조건을 비교합니다: 작품의 ID, 업로드 날짜, 파일명. 세 조건이 모두 동일하면 중복 파일로 간주합니다.`,
@@ -4159,7 +4160,7 @@ Note: This clears the downloader's download record, not the browser's download h
   ],
   _已清除这个URL里保存的抓取结果: [
     `已清除这个 URL 里保存的抓取结果`,
-    `已清除這個 URL 裡保存的抓取結果`,
+    `已清除這個 URL 裡保存的擷取結果`,
     `Cleared the crawl results saved for this URL`,
     `この URL に保存されたクロール結果をクリアしました`,
     `이 URL에 저장된 크롤링 결과가 지워졌습니다`,
@@ -4922,7 +4923,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   ],
   _开始抓取用户列表: [
     `开始抓取用户列表`,
-    `開始抓取用戶列表`,
+    `開始擷取用戶列表`,
     `Start crawling user list`,
     `ユーザーリストのクローリングを開始`,
     `사용자 목록 크롤링 시작`,
@@ -4981,7 +4982,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。<br>
     该功能的默认快捷键是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以启动或暂停手动选择模式。`,
     `使用這個功能，你可以從網頁上選擇你喜歡的作品。點擊一個作品即可選擇它；可以多選。<br>
-    選擇完畢之後，點擊下載器面板裡的「抓取選擇的作品」按鈕即可下載這些作品。<br>
+    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。<br>
     該功能的預設快捷鍵是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以啟動或暫停手動選擇模式。`,
     `With this feature, you can select the works you like directly on the webpage. Click a work to select it; multiple selection is supported.<br>
     After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.<br>
@@ -5129,7 +5130,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
   ],
   _手动排除作品的提示信息: [
     `你可以使用“手动排除作品”按钮标记你不想抓取的作品。下载器在抓取时会排除它们；如果已经抓取了它们，则会从抓取结果里移除它们。`,
-    `你可以使用「手動排除作品」按鈕標記你不想抓取的作品。下載器在抓取時會排除它們；如果已經抓取了它們，則會從抓取結果裡移除它們。`,
+    `你可以使用「手動排除作品」按鈕標記你不想擷取的作品。下載器在擷取時會排除它們；如果已經擷取了它們，則會從擷取結果裡移除它們。`,
     `You can use the "Manually exclude" button to mark the works you don't want to crawl. The downloader excludes them during crawling; if they've already been crawled, it removes them from the crawl results.`,
     `「手動で作品を除外」ボタンで、クロールしたくない作品をマークできます。ダウンロードツールはクロール時にそれらを除外します；すでにクロール済みの場合は、クロール結果から削除します。`,
     `「수동 제외」 버튼으로 크롤링하고 싶지 않은 작품을 표시할 수 있습니다. 다운로더는 크롤링 시 이들을 제외합니다; 이미 크롤링된 경우 크롤링 결과에서 제거합니다.`,
@@ -5330,7 +5331,7 @@ How it works: When the downloader generates file names for multi-image works, it
   ],
   _抓取进度: [
     `抓取进度`,
-    `抓取進度`,
+    `擷取進度`,
     `Crawling progress`,
     `クローリング進捗`,
     `크롤링 진행`,
@@ -5370,7 +5371,7 @@ How it works: When the downloader generates file names for multi-image works, it
     - 部分匹配：你设置的 ab 可以匹配到作品的 abc 标签。<br>
     - 任一：只要作品的标签中包含你设置的任意一个标签，就会被排除。`,
     `你可以加入多個設定，每個設定對應一個使用者 ID 和你設定的排除標籤。<br>
-    下載器抓取這個使用者的作品時，會排除含有這些標籤的作品。<br>
+    下載器擷取這個使用者的作品時，會排除含有這些標籤的作品。<br>
     你可以輸入多個標籤，例如：排除使用者 ID 123456 的 標籤1,標籤2,標籤3<br>
     <br>
     匹配方式：<br>
@@ -5626,13 +5627,13 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     <br>
     你在哪個頁面裡，下載器就會下載哪個頁面的作品。
     <br>
-    如果你想下載一個用戶的所有作品，就進入這個用戶的主頁，然後點擊「開始抓取」按鈕。
+    如果你想下載一個用戶的所有作品，就進入這個用戶的主頁，然後點擊「開始擷取」按鈕。
     <br><br>
-    下載的文件保存在瀏覽器的下載目錄裡。如果你想保存到其他位置，需要修改瀏覽器的下載目錄。
+    下載的檔案保存在瀏覽器的下載資料夾裡。如果你想保存到其他位置，需要修改瀏覽器的下載資料夾。
     <br>
-    <strong>建議您在瀏覽器的下載設置中關閉「下載前詢問每個文件的保存位置」，否則保存每個文件時都會顯示另存為對話框。</strong>
+    <strong>建議您在瀏覽器的下載設定中關閉「下載前詢問每個檔案的保存位置」，否則保存每個檔案時都會顯示另存為對話框。</strong>
     <br><br>
-    提示：下載器啟用了一些增強功能，可能會導致 Pixiv 的頁面樣式產生變化。您可以在下載器的「增強」設置裡啟用或關閉這些功能。
+    提示：下載器啟用了一些增強功能，可能會導致 Pixiv 的頁面樣式產生變化。您可以在下載器的「增強」設定裡啟用或關閉這些功能。
     <br><br>
     下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
     <br><br>`,
@@ -5907,7 +5908,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
   ],
   _抓取id区间说明: [
     `你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。`,
-    `你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要抓取很多 ID，請考慮拆分成多個任務。我建議每批抓取的 ID 數量不要超過 100,000 個。`,
+    `你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要擷取很多 ID，請考慮拆分成多個任務。我建議每批擷取的 ID 數量不要超過 100,000 個。`,
     `You can set a range of work IDs and crawl all works in this range (including the beginning and end IDs). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.`,
     `作品 ID の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 ID と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。<br>多数の ID をクロールする必要がある場合は、複数のタスクに分割することを検討してください。 バッチごとにクロールする ID は 100,000 未満にすることをお勧めします。`,
     `작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.`,
@@ -6056,7 +6057,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
   ],
   _多图作品的图片数量上限提示: [
     `你可以设置多图作品的图片数量上限。<br>下载器在抓取多图作品时，如果它的图片数量超过了你设置的数字，下载器就不会抓取它。`,
-    `你可以設定多圖作品的圖片數量上限。<br>下載器在抓取多圖作品時，如果它的圖片數量超過了你設定的數字，下載器就不會抓取它。`,
+    `你可以設定多圖作品的圖片數量上限。<br>下載器在擷取多圖作品時，如果它的圖片數量超過了你設定的數字，下載器就不會擷取它。`,
     `You can set a maximum number of images for multi-image works.<br>When crawling a multi-image work, if its number of images exceeds the number you set, the downloader will not crawl it.`,
     `複数画像作品の画像数の上限を設定できます。<br>複数画像作品をクロールするとき、その画像数が設定した数字を超えている場合、ダウンローダーはその作品をクロールしません。`,
     `여러 이미지 작품의 이미지 수 상한을 설정할 수 있습니다.<br>여러 이미지 작품을 크롤링할 때 이미지 수가 설정한 숫자를 초과하면, 다운로더는 그 작품을 크롤링하지 않습니다.`,
@@ -6105,7 +6106,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     <br>
     檔案格式：<br>
     - TXT：易於閱讀，但只包含比較常用的資料。<br>
-    - JSON：下載器的內部資料（其實就是抓取結果），儲存了更多的資料。<br>
+    - JSON：下載器的內部資料（其實就是擷取結果），儲存了更多的資料。<br>
     你可以同時選擇這兩種格式。`,
     `Save the metadata of each work to a separate file.<br>
     The downloader can generate a file with the same name (but a different extension) for each work to save its metadata.<br>
@@ -6292,15 +6293,15 @@ Note: After enabling this setting, the downloader will overwrite your current na
     文件格式：<br>
     - CSV：它是纯文本的表格数据，可以使用 Excel 等表格软件打开，易于阅读。<br>
     - JSON：它适合使用代码进行分析，也可以在下载器里导入抓取结果。`,
-    `在抓取完成後自動匯出抓取結果。<br>
+    `在擷取完成後自動匯出擷取結果。<br>
     <br>
-    當抓取結果大於指定數量時啟用：<br>
-    如果你只想在有較多抓取結果時匯出，可以使用這個設定。<br>
-    備註：如果設定為 0，那麼只要有一條抓取結果就會匯出。<br>
+    當擷取結果大於指定數量時啟用：<br>
+    如果你只想在有較多擷取結果時匯出，可以使用這個設定。<br>
+    備註：如果設定為 0，那麼只要有一條擷取結果就會匯出。<br>
     <br>
     檔案格式：<br>
     - CSV：它是純文字的表格資料，可以使用 Excel 等表格軟體開啟，易於閱讀。<br>
-    - JSON：它適合使用程式碼進行分析，也可以在下載器裡匯入抓取結果。`,
+    - JSON：它適合使用程式碼進行分析，也可以在下載器裡匯入擷取結果。`,
     `Automatically export the crawl results when the crawl is complete.<br>
     <br>
     Enable when the crawl results exceed a specified number:<br>
@@ -6423,7 +6424,7 @@ Note: After enabling this setting, the downloader will overwrite your current na
   ],
   _whatisnew: [
     `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
-    `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
+    `修復因為 Pixiv 的變化而導致的擷取失敗的問題。`,
     `Fixed crawl failures due to Pixiv changes.`,
     `Pixiv の変更によるクロールの失敗を修正しました。`,
     `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
@@ -6708,7 +6709,7 @@ This setting does not apply to collection files generated after merging a novel 
   ],
   _抓取被限制时返回空结果的提示: [
     `Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。`,
-    `Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。`,
+    `Pixiv 返回了空資料。下載器已暫停擷取，並且會在等待幾分鐘後繼續擷取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。`,
     `Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.`,
     `Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。`,
     `Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.`,
@@ -6716,7 +6717,7 @@ This setting does not apply to collection files generated after merging a novel 
   ],
   _提示启用减慢抓取速度功能: [
     `💡您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。`,
-    `💡您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。`,
+    `💡您可以啟用“減慢擷取速度”功能來減少 429 問題出現的機率。`,
     `💡You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.`,
     `💡"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。`,
     `💡"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.`,
@@ -6965,7 +6966,7 @@ This setting does not apply to collection files generated after merging a novel 
     `作品总数为 0。请检查页面上显示的作品总数是否为 0。<br>
 如果页面上显示的作品数量大于 0，可能是 Pixiv 拒绝了此次抓取，你可以等待几分钟后重试。`,
     `作品總數為 0。請檢查頁面上顯示的作品總數是否為 0。<br>
-如果頁面上顯示的作品數量大於 0，可能是 Pixiv 拒絕了此次抓取，你可以等待幾分鐘後重試。`,
+如果頁面上顯示的作品數量大於 0，可能是 Pixiv 拒絕了此次擷取，你可以等待幾分鐘後重試。`,
     `Total number of works is 0. Please check if the total number of works displayed on the page is 0.<br>
 If the number of works shown on the page is greater than 0, it may be that Pixiv rejected this crawl attempt. You can wait a few minutes and try again.`,
     `作品総数が 0 です。ページに表示されている作品総数が 0 かどうか確認してください。<br>
@@ -7043,9 +7044,9 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 如果你排除了某种颜色的图片，那么下载器在抓取和下载时都会进行检查。<br>
 在抓取阶段，下载器会加载图片的缩略图进行检查，如果不符合要求，就不会保存这张图片。<br>
  在下载阶段，下载器会在下载图片后再次检查它的颜色，不符合要求的话就不会把它保存到硬盘上。`,
-    `你可以設定是否抓取彩色圖片或黑白圖片，預設會全部抓取。<br>
+    `你可以設定是否擷取彩色圖片或黑白圖片，預設會全部擷取。<br>
 如果你不想下載某種顏色的圖片，可以取消選擇它。<br>
-注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。<br>
+注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加擷取所需的時間。<br>
 <br>
 判斷方式：<br>
 下載器在檢查圖片的顏色時，會忽略白色和透明像素，只統計彩色、灰色、黑色像素。這是因為人眼在判斷圖片是否為彩色時，通常不會在意白色區域，重點在於其他內容是不是彩色。去掉白色區域之後，準確度會更高。<br>
@@ -7057,8 +7058,8 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 如果你加大彩色佔比的閾值，圖片會更容易被視為黑白圖片。<br>
 如果你減小彩色佔比的閾值，圖片會更容易被視為彩色圖片。<br>
 閾值為 25% 時的粗略參考數據：<br>
-抓取插畫和動圖時，大約有 10% - 20% 的圖片被視為黑白圖片；<br>
-抓取漫畫時，大約有 50% 左右的圖片被視為黑白圖片。<br>
+擷取插畫和動圖時，大約有 10% - 20% 的圖片被視為黑白圖片；<br>
+擷取漫畫時，大約有 50% 左右的圖片被視為黑白圖片。<br>
 <br>
 有小機率誤判：<br>
 有些黑白圖片會在局部使用彩色，有時彩色區域佔比甚至可以達到 30%。它可能會被視為彩色圖片。<br>
@@ -7067,8 +7068,8 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
 <br>
 檢查時機：<br>
 如果你沒有排除某種顏色的圖片，那麼下載器就不會檢查圖片的顏色。<br>
-如果你排除了某種顏色的圖片，那麼下載器在抓取和下載時都會進行檢查。<br>
-在抓取階段，下載器會載入圖片的縮圖進行檢查，如果不符合要求，就不會保存這張圖片。<br>
+如果你排除了某種顏色的圖片，那麼下載器在擷取和下載時都會進行檢查。<br>
+在擷取階段，下載器會載入圖片的縮圖進行檢查，如果不符合要求，就不會保存這張圖片。<br>
 在下載階段，下載器會在下載圖片後再次檢查它的顏色，不符合要求的話就不會把它保存到硬碟上。`,
     `You can set whether to crawl color images or black and white images. By default, all of them will be crawled.<br>
 If you do not want to download images of a certain color, you can unselect it.<br>
@@ -7197,7 +7198,7 @@ During downloading, the downloader checks the color again after the image is dow
   ],
   _不抓取多图作品的最后一张图片: [
     `不抓取多图作品的<span class="key">最后一张</span>图片`,
-    `不抓取多圖作品的<span class="key">最後一張</span>圖片`,
+    `不擷取多圖作品的<span class="key">最後一張</span>圖片`,
     `Do not crawl the <span class="key">last image</span> of multi-image works`,
     `マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください`,
     `여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기`,
@@ -7221,7 +7222,7 @@ During downloading, the downloader checks the color again after the image is dow
   ],
   _过度访问警告: [
     `下载器检测到你可能收到了 Pixiv 的警告消息（站内信），这通常是因为过度下载导致的。<br>多次被警告可能会导致你的 Pixiv 账号被封禁。<br>下载器已暂停下载。<br>你可以在 Wiki 查看更详细的说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85%E4%B9%8B%E5%90%8E?id=%E5%A4%A7%E9%87%8F%E4%B8%8B%E8%BD%BD%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E4%BD%A0%E7%9A%84%E8%B4%A6%E5%8F%B7%E8%A2%AB%E5%B0%81%E7%A6%81" target="_blank" class="blue">大量下载可能导致你的账号被封禁</a>`,
-    `下載器檢測到你可能收到了 Pixiv 的警告消息（站內信），這通常是因為過度下載導致的。<br>多次被警告可能會導致你的 Pixiv 帳號被封禁。<br>下載器已暫停下載。<br>你可以在 Wiki 查看更詳細的說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85%E4%B9%8B%E5%90%8E?id=%E5%A4%A7%E9%87%8F%E4%B8%8B%E8%BD%BD%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E4%BD%A0%E7%9A%84%E8%B4%A6%E5%8F%B7%E8%A2%AB%E5%B0%81%E7%A6%81" target="_blank" class="blue">大量下载可能导致你的账号被封禁</a>`,
+    `下載器檢測到你可能收到了 Pixiv 的警告消息（站內信），這通常是因為過度下載導致的。<br>多次被警告可能會導致你的 Pixiv 帳號被封禁。<br>下載器已暫停下載。<br>你可以在 Wiki 查看更詳細的說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85%E4%B9%8B%E5%90%8E?id=%E5%A4%A7%E9%87%8F%E4%B8%8B%E8%BD%BD%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E4%BD%A0%E7%9A%84%E8%B4%A6%E5%8F%B7%E8%A2%AB%E5%B0%81%E7%A6%81" target="_blank" class="blue">大量下載可能導致你的帳號被封禁</a>`,
     `The downloader has detected that you may have received a warning message from Pixiv (in-site message), which is usually caused by excessive downloading.<br>Being warned multiple times may lead to your Pixiv account being banned.<br>The downloader has paused downloading.<br>You can view more detailed instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
     `ダウンロードツールが Pixiv からの警告メッセージ（サイト内メッセージ）を受信した可能性を検出しました。これは通常、過度なダウンロードが原因です。<br>複数回の警告は Pixiv アカウントの凍結につながる可能性があります。<br>ダウンロードツールはダウンロードを一時停止しました。<br>Wiki で詳細な説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
     `다운로더가 Pixiv의 경고 메시지(사이트 내 메시지)를 받았을 가능성을 감지했습니다. 이는 보통 과도한 다운로드로 인한 것입니다.<br>여러 번 경고를 받으면 Pixiv 계정이 차단될 수 있습니다.<br>다운로더가 다운로드를 일시 중지했습니다.<br>Wiki에서 더 자세한 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
@@ -7237,7 +7238,7 @@ During downloading, the downloader checks the color again after the image is dow
   ],
   _没有可用的抓取结果: [
     `没有可用的抓取结果`,
-    `沒有可用的抓取結果`,
+    `沒有可用的擷取結果`,
     `No crawl results available`,
     `クロール結果がありません`,
     `사용 가능한 크롤링 결과가 없습니다.`,
@@ -7337,7 +7338,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取: [
     `定时抓取`,
-    `定時抓取`,
+    `定時擷取`,
     `Timed crawl`,
     `時限クロール`,
     `시간 제한 크롤링`,
@@ -7345,7 +7346,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取说明: [
     `每隔一定时间，自动开始抓取和下载。`,
-    `每隔一定時間，自動開始抓取和下載。`,
+    `每隔一定時間，自動開始擷取和下載。`,
     `Automatically start crawling and downloading at regular intervals.`,
     `定期的にクロールとダウンロードを自動的に開始します。`,
     `정기적으로 자동으로 크롤링 및 다운로드를 시작합니다.`,
@@ -7353,23 +7354,23 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取的间隔时间的说明: [
     `在一些页面里有“定时抓取”按钮，即每隔一定时间，自动开始抓取和下载。<br>你可以在这里设置每次抓取的间隔时间。`,
-    `在一些頁面裡有“定時抓取”按鈕，即每隔一定時間，自動開始抓取和下載。<br>你可以在這裡設定每次抓取的間隔時間。`,
+    `在一些頁面裡有“定時擷取”按鈕，即每隔一定時間，自動開始擷取和下載。<br>你可以在這裡設定每次擷取的間隔時間。`,
     `There is a "Timed crawl" button on some pages, which automatically starts crawling and downloading at a certain interval. <br>You can set the interval time for each crawl here.`,
     `一部のページには「時限クロール」ボタンがあり、一定の間隔で自動的にクロールとダウンロードを開始します。<br>ここで、各クロールの間隔時間を設定できます。`,
     `일부 페이지에는 "시간 제한 크롤링" 버튼이 있는데, 이를 누르면 일정 간격으로 크롤링과 다운로드가 자동으로 시작됩니다. <br>여기에서 각 크롤링의 간격을 설정할 수 있습니다.`,
     `На некоторых страницах есть кнопка «Сканирование по таймеру», которая автоматически запускает сканирование и загрузку с определенным интервалом. <br>Здесь вы можете установить интервал времени для каждого сканирования.`,
   ],
   _定时抓取已启动的提示: [
-    `定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“抓取 / 执行策略”设置里修改“定时抓取的间隔时间”。`,
-    `定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在「擷取 / 執行策略」設定裡修改「定時抓取的間隔時間」。`,
-    `Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can change "The interval time of timed crawl" in "Crawl / Execution strategy".`,
-    `時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、「クロール / 実行戦略」設定で「時間指定クロールの間隔時間」を変更できます。`,
-    `시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "긁어오기 / 실행 전략" 설정에서 "시간 제한 크롤링의 간격 시간"을 수정할 수 있습니다.`,
-    `Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройку «Интервальное время сканирования с таймером» в разделе «Сканирование / Стратегия выполнения».`,
+    `定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“筛选 / 执行策略”设置里修改“定时抓取的间隔时间”。`,
+    `定時擷取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在「篩選 / 執行策略」設定裡修改「定時擷取的間隔時間」。`,
+    `Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can change "The interval time of timed crawl" in "Filter / Execution strategy".`,
+    `時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、「フィルター / 実行戦略」設定で「時間指定クロールの間隔時間」を変更できます。`,
+    `시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "필터 / 실행 전략" 설정에서 "시간 제한 크롤링의 간격 시간"을 수정할 수 있습니다.`,
+    `Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройку «Интервальное время сканирования с таймером» в разделе «Фильтр / Стратегия выполнения».`,
   ],
   _定时抓取的推荐用法: [
     `推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，或者搜索页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不抓取下载过的作品”和“不下载重复文件”功能，以提高效率。`,
-    `推薦用法：增量抓取新作品。例如在關注用戶的新作品頁面裡，或者搜索頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用「不抓取下載過的作品」和「不下載重複檔案」功能，以提高效率。`,
+    `推薦用法：增量擷取新作品。例如在關注用戶的新作品頁面裡，或者搜尋頁面裡，設定擷取頁數為 2，然後啟動定時擷取。這樣下載器可以自動下載新作品。<br>建議啟用「不擷取下載過的作品」和「不下載重複檔案」功能，以提高效率。`,
     `Recommended usage: Incrementally crawl new works. For example, on the new works page of followed users, or on the search page, set the number of crawl pages to 2, then start timed crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not crawl downloaded works" and "Do not download duplicate files" features to improve efficiency.`,
     `おすすめの使い方：新作を増分クロールします。例えばフォローしているユーザーの新作ページや検索ページで、クロールページ数を2に設定し、定時クロールを開始します。これによりダウンローダーが新作を自動的にダウンロードできます。<br>効率を高めるため、「ダウンロード済みの作品をクロールしない」と「重複ファイルをダウンロードしない」機能を有効にすることをおすすめします。`,
     `추천 사용법: 증분으로 새 작품을 크롤링합니다. 예를 들어 팔로우한 사용자의 새 작품 페이지나 검색 페이지에서 크롤링 페이지 수를 2로 설정한 후 정기 크롤링을 시작하세요. 이렇게 하면 다운로더가 새 작품을 자동으로 다운로드할 수 있습니다.<br>효율성을 높이기 위해 "다운로드된 작품을 크롤링하지 않음"과 "중복 파일 다운로드하지 않음" 기능을 활성화하는 것을 권장합니다.`,
@@ -7377,7 +7378,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取已启动的提示2: [
     `在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
-    `在定時抓取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則抓取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
+    `在定時擷取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則擷取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時擷取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
     `During timed crawling, just leave this tab alone. Do not change the URL of this tab, or the crawl results may not be as expected.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
     `時限クロール中は、このタブをそのままにしておきます。 このタブの URL は変更しないでください。変更すると、クロール結果が期待どおりにならない可能性があります。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
     `시간 제한 크롤링 중에는 이 탭을 그대로 두십시오. 이 탭의 URL을 변경하지 마십시오. 그렇지 않으면 크롤링 결과가 예상과 다를 수 있습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>`,
@@ -7385,7 +7386,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取的间隔时间: [
     `<span class="key">定时</span>抓取的间隔时间`,
-    `<span class="key">定時</span>抓取的間隔時間`,
+    `<span class="key">定時</span>擷取的間隔時間`,
     `The interval time of <span class="key">timed crawl</span>`,
     `<span class="key">時間指定</span>クロールの間隔時間`,
     `<span class="key">정기</span> 크롤링 간격 시간`,
@@ -7393,7 +7394,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取的间隔时间2: [
     `定时抓取的间隔时间`,
-    `定時抓取的間隔時間`,
+    `定時擷取的間隔時間`,
     `The interval time of timed crawl`,
     `時間指定クロールの間隔時間`,
     `정기 크롤링 간격 시간`,
@@ -7402,7 +7403,7 @@ Mouse wheel: zoom in or out of the image<br>
   _分钟: [`分钟`, `分鐘`, `Minute`, `分`, `분`, `Минут`],
   _定时抓取的时间超过最大值: [
     `定时抓取的间隔时间超过最大值：`,
-    `定時抓取的間隔時間超過最大值：`,
+    `定時擷取的間隔時間超過最大值：`,
     `The interval of timed crawl exceeds the maximum value: `,
     `時間指定クロールの間隔が最大値を超えています: `,
     `시간 지정 크롤링 간격이 최대값을 초과합니다: `,
@@ -7410,7 +7411,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _定时抓取的时间最小值: [
     `定时抓取的间隔时间最小值为 1 分钟。`,
-    `定時抓取的間隔時間最小值為 1 分鐘。`,
+    `定時擷取的間隔時間最小值為 1 分鐘。`,
     `The minimum interval for timed crawls is 1 minute.`,
     `時間指定クロールの最小間隔は 1 分です。`,
     `시간 지정 크롤링의 최소 간격은 1분입니다.`,
@@ -7418,7 +7419,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _取消定时抓取: [
     `取消定时抓取`,
-    `取消定時抓取`,
+    `取消定時擷取`,
     `Cancel timed crawl`,
     `時間指定クロールをキャンセル`,
     `시간 지정 크롤링 취소`,
@@ -7426,7 +7427,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _已取消定时抓取: [
     `已取消定时抓取`,
-    `已取消定時抓取`,
+    `已取消定時擷取`,
     `Timed crawl canceled`,
     `時間指定クロールがキャンセルされました`,
     `예약된 크롤링이 취소되었습니다.`,
@@ -7434,7 +7435,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _因为URL变化取消定时抓取任务: [
     `因为 URL 变化，定时抓取任务已被取消。`,
-    `因為 URL 變化，定時抓取任務已被取消。`,
+    `因為 URL 變化，定時擷取任務已被取消。`,
     `The timed crawl task has been canceled due to URL changes.`,
     `URL が変更されたため、時間指定クロール タスクがキャンセルされました。`,
     `URL 변경으로 인해 시간이 지정된 크롤링 작업이 취소되었습니다.`,
@@ -7442,7 +7443,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _开始定时抓取: [
     `开始定时抓取`,
-    `開始定時抓取`,
+    `開始定時擷取`,
     `Start timed crawling`,
     `時間指定クロールを開始する`,
     `시간 지정 크롤링 시작`,
@@ -7450,7 +7451,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _等待下一次定时抓取: [
     `等待下一次定时抓取`,
-    `等待下一次定時抓取`,
+    `等待下一次定時擷取`,
     `Wait for the next timed crawl`,
     `次回の時限クロールを待つ`,
     `다음 시간 크롤링을 기다립니다.`,
@@ -7506,7 +7507,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _减慢抓取速度: [
     `<span class="key">减慢</span>抓取速度`,
-    `<span class="key">減慢</span>抓取速度`,
+    `<span class="key">減慢</span>擷取速度`,
     `<span class="key">Slow down</span> crawl`,
     `クロールを<span class="key">遅くする</span>`,
     `<span class="key">천천히</span> 크롤링`,
@@ -7514,7 +7515,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _减慢抓取速度的说明: [
     `减慢抓取速度可以避免在抓取时被 Pixiv 临时限制（429状态码）。<br>这会增加抓取时间。`,
-    `減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制（429狀態碼）。<br>這會增加抓取時間。`,
+    `減慢擷取速度可以避免在擷取時被 Pixiv 臨時限制（429狀態碼）。<br>這會增加擷取時間。`,
     `Slowing down the crawl speed can help avoid Pixiv temporarily blocking your crawl (429 status code). <br>This will increase crawl time.`,
     `クロール速度を遅くすることで、クロール中にPixivに一時的にブロックされること（ステータスコード429）を回避できます。 <br>これによりクロール時間が長くなります。`,
     `크롤링 속도를 늦추면 크롤링 중에 Pixiv에 의해 일시적으로 차단되는 현상(상태 코드 429)을 피할 수 있습니다. <br>이렇게 하면 크롤링 시간이 늘어납니다.`,
@@ -7538,7 +7539,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _当抓取结果大于指定数量时启用: [
     `当抓取结果大于指定数量时启用：`,
-    `當抓取結果大於指定數量時啟用：`,
+    `當擷取結果大於指定數量時啟用：`,
     `Enable when the crawl results exceed the specified number: `,
     `クロール結果が指定された数を超えたときに有効にする：`,
     `크롤링 결과가 지정된 수를 초과할 때 활성화: `,
@@ -7554,7 +7555,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _当抓取结果数量大于: [
     `当抓取结果数量超过指定数量时启用：`,
-    `當抓取結果數量超過指定數量時啟用：`,
+    `當擷取結果數量超過指定數量時啟用：`,
     `Enable when the number of crawl results exceeds a specified number: `,
     `クロール結果の数が指定した数を超えたときに有効：`,
     `크롤링 결과 수가 지정한 수를 초과할 때 사용: `,
@@ -7562,7 +7563,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _慢速抓取: [
     `慢速抓取，以避免触发 429 限制`,
-    `慢速抓取，以避免觸發 429 限制`,
+    `慢速擷取，以避免觸發 429 限制`,
     `Crawl slowly to avoid triggering 429 throttling`,
     `429 スロットリングのトリガーを避けるためにゆっくりとクロールします`,
     `429 스로틀링 트리거를 방지하기 위해 천천히 크롤링`,
@@ -7634,7 +7635,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _添加了对此页面类型的支持: [
     `添加了对此页面类型的支持：`,
-    `添加了对此页面类型的支持：`,
+    `新增了對此頁面類型的支援：`,
     `Added support for this page type:`,
     `次のページ タイプのサポートが追加されました：`,
     `이 페이지 유형에 대한 지원이 추가되었습니다：`,
@@ -8220,7 +8221,7 @@ There is also a button at the bottom of the log area for manually exporting logs
   ],
   _批量收藏作品时减慢速度: [
     `批量收藏作品时减慢速度，以减少 429 错误发生的概率`,
-    `批量收藏作品时减慢速度，以减少 429 错误发生的概率`,
+    `批量收藏作品時減慢速度，以減少 429 錯誤發生的機率`,
     `Slow down when batch bookmarking works to reduce the chance of 429 errors`,
     `一括ブックマーク時に速度を落とし、429 エラーの発生確率を減らします。`,
     `일괄 북마크 시 속도를 늦춰 429 오류 발생 확률을 줄입니다.`,
@@ -8282,9 +8283,9 @@ There is also a button at the bottom of the log area for manually exporting logs
     `팔로우 목록 내보내기`,
     `Экспорт списка подписок`,
   ],
-  _过滤不活跃用户: [
-    `过滤不活跃用户`,
-    `過濾不活躍使用者`,
+  _筛选不活跃用户: [
+    `筛选不活跃用户`,
+    `篩選不活躍使用者`,
     `Filtering inactive users`,
     `非アクティブユーザーの絞り込み`,
     `비활성 사용자 필터링`,
@@ -8371,7 +8372,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
   ],
   _导出ID列表的说明: [
     `如果你启用了这个设置，那么下载器在抓取阶段的早期，获取到作品 ID 列表之后就会立刻停止抓取，并导出作品 ID 列表。<br>
-    此时下载器不会运行完整的抓取流程，也不会开始下载，并且会忽略大多数过滤条件（因为此时没有作品的详细数据）。<br>
+    此时下载器不会运行完整的抓取流程，也不会开始下载，并且会忽略大多数筛选条件（因为此时没有作品的详细数据）。<br>
     <br>
     该功能通常用于调试，不过有时也有实际用途，例如：<br>
     当你需要抓取的作品来自多个不同页面时，但你想把它们汇总为一次抓取任务时，可以这样做：<br>
@@ -8380,16 +8381,16 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 汇总到一起（将所有作品 ID 放在同一个 JSON 文件中）<br>
     - 关闭此设置<br>
     - 使用首页的“导入 ID 列表”功能开始抓取<br>`,
-    `如果你啟用了這個設定，那麼下載器在抓取階段的早期，獲取到作品 ID 列表之後就會立刻停止抓取，並匯出作品 ID 列表。<br>
-    此時下載器不會執行完整的抓取流程，也不會開始下載，並且會忽略大多數過濾條件（因為此時沒有作品的詳細資料）。<br>
+    `如果你啟用了這個設定，那麼下載器在擷取階段的早期，獲取到作品 ID 列表之後就會立刻停止擷取，並匯出作品 ID 列表。<br>
+    此時下載器不會執行完整的擷取流程，也不會開始下載，並且會忽略大多數篩選條件（因為此時沒有作品的詳細資料）。<br>
     <br>
     該功能通常用於偵錯，不過有時也有實際用途，例如：<br>
-    當你需要抓取的作品來自多個不同頁面時，但你想把它們彙總為一次抓取任務時，可以這樣做：<br>
+    當你需要擷取的作品來自多個不同頁面時，但你想把它們彙總為一次擷取任務時，可以這樣做：<br>
     - 啟用此設定<br>
     - 獲取每個頁面裡的作品 ID 列表<br>
     - 彙總到一起（將所有作品 ID 放在同一個 JSON 檔案中）<br>
     - 關閉此設定<br>
-    - 使用首頁的「匯入 ID 列表」功能開始抓取<br>`,
+    - 使用首頁的「匯入 ID 列表」功能開始擷取<br>`,
     `If you enable this setting, the downloader will stop crawling as soon as it obtains the work ID list early in the crawl phase, and export the work ID list.<br>
     In this case the downloader will not run the complete crawl process, will not start downloading, and will ignore most filter conditions (because there is no detailed data about the works at that point).<br>
     <br>
@@ -8555,7 +8556,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
 <br>
 2. 點擊暫停下載按鈕，然後點擊開始下載按鈕。
 <br>
-3. 打開瀏覽器的擴展管理頁面，點擊這個擴展的刷新按鈕來重新載入它，然後刷新這個網頁並重試下載。
+3. 打開瀏覽器的擴充功能管理頁面，點擊這個擴充功能的刷新按鈕來重新載入它，然後刷新這個網頁並重試下載。
 <br>
 4. 如果這個瀏覽器下載檔案時的保存位置是機械硬碟，你可以嘗試修改下載位置為固態硬碟（SSD）。這對一些用戶很有效。
 <br>
@@ -9024,7 +9025,7 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   ],
   _已有抓取结果时进行提醒: [
     `这个标签页里已经有抓取结果了，重新开始抓取会清空这些抓取结果。\n请确认是否要重新开始抓取？`,
-    `這個標籤頁裡已經有抓取結果了，重新開始抓取會清空這些抓取結果。\n請確認是否要重新開始抓取？`,
+    `這個標籤頁裡已經有擷取結果了，重新開始擷取會清空這些擷取結果。\n請確認是否要重新開始擷取？`,
     `There are already crawl results on this tab. Restarting the crawl will clear these crawl results. \nPlease confirm that you want to restart the crawl?`,
     `このタブにはすでにクロール結果があります。クロールを再開すると、これらのクロール結果は消去されます。 \nクロールを再開するかどうかを確認してください?`,
     `이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.`,
@@ -9053,9 +9054,9 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `你可以設定每隔多少秒允許下載器開始一次下載。<br>
     這個設定的目的是在大量下載時降低下載頻率，以減少帳號被 pixiv 封禁的可能性。<br>
     <br>
-    當抓取結果數量超過指定數量時啟用：<br>
-    當抓取結果數量較多時才有必要添加間隔時間。你可以設定這個閾值。<br>
-    如果抓取結果數量小於閾值，下載器就不會應用間隔時間。<br>
+    當擷取結果數量超過指定數量時啟用：<br>
+    當擷取結果數量較多時才有必要添加間隔時間。你可以設定這個閾值。<br>
+    如果擷取結果數量小於閾值，下載器就不會應用間隔時間。<br>
     <br>
     間隔時間：<br>
     預設值是 1 秒，這意味著下載器在一小時裡最多會下載 3600 個檔案。<br>
@@ -9128,7 +9129,7 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     从页面上移除他们的作品：<br>
     这样你就不会看到不喜欢的用户的作品了。<br>
     PS：在被屏蔽的用户的主页里不会移除他们的作品，这是为了让你可以正常查看他们的主页。`,
-    `你可以設定使用者封鎖名單，下載器不會抓取這些使用者的作品。<br>
+    `你可以設定使用者封鎖名單，下載器不會擷取這些使用者的作品。<br>
     需要輸入使用者 ID 而不是使用者名稱，因為使用者名稱可能會變化。<br>
     你可以封鎖多個使用者 ID，在每個 ID 之間使用半形逗號<span class="blue">,</span>分隔。<br>
     <br>
@@ -9229,7 +9230,7 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   ],
   _支持抓取好P友的作品: [
     `支持抓取“好P友”页面里的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
-    `支援抓取“好P友”頁面裡的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
+    `支援擷取“好P友”頁面裡的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
     `Supports crawling works from the "My pixiv" page:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
     `「マイピクの作品」ページからの作品のクロールをサポートします:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
     `"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>`,
@@ -9301,7 +9302,7 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   ],
   _fanboxDownloader的说明: [
     `我制作了一个 Fanbox Downloader，不过目前它只支持 Chromium 内核的浏览器，例如 Chrome、Edge。<br>你可以从 Chrome Web Store 安装它：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
-    `我製作了一個 Fanbox Downloader，不過目前它只支援 Chromium 内核的瀏覽器，例如 Chrome、Edge。<br>你可以從 Chrome Web Store 安裝它：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
+    `我製作了一個 Fanbox Downloader，不過目前它只支援 Chromium 核心的瀏覽器，例如 Chrome、Edge。<br>你可以從 Chrome Web Store 安裝它：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
     `I created a Fanbox Downloader, but it currently only supports Chromium-based browsers, such as Chrome and Edge.<br>You can install it from the Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
     `私は Fanbox Downloader を作成しましたが、現在は Chromium ベースのブラウザ（例: Chrome、Edge）のみをサポートしています。<br>Chrome Web Store からインストールできます：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
     `나는 Fanbox Downloader를 만들었지만, 현재는 Chromium 기반 브라우저(예: Chrome, Edge)만 지원합니다.<br>Chrome Web Store에서 설치할 수 있습니다:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>`,
@@ -9325,7 +9326,7 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   ],
   _提示使用小号下载: [
     `💡本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险?id=使用小号" target="_blank">使用小号下载</a>`,
-    `💡本次任務需要抓取的作品數量比較多，您可以考慮使用小號進行抓取和下載，以減少大號被封禁的風險。<br>您可以在 Wiki 查看相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险?id=使用小号" target="_blank">使用小號下載</a>`,
+    `💡本次任務需要擷取的作品數量比較多，您可以考慮使用小號進行擷取和下載，以減少大號被封禁的風險。<br>您可以在 Wiki 查看相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/账号被封禁的风险?id=使用小号" target="_blank">使用小號下載</a>`,
     `💡This task requires crawling a large number of works. You may consider using an alt account for crawling and downloading to reduce the risk of your main account being banned. <br>You can view the relevant instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">Using Secondary Account for Downloading</a>`,
     `💡今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">小号でダウンロード</a>`,
     `💡이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Risk-of-Account-Ban?id=using-a-secondary-account" target="_blank">작은 계정으로 다운로드</a>`,
@@ -9998,7 +9999,7 @@ QQ, WeChat:
   ],
   _抓取每个用户最新的几个作品: [
     `抓取每个用户<span class="key">最新</span>的几个作品`,
-    `抓取每個用戶<span class="key">最新</span>的幾個作品`,
+    `擷取每個用戶<span class="key">最新</span>的幾個作品`,
     `Crawl the <span class="key">latest</span> few works of each user`,
     `各ユーザーの<span class="key">最新</span>の数作品をクロール`,
     `각 사용자별 <span class="key">최신</span> 몇 작품 크롤링`,
@@ -10037,21 +10038,21 @@ QQ, WeChat:
 <br>
 - 如果你启用了这个设置，下载器总是默认这个文件下载成功（即使你取消保存这个文件也是如此）。这是为了简化处理。
 <br>`,
-    `我不推薦啟用這個設置，除非你已經閱讀了下面的說明。
+    `我不推薦啟用這個設定，除非你已經閱讀了下面的說明。
 <br>
 <br>
-這個設置是為喜歡<strong>手動保存文件</strong>的用戶設計的，他們喜歡使用「另存為」對話框來保存文件，並希望下載器能記住上次保存的位置。
+這個設定是為喜歡<strong>手動保存檔案</strong>的用戶設計的，他們喜歡使用「另存為」對話框來保存檔案，並希望下載器能記住上次保存的位置。
 <br>
 <br>
 如果你想使用這個功能，需要注意：
 <br>
-- 要讓這個設置正確工作，必須在瀏覽器的下載設置裡啟用「每次下載文件時都詢問保存位置」，否則瀏覽器不會顯示另存為對話框，並且文件會保存到瀏覽器設置裡的保存位置（而非上次選擇的位置）。
+- 要讓這個設定正確工作，必須在瀏覽器的下載設定裡啟用「每次下載檔案時都詢問保存位置」，否則瀏覽器不會顯示另存為對話框，並且檔案會保存到瀏覽器設定裡的保存位置（而非上次選擇的位置）。
 <br>
-- 如果你關閉了瀏覽器的「每次下載文件時都詢問保存位置」設置，那麼也應該關閉這個設置。
+- 如果你關閉了瀏覽器的「每次下載檔案時都詢問保存位置」設定，那麼也應該關閉這個設定。
 <br>
-- 如果你啟用了這個設置，下載器<strong>不會創建文件夾</strong>，只會設置文件名。這是因為實現「記住上次保存位置」的效果需要使用 a 標籤的 download 屬性來下載文件，此時不能創建文件夾。
+- 如果你啟用了這個設定，下載器<strong>不會創建資料夾</strong>，只會設定檔名。這是因為實現「記住上次保存位置」的效果需要使用 a 標籤的 download 屬性來下載檔案，此時不能創建資料夾。
 <br>
-- 如果你啟用了這個設置，下載器總是默認這個文件下載成功（即使你取消保存這個文件也是如此）。這是為了簡化處理。
+- 如果你啟用了這個設定，下載器總是預設這個檔案下載成功（即使你取消保存這個檔案也是如此）。這是為了簡化處理。
 <br>`,
     `I do not recommend enabling this setting unless you have read the following instructions.
 <br>
@@ -10120,7 +10121,7 @@ If you want to use this feature, please note:
   ],
   _提示如果你启用了这个设置下载器不会创建文件夹: [
     `如果你启用了这个设置，下载器不会创建文件夹。`,
-    `如果你啟用了這個設置，下載器不會創建文件夾。`,
+    `如果你啟用了這個設定，下載器不會創建資料夾。`,
     `If you enable this setting, the downloader will not create folders.`,
     `この設定を有効にすると、ダウンロードツールはフォルダを作成しません。`,
     `이 설정을 활성화하면 다운로더는 폴더를 생성하지 않습니다.`,
@@ -10192,7 +10193,7 @@ If you want to use this feature, please note:
   ],
   _注意这个任务遵从抓取多少页面的设置: [
     `注意：这个任务遵从“抓取多少页面”的设置，并且是从当前页面（可能不是第 1 页）开始抓取的。`,
-    `注意：這個任務遵從「抓取多少頁面」的設置，並且是從當前頁面（可能不是第 1 頁）開始抓取的。`,
+    `注意：這個任務遵從「擷取多少頁面」的設定，並且是從當前頁面（可能不是第 1 頁）開始擷取的。`,
     `Note: This task follows the "Number of pages to crawl" setting and starts crawling from the current page (which may not be page 1).`,
     `注意：このタスクは「クロールするページ数」の設定に従い、現在のページ（1ページ目ではない可能性があります）からクロールを開始します。`,
     `주의: 이 작업은 "크롤링할 페이지 수" 설정을 따르며, 현재 페이지(1페이지가 아닐 수 있음)부터 크롤링을 시작합니다.`,
@@ -10284,7 +10285,7 @@ If you want to use this feature, please note:
     不再单独下载系列里的小说：<br>
     当你启用了“自动合并系列小说”时，通常没有必要单独下载系列里的小说，因为它们已经包含在合并后的小说文件里了。<br>
     如果你仍然想单独下载它们，可以关闭这个子设置。`,
-    `抓取作品時，如果一個小說屬於某個系列，就自動抓取這個系列裡的所有小說並且合併。<br>
+    `擷取作品時，如果一個小說屬於某個系列，就自動擷取這個系列裡的所有小說並且合併。<br>
     <br>
     不再單獨下載系列裡的小說：<br>
     當你啟用了「自動合併系列小說」時，通常沒有必要單獨下載系列裡的小說，因為它們已經包含在合併後的小說檔案裡了。<br>
@@ -10336,7 +10337,7 @@ If you want to use this feature, please note:
   ],
   _本次抓取一共合并了x个系列小说: [
     `本次抓取一共合并了 {} 个系列小说`,
-    `本次抓取一共合併了 {} 個系列小說`,
+    `本次擷取一共合併了 {} 個系列小說`,
     `This crawling merged a total of {} series novels`,
     `今回のクロールで合計 {} 個のシリーズ小説がマージされました`,
     `이번 크롤링에서 총 {} 개의 시리즈 소설이 병합되었습니다`,
@@ -10344,7 +10345,7 @@ If you want to use this feature, please note:
   ],
   _本次抓取一共合并了x个系列小说包含y篇小说: [
     `本次抓取一共合并了 {} 个系列小说，包含 {} 篇小说`,
-    `本次抓取一共合併了 {} 個系列小說，包含 {} 篇小說`,
+    `本次擷取一共合併了 {} 個系列小說，包含 {} 篇小說`,
     `This crawl merged a total of {} novel series, containing {} novels`,
     `今回のクロールで合計 {} 個のシリーズ小説をマージしました。{} 件の小説を含みます`,
     `이번 크롤링에서 총 {}개의 시리즈 소설을 병합했습니다. {}편의 소설을 포함합니다`,
@@ -10352,7 +10353,7 @@ If you want to use this feature, please note:
   ],
   _由于这个系列小说里的图片体积很大所以分割成了x个文件: [
     `由于这个系列小说里的图片体积很大，所以分割成了 {} 个文件`,
-    `由於這個系列小說裡的圖片體積很大，所以分割成了 {} 個文件`,
+    `由於這個系列小說裡的圖片體積很大，所以分割成了 {} 個檔案`,
     `Due to the large size of the images in this novel series, it has been split into {} files`,
     `このシリーズ小説内の画像のサイズが大きいため、{} 個のファイルに分割されました`,
     `이 시리즈 소설의 이미지 크기가 크기 때문에 {}개의 파일로 분할되었습니다`,
@@ -10434,7 +10435,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   ],
   _系列小说的命名标记_part: [
     `如果小说的体积比较大，下载器可能会把它分割成多个文件，此时 {part} 是这个文件的编号，如 <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>…… 如果这个小说没有被分割，{part} 会被忽略。`,
-    `如果小說的體積比較大，下載器可能會把它分割成多個文件，此時 {part} 是這個文件的編號，如 <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>…… 如果這個小說沒有被分割，{part} 會被忽略。`,
+    `如果小說的體積比較大，下載器可能會把它分割成多個檔案，此時 {part} 是這個檔案的編號，如 <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>…… 如果這個小說沒有被分割，{part} 會被忽略。`,
     `If the novel's size is relatively large, the downloader may split it into multiple files. In this case, {part} is the number of this file, such as <span class="blue">1</span>, <span class="blue">2</span>, <span class="blue">3</span>... If this novel is not split, {part} will be ignored.`,
     `小説のサイズが比較的大きい場合、ダウンロードツールはそれを複数のファイルに分割する可能性があります。この場合、{part} はこのファイルの番号です（例: <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>...）。この小説が分割されていない場合、{part} は無視されます。`,
     `소설의 크기가 비교적 크면 다운로더가 여러 파일로 분할할 수 있습니다. 이 경우 {part}는 이 파일의 번호로, <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>...과 같습니다. 이 소설이 분할되지 않은 경우, {part}는 무시됩니다.`,
@@ -10482,7 +10483,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   ],
   _系列小说的命名标记_lang: [
     `这个系列的语言代码，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：这并不总是准确的，因为有些作者没有设置正确的语言。`,
-    `這個系列的語言代碼，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：這並不總是準確的，因為有些作者沒有設置正確的語言。`,
+    `這個系列的語言代碼，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：這並不總是準確的，因為有些作者沒有設定正確的語言。`,
     `The language code of this series, for example <span class="blue">zh-cn</span>, <span class="blue">ja</span>, <span class="blue">en</span>, etc. Note: This is not always accurate, because some authors have not set the correct language.`,
     `このシリーズの言語コード、例：<span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> など。注意：これは常に正確ではなく、一部の作者が正しい言語を設定していないためです。`,
     `이 시리즈의 언어 코드, 예: <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 등. 주의: 이는 항상 정확하지 않으며, 일부 작가가 올바른 언어를 설정하지 않았기 때문입니다.`,
@@ -10568,36 +10569,36 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `현재 페이지의 제목`,
     `Заголовок текущей страницы`,
   ],
-  _过滤搜索页面的作品: [
-    `<span class="key">过滤</span>搜索页面的作品`,
-    `<span class="key">過濾</span>搜尋頁面的作品`,
+  _筛选搜索页面的作品: [
+    `<span class="key">筛选</span>搜索页面的作品`,
+    `<span class="key">篩選</span>搜尋頁面的作品`,
     `<span class="key">Filter</span> works on the search page`,
     `<span class="key">フィルタリング</span>検索ページの作品`,
     `<span class="key">필터링</span> 검색 페이지의 작품`,
     `<span class="key">Фильтрация</span> работ на странице поиска`,
   ],
-  _过滤搜索页面的作品的说明: [
-    `当你启用此功能后，下载器会在搜索页面里拦截 Pixiv 的请求，在作品显示之前就应用过滤器，移除不符合条件的作品。这样，只有符合条件的作品会显示出来。
+  _筛选搜索页面的作品的说明: [
+    `当你启用此功能后，下载器会在搜索页面里拦截 Pixiv 的请求，在作品显示之前就应用筛选条件，移除不符合条件的作品。这样，只有符合条件的作品会显示出来。
     <br>
     <br>
     <strong>注意事项：</strong>
     <br>
-    - 当你启用此功能、以及修改过滤条件后，页面上显示的作品不会变化，这是正常的，因为它们已经显示出来了。这个功能是通过拦截请求实现的，所以之后发起的请求才会应用你的修改，所以你在翻页、刷新时可以看到修改的效果。
+    - 当你启用此功能、以及修改筛选条件后，页面上显示的作品不会变化，这是正常的，因为它们已经显示出来了。这个功能是通过拦截请求实现的，所以之后发起的请求才会应用你的修改，所以你在翻页、刷新时可以看到修改的效果。
     <br>
-    - 由于作品列表的数据里不包含收藏数量，所以下载器不能使用收藏数量来过滤作品。收藏数量条件会被忽略。
+    - 由于作品列表的数据里不包含收藏数量，所以下载器不能使用收藏数量来筛选作品。收藏数量条件会被忽略。
     <br>
-    - 启用此功能时，请谨慎使用“图片色彩”过滤器。如果只选择了一种颜色（也就是需要判断图片的色彩），下载器需要加载所有作品的缩略图来判断颜色，这会产生大量请求，而且也会花费比较多的时间（过滤可能需要超过 2 秒钟）。`,
-    `當你啟用此功能後，下載器會在搜尋頁面裡攔截 Pixiv 的請求，在作品顯示之前就應用過濾器，移除不符合條件的作品。這樣，只有符合條件的作品會顯示出來。
+    - 启用此功能时，请谨慎使用“图片色彩”过滤器。如果只选择了一种颜色（也就是需要判断图片的色彩），下载器需要加载所有作品的缩略图来判断颜色，这会产生大量请求，而且也会花费比较多的时间。`,
+    `當你啟用此功能後，下載器會在搜尋頁面裡攔截 Pixiv 的請求，在作品顯示之前就應用篩選條件，移除不符合條件的作品。這樣，只有符合條件的作品會顯示出來。
     <br>
     <br>
     <strong>注意事項：</strong>
     <br>
-    - 當你啟用此功能、以及修改過濾條件後，頁面上顯示的作品不會變化，這是正常的，因為它們已經顯示出來了。這個功能是通過攔截請求實現的，所以之後發起的請求才會應用你的修改，所以你在翻頁、刷新時可以看到修改的效果。
+    - 當你啟用此功能、以及修改篩選條件後，頁面上顯示的作品不會變化，這是正常的，因為它們已經顯示出來了。這個功能是通過攔截請求實現的，所以之後發起的請求才會應用你的修改，所以你在翻頁、刷新時可以看到修改的效果。
     <br>
-    - 由於作品列表的資料裡不包含收藏數量，所以下載器不能使用收藏數量來過濾作品。收藏數量條件會被忽略。
+    - 由於作品列表的資料裡不包含收藏數量，所以下載器不能使用收藏數量來篩選作品。收藏數量條件會被忽略。
     <br>
-    - 啟用此功能時，請謹慎使用「圖片色彩」過濾器。如果只選擇了一種顏色（也就是需要判斷圖片的色彩），下載器需要載入所有作品的縮略圖來判斷顏色，這會產生大量請求，而且也會花費比較多的時間（過濾可能需要超過 2 秒鐘）。`,
-    `After you enable this feature, the downloader will intercept Pixiv's requests on the search page and apply the filter before the works are displayed, removing works that do not meet the conditions. This way, only works that meet the conditions will be displayed.
+    - 啟用此功能時，請謹慎使用「圖片色彩」過濾器。如果只選擇了一種顏色（也就是需要判斷圖片的色彩），下載器需要載入所有作品的縮略圖來判斷顏色，這會產生大量請求，而且也會花費比較多的時間。`,
+    `After you enable this feature, the downloader will intercept Pixiv's requests on the search page and apply the filter conditions before the works are displayed, removing works that do not meet the conditions. This way, only works that meet the conditions will be displayed.
     <br>
     <br>
     <strong>Notes:</strong>
@@ -10606,8 +10607,8 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     <br>
     - Since the work list data does not include the bookmark count, the downloader cannot use the bookmark count to filter works. The bookmark count condition will be ignored.
     <br>
-    - When enabling this feature, please use the "Image Color" filter with caution. If only one color is selected (which means judging the color of the image), the downloader needs to load thumbnails of all works to determine the color, which will generate a large number of requests and also take more time (filtering may take more than 2 seconds).`,
-    `この機能を有効にすると、ダウンロードツールは検索ページでPixivのリクエストを傍受し、作品が表示される前にフィルターを適用して条件に合わない作品を削除します。これにより、条件に合った作品のみが表示されます。
+    - When enabling this feature, please use the "Image Color" filter with caution. If only one color is selected (which means judging the color of the image), the downloader needs to load thumbnails of all works to determine the color, which will generate a large number of requests and also take more time.`,
+    `この機能を有効にすると、ダウンロードツールは検索ページでPixivのリクエストを傍受し、作品が表示される前にフィルター条件を適用して条件に合わない作品を削除します。これにより、条件に合った作品のみが表示されます。
     <br>
     <br>
     <strong>注意事項：</strong>
@@ -10616,8 +10617,8 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     <br>
     - 作品リストのデータにブックマーク数を含まないため、ダウンロードツールはブックマーク数で作品をフィルタリングできません。ブックマーク数の条件は無視されます。
     <br>
-    - この機能を有効にする際は、「画像色」フィルターを慎重に使用してください。1つの色のみを選択した場合（画像の色を判断する必要がある場合）、ダウンロードツールはすべての作品のサムネイルをロードして色を判断する必要があります。これにより大量のリクエストが発生し、時間もかかります（フィルタリングに2秒以上かかる可能性があります）。`,
-    `이 기능을 활성화한 후, 다운로더는 검색 페이지에서 Pixiv의 요청을 차단하고 작품이 표시되기 전에 필터를 적용하여 조건을 충족하지 않는 작품을 제거합니다. 이렇게 하면 조건을 충족하는 작품만 표시됩니다.
+    - この機能を有効にする際は、「画像色」フィルターを慎重に使用してください。1つの色のみを選択した場合（画像の色を判断する必要がある場合）、ダウンロードツールはすべての作品のサムネイルをロードして色を判断する必要があります。これにより大量のリクエストが発生し、時間もかかります。`,
+    `이 기능을 활성화한 후, 다운로더는 검색 페이지에서 Pixiv의 요청을 차단하고 작품이 표시되기 전에 필터 조건을 적용하여 조건을 충족하지 않는 작품을 제거합니다. 이렇게 하면 조건을 충족하는 작품만 표시됩니다.
     <br>
     <br>
     <strong>주의사항:</strong>
@@ -10626,8 +10627,8 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     <br>
     - 작품 목록 데이터에 북마크 수가 포함되지 않으므로 다운로더는 북마크 수를 사용하여 작품을 필터링할 수 없습니다. 북마크 수 조건은 무시됩니다.
     <br>
-    - 이 기능을 활성화할 때 "이미지 색상" 필터를 신중하게 사용하십시오. 한 가지 색상만 선택한 경우(이미지의 색상을 판단해야 하는 경우), 다운로더는 모든 작품의 썸네일을 로드하여 색상을 판단해야 하며, 이는 대량의 요청을 생성하고 더 많은 시간을 소비합니다(필터링에 2초 이상 걸릴 수 있습니다).`,
-    `После активации этой функции загрузчик будет перехватывать запросы Pixiv на странице поиска и применять фильтр до отображения работ, удаляя те, которые не соответствуют условиям. Таким образом, будут отображаться только работы, соответствующие условиям.
+    - 이 기능을 활성화할 때 "이미지 색상" 필터를 신중하게 사용하십시오. 한 가지 색상만 선택한 경우(이미지의 색상을 판단해야 하는 경우), 다운로더는 모든 작품의 썸네일을 로드하여 색상을 판단해야 하며, 이는 대량의 요청을 생성하고 더 많은 시간을 소비합니다.`,
+    `После активации этой функции загрузчик будет перехватывать запросы Pixiv на странице поиска и применять условия фильтрации до отображения работ, удаляя те, которые не соответствуют условиям. Таким образом, будут отображаться только работы, соответствующие условиям.
     <br>
     <br>
     <strong>Примечания:</strong>
@@ -10636,7 +10637,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     <br>
     - Поскольку данные списка работ не включают количество закладок, загрузчик не может использовать количество закладок для фильтрации работ. Условие по количеству закладок будет игнорироваться.
     <br>
-    - При активации этой функции используйте фильтр "Цвет изображения" с осторожностью. Если выбран только один цвет (т.е. требуется определить цвет изображения), загрузчику нужно загрузить миниатюры всех работ для определения цвета, что сгенерирует большое количество запросов и займет больше времени (фильтрация может занять более 2 секунд).`,
+    - При активации этой функции используйте фильтр "Цвет изображения" с осторожностью. Если выбран только один цвет (т.е. требуется определить цвет изображения), загрузчику нужно загрузить миниатюры всех работ для определения цвета, что сгенерирует большое количество запросов и займет больше времени.`,
   ],
   _导出作品数据CSV: [
     `导出作品数据（CSV）`,
@@ -10700,7 +10701,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   ],
   _抓取应募作品: [
     `抓取应募作品`,
-    `抓取應募作品`,
+    `擷取應募作品`,
     `Crawl application works`,
     `応募作品をクロール`,
     `응모 작품 크롤링`,
@@ -10716,7 +10717,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   ],
   _已抓取x页应募作品: [
     `已抓取 {} 页应募作品`,
-    `已抓取 {} 頁應募作品`,
+    `已擷取 {} 頁應募作品`,
     `Crawled {} pages of application works`,
     `{} ページの応募作品をクロール済み`,
     `{} 페이지의 응모 작품 크롤링 완료`,
@@ -10732,7 +10733,7 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
   ],
   _抓取获奖作品: [
     `抓取获奖作品`,
-    `抓取獲獎作品`,
+    `擷取獲獎作品`,
     `Crawl winning works`,
     `受賞作品をクロール`,
     `수상 작품 크롤링`,
@@ -10903,10 +10904,10 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
 因此，在抓取阶段，你可能会看到下载器只保存了系列小说，没有保存任何单篇小说。这是正常的，因为它们是分开处理的。<br>
 等到抓取完毕之后，正常开始下载即可保存单篇小说。`,
     `💡提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
-對於系列小說，下載器會在抓取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
-對於單篇小說，下載器不會在抓取時下載它們，而是會保存到抓取結果裡。<br>
-因此，在抓取階段，你可能會看到下載器只保存了系列小說，沒有保存任何單篇小說。這是正常的，因為它們是分開處理的。<br>
-等到抓取完畢之後，正常開始下載即可保存單篇小說。`,
+對於系列小說，下載器會在擷取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
+對於單篇小說，下載器不會在擷取時下載它們，而是會保存到擷取結果裡。<br>
+因此，在擷取階段，你可能會看到下載器只保存了系列小說，沒有保存任何單篇小說。這是正常的，因為它們是分開處理的。<br>
+等到擷取完畢之後，正常開始下載即可保存單篇小說。`,
     `💡Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
 For series novels, the downloader will merge them directly during crawling and will not download individual chapters inside them separately.<br>
 For standalone novels, the downloader will not download them during crawling, but will save them to the crawl results.<br>
@@ -10968,13 +10969,13 @@ After crawling is complete, you can start the normal download to save the standa
     匹配方式：<br>
     - 不区分大小写。<br>
     - 任一：只要标题里含有你设置的任意一条字符，下载器就会抓取它。`,
-    `你可以要求作品的標題裡必須含有特定字元，這樣下載器才會抓取它。<br>
-    如果作品標題裡沒有你設定的字元，下載器就不會抓取它。<br>
+    `你可以要求作品的標題裡必須含有特定字元，這樣下載器才會擷取它。<br>
+    如果作品標題裡沒有你設定的字元，下載器就不會擷取它。<br>
     你可以設定多條字元，每條之間使用半形逗號 <span class="blue">,</span> 分隔。<br>
     <br>
     匹配方式：<br>
     - 不區分大小寫。<br>
-    - 任一：只要標題裡含有你設定的任意一條字元，下載器就會抓取它。`,
+    - 任一：只要標題裡含有你設定的任意一條字元，下載器就會擷取它。`,
     `You can require the title of a work to contain specific characters; only then will the downloader crawl it.<br>
     If the title does not contain the characters you set, the downloader will not crawl it.<br>
     You can set multiple entries, separated by a comma <span class="blue">,</span>.<br>
@@ -11020,13 +11021,13 @@ After crawling is complete, you can start the normal download to save the standa
     匹配方式：<br>
     - 不区分大小写。<br>
     - 任一：只要小说的语言是你设置的任意一条，下载器就会抓取它。`,
-    `你可以要求小說的語言必須是特定的語言，這樣下載器才會抓取它。<br>
+    `你可以要求小說的語言必須是特定的語言，這樣下載器才會擷取它。<br>
     下載器會檢查每篇小說的語言，包括系列裡的小說。<br>
     你可以設定一種或多種語言代碼。多個語言代碼之間使用半形逗號 <span class="blue">,</span> 分隔。例如：<span class="blue">zh-cn,ja,en</span><br>
     <br>
     比對方式：<br>
     - 不區分大小寫。<br>
-    - 任一：只要小說的語言是你設定的任意一條，下載器就會抓取它。`,
+    - 任一：只要小說的語言是你設定的任意一條，下載器就會擷取它。`,
     `You can require the language of a novel to be one of the specific languages; only then will the downloader crawl it.<br>
     The downloader checks the language of every novel, including the novels in a series.<br>
     You can set one or more language codes. Separate multiple language codes with a comma <span class="blue">,</span>. For example: <span class="blue">zh-cn,ja,en</span><br>
@@ -11079,18 +11080,18 @@ After crawling is complete, you can start the normal download to save the standa
     优先级：<br>
     排除的优先级大于包含的优先级。如果一个作品的标题同时满足“标题必须含有”和“标题不能含有”的条件，下载器不会抓取它。`,
     `你可以要求作品的標題裡不能含有特定字元。<br>
-    如果作品標題裡含有你設定的字元，下載器就不會抓取它。<br>
+    如果作品標題裡含有你設定的字元，下載器就不會擷取它。<br>
     你可以設定多條字元，每條之間使用半形逗號 <span class="blue">,</span> 分隔。<br>
     <br>
     匹配方式：<br>
     - 不區分大小寫。<br>
-    - 任一：只要標題裡含有你設定的任意一條字元，下載器就不會抓取它。<br>
+    - 任一：只要標題裡含有你設定的任意一條字元，下載器就不會擷取它。<br>
     <br>
     也檢查系列標題：<br>
-    如果你啟用了「也檢查系列標題」，那麼當作品屬於一個系列時，下載器也會檢查系列標題裡是否含有需要排除的字元。如果有的話，就不會抓取這個系列。<br>
+    如果你啟用了「也檢查系列標題」，那麼當作品屬於一個系列時，下載器也會檢查系列標題裡是否含有需要排除的字元。如果有的話，就不會擷取這個系列。<br>
     <br>
     優先級：<br>
-    排除的優先級大於包含的優先級。如果一個作品的標題同時滿足「標題必須含有」和「標題不能含有」的條件，下載器不會抓取它。`,
+    排除的優先級大於包含的優先級。如果一個作品的標題同時滿足「標題必須含有」和「標題不能含有」的條件，下載器不會擷取它。`,
     `You can require the title of a work not to contain specific characters.<br>
     If the title contains the characters you set, the downloader will not crawl it.<br>
     You can set multiple entries, separated by a comma <span class="blue">,</span>.<br>
@@ -11193,19 +11194,19 @@ After crawling is complete, you can start the normal download to save the standa
     `느슨한 매칭`,
     `Слабое совпадение`,
   ],
-  _宽松匹配原创作品的说明: [
+  _原创作品的说明: [
     `艺术家在投稿作品时可以设置它是否是原创作品。<br>
-如果你没有启用“宽松匹配”，这个过滤条件会严格遵守艺术家设置的原创属性。<br>
+如果你没有启用“宽松匹配”，这个筛选条件会严格遵守艺术家设置的原创属性。<br>
 <br>
 但也有一种常见的情况：艺术家没有把作品设置为原创，但作品含有原创相关的标签。<br>
-如果你启用了“宽松匹配”，并且作品含有任意一个特定标签，那么即使它是非原创作品，下载器在过滤时也会把它视为原创作品。<br>
+如果你启用了“宽松匹配”，并且作品含有任意一个特定标签，那么即使它是非原创作品，下载器在筛选时也会把它视为原创作品。<br>
 这些标签有：<br>
 ${Config.originalTags.join(',')}`,
     `藝術家在投稿作品時可以設定它是否是原創作品。<br>
-如果你沒有啟用「寬鬆匹配」，這個過濾條件會嚴格遵守藝術家設定的原創屬性。<br>
+如果你沒有啟用「寬鬆匹配」，這個篩選條件會嚴格遵守藝術家設定的原創屬性。<br>
 <br>
 但也有一種常見的情況：藝術家沒有把作品設定為原創，但作品含有原創相關的標籤。<br>
-如果你啟用了「寬鬆匹配」，並且作品含有任意一個特定標籤，那麼即使它是非原創作品，下載器在過濾時也會把它視為原創作品。<br>
+如果你啟用了「寬鬆匹配」，並且作品含有任意一個特定標籤，那麼即使它是非原創作品，下載器在篩選時也會把它視為原創作品。<br>
 這些標籤有：<br>
 ${Config.originalTags.join(',')}`,
     `Artists can set whether their posted work is an original work when submitting.<br>
@@ -11253,25 +11254,25 @@ ${Config.originalTags.join(',')}`,
     `이것은 비오리지널 작품입니다`,
     `Это неоригинальная работа`,
   ],
-  _抓取条件不正确: [
-    `抓取条件不正确`,
-    `抓取條件不正確`,
-    `Crawl conditions are incorrect`,
-    `クロール条件が正しくありません`,
-    `크롤링 조건이 올바르지 않습니다`,
-    `Условия сканирования неверны`,
+  _筛选条件不正确: [
+    `筛选条件不正确`,
+    `篩選條件不正確`,
+    `Filter conditions are incorrect`,
+    `フィルター条件が正しくありません`,
+    `필터 조건이 올바르지 않습니다`,
+    `Условия фильтрации неверны`,
   ],
-  _取消抓取因为某些抓取条件不正确: [
-    `❌取消抓取，因为某些抓取条件不正确`,
-    `❌取消抓取，因為某些抓取條件不正確`,
-    `❌Cancel crawling because some crawl conditions are incorrect`,
-    `❌クロールをキャンセルしました。一部のクロール条件が正しくありません`,
-    `❌크롤링 취소: 일부 크롤링 조건이 올바르지 않습니다`,
-    `❌Сканирование отменено, поскольку некоторые условия сканирования некорректны`,
+  _取消抓取因为某些筛选条件不正确: [
+    `❌取消抓取，因为某些筛选条件不正确`,
+    `❌取消擷取，因為某些篩選條件不正確`,
+    `❌Cancel crawling because some filter conditions are incorrect`,
+    `❌クロールをキャンセルしました。一部のフィルター条件が正しくありません`,
+    `❌크롤링 취소: 일부 필터 조건이 올바르지 않습니다`,
+    `❌Сканирование отменено, поскольку некоторые условия фильтрации некорректны`,
   ],
   _抓取线程为x: [
     `抓取线程：{}`,
-    `抓取執行緒：{}`,
+    `擷取執行緒：{}`,
     `Crawl threads: {}`,
     `クロールスレッド数: {}`,
     `크롤링 스레드: {}`,
@@ -11279,7 +11280,7 @@ ${Config.originalTags.join(',')}`,
   ],
   _由于有系列小说所以抓取线程被限制为1: [
     `由于这次抓取的内容里含有系列小说，所以抓取线程被限制为 1，以避免同时发送太多请求。`,
-    `由於這次抓取的內容裡含有系列小說，所以抓取執行緒被限制為 1，以避免同時發送太多請求。`,
+    `由於這次擷取的內容裡含有系列小說，所以擷取執行緒被限制為 1，以避免同時發送太多請求。`,
     `Because the content of this crawl contains novel series, the crawl threads have been limited to 1 to avoid sending too many requests at the same time.`,
     `今回のクロール内容にシリーズ小説が含まれているため、同時リクエストが多すぎるのを避けるためクロールスレッドを1に制限しました。`,
     `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
@@ -11336,7 +11337,7 @@ ${Config.originalTags.join(',')}`,
   _提示扩展名为jfif的问题: [
     `⚠️提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 jpeg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
 如果你想解决这个问题，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 键打开运行窗口，输入 <span class="blue">regedit</span> 并回车打开注册表编辑器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右侧的 <span class="blue">Extension</span> 的值从 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然后重启浏览器。`,
-    `⚠️提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 jpeg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
+    `⚠️提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 jpeg 檔案的副檔名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為副檔名。<br>
 如果你想解決這個問題，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 鍵打開執行視窗，輸入 <span class="blue">regedit</span> 並按 Enter 打開登錄編輯器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右側的 <span class="blue">Extension</span> 的值從 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然後重新啟動瀏覽器。`,
     `⚠️Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for jpeg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
 If you want to solve this problem, press <span class="blue">Win</span> + <span class="blue">R</span> to open the Run window, enter <span class="blue">regedit</span> and press Enter to open the Registry Editor, navigate to <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, change the value of <span class="blue">Extension</span> on the right from <span class="blue">.jfif</span> to <span class="blue">.jpg</span>, then restart the browser.`,
@@ -11382,7 +11383,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   ],
   _不抓取下载过的作品: [
     `不抓取<span class="key">下载过</span>的作品`,
-    `不抓取<span class="key">下載過</span>的作品`,
+    `不擷取<span class="key">下載過</span>的作品`,
     `Do not crawl <span class="key">already downloaded</span> works`,
     `<span class="key">ダウンロード済み</span>の作品をクロールしない`,
     `<span class="key">이미 다운로드한</span> 작품 크롤링 안 함`,
@@ -11390,7 +11391,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   ],
   _不抓取下载过的作品的说明: [
     `如果下载器里有这个作品的下载记录，就不会抓取它。`,
-    `如果下載器裡有這個作品的下載記錄，就不會抓取它。`,
+    `如果下載器裡有這個作品的下載記錄，就不會擷取它。`,
     `If the downloader has a download record for this work, it will not be crawled.`,
     `ダウンロードツールにこの作品のダウンロード記録がある場合、クロールしません。`,
     `다운로더에 이 작품의 다운로드 기록이 있으면 크롤링하지 않습니다.`,
@@ -11398,7 +11399,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   ],
   _不抓取下载过的作品的帮助信息: [
     `该功能依赖下载器自己保存的下载记录。<br>如果你启用了该功能，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。这样可以减少不必要的抓取，节约时间。<br>这个功能也有助于增量更新，因为你可以只抓取没有下载过的作品。<br><br>另外，在合并系列小说时，启用该设置可以跳过有下载记录的小说，只合并系列里新增的小说。不过需要注意的是，以前下载器在合并系列小说时不会保存每篇小说的下载记录，所以它们可能依然会被下载一次，之后就可以不再重复下载了。`,
-    `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器在抓取每個作品前會先檢查它是否有下載記錄，如果有就不抓取它。這樣可以減少不必要的抓取，節約時間。<br>這個功能也有助於增量更新，因為你可以只抓取沒有下載過的作品。<br><br>另外，在合併系列小說時，啟用該設定可以跳過有下載記錄的小說，只合併系列裡新增的小說。不過需要注意的是，以前下載器在合併系列小說時不會保存每篇小說的下載記錄，所以它們可能依然會被下載一次，之後就可以不再重複下載了。`,
+    `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器在擷取每個作品前會先檢查它是否有下載記錄，如果有就不擷取它。這樣可以減少不必要的擷取，節約時間。<br>這個功能也有助於增量更新，因為你可以只擷取沒有下載過的作品。<br><br>另外，在合併系列小說時，啟用該設定可以跳過有下載記錄的小說，只合併系列裡新增的小說。不過需要注意的是，以前下載器在合併系列小說時不會保存每篇小說的下載記錄，所以它們可能依然會被下載一次，之後就可以不再重複下載了。`,
     `This feature relies on the download records saved by the downloader itself.<br>If you enable this feature, the downloader will first check whether each work has a download record before crawling it. If it does, it will not crawl it. This can reduce unnecessary crawling and save time.<br>This feature also helps with incremental updates, as you can crawl only works that have not been downloaded before.<br><br>Additionally, when merging series novels, enabling this setting allows skipping novels that have download records and only merging newly added novels in the series. However, note that previously the downloader did not save download records for each individual novel when merging series novels, so they may still be downloaded once, after which they will no longer be repeatedly downloaded.`,
     `この機能はダウンローダーが自身で保存したダウンロード記録に依存します。<br>この機能を有効にすると、ダウンローダーは各作品をクロールする前にダウンロード記録があるかどうかを最初に確認し、記録があればクロールしません。これにより不要なクローリングを減らし、時間を節約できます。<br>この機能は増分更新にも役立ちます。ダウンロードされていない作品のみをクロールできるためです。<br><br>また、シリーズ小説をマージする際、この設定を有効にすると、ダウンロード記録のある小説をスキップし、シリーズ内の新規追加された小説のみをマージできます。ただし、以前はダウンローダーがシリーズ小説をマージする際に各小説のダウンロード記録を保存していなかったため、それらが一度ダウンロードされる可能性があり、その後は繰り返しダウンロードされなくなります。`,
     `이 기능은 다운로더가 자체적으로 저장한 다운로드 기록에 의존합니다.<br>이 기능을 활성화하면 다운로더는 각 작품을 크롤링하기 전에 먼저 다운로드 기록이 있는지 확인하고, 기록이 있으면 크롤링하지 않습니다. 이렇게 하면 불필요한 크롤링을 줄이고 시간을 절약할 수 있습니다.<br>이 기능은 또한 증분 업데이트에 도움이 되며, 다운로드되지 않은 작품만 크롤링할 수 있기 때문입니다.<br><br>또한 시리즈 소설을 병합할 때 이 설정을 활성화하면 다운로드 기록이 있는 소설을 건너뛰고 시리즈에 새로 추가된 소설만 병합할 수 있습니다. 다만 이전에는 다운로더가 시리즈 소설을 병합할 때 각 소설의 다운로드 기록을 저장하지 않았기 때문에, 한 번 다운로드될 수 있으며 그 후에는 반복 다운로드되지 않습니다.`,
@@ -11406,7 +11407,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   ],
   _提示合并系列小说时可以跳过已合并的小说: [
     `💡提示：在合并系列小说时，如果你启用了“不抓取下载过的作品”，下载器会跳过有下载记录的小说，只合并没有下载记录的小说。<br>从 18.7.0 版本（2026 年 4 月）开始，当你合并系列小说时，下载器会为里面的每篇小说都生成下载记录（就像你单独下载过它们一样）。所以当你再次合并同一个系列时，如果启用了“不抓取下载过的作品”，下载器就可以跳过以前合并过的小说，只合并新增的小说。`,
-    `💡提示：在合併系列小說時，如果你啟用了「不抓取下載過的作品」，下載器會跳過有下載記錄的小說，只合並沒有下載記錄的小說。<br>從 18.7.0 版本（2026 年 4 月）開始，當你合併系列小說時，下載器會為裡面的每篇小說都生成下載記錄（就像你單獨下載過它們一樣）。所以當你再次合併同一個系列時，如果啟用了「不抓取下載過的作品」，下載器就可以跳過以前合併過的小說，只合併新增的小說。`,
+    `💡提示：在合併系列小說時，如果你啟用了「不擷取下載過的作品」，下載器會跳過有下載記錄的小說，只合並沒有下載記錄的小說。<br>從 18.7.0 版本（2026 年 4 月）開始，當你合併系列小說時，下載器會為裡面的每篇小說都生成下載記錄（就像你單獨下載過它們一樣）。所以當你再次合併同一個系列時，如果啟用了「不擷取下載過的作品」，下載器就可以跳過以前合併過的小說，只合併新增的小說。`,
     `💡Tip: When merging series novels, if you have enabled "Do not crawl downloaded works", the downloader will skip novels that have download records and only merge novels that do not have download records.<br>Starting from version 18.7.0 (April 2026), when you merge series novels, the downloader will generate download records for every novel inside (as if you had downloaded them individually). So when you merge the same series again, if "Do not crawl downloaded works" is enabled, the downloader can skip previously merged novels and only merge newly added novels.`,
     `💡ヒント: シリーズ小説をマージする際、「ダウンロード済みの作品をクロールしない」を有効にしている場合、ダウンローダーはダウンロード記録のある小説をスキップし、ダウンロード記録のない小説のみをマージします。<br>バージョン 18.7.0（2026年4月）以降、シリーズ小説をマージする際、ダウンローダーは内部の各小説に対してダウンロード記録を生成します（個別にダウンロードしたかのように）。したがって、同じシリーズを再度マージする際、「ダウンロード済みの作品をクロールしない」が有効であれば、以前にマージした小説をスキップし、新しく追加された小説のみをマージできます。`,
     `💡팁: 시리즈 소설을 병합할 때 "다운로드된 작품을 크롤링하지 않음"을 활성화한 경우, 다운로더는 다운로드 기록이 있는 소설을 건너뛰고 다운로드 기록이 없는 소설만 병합합니다.<br>18.7.0 버전(2026년 4월)부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 "다운로드된 작품을 크롤링하지 않음"이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.`,
@@ -11455,7 +11456,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   ],
   _管理下载记录的提示: [
     `这里的下载记录指的是下载器保存的自己的下载记录，而非浏览器的下载记录。每当你使用下载器成功下载一个作品时，就会产生一条下载记录。每条记录会保存该作品的 ID、上传日期、文件名。<br>下载器的一些功能依赖下载记录，例如：不抓取下载过的作品、不下载重复文件、在下载过的作品上显示边框。<br><br>按钮：<br>- 导出：点击该按钮可以导出下载器的下载记录，这样可以备份下载记录，也可以在其他浏览器里导入以同步下载记录。<br>- 导入：点击该按钮可以选择之前导出的下载记录文件，合并到已有的下载记录里。如果有必要，你也可以为硬盘上已下载的文件制作一份下载记录，然后导入。具体方法可以点击该设置的名字，在 Wiki 查看详细说明。<br>- 清除：点击该按钮可以清空下载器的下载记录。<br><br>补充说明：<br>- 下载器的下载记录保存在浏览器的 IndexedDB 里。清除浏览器的下载记录不会影响下载器的下载记录，所以你可以放心清除浏览器的下载记录。<br>- <strong>注意：</strong>当你清除浏览器的数据时，清除“Cookie 及其他网站数据”会导致下载器的下载记录被清空！如果有必要，你可以在清理数据之前导出下载器的下载记录，之后再导入。<br>- 这不是一个可靠的功能。下载器没有权限读取硬盘上的文件，只能依赖自己保存的下载记录。如果你把下载过的文件删除了，下载器是不会知道的，依然会认为文件下载过。在这种情况下，依赖下载记录的功能可能会产生误判，所以你可以视情况关闭这些功能。`,
-    `這裡的下載記錄指的是下載器保存的自己的下載記錄，而非瀏覽器的下載記錄。每當你使用下載器成功下載一個作品時，就會產生一條下載記錄。每條記錄會保存該作品的 ID、上傳日期、檔名。<br>下載器的一些功能依賴下載記錄，例如：不抓取下載過的作品、不下載重複檔案、在下載過的作品上顯示邊框。<br><br>按鈕：<br>- 匯出：點擊該按鈕可以匯出下載器的下載記錄，這樣可以備份下載記錄，也可以在其他瀏覽器裡匯入以同步下載記錄。<br>- 匯入：點擊該按鈕可以選擇之前匯出的下載記錄檔案，合併到已有的下載記錄裡。如果有必要，你也可以為硬碟上已下載的檔案製作一份下載記錄，然後匯入。具體方法可以點擊該設定的名字，在 Wiki 查看詳細說明。<br>- 清除：點擊該按鈕可以清空下載器的下載記錄。<br><br>補充說明：<br>- 下載器的下載記錄保存在瀏覽器的 IndexedDB 裡。清除瀏覽器的下載記錄不會影響下載器的下載記錄，所以你可以放心清除瀏覽器的下載記錄。<br>- <strong>注意：</strong>當你清除瀏覽器的數據時，清除「Cookie 及其他網站數據」會導致下載器的下載記錄被清空！如果有必要，你可以在清理數據之前匯出下載器的下載記錄，之後再匯入。<br>- 這不是一個可靠的功能。下載器沒有權限讀取硬碟上的檔案，只能依賴自己保存的下載記錄。如果你把下載過的檔案刪除了，下載器是不會知道的，依然會認為檔案下載過。在這種情況下，依賴下載記錄的功能可能會產生誤判，所以你可以視情況關閉這些功能。`,
+    `這裡的下載記錄指的是下載器保存的自己的下載記錄，而非瀏覽器的下載記錄。每當你使用下載器成功下載一個作品時，就會產生一條下載記錄。每條記錄會保存該作品的 ID、上傳日期、檔名。<br>下載器的一些功能依賴下載記錄，例如：不擷取下載過的作品、不下載重複檔案、在下載過的作品上顯示邊框。<br><br>按鈕：<br>- 匯出：點擊該按鈕可以匯出下載器的下載記錄，這樣可以備份下載記錄，也可以在其他瀏覽器裡匯入以同步下載記錄。<br>- 匯入：點擊該按鈕可以選擇之前匯出的下載記錄檔案，合併到已有的下載記錄裡。如果有必要，你也可以為硬碟上已下載的檔案製作一份下載記錄，然後匯入。具體方法可以點擊該設定的名字，在 Wiki 查看詳細說明。<br>- 清除：點擊該按鈕可以清空下載器的下載記錄。<br><br>補充說明：<br>- 下載器的下載記錄保存在瀏覽器的 IndexedDB 裡。清除瀏覽器的下載記錄不會影響下載器的下載記錄，所以你可以放心清除瀏覽器的下載記錄。<br>- <strong>注意：</strong>當你清除瀏覽器的數據時，清除「Cookie 及其他網站數據」會導致下載器的下載記錄被清空！如果有必要，你可以在清理數據之前匯出下載器的下載記錄，之後再匯入。<br>- 這不是一個可靠的功能。下載器沒有權限讀取硬碟上的檔案，只能依賴自己保存的下載記錄。如果你把下載過的檔案刪除了，下載器是不會知道的，依然會認為檔案下載過。在這種情況下，依賴下載記錄的功能可能會產生誤判，所以你可以視情況關閉這些功能。`,
     `The download records here refer to the downloader's own saved download records, not the browser's download history. Every time you successfully download a work using the downloader, a download record is created. Each record saves the work's ID, upload date, and filename.<br>Some features of the downloader rely on download records, such as: Do not crawl downloaded works, Do not download duplicate files, Show border on downloaded works.<br><br>Buttons:<br>- Export: Click this button to export the downloader's download records. This allows you to back up the records or import them in another browser to sync the download records.<br>- Import: Click this button to select a previously exported download record file and merge it into the existing download records. If necessary, you can also create a download record for files already downloaded on your hard drive and then import it. For the specific method, click the name of this setting and check the detailed instructions in the Wiki.<br>- Clear: Click this button to clear the downloader's download records.<br><br>Additional notes:<br>- The downloader's download records are stored in the browser's IndexedDB. Clearing the browser's download history will not affect the downloader's download records, so you can safely clear the browser's download history.<br>- <strong>Note:</strong> When you clear browser data, clearing "Cookies and other site data" will cause the downloader's download records to be cleared! If necessary, you can export the downloader's download records before cleaning the data and import them afterward.<br>- This is not a reliable feature. The downloader does not have permission to read files on the hard drive and can only rely on its own saved download records. If you delete downloaded files, the downloader will not know and will still consider the files as downloaded. In this case, features that rely on download records may produce false judgments, so you can turn off these features as needed.`,
     `ここでのダウンロード記録とは、ダウンローダーが保存した自身のダウンロード記録を指し、ブラウザのダウンロード履歴ではありません。ダウンローダーを使用して作品を正常にダウンロードするたびに、ダウンロード記録が生成されます。各記録には作品の ID、アップロード日、ファイル名が保存されます。<br>ダウンローダーの一部の機能はダウンロード記録に依存しています。例えば：ダウンロード済みの作品をクロールしない、重複ファイルをダウンロードしない、ダウンロード済みの作品に枠を表示。<br><br>ボタン：<br>- エクスポート：このボタンをクリックすると、ダウンローダーのダウンロード記録をエクスポートできます。これにより記録をバックアップしたり、他のブラウザにインポートしてダウンロード記録を同期したりできます。<br>- インポート：このボタンをクリックすると、以前にエクスポートしたダウンロード記録ファイルを選択し、既存のダウンロード記録にマージできます。必要に応じて、ハードディスク上にすでにダウンロードされているファイル用のダウンロード記録を作成してインポートすることもできます。具体的な方法は、この設定の名前をクリックして Wiki の詳細説明を確認してください。<br>- クリア：このボタンをクリックすると、ダウンローダーのダウンロード記録を消去できます。<br><br>補足説明：<br>- ダウンローダーのダウンロード記録はブラウザの IndexedDB に保存されます。ブラウザのダウンロード履歴を消去してもダウンローダーのダウンロード記録には影響しないので、ブラウザのダウンロード履歴を安心して消去できます。<br>- <strong>注意：</strong>ブラウザのデータを消去する際、「Cookie およびその他のサイトデータ」を消去すると、ダウンローダーのダウンロード記録が消去されます！必要に応じて、データをクリアする前にダウンローダーのダウンロード記録をエクスポートし、後でインポートしてください。<br>- これは信頼できる機能ではありません。ダウンローダーはハードディスク上のファイルを読み取る権限がなく、自分で保存したダウンロード記録にのみ依存します。ダウンロード済みのファイルを削除した場合、ダウンローダーはそれを知らず、依然としてファイルがダウンロードされたとみなします。この場合、ダウンロード記録に依存する機能が誤った判断をする可能性があるため、必要に応じてこれらの機能をオフにしてください。`,
     `여기서의 다운로드 기록은 다운로더가 저장한 자체 다운로드 기록을 의미하며, 브라우저의 다운로드 기록이 아닙니다. 다운로더를 사용하여 작품을 성공적으로 다운로드할 때마다 다운로드 기록이 생성됩니다. 각 기록에는 해당 작품의 ID, 업로드 날짜, 파일명이 저장됩니다.<br>다운로더의 일부 기능은 다운로드 기록에 의존합니다. 예: 다운로드된 작품을 크롤링하지 않음, 중복 파일 다운로드하지 않음, 다운로드된 작품에 테두리 표시.<br><br>버튼:<br>- 내보내기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 내보낼 수 있습니다. 이렇게 하면 기록을 백업하거나 다른 브라우저에서 가져와 다운로드 기록을 동기화할 수 있습니다.<br>- 가져오기: 이 버튼을 클릭하면 이전에 내보낸 다운로드 기록 파일을 선택하여 기존 다운로드 기록에 병합할 수 있습니다. 필요하다면 하드 디스크에 이미 다운로드된 파일에 대한 다운로드 기록을 만들어 가져올 수도 있습니다. 구체적인 방법은 이 설정 이름을 클릭하여 Wiki에서 자세한 설명을 확인하세요.<br>- 지우기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 지울 수 있습니다.<br><br>추가 설명:<br>- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록을 지워도 다운로더의 다운로드 기록에는 영향을 주지 않으므로 브라우저 다운로드 기록을 안심하고 지울 수 있습니다.<br>- <strong>주의:</strong> 브라우저 데이터를 지울 때 "쿠키 및 기타 사이트 데이터"를 지우면 다운로더의 다운로드 기록이 지워집니다! 필요하다면 데이터를 정리하기 전에 다운로더의 다운로드 기록을 내보내고 나중에 가져오세요.<br>- 이는 신뢰할 수 있는 기능이 아닙니다. 다운로더는 하드 디스크의 파일을 읽을 권한이 없으며, 자신이 저장한 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 이를 알지 못하고 여전히 파일이 다운로드된 것으로 간주합니다. 이 경우 다운로드 기록에 의존하는 기능이 오판할 수 있으므로, 필요에 따라 이러한 기능을 끌 수 있습니다.`,
@@ -11481,7 +11482,7 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
   _右侧: [`右侧`, `右側`, `Right`, `右側`, `오른쪽`, `Правая сторона`],
   _多图作品不抓取后几张图片: [
     `多图作品不抓取<span class="key">后几张</span>图片`,
-    `多圖作品不抓取<span class="key">後幾張</span>圖片`,
+    `多圖作品不擷取<span class="key">後幾張</span>圖片`,
     `Do not crawl the <span class="key">last few</span> images of multi-image works`,
     `複数画像作品で<span class="key">後ろの数枚</span>の画像をクロールしない`,
     `다중 이미지 작품에서 <span class="key">뒤의 몇 장</span> 이미지를 크롤링하지 않음`,
@@ -11491,9 +11492,9 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。如果你不想抓取这些图片，可以使用这个设置来排除最后一张或多张图片。<br><br>
 注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
 多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-    `常見的使用場景：有些繪師作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。如果你不想抓取這些圖片，可以使用這個設定來排除最後一張或多張圖片。<br><br>
+    `常見的使用場景：有些繪師作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。如果你不想擷取這些圖片，可以使用這個設定來排除最後一張或多張圖片。<br><br>
 注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而不是排除整個作品。<br><br>
-多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+多圖作品只擷取、不擷取前/後幾張圖片的條件可以同時使用。不擷取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會擷取它。`,
     `Common use cases: in some artists' works, the last image or last few images are promotional images, or images with mosaic censorship. If you do not want to crawl those images, you can use this setting to exclude the last one or several images.<br><br>
 Note: if the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
 The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
@@ -11509,7 +11510,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
   ],
   _多图作品不抓取前几张图片: [
     `多图作品不抓取<span class="key">前几张</span>图片`,
-    `多圖作品不抓取<span class="key">前幾張</span>圖片`,
+    `多圖作品不擷取<span class="key">前幾張</span>圖片`,
     `Do not crawl the <span class="key">first few</span> images of multi-image works`,
     `複数画像作品で<span class="key">最初の数枚</span>の画像をクロールしない`,
     `다중 이미지 작품에서 <span class="key">앞의 몇 장</span> 이미지를 크롤링하지 않음`,
@@ -11519,9 +11520,9 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。如果你想跳过第一张，从第二张开始抓取，就可以启用这个设置。<br><br>
 注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
 多图作品只抓取、不抓取前/后几张图片的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-    `常見的使用場景：有些繪師作品的第一張圖片有文字，第二張沒有文字；或者第一張是全年齡，第二張是 R-18。如果你想跳過第一張，從第二張開始抓取，就可以啟用這個設定。<br><br>
+    `常見的使用場景：有些繪師作品的第一張圖片有文字，第二張沒有文字；或者第一張是全年齡，第二張是 R-18。如果你想跳過第一張，從第二張開始擷取，就可以啟用這個設定。<br><br>
 注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而不是排除整個作品。<br><br>
-多圖作品只抓取、不抓取前/後幾張圖片的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會抓取它。`,
+多圖作品只擷取、不擷取前/後幾張圖片的條件可以同時使用。不擷取的優先級更高：如果一張圖片同時符合兩種條件，下載器不會擷取它。`,
     `Common use cases: some artists make works where the first image has text and the second image does not; or the first image is all-ages and the second is R-18. If you want to skip the first image and start crawling from the second one, you can enable this setting.<br><br>
 Note: if the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
 The conditions "only crawl the first/last few images" and "do not crawl the first/last few images" for multi-image works can be used at the same time. "Do not crawl" has higher priority: if an image matches both conditions, the downloader will not crawl it.`,
@@ -11537,7 +11538,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
   ],
   _多图作品只抓取前几张图片: [
     `多图作品只抓取<span class="key">前几张</span>图片`,
-    `多圖作品只抓取<span class="key">前幾張</span>圖片`,
+    `多圖作品只擷取<span class="key">前幾張</span>圖片`,
     `Only crawl the <span class="key">first few</span> images of multi-image works`,
     `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
     `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
@@ -11547,7 +11548,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
     `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br><br>
     提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
     `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br><br>
-    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+    提示：兩個「只擷取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
     `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br><br>
     Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
     `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br><br>
@@ -11559,7 +11560,7 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
   ],
   _多图作品只抓取后几张图片: [
     `多图作品只抓取<span class="key">后几张</span>图片`,
-    `多圖作品只抓取<span class="key">後幾張</span>圖片`,
+    `多圖作品只擷取<span class="key">後幾張</span>圖片`,
     `Only crawl the <span class="key">last few</span> images of multi-image works`,
     `複数画像作品で<span class="key">後ろの数枚</span>の画像のみをクロール`,
     `다중 이미지 작품에서 <span class="key">뒤의 몇 장</span> 이미지만 크롤링`,
@@ -11568,8 +11569,8 @@ The conditions "only crawl the first/last few images" and "do not crawl the firs
   _多图作品只抓取后几张图片的说明: [
     `常见的使用场景：一些用户在发布恋活（Koikatsu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br><br>
     提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
-    `常見的使用場景：一些用戶在發佈戀活（Koikatsu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br><br>
-    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+    `常見的使用場景：一些用戶在發佈戀活（Koikatsu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只擷取最後一張或多張圖片。<br><br>
+    提示：兩個「只擷取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
     `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatsu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br><br>
     Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
     `よくある使用シーン：一部のユーザーがKoikatsuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br><br>
@@ -12035,7 +12036,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   ],
   _分组_抓取范围: [
     `抓取范围`,
-    `抓取範圍`,
+    `擷取範圍`,
     `Crawl scope`,
     `クロール範囲`,
     `수집 범위`,
@@ -12285,7 +12286,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   ],
   _占位符: [
     `占位符`,
-    `占位符`,
+    `佔位符`,
     `Placeholder`,
     `プレースホルダー`,
     `자리 표시자`,
@@ -12312,7 +12313,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
   _中文_简体和繁体_搜索用: [`中文`, `中文`, `中文`, `中文`, `中文`, `中文`],
   _简体中文_搜索用: [
     `简体中文`,
-    `简体中文`,
+    `簡體中文`,
     `简体中文`,
     `简体中文`,
     `简体中文`,
@@ -12733,7 +12734,7 @@ If you're worried about misoperation, you can turn off this feature.`,
   ],
   _下载器目前不支持抓取珍藏册: [
     `⚠️下载器目前不支持抓取珍藏册。`,
-    `⚠️下載器目前不支援抓取珍藏冊。`,
+    `⚠️下載器目前不支援擷取珍藏冊。`,
     `⚠️The downloader currently does not support fetching collections.`,
     `⚠️ダウンローダーは現在、コレクションの取得をサポートしていません。`,
     `⚠️다운로더는 현재 컬렉션 가져오기를 지원하지 않습니다.`,
@@ -12779,15 +12780,15 @@ If you're worried about misoperation, you can turn off this feature.`,
     `교체된 단어:{} ➡️ {}`,
     `Замененное слово:{} ➡️ {}`,
   ],
-  _在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说: [
-    `在合并系列小说时，只要有一篇小说符合<span class="key">过滤条件</span>，就保存该系列里的所有小说`,
-    `在合併系列小說時，只要有一篇小說符合<span class="key">過濾條件</span>，就保存該系列裡的所有小說`,
+  _在合并系列小说时只要有一篇小说符合筛选条件就保存该系列里的所有小说: [
+    `在合并系列小说时，只要有一篇小说符合<span class="key">筛选条件</span>，就保存该系列里的所有小说`,
+    `在合併系列小說時，只要有一篇小說符合<span class="key">篩選條件</span>，就保存該系列裡的所有小說`,
     `When merging series novels, as long as one novel meets the <span class="key">filtering criteria</span>, all novels in the series will be saved`,
     `シリーズ小説をマージする際、1つの小説が<span class="key">フィルタリング条件</span>を満たす場合、シリーズ内のすべての小説が保存されます`,
     `시리즈 소설을 병합할 때, 하나의 소설이 <span class="key">필터링 조건</span>을 충족하면 시리즈의 모든 소설이 저장됩니다`,
     `При объединении серийных романов, если хотя бы один роман соответствует <span class="key">критериям фильтрации</span>, все романы в серии будут сохранены`,
   ],
-  _在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示: [
+  _在合并系列小说时只要有一篇小说符合筛选条件就保存该系列里的所有小说的提示: [
     `举例说明：<br>
 假如你设置了收藏数量 > 100；<br>
 某个系列里有 10 篇小说，其中只有 1 篇小说符合条件。<br>
@@ -12820,8 +12821,8 @@ If you enable this setting, the downloader will merge all novels.`,
 Если вы включите эту настройку, загрузчик объединит все романы.`,
   ],
   _提示会合并所有小说: [
-    `注意：虽然这个系列里有一些小说不符合过滤条件，但由于用户设置，下载器会合并所有小说。`,
-    `注意：雖然這個系列裡有一些小說不符合過濾條件，但由於使用者設定，下載器會合併所有小說。`,
+    `注意：虽然这个系列里有一些小说不符合筛选条件，但由于用户设置，下载器会合并所有小说。`,
+    `注意：雖然這個系列裡有一些小說不符合篩選條件，但由於使用者設定，下載器會合併所有小說。`,
     `Note: Although some novels in this series do not meet the filtering criteria, the downloader will merge all novels due to user settings.`,
     `注意：このシリーズの中にはフィルタリング条件を満たさない小説もありますが、ユーザー設定により、ダウンローダーはすべての小説をマージします。`,
     `참고: 이 시리즈의 일부 소설은 필터링 기준을 충족하지 않지만, 사용자 설정으로 인해 다운로더는 모든 소설을 병합합니다.`,
@@ -13023,7 +13024,7 @@ If you enable this setting, the downloader will merge all novels.`,
 - 同步變化（預設值）：當你在一個分頁裡修改設定後，其他分頁裡的設定也會隨之變化。所有分頁都會使用相同的設定。<br>
 - 保持不變（舊版行為）：當你在一個分頁裡修改設定後，其他分頁裡的設定不會變化。換言之，所有分頁裡的修改都不會影響其他分頁，直到其他分頁重新整理，或開啟新的分頁時，才會使用最新的設定。<br>
 <br>
-舊版行為的優點是：當使用者在不同分頁裡同時抓取、下載時，可以使用不同的設定。例如，你可以在分頁 A 裡啟用「收藏數量」條件，但在分頁 B 裡不啟用這個條件，然後同時進行抓取。這確實是一個實用技巧，但只要你不是同時抓取，就不需要這個特性。<br>
+舊版行為的優點是：當使用者在不同分頁裡同時擷取、下載時，可以使用不同的設定。例如，你可以在分頁 A 裡啟用「收藏數量」條件，但在分頁 B 裡不啟用這個條件，然後同時進行擷取。這確實是一個實用技巧，但只要你不是同時擷取，就不需要這個特性。<br>
 另外，舊版行為還有一些缺點：<br>
 1. 不直覺。新使用者通常以為設定會在不同分頁之間同步變化，但實際上其他分頁裡的設定沒有變化，導致操作失誤、浪費時間。即使使用者知道這個特點，也經常需要確認某個分頁裡的設定是否符合預期，這加重了心智負擔。<br>
 2. 可能會遺失你在某些設定裡新增的資料。例如：你先在分頁 A 裡新增了一個排除的標籤（tag1），下載器會儲存這份設定，但此時分頁 B 依然會使用舊的設定（沒有 tag1）；之後你在分頁 B 裡新增了另一個排除的標籤（tag2），下載器會再次儲存設定，但是裡面只有 tag2，沒有 tag1。所以你在分頁 A 裡做的一些修改消失了。<br>
@@ -13208,7 +13209,7 @@ You can choose between two export strategies:<br>
     `本次更新的主要內容：<br>
 - 新增了全選作品、手動排除作品的功能<br>
 - 優化了預覽作品功能<br>
-- 可以抓取使用者主頁裡的約稿作品了<br>
+- 可以擷取使用者主頁裡的約稿作品了<br>
 - 在網頁右側新增了查看日誌的按鈕<br>
 - 優化了移動端介面，提升使用者體驗<br>
 - 新增了自訂快捷鍵功能<br>
@@ -13466,7 +13467,7 @@ Now I have optimized it:<br>
   ],
   _抓取约稿作品: [
     `抓取约稿作品`,
-    `抓取約稿作品`,
+    `擷取約稿作品`,
     `Crawl request works`,
     `リクエスト作品をクロール`,
     `리퀘스트 작품 크롤링`,
@@ -13474,7 +13475,7 @@ Now I have optimized it:<br>
   ],
   _抓取所有约稿作品: [
     `抓取所有约稿作品`,
-    `抓取所有約稿作品`,
+    `擷取所有約稿作品`,
     `Crawl all request works`,
     `すべてのリクエスト作品をクロール`,
     `모든 리퀘스트 작품 크롤링`,
@@ -13482,7 +13483,7 @@ Now I have optimized it:<br>
   ],
   _抓取x个约稿作品: [
     `抓取 {} 个约稿作品`,
-    `抓取 {} 個約稿作品`,
+    `擷取 {} 個約稿作品`,
     `Crawl {} request works`,
     `{}件のリクエスト作品をクロール`,
     `리퀘스트 작품 {}개 크롤링`,
@@ -13506,7 +13507,7 @@ Now I have optimized it:<br>
   ],
   _已从抓取结果中移除: [
     `已从抓取结果中移除`,
-    `已從抓取結果中移除`,
+    `已從擷取結果中移除`,
     `Removed from crawl results`,
     `クロール結果から削除されました`,
     `크롤링 결과에서 제거됨`,
@@ -13514,7 +13515,7 @@ Now I have optimized it:<br>
   ],
   _下载时会跳过这个文件: [
     `下载时会跳过这个文件`,
-    `下載時會跳過這個文件`,
+    `下載時會跳過這個檔案`,
     `This file will be skipped during download`,
     `ダウンロード時にこのファイルはスキップされます`,
     `다운로드 시 이 파일은 건너뜁니다`,
@@ -13554,7 +13555,7 @@ Now I have optimized it:<br>
     `下載器有一些預設的快捷鍵：<br>
 <span class="blue">L</span>(og) 查看/關閉日誌區域<br>
 <span class="blue">Alt</span> + <span class="blue">X</span> 查看/關閉設定面板<br>
-<span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的抓取按鈕（開始抓取）<br>
+<span class="blue">Alt</span> + <span class="blue">Z</span> 點擊預設的擷取按鈕（開始擷取）<br>
 <span class="blue">Alt</span> + <span class="blue">S</span>(elect) 手動選擇作品<br>
 <span class="blue">Alt</span> + <span class="blue">E</span>(xclude) 手動排除作品<br>
 <span class="blue">Alt</span> + <span class="blue">Q</span>(uick) 快速下載當前作品（只在作品頁面裡使用）<br>
@@ -13562,7 +13563,7 @@ Now I have optimized it:<br>
 <span class="blue">Alt</span> + <span class="blue">C</span>(opy) 複製作品的圖片和摘要資訊<br>
 <span class="blue">Alt</span> + <span class="blue">P</span>(review) 啟用/關閉預覽作品功能<br>
 <br>
-如果你想修改這些快捷鍵，可以在下載器的「通用」-「操作方式」-「自定義快速鍵」設置裡進行修改。`,
+如果你想修改這些快捷鍵，可以在下載器的「通用」-「操作方式」-「自定義快速鍵」設定裡進行修改。`,
     `The downloader has some preset hotkeys:<br>
 <span class="blue">L</span>(og) View/close the log area<br>
 <span class="blue">Alt</span> + <span class="blue">X</span> View/close the settings panel<br>
@@ -13614,7 +13615,7 @@ If you want to modify these hotkeys, you can do so in the downloader's "General"
   ],
   _该页面里没有默认的抓取按钮: [
     `该页面里没有默认的抓取按钮`,
-    `該頁面裡沒有預設的抓取按鈕`,
+    `該頁面裡沒有預設的擷取按鈕`,
     `There is no default crawl button on this page`,
     `このページにはデフォルトのクロールボタンはありません`,
     `이 페이지에는 기본 크롤링 버튼이 없습니다`,
@@ -13706,7 +13707,7 @@ Details:<br>
   ],
   _点击默认的抓取按钮: [
     `点击默认的抓取按钮`,
-    `點擊預設的抓取按鈕`,
+    `點擊預設的擷取按鈕`,
     `Click the default crawl button`,
     `デフォルトのクロールボタンをクリック`,
     `기본 크롤링 버튼 클릭`,
@@ -13763,7 +13764,7 @@ Details:<br>
   ],
   _未设置: [
     `未设置`,
-    `未設置`,
+    `未設定`,
     `Not set`,
     `未設定`,
     `설정 안 됨`,
@@ -13952,7 +13953,7 @@ GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처
   ],
   _提示怎么抓取一个用户的作品: [
     `你在哪个页面里，下载器就会下载哪个页面的作品。如果你想下载一个用户的所有作品，需要进入这个用户的主页，然后点击“开始抓取”按钮。`,
-    `你在哪個頁面裡，下載器就會下載哪個頁面的作品。如果你想下載一個用戶的所有作品，需要進入這個用戶的主頁，然後點擊「開始抓取」按鈕。`,
+    `你在哪個頁面裡，下載器就會下載哪個頁面的作品。如果你想下載一個用戶的所有作品，需要進入這個用戶的主頁，然後點擊「開始擷取」按鈕。`,
     `The downloader downloads the works of whatever page you are currently on. If you want to download all works of a user, go to that user's homepage and click the "Start crawling" button.`,
     `ダウンローダーは、あなたが今いるページの作品をダウンロードします。ユーザーのすべての作品をダウンロードしたい場合は、そのユーザーのホームページに移動し、「クロールを開始する」ボタンをクリックしてください。`,
     `다운로더는 현재 보고 있는 페이지의 작품을 다운로드합니다. 사용자의 모든 작품을 다운로드하려면 해당 사용자의 홈페이지로 이동한 후 "긁어오기 시작" 버튼을 클릭하세요.`,
@@ -13961,7 +13962,7 @@ GitHub에서 이 확장 프로그램의 소스 코드와 전체 개인정보 처
   _抓取结果是非法的JSON的提醒: [
     `预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
 一种可能的原因：您已被 Pixiv 封禁。`,
-    `預期的資料格式為 JSON，但抓取結果不是 JSON。已取消抓取。<br>
+    `預期的資料格式為 JSON，但擷取結果不是 JSON。已取消擷取。<br>
 其中一個可能的原因：您已被 Pixiv 封鎖。`,
     `The expected data format is JSON, but the retrieved data is not JSON. Crawling has been canceled.<br>
 One possible reason: Your Pixiv account has been banned.`,
@@ -13978,9 +13979,9 @@ One possible reason: Your Pixiv account has been banned.`,
     这可能是因为你没有启用“预览搜索页面的抓取结果”功能，或者目前没有任何抓取结果。<br>
     <br>
     作为替代方案，你可以使用“手动排除作品”按钮来排除不需要的作品。`,
-    `啟用「預覽搜尋頁面的擷取結果」功能後，下載器會將抓取到的作品顯示在頁面上，供你查看。<br>
+    `啟用「預覽搜尋頁面的擷取結果」功能後，下載器會將擷取到的作品顯示在頁面上，供你查看。<br>
     目前頁面上沒有下載器添加的作品，因此無法使用「手動刪除作品」功能。<br>
-    這可能是因為你沒有啟用「預覽搜尋頁面的擷取結果」功能，或目前沒有任何抓取結果。<br>
+    這可能是因為你沒有啟用「預覽搜尋頁面的擷取結果」功能，或目前沒有任何擷取結果。<br>
     <br>
     你也可以改用「手動排除作品」按鈕，排除不需要的作品。`,
     `When you enable "Preview crawl results on search page", the downloader displays crawled works on the page so you can review them.<br>
@@ -14006,7 +14007,7 @@ One possible reason: Your Pixiv account has been banned.`,
   ],
   _提示检查图片色彩会增加抓取所需时间: [
     `注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。`,
-    `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加抓取所需的時間。`,
+    `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加擷取所需的時間。`,
     `Note: if you select only one image color, the downloader will load the thumbnail of every image to check it, so it will take more time to crawl.`,
     `注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。`,
     `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
@@ -14038,7 +14039,7 @@ One possible reason: Your Pixiv account has been banned.`,
   ],
   _保存抓取结果失败: [
     `保存抓取结果失败：{}`,
-    `儲存抓取結果失敗：{}`,
+    `儲存擷取結果失敗：{}`,
     `Failed to save the crawl result: {}`,
     `クロール結果の保存に失敗しました：{}`,
     `크롤링 결과 저장에 실패했습니다: {}`,
@@ -14242,7 +14243,7 @@ One possible reason: Your Pixiv account has been banned.`,
     <br>
     不會轉換的內容：<br>
     - 下載器不會轉換作者名字、標籤清單、檔案名稱。<br>
-    - 下載器不會轉換除了小說檔案之外的檔案。所以在匯出的抓取結果裡、在單獨的檔案裡儲存的小說中繼資料裡、在簡介檔案裡，始終都是原始內容。`,
+    - 下載器不會轉換除了小說檔案之外的檔案。所以在匯出的擷取結果裡、在單獨的檔案裡儲存的小說中繼資料裡、在簡介檔案裡，始終都是原始內容。`,
     `Explanation:<br>
     - The conversion only takes effect when the original language of the novel is Chinese. Novels in other languages are not converted.<br>
     - It takes effect for both the TXT and EPUB formats.<br>
@@ -14416,7 +14417,7 @@ One possible reason: Your Pixiv account has been banned.`,
   ],
   _抓取列表页时遇到错误结束抓取: [
     `抓取列表页时遇到错误，结束抓取`,
-    `抓取清單頁面時遇到錯誤，結束擷取`,
+    `擷取清單頁面時遇到錯誤，結束擷取`,
     `An error occurred while crawling the list page, crawling stopped`,
     `リストページの取得中にエラーが発生したため、取得を終了します`,
     `목록 페이지를 긁어오는 중 오류가 발생하여 캐내기를 종료합니다`,

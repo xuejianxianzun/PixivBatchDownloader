@@ -60,17 +60,19 @@ import { PageName } from '../PageType'
 import { ppdTask } from '../PPDTask'
 import { Tools } from '../Tools'
 import { SendDownload } from '../download/SendDownload'
+import { PageIds } from './SettingsPanelTypes'
 
-export type OptionCategoryLevel1 =
-  | 'crawl'
-  | 'naming'
-  | 'download'
-  | 'enhance'
-  | 'general'
+/** 含有自己的设置项的一级分类页面的 id。
+ * 排除了「首页」「帮助」「搜索」这些自己本身没有设置项的页面（它们里面只可能显示来自其他分类的设置）。
+ * 它是 PageIds 的子集 */
+export type OptionCategoryLevel1 = Exclude<
+  (typeof PageIds)[number],
+  'home' | 'help' | 'search'
+>
 
 /** 保存每个可折叠区域的展开/折叠状态 */
 type ExpandedCards = {
-  // 一级导航分类的名称：home（主页是个单独的分类）、crawl、naming、download、enhance、general（这些是设置项的分类）。
+  // 一级导航分类的名称：home（主页是个单独的分类）、filter、naming、download、enhance、general（这些是设置项的分类）。
   // 备注：不需要保存 search 里的状态。
   [key in OptionCategoryLevel1 | 'home']?: {
     // 二级分类的展开/折叠状态。true 为展开，false 为折叠
@@ -1180,7 +1182,7 @@ class Settings {
         /** 下载区域 */
         downloadArea: false,
       },
-      crawl: {
+      filter: {
         scope: true,
         workType: false,
         workData: false,
@@ -1378,7 +1380,8 @@ class Settings {
         restoreData = result[Config.settingStoreName] as XzSetting
       }
 
-      // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
+      // 有些设置项的 key 是 PageName（页面类型）。
+      // 当我添加了新的页面类型之后，下面的代码会把新的页面类型及其配置添加到旧的设置项里。
       const keys = [
         'crawlNumber',
         'nameRuleForEachPageType',
@@ -1396,6 +1399,15 @@ class Settings {
             restoreData[key][pageTypeNo] = cfg
           }
         }
+      }
+
+      // 以前 OptionCategoryLevel1 里的第一个 id 是 crawl，后来我改成了 filter。
+      // 所以需要迁移旧版本的 expandedCards 配置，
+      // 如果 filter 不存在的话，就添加它（重要，否则旧设置里永远不会添加 filter 分类），
+      // 并让它继承 crawl 的值。
+      const oldExpandedCards1 = (restoreData.expandedCards as any)?.crawl
+      if (!restoreData.expandedCards?.filter && oldExpandedCards1) {
+        restoreData.expandedCards.filter = oldExpandedCards1
       }
 
       this.assignSettings(restoreData)
@@ -1424,9 +1436,9 @@ class Settings {
       })
   }, 50)
 
-  // 接收整个设置项，通过循环将其更新到 settings 上
+  /** 接收整个设置对象，通过循环将其更新到 settings 对象上 */
   // 循环设置而不是整个替换的原因：
-  // 1. 进行类型转换，如某些设置项是 number，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
+  // 1. 进行类型转换，如某些设置项是 number，但旧设置里是 string，setSetting 可以把它们转换到正确的类型
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置覆盖新的设置
   private assignSettings(data: XzSetting) {
     const origin = Utils.deepCopy(data)

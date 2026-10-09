@@ -47,7 +47,7 @@ class FilterInactiveUsers {
   }
 
   public async start() {
-    if (!canRequestInBatch('_过滤不活跃用户')) {
+    if (!canRequestInBatch('_筛选不活跃用户')) {
       return
     }
 
@@ -145,7 +145,7 @@ class FilterInactiveUsers {
   // 获取用户列表
   private async getUserList() {
     // 账户被警告时终止遍历，不再请求后续的用户列表，也不会显示不完整的结果
-    if (!canRequestInBatch('_过滤不活跃用户')) {
+    if (!canRequestInBatch('_筛选不活跃用户')) {
       return
     }
 

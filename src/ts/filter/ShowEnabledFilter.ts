@@ -13,7 +13,7 @@ class ShowEnabledFilter {
     this.wrongSetting = true
     log.error(msg.replace('<br>', ''))
     msgBox.error(msg, {
-      title: lang.transl('_抓取条件不正确'),
+      title: lang.transl('_筛选条件不正确'),
     })
   }
 
