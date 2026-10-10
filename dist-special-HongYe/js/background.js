@@ -1921,17 +1921,56 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().action.onClicked.ad
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onInstalled.addListener(() => {
     webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.set({ batchNo: {}, idList: {} });
 });
-// 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
-const dlData = {};
+// 存储每个下载任务的数据。浏览器保存文件期间 service worker 可能被回收，所以需要持久化它以便在下载事件触发时恢复。
+let dlData = {};
 /** 使用每个标签页的 tabId 作为索引，储存此标签页里当前下载任务的编号。用来判断不同批次的下载 */
 let batchNo = {};
 /** 使用每个标签页的 tabId 作为索引，储存此标签页发送到 SW 的每个下载请求的作品 id，用来判断重复的任务 */
 let idList = {};
-// batchNo 和 idList 需要持久化存储（但是当浏览器关闭并重新启动时可以清空，因为此时前台的下载任务必然和浏览器关闭之前的不是同一批了，所以旧的数据已经没用了）
-// 如果不进行持久化存储，如果前台任务处于下载途中，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
-// 实际上，下载时后台 SW 会持续存在很长时间，不会轻易被回收的。持久化存储只是为了以防万一
+// batchNo、idList 和 dlData 需要持久化存储。浏览器关闭后可以清空它们，因为前台下载任务已经结束。
+// service worker 被回收后会从存储恢复这些数据，既能避免重复建立下载项，也能在浏览器完成下载后向前台回传结果。
 async function setData(data) {
     return webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.set(data);
+}
+/** 每次 service worker 启动后，恢复下载任务的临时数据 */
+let restoreDownloadDataPromise;
+/** 从持久化存储恢复下载任务的临时数据 */
+function restoreDownloadData() {
+    if (!restoreDownloadDataPromise) {
+        restoreDownloadDataPromise = webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local
+            .get(['batchNo', 'idList', 'dlData'])
+            .then((data) => {
+            batchNo = data.batchNo || {};
+            idList = data.idList || {};
+            dlData = data.dlData || {};
+        });
+    }
+    return restoreDownloadDataPromise;
+}
+/** 按顺序持久化下载任务数据，避免多个下载事件互相覆盖 */
+let saveDLDataChain = Promise.resolve();
+/** 持久化当前的下载任务数据 */
+function saveDLData() {
+    const save = () => setData({ dlData }).catch((error) => {
+        console.error('保存下载任务数据失败', error);
+    });
+    saveDLDataChain = saveDLDataChain.then(save, save);
+    return saveDLDataChain;
+}
+/** 释放失败任务的去重记录，不影响新批次中相同作品的请求。 */
+async function releaseDownloadId(data) {
+    if (batchNo[data.tabId] !== data.taskBatch) {
+        return;
+    }
+    const ids = idList[data.tabId];
+    const index = ids?.indexOf(data.id) ?? -1;
+    if (index < 0) {
+        return;
+    }
+    ids.splice(index, 1);
+    await setData({ idList }).catch((error) => {
+        console.error('保存下载任务记录失败', error);
+    });
 }
 // 类型守卫，这是为了通过类型检查，所以只要求有 msg 属性
 // 如果检查了其他属性，那么对于只有 msg 属性的简单消息就会不通过。所以不检查其他属性
@@ -1945,18 +1984,12 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
         console.warn('收到了无效的消息:', msg);
         return false;
     }
+    await restoreDownloadData();
     const tabId = sender.tab.id;
     // 当存在同名文件时，默认覆写，但前台也可以指定处理方式
     const conflictAction = msg.conflictAction || 'overwrite';
     // 下载作品的文件
     if (msg.msg === 'save_work_file') {
-        // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
-        // 之后每当要使用这两个数据时，从变量读取，而不是从存储中获得。这样就解决了数据不同步的问题，而且性能更高
-        if (Object.keys(batchNo).length === 0) {
-            const data = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.get(['batchNo', 'idList']);
-            batchNo = data.batchNo;
-            idList = data.idList;
-        }
         // 如果开始了新一批的下载，重设批次编号，并清空下载索引
         if (batchNo[tabId] !== msg.taskBatch) {
             batchNo[tabId] = msg.taskBatch;
@@ -1969,28 +2002,45 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
             // 储存该任务的索引
             idList[tabId].push(msg.id);
             setData({ idList });
-            // 开始下载
-            const _url = await getFileURL(msg);
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads
-                .download({
-                url: _url,
-                filename: msg.fileName,
-                conflictAction,
-                saveAs: false,
-            })
-                .then((id) => {
-                // id 是新建立的下载项的 id，使用它作为 key 保存数据
-                dlData[id] = {
-                    blobURLFront: msg.blobURL,
-                    blobURLBack: _url.startsWith('blob:') ? _url : '',
-                    id: msg.id,
-                    tabId: tabId,
-                    uuid: false,
-                };
-            })
-                .catch((error) => {
-                console.error('downloads.download 失败', error);
-            });
+            const data = {
+                blobURLFront: msg.blobURL,
+                blobURLBack: '',
+                id: msg.id,
+                tabId,
+                taskBatch: msg.taskBatch,
+                uuid: false,
+            };
+            try {
+                const url = await getFileURL(msg);
+                data.blobURLBack = url.startsWith('blob:') ? url : '';
+                const id = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.download({
+                    url,
+                    filename: msg.fileName,
+                    conflictAction,
+                    saveAs: false,
+                });
+                // 建立下载项不代表保存完成，继续等待 onChanged 返回结果。
+                dlData[id] = data;
+                await saveDLData();
+            }
+            catch (error) {
+                console.error('建立浏览器下载任务失败', error);
+                revokeBlobURL(data.blobURLFront);
+                revokeBlobURL(data.blobURLBack);
+                await releaseDownloadId(data);
+                const runtimeError = error instanceof Error ? error.message : String(error);
+                await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs
+                    .sendMessage(tabId, {
+                    msg: 'download_err',
+                    data,
+                    err: runtimeError,
+                    runtimeError,
+                    saveRequestFailed: true,
+                })
+                    .catch((error) => {
+                    console.error('回发下载失败消息失败', error);
+                });
+            }
         }
     }
     // 有些文件本身不在抓取结果 store.result 里，所以也不会出现在下载进度条上
@@ -2001,23 +2051,22 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
         msg.msg === 'save_novel_embedded_image' ||
         msg.msg === 'save_novel_series_file') {
         const _url = await getFileURL(msg);
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads
-            .download({
+        const id = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.download({
             url: _url,
             filename: msg.fileName,
             conflictAction,
             saveAs: false,
-        })
-            .then((id) => {
-            dlData[id] = {
-                blobURLFront: msg.blobURL,
-                blobURLBack: _url.startsWith('blob:') ? _url : '',
-                id: msg.id,
-                tabId: tabId,
-                uuid: false,
-                noReply: true,
-            };
         });
+        dlData[id] = {
+            blobURLFront: msg.blobURL,
+            blobURLBack: _url.startsWith('blob:') ? _url : '',
+            id: msg.id,
+            taskBatch: msg.taskBatch,
+            tabId: tabId,
+            uuid: false,
+            noReply: true,
+        };
+        await saveDLData();
     }
     // 使用 a.download 来下载文件时，不调用 downloads API，并且直接返回下载成功的模拟数据
     if (msg.msg === 'save_work_file_a_download') {
@@ -2027,6 +2076,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.a
             data: {
                 url: '',
                 id: msg.id,
+                taskBatch: msg.taskBatch,
                 tabId,
                 uuid: false,
             },
@@ -2078,6 +2128,7 @@ const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}
 // Firefox Android 不支持 downloads API（注册监听器时会抛出 "Not implemented" 错误），所以不注册该监听器
 if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.downloadsAPIDisabled) {
     webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.onChanged.addListener(async function (detail) {
+        await restoreDownloadData();
         // 根据 detail.id 取出保存的数据
         const _dlData = dlData[detail.id];
         if (_dlData) {
@@ -2099,9 +2150,7 @@ if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.downloadsAPIDisabled) {
                 msg = 'download_err';
                 err = detail.error.current;
                 // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-                const idIndex = idList[_dlData.tabId].findIndex((val) => val === _dlData.id);
-                idList[_dlData.tabId][idIndex] = '';
-                setData({ idList });
+                await releaseDownloadId(_dlData);
             }
             if (msg) {
                 // 返回信息
@@ -2113,13 +2162,14 @@ if (!_Config__WEBPACK_IMPORTED_MODULE_3__.Config.downloadsAPIDisabled) {
                 revokeBlobURL(_dlData?.blobURLBack);
                 // 删除保存的数据
                 delete dlData[detail.id];
-                dlData[detail.id] = null;
             }
+            await saveDLData();
         }
     });
 }
 // 清除不需要的数据，避免数据体积越来越大
 async function clearData() {
+    await restoreDownloadData();
     for (const key of Object.keys(idList)) {
         const tabId = parseInt(key);
         try {

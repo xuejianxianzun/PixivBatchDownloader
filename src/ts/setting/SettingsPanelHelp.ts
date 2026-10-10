@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { LangTextKey } from '../langText'
 import { msgBox } from '../MsgBox'
 import { settingsPanelTipCard } from './SettingsPanelTipCard'
+import { Utils } from '../utils/Utils'
 
 // 构造设置面板里的帮助页面
 class SettingsPanelHelp {
@@ -44,6 +45,7 @@ class SettingsPanelHelp {
       { id: 'faq', textKey: '_常见问题', iconId: 'help' },
       { id: 'shortcut', textKey: '_快捷键', iconId: 'shortcut' },
       { id: 'recentUpdates', textKey: '_最近更新', iconId: 'new-2' },
+      { id: 'privacyPolicy', textKey: '_隐私政策', iconId: 'privacy-policy' },
       { id: 'sponsorship', textKey: '_赞助我', iconId: 'heart-line' },
       { id: 'github', textKey: '_github', iconId: 'github' },
       { id: 'discord', textKey: '_Discord', iconId: 'discord' },
@@ -132,6 +134,12 @@ class SettingsPanelHelp {
         EVT.fire('showRecentUpdates')
         return
 
+      case 'privacyPolicy':
+        msgBox.show(this.getPrivacyPolicyText(), {
+          title: lang.transl('_隐私政策'),
+        })
+        return
+
       case 'github':
         msgBox.show(lang.transl('_GitHub说明'), {
           title: 'GitHub',
@@ -178,6 +186,19 @@ class SettingsPanelHelp {
         EVT.fire('resetHelpTip')
         return
     }
+  }
+
+  private getPrivacyPolicyText() {
+    const linkEN =
+      'https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/Privacy%20Policy.md'
+    const linkCN =
+      'https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/Privacy%20Policy-ZH-CN.md'
+    const title = lang.transl('_隐私政策')
+    let link = Utils.createLinkHTML(linkEN, title)
+    if (lang.type === 'zh-cn' || lang.type === 'zh-tw') {
+      link = Utils.createLinkHTML(linkCN, title)
+    }
+    return lang.transl('_隐私政策的说明') + link
   }
 
   private playRipple(button: HTMLButtonElement) {

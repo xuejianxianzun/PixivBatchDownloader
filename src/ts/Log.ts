@@ -10,6 +10,20 @@ import { ppdTask } from './PPDTask'
 import { bg } from './BG'
 import { lang } from './Language'
 
+/** 日志系统。它会在网页顶部添加日志区域，并在其中输出日志。
+ *
+ * ## 关于日志的 key
+ *
+ * `log.log()` / `log.warning()` / `log.error()` 等方法的第二个参数是 key（可以省略）。
+ * **key 相同的日志会复用同一个元素，只占一行**——再次输出时会覆盖那一行的内容，而不会新增一行。
+ * 所以当一段逻辑会（例如在循环里）反复输出同样的内容时，只要给它们相同的 key 就不会刷屏。
+ * 典型用法：`log.error(msg, 'accountWarning' + nameKey)`。
+ *
+ * 几点说明：
+ * - 带 key 的日志不计入日志总数，所以不会触发「日志太多就新建日志区域」的逻辑。
+ * - 如果希望某条带 key 的日志之后重新占一行，可以调用 `log.persistentRefresh(key)`，
+ *   这会让下次输出该 key 时新建一个元素。
+ * - 导出日志时也按 key 去重，同一个 key 只保留最后一条记录。 */
 class Log {
   constructor() {
     showLogButton.init({
@@ -149,7 +163,11 @@ class Log {
       }
     }
 
-    span.innerHTML = str
+    // 把「裸 &」转义成 &amp; 之后再交给 innerHTML 渲染。
+    // 否则 URL 里的一些参数会被浏览器当成 HTML 实体解析，例如：
+    // &timestamp= 开头的 &times 会被解析成 ×，于是显示成 ×tamp=
+    // 已经写成实体的文本（如 &amp;、&nbsp;、&#39;）会被保留，不会重复转义
+    span.innerHTML = str.replace(/&(?![a-zA-Z0-9#]+;)/g, '&amp;')
     span.style.color = this.levelColor[level]
     span.appendChild(document.createElement('br'))
 
@@ -161,6 +179,7 @@ class Log {
   }
 
   /** 输出普通日志 */
+  // 允许添加空行。使用 log.log('') 即可输出一个空行，在视觉上形成一个空白分隔区域。
   public log(str: string, key = '') {
     this.add(str, 0, key)
   }

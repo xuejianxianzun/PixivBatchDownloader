@@ -124,6 +124,11 @@ class ButtonConfigs {
           order: 12,
           nameKey: '_用户的约稿页面',
         },
+        NovelMarkerAll: {
+          id: 'NovelMarkerAll',
+          order: 13,
+          nameKey: '_小说书签列表页面',
+        },
       },
     },
     downloadArea: {
@@ -402,6 +407,13 @@ class ButtonConfigs {
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'UserRequest',
     },
+    // startCrawl - NovelMarkerAll
+    {
+      id: 'crawlNovelMarkerAllWorks',
+      nameKey: '_开始抓取',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'NovelMarkerAll',
+    },
     // downloadArea - CrawlResults
     {
       id: 'importCrawlResults',
@@ -448,7 +460,7 @@ class ButtonConfigs {
     },
     {
       id: 'stopDownload',
-      nameKey: '_停止下载',
+      nameKey: '_放弃下载',
       categoryLevel1: 'downloadArea',
       categoryLevel2: 'DownloadControl',
     },
@@ -561,7 +573,7 @@ class ButtonConfigs {
     },
     {
       id: 'batchFollowUser',
-      nameKey: '_批量关注用户',
+      nameKey: '_批量关注用户JSON',
       categoryLevel1: 'extraFeatures',
       categoryLevel2: 'FollowingPage',
     },

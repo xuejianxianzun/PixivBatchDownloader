@@ -1,7 +1,6 @@
 import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
-import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
 import { toast } from '../Toast'
@@ -21,7 +20,7 @@ class NameRuleManager {
         : 'nameRuleForEachPageTypeForNovel'
     this.ruleSetting =
       type === 'artwork' ? 'userSetName' : 'userSetNameForNovel'
-    this.defauleRule =
+    this.defaultRule =
       type === 'artwork'
         ? Config.defaultNameRuleForArtwork
         : Config.defaultNameRuleForNovel
@@ -59,8 +58,11 @@ class NameRuleManager {
     | 'nameRuleForEachPageType'
     | 'nameRuleForEachPageTypeForNovel'
   private ruleSetting: 'userSetName' | 'userSetNameForNovel'
-  private defauleRule: string
+  private defaultRule: string
   private textarea: HTMLTextAreaElement | null = null
+  /** 提示「命名规则里必须含有序号」的元素。它默认带有 is-hidden，
+   * 只有图像作品的命名规则需要做这个检查（见 Tools.checkNameRule） */
+  private nameRuleIndexTip: HTMLElement | null = null
   /** 合并同一批设置变化后的输入框刷新 */
   private setInputValueTimer = 0
 
@@ -73,7 +75,7 @@ class NameRuleManager {
     if (settings.setNameRuleForEachPageType) {
       let rule = settings[this.ruleList][pageType.type]
       if (rule === undefined) {
-        rule = this.defauleRule
+        rule = this.defaultRule
         this.saveCurrentPageRule(rule)
       }
       return rule
@@ -90,29 +92,30 @@ class NameRuleManager {
     // 检查传递的命名规则的合法性
     let check = true
 
+    this.updateNameRuleIndexTip(str)
+
     // 对于小说的命名规则，可以只使用 {follow_artwork}，表示跟随图像作品的命名规则
     if (this.type === 'novel' && str.includes('{follow_artwork}')) {
       check = true
     } else {
       // 如果是图像作品的命名规则，或者是小说的命名规则里没有使用 {follow_artwork}
       // 为了防止文件名重复，命名规则里必须包含 {id} 或者 {pid}{p} 或者 {id_num}{p_num}
-      check =
-        str.includes('{id}') ||
-        (str.includes('{pid}') && str.includes('{p}')) ||
-        (str.includes('{id_num}') && str.includes('{p_num}'))
+      check = Tools.checkNameRule(str)
     }
 
     if (!check) {
       window.setTimeout(() => {
-        toast.warning(lang.transl('_命名规则一定要包含id'), {
+        toast.error(lang.transl('_缺少必须的标记本次修改未保存'), {
           stay: 3000,
         })
       }, 300)
     } else {
       // 检查通过，替换特殊字符
-      str = this.handleUserSetName(str) || this.defauleRule
+      str = this.handleUserSetName(str) || this.defaultRule
       setSetting(this.ruleSetting, str)
       Tools.setRows(this.textarea)
+
+      toast.success(lang.transl('_已保存修改'))
 
       if (settings.setNameRuleForEachPageType) {
         this.saveCurrentPageRule(str)
@@ -133,6 +136,19 @@ class NameRuleManager {
     // 保存事件被触发之前的值
     let lastValue = input.value
 
+    // 图像作品的命名规则必须含有序号，否则文件名可能重复。
+    // 在输入过程中就实时检查并提示，用户不必等到保存时才发现规则不合法
+    this.nameRuleIndexTip = document.querySelector('#tipNameRuleMustHaveIndex')
+    // 首次绑定时先检查一次：输入框里可能已经是一条不含序号的规则
+    this.updateNameRuleIndexTip(input.value)
+
+    // 只用 input 事件：它在每次输入时都会触发，
+    // 而 change 事件要等输入框失去焦点才触发，做不到实时
+    input.addEventListener('input', () => {
+      // 直接从输入框取值，此时这个规则还没有被保存
+      this.updateNameRuleIndexTip(input.value)
+    })
+
     // 给输入框绑定事件
     const eventList = ['change', 'focus']
     // change 事件只对用户手动输入有效
@@ -148,11 +164,37 @@ class NameRuleManager {
           return
         }
         lastValue = input.value
-        if (settings[this.ruleList][pageType.type] !== input.value) {
+
+        // 从下拉框添加命名标记时不会触发 input 事件，所以这里也要刷新一次提示
+        this.updateNameRuleIndexTip(input.value)
+
+        // 当开启“为每个页面类型使用不同的命名规则”时，当前页面类型的规则才是生效的规则；
+        // 否则生效的是 userSetName（或 userSetNameForNovel），这里必须与它比较
+        const effectiveRule = settings.setNameRuleForEachPageType
+          ? settings[this.ruleList][pageType.type]
+          : settings[this.ruleSetting]
+        if (effectiveRule !== input.value) {
           this.rule = input.value
         }
       })
     })
+  }
+
+  /** 根据命名规则的值，显示或隐藏「命名规则里必须含有序号」的提示
+   *
+   * @param str 命名规则。通常是输入框里的当前值，而不是已保存的设置 ——
+   * 用户输入途中也要检查，而那时这个规则还没有保存
+   *
+   * 只有图像作品的命名规则需要做这个检查，小说会直接隐藏提示 */
+  private updateNameRuleIndexTip(str: string) {
+    if (this.type !== 'artwork' || !this.nameRuleIndexTip) {
+      return
+    }
+
+    this.nameRuleIndexTip.classList.toggle(
+      'is-hidden',
+      Tools.checkNameRule(str)
+    )
   }
 
   // 设置输入框的值为当前命名规则
@@ -166,12 +208,17 @@ class NameRuleManager {
     // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
     if (pageType.type === pageType.list.Pixivision) {
       this.textarea.value = settings[this.ruleList][pageType.type]
+      this.updateNameRuleIndexTip(this.textarea.value)
       return
     }
 
     // 如果 settings[this.ruleList] 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
     const rule = this.rule
     this.textarea.value = rule
+
+    // 这里是程序化赋值，不会触发 input 事件，所以必须手动刷新一次提示
+    // （切换页面类型、一批设置变化之后都会走这里）
+    this.updateNameRuleIndexTip(rule)
 
     Tools.setRows(this.textarea)
   }

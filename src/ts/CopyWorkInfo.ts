@@ -204,7 +204,6 @@ class CopyWorkInfo {
   // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
   // - 额外添加了 {n} 和 {url} 标记
   // - 在每个标签前面加上 # 符号
-  // 红叶版本的区别：不会在每个标签前面加上 # 符号
   private convertTextFormat(
     data: ArtworkData | NovelData,
     format: 'text' | 'html' = 'text',
@@ -214,12 +213,13 @@ class CopyWorkInfo {
     const page_tag = Tools.getTagFromURL()
     const body = data.body
     const type = 'illustType' in body ? body.illustType : 3
+    // 红叶版本的区别：不会在每个标签前面加上 # 符号
     const tags = Tools.extractTags(data)
-    const tagsWithTransl = Tools.extractTags(data, 'both')
-    const tagsTranslOnly = Tools.extractTags(data, 'transl')
+    const tagsWithTransl = Tools.extractTags(data, 'both', 'check')
+    const tagsTranslOnly = Tools.extractTags(data, 'transl', 'check')
 
     // 判断是不是 AI 生成的作品
-    const tagsWithTransl2 = Tools.extractTags(data, 'both')
+    const tagsWithTransl2 = Tools.extractTags(data, 'both', 'check')
     let aiType = body.aiType
     if (aiType !== 2) {
       if (Tools.checkAIFromTags(tagsWithTransl2)) {
@@ -237,7 +237,8 @@ class CopyWorkInfo {
         Tools.unshiftTag(tagsTranslOnly, AITag)
       }
     }
-    const AI = aiType === 2 || tags.includes(AITag)
+    // aiType 在上面已经用 Tools.checkAIFromTags 修正过了，所以这里不需要再从 tags 里判断一次
+    const AI = aiType === 2
 
     const seriesNavData = body.seriesNavData
 
@@ -314,6 +315,7 @@ class CopyWorkInfo {
       '{task_date}': DateFormat.format(new Date(), settings.dateFormat),
       '{type}': Config.worksTypeName[type],
       '{AI}': AI ? 'AI' : '',
+      '{human}': !AI ? 'Human' : '',
       '{series_title}': seriesTitle,
       '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
       '{series_id}': seriesNavData ? seriesNavData.seriesId : '',

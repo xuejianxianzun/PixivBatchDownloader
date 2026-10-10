@@ -81,7 +81,7 @@ class CheckTag {
   private check(a: HTMLAnchorElement) {
     const tag = a.innerText
     const result: CheckResult = {
-      inNotNeedTagList: settings.notNeedTag.includes(tag),
+      inNotNeedTagList: settings.notNeedTagPartial.includes(tag),
       inTagRename: [],
       blockTags: false,
     }
@@ -229,9 +229,9 @@ class CheckTag {
 
   /**把这个 tag 添加到 tag 屏蔽列表 */
   private addToExcludeList(tag: string) {
-    if (!settings.notNeedTag.includes(tag)) {
-      settings.notNeedTag.push(tag)
-      setSetting('notNeedTag', settings.notNeedTag)
+    if (!settings.notNeedTagPartial.includes(tag)) {
+      settings.notNeedTagPartial.push(tag)
+      setSetting('notNeedTagPartial', settings.notNeedTagPartial)
 
       toast.warning('屏蔽 ' + tag)
 
@@ -241,10 +241,10 @@ class CheckTag {
 
   /**把这个 tag 从屏蔽列表中移除*/
   private removeFormExcludeList(tag: string) {
-    const index = settings.notNeedTag.findIndex((str) => str === tag)
+    const index = settings.notNeedTagPartial.findIndex((str) => str === tag)
     if (index > -1) {
-      settings.notNeedTag.splice(index, 1)
-      setSetting('notNeedTag', settings.notNeedTag)
+      settings.notNeedTagPartial.splice(index, 1)
+      setSetting('notNeedTagPartial', settings.notNeedTagPartial)
 
       toast.success('取消屏蔽 ' + tag)
 

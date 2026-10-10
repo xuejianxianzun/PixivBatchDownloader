@@ -39,7 +39,8 @@ class CrawlLatestFewWorks {
   private hideOption() {
     if (!this.enable) {
       window.setTimeout(() => {
-        hideOptions.hideOption([15])
+        // _抓取每个用户最新的几个作品
+        hideOptions.hideOption([2])
       }, 0)
     }
   }

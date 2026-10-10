@@ -30,6 +30,7 @@ import {
   UserRequestPageInfo,
   UserRequestSentPageInfo,
   RequestWorksData,
+  NovelMarkerAllData,
 } from './crawl/CrawlResult'
 
 import {
@@ -41,6 +42,7 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
+import { states } from './store/States'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
@@ -89,6 +91,12 @@ class API {
     }
     const attemptRequest = async (tryCount = 0): Promise<T> => {
       const response = await fetch(url, init)
+
+      // 统计 API 请求成功的次数，供 CheckWarningMessage 判断是否需要检查站内信。
+      // 放在这一行之后：只有请求本身成功（收到了响应）才计数，不管响应的状态码是什么。
+      // 如果请求本身失败，原生 fetch 会抛出异常，就不会执行到这里，也就不会计数
+      states.apiRequestCount++
+
       // response.ok 的状态码范围是 200-299
       if (response.ok && !mockHttpStatus) {
         // 请求成功，直接返回数据
@@ -257,13 +265,15 @@ class API {
     return this.fetch(url)
   }
 
-  /** 获取用户信息 */
+  /** 获取用户信息
+   * @param id 用户 ID
+   * @param full 是否获取详细信息，'1' 为获取详细信息，'0' 为只获取少量信息
+   * @returns 用户的详细信息或部分信息
+   */
   static getUserProfile(
     id: string,
     full: '0' | '1' = '1'
   ): Promise<UserProfile> {
-    // full=1 在画师的作品列表页使用，获取详细信息
-    // full=0 在作品页内使用，只获取少量信息
     const url = `https://www.pixiv.net/ajax/user/${id}?full=${full}`
     return this.fetch(url)
   }
@@ -741,6 +751,19 @@ class API {
     }
 
     return idList
+  }
+
+  /** 获取小说书签列表数据，每页包含的小说数量固定为 10 个。
+   *
+   * userId 是当前登录用户的 Id，p 是页码。
+   *
+   * p 可以超出实际页数，此时会返回空数组。 */
+  static async getNovelMarkerAllData(
+    userId: string,
+    p: number
+  ): Promise<NovelMarkerAllData> {
+    const url = `https://www.pixiv.net/touch/ajax_api/novel_api.php?endpoint=novel&mode=marker_all&id=${userId}&p=${p}`
+    return this.fetch(url)
   }
 }
 

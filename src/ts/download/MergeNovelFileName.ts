@@ -23,6 +23,7 @@ class MergeNovelFileName {
 
     const body = seriesData.body
     // 生成所有命名标记的值
+    const isAI = body.aiType === 2 || Tools.checkAIFromTags(body.tags)
     const schema: NamingSchema = {
       '{series_title}': {
         value: body.title,
@@ -62,8 +63,11 @@ class MergeNovelFileName {
         safe: true,
       },
       '{AI}': {
-        value:
-          body.aiType === 2 || Tools.checkAIFromTags(body.tags) ? 'AI' : '',
+        value: isAI ? 'AI' : '',
+        safe: true,
+      },
+      '{human}': {
+        value: !isAI ? 'Human' : '',
         safe: true,
       },
       '{lang}': {

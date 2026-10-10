@@ -8,7 +8,7 @@ import { API } from '../API'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
-import './CrawlRecommendWorks'
+import './CrawlRecommendWorksAfterBookmark'
 import '../buttonsOnThumb/ButtonsOnArtworkPage'
 import { settings } from '../setting/Settings'
 
@@ -182,10 +182,17 @@ class InitArtworkPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  // 下载相关作品时使用
+  /**下载页面底部的相关作品时使用 */
+  // 注意：新发表的作品，页面底部可能不是相关作品，而是推荐作品（其实就是发现页面里的推荐作品）
+  // 详细说明可以查看这个文档：notes/作品详情页底部的推荐作品和相关作品.md
+  // 下载器目前不会抓取推荐作品，因为它的作品是不会根据当前页面作品的内容变化的，这导致：
+  // - 推荐作品与当前页面的作品没有相关性
+  // - 底部的推荐作品数量有限，尤其是在图像作品页面里，固定显示 18 个
+  // - 在不同的作品页面里，推荐作品的相似度很高，抓取它们的意义不大
   private async getRelatedList() {
     let data = await API.getRelatedData(Tools.getIllustId())
-    // 相关作品的列表由两部分构成，所以要组合起来
+    // 相关作品的完整 id 列表由两部分组成：illusts 里的 id，以及 ids 里的 id
+    // 需要组合起来
     let ids: string[] = []
     for (const illust of data.body.illusts) {
       if (illust.isAdContainer) {
@@ -207,7 +214,11 @@ class InitArtworkPage extends InitPageBase {
       })
     }
 
-    log.log(lang.transl('_相关作品抓取完毕', store.idList.length.toString()))
+    const length = store.idList.length
+    log.log(lang.transl('_相关作品抓取完毕', length.toString()))
+    if (length === 0) {
+      log.warning(lang.transl('_没有相关作品的提示'))
+    }
     this.getIdListFinished()
   }
 

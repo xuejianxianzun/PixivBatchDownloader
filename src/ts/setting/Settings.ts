@@ -31,9 +31,10 @@
 // 当所有设置都初始化完毕后，触发一次 settingInitialized 事件
 // 在内容脚本的生命周期里，这个事件只会触发一次。可以理解为在一个标签页里只会触发一次，除非用户刷新了该标签页才会再次触发
 // PS：重置设置不会触发这个事件
-// 用途：
+// 使用说明：
 // - 如果其他模块在初始化时依赖多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
-// - 想在设置初始化之后执行动作
+// - 如果需要在设置初始化之后执行动作，可以绑定这个事件，也可以 await states.waitSettingInitialized()
+// - 如果需要判断初始化是否已经完成，可以使用 states.settingInitialized
 
 // EVT.list.resetSettingsEnd
 // 会被两种操作触发：
@@ -59,17 +60,19 @@ import { PageName } from '../PageType'
 import { ppdTask } from '../PPDTask'
 import { Tools } from '../Tools'
 import { SendDownload } from '../download/SendDownload'
+import { PageIds } from './SettingsPanelTypes'
 
-export type OptionCategoryLevel1 =
-  | 'crawl'
-  | 'naming'
-  | 'download'
-  | 'enhance'
-  | 'general'
+/** 含有自己的设置项的一级分类页面的 id。
+ * 排除了「首页」「帮助」「搜索」这些自己本身没有设置项的页面（它们里面只可能显示来自其他分类的设置）。
+ * 它是 PageIds 的子集 */
+export type OptionCategoryLevel1 = Exclude<
+  (typeof PageIds)[number],
+  'home' | 'help' | 'search'
+>
 
 /** 保存每个可折叠区域的展开/折叠状态 */
 type ExpandedCards = {
-  // 一级导航分类的名称：home（主页是个单独的分类）、crawl、naming、download、enhance、general（这些是设置项的分类）。
+  // 一级导航分类的名称：home（主页是个单独的分类）、filter、naming、download、enhance、general（这些是设置项的分类）。
   // 备注：不需要保存 search 里的状态。
   [key in OptionCategoryLevel1 | 'home']?: {
     // 二级分类的展开/折叠状态。true 为展开，false 为折叠
@@ -225,6 +228,8 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
+  /** 非白色像素里，有颜色的像素的占比超过这个值时，就认为它是彩色图片。取值范围 1 - 100 */
+  coloredRatio: number
   downNotBookmarked: boolean
   downBookmarked: boolean
   /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的动图转换格式 */
@@ -241,7 +246,14 @@ interface XzSetting {
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   needTag: string[]
-  notNeedTag: string[]
+  /** 是否启用全字匹配模式。关闭时不检查全字匹配的标签列表 */
+  notNeedTagWholeSwitch: boolean
+  /** 全字匹配模式下要排除的标签。作品的标签与这里的标签完全相同时，排除这个作品 */
+  notNeedTagWhole: string[]
+  /** 是否启用部分匹配模式。关闭时不检查部分匹配的标签列表 */
+  notNeedTagPartialSwitch: boolean
+  /** 部分匹配模式下要排除的标签。作品的标签包含这里的标签时，排除这个作品 */
+  notNeedTagPartial: string[]
   autoStartDownload: boolean
   autoStartDownloadForQuickDownload: boolean
   downloadThread: number
@@ -257,7 +269,8 @@ interface XzSetting {
   postDateStart: number
   postDateEnd: number
   previewResult: boolean
-  previewResultLimit: number
+  /** 搜索页预览每页显示的作品数量 */
+  previewResultPageSize: number
   BMKNumSwitch: boolean
   BMKNumMin: number
   BMKNumMax: number
@@ -278,15 +291,48 @@ interface XzSetting {
   idRangeComparisonForImageWorks: '>' | '<'
   idRangeComparisonForNovelWorks: '>' | '<'
   idRangeComparisonForNovelSeries: '>' | '<'
+  idRangeComparisonForBookmarkImageWorks: '>' | '<'
+  idRangeComparisonForBookmarkNovelWorks: '>' | '<'
   idRangeValueForImageWorks: number
   idRangeValueForNovelWorks: number
   idRangeValueForNovelSeries: number
+  idRangeValueForBookmarkImageWorks: number
+  idRangeValueForBookmarkNovelWorks: number
   filterBlackWhite: boolean
   sizeSwitch: boolean
   sizeMin: number
   sizeMax: number
   novelSaveAs: 'txt' | 'epub'
   saveNovelMeta: boolean
+  /**
+   * EPUB 排版方向。horizontal 横排（默认），vertical 竖排（适合日语等 CJK 小说），
+   * verticalForLangList 只对 epubVerticalLangList 里的语言使用竖排
+   *（依据 EPUB 实际使用的语言标签判断）。
+   *
+   * ⚠️ 不能直接使用这个值的字面量，因为它可能是不确定的（verticalForLangList）。
+   * 需要排版方向时必须用 `EPUBSetting.resolve()` 计算实际的方向。
+   */
+  epubWritingMode: 'horizontal' | 'vertical' | 'verticalForLangList'
+  /**
+   * epubWritingMode 为 verticalForLangList 时，对这些语言的小说使用竖排。
+   * 每一项是一个语言标签，如 ja、zh-tw；只写主标签（如 zh）会匹配它的所有变体
+   */
+  epubVerticalLangList: string[]
+  /**
+   * EPUB 语言标签的来源，会写入 EPUB 的 dc:language 和 xml:lang。
+   * novelLang 使用小说的语言；downloaderLang 使用下载器的界面语言；custom 使用用户自定义的语言代码
+   */
+  epubLangSource: 'novelLang' | 'downloaderLang' | 'custom'
+  /** 用户自定义的 EPUB 语言标签，仅在 epubLangSource 为 custom 时生效 */
+  epubCustomLang: string
+  /**
+   * 转换小说文本的用字。none 不转换（默认）；cn2tw 简体转繁体；tw2cn 繁体转简体。
+   * 转换的范围是小说正文、元数据里的标题与简介、系列的设定资料；不转换文件名、标签列表。
+   *
+   * 转换需要加载对应的 opencc 字典文件，由 `ConvertNovelText` 模块按需加载。
+   * 只对能判断出字形的中文生效，而且原文已经是目标用字时不会转换。
+   */
+  convertNovelText: 'none' | 'cn2tw' | 'tw2cn'
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
@@ -335,7 +381,6 @@ interface XzSetting {
   switchTabBar: 'over' | 'click'
   zeroPadding: boolean
   zeroPaddingLength: number
-  tagMatchMode: 'partial' | 'whole'
   showFastSearchArea: boolean
   saveMetaType0: boolean
   saveMetaType1: boolean
@@ -475,6 +520,10 @@ interface XzSetting {
   tipPinOption: boolean
   tipCloseAskFileSaveLocation: boolean
   tipCloseAskFileSaveLocationOnce: boolean
+  /** 只下载这些语言的小说 */
+  novelLanguageSwitch: boolean
+  /** 小说语言的白名单，例如 ja、zh-cn。只有语言在这个列表里的小说才会被抓取 */
+  novelLanguageList: string[]
   titleIncludeSwitch: boolean
   titleIncludeList: string[]
   titleExcludeSwitch: boolean
@@ -513,6 +562,7 @@ interface XzSetting {
   tipAltEToExcludeWork: boolean
   /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
   hotkeys: HotkeyMap
+  tipHowToCrawlUserWorks: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -758,6 +808,22 @@ class Settings {
         value: -1,
         tip: '_负1或者大于0',
       },
+      [PageName.NovelGenre]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.NovelMarkerAll]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
     },
     onlyCrawlFirstFewImagesSwitch: false,
     onlyCrawlFirstFewImagesCount: 1,
@@ -774,6 +840,7 @@ class Settings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
+    coloredRatio: 25,
     downNotBookmarked: true,
     downBookmarked: true,
     ugoiraSaveAs: 'webp',
@@ -787,7 +854,10 @@ class Settings {
     saveThumbnailForUgoira: false,
     convertUgoiraThread: 1,
     needTag: [],
-    notNeedTag: [],
+    notNeedTagWholeSwitch: true,
+    notNeedTagWhole: [],
+    notNeedTagPartialSwitch: true,
+    notNeedTagPartial: [],
     autoStartDownload: true,
     autoStartDownloadForQuickDownload: true,
     downloadThread: 3,
@@ -805,7 +875,7 @@ class Settings {
     // 2100 年 1 月 1 日
     postDateEnd: 4102416000000,
     previewResult: true,
-    previewResultLimit: 3000,
+    previewResultPageSize: 200,
     BMKNumSwitch: false,
     BMKNumMin: 0,
     BMKNumMax: Config.BookmarkCountLimit,
@@ -826,9 +896,13 @@ class Settings {
     idRangeComparisonForImageWorks: '>',
     idRangeComparisonForNovelWorks: '>',
     idRangeComparisonForNovelSeries: '>',
+    idRangeComparisonForBookmarkImageWorks: '>',
+    idRangeComparisonForBookmarkNovelWorks: '>',
     idRangeValueForImageWorks: 0,
     idRangeValueForNovelWorks: 0,
     idRangeValueForNovelSeries: 0,
+    idRangeValueForBookmarkImageWorks: 0,
+    idRangeValueForBookmarkNovelWorks: 0,
     needTagSwitch: false,
     notNeedTagSwitch: false,
     filterBlackWhite: false,
@@ -837,6 +911,11 @@ class Settings {
     sizeMax: 100,
     novelSaveAs: 'epub',
     saveNovelMeta: true,
+    epubWritingMode: 'horizontal',
+    epubVerticalLangList: ['ja', 'zh-tw'],
+    epubLangSource: 'novelLang',
+    epubCustomLang: 'ja',
+    convertNovelText: 'none',
     deduplication: false,
     dupliStrategy: 'loose',
     tagsSeparator: ',',
@@ -875,7 +954,6 @@ class Settings {
     switchTabBar: 'over',
     zeroPadding: false,
     zeroPaddingLength: 3,
-    tagMatchMode: 'whole',
     showFastSearchArea: true,
     saveMetaType0: false,
     saveMetaType1: false,
@@ -918,6 +996,8 @@ class Settings {
       [PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
       [PageName.SearchUsers]: Config.defaultNameRuleForArtwork,
       [PageName.UserRequest]: Config.defaultNameRuleForArtwork,
+      [PageName.NovelGenre]: Config.defaultNameRuleForArtwork,
+      [PageName.NovelMarkerAll]: Config.defaultNameRuleForArtwork,
     },
     nameRuleForEachPageTypeForNovel: {
       [PageName.Unsupported]: Config.defaultNameRuleForNovel,
@@ -949,6 +1029,8 @@ class Settings {
       [PageName.Contest]: Config.defaultNameRuleForNovel,
       [PageName.SearchUsers]: Config.defaultNameRuleForNovel,
       [PageName.UserRequest]: Config.defaultNameRuleForNovel,
+      [PageName.NovelGenre]: Config.defaultNameRuleForNovel,
+      [PageName.NovelMarkerAll]: Config.defaultNameRuleForNovel,
     },
     showNotificationAfterDownloadComplete: false,
     boldKeywords: true,
@@ -1058,6 +1140,8 @@ class Settings {
     tipCloseAskFileSaveLocation: true,
     tipPinOption: true,
     tipCloseAskFileSaveLocationOnce: true,
+    novelLanguageSwitch: false,
+    novelLanguageList: [],
     titleIncludeSwitch: false,
     titleIncludeList: [],
     titleExcludeSwitch: false,
@@ -1082,7 +1166,7 @@ class Settings {
     debugForWiki: false,
     singleEPUBFileSizeLimit: 200,
     imageToGray: false,
-    clickOptionCardToToggleSwitch: true,
+    clickOptionCardToToggleSwitch: false,
     /** 保存每个可折叠区域的展开/折叠状态 */
     // home 里的二级分类名称是直接在这里指定的。其他导航分类里的二级分类名称来自 OptionConfigs.ts 里的 categorySchema 对象里，对应的一级分类的 level2.id。
     // 每个一级分类里的首个二级分类是默认展开的，这样用户至少可以看到第一个二级分类的内容，不需要手动点击来展开它。
@@ -1097,7 +1181,7 @@ class Settings {
         /** 下载区域 */
         downloadArea: false,
       },
-      crawl: {
+      filter: {
         scope: true,
         workType: false,
         workData: false,
@@ -1146,6 +1230,7 @@ class Settings {
     tipManuallyExcludeWorks: true,
     tipAltEToExcludeWork: true,
     hotkeys: defaultHotkeys,
+    tipHowToCrawlUserWorks: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1169,12 +1254,15 @@ class Settings {
     'namingRuleListForNovel',
     'blockList',
     'needTag',
-    'notNeedTag',
+    'notNeedTagWhole',
+    'notNeedTagPartial',
     'createFolderTagList',
     'createFolderTagList2',
     'exportLogExclude',
+    'novelLanguageList',
     'titleIncludeList',
     'titleExcludeList',
+    'epubVerticalLangList',
   ]
 
   // 以默认设置作为初始设置
@@ -1291,7 +1379,8 @@ class Settings {
         restoreData = result[Config.settingStoreName] as XzSetting
       }
 
-      // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
+      // 有些设置项的 key 是 PageName（页面类型）。
+      // 当我添加了新的页面类型之后，下面的代码会把新的页面类型及其配置添加到旧的设置项里。
       const keys = [
         'crawlNumber',
         'nameRuleForEachPageType',
@@ -1309,6 +1398,15 @@ class Settings {
             restoreData[key][pageTypeNo] = cfg
           }
         }
+      }
+
+      // 以前 OptionCategoryLevel1 里的第一个 id 是 crawl，后来我改成了 filter。
+      // 所以需要迁移旧版本的 expandedCards 配置，
+      // 如果 filter 不存在的话，就添加它（重要，否则旧设置里永远不会添加 filter 分类），
+      // 并让它继承 crawl 的值。
+      const oldExpandedCards1 = (restoreData.expandedCards as any)?.crawl
+      if (!restoreData.expandedCards?.filter && oldExpandedCards1) {
+        restoreData.expandedCards.filter = oldExpandedCards1
       }
 
       this.assignSettings(restoreData)
@@ -1337,12 +1435,14 @@ class Settings {
       })
   }, 50)
 
-  // 接收整个设置项，通过循环将其更新到 settings 上
+  /** 接收整个设置对象，通过循环将其更新到 settings 对象上 */
   // 循环设置而不是整个替换的原因：
-  // 1. 进行类型转换，如某些设置项是 number，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
+  // 1. 进行类型转换，如某些设置项是 number，但旧设置里是 string，setSetting 可以把它们转换到正确的类型
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置覆盖新的设置
   private assignSettings(data: XzSetting) {
     const origin = Utils.deepCopy(data)
+    // 迁移旧版本的设置数据。例如旧的 notNeedTag 要按照 tagMatchMode 分配给对应的新输入框
+    convertOldSettings.convertExcludeTag(origin)
     for (const [key, value] of Object.entries(origin)) {
       this.setSetting(key as SettingKeys, value)
     }
@@ -1392,7 +1492,7 @@ class Settings {
       }
 
       for (const [key, value] of Object.entries(remoteSettings)) {
-        const settingKey = key as SettingKeys
+        const settingKey = convertOldSettings.convertKey(key) as SettingKeys
         if (
           settingKey === 'settingsAcrossDifferentTabs' ||
           !this.allSettingKeys.includes(settingKey) ||
@@ -1482,6 +1582,7 @@ class Settings {
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
     this.setSetting('tipAltEToExcludeWork', true)
+    this.setSetting('tipHowToCrawlUserWorks', true)
     this.setSetting('tipImageViewer', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
@@ -1515,6 +1616,9 @@ class Settings {
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(key: SettingKeys, value: SettingValue) {
+    // 把旧版本里已经废弃的设置名转换成新的设置名，这样旧设置的值会被迁移到新的设置项上，而不是被丢弃
+    key = convertOldSettings.convertKey(key) as SettingKeys
+
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -1610,6 +1714,15 @@ class Settings {
     }
 
     // 对于一些不合法的值，重置为默认值
+    if (key === 'downloadThread') {
+      if ((value as number) < 1) {
+        value = 1
+      }
+      if ((value as number) > Config.downloadThreadMax) {
+        value = Config.downloadThreadMax
+      }
+    }
+
     if (key === 'slowCrawlDealy' && (value as number) < 1000) {
       value = 1000
     }
@@ -1648,8 +1761,21 @@ class Settings {
       }
     }
 
-    if (key === 'previewResultLimit' && (value as number) < 0) {
-      value = 999999
+    if (key === 'previewResultPageSize') {
+      const pageSize = value as number
+      value =
+        Number.isFinite(pageSize) && pageSize >= 1
+          ? Math.floor(pageSize)
+          : this.defaultSettings[key]
+    }
+
+    if (key === 'coloredRatio') {
+      // 取值范围是 1 - 100，超过范围时使用默认值
+      const ratio = Math.floor(value as number)
+      value =
+        Number.isFinite(ratio) && ratio >= 1 && ratio <= 100
+          ? ratio
+          : this.defaultSettings[key]
     }
 
     if (key === 'borderWidth' && (value as number) < 1) {

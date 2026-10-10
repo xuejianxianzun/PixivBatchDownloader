@@ -1,3 +1,4 @@
+import { canRequestInBatch } from './AccountWarning'
 import browser from 'webextension-polyfill'
 import { API } from './API'
 import { EVT } from './EVT'
@@ -83,6 +84,12 @@ class FollowingList {
       })
     }
 
+    // 账户被警告时不再获取关注列表，避免继续发出大量请求（关注列表是分页获取的）
+    // 返回已储存的列表，这样调用方依然能拿到之前的数据
+    if (!canRequestInBatch('_获取关注列表')) {
+      return this.following
+    }
+
     this.status = 'locked'
     log.warning(lang.transl('_正在加载关注用户列表_该数据会保存在本地'))
     toast.show(lang.transl('_正在加载关注用户列表'), {
@@ -97,6 +104,13 @@ class FollowingList {
       privateList.followedUsersInfo
     )
     const total = publicList.total + privateList.total
+
+    // 账户被警告时上面可能只获取了一部分，此时拿到的是不完整的列表，不能保存，也不提示更新成功
+    if (!canRequestInBatch('_获取关注列表')) {
+      this.executeQueue()
+      this.status = 'idle'
+      return this.following
+    }
 
     const tip2 = lang.transl('_已更新关注用户列表')
     log.success(tip2)
@@ -142,6 +156,11 @@ class FollowingList {
     let offset = 0
 
     while (following.length < total) {
+      // 账户被警告时终止遍历，不再请求后续的分页
+      if (!canRequestInBatch('_获取关注列表')) {
+        break
+      }
+
       const res = await API.getFollowingList(
         store.loggedUserID,
         rest,

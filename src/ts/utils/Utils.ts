@@ -1,9 +1,29 @@
 import { setTimeoutWorker } from './SetTimeoutWorker'
 
 class Utils {
-  // 不安全的字符，这里多数是控制字符，需要替换掉
+  // 不安全的字符，它们在文件名里会引发问题，需要替换掉。内容包括：
+  //
+  // - 控制字符（Cc）：U+0000-U+001F、U+007F-U+009F。各种换行符都在这里：LF、VT、FF、CR、NEL（U+0085）
+  // - **行分隔符 U+2028、段落分隔符 U+2029**。它们是 JavaScript 的行终止符，Firefox 也不允许把它们用作文件名。
+  //   ⚠️ 这两个字符的 Unicode 类别是 Zl / Zp，不属于 Cf / Cc，所以很容易被漏掉
+  // - 不可见的格式字符（Cf）：零宽字符（U+200B-U+200D）、双向控制符（U+202A-U+202E、U+2066-U+2069）、
+  //   阿拉伯的各种标记（U+0600-U+0605、U+061C、U+06DD、U+0890-U+0891、U+08E2）等
+  // - 特殊空格：NBSP（U+00A0）、U+1680、U+2000-U+200A、U+202F、U+205F。它们看起来像空格，但是别的字符
+  // - Unicode 非字符（U+FDD0-U+FDEF、U+FFFE、U+FFFF）、BOM（U+FEFF）、行间注释符（U+FFF9-U+FFFB）
+  //
+  // 因此它符合这样一个规则：**BMP 内所有 Cc、Cf、Zl、Zp 类别都已经覆盖**，
+  // Zs（空格类）只保留了 U+0020（普通空格）和 U+3000（全角空格）——这两个不能删，
+  // 尤其是 U+3000，它是日文标题里正常使用的字符（例如作者名里的分隔符），删掉会改变文件名的含义。
+  // 非 BMP 里还有很少见的一些 Cf 字符没有覆盖（例如 U+E0020-U+E007F 的标签字符），
+  // 它们需要给正则加上 u 标志并用 \u{} 写法才能表示，暂时没有处理
+  //
+  // 如果以后发现别的特殊字符也会导致文件名出错，也应该加到这里
+  //
+  // ⚠️ 这个正则带 g 标志（replace 需要它才能替换掉全部匹配）。因此**不要用 .test() / .exec() 来判断字符**：
+  // 它们会残留 lastIndex，导致下次判断从上次的位置继续、跳着匹配。要判断就用 replace，
+  // 或者自己先把 lastIndex 重置为 0
   static unsafeStr = new RegExp(
-    /[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u2000-\u200f\u202a-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
+    /[\u0000\u0001-\u001f\u007f-\u009f\u00A0\u00ad\u0600-\u0605\u061c\u06dd\u070f\u0890-\u0891\u08e2\u1680\u180e\u2000-\u200f\u2028-\u202f\u205f\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
   )
 
   // 一些半角字符与全角字符的对照表
@@ -21,7 +41,7 @@ class Utils {
   ])
 
   /**
-   * 替换一些控制字符，并把一些半角字符替换成全角版本。
+   * 移除控制字符，并把一些半角字符替换成全角版本。
    * @param keepPathSeparator 是否保留路径分隔符 /。默认是 false，会把 / 替换成全角版本 ／。如果为 true，则会保留 /，适用于文件夹路径的命名。
    */
   static replaceUnsafeStr(str: string, keepPathSeparator = false) {
@@ -123,33 +143,54 @@ class Utils {
     }
   }
 
-  // 创建 input 元素选择 json 文件
-  static async loadJSONFile<T>(): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  /** 使用选择文件对话框，让用户选择 JSON 文件
+   *
+   * 如果内容是合法的 JSON，则返回解析后的对象。
+   *
+   * 如果用户点击了取消按钮（没有选择任何文件），则返回 undefined。
+   */
+  static async loadJSONFile<T>(): Promise<T | undefined> {
+    return new Promise<T | undefined>((resolve, reject) => {
       const i = document.createElement('input')
       i.setAttribute('type', 'file')
       i.setAttribute('accept', 'application/json')
+
+      const cleanup = () => {
+        i.onchange = null
+        i.removeEventListener('cancel', onCancel)
+      }
+      const onCancel = () => {
+        cleanup()
+        resolve(undefined)
+      }
+
+      i.addEventListener('cancel', onCancel, { once: true })
       i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          // 读取文件内容
-          const file = new FileReader()
-          file.readAsText(i.files[0])
-          file.onload = () => {
-            const str = file.result as string
-            let result: T
-            try {
-              result = JSON.parse(str)
-              // if((result as any).constructor !== Object){
-              // 允许是对象 {} 或者数组 []
-              if (result === null || typeof result !== 'object') {
-                const msg = 'Data is not an object!'
-                return reject(new Error(msg))
-              }
-              return resolve(result)
-            } catch (error) {
-              const msg = 'JSON parse error!'
+        const selectedFile = i.files?.[0]
+        if (!selectedFile) {
+          return onCancel()
+        }
+
+        cleanup()
+
+        // 读取文件内容
+        const file = new FileReader()
+        file.readAsText(selectedFile)
+        file.onload = () => {
+          const str = file.result as string
+          let result: T
+          try {
+            result = JSON.parse(str)
+            // if((result as any).constructor !== Object){
+            // 允许是对象 {} 或者数组 []
+            if (result === null || typeof result !== 'object') {
+              const msg = 'Data is not an object!'
               return reject(new Error(msg))
             }
+            return resolve(result)
+          } catch (error) {
+            const msg = 'JSON parse error!'
+            return reject(new Error(msg))
           }
         }
       }
@@ -158,20 +199,37 @@ class Utils {
     })
   }
 
-  // 创建 input 元素选择文件
-  static async selectFile(accept?: string) {
-    return new Promise<FileList>((resolve, reject) => {
+  /** 使用选择文件对话框，让用户选择文件
+   *
+   * accept: 可选，指定可选择的文件类型
+   *
+   * 返回用户选择的文件列表；如果用户取消选择，则返回 undefined
+   */
+  static async selectFile(accept?: string): Promise<FileList | undefined> {
+    return new Promise<FileList | undefined>((resolve) => {
       const i = document.createElement('input')
       i.setAttribute('type', 'file')
       if (accept) {
         i.setAttribute('accept', accept)
       }
+
+      const cleanup = () => {
+        i.onchange = null
+        i.removeEventListener('cancel', onCancel)
+      }
+      const onCancel = () => {
+        cleanup()
+        resolve(undefined)
+      }
+
+      i.addEventListener('cancel', onCancel, { once: true })
       i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          return resolve(i.files)
-        } else {
-          return reject()
+        if (!i.files || i.files.length === 0) {
+          return onCancel()
         }
+
+        cleanup()
+        return resolve(i.files)
       }
 
       i.click()
@@ -472,6 +530,16 @@ class Utils {
     return div.innerText
   }
 
+  /** 转义 HTML 特殊字符 */
+  static escapeHTML(text: string) {
+    return text
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;')
+  }
+
   /**将可能包含有 HTML 转义字符的字符串进行反转义 */
   // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
   // 输出 "1,2,3,4'5'6'"
@@ -598,7 +666,11 @@ class Utils {
     )
   }
 
-  /** 长按事件，长按鼠标左键或长按屏幕触发 */
+  /** 长按事件，长按鼠标左键或长按屏幕触发
+   *
+   * @param callback 触发长按时调用，**会把触发长按的事件（mousedown / touchstart）传给它**，
+   * 调用方可以据此判断长按发生在哪个元素上
+   */
   static longPress(el: HTMLElement, callback: Function, delay: number = 500) {
     let timer: ReturnType<typeof setTimeout> | null = null
     let isLongPress = false
@@ -624,7 +696,7 @@ class Utils {
       timer = setTimeout(() => {
         timer = null
         isLongPress = true
-        callback()
+        callback(e)
       }, delay)
     }
 

@@ -60,7 +60,7 @@ class ImportResult {
         tags: result.tagsWithTransl,
         title: result.title,
         bookmarkCount: result.bmk,
-        bookmarkData: result.bookmarked,
+        bookmarkData: store.createBookmarkDataFromResult(result),
         width: result.pageCount === 1 ? result.fullWidth : 0,
         height: result.pageCount === 1 ? result.fullHeight : 0,
         createDate: result.date,
@@ -81,6 +81,8 @@ class ImportResult {
     // 恢复数据
     // 通过 store.addResult 添加数据，可以应用多图作品设置，对导入的结果进行调整
     store.reset()
+    // 这是一批全新的结果，上次抓取的色彩检查记录不再适用
+    store.clearColorBlockedIndexes()
     for (const r of temp) {
       store.addResult(r)
     }

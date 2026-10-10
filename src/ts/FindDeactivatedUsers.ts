@@ -1,3 +1,4 @@
+import { canRequestInBatch } from './AccountWarning'
 import { UserInfo } from './FollowingData'
 import { msgBox } from './MsgBox'
 import { lang } from './Language'
@@ -26,6 +27,10 @@ class FindDeactivatedUsers {
   }
 
   public async check() {
+    if (!canRequestInBatch('_查找已注销的用户')) {
+      return
+    }
+
     const tip = lang.transl('_查找已注销的用户')
     EVT.fire('closeSettingsPanel')
     toast.show(tip)
@@ -54,7 +59,14 @@ class FindDeactivatedUsers {
     }
 
     const deactivatedUsers: UserInfo[] = []
+    // 是否因为账户被警告而中止了遍历
+    let aborted = false
     for (const user of deletedUsers) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_查找已注销的用户')) {
+        aborted = true
+        break
+      }
       // 之前已经确定注销了的用户
       if (!user.exist) {
         deactivatedUsers.push(user)
@@ -90,6 +102,11 @@ class FindDeactivatedUsers {
 
     // 调试用：输出未注销的用户，这是为了在没有已注销用户时也能输出结果，以便检查样式
     // this.output(needCheck.filter(user => user.exist))
+
+    // 因为账户被警告而中止时，不显示不完整的结果
+    if (aborted) {
+      return
+    }
 
     if (deactivatedUsers.length === 0) {
       this.tipNoResult()

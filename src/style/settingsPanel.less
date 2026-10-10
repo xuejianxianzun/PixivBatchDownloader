@@ -515,7 +515,7 @@
     }
 
     a.settingNameStyle:hover,
-    .has_tip:hover,
+    [data-xztip]:hover,
     label:hover,
     .showFileNameTip:hover,
     .showFileNameTip:focus,
@@ -803,7 +803,7 @@
 
       label {
         cursor: pointer;
-        padding-right: 5px;
+        padding-right: 4px;
       }
 
       .tabsContent {
@@ -1003,6 +1003,7 @@
         display: flex;
         align-items: flex-start;
         flex-grow: 1;
+        max-width: 100%;
         gap: 8px;
         margin-top: 15px;
         padding: 9px 12px;
@@ -1565,10 +1566,6 @@
       inset: 0;
     }
 
-    .settingsPanel_navIconFill {
-      display: none;
-    }
-
     .settingsPanel_navText {
       flex: 1;
       min-width: 0;
@@ -2121,7 +2118,7 @@
 
   .blue,
   a.settingNameStyle:hover,
-  .has_tip:hover,
+  [data-xztip]:hover,
   label:hover,
   .title.active,
   .title:hover,
@@ -2197,7 +2194,7 @@
 
   .blue,
   a.settingNameStyle:hover,
-  .has_tip:hover,
+  [data-xztip]:hover,
   label,
   label:hover,
   .title.active,

@@ -32,10 +32,43 @@ class FileName {
     let rule = nameRuleManager.getRule(data.type === 3 ? 'novel' : 'artwork')
     rule = this.handleCustomFeature(rule, data)
 
-    // 1 生成所有命名标记的值
+    // 生成所有命名标记的值
+    const schema = this.buildNamingSchema(data, rule)
+
+    // 生成文件名
+    let result = this.generateFileName(rule, schema)
+
+    // 生成扩展名
+    let ext = data.ext
+    // 处理小说的扩展名
+    if (data.type === 3) {
+      ext = settings.novelSaveAs
+    }
+
+    const extResult = '.' + ext
+
+    // 处理不创建文件夹的情况
+    if (this.shouldCreateFolder(data) === false) {
+      // 舍弃文件夹部分，只保留文件名
+      result = result.split('/').pop()!
+    }
+
+    // 处理文件名长度限制
+    result = this.lengthLimit(result, extResult, (schema['{id}'] as any).value)
+
+    // 添加扩展名
+    result += extResult
+
+    // 返回结果
+    return result
+  }
+
+  /** 生成所有命名标记的值。为命名规则（rule）里出现的所有标记计算最终要替换的值。
+   * createFileName 用它渲染完整规则；createFolderPath 用它渲染只含文件夹的规则片段。 */
+  private buildNamingSchema(data: Result, rule: string): NamingSchema {
     const schema: NamingSchema = {}
 
-    // 这是一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
+    // 使用一个中间变量，把 rule 里的特殊标记替换为它们的设置值（可能含有命名标记），例如 {multi_image_folder} 替换后的值可能是 {pid}
     // 该变量只在生成 schema 时使用，作用是判断展开后的完整规则里是否包含某些标记
     let ruleWithExpandedSpecialTags = rule
 
@@ -57,6 +90,9 @@ class FileName {
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const pid = (data.idNum || parseInt(data.id)).toString()
     const p = this.createPNum(data)
+    // 判断是不是 AI 生成的作品。这里的判据必须和其他模块保持一致
+    // （CopyWorkInfo、MergeNovelFileName 也使用 Tools.checkAIFromTags，它匹配所有语言的 AI 标签）
+    const isAI = data.aiType === 2 || Tools.checkAIFromTags(data.tags)
     Object.assign(schema, {
       '{p_title}': {
         value: store.title,
@@ -225,7 +261,11 @@ class FileName {
         safe: true,
       },
       '{AI}': {
-        value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
+        value: isAI ? 'AI' : '',
+        safe: true,
+      },
+      '{human}': {
+        value: !isAI ? 'Human' : '',
         safe: true,
       },
       '{series_title}': {
@@ -245,34 +285,14 @@ class FileName {
         safe: true,
       },
     })
+    return schema
+  }
 
-    // 3 生成文件名
-    let result = this.generateFileName(rule, schema)
-
-    // 5 生成扩展名
-    let ext = data.ext
-
-    // 处理小说的扩展名
-    if (data.type === 3) {
-      ext = settings.novelSaveAs
-    }
-
-    const extResult = '.' + ext
-
-    // 6 处理不创建文件夹的情况
-    if (this.shouldCreateFolder(data) === false) {
-      // 舍弃文件夹部分，只保留文件名
-      result = result.split('/').pop()!
-    }
-
-    // 7 处理文件名长度限制
-    result = this.lengthLimit(result, extResult, (schema['{id}'] as any).value)
-
-    // 8 添加扩展名
-    result += extResult
-
-    // 9 返回结果
-    return result
+  /** 把一个只包含文件夹（不含文件名）的命名规则片段渲染成实际的文件夹路径，例如 pixiv/{user}-{user_id}/
+   * 与 createFileName 使用相同的渲染流程，所以渲染结果和下载的图片文件实际所在的文件夹一致。 */
+  public createFolderPath(data: Result, folderRule: string): string {
+    const schema = this.buildNamingSchema(data, folderRule)
+    return this.generateFileName(folderRule, schema)
   }
 
   /** 传入命名规则和所有标记的配置，生成文件名 */

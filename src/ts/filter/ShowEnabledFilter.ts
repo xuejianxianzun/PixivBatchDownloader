@@ -13,7 +13,7 @@ class ShowEnabledFilter {
     this.wrongSetting = true
     log.error(msg.replace('<br>', ''))
     msgBox.error(msg, {
-      title: lang.transl('_抓取条件不正确'),
+      title: lang.transl('_筛选条件不正确'),
     })
   }
 
@@ -42,6 +42,7 @@ class ShowEnabledFilter {
     this.getExcludeTag()
     this.getTitleInclude()
     this.getTitleExclude()
+    this.getNovelLanguage()
     this.getBlockList()
     this.getSize()
 
@@ -103,7 +104,9 @@ class ShowEnabledFilter {
       !settings.UnknownAI
     ) {
       return this.error(
-        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_AI作品')
+        lang.transl('_排除了所有作品类型') +
+          ': <br>' +
+          lang.transl('_AI作品带高亮')
       )
     }
 
@@ -167,6 +170,7 @@ class ShowEnabledFilter {
 
     if (tips.length > 0) {
       log.warning(lang.transl('_排除作品类型') + tips.join(', '))
+      log.warning(lang.transl('_提示检查图片色彩会增加抓取所需时间'))
     }
   }
 
@@ -252,24 +256,41 @@ class ShowEnabledFilter {
 
     if (settings.needTag.length > 0) {
       log.warning(
-        '🛸' +
-          lang.transl('_设置了必须tag之后的提示') +
-          settings.needTag.toString()
+        '🛸' + lang.transl('_标签必须含有') + ': ' + settings.needTag.toString()
       )
     }
   }
 
-  /** 提示要排除的tag */
+  /** 提示要排除的 tag。
+   *
+   * 全字匹配和部分匹配分别提示，只有当某个模式设置了标签时才显示它的提示。 */
   private getExcludeTag() {
     if (!settings.notNeedTagSwitch) {
       return
     }
 
-    if (settings.notNeedTag.length > 0) {
+    if (settings.notNeedTagWholeSwitch && settings.notNeedTagWhole.length > 0) {
       log.warning(
         '🛸' +
-          lang.transl('_设置了排除tag之后的提示') +
-          settings.notNeedTag.toString()
+          lang.transl('_标签不能含有') +
+          ': ' +
+          lang.transl('_全字匹配') +
+          ': <br>' +
+          settings.notNeedTagWhole.toString()
+      )
+    }
+
+    if (
+      settings.notNeedTagPartialSwitch &&
+      settings.notNeedTagPartial.length > 0
+    ) {
+      log.warning(
+        '🛸' +
+          lang.transl('_标签不能含有') +
+          ': ' +
+          lang.transl('_部分匹配') +
+          ': <br>' +
+          settings.notNeedTagPartial.toString()
       )
     }
   }
@@ -286,6 +307,22 @@ class ShowEnabledFilter {
           lang.transl('_标题必须含有') +
           ': ' +
           settings.titleIncludeList.join(',')
+      )
+    }
+  }
+
+  /** 提示小说的语言要求 */
+  private getNovelLanguage() {
+    if (!settings.novelLanguageSwitch) {
+      return
+    }
+
+    if (settings.novelLanguageList.length > 0) {
+      log.warning(
+        '🛸' +
+          lang.transl('_只下载这些语言的小说') +
+          ': ' +
+          settings.novelLanguageList.join(',')
       )
     }
   }
@@ -403,16 +440,14 @@ class ShowEnabledFilter {
         ' ' +
         settings.idRangeComparisonForImageWorks +
         ' ' +
-        settings.idRangeValueForImageWorks +
-        ','
+        settings.idRangeValueForImageWorks
     )
     array.push(
       lang.transl('_小说') +
         ' ' +
         settings.idRangeComparisonForNovelWorks +
         ' ' +
-        settings.idRangeValueForNovelWorks +
-        ','
+        settings.idRangeValueForNovelWorks
     )
     array.push(
       lang.transl('_系列小说') +
@@ -421,7 +456,21 @@ class ShowEnabledFilter {
         ' ' +
         settings.idRangeValueForNovelSeries
     )
-    log.warning('🛸' + array.join(' '))
+    array.push(
+      lang.transl('_书签ID_图像作品') +
+        ' ' +
+        settings.idRangeComparisonForBookmarkImageWorks +
+        ' ' +
+        settings.idRangeValueForBookmarkImageWorks
+    )
+    array.push(
+      lang.transl('_书签ID_小说') +
+        ' ' +
+        settings.idRangeComparisonForBookmarkNovelWorks +
+        ' ' +
+        settings.idRangeValueForBookmarkNovelWorks
+    )
+    log.warning('🛸' + array.join('<br>'))
   }
 
   /** 提示投稿时间设置 */

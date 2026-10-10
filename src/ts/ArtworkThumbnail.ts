@@ -69,6 +69,13 @@ class ArtworkThumbnail extends WorkThumbnail {
         'div[style="width: 184px;"]>div:first-child',
         // 约稿页面里的图像作品
         'ul li>div>div:first-child',
+        // 群组页面，如：
+        // https://www.pixiv.net/group/?id=37051&max=1790097466
+        // 已知问题：
+        // 1. 群组页面里有些缩略图容器里只有图片，没有作品链接（可能是用户手动上传的图片），
+        // 所以不会被当做有效的缩略图。这是该页面本身的问题，和本模块无关
+        // 2. 该页面右侧“最近的图片”列表里也没有作品链接，所以无需处理它
+        '.imagecontainer',
       ]
       // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
       // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -156,6 +163,14 @@ class ArtworkThumbnail extends WorkThumbnail {
       if (
         selector === '#viewerWarpper li' &&
         pageType.type !== pageType.list.Artwork
+      ) {
+        continue
+      }
+
+      // 只在不支持的页面里使用
+      if (
+        selector === '.imagecontainer' &&
+        pageType.type !== pageType.list.Unsupported
       ) {
         continue
       }

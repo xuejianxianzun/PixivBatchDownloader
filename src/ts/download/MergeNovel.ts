@@ -22,6 +22,8 @@ import { filter } from '../filter/Filter'
 import { states } from '../store/States'
 import { downloadRecord, DownloadRecordType } from './DownloadRecord'
 import { workSelection } from '../WorkSelection'
+import { EPUBSetting } from './EPUBSetting'
+import { convertNovelText } from './ConvertNovelText'
 
 declare const jEpub: any
 
@@ -41,6 +43,8 @@ interface NovelSummary {
   updateDateShort: string
   tags: string[]
   description: string
+  /** 这篇小说的语言标签，如 ja、zh-cn。用于判断是否需要转换用字 */
+  language: string
   content: string
   coverUrl: string
   embeddedImages: null | {
@@ -68,6 +72,17 @@ class MergeNovel {
   /** 系列小说的收藏数，是系列里所有小说的收藏数量之和 */
   private seriesBookmarkCount = 0
   private seriesCaption = ''
+  /** 转换用字后的系列标题，用于元数据。未启用简繁转换时与 seriesTitle 相同 */
+  private metaSeriesTitle = ''
+  /** 转换用字后的系列简介，用于元数据。未启用简繁转换时与 seriesCaption 相同 */
+  private metaSeriesCaption = ''
+  /** 转换用字后的设定资料，用于元数据。未启用简繁转换时与 seriesGlossaryText 相同 */
+  private metaSeriesGlossary = ''
+  /** 每篇小说转换用字后的标题与简介，key 是小说 id */
+  private metaNovelText = new Map<
+    string,
+    { title: string; description: string }
+  >()
   private seriesGlossaryText = ''
   private glossaryImages: GlossaryImageItem[] = []
   private seriesTags: string[] = []
@@ -78,6 +93,19 @@ class MergeNovel {
   private novelName = ''
 
   private seriesData: NovelSeriesData | null = null
+  /**
+   * 系列小说的语言标签，即系列里第一篇小说使用的语言。只会计算一次，之后复用。
+   *
+   * ⚠️这里保存的始终是小说本身的语言，不经过 epubLangSource 设置的处理。
+   * EPUB 文件的语言标签由 EPUBSetting 按 epubLangSource 设置另行计算（见 createEPUB），
+   * 本类不应该重复处理这个设置，否则翻译元数据标签所用的语言也会被该设置改变。
+   */
+  private seriesLanguage?: string
+  /**
+   * 系列最终使用的语言，即在 seriesLanguage 的基础上，应用简繁转换之后的语言。
+   * 元数据里的标签文字也会被简繁转换，所以翻译这些标签时必须使用这里的语言。
+   */
+  private seriesFinalLanguage?: string
   /** 在获取系列中的小说 ID 列表时，保存通过了过滤器检查的小说 ID */
   private novelIdListFiltered: string[] = []
   /** 在获取系列中的小说 ID 列表时，保存所有小说的 ID 列表（不应用过滤器） */
@@ -140,6 +168,10 @@ class MergeNovel {
 
     this.enableSlowModeIfNeeded()
     await this.getAllNovelData()
+    if (this.allNovelData.length === 0) {
+      log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+      return 0
+    }
     await this.loadGlossaryData(seriesId)
     const body = await this.loadSeriesData()
 
@@ -147,6 +179,7 @@ class MergeNovel {
       this.seriesData!,
       this.seriesBookmarkCount
     )
+    this.getSeriesLanguage()
     await this.mergeByFormat(body)
     await this.downloadSeriesCoverFile(body.cover.urls.original)
 
@@ -194,6 +227,7 @@ class MergeNovel {
   /** 输出合并开始时的提示日志。 */
   private logMergeStart(link: string) {
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
+    toast.show(lang.transl('_合并系列小说'))
 
     log.warning(
       lang.transl('_提示可以只合并部分小说'),
@@ -232,6 +266,7 @@ class MergeNovel {
       await this.sleep(this.crawlInterval)
       await this.getNovelIds()
     } catch (error) {
+      console.error(error)
       log.error(`❌${lang.transl('_发生错误取消合并这个系列小说')} ${link}`)
       return false
     }
@@ -305,11 +340,65 @@ class MergeNovel {
 
   /** 根据用户选择的保存格式进入 TXT 或 EPUB 合并流程。 */
   private async mergeByFormat(body: NovelSeriesData['body']) {
+    // 转换系列里的每篇小说正文时，只输出一次日志
+    convertNovelText.logStart(
+      {
+        id: this.seriesId,
+        type: 'novelSeries',
+        title: this.seriesTitle,
+      },
+      // 系列数据里没有语言标签，所以使用系列里第一篇小说的语言
+      this.allNovelData[0]?.language
+    )
+
+    // 元数据里的标题和简介也要转换用字。这里统一转换一次，避免在每个章节里重复转换
+    await this.convertMetaText()
+
     if (settings.novelSaveAs === 'txt') {
       await this.mergeTXT()
     } else {
       await this.mergeEPUB(body)
     }
+  }
+
+  /**
+   * 把元数据里使用的标题和简介转换成指定的用字。
+   * 只影响元数据，不影响文件名（文件名在此之前已经生成完毕）。
+   */
+  private async convertMetaText() {
+    // 系列本身没有语言标签，所以使用系列里第一篇小说的语言
+    const language = this.allNovelData[0]?.language
+    this.metaSeriesTitle = await convertNovelText.convert(
+      this.seriesTitle,
+      language
+    )
+    this.metaSeriesCaption = await convertNovelText.convert(
+      this.seriesCaption,
+      language
+    )
+    this.metaSeriesGlossary = await convertNovelText.convert(
+      this.seriesGlossaryText,
+      language
+    )
+    for (const data of this.allNovelData) {
+      this.metaNovelText.set(data.id, {
+        title: await convertNovelText.convert(data.title, data.language),
+        description: await convertNovelText.convert(
+          data.description || '',
+          data.language
+        ),
+      })
+    }
+  }
+
+  /** 获取这篇小说在元数据里使用的标题（已转换用字） */
+  private metaNovelTitle(data: NovelSummary) {
+    return this.metaNovelText.get(data.id)?.title ?? data.title
+  }
+
+  /** 获取这篇小说在元数据里使用的简介（已转换用字） */
+  private metaNovelDescription(data: NovelSummary) {
+    return this.metaNovelText.get(data.id)?.description ?? data.description
   }
 
   /** 把系列封面单独保存为图像文件。 */
@@ -428,16 +517,23 @@ class MergeNovel {
     const CRLF_2 = this.CRLF2
 
     // 系列标题
-    result.push(this.seriesTitle)
+    result.push(this.metaSeriesTitle)
     result.push(CRLF_2)
     // 作者
-    result.push(`${lang.transl('_作者')}: ` + this.userName)
+    result.push(
+      `${lang.translWithLang('_作者', this.getFinalLanguage())}: ` +
+        this.userName
+    )
     result.push(CRLF_2)
     // 系列网址
     result.push(`https://www.pixiv.net/novel/series/${this.seriesId}`)
     result.push(CRLF_2)
     // 更新日期
-    result.push(lang.transl('_更新日期') + ': ' + this.seriesUpdateDate)
+    result.push(
+      lang.translWithLang('_更新日期', this.getFinalLanguage()) +
+        ': ' +
+        this.seriesUpdateDate
+    )
     result.push(CRLF_2)
     // 系列 tags
     if (this.seriesTags.length > 0) {
@@ -446,29 +542,37 @@ class MergeNovel {
       result.push(CRLF_2)
     }
     // 系列简介
-    if (this.seriesCaption) {
-      result.push(lang.transl('_系列简介') + ': ')
+    if (this.metaSeriesCaption) {
+      result.push(
+        lang.translWithLang('_系列简介', this.getFinalLanguage()) + ': '
+      )
       result.push(CRLF_2)
-      result.push(this.seriesCaption)
+      result.push(this.metaSeriesCaption)
       result.push(CRLF_2)
     }
     // 本次合并包含的章节
-    result.push(lang.transl('_本次合并包含的章节') + ': ')
+    result.push(
+      lang.translWithLang('_本次合并包含的章节', this.getFinalLanguage()) + ': '
+    )
     result.push(CRLF_2)
     for (const data of this.allNovelData) {
-      result.push(`#${data.no} ${data.title}`)
+      result.push(`#${data.no} ${this.metaNovelTitle(data)}`)
       result.push(this.CRLF)
     }
     result.push(this.CRLF)
     // 设定资料
-    if (this.seriesGlossaryText) {
-      result.push(lang.transl('_设定资料') + ': ')
+    if (this.metaSeriesGlossary) {
+      result.push(
+        lang.translWithLang('_设定资料', this.getFinalLanguage()) + ': '
+      )
       result.push(CRLF_2)
-      result.push(Utils.htmlToText(Utils.htmlDecode(this.seriesGlossaryText)))
+      result.push(Utils.htmlToText(Utils.htmlDecode(this.metaSeriesGlossary)))
       // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
       result.push(this.CRLF)
     }
-    result.push(`----- ${lang.transl('_系列小说的元数据部分结束')} -----`)
+    result.push(
+      `----- ${lang.translWithLang('_系列小说的元数据部分结束', this.getFinalLanguage())} -----`
+    )
     result.push(this.CRLF.repeat(3))
 
     return result.join('')
@@ -479,12 +583,17 @@ class MergeNovel {
     const text: string[] = []
 
     // 添加章节编号
-    // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
-    text.push(`${this.chapterNo(data.no)}`)
-    // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
-    // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
-    text.push(this.CRLF2)
-    text.push(data.title)
+    const chapterString = this.chapterNo(data.no)
+    if (chapterString) {
+      // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
+      text.push(chapterString)
+      // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
+      // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+      text.push(this.CRLF2)
+    }
+
+    // 添加章节标题
+    text.push(this.metaNovelTitle(data))
     text.push(this.CRLF2)
 
     // 添加小说的元数据，内容包含：
@@ -495,14 +604,18 @@ class MergeNovel {
     if (settings.saveNovelMeta) {
       text.push(`https://www.pixiv.net/novel/show.php?id=${data.id}`)
       text.push(this.CRLF2)
-      text.push(lang.transl('_更新日期') + ': ' + data.updateDateShort)
+      text.push(
+        lang.translWithLang('_更新日期', this.getFinalLanguage()) +
+          ': ' +
+          data.updateDateShort
+      )
       text.push(this.CRLF2)
       const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`
       text.push(tags)
       text.push(this.CRLF2)
-      text.push(data.description)
+      text.push(this.metaNovelDescription(data))
       text.push(this.CRLF2)
-      text.push(`----- ${lang.transl('_下面是正文')} -----`)
+      text.push(`----------`)
       text.push(this.CRLF2)
     }
 
@@ -512,6 +625,7 @@ class MergeNovel {
       .replace(/<br \/>/g, this.CRLF)
       .replace(/<\/?.+?>/g, '')
     content = await replaceNovelWords.replace(this.seriesId, content)
+    content = await convertNovelText.convert(content, data.language)
     text.push(content)
     // 在正文结尾添加换行标记，使得不同章节之间区分开来
     text.push(this.CRLF.repeat(4))
@@ -522,6 +636,7 @@ class MergeNovel {
   private async mergeEPUB(body: NovelSeriesData['body']) {
     const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
     const date = new Date(this.seriesUpdateDate)
+    this.getSeriesLanguage()
     const description = this.buildEPUBDescription()
 
     // 每次创建 EPUB 文件时，从第几篇小说开始添加
@@ -539,7 +654,7 @@ class MergeNovel {
       this.pushSizeLog()
       this.addSize(currentDescription.length)
 
-      const jepub = this.createEPUB(link, date, currentDescription)
+      const jepub = await this.createEPUB(link, date, currentDescription)
 
       // 实际下载设定资料里的图片
       await this.addGlossaryImagesToEPUB(jepub, needSaveGlossaryImages)
@@ -579,8 +694,8 @@ class MergeNovel {
 
         // 添加正文，这会在 EPUB 里生成一个新的章节
         // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
-        const title = this.buildEPUBChapterTitle(data.title)
-        jepub.add(`${this.chapterNo(data.no)} ${title}`, content)
+        const title = this.buildEPUBChapterTitle(this.metaNovelTitle(data))
+        jepub.add(title, content)
 
         if (index === this.allNovelData.length - 1) {
           await this.saveEPUBFile(jepub, true)
@@ -602,44 +717,58 @@ class MergeNovel {
 
   /** 生成 EPUB 信息页里使用的系列描述文本。 */
   private buildEPUBDescription() {
-    let description = this.handleEPUBDescription(this.seriesCaption)
+    let description = this.handleEPUBDescription(this.metaSeriesCaption)
 
     // 生成元数据
-    // EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+    // EPUB 小说里有个“信息”页面（title-page），会显示如下数据（就是在下面的 jepub.init 里定义的）：
     // title 系列标题
     // author 作者
     // publisher 系列小说的 URL
     // tags 系列小说的标签列表
     // description 系列小说的简介
-    // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
+    // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面（title-page）里显示出来
     if (settings.saveNovelMeta) {
       const otherMeta: string[] = []
       // 添加 date
-      otherMeta.push(`${lang.transl('_更新日期')}: ${this.seriesUpdateDate}`)
+      otherMeta.push(
+        `${lang.translWithLang('_更新日期', this.getFinalLanguage())}: ${this.seriesUpdateDate}`
+      )
       otherMeta.push(this.br2)
       // 添加简介
       if (description) {
-        otherMeta.push(lang.transl('_系列简介') + ': ')
+        otherMeta.push(
+          lang.translWithLang('_系列简介', this.getFinalLanguage()) + ': '
+        )
         otherMeta.push(this.br)
         otherMeta.push(description)
         otherMeta.push(this.br)
       }
       // 本次合并包含的章节
-      otherMeta.push(lang.transl('_本次合并包含的章节') + ': ')
+      otherMeta.push(
+        lang.translWithLang('_本次合并包含的章节', this.getFinalLanguage()) +
+          ': '
+      )
       otherMeta.push(this.br)
-      otherMeta.push('<p>')
+      otherMeta.push('<ul>')
       for (const data of this.allNovelData) {
-        otherMeta.push(`#${data.no} ${data.title}`)
-        otherMeta.push(this.br)
+        let title = `#${data.no} ${this.metaNovelTitle(data)}`
+        // 让标题里的章节编号数字保持竖着显示
+        // 这一步必须在这里处理（而不是 jepub 里处理），因为 jepub 里接收到这份数据时，已经混杂了其他内容（即这个方法返回的 description），难以单独区分这一部分内容了。
+        // 所以这部分内容在这里处理是最方便的
+        if (settings.epubWritingMode !== 'horizontal') {
+          title = Tools.highlightNumber(title)
+        }
+        otherMeta.push(`<li>${title}</li>`)
       }
-      otherMeta.pop()
-      otherMeta.push('</p>')
+      otherMeta.push('</ul>')
       otherMeta.push(this.br)
       // 添加设定资料
-      if (this.seriesGlossaryText) {
-        otherMeta.push(lang.transl('_设定资料') + ': ')
+      if (this.metaSeriesGlossary) {
+        otherMeta.push(
+          lang.translWithLang('_设定资料', this.getFinalLanguage()) + ': '
+        )
         otherMeta.push(this.br)
-        otherMeta.push(this.handleEPUBDescription(this.seriesGlossaryText))
+        otherMeta.push(this.handleEPUBDescription(this.metaSeriesGlossary))
         otherMeta.push(this.br)
       }
       description = otherMeta.join('')
@@ -685,25 +814,74 @@ class MergeNovel {
     return result
   }
 
+  /**
+   * 获取系列小说的语言标签，即系列里第一篇小说使用的语言。
+   *
+   * ⚠️注意：不能使用系列数据里的 language 属性，因为系列数据里的语言总是 ja。
+   * 也就是说，不管系列里的小说是否使用其他语言，系列数据里的 language 属性总是 ja。
+   * 例如这个系列里的小说都是韩语：
+   * https://www.pixiv.net/novel/series/578454
+   * 但是系列数据里的 language 属性仍然是 ja
+   * https://www.pixiv.net/ajax/novel/series/578454?lang=zh
+   * 因此需要使用系列里的小说数据里的语言。
+   *
+   * ⚠️注意：返回值是小说本身的语言，没有经过 epubLangSource 设置的处理。
+   * EPUB 文件的语言标签由 EPUBSetting 按 epubLangSource 设置计算（见 createEPUB），
+   * 所以这里不再判断该设置。
+   */
+  private getSeriesLanguage(): string {
+    if (!this.seriesLanguage) {
+      // 调用这个方法时，系列里的小说数据已经抓取完毕，直接使用第一篇小说的语言即可，
+      // 不需要为了获取语言而额外请求一次小说数据
+      this.seriesLanguage = this.allNovelData[0]?.language || lang.type
+    }
+    return this.seriesLanguage
+  }
+
+  /**
+   * 获取系列最终使用的语言。
+   *
+   * 开启了简繁转换时，写入文件的文字用字会被转换，文件的语言也就随之改变了
+   * （例如原本是简体中文的小说，开启了「简体转繁体」之后，文件里的文字其实是繁体中文）。
+   * 元数据里的标签文字同样会被转换，所以翻译这些标签时必须使用转换之后的语言。
+   *
+   * ⚠️这里只应用简繁转换，不应用 epubLangSource 设置 ——
+   * 该设置只影响 EPUB 文件的语言标签，与本方法无关（见 getSeriesLanguage 的注释）。
+   */
+  private getFinalLanguage(): string {
+    if (!this.seriesFinalLanguage) {
+      this.seriesFinalLanguage = EPUBSetting.applyNovelTextConvert(
+        this.getSeriesLanguage()
+      )
+    }
+    return this.seriesFinalLanguage
+  }
+
   /** 创建并初始化一个新的 EPUB 对象。 */
-  private createEPUB(link: string, date: Date, description: string) {
+  private async createEPUB(link: string, date: Date, description: string) {
+    // 决定 EPUB 文件的语言标签与排版方向
+    const { langCode, writingMode } = EPUBSetting.resolve(
+      this.getSeriesLanguage()
+    )
+
     // 初始化 EPUB 文件
     const jepub = new jEpub()
     jepub.init({
       i18n: lang.type,
       // 对 EPUB 左侧的一些文字进行本地化
       i18n_config: {
-        code: lang.type,
+        code: langCode,
         cover: 'Cover',
         toc: lang.transl('_目录'),
         info: lang.transl('_Information'),
         note: 'Notes',
       },
-      title: this.seriesTitle,
+      title: this.metaSeriesTitle,
       author: this.userName,
       publisher: link,
       tags: this.seriesTags,
       description,
+      writing_mode: writingMode,
     })
     jepub.uuid(link)
     jepub.date(date)
@@ -826,12 +1004,12 @@ class MergeNovel {
 
     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
     const link = `<p><a href="${url}" target="_blank">${url}</a></p>`
-    const date = `<p>${lang.transl('_更新日期') + ': ' + data.updateDateShort}</p>`
+    const date = `<p>${lang.translWithLang('_更新日期', this.getFinalLanguage()) + ': ' + data.updateDateShort}</p>`
     const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`
-    const meta = `${link}${date}${tags}${Tools.replaceEPUBText(data.description)}`
-    return (
-      meta + `<br/><br/>----- ${lang.transl('_下面是正文')} -----<br/><br/>`
-    )
+    const meta = `${link}${date}${tags}${Tools.replaceEPUBText(
+      this.metaNovelDescription(data)
+    )}`
+    return meta + `<br/><br/>----------<br/><br/>`
   }
 
   /** 生成单篇小说章节正文的 HTML。 */
@@ -842,6 +1020,7 @@ class MergeNovel {
   ) {
     // 组合封面图片和简介，使封面图片位于所有文字内容之前
     let content = await replaceNovelWords.replace(this.seriesId, data.content)
+    content = await convertNovelText.convert(content, data.language)
     content = Tools.replaceEPUBTextWithP(content)
     return coverHtml + metaHtml + content
   }
@@ -898,15 +1077,32 @@ class MergeNovel {
       this.novelIdListUnfiltered.push(item.id)
 
       // 然后保存通过了过滤器检查的小说 id
+      // 备注：此时的数据里没有小说的 language，所以无法检查小说的语言
+
+      let tags = item.tags
+      // 获取完整的标签列表（根据作品属性，可能会添加一些标签）用于检查
+      const findNovelData: any = seriesContents.body.thumbnails.novel.find(
+        (n) => n.id === item.id
+      )
+      if (findNovelData && findNovelData.tags) {
+        // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里
+        findNovelData.tags.tags = []
+        findNovelData.tags.forEach((str: string) => {
+          findNovelData.tags.tags.push({ tag: str })
+        })
+        tags = Tools.buildNovelTags({ body: findNovelData } as NovelData).tags
+      }
+
       const check = await filter.check({
         id: item.id,
         isOriginal: item.isOriginal,
         aiType: item.aiType,
         xRestrict: item.xRestrict,
-        tags: item.tags,
+        tags: tags,
         title: item.title,
         seriesTitle: this.seriesTitle || '',
         userId: item.userId,
+        workType: 3,
         bookmarkData: item.bookmarkData,
         bookmarkCount: item.bookmarkCount,
         createDate: item.createDate,
@@ -933,7 +1129,9 @@ class MergeNovel {
       if (this.novelIdListFiltered.length === 0) {
         log.warning(lang.transl('_这个系列里的所有小说都被排除了'))
       } else {
-        // 根据条件决定只合并符合过滤条件的小说，还是合并所有小说
+        // 如果有小说通过检查，那么根据 saveAllSeriesNovelsIfOneMatches 设置决定：
+        // 如果启用了此设置，就合并所有小说
+        // 否则只合并通过过滤器检查的小说
         if (settings.saveAllSeriesNovelsIfOneMatches) {
           this.novelIdList = this.novelIdListUnfiltered
 
@@ -974,9 +1172,23 @@ class MergeNovel {
         this.allNovelData.push(novelData)
       }
 
+      // 当一篇小说被排除时，检查它是否是因为语言被排除的
+      // 如果是的话，就跳过后续的小说。这是因为系列里每篇小说的语言通常是一致的，所以没必要检查系列里的后续小说。
+      // 这里只检查语言，不调用 filter.check，因为其他过滤条件在前面已经检查过了，
+      // 而且这里只有语言数据，调用 filter.check 会导致其他过滤条件因为缺少数据而无法判断
+      if (!novelData && !filter.checkNovelLanguage(data.body.language)) {
+        // 如果已经获取了一些小说的数据，那么只会跳过剩余的小说，不会跳过整个系列
+        const key =
+          this.allNovelData.length > 0
+            ? '_这个系列小说的语言不符合要求所以跳过剩余小说'
+            : '_这个系列小说的语言不符合要求所以跳过它'
+        log.warning(lang.transl(key, data.body.language))
+        break
+      }
+
       // 如果处于快速合并模式，则跳过剩余小说
       if (states.quickMergeNovel) {
-        log.warning('⏩quickMergeNovel: On，跳过剩余小说')
+        log.warning('⏭️quickMergeNovel: On，跳过剩余小说')
         break
       }
     }
@@ -1005,49 +1217,33 @@ class MergeNovel {
       return data
     } catch (error: Error | any) {
       // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-      log.error('⏩' + lang.transl('_跳过这个小说'))
+      log.error('⏭️' + lang.transl('_跳过这个小说'))
       return null
     }
   }
 
-  /** 生成单篇小说用于后续处理的标签列表。 */
-  private buildNovelTags(data: NovelData) {
-    const tags: string[] = Tools.extractTags(data)
-
-    // 添加“原创”对应的标签
-    if (data.body.isOriginal) {
-      const originalMark = Tools.getOriginalMark()
-      Tools.unshiftTag(tags, originalMark)
-    }
-
-    // 判断是不是 AI 生成的作品
-    let aiType = data.body.aiType
-    if (aiType !== 2) {
-      if (Tools.checkAIFromTags(tags)) {
-        aiType = 2
-      }
-    }
-
-    // 添加“AI生成”对应的标签
-    const aiMarkString = Tools.getAIGeneratedMark(aiType)
-    if (aiMarkString) {
-      Tools.unshiftTag(tags, aiMarkString)
-    }
-
-    return tags
-  }
-
   /** 从完整小说数据中提取合并流程需要的摘要数据。 */
   private async createNovelSummary(data: NovelData) {
-    const tags = this.buildNovelTags(data)
+    const { tags } = Tools.buildNovelTags(data)
     const novelId = data.body.id
     const title = data.body.title
     const order = data.body.seriesNavData!.order
 
-    // 如果未启用此设置，则检查一些过滤条件。如果启用了此设置就不进行检查，因为此时需要合并所有小说
+    // 检查小说的语言
+    // 系列里的每篇小说语言通常都是相同的，因此有一篇小说的语言不符合要求的话，整个系列都应该被排除
+    // 无论是否启用 saveAllSeriesNovelsIfOneMatches 都要检查语言
+    if (!filter.checkNovelLanguage(data.body.language)) {
+      const order_title = `#${order} ${title}`
+      const link = Tools.createWorkLink(novelId, order_title, 'novel')
+      log.warning(lang.transl('_排除小说') + ': ' + link)
+      return null
+    }
+
+    // 如果未启用此设置，则检查一些过滤条件。
+    // 如果启用了此设置就不进行检查，因为之后可能需要合并所有小说
     if (settings.saveAllSeriesNovelsIfOneMatches === false) {
-      // 检查年龄限制和标签过滤器
-      // 虽然这里也能检查其他过滤条件，但没有必要，因为前面已经检查过了
+      // 虽然这里也能检查其他一些过滤条件，但没有必要，因为前面已经检查过了
+      // 注意：不要在这个分支里检查语言，否则当 saveAllSeriesNovelsIfOneMatches 为 true 时，不会执行到这个分支，就会导致始终不检查语言，这意味着检查语言的功能失效。
       const check = await filter.check({
         xRestrict: data.body.xRestrict,
         tags,
@@ -1058,6 +1254,12 @@ class MergeNovel {
         log.warning(lang.transl('_排除小说') + ': ' + link)
         return null
       }
+      log.log(
+        '通过检查: ' +
+          Tools.createWorkLink(novelId, `#${order} ${title}`, 'novel') +
+          '，标签: ' +
+          tags.join(', ')
+      )
     }
 
     return {
@@ -1068,6 +1270,7 @@ class MergeNovel {
       title: Utils.replaceUnsafeStr(title),
       tags,
       description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
+      language: data.body.language,
       content: Tools.replaceNovelContentFlag(data.body.content),
       coverUrl: data.body.coverUrl,
       embeddedImages: Tools.extractEmbeddedImages(data),
@@ -1181,17 +1384,25 @@ class MergeNovel {
     )
   }
 
-  // 在每个小说的开头加上章节编号
+  // 在每个小说的开头加上章节编号。只对特定语言生效，其他语言不会添加这个编号
   // 在 TXT 格式的小说里添加章节编号，可以使小说阅读软件能够识别章节、显示目录，提高阅读体验
   // 对于 EPUB 格式的小说，由于其内部自带分章结构，所以并不依赖这里的章节编号
   private chapterNo(number: number | string) {
-    // 对于中文区，使用“第N章”。这样最容易被国内的小说阅读软件识别出来
-    if (lang.type === 'zh-cn' || lang.type === 'zh-tw' || lang.type === 'ja') {
+    if (!this.seriesLanguage) {
+      return ''
+    }
+
+    // 如果小说语言是中文，添加“第N章”。这样最容易被国内的小说阅读软件识别出来
+    if (['zh-cn', 'zh-tw'].includes(this.seriesLanguage)) {
       return `第${number}章`
-    } else {
-      // 对于其他地区，使用 `Chapter N`
+    }
+
+    if (this.seriesLanguage === 'en') {
+      // 对于英语小说，添加 `Chapter N`
       return `Chapter ${number}`
     }
+
+    return ''
     // 我还尝试过使用 #1 这样的编号，但是阅读器对这种编号的识别情况不够好
   }
 
@@ -1220,6 +1431,10 @@ class MergeNovel {
     this.seriesTags = []
     this.seriesId = ''
     this.seriesTitle = ''
+    this.metaSeriesTitle = ''
+    this.metaSeriesCaption = ''
+    this.metaSeriesGlossary = ''
+    this.metaNovelText.clear()
     this.novelName = ''
   }
 }

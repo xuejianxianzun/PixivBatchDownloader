@@ -233,13 +233,12 @@ class SaveWorkDescription {
         }
       }
       if (folder) {
-        // 查找 / 的数量来统计有几层文件夹
-        const count = (folder.match(/\//g) || []).length
-        // 从文件名里提取对应的文件夹部分
-        const _fileName = fileName.createFileName(store.resultMeta[0])
-        const parts = _fileName.split('/')
-        if (parts.length >= count) {
-          const path = parts.slice(0, count).join('/')
+        // 把命名规则中含 {user} 的文件夹片段渲染成实际的文件夹路径
+        // 这里使用与 fileName.createFileName 相同的渲染流程，因此渲染结果
+        // 与下载的图片文件实际所在的文件夹一致。例如命名规则
+        // pixiv/{user}-{user_id}/{id}-{title} 会渲染为 pixiv/画师名-画师id
+        const path = fileName.createFolderPath(result, folder)
+        if (path) {
           // 在 txt 文件之前添加文件夹路径
           txtName = `${path}/${txtName}`
         }

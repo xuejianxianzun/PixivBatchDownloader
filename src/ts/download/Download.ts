@@ -41,8 +41,6 @@ class Download {
   private downloadStatesIndex: number
 
   private retry = 0 // 重试次数
-  private lastRequestTime = 0 // 最后一次发起请求的时间戳
-  private retryInterval: number[] = [] // 保存每次到达重试环节时，距离上一次请求的时间差
 
   private sizeChecked = false // 是否对文件体积进行了检查
   private skip = false // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
@@ -101,15 +99,23 @@ class Download {
   }
 
   private async download(arg: downloadArgument): Promise<void> {
+    // 暂停、停止之后不再继续这个文件：states.downloading 变成 false 会让 this.cancel 变成 true。
+    // 中止后它的状态保持「下载中」，下次开始下载时 downloadStates.resume() 会把它复位成
+    // 「未开始」，从而重新下载它。
+    // 这里也覆盖了重试：重试同样会再次调用 download()
+    if (this.cancel) {
+      return
+    }
+
     const result = arg.result
     // 获取文件名
     let _fileName = fileName.createFileName(result)
+    // console.log(_fileName)
 
     // 重置当前下载记录条
     this.setProgressBar(_fileName, 0, 0)
 
     await downloadInterval.wait()
-    this.lastRequestTime = Date.now()
 
     if (result.type === 3) {
       // 小说文件单独处理，因为它是动态生成的，生成后就可以直接下载，不需要走下面的 Fetch 请求流程
@@ -144,7 +150,15 @@ class Download {
     let status = 0
 
     try {
-      const response = await fetch(url, { signal: controller.signal })
+      // 重试时绕过 HTTP 缓存：极少数情况下缓存里的响应有问题，不使用缓存重新请求可以成功。
+      // 两种情况都算重试：
+      // 1. this.retry > 0：本次下载内的快速重试（失败后等待 1 秒再试）
+      // 2. arg.isRetry：下载器级别的重试（其他文件下载完毕后，由 DownloadControl 新建实例重试）
+      // 用 'reload' 而不是 'no-store'，这样重新请求到的响应会顺便把缓存里那份有问题的更新掉
+      const response = await fetch(url, {
+        signal: controller.signal,
+        cache: this.retry > 0 || arg.isRetry ? 'reload' : 'default',
+      })
       const contentType = response.headers
         .get('Content-Type')
         ?.split(';')[0]
@@ -259,13 +273,6 @@ class Download {
 
       console.error('Download error:', error)
 
-      // 网络错误时 fetch 会抛出 TypeError，此时 status 为 0
-      // 储存重试的时间戳等信息
-      if (this.retryInterval.length > Config.retryMax) {
-        this.retryInterval.shift()
-      }
-      this.retryInterval.push(Date.now() - this.lastRequestTime)
-
       progressBar.errorColor(this.progressBarIndex, true)
       this.retry++
 
@@ -274,6 +281,9 @@ class Download {
         this.afterReTryMax(status, arg.id)
       } else {
         // 开始重试
+        // ⚠️ 重试之前必须等待一段时间，否则会立刻重新发送请求
+        // 连续请求不仅可能失败得更快，也容易被服务器当成异常流量
+        await Utils.sleep(1000)
         return this.download(arg)
       }
     }
@@ -310,25 +320,15 @@ class Download {
       })
     }
 
-    // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
-    // 超时也会返回状态码 0
+    // 其他状态码（包括网络错误导致的 0），暂时跳过这个任务，
+    // 但最后还是会尝试重新下载它
+    log.warning(errorMsg)
     if (status === 0) {
-      // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-      // 如果是超时，那么等待时间会比较长，可能超过 20 秒
-      const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
-      const result = this.retryInterval.filter((val) => val <= timeLimit)
-      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
-      if (result.length > 9) {
-        log.error(errorMsg)
-        const tip = lang.transl('_状态码为0的错误提示')
-        log.error(tip)
-        msgBox.error(tip)
-        return EVT.fire('requestPauseDownload')
-      }
+      log.warning(lang.transl('_对状态码0的说明'))
     }
-
-    // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
-    log.log(lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它'))
+    log.warning(
+      lang.transl('_下载器会暂时跳过它并在其他文件下载完毕后重试下载它')
+    )
     this.error = true
     EVT.fire('downloadError', fileId)
   }
@@ -557,7 +557,7 @@ class Download {
   /* 对插画、漫画进行颜色检查 */
   private async checkColor(result: Result, blobURL: string) {
     const checkResult = await filter.check({
-      mini: blobURL,
+      imageUrl: blobURL,
     })
     if (!checkResult) {
       return this.skipDownload(
@@ -605,6 +605,12 @@ class Download {
   // 如果用户启用了“文件下载顺序”，就需要等待上一个文件下载完成后（浏览器返回文件下载成功的消息），再开始下载这个文件
   private async waitPreviousFileDownload() {
     while (settings.setFileDownloadOrder) {
+      // 暂停、停止之后不再等待：前一个文件可能已经被中止，它会保持「下载中」状态，
+      // 继续等下去会让这个实例永远卡在这个循环里
+      if (this.cancel) {
+        return
+      }
+
       if (
         this.downloadStatesIndex === 0 ||
         downloadStates.states[this.downloadStatesIndex - 1] === 1
@@ -666,6 +672,8 @@ class Download {
       } catch (error) {
         // 如果网络请求失败，重试最多 3 次
         if (retryCount <= 3) {
+          // 重试之前等待一段时间，避免连续发送请求
+          await Utils.sleep(1000)
           return this.downloadUgoiraThumbnail(
             result,
             newFileName,
@@ -759,8 +767,8 @@ class Download {
       browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')
     } catch (error) {
-      let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(
-        '_请刷新页面'
+      let msg = `${lang.transl('_发生错误原因')}<br>{}<br>${lang.transl(
+        '_请刷新这个网页'
       )}`
       if ((error as Error).message.includes('Extension context invalidated')) {
         msg = msg.replace('{}', lang.transl('_扩展程序已更新'))

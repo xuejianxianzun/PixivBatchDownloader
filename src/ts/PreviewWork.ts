@@ -121,7 +121,7 @@ class PreviewWork {
           return
         }
 
-        // 检查这个作品是否被“不能含有的标签”和 Mute 里屏蔽的标签排除了
+        // 检查这个作品是否被“标签不能含有”和 Mute 里屏蔽的标签排除了
         if (settings.checkBlockTagsForPreviewWork) {
           const tags = Tools.extractTags(this.workData, 'origin')
           const checkTag = await filter.checkExcludeAndMuteTags(tags)
@@ -183,7 +183,7 @@ class PreviewWork {
 
   private bindEvents() {
     artworkThumbnail.onEnter((el: HTMLElement, id: string, ev: MouseEvent) => {
-      // 这个判断是为了处理这个边界情况：
+      // 这个判断是为了处理这个边界情况（鼠标重入缩略图）：
       // 在多图作品页面里，预览作品下方的某个缩略图时（必须是由 displayThumbnailListOnMultiImageWorkPage 生成的缩略图，因为它设置了 data-index，每个缩略图都有不同的索引）
       // 在预览并切换图片的过程中，某张预览图（通常是横图）遮挡住了缩略图，这会触发 artworkThumbnail.onLeave 事件；
       // 之后当预览图消失，或者显示了下一张预览图（并且这个预览图没有遮挡缩略图），就会导致鼠标重新落在下方的缩略图上，触发 artworkThumbnail.onEnter 事件。
@@ -677,7 +677,11 @@ class PreviewWork {
       }
 
       // 判断是不是 AI 生成的作品
-      const tagsWithTransl: string[] = Tools.extractTags(workData, 'both')
+      const tagsWithTransl: string[] = Tools.extractTags(
+        workData,
+        'both',
+        'check'
+      )
       let aiType = body.aiType
       if (aiType !== 2) {
         if (Tools.checkAIFromTags(tagsWithTransl)) {

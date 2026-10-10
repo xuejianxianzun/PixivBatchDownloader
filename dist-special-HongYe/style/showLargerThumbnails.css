@@ -437,7 +437,7 @@ body[data-page-type='5'] aside .size-104 > div > div {
   width: auto !important;
   height: auto !important;
 }
-body[data-page-type='5'] #workListWrap {
+body[data-page-type='5'] .searchResultPreviewList {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

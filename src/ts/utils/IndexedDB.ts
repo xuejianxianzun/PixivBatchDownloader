@@ -2,9 +2,27 @@
 class IndexedDB {
   public db: IDBDatabase | undefined
 
+  /** 从 IndexedDB 的错误里取出一个简短的原因，取不到时返回 unknown。
+   *
+   * 为什么需要它：请求失败时 reject 的是**事件对象**（真正的错误在 `target.error` 里，
+   * 名字是 VersionError 这类有意义的值），而这层封装自己 reject 的是**字符串**
+   * （如 Database is not defined）。直接塞进日志只会看到 [object Event]。 */
+  public static getErrorName(ev: any) {
+    if (typeof ev === 'string') {
+      return ev
+    }
+    const name = ev?.target?.error?.name || ev?.name
+    // 普通 Error 的 name 只是 Error，没有信息量，这种情况改用 message
+    if (name && name !== 'Error') {
+      return name
+    }
+    return ev?.message || name || 'unknown'
+  }
+
+  // DBVer 省略时，按数据库当前的版本打开（不会触发升级）
   public async open(
     DBName: string,
-    DBVer: number,
+    DBVer?: number,
     onUpgrade?: (db: IDBDatabase) => void
   ) {
     return new Promise<IDBDatabase>((resolve, reject) => {
@@ -25,6 +43,17 @@ class IndexedDB {
         console.error('open indexDB failed')
         console.trace()
         reject(ev)
+      }
+
+      // 请求的版本比数据库当前的版本高、而还有别的连接在打开这个数据库时，
+      // 浏览器不会自动关闭那些连接，而是让这个请求一直停在阻塞状态（既不成功也不失败）。
+      // 所以这里把它当成打开失败，让调用方有机会降级处理（例如按当前版本重新打开）
+      request.onblocked = () => {
+        console.warn('open indexDB blocked')
+        // 起一个明确的名字：调用方靠 name 区分「被阻塞」和「版本不匹配」
+        const error = new Error('indexedDB open request is blocked')
+        error.name = 'BlockedError'
+        reject(error)
       }
     })
   }

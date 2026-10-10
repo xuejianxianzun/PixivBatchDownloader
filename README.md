@@ -1,9 +1,9 @@
 English |
-[简体中文](/README-ZH-CN.md) |
-[繁體中文](/README-ZH-TW.md) |
-[日本語](/README-JA.md) |
-[韩国语](/README-KO.md) |
-[Russian](/README-RU.md)
+[简体中文](/readme/README-ZH-CN.md) |
+[繁體中文](/readme/README-ZH-TW.md) |
+[日本語](/readme/README-JA.md) |
+[韩国语](/readme/README-KO.md) |
+[Russian](/readme/README-RU.md)
 
 [Discord channel](https://discord.gg/eW9JtTK)
 
@@ -71,6 +71,7 @@ Please check the Wiki page:
 # Install on Android
 
 If you want to install this extension in a browser on Android, we recommend using the Quetta browser. It is a mobile browser with the Chromium core, and you can install extensions online from the Chrome Web Store — very convenient.
+[View tutorial](https://xuejianxianzun.github.io/PBDWiki/#/en/Installation/QuettaBrowser)
 
 # How to use
 
@@ -94,13 +95,15 @@ Thank you for your support!
 
 - Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
-- Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
+- Thanks [光の軌跡](https://github.com/jiaer24) for translating Japanese.
 
-- Thanks [bropines](https://github.com/bropines) for translating traditional Russia.
+- Thanks [KOZ39](https://github.com/KOZ39) for translating Korean.
 
-- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
+- Thanks [bropines](https://github.com/bropines) for translating Russian.
 
-- Thanks [z2n](https://github.com/z2n) for improvements to the program.
+- Thanks [Reinford0](https://github.com/Reinford0) for testing and improving this tool.
+
+- Thanks [z2n](https://github.com/z2n) for improvements to the project build of this tool.
 
 # Development
 

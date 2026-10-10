@@ -115,6 +115,7 @@ class InitRankingNovelPageOld extends InitPageBase {
     this.getIdList()
   }
 
+  /**获取排行榜小说的 ID 列表 */
   protected async getIdList() {
     let dom: Document
     try {
@@ -172,6 +173,8 @@ class InitRankingNovelPageOld extends InitPageBase {
         bookmarkCount: bmk,
         bookmarkData: bookmarked,
         userId: userId,
+        // item 上有语言标记（data-language）
+        language: item.dataset.language,
       }
 
       // item 上有语言标记，使用它来过滤小说

@@ -1,5 +1,7 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { API } from '../API'
 import { lang } from '../Language'
+import { log } from '../Log'
 import { BookmarkResult } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
 import { toast } from '../Toast'
@@ -41,6 +43,8 @@ class BookmarkAllWorks {
   private idList: IDList[] = []
 
   private bookmarKData: BookmarkData[] = []
+
+  private failedCount = 0 // 添加失败的作品数量，完成时需要如实告诉用户
 
   private tipWrap: HTMLElement = document.createElement('button')
   private textSpan: HTMLSpanElement = document.createElement('span')
@@ -125,10 +129,19 @@ class BookmarkAllWorks {
   private reset() {
     this.idList = []
     this.bookmarKData = []
+    this.failedCount = 0
   }
 
   // 启动收藏流程
   private async startBookmark() {
+    if (!canRequestInBatch('_添加收藏')) {
+      // 收藏模式需要结束，否则后续流程会一直以为自己还在收藏模式里
+      if (states.bookmarkMode) {
+        EVT.fire('bookmarkModeEnd')
+      }
+      return
+    }
+
     if (this.idList.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
       EVT.fire('bookmarkModeEnd')
@@ -140,12 +153,25 @@ class BookmarkAllWorks {
 
     await this.getTagData()
     await this.addBookmarkAll()
+
+    // 账户被警告时遍历被中止了，此时不显示「完成」，但需要恢复界面状态
+    if (!canRequestInBatch('_添加收藏')) {
+      this.tipWrap.removeAttribute('disabled')
+      EVT.fire('bookmarkModeEnd')
+      return
+    }
+
     this.complete()
   }
 
   // 获取每个作品的 tag 数据
   private async getTagData() {
     for (const id of this.idList) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_添加收藏')) {
+        break
+      }
+
       this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
       const noTagData = {
         type: id.type,
@@ -187,20 +213,38 @@ class BookmarkAllWorks {
   private async addBookmarkAll() {
     let index = 0
     for (const data of this.bookmarKData) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_添加收藏')) {
+        break
+      }
+
       this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
-      const status = await bookmark.add(
-        data.id,
-        data.type,
-        data.tags,
-        undefined,
-        undefined,
-        true
-      )
+
+      let status = 0
+      try {
+        status = await bookmark.add(
+          data.id,
+          data.type,
+          data.tags,
+          undefined,
+          undefined,
+          true
+        )
+      } catch (error) {
+        // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
+        // 如果抛出去，遍历会静默中断，界面会一直停留在「收藏中」的状态
+        status = 0
+      }
 
       if (status === 403) {
         const msg = Tools.addBookmark403Error()
         msgBox.error(msg)
         break
+      }
+
+      // 只要不是 200 就说明这个作品没有添加成功，需要如实统计
+      if (status !== 200) {
+        this.failedCount++
       }
 
       index++
@@ -210,7 +254,7 @@ class BookmarkAllWorks {
   private complete() {
     this.textSpan.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
-    toast.success(lang.transl('_收藏作品完毕'))
+    bookmark.showCompleteMessage(this.failedCount)
     EVT.fire('bookmarkModeEnd')
   }
 }

@@ -35,6 +35,16 @@ import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { MergeNovel } from '../download/MergeNovel'
 import { ppdTask } from '../PPDTask'
 
+/**
+ * 页面抓取流程的基类。
+ *
+ * 典型流程：
+ * 1. 初始化：子类调用 init，添加页面元素、注册事件和销毁回调。
+ * 2. 开始抓取时，先执行 readyCrawl 完成检查与初始化，然后执行 nextStep
+ * 3. 获取作品 ID 列表：getIdList，获取完毕后执行 getIdListFinished
+ * 4. 获取作品详情：getWorksData，全部完成后执行 crawlFinished，之后就可以开始下载了。
+ * 5. 卸载：当用户切换到不同的页面类型里时，会执行 destroy 销毁该页面里的元素和事件。
+ */
 abstract class InitPageBase {
   /**要抓取的个数/页数 */
   protected crawlNumber = 0
@@ -54,17 +64,19 @@ abstract class InitPageBase {
   protected finishedRequest = 0
   /** 如果 stopCrawl 标记为 true，则这个标记也会变成 true。通过检查这个标记，可以避免重复执行一些逻辑 */
   protected crawlFinishBecauseStopCrawl = false
-  /** 获取完 idList 之后，保存它的的长度 */
+  /** 获取完 idList 之后，保存它的的长度。目的是在抓取完成后，检查某种操作的次数是否与初始的 idList 长度一致，如果一致就说明所有 id 都被这种操作处理了。
+   *
+   * 注意：在抓取过程中，如果 idList 里的某些 id 被移除（如手动排除作品），则该值可能不再准确。所以这个值是不可信的，只应该用于输出日志等辅助用途。
+   */
   protected idListLength = 0
   /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
   protected mergedNovelCount = 0
-  /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程 */
-  // 切换到不同页面类型后，会恢复成默认值 false
+  /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程。切换到不同页面类型后，会恢复成默认值 false */
   protected onlyCrawlIdList = false
   /** 当前页面里通过 addInitPageBtn 添加了多少个按钮。第一个按钮作为主按钮，其余默认作为次要按钮。 */
   private initPageBtnCount = 0
 
-  // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
+  /** 该类的实现必须调用 init 方法，并且不可以修改 init 方法 */
   protected readonly init = () => {
     this.addCrawlBtns()
     this.addAnyElement()
@@ -102,6 +114,12 @@ abstract class InitPageBase {
       states.crawlCompleteTime = Date.now()
     })
 
+    // 抓取结果为 0 时，把抓取完成的时间重置为 0，表示没有需要下载的文件。
+    // 这里依赖触发顺序：crawlEmpty 总是在 crawlComplete 之后触发，所以重置不会被 crawlComplete 覆盖
+    EVT.bindOnce('crawlCompleteButNoResult', EVT.list.crawlEmpty, () => {
+      states.crawlCompleteTime = 0
+    })
+
     EVT.bindOnce('downloadCompleteTime', EVT.list.downloadComplete, () => {
       states.downloadCompleteTime = Date.now()
     })
@@ -130,7 +148,7 @@ abstract class InitPageBase {
     })
   }
 
-  // 添加抓取区域的默认按钮，可以被子类覆写
+  /** 添加抓取区域的默认按钮，可以被子类覆写 */
   protected addCrawlBtns() {
     this.addInitPageBtn(
       'crawlBtns',
@@ -160,25 +178,26 @@ abstract class InitPageBase {
     return Tools.addBtn(slot, text, title, id, emphasis, intent)
   }
 
-  // 添加其他任意元素（如果有）
+  /** 添加其他任意元素（如果有） */
   protected addAnyElement(): void {}
 
-  // 初始化任意内容
-  // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
-  // 通常用来初始化特有的组件、功能、事件、状态等
+  /**
+   * 初始化任意内容。如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里。
+   * 通常用来初始化特有的组件、功能、事件、状态等。
+   */
   protected initAny() {}
 
-  // 销毁初始化页面时添加的元素和事件，恢复设置项等
+  /** 销毁初始化页面时添加的元素和事件监听器 */
   protected destroy(): void {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
   }
 
-  // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
+  /** 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义 */
   protected getWantPage() {}
 
-  /**在日志上显示任意提示 */
-  protected showTip() {
+  /**在日志上显示一些提示 */
+  protected showLogTip() {
     if (
       settings.removeWorksOfFollowedUsersOnSearchPage &&
       (pageType.type === pageType.list.ArtworkSearch ||
@@ -201,9 +220,7 @@ abstract class InitPageBase {
 
   protected confirmRecrawl() {
     if (store.result.length > 0) {
-      // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
-      // 如果没有被下载过，则显示提醒
-      if (states.crawlCompleteTime > states.downloadCompleteTime) {
+      if (states.hasUndownloadedCrawlResult) {
         const _confirm = window.confirm(lang.transl('_已有抓取结果时进行提醒'))
         return _confirm
       }
@@ -212,7 +229,7 @@ abstract class InitPageBase {
     return true
   }
 
-  // 准备正常进行抓取，执行一些检查
+  /** 准备正常进行抓取，执行一些检查 */
   protected async readyCrawl() {
     // 检查是否可以开始抓取
     // states.busy 表示下载器正在抓取或正在下载
@@ -241,7 +258,7 @@ abstract class InitPageBase {
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
-      log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.error(lang.transl('_取消抓取因为某些筛选条件不正确'))
       log.log('')
       return
     }
@@ -254,7 +271,7 @@ abstract class InitPageBase {
 
     crawlLatestFewWorks.showLog()
 
-    this.showTip()
+    this.showLogTip()
 
     this.finishedRequest = 0
 
@@ -266,9 +283,10 @@ abstract class InitPageBase {
     this.nextStep()
   }
 
-  // 基于传递的 id 列表直接开始抓取
-  // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
-  // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+  /**
+   * 基于传递的 id 列表直接开始抓取。这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
+   * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+   */
   protected async crawlIdList(idList: IDData[]) {
     // 对 idList 进行去重
     // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
@@ -315,7 +333,7 @@ abstract class InitPageBase {
 
       const wrongSetting = filter.showTip()
       if (wrongSetting) {
-        log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.error(lang.transl('_取消抓取因为某些筛选条件不正确'))
         log.log('')
         return
       }
@@ -339,12 +357,12 @@ abstract class InitPageBase {
     }
   }
 
-  // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
+  /** 当可以开始抓取时，进入下一个流程。默认情况下，开始获 id 列表。如有不同，由子类具体定义 */
   protected nextStep() {
     this.getIdList()
   }
 
-  // 获取 id 列表，由各个子类具体定义
+  /** 获取 id 列表，由各个子类具体定义 */
   protected getIdList() {}
 
   /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
@@ -354,7 +372,7 @@ abstract class InitPageBase {
     })
   }
 
-  // id 列表获取完毕，开始抓取作品内容页
+  /** id 列表获取完毕，开始抓取作品内容页 */
   protected async getIdListFinished(): Promise<void> {
     log.persistentRefresh(this.getIdListLogKey)
     states.slowCrawlMode = false
@@ -433,8 +451,16 @@ abstract class InitPageBase {
     this.idListLength = store.idList.length
     this.mergedNovelCount = 0
 
-    // 设置抓取线程
+    this.setCrawlThread()
+
+    // 进入抓取流程
+    this.startGetWorksData()
+  }
+
+  /**根据待抓取作品数量和慢速抓取设置，配置抓取线程数 */
+  protected setCrawlThread(canUseSlowCrawl = true) {
     if (
+      canUseSlowCrawl &&
       settings.slowCrawl &&
       store.idList.length > settings.slowCrawlOnWorksNumber
     ) {
@@ -447,28 +473,6 @@ abstract class InitPageBase {
       states.slowCrawlMode = false
       this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     }
-
-    // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
-    // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
-    // 对于图像作品，优先从缓存读取。其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久，所以就使用缓存了
-    // 不检查 novelSeries 类型的作品，因为目前不会缓存系列小说的数据
-    // 也不检查 novels 类型的作品，因为小说可能属于系列小说，可能需要自动合并系列小说，所以必须走正常抓取流程处理，不能在这里跳过抓取流程
-    if (
-      states.quickCrawl &&
-      store.idList.length === 1 &&
-      ['illusts', 'manga', 'ugoira'].includes(store.idList[0].type)
-    ) {
-      const idData = store.idList[0]
-      const data = cacheWorkData.get(idData.id, 'artwork')
-      if (data) {
-        store.idList = []
-        await saveArtworkData.save(data, idData.downloadIndexes)
-        return this.crawlFinished()
-      }
-    }
-
-    // 进入抓取流程
-    this.startGetWorksData()
   }
 
   /** 并发调用 getWorksData 方法 */
@@ -489,10 +493,10 @@ abstract class InitPageBase {
     }
   }
 
-  // 重设抓取作品列表时使用的变量或标记
+  /** 重设抓取 id 列表时使用的变量或标记 */
   protected resetGetIdListStatus() {}
 
-  // 获取作品的数据
+  /** 获取作品的数据 */
   protected async getWorksData(idData?: IDData): Promise<void> {
     if (states.stopCrawl) {
       return this.crawlFinished()
@@ -574,7 +578,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 每当获取完一个作品的信息
+  /** 每当获取完一个作品的信息 */
   private async afterGetWorksData(
     data?: NovelData | ArtworkData
   ): Promise<void> {
@@ -636,7 +640,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 抓取完毕
+  /** 抓取完毕 */
   protected crawlFinished() {
     log.persistentRefresh('getWorksProgress')
     // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
@@ -706,7 +710,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 每当抓取了一个作品之后，输出提示
+  /** 每当抓取了一个作品之后，输出提示 */
   protected logResultNumber() {
     log.log(
       `➡️${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
@@ -753,7 +757,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 抓取完成后，对结果进行排序
+  /** 抓取完成后，对结果进行排序 */
   protected sortResult() {}
 
   /**定时抓取的按钮 */

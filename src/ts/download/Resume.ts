@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { log } from '../Log'
 import { lang } from '../Language'
-import { store } from '../store/Store'
+import { store, ColorBlockedRecord } from '../store/Store'
 import { states } from '../store/States'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from '../store/StoreType'
@@ -15,6 +15,15 @@ interface TaskMeta {
   URLWhenCrawlStart: string
   part: number
   date: Date
+  /** 被图片色彩检查排除的图片索引：[作品的数字 id, 排除记录]
+   *
+   * 它必须和任务数据一起存下来，不能靠 result 反推：result 里没有的图片索引既可能是「被色彩排除」的，
+   * 也可能是「被多图作品设置排除」的，反推无法区分（见 restoreResultMetaFromResult 里的兜底逻辑）。
+   *
+   * 数据量不大（只有多图作品才可能有），所以直接放在 meta 记录里，不另建表：
+   * ⚠️ 新建表需要提升 DBVer，而 IndexedDB 的升级在有其他标签页持有旧连接时会被阻塞，
+   * 那会让整个 Resume 模块初始化不了（连保存的监听都绑不上） */
+  colorBlocked?: [number, ColorBlockedRecord][]
 }
 
 interface TaskData {
@@ -37,6 +46,8 @@ class Resume {
   private IDB: IndexedDB
   private readonly DBName = 'PBD'
   private readonly DBVer = 3
+  /** 记住数据库实际的版本（见 getDBVer） */
+  private readonly dbVerKey = 'PBD_DBVer'
   private metaName = 'taskMeta' // 下载任务元数据的表名
   private dataName = 'taskData' // 下载任务数据的表名
   private statesName = 'taskStates' // 下载状态列表的表名
@@ -62,8 +73,17 @@ class Resume {
       return
     }
 
-    await this.initDB()
+    const dbReady = await this.initDB()
+
+    // ⚠️ 不管数据库有没有打开成功，都要绑定事件。
+    // 如果数据库打不开（例如版本升级被其他标签页阻塞）就在这里中断，
+    // 那么「抓取完成时保存抓取结果」的监听就永远不会被绑上，
+    // 表现为「抓取完成后不保存抓取结果」，而其它功能看起来一切正常，很难排查
     this.bindEvents()
+
+    if (!dbReady) {
+      return
+    }
 
     if (states.settingInitialized) {
       this.restoreData()
@@ -73,8 +93,16 @@ class Resume {
     this.clearExired()
   }
 
-  // 初始化数据库，获取数据库对象
-  private async initDB() {
+  /** 初始化数据库，返回是否成功。
+   *
+   * ⚠️ **不抛出异常**：数据库不可用时只影响「保存 / 恢复抓取结果」，
+   * 不应该让整个模块的初始化流程中断（见 init 里的说明）。
+   *
+   * 带版本打开失败时退化为「按数据库当前的版本打开」：
+   * - 数据库的版本高于请求的版本（用户用过更高的版本）→ VersionError
+   * - 请求的版本高于数据库当前的版本，但还有别的连接在打开它 → 请求被阻塞
+   * 不带版本打开不会触发升级，所以这两种情况都能绕过去。 */
+  private async initDB(): Promise<boolean> {
     // 在升级事件里创建表和索引
     const onUpdate = (db: IDBDatabase) => {
       if (!db.objectStoreNames.contains(this.metaName)) {
@@ -100,8 +128,60 @@ class Resume {
       }
     }
 
-    // 打开数据库
-    return this.IDB.open(this.DBName, this.DBVer, onUpdate)
+    // 数据库实际的版本可能比 DBVer 高（用户用过某个更高的版本），直接用那个版本打开，
+    // 这样就不会每次都先撞一次 VersionError
+    const ver = this.getDBVer()
+
+    try {
+      await this.IDB.open(this.DBName, ver, onUpdate)
+      return true
+    } catch (ev) {
+      log.warning(
+        lang.transl('_IndexedDB改为按当前版本打开', IndexedDB.getErrorName(ev))
+      )
+    }
+
+    // 不带版本打开：它不会触发升级，所以上面那两种情况都绕得过去
+    try {
+      const db = await this.IDB.open(this.DBName)
+      // 这样打开的数据库可能缺表（数据库是在更早的版本里创建的，而升级没能进行）。
+      // 缺表时保存和恢复都会报错，所以判定为失败，别装作能用
+      const missing = [this.metaName, this.dataName, this.statesName].filter(
+        (name) => !db.objectStoreNames.contains(name)
+      )
+      if (missing.length > 0) {
+        log.error(lang.transl('_IndexedDB缺少数据表', missing.join(', ')))
+        return false
+      }
+      // 记住实际的版本，下次直接用它打开
+      if (db.version !== ver) {
+        try {
+          localStorage.setItem(this.dbVerKey, db.version.toString())
+        } catch (err) {
+          // 写不进去只是失去这个优化，不能因此判定「数据库打不开」（见下面的 catch 分支）
+        }
+      }
+      return true
+    } catch (ev) {
+      log.error(lang.transl('_IndexedDB打不开', IndexedDB.getErrorName(ev)))
+      return false
+    }
+  }
+
+  /** 打开数据库时要用的版本：取「代码里的 DBVer」与「上次发现的实际版本」中较大的那个。
+   *
+   * 数据库的实际版本可能比 DBVer 高（用户用过某个更高的版本，而 IndexedDB 不支持降级）。
+   * 用较大的版本打开，才不会每次都先撞一次 VersionError */
+  private getDBVer() {
+    // ⚠️ 这个方法在 initDB 的 try 之外被调用，所以它自己绝不能抛：
+    // 禁用站点数据等情况读取 localStorage 会抛异常，而 initDB 承诺了「不抛出异常」
+    try {
+      const saved = Number.parseInt(localStorage.getItem(this.dbVerKey) || '')
+      return Number.isFinite(saved) && saved > this.DBVer ? saved : this.DBVer
+    } catch (err) {
+      // 取不到就按代码里的 DBVer 走
+      return this.DBVer
+    }
   }
 
   private bindEvents() {
@@ -117,6 +197,11 @@ class Resume {
     const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
+        // 注意：即使 store.result 为空，也要保存数据。这是为了覆盖之前的数据。
+        // 例如用户在搜索页面先产生了 100  个抓取结果，之后通过筛选条件排除了所有结果，使结果变成 0
+        // 此时依然需要保存抓取结果，以覆盖已经不需要的 100 个结果。
+        // 如果此时不保存抓取结果，那么刷新页面之后，就会恢复之前的 100 个结果。
+        // if (store.result.length > 0) {}
         this.saveData()
       })
     }
@@ -147,6 +232,12 @@ class Resume {
   private async restoreData() {
     // 如果下载器在抓取或者在下载，则不恢复数据
     if (states.busy) {
+      return
+    }
+
+    // 数据库不可用时不恢复。init() 在初始化失败时不会调用这里，
+    // 但 pageSwitch / settingInitialized 的监听也会调用它，所以要挡一下
+    if (!this.IDB.db) {
       return
     }
 
@@ -186,6 +277,10 @@ class Resume {
       }
 
       store.resetDownloadCount()
+
+      // 过去没有保存过 resultMeta，所以这里根据刚刚恢复的 result 反向生成它。
+      // 这样恢复之后“在结果中筛选”、预览列表等功能才能正常工作
+      store.restoreResultMetaFromResult()
     })
 
     // 3 恢复下载状态
@@ -194,12 +289,36 @@ class Resume {
       this.taskId
     )) as TaskStates
 
-    if (data) {
+    // 保存的下载状态必须和恢复的抓取结果数量一致，否则下载时会读到 store.result 之外的下标。
+    // 不一致时（例如保存 states 失败）就重建状态列表，保证两者一一对应
+    if (data?.states?.length === store.result.length) {
       downloadStates.replace(data.states)
+    } else {
+      downloadStates.init()
     }
 
     store.crawlCompleteTime = meta.date
     store.URLWhenCrawlStart = meta.URLWhenCrawlStart || ''
+
+    // 恢复抓取完成的时间，这样恢复出来的结果才不会被判定为「已经下载完毕」。
+    // 注意类型不同：meta.date 是 Date，而 states.crawlCompleteTime 是时间戳。
+    // 如果 meta.date 缺失或无效（例如数据由旧版本保存），就当作刚刚抓取完成。
+    // 这样会判定为「未下载完毕」，是这个判定的安全方向：放弃下载时依然会向用户确认
+    const crawlCompleteTime = meta.date
+      ? new Date(meta.date).getTime()
+      : Number.NaN
+    states.crawlCompleteTime = Number.isFinite(crawlCompleteTime)
+      ? crawlCompleteTime
+      : Date.now()
+
+    // 4 恢复「被色彩检查排除的图片索引」。
+    // 有了它，恢复之后再做删除/筛选作品时，不会把被色彩排除的图片又加回来。
+    //
+    // ⚠️ 必须放在 restoreResultMetaFromResult() 之后：那个方法会先按 result 反推一份（给旧数据兜底），
+    // 这里再用精确保存的数据覆盖它。旧数据（没有 colorBlocked 字段）时保持反推的结果
+    if (meta.colorBlocked) {
+      store.restoreColorBlockedIndexes(meta.colorBlocked)
+    }
 
     // 恢复模式就绪
     await states.waitSettingInitialized()
@@ -216,10 +335,15 @@ class Resume {
     // 无论上一次保存成功还是失败，都把本次保存接到队列末尾顺序执行
     const run = () => this.saveDataInner()
     const p = this.saveDataChain.then(run, run)
-    this.saveDataChain = p.catch(() => {
-      // 忽略单次保存失败，避免阻塞后续保存
+    // 忽略单次保存失败，避免阻塞后续保存
+    const handled = p.catch((error) => {
+      // 失败原因可能是字符串（这层封装会 reject 字符串）、事件对象或 Error，
+      // 所以统一交给 IndexedDB.getErrorName 取一个能看懂的原因
+      log.error(lang.transl('_保存抓取结果失败', IndexedDB.getErrorName(error)))
     })
-    return p
+    // ⚠️ 返回处理过的这个：调用方是事件监听，拿到原始 Promise 会产生未处理的拒绝
+    this.saveDataChain = handled
+    return handled
   }
 
   private async saveDataInner() {
@@ -237,7 +361,7 @@ class Resume {
 
     // 保存本次任务的数据
     // 如果此时本次任务已经完成，就不进行保存了
-    if (downloadStates.downloadedCount() === store.result.length) {
+    if (states.downloadCompleteOrStop) {
       return
     }
 
@@ -249,12 +373,14 @@ class Resume {
     await this.saveTaskData()
 
     // 保存 meta 数据
-    const metaData = {
+    // 被图片色彩检查排除的图片索引也放在这里（见 TaskMeta.colorBlocked）
+    const metaData: TaskMeta = {
       id: this.taskId,
       url: this.getURL(),
       URLWhenCrawlStart: store.URLWhenCrawlStart,
       part: this.part.length,
       date: store.crawlCompleteTime,
+      colorBlocked: store.getColorBlockedIndexes(),
     }
 
     // add 必须 await，否则下一个排队的保存可能在它提交前就读取/插入，撞上 url 唯一索引
@@ -335,7 +461,7 @@ class Resume {
         }
         this.needPutStates = false
         // 如果此时本次任务已经完成，就不进行保存了
-        if (downloadStates.downloadedCount() === store.result.length) {
+        if (states.downloadCompleteOrStop) {
           return
         }
         this.IDB.put(this.statesName, statesData)

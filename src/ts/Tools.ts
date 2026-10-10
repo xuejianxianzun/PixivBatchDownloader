@@ -1,6 +1,7 @@
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
+import { novelGenreMap } from './NovelGenreConfig'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
 import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
@@ -37,12 +38,14 @@ type BtnIntent = 'brand' | 'success' | 'warning' | 'danger'
 class Tools {
   // 把结果中的动图排列到最前面
   static sortUgoiraFirst(a: Result, b: Result) {
+    // 注意：不需要调整顺序时必须返回 0。返回非 0 会让这个比较器不满足反对称性，
+    // 排序结果会变得不可预期（同一作品的文件可能被打散）
     if (a.type === 2 && b.type !== 2) {
       return -1
-    } else if (a.type === 2 && b.type === 2) {
-      return 0
-    } else {
+    } else if (a.type !== 2 && b.type === 2) {
       return 1
+    } else {
+      return 0
     }
   }
 
@@ -283,6 +286,7 @@ class Tools {
   }
 
   static readonly userIDRegExp = /\/users\/(\d+)/
+  /** 从 URL 中提取用户 ID，如果找不到则返回空字符串 */
   static getUserID(url: string) {
     const test = url.match(this.userIDRegExp)
     if (test && test.length > 1) {
@@ -630,10 +634,25 @@ class Tools {
    * 'transl' 获取翻译后的 tag。只有图片作品有翻译，小说作品的 tag 没有翻译。如果某个 tag 没有翻译，则会保存它的原版 tag
    *
    * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
+   *
+   * 可选参数 purpose:
+   *
+   * 'save' 表示提取标签用于保存抓取结果（会在文件名里使用），'check' 表示提取标签用于检查、显示。
+   * 默认值是 'check'
+   *
+   * 只有当 type 为 'transl' 或 'both' 时才需要使用 purpose 参数，因为它影响的是返回的翻译后的标签。
+   *
+   * 行为差异：
+   * 如果一个标签原本是中文的，而翻译后的标签是英文的，那么：
+   *
+   * 当 purpose 为 'save' 时，只会使用中文（原版 tag），不会使用翻译后的英文标签。
+   * 当 purpose 为 'check' 时，则会同时使用原版 tag 和翻译后的标签。这是为了应对标签检查的需要。
+   *
    */
   static extractTags(
     data: ArtworkData | NovelData,
-    type: 'origin' | 'transl' | 'both' = 'origin'
+    type: 'origin' | 'transl' | 'both' = 'origin',
+    purpose: 'save' | 'check' = 'check'
   ) {
     const tags: string[] = []
     const tagsTransl: string[] = []
@@ -646,17 +665,20 @@ class Tools {
       tags.push(tagData.tag)
 
       // 添加翻译的 tag
-      // 缺省使用原标签
-      let useOriginTag = true
-      if (this.isArtworkTags(tagData)) {
+      // 备注：在小说的数据里，tag 都没有翻译
+      if (type === 'transl' || type === 'both') {
         // 不管是什么语种的翻译结果，都保存在 en 属性里
-        if (tagData.translation && tagData.translation.en) {
-          useOriginTag = false
-          // 如果用户在 Pixiv 的页面语言是中文，则应用优化策略
-          // 如果翻译后的标签是纯英文，则判断原标签是否含有至少一部分中文，如果是则使用原标签
-          // 这是为了解决一些中文标签被翻译成英文的问题，如 原神 被翻译为 Genshin Impact
-          // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
-          // 但是如果原标签里没有中文则依然会使用翻译后的标签，如 フラミンゴ flamingo
+        if (
+          this.isArtworkTags(tagData) &&
+          tagData.translation &&
+          tagData.translation.en
+        ) {
+          // 如果用户在 Pixiv 的页面语言是中文，则检查这种情况：
+          // 原标签全部或部分是中文，并且翻译后的标签是纯英文
+          // 例如：原神 被翻译为 Genshin Impact
+          // 能代(アズールレーン) 被翻译为 Noshiro (Azur Lane)
+          // 绝区零 被翻译为 Zenless Zone Zero
+          let originTagIsChineseAndTranslatedTagIsEnglish = false
           if (lang.htmlLangType === 'zh-cn' || lang.htmlLangType === 'zh-tw') {
             const allEnglish = [].every.call(
               tagData.translation.en,
@@ -664,16 +686,28 @@ class Tools {
                 return s.charCodeAt(0) < 128
               }
             )
-            if (allEnglish) {
-              useOriginTag = this.chineseRegexp.test(tagData.tag)
+            if (allEnglish && this.chineseRegexp.test(tagData.tag)) {
+              originTagIsChineseAndTranslatedTagIsEnglish = true
             }
           }
+
+          if (
+            originTagIsChineseAndTranslatedTagIsEnglish &&
+            purpose === 'save'
+          ) {
+            // 当原标签是中文，翻译后的标签是纯英文
+            // 并且用途是保存抓取结果时，则使用原标签，而不是翻译后的标签
+            // 这是为了缩短文件名，并优先使用中文作为文件名
+            tagsTransl.push(tagData.tag)
+          } else {
+            // 如果原标签不是中文或者翻译后的标签不是纯英文，直接使用翻译后的标签
+            tagsTransl.push(tagData.translation.en)
+          }
+        } else {
+          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签
+          tagsTransl.push(tagData.tag)
         }
       }
-
-      tagsTransl.push(
-        useOriginTag ? tagData.tag : (tagData as any).translation.en
-      )
     }
 
     if (type === 'origin') {
@@ -1123,7 +1157,7 @@ class Tools {
   }
 
   /**根据作品类型字符串，返回对应的数字 */
-  static getWorkType(
+  static getWorkTypeNumber(
     workTypeString: WorkTypeString
   ): 0 | 1 | 2 | 3 | undefined {
     switch (workTypeString) {
@@ -1201,6 +1235,7 @@ class Tools {
     }
   }
 
+  /** 储存 Pixiv 每种显示语言里，“原创”标记所使用的文字 */
   static readonly originalMark: Map<string, string> = new Map([
     ['zh-cn', '原创'],
     ['zh-tw', '原創'],
@@ -1216,9 +1251,32 @@ class Tools {
     return this.originalMark.get(lang.htmlLangType) || 'オリジナル'
   }
 
+  /** 获取小说的分类（genre）在当前页面语言里的名称
+   *
+   * 这个名称就是小说页面里和标签列表显示在一起的分类标记。例如 genre 为 '10' 时，标签列表里会显示“ BL”。
+   * 小说的标签列表里通常没有这个分类名称，所以即使用户在下载器的“标签不能含有”里设置了 BL，下载器也无法排除这篇小说。
+   *
+   * 通过这个方法获取分类名称，并添加到标签列表里，
+   * 这样就可以像检查其他标签一样检查小说的分类了。
+   */
+  static getNovelGenreName(genre?: string) {
+    // genre 为 '0' 时表示这个小说没有特定的分类，此时返回空字符串。
+    if (!genre || genre === '0') {
+      return ''
+    }
+
+    const name = novelGenreMap.get(genre)
+    if (!name) {
+      return ''
+    }
+
+    const langType = lang.htmlLangType as keyof typeof name
+    return name[langType] || name.en
+  }
+
   /** 向标签列表前面添加传入的标签 */
-  // 目前用来添加“原创”标记和“AI生成”标记
-  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创
+  // 目前用来添加“原创”标记、“AI生成”标记、小说分类标记
+  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创 分类
   // 测试用例：
   // https://www.pixiv.net/artworks/140494669
   // https://www.pixiv.net/novel/show.php?id=27131021
@@ -1227,6 +1285,47 @@ class Tools {
   // 但在某些情况下，顺序可能依然会错乱，例如：
   // 作品前两个标签是“R-18”和“AI生成”，那么“原创”会被插入到第二位，“AI生成”则变成第三位。
   // 目前我没有处理这种边界情况
+  /** 生成小说的标签列表
+   *
+   * 除了小说自带的标签，还会添加小说分类、“原创”、“AI生成”这些标记，
+   * 因为这些标记会显示在小说页面的标签列表里，但不一定存在于小说的标签数据里。
+   *
+   * @returns tags 标签列表；aiType 是否是 AI 生成的作品，可能会根据标签修正为 2
+   */
+  static buildNovelTags(data: NovelData) {
+    const tags: string[] = this.extractTags(data)
+
+    // 添加小说的分类对应的标签
+    // 它需要显示在“原创”标记后面，unshiftTag 会把新标签添加到最前面，所以先添加它
+    // genre 为 '0' 时表示这个小说没有特定的分类，此时不会添加标签
+    const genreMark = this.getNovelGenreName(data.body.genre)
+    if (genreMark) {
+      this.unshiftTag(tags, genreMark)
+    }
+
+    // 添加“原创”对应的标签
+    if (data.body.isOriginal) {
+      const originalMark = this.getOriginalMark()
+      this.unshiftTag(tags, originalMark)
+    }
+
+    // 判断是不是 AI 生成的作品
+    let aiType = data.body.aiType
+    if (aiType !== 2) {
+      if (this.checkAIFromTags(tags)) {
+        aiType = 2
+      }
+    }
+
+    // 添加“AI生成”对应的标签
+    const aiMarkString = this.getAIGeneratedMark(aiType)
+    if (aiMarkString) {
+      this.unshiftTag(tags, aiMarkString)
+    }
+
+    return { tags, aiType }
+  }
+
   static unshiftTag(tags: string[], tag: string) {
     if (!tags.includes(tag)) {
       // 查找 R-18 或 R-18G 标签的位置
@@ -1494,6 +1593,25 @@ class Tools {
       return 'anchorDownload'
     }
     return bool ? 'downloadsAPI' : 'anchorDownload'
+  }
+
+  /** 检查命名规则里是否含有必须的标记，如 {id} 或者 {pid}{p} 或者 {id_num}{p_num}。
+   *
+   * 通常只需要对图像作品的命名规则进行检查
+   */
+  static checkNameRule(str: string) {
+    const check =
+      str.includes('{id}') ||
+      (str.includes('{pid}') && str.includes('{p}')) ||
+      (str.includes('{id_num}') && str.includes('{p_num}'))
+    return check
+  }
+
+  /** 从小说标题里查找所有数字，并使用 span.chapter-number 包裹。 */
+  // 这主要是为了让章节的数字编号在竖排时可以正常显示（像横排时一样，数字是竖着的），便于查看。
+  // 该方法的实现应该与 jepub.js 中的 highlightNumber 方法保持一致。
+  static highlightNumber(title: string) {
+    return title.replace(/(\d{1})/g, '<span class="chapter-number">$1</span>')
   }
 }
 

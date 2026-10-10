@@ -2,7 +2,6 @@ import { EVT } from '../EVT'
 import { settings, setSetting, SettingKeys } from './Settings'
 import { FormType } from './FormType'
 import { DateFormat } from '../utils/DateFormat'
-import { nameRuleManager } from './NameRuleManager'
 import { Tools } from '../Tools'
 
 // 管理 from 表单里的输入选项（input 元素和 textarea 元素）
@@ -56,6 +55,8 @@ class FormSettings {
       'idRangeSwitch',
       'needTagSwitch',
       'notNeedTagSwitch',
+      'notNeedTagWholeSwitch',
+      'notNeedTagPartialSwitch',
       'magnifier',
       'noSerialNo',
       'createFolderByTag',
@@ -170,6 +171,7 @@ class FormSettings {
       'saveAllSeriesNovelsIfOneMatches',
       'autoExportSettings',
       'allowPreviewCoverThumbnail',
+      'novelLanguageSwitch',
     ],
     radio: [
       'novelSaveAs',
@@ -181,6 +183,8 @@ class FormSettings {
       'idRangeComparisonForImageWorks',
       'idRangeComparisonForNovelWorks',
       'idRangeComparisonForNovelSeries',
+      'idRangeComparisonForBookmarkImageWorks',
+      'idRangeComparisonForBookmarkNovelWorks',
       'magnifierSize',
       'magnifierPosition',
       'dupliStrategy',
@@ -192,7 +196,6 @@ class FormSettings {
       'theme',
       'bgPositionY',
       'switchTabBar',
-      'tagMatchMode',
       'prevWorkSize',
       'showOriginImageSize',
       'exportLogTiming',
@@ -205,6 +208,9 @@ class FormSettings {
       'novelEmbeddedImageSize',
       'settingsAcrossDifferentTabs',
       'autoExportSettingsStrategy',
+      'epubWritingMode',
+      'epubLangSource',
+      'convertNovelText',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -219,6 +225,8 @@ class FormSettings {
       'idRangeValueForImageWorks',
       'idRangeValueForNovelWorks',
       'idRangeValueForNovelSeries',
+      'idRangeValueForBookmarkImageWorks',
+      'idRangeValueForBookmarkNovelWorks',
       'r18FolderName',
       'sizeMin',
       'sizeMax',
@@ -231,7 +239,8 @@ class FormSettings {
       'folderForMultiImageWorksRule',
       'autoExportResultNumber',
       'previewWorkWait',
-      'previewResultLimit',
+      'previewResultPageSize',
+      'coloredRatio',
       'timedCrawlInterval',
       'slowCrawlOnWorksNumber',
       'exportLogExclude',
@@ -248,13 +257,17 @@ class FormSettings {
       'doNotCrawlFirstImagesCount',
       'singleEPUBFileSizeLimit',
       'autoExportSettingsInterval',
+      'epubCustomLang',
+      'epubVerticalLangList',
     ],
     textarea: [
-      'notNeedTag',
+      'notNeedTagWhole',
+      'notNeedTagPartial',
       'blockList',
       'createFolderTagList',
       'createFolderTagList2',
       'seriesNovelNameRule',
+      'novelLanguageList',
       'titleIncludeList',
       'titleExcludeList',
       'copyWorkInfoFormat',

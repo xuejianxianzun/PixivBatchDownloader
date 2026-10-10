@@ -13,6 +13,8 @@ export interface downloadArgument {
   index: number
   progressBarIndex: number
   taskBatch: number
+  /** 这个文件是不是「之前下载出错、现在重试」。重试时会绕过 HTTP 缓存 */
+  isRetry?: boolean
 }
 
 // 前台向后台发送的任务信息
@@ -42,6 +44,8 @@ export interface DonwloadSuccessData {
   blobURLBack: string
   /** 作品 id */
   id: string
+  /** 所属下载批次 */
+  taskBatch: number
   tabId: number
   uuid: boolean
   /** 当该标记为 true 时，后台不会向前台返回这个文件的下载结果（即不会向前台发送消息）  */
@@ -73,4 +77,8 @@ export interface DownloadedMsg {
   msg: string
   data: DonwloadSuccessData
   err?: string
+  /** 后台运行时错误的详细信息 */
+  runtimeError?: string
+  /** browser.downloads.download 出错，未能建立浏览器下载项。让前台暂停下载 */
+  saveRequestFailed?: boolean
 }

@@ -1,6 +1,6 @@
 // 声明 Pixiv API 返回的数据格式
 
-// 插画、漫画的详细数据（在作品页内使用的）
+/** 插画、漫画的详细数据（在作品页内使用的） */
 export interface ArtworkData {
   error: boolean
   message: string
@@ -54,13 +54,18 @@ export interface ArtworkData {
     sl: 0 | 2 | 4 | 6
     /**作品的第一张图片（或压缩包）的 URL*/
     urls: {
-      /**48px 的最小尺寸的小图 */
+      /**48px 的最小尺寸的小图。体积不到 5 KB。
+       * 对于多图作品，只有第一张图片有 mini 尺寸的缩略图，后续图片没有 mini 尺寸的缩略图 */
       mini: string
-      /**250px 的缩略图 */
+      /**250px 的缩略图。体积通常在 10 - 30 KB 之间。
+       * 对于多图作品，只有第一张图片有 thumb 尺寸的缩略图，后续图片没有 thumb 尺寸的缩略图  */
       thumb: string
-      /**540px 的缩略图 */
+      /**540px 的缩略图。体积通常在 20 - 60 KB 之间。
+       * 在一些测试里，平均体积在 30 - 40 KB 之间，可以按 40 KB 估算。
+       * 每张图片都有对应的 small 尺寸的缩略图 */
       small: string
-      /**1200px 的预览图 */
+      /**1200px 的缩略图。体积通常在 300 KB - 1.2 MB 之间。超过 1 MB 的大约有四分之一（粗略估算，不是准确数字）。
+       * 每张图片都有对应的 regular 尺寸的缩略图  */
       regular: string
       /**原图 */
       original: string
@@ -301,7 +306,7 @@ export interface ArtworkData {
   }
 }
 
-// 插画、漫画的通用数据
+/** 插画、漫画的通用数据 */
 export interface ArtworkCommonData {
   /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType: 0 | 1 | 2
@@ -339,7 +344,7 @@ export interface ArtworkCommonData {
   profileImageUrl: string
 }
 
-// 画师信息的数据 user/id/profile/Top
+/** 画师信息的数据 user/id/profile/Top */
 export interface UserProfileTop {
   error: boolean
   message: string
@@ -405,7 +410,7 @@ interface UserCommonData {
   partial: number
 }
 
-// 画师账户信息 user/id?full=1
+/** 画师账户信息 user/id?full=1 */
 export interface UserProfile {
   error: boolean
   message: '' | string
@@ -462,7 +467,7 @@ export interface UserProfile {
   }
 }
 
-// 动图每一帧的文件名和延迟
+/** 动图每一帧的文件名和延迟 */
 export interface UgoiraInfo {
   mime_type: string
   frames: { file: string; delay: number }[]
@@ -484,7 +489,7 @@ export interface BookmarkResult {
   type?: 'illusts' | 'novels'
 }
 
-// 动图元数据
+/** 动图元数据 */
 export interface UgoiraMetaBody {
   /**原图尺寸
    *
@@ -526,7 +531,7 @@ export type BookMarkNewNovelData = NovelCommonData & {
   isMasked: boolean
 }
 
-// 关注的用户的新作品的数据
+/** 关注的用户的新作品的数据 */
 export interface BookMarkNewData {
   error: boolean
   message: string | ''
@@ -571,7 +576,7 @@ export interface BookMarkNewData {
   }
 }
 
-// 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了
+/** 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了 */
 export interface UserProfileAllData {
   error: boolean
   message: string
@@ -599,7 +604,7 @@ export interface UserProfileAllData {
   }
 }
 
-// 获取书签数据
+/** 获取书签数据 */
 export interface BookmarkData {
   error: boolean
   message: string
@@ -651,7 +656,7 @@ export interface BookmarkData {
   }
 }
 
-// 获取作品下方的相关作品数据。只有 recommendMethods 里的 id 列表是完整的。最多有 180 个，但经常会少一些。
+/** 在作品详情页面底部显示的相关作品数据。只有 recommendMethods 里的 id 列表是完整的。最多有 180 个，但经常会少一些。 */
 export interface RecommendData {
   error: false | true
   message: string
@@ -826,7 +831,7 @@ export interface RankingNovelItem {
   series_id: 0 | number
   /**小说的系列标题。如果不属于某个系列，则为 null */
   series_title: string | null
-  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  /**小说的分类，是字符串形式的数字，如'0' */
   genre: string
   /**阅读时间，单位是秒。在页面上显示时会被转换成分钟 */
   reading_time: number
@@ -878,12 +883,12 @@ interface ZoneConfig {
   }
 }
 
-// 收藏后的相似作品数据
+/** 收藏后的相似作品数据 */
 export interface RecommenderData {
   recommendations: number[]
 }
 
-// 搜索页的数据格式，删除了 body 里没有使用的部分
+/** 搜索页的数据格式，删除了 body 里没有使用的部分 */
 export interface SearchData {
   error: boolean
   body: Record<
@@ -895,7 +900,7 @@ export interface SearchData {
   >
 }
 
-// 搜索页的小说的数据格式，删除了 body 里没有使用的部分
+/** 搜索页的小说的数据格式，删除了 body 里没有使用的部分 */
 export interface NovelSearchData {
   error: boolean
   body: {
@@ -944,7 +949,7 @@ export type NovelSearchDataItem = NovelCommonData &
     isBookmarkable?: boolean
   }
 
-// 当用户启用了整合系列作品时，并且这项数据属于系列作品时，会有这些特有的属性
+/** 当用户启用了整合系列作品时，并且这项数据属于系列作品时，会有这些特有的属性 */
 interface NovelSearchDataOnlyInSeries {
   /** 该系列是否完结。当 isOneshot 为 false 时才会有这个属性 */
   isConcluded?: boolean
@@ -963,7 +968,7 @@ interface NovelSearchDataOnlyInSeries {
   isNotifying?: boolean
 }
 
-// 大家的新作小说的数据格式
+/** 大家的新作小说的数据格式 */
 export interface NewNovelData {
   error: boolean
   message: ''
@@ -995,7 +1000,7 @@ export interface NewNovelData {
   }
 }
 
-// 大家的新作品的数据格式
+/** 大家的新作品的数据格式 */
 export interface NewIllustData {
   error: boolean
   message: string
@@ -1013,7 +1018,7 @@ export interface NewIllustData {
   }
 }
 
-// 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了
+/** 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了 */
 export interface UserImageWorksWithTag {
   error: boolean
   message: string
@@ -1045,14 +1050,19 @@ export interface NovelCommonData {
   }
   createDate: string
   description: string
+  /** 小说的分类，是字符串形式的数字，如'0' */
+  genre: string
   /** 如果这份数据是单篇小说，那么 id 是单篇 id。如果这份数据是系列小说，则 id 是系列 id */
   id: string
   isBookmarkable: boolean
-  isUnlisted: boolean
+  isMasked: boolean
   isOriginal: boolean
+  isUnlisted: boolean
+  language: string
   marker: null
   profileImageUrl: string
-  /**公开范围
+  readingTime: number
+  /**公开范围/可见性
    *
    * 0 公开
    *
@@ -1061,11 +1071,11 @@ export interface NovelCommonData {
    * 2 不公开
    */
   restrict: 0 | 1 | 2
+  seriesContentOrder?: number
+  seriesId?: string
+  seriesTitle?: string
   tags: string[]
   textCount: number
-  wordCount: number
-  readingTime: number
-  useWordCount: boolean
   /** 如果这份数据是单篇小说，那么 title 是单篇小说的标题。如果这份数据是系列小说，则是系列标题 */
   title: string
   titleCaptionTranslation: {
@@ -1073,12 +1083,13 @@ export interface NovelCommonData {
     workCaption: string | null
   }
   updateDate: string
-  xRestrict: 0 | 1 | 2
   url: string
+  useWordCount: boolean
   userId: string
   userName: string
-  seriesId?: string
-  seriesTitle?: string
+  visibilityScope: number
+  wordCount: number
+  xRestrict: 0 | 1 | 2
 }
 
 export interface UserNovelsWithTag {
@@ -1102,7 +1113,7 @@ export interface UserNovelsWithTag {
   }
 }
 
-// 请求单个小说时返回的数据
+/** 请求单个小说时返回的数据 */
 export interface NovelData {
   error: boolean
   message: string
@@ -1139,6 +1150,8 @@ export interface NovelData {
     language: string
     xRestrict: 0 | 1 | 2
     restrict: 0 | 1 | 2
+    /**小说的分类，是字符串形式的数字，如'0' */
+    genre: string
     content: string
     coverUrl: string
     suggestedSettings: {
@@ -1285,7 +1298,7 @@ export interface NovelSeriesData {
     xRestrict: 0 | 1 | 2
     isOriginal: boolean
     isConcluded: boolean
-    /** 是 string 类型的数字，如 "0" | "1" | "2" | "3"。这个字段或许指的是系列标题上方的 tag 数量 */
+    /** 小说的分类，是 string 类型的数字，如 "0" | "1" | "2" | "3" */
     genreId: string
     /** 系列标题 */
     title: string
@@ -1405,7 +1418,9 @@ export interface NovelSeriesContentData {
   error: boolean
   message: string
   body: {
+    illustSeries: []
     page: {
+      // 备注：seriesContents 里没有小说的 genre 数据，需要在 thumbnails.novel 里获取
       seriesContents: {
         id: string
         userId: string
@@ -1435,12 +1450,24 @@ export interface NovelSeriesContentData {
         }
       }[]
     }
+    requests: []
+    tagTranslation: []
+    thumbnails: {
+      collection: []
+      illust: []
+      novel: NovelCommonData[]
+      novelDraft: []
+      novelSeries: []
+    }
+    users: []
   }
 }
 
 /**获取小说里插入（引用）的插画图片的数据。相比获取这个插画的全部数据，这里返回的数据要少一些，而且更有针对性 */
-// 示例网址：
-// https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979454-1
+/**
+ * 示例网址：
+ * https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979454-1
+ */
 export interface NovelInsertIllusts {
   error: boolean
   message: string
@@ -1507,8 +1534,10 @@ export interface FollowingUserData {
   novels: NovelCommonData[]
 }
 
-// 获取关注列表时的返回数据
-// 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
+/**
+ * 获取关注列表时的返回数据
+ * 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
+ */
 export interface FollowingResponse {
   error: boolean
   message: string
@@ -1580,7 +1609,7 @@ interface extraDataCommon {
   }
 }
 
-// 系列数据，这个接口的数据结构里同时有插画系列和小说系列，但是小说系列目前使用的是另一套 api，这个 api 里的小说数据不知道是什么样，目前只有空数组
+/** 系列数据，这个接口的数据结构里同时有插画系列和小说系列，但是小说系列目前使用的是另一套 api，这个 api 里的小说数据不知道是什么样，目前只有空数组 */
 export interface SeriesData {
   error: boolean
   message: string | ''
@@ -1675,7 +1704,7 @@ interface muteItemTag {
   listType: 'existing' | 'candidate'
 }
 
-// 获取屏蔽的项目时返回的数据格式
+/** 获取屏蔽的项目时返回的数据格式 */
 export interface muteData {
   error: boolean
   message: string
@@ -1696,9 +1725,11 @@ export type GlossaryCover = null | {
   }
 }
 
-// 有图片和详情的设定资料示例：
-// https://www.pixiv.net/novel/series/9114820/glossary/154698
-// https://www.pixiv.net/ajax/novel/series/9114820/glossary/item/154698?lang=zh
+/**
+ * 有图片和详情的设定资料示例：
+ * https://www.pixiv.net/novel/series/9114820/glossary/154698
+ * https://www.pixiv.net/ajax/novel/series/9114820/glossary/item/154698?lang=zh
+ */
 export interface GlossaryItem {
   id: string
   seriesId: string
@@ -1737,9 +1768,11 @@ export interface GlossaryCategorie {
 }
 
 /** 系列小说的设定资料 */
-// 有可置换单词的系列小说：
-// https://www.pixiv.net/novel/series/9114820
-// https://www.pixiv.net/ajax/novel/series/9114820/glossary
+/**
+ * 有可置换单词的系列小说：
+ * https://www.pixiv.net/novel/series/9114820
+ * https://www.pixiv.net/ajax/novel/series/9114820/glossary
+ */
 export interface NovelSeriesGlossary {
   error: boolean
   message: string
@@ -1989,7 +2022,7 @@ interface DashboardNovelThumbnail {
   aiType: 0 | 1 | 2
   id: string
   title: string
-  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  /**小说的分类 */
   genre: string
   restrict: 0 | 1 | 2
   xRestrict: 0 | 1 | 2
@@ -2121,3 +2154,167 @@ export interface RequestWorksData {
     users: []
   }
 }
+
+/**
+ * 图像作品页面底部的推荐作品。
+ * 注意：这是底部的推荐作品，不是收藏作品后在作品内容下方显示的推荐作品
+ * 它不是用于这个模块的：src/ts/crawlArtworkPage/CrawlRecommendWorksAfterBookmark.ts
+ * https://www.pixiv.net/ajax/illust/discovery?mode=safe&max=18&lang=zh
+ */
+export interface BottomRecommendedWorksOnArtworkPage {
+  error: boolean
+  message: string
+  body: {
+    illusts: ArtworkCommonData[]
+  }
+}
+
+/**
+ * 小说作品页面底部的推荐作品。
+ * 注意：这是底部的推荐作品，不是收藏作品后在作品内容下方显示的推荐作品
+ * https://www.pixiv.net/ajax/novel/discovery?mode=r18&max=18&lang=zh
+ */
+export interface BottomRecommendedWorksOnNovelPage {
+  error: false | true
+  message: string
+  body: {
+    illusts: ArtworkCommonData[]
+    details: {
+      [key: string]: {
+        methods:
+          | ['illust_by_illust_table_bq_recommendation_c']
+          | ['illust_by_illust_table_mf_tda']
+          | [
+              'illust_by_illust_table_bq_recommendation_c',
+              'illust_by_illust_table_mf_tda',
+            ]
+        score: number
+        seed_novel_ids: string[]
+        seed_illust_ids: string[]
+        position: number
+      }
+    }
+  }
+}
+
+export type NovelMarkerAllItem = {
+  /**小说 id */
+  id: string
+  /**小说标题 */
+  title: string
+  /**小说简介 */
+  comment: string
+  /**作者的用户 id */
+  user_id: string
+  /**不清楚。观测到的值有 '1'、'3' */
+  scene: string
+  /**作品的公开范围
+   *
+   * '0' 公开
+   *
+   * '1' 仅好P友可见
+   */
+  restrict: '0' | '1'
+  /**作品的年龄限制
+   *
+   * '0' 全年龄（普通）
+   *
+   * '1' R-18
+   *
+   * '2' R-18G
+   */
+  x_restrict: '0' | '1' | '2'
+  /**作者是否设置了“不允许其他用户编辑标签” */
+  tag_full_lock: '0' | '1'
+  /**不清楚。观测到的值只有 '0' */
+  response_auto: string
+  /**是否为原创作品 */
+  is_original: '0' | '1'
+  /**小说的语言，如 "ja"、"zh-cn"、"zh-tw" */
+  language: string
+  /**小说的标签。是单个字符串，每个标签之间用空格分隔，如 "R-18 中文 原创" */
+  tag: string
+  /**不清楚。观测到的值只有空字符串 */
+  tool: string
+  /**封面图片的类型，如 "png"、"jpg" */
+  cover_type: string
+  /**不清楚。观测到的值只有 '0' */
+  cover_id: string
+  /**不清楚。观测到的值只有空字符串 */
+  hash: string
+  /**一个 JSON 字符串，里面是这篇小说的排版设置，如 {"view_mode":0,"theme_background":0,"theme_size":0,"theme_spacing":0,"length":16421} */
+  serialized_value: string
+  /**字符数量（适用于 CJK 文本），是字符串类型的数字 */
+  character_count: string
+  /**单词数量（适用于非 CJK 文本），是字符串类型的数字 */
+  word_count: string
+  /**小说的创建日期，如 "2026-07-19 15:19:10" */
+  cdate: string
+  /**小说最后一次更新（修改）的日期 */
+  mdate: string
+  /**封面图片的路径部分，不含域名，如 "/img/2026/07/19/15/20260719151910_ci28638469_78203e7bff92e30a3ed5d5546c046733" */
+  novel_cover_img_name: string
+  /**封面图片的扩展名，如 "png"、"jpg" */
+  novel_cover_img_ext: string
+  /**作者是否关闭了评论区
+   *
+   * '0' 未关闭
+   *
+   * '1' 关闭
+   */
+  comment_off_setting: '0' | '1'
+  /**是否为 AI 生成。'0' 无标记（早期作品），'1' 不是，'2' 是 */
+  ai_type: '0' | '1' | '2'
+  /**作品类型，这里总是 'novel' */
+  type: 'novel'
+  /**小说正文。在这个列表数据里总是 null */
+  text: null
+  /**推测与作品的屏蔽有关。观测到的 mask 值有 0、1 */
+  mask_rule_set: {
+    mask: 0 | 1
+  }
+  /**小说的正文长度（字数） */
+  text_length: number
+  /**作者的账户名（登录时使用的账户名） */
+  user_account: string
+  /**作者的用户名 */
+  user_name: string
+  /**作者的状态。观测到的值只有 '0' */
+  user_status: string
+  /**小说的标签列表 */
+  tag_a: string[]
+  /**小说的封面图片 */
+  url: string
+  /**这篇小说所属的系列的 id。如果不属于某个系列，则为 0 */
+  series_id: number
+  /**这篇小说所属的系列的标题。如果不属于某个系列，则为 null */
+  series_title: string | null
+  /**这篇小说在系列中的序号，是字符串类型的数字。如果不属于某个系列，则为 null */
+  series_content_display_order: string | null
+  /**小说的分类，是字符串类型的数字，如 '0'、'1'、'10'、'17' */
+  genre: string
+  /**小说的标记数量。推测是添加了阅读进度标记的数量，它不等于下面的收藏数量 */
+  marker_count: number
+  /**小说的收藏数量 */
+  bookmark_count: number
+  /**小说的评论数量 */
+  comment_count: number
+  /**给这篇小说点赞（评价）的人数 */
+  rating_count: number
+  /**小说的评分总分。pixiv 的满分是 10 分，所以这个值大约是 rating_count 的 10 倍 */
+  rating_score: number
+  /**小说的浏览数量 */
+  rating_view: number
+  /**不清楚与 rating_view 的区别。观测到的数值通常很小，可能是从首页等地方进入后的浏览数量 */
+  rating_view_from_home: number
+  /**不清楚。观测到的值只有 0 */
+  viewable_type: number
+  /**是否可以浏览这篇小说 */
+  viewable: boolean
+  /**当前用户是否给这篇小说添加了书签。在这个页面里总是 true */
+  is_marker: boolean
+  /**添加书签时的场景。观测到的值只有 '1' */
+  marked_scene: string
+}
+/** 在小说书签列表页面里，通过 API 获得的数据。每页 10 条数据，纯数组。 */
+export type NovelMarkerAllData = NovelMarkerAllItem[]

@@ -1,3 +1,4 @@
+import { canRequestInBatch } from './AccountWarning'
 import { API } from './API'
 import { lang } from './Language'
 import { log } from './Log'
@@ -10,6 +11,10 @@ import { Utils } from './utils/Utils'
 
 class UnBookmarkWorks {
   public async start(list: WorkBookmarkData[]) {
+    if (!canRequestInBatch('_取消收藏作品')) {
+      return
+    }
+
     log.warning(lang.transl('_取消收藏作品'))
     if (list.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
@@ -26,8 +31,16 @@ class UnBookmarkWorks {
     const slowMode = total > 48
 
     let progress = 0
+    // 是否因为账户被警告而中止了遍历
+    let aborted = false
 
     for (const item of list) {
+      // 账户被警告时终止遍历，不再发出后续的请求
+      if (!canRequestInBatch('_取消收藏作品')) {
+        aborted = true
+        break
+      }
+
       try {
         await this.waitSlowMode(slowMode)
         await API.deleteBookmark(item.bookmarkID, item.type, token.token)
@@ -40,12 +53,18 @@ class UnBookmarkWorks {
       log.log(`${progress} / ${total}`, 'unBookmarkWorksProgress')
     }
 
+    states.busy = false
+
+    // 因为账户被警告而中止时，不显示「完成」的提示
+    if (aborted) {
+      return
+    }
+
     const msg = lang.transl('_取消收藏作品') + ' ' + lang.transl('_完成')
     log.success(msg)
     toast.success(msg, {
-      position: 'topCenter',
+      position: 'center',
     })
-    states.busy = false
   }
 
   private async waitSlowMode(slowMode: boolean) {

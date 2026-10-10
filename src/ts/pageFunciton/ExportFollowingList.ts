@@ -1,3 +1,4 @@
+import { canRequestInBatch } from '../AccountWarning'
 import { lang } from '../Language'
 import { log } from '../Log'
 import { pageType } from '../PageType'
@@ -43,6 +44,10 @@ class ExportFollowingList {
   private readonly homePrefix = 'https://www.pixiv.net/users/'
 
   public start(format: 'csv' | 'json') {
+    if (!canRequestInBatch('_导出关注列表')) {
+      return
+    }
+
     if (this.busy) {
       toast.error(lang.transl('_有同类任务正在执行请等待之前的任务完成'))
       return
@@ -126,6 +131,11 @@ class ExportFollowingList {
 
   // 获取用户列表
   private async getUserList() {
+    // 账户被警告时终止遍历，不再请求后续的用户列表，也不会导出不完整的列表
+    if (!canRequestInBatch('_导出关注列表')) {
+      return
+    }
+
     const offset = this.baseOffset + this.requestTimes * this.limit
     let res
     try {

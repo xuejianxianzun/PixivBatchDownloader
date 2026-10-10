@@ -12,7 +12,6 @@ import { msgBox } from '../MsgBox'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { states } from '../store/States'
-import { settings } from '../setting/Settings'
 import { Input } from '../Input'
 import { pageType } from '../PageType'
 
@@ -30,6 +29,9 @@ class InitHomePage extends InitPageBase {
   private idRangeTip: HTMLDivElement
 
   private type: 'novels' | 'illusts' = 'illusts'
+  /**是否继续执行移除广告任务 */
+  private removeADEnabled = true
+
   private checkPageType() {
     this.type = window.location.pathname.includes('novel')
       ? 'novels'
@@ -91,6 +93,10 @@ class InitHomePage extends InitPageBase {
   private async removeAD() {
     await Utils.sleep(1000)
 
+    if (!this.removeADEnabled) {
+      return
+    }
+
     if (pageType.type === pageType.list.Home) {
       const findADs = document.body.querySelectorAll('iframe[data-uid]')
       if (findADs.length > 0) {
@@ -119,7 +125,6 @@ class InitHomePage extends InitPageBase {
     this.checkPageType()
 
     const input = new Input({
-      width: 400,
       type: 'textarea',
       rows: 6,
       instruction:
@@ -162,7 +167,6 @@ class InitHomePage extends InitPageBase {
 
     // 接收起点
     const startInput = new Input({
-      width: 400,
       instruction:
         lang.transl('_抓取id区间说明') +
         '<br><br>' +
@@ -190,7 +194,6 @@ class InitHomePage extends InitPageBase {
 
     // 接收终点
     const endInput = new Input({
-      width: 400,
       instruction: lang.transl('_抓取id区间终点'),
       placeholder: '200',
     })
@@ -290,8 +293,9 @@ class InitHomePage extends InitPageBase {
 
     log.success('🚀' + lang.transl('_导入ID列表'))
 
-    store.reset()
-
+    EVT.fire('crawlStart')
+    states.stopCrawl = false
+    this.crawlFinishBecauseStopCrawl = false
     this.finishedRequest = 0
 
     // 之前的帮助信息里写的是错误的 novel，但实际上应该是 novels，需要纠正这个错误
@@ -309,26 +313,15 @@ class InitHomePage extends InitPageBase {
     log.log(lang.transl('_当前有x个作品', store.idList.length.toString()))
     log.log(lang.transl('_开始获取作品信息'))
 
-    if (Tools.checkUserLogin() === false) {
-      // 如果未登录账号，则全速抓取
-      states.slowCrawlMode = false
-      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
-    } else {
-      // 登录账号后，可以使用慢速抓取
-      if (
-        settings.slowCrawl &&
-        store.idList.length > settings.slowCrawlOnWorksNumber
-      ) {
-        log.warning(lang.transl('_慢速抓取'))
-        states.slowCrawlMode = true
-        this.ajaxThread = 1
-      }
-    }
+    // 未登录账号时不使用慢速抓取
+    this.setCrawlThread(Tools.checkUserLogin())
 
     this.startGetWorksData()
   }
 
+  /**销毁首页专用的元素和任务 */
   protected destroy() {
+    this.removeADEnabled = false
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
   }

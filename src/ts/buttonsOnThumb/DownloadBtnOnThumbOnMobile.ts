@@ -88,6 +88,9 @@ class DownloadBtnOnThumbOnMobile {
   }
 
   private addBtn(target: HTMLElement) {
+    // 让缩略图成为定位上下文，下载按钮才能贴在它的角落上
+    this.makePositioned(target)
+
     const btn = document.createElement('button')
     btn.id = this.btnId
     btn.classList.add('btnOnThumb')
@@ -108,6 +111,29 @@ class DownloadBtnOnThumbOnMobile {
 
     target.appendChild(btn)
     return btn
+  }
+
+  /**
+   * 让缩略图元素成为定位上下文，这样绝对定位的下载按钮才能贴在它的角落上。
+   *
+   * **只在缩略图原本不是定位元素时才修改**，因为：
+   * - pixiv 自己的很多缩略图已经是 relative / absolute，直接用就行；
+   * - 强行覆盖成 relative 会破坏那些依靠 `absolute inset-0` 铺满父容器的缩略图
+   *   （discovery 页的搜索浮层里就有这种），覆盖后 inset 不再撑开尺寸，
+   *   元素塌陷成 0x0，里面的图片也不显示。
+   * 这就是以前用 CSS 无条件写 `position: relative` 时出问题的原因。
+   *
+   * 这里也不能设置 z-index: 1：那会让缩略图盖住 pixiv 原本的收藏按钮 ——
+   * 收藏按钮是缩略图**外面**的元素（兄弟/叔侄关系），自身 z-index 为 auto，会被压在下面。
+   * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮的 z-index: 99999
+   * 限制在缩略图内部，避免按钮盖住页面上其他内容。
+   */
+  private makePositioned(target: HTMLElement) {
+    if (getComputedStyle(target).position !== 'static') {
+      return
+    }
+    target.style.position = 'relative'
+    target.style.zIndex = '0'
   }
 
   private clickNovelBtn(el: HTMLElement) {

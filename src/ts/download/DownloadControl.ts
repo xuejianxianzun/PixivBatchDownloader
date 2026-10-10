@@ -12,7 +12,7 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { lang } from '../Language'
 import { setSetting, settings } from '../setting/Settings'
-import { Download } from '../download/Download'
+import { Download } from './Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowDownloadStates } from './ShowDownloadStates'
@@ -75,7 +75,6 @@ class DownloadControl {
   }
 
   private thread = 5 // 同时下载的线程数的默认值
-  // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
   // 最大值由 Config.downloadThreadMax 定义
 
   private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
@@ -83,9 +82,19 @@ class DownloadControl {
   private taskList: TaskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
 
   /** 有文件下载失败时，保存 id */
-  // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是 XHR 请求失败、动图转换失败。
+  // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是网络请求失败、动图转换失败。
   // 这不是 SW 让浏览器保存文件时的失败
   private errorIdList: string[] = []
+
+  /** 本轮下载里需要重试的文件 id（文件级 id，形如 123_p0；动图和小说是 123）。
+   *
+   * 这是在 startDownload() 里、reset() 之前从 errorIdList 快照而来的。
+   * 因为 reset() 会清空 errorIdList，而重试时会新建 Download 实例（retry 从 0 开始）、
+   * downloadStates 里这些文件的状态也会被 resume() 复位成 -1（和「从没下载过」一样），
+   * 所以只有通过它才能让 Download 知道哪些文件是出错重试的。
+   *
+   * 首次开始下载（以及用户手动重新开始）时它是空的。 */
+  private retryFileIds = new Set<string>()
 
   private downloaded = 0 // 已下载的任务数量
 
@@ -99,6 +108,12 @@ class DownloadControl {
 
   private readonly uuidTip = 'uuidTip'
 
+  /** 下载过程中被手动排除、等待下载结束后从抓取结果里移除的作品 id。
+   *
+   * 这些作品的文件在排除时已经被标记为「已完成（跳过）」，所以不会再下载它们。
+   * 但要从 store.result 里真正删掉它们必须等到下载结束，否则会让下标错位。 */
+  private excludedWorkIdList: number[] = []
+
   // 类型守卫
   private isDownloadedMsg(msg: any): msg is DownloadedMsg {
     return !!msg.msg
@@ -109,6 +124,8 @@ class DownloadControl {
       this.hideResultBtns()
       this.hideDownloadArea()
       this.reset()
+      // 抓取结果会被重置，上一轮记录的待移除作品也就没有意义了
+      this.excludedWorkIdList = []
     })
 
     for (const ev of [
@@ -117,15 +134,53 @@ class DownloadControl {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, (ev) => {
-        // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
-        this.pause = ev.type === 'resume'
+        // 如果在下载完成后或者暂停、停止之后修改了抓取结果（可能的原因是用户手动排除了作品），则不再触发开始下载流程
+        if (
+          ev.type === 'resultChange' &&
+          (states.downloadCompleteOrStop || this.pause)
+        ) {
+          if (states.downloadCompleteOrStop) {
+            // 下载已经完成或停止：此时下载状态列表会被重建成「全部未开始」，
+            // 所以按新的结果数量把进度条整个重画一次。
+            // 不重画的话，进度条会一直显示旧数字（如 100 / 90），看起来像下载已经完成
+            this.downloaded = 0
+            store.remainingDownload = store.result.length
+            this.setDownloadThread()
+          } else if (this.pause) {
+            // 暂停时抓取结果可能被重建（如在结果中筛选、手动删除作品），已下载数量会随之变化。
+            // 但状态列表里还保存着可以继续的进度，所以只同步数字，不重画进度条。
+            // 只同步数字，不做「是否下载完毕」的判定，避免像 setDownloaded 那样把暂停状态清掉
+            this.syncDownloadedCount()
+          }
+          return
+        }
+
+        // 如果当前未暂停下载，则在恢复了未完成的抓取数据时设置为暂停下载状态
+        const pause = ev.type === 'resume'
+        if (this.pause !== pause) {
+          this.pause = pause
+          if (pause) EVT.fire('downloadPause')
+        }
+
         //  resultChange 事件不需要打开下载面板，这是因为手动排除功能可能会频繁触发此事件，如果显示下载面板，那么会频繁打断用户的操作，影响用户体验。
         const openPanel = ev.type !== 'resultChange'
+
         // 让开始下载的方法进入事件队列，以便让其他模块里监听上述事件的代码先执行完毕
         window.setTimeout(() => {
           this.readyDownload(openPanel)
         }, 0)
       })
+    }
+
+    // 下载过程中，用户手动排除了一个作品
+    window.addEventListener(
+      EVT.list.manuallyExcludeWork,
+      this.handleExcludedWork
+    )
+
+    // 下载结束时，把被排除的作品从抓取结果里真正移除
+    for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
+      window.addEventListener(ev, this.removeExcludedWorks)
     }
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
@@ -173,11 +228,18 @@ class DownloadControl {
 
     // 监听浏览器返回的消息
     browser.runtime.onMessage.addListener((msg: any) => {
-      if (!this.taskBatch) {
+      if (!this.isDownloadedMsg(msg)) {
         return
       }
 
-      if (!this.isDownloadedMsg(msg)) {
+      // 旧批次的结果也需要释放前台 Blob URL，但不能影响当前任务。
+      if (
+        (msg.msg === 'downloaded' || msg.msg === 'download_err') &&
+        msg.data?.blobURLFront
+      ) {
+        URL.revokeObjectURL(msg.data.blobURLFront)
+      }
+      if (!this.taskBatch || msg.data?.taskBatch !== this.taskBatch) {
         return
       }
 
@@ -209,8 +271,6 @@ class DownloadControl {
       // 文件下载成功
       if (msg.msg === 'downloaded') {
         try {
-          URL.revokeObjectURL(msg.data.blobURLFront)
-
           // 发送下载成功的事件
           EVT.fire('downloadSuccess', msg.data)
 
@@ -222,6 +282,37 @@ class DownloadControl {
         // console.log('downloaded', msg.data.id )
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
+
+        // 无效文件名等建立请求时的错误不会因为自动重试而消失。
+        if (msg.saveRequestFailed) {
+          // API 拒绝原因不是固定错误码，作为文本显示，避免插入 HTML。
+          let reason = msg.runtimeError || msg.err || 'unknown'
+          reason = Utils.escapeHTML(reason)
+          log.error(
+            lang.transl(
+              '_save_file_request_failed_tip',
+              Tools.createWorkLink(msg.data.id),
+              reason
+            )
+          )
+          EVT.fire('saveFileError')
+
+          // 如果因为文件名里含有非法字符，导致浏览器无法建立下载，就显示针对性的提示
+          // Chrome 的报错信息是：
+          // Invalid filename
+          // Firefox 的报错信息是：
+          // filename must not contain illegal characters
+          reason = reason.toLowerCase()
+          if (
+            reason.includes('filename') &&
+            (reason.includes('illegal') || reason.includes('invalid'))
+          ) {
+            log.warning(lang.transl('_filename_contains_illegal_characters'))
+          }
+
+          this.pauseDownload()
+          return
+        }
 
         // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
         // 用户在浏览器弹出“另存为”对话框时取消保存
@@ -240,16 +331,17 @@ class DownloadControl {
         }
 
         // 其他原因，下载器会重试保存这个文件
+        const errorDetail = msg.runtimeError || msg.err || 'unknown'
         log.error(
           lang.transl(
             '_save_file_failed_tip',
             Tools.createWorkLink(msg.data.id),
-            msg.err || 'unknown'
+            errorDetail
           )
         )
 
         if (msg.err === 'FILE_FAILED') {
-          log.error(lang.transl('_FILE_FAILED_tip'))
+          log.error(lang.transl('_可能是文件名太长'))
         }
 
         EVT.fire('saveFileError')
@@ -268,9 +360,9 @@ class DownloadControl {
       window.addEventListener(evt, () => {
         // 如果有等待中的下载任务，则开始下载等待中的任务
         if (store.waitingIdList.length === 0) {
-          toast.success(lang.transl('_下载完毕'), {
-            position: 'center',
-          })
+          // 显示下载完毕的轻提示。考虑到快速下载是个高频使用场景，
+          // 从建立下载到完成下载的间隔通常很短，因此让这个轻提示显示在鼠标位置。
+          toast.success(lang.transl('_下载完毕'))
 
           // 通知后台清除保存的此标签页的 idList
           browser.runtime.sendMessage({
@@ -331,7 +423,7 @@ class DownloadControl {
 
     Tools.addBtn(
       'downloadControlBtns',
-      '_停止下载',
+      '_放弃下载',
       '',
       'stopDownload',
       'primary',
@@ -441,10 +533,11 @@ class DownloadControl {
 
     // 是否自动开始下载
 
-    // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
+    // 在插画漫画搜索页面里，如果启用了“预览搜索页面的抓取结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
-      settings.previewResult
+      settings.previewResult &&
+      !Config.mobile
     ) {
       // 对于普通下载任务，阻止自动下载
       if (!states.quickCrawl && !states.crawlTagList) {
@@ -492,6 +585,11 @@ class DownloadControl {
       // 初始化下载状态列表
       downloadStates.init()
     }
+
+    // 记下本轮需要重试的文件。必须放在 reset() 之前：reset() 会清空 errorIdList，
+    // 之后就无法区分「之前出错、现在重试」和「第一次下载」的文件了。
+    // 首次开始下载时 errorIdList 是空的，所以这个集合也是空的
+    this.retryFileIds = new Set(this.errorIdList)
 
     this.reset()
     this.taskBatch = Date.now() // 修改本批下载任务的标记
@@ -550,13 +648,24 @@ class DownloadControl {
     }
   }
 
-  // 停止下载
+  // 放弃下载
   private stopDownload() {
     if (store.result.length === 0 || this.stop) {
       return
     }
 
+    // 本次抓取的结果还没有被下载完毕时，放弃下载会清除保存的抓取结果，所以需要让用户确认。
+    // 这里不再额外判断 states.hasDownloadTask：抓取完成但还没有开始下载时也不存在下载任务，
+    // 但那时抓取结果已经被保存了，放弃下载同样会把它清除，所以也需要确认
+    if (
+      states.hasUndownloadedCrawlResult &&
+      !window.confirm(lang.transl('_放弃下载的提示'))
+    ) {
+      return
+    }
+
     this.stop = true
+    toast.error(lang.transl('_已放弃下载'))
     log.error('🛑' + lang.transl('_下载已停止'))
     // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
     log.log('')
@@ -576,6 +685,18 @@ class DownloadControl {
     } else {
       this.checkCompleteWithError()
     }
+  }
+
+  /** 只同步「已下载数量」与进度显示，不做「是否下载完毕」的判定。
+   *
+   * 抓取结果被重建之后（如在结果中筛选）需要用它刷新进度条上的数字。
+   * 不能直接调用 setDownloaded()：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+   * 还可能经 checkCompleteWithError 触发一次自动重试。 */
+  private syncDownloadedCount() {
+    this.downloaded = downloadStates.downloadedCount()
+    progressBar.setTotalProgress(this.downloaded)
+    progressBar.setTotalNumber()
+    store.remainingDownload = Math.max(0, store.result.length - this.downloaded)
   }
 
   private setDownloaded() {
@@ -607,6 +728,120 @@ class DownloadControl {
     this.checkCompleteWithError()
   }
 
+  /** 下载任务进行中（正在下载或已暂停）一个作品被手动排除时，让它不再被下载。
+   *
+   * 这里不修改 store.result 数组本身，而是把该作品「尚未开始下载」的文件标记为已完成
+   * （下载器把跳过下载的文件也视为正常下载），这样下载队列、进度分母和完成判定都不需要改动。
+   *
+   * 正在下载的文件（状态 0）不处理：它的下标已经被下载任务持有，改动下标会连累其它文件。
+   * 已经下载完成的文件（状态 1）也不处理：文件已经在本地了。
+   *
+   * 真正从抓取结果里删除放到 removeExcludedWorks() 里做，那时下载已经结束，改动下标是安全的。 */
+  private handleExcludedWork = (event: CustomEventInit) => {
+    // 只有「下载任务存在」（正在下载或已暂停）时才需要在这里处理。
+    // 其他情况下（抓取中、空闲、书签模式中）ExcludeWork 会直接调用 removeWorkById
+    if (!states.hasDownloadTask) {
+      return
+    }
+
+    const id = event.detail.data.id as string
+    const type = event.detail.data.type as string
+    // 只跳过系列小说：它的 id 是系列 id 而不是作品 id（而且理论上可能与某个作品 id 数值相同），
+    // 在抓取结果里找不到对应的记录。而不在下载中时排除系列也是同样结果（removeWorkById 找不到），
+    // 所以这里保持什么都不做，两边行为一致。
+    // 小说本身同样是一条抓取结果，需要正常处理
+    if (!id || type === 'novelSeries') {
+      return
+    }
+
+    const idNum = Number.parseInt(id)
+    if (Number.isNaN(idNum)) {
+      return
+    }
+
+    // 这个作品的文件如果之前下载出错过，它们的 id 会留在 errorIdList 里（保存的是文件级 id，
+    // 形如 123_p0；动图和小说是 123）。
+    // 无论这次排除是由本方法处理、还是由搜索页的预览模块直接从抓取结果里删掉，
+    // 这些文件都不会再被下载，所以要一并移除，否则会让 checkCompleteWithError 的等式
+    // （downloaded + errorIdList.length === store.result.length）提前成立，
+    // 可能触发一次多余的「暂停 + 重试」流程。
+    // 这里按作品 id 匹配而不是按下标匹配：预览模块可能已经把它们从 store.result 里删掉了
+    if (this.errorIdList.length > 0) {
+      this.errorIdList = this.errorIdList.filter(
+        (fileId) => fileId !== id && !fileId.startsWith(id + '_')
+      )
+    }
+
+    // 找出这个作品在抓取结果里占用的文件下标
+    const indexes: number[] = []
+    store.result.forEach((result, index) => {
+      if (result.idNum === idNum) {
+        indexes.push(index)
+      }
+    })
+
+    if (indexes.length === 0) {
+      // 它没有抓取结果，不需要处理。
+      // 常见情况：搜索页的预览模块已经把它从抓取结果里删掉了（已暂停时排除作品）
+      return
+    }
+
+    // 把尚未开始下载的文件标记为已完成，使下载器跳过它们
+    for (const index of indexes) {
+      if (downloadStates.states[index] === -1) {
+        downloadStates.setState(index, 1)
+      }
+    }
+
+    // 从作品列表里移除，让用户看到的抓取结果立即更新
+    // 注意：这里不能触发 resultChange 事件。否则 DownloadStates 会重建状态列表、把下载进度清零，
+    // 而且 DownloadControl 自己监听该事件后会重新进入准备下载的流程，可能把下过的文件再下一次
+    store.resultMeta = store.resultMeta.filter(
+      (result) => result.idNum !== idNum
+    )
+
+    this.excludedWorkIdList.push(idNum)
+
+    // 刷新下载进度（被跳过的文件同样计入已完成数量）
+    if (states.downloadPaused) {
+      // 暂停时不能调用 setDownloaded：它会在「全部完成」时调用 reset() 而清掉暂停状态，
+      // 还可能走出错重试的流程自动开始下载。所以只同步数字，不做「是否下载完毕」的判定
+      this.syncDownloadedCount()
+    } else {
+      this.setDownloaded()
+    }
+
+    log.warning('⏭️' + lang.transl('_用户排除了一个作品下载器会在之后跳过它'))
+    toast.success(lang.transl('_下载时会跳过这个文件'))
+  }
+
+  /** 下载结束后，把被排除的作品从抓取结果里真正移除。
+   *
+   * 这时已经没有正在下载的文件，删除数组元素不会再造成下标错位。
+   *
+   * 注意不要触发 resultChange 事件：它会让 DownloadStates 重建状态列表，
+   * 也会让 DownloadControl 自己重新进入准备下载的流程，可能把已经下载完的文件再下一次。 */
+  private removeExcludedWorks = () => {
+    if (this.excludedWorkIdList.length === 0) {
+      return
+    }
+
+    for (const idNum of this.excludedWorkIdList) {
+      // 移除该作品的所有文件，并同步移除下载状态列表里对应的项，保持两者下标一一对应
+      const removedIndexes = store.removeWorkFromResult(idNum)
+      downloadStates.removeItems(removedIndexes)
+      // resultMeta 里该作品在排除时就已经移除了，这里重复移除是幂等的
+    }
+
+    this.excludedWorkIdList = []
+
+    // 结果数量变小了，同步一下剩余的下载数量
+    store.remainingDownload = Math.max(
+      0,
+      store.result.length - downloadStates.downloadedCount()
+    )
+  }
+
   // 设置下载线程数量
   private setDownloadThread() {
     const setThread = settings.downloadThread
@@ -636,8 +871,16 @@ class DownloadControl {
       return false
     }
 
+    const taskBatch = this.taskBatch
     await Utils.sleep(3000)
+    // 等待期间可能暂停、停止或重新开始，不能继续旧任务的重试。
+    if (this.pause || this.stop || this.taskBatch !== taskBatch) {
+      return false
+    }
     const task = this.taskList[data.id]
+    if (!task) {
+      return false
+    }
     // 复位这个任务的状态
     downloadStates.setState(task.index, -1)
     // 建立下载任务，再次下载它
@@ -648,21 +891,46 @@ class DownloadControl {
     const task = this.taskList[data.id]
 
     try {
+      // 抓取结果可能已经被重建（如在结果中筛选），此时 taskList 里保存的下标不再对应这个文件。
+      // 所以按文件 id 重新定位，避免把别的文件标记成已下载
+      const index = this.findResultIndex(data.id, task?.index)
+      if (index === -1) {
+        // 这个文件已经不在抓取结果里了，放弃它
+        delete this.taskList[data.id]
+        return
+      }
+
       // 更改这个任务状态为“已完成”
-      downloadStates.setState(task.index, 1)
+      downloadStates.setState(index, 1)
+      if (task) {
+        // 抓取结果被重建过，顺手把保存的下标修正过来
+        task.index = index
+      }
 
       // 统计已下载数量
       this.setDownloaded()
 
       // 是否继续下载
-      const no = task.progressBarIndex
-      if (this.checkContinueDownload()) {
+      const no = task?.progressBarIndex
+      if (no !== undefined && this.checkContinueDownload()) {
         this.createDownload(no)
       }
     } catch (error) {
       // 捕获推进任务时的异常，避免任务卡住却没有提示
       console.error('downloadOrSkipAFile 执行出错', error)
     }
+  }
+
+  /** 按文件 id 查找它在抓取结果里的下标。
+   *
+   * 抓取结果被整体重建后（如在结果中筛选），taskList 里保存的下标会失效，
+   * 所以先用保存的下标快速确认，确认不了再按 id 重新查找。
+   * @returns 下标；找不到时返回 -1 */
+  private findResultIndex(id: string, savedIndex?: number) {
+    if (savedIndex !== undefined && store.result[savedIndex]?.id === id) {
+      return savedIndex
+    }
+    return store.result.findIndex((result) => result.id === id)
   }
 
   // 当一个文件下载成功或失败之后，检查是否还有后续下载任务
@@ -699,6 +967,8 @@ class DownloadControl {
         index: index,
         progressBarIndex: progressBarIndex,
         taskBatch: this.taskBatch,
+        // 这个文件是不是「之前出错、现在重试」的？Download 会据此绕过 HTTP 缓存
+        isRetry: this.retryFileIds.has(workData.id),
       }
 
       // 保存任务信息
@@ -720,7 +990,7 @@ class DownloadControl {
     ) {
       // 进入暂停状态，等待一段时间后自动开始下载，重试下载出错的文件
       this.pauseDownload()
-      log.log(lang.transl('_稍后会重试下载失败的文件'))
+      log.warning('🔄' + lang.transl('_稍后会重试下载失败的文件'))
       await Utils.sleep(2000)
       this.startDownload()
     }

@@ -10,6 +10,7 @@ import { Utils } from '../utils/Utils'
 import { API } from '../API'
 import { filter, FilterOption } from '../filter/Filter'
 import { msgBox } from '../MsgBox'
+import { states } from '../store/States'
 
 class InitContestPage extends InitPageBase {
   constructor() {
@@ -110,13 +111,19 @@ class InitContestPage extends InitPageBase {
     }
   }
 
+  /**获取应募作品的 ID 列表 */
   protected async getIdList(): Promise<void> {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     const data = await API.getContestWorksData(
       this.type,
       this.name,
       this.page,
       this.order
     )
+
     if (data.error) {
       log.error(lang.transl('_API返回了错误信息') + data.error)
       return this.getIdListFinished()
@@ -156,6 +163,7 @@ class InitContestPage extends InitPageBase {
     }
   }
 
+  /**获取获奖作品的 ID 列表 */
   private async crawlWinning() {
     log.log(lang.transl('_抓取获奖作品'))
 

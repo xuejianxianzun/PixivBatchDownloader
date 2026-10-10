@@ -25,7 +25,7 @@ class RemoveWorksTagsAction extends BookmarkPageBatchActionBase<WorkBookmarkData
       }
 
       const msg = lang.transl(options.title)
-      log.warning(msg)
+      log.warning('🚀' + msg)
       log.warning(lang.transl('_它们会变成未分类状态'))
       toast.warning(msg)
       EVT.fire('closeSettingsPanel')

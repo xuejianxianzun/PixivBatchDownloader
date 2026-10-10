@@ -55,12 +55,7 @@
 </div>
 
 <div class="option" data-no="2">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_必须大于0"
-  >
+  <a href="" target="_blank" class="settingNameStyle" data-xztip="_必须大于0">
     <span data-xztext="_抓取每个用户最新的几个作品"></span>
     <span class="gray"> ? </span>
   </a>
@@ -161,7 +156,7 @@
 
 <div class="option" data-no="5">
   <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_AI作品"></span>
+    <span data-xztext="_AI作品带高亮"></span>
   </a>
   <input
     type="checkbox"
@@ -192,9 +187,32 @@
   <label
     for="UnknownAI"
     data-xztext="_未知"
-    class="has_tip"
     data-xztip="_AI未知作品的说明"
   ></label>
+</div>
+
+<div class="option" data-no="9">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_收藏状态"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="downNotBookmarked"
+    id="setDownNotBookmarked"
+    class="need_beautify checkbox_common"
+    checked
+  />
+  <span class="beautify_checkbox" tabindex="0"></span>
+  <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
+  <input
+    type="checkbox"
+    name="downBookmarked"
+    id="setDownBookmarked"
+    class="need_beautify checkbox_common"
+    checked
+  />
+  <span class="beautify_checkbox" tabindex="0"></span>
+  <label for="setDownBookmarked" data-xztext="_已收藏"></label>
 </div>
 
 <div class="option" data-no="6">
@@ -234,7 +252,7 @@
     type="button"
     class="gray textButton showMsgBtn"
     data-title="_原创作品"
-    data-msg="_宽松匹配原创作品的说明"
+    data-msg="_原创作品的说明"
     data-xztext="_帮助"
   ></button>
 </div>
@@ -261,6 +279,23 @@
   />
   <span class="beautify_checkbox" tabindex="0"></span>
   <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
+
+  <span class="verticalSplit"></span>
+  <span data-xztext="_彩色占比阈值"></span>
+  <input
+    type="text"
+    name="coloredRatio"
+    class="setinput_style blue w50"
+    value="25"
+  />
+  <span>%</span>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_图片色彩"
+    data-msg="_图片色彩的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="8">
@@ -287,39 +322,9 @@
   <label for="setDownMultiImg" data-xztext="_多图作品"></label>
 </div>
 
-<div class="option" data-no="9">
-  <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_收藏状态"></span>
-  </a>
-  <input
-    type="checkbox"
-    name="downNotBookmarked"
-    id="setDownNotBookmarked"
-    class="need_beautify checkbox_common"
-    checked
-  />
-  <span class="beautify_checkbox" tabindex="0"></span>
-  <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
-  <input
-    type="checkbox"
-    name="downBookmarked"
-    id="setDownBookmarked"
-    class="need_beautify checkbox_common"
-    checked
-  />
-  <span class="beautify_checkbox" tabindex="0"></span>
-  <label for="setDownBookmarked" data-xztext="_已收藏"></label>
-</div>
-
 <div class="option" data-no="10">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_设置收藏数量的提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_收藏数量"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -327,6 +332,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_收藏数量"
+    data-msg="_设置收藏数量的提示"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="BMKNumSwitch">
     <div class="optionLine">
       <span data-xztext="_最小值"></span>
@@ -352,13 +366,8 @@
     </div>
 
     <div class="optionLine">
-      <label
-        for="BMKNumAverageSwitch"
-        class="has_tip"
-        data-xztip="_日均收藏数量的提示"
-      >
+      <label for="BMKNumAverageSwitch">
         <span data-xztext="_满足日均收藏数量条件"></span>
-        <span class="gray"> ? </span>
       </label>
       <input
         type="checkbox"
@@ -381,14 +390,8 @@
 </div>
 
 <div class="option" data-no="11">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_筛选宽高的提示文字"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_图片的宽高"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -396,6 +399,14 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_图片的宽高"
+    data-msg="_图片的宽高的说明"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="subOptionWrap flexBasis100" data-show="setWHSwitch">
     <div class="optionLine">
@@ -500,14 +511,8 @@
 </div>
 
 <div class="option" data-no="12">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_设置宽高比例Title"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_图片的宽高比例"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -515,6 +520,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_图片的宽高比例"
+    data-msg="_设置宽高比例的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="ratioSwitch">
     <input
       type="radio"
@@ -551,7 +565,7 @@
       value="userSet"
     />
     <span class="beautify_radio" tabindex="0"></span>
-    <span class="has_tip settingNameStyle" data-xztip="_宽高比的提示">
+    <span class="settingNameStyle" data-xztip="_宽高比的提示">
       <label for="ratio3" style="padding: 0" data-xztext="_宽高比"></label>
       <span class="gray"> ? </span>
     </span>
@@ -603,14 +617,8 @@
 </div>
 
 <div class="option" data-no="13">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_设置id范围提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_id范围"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -618,6 +626,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_id范围"
+    data-msg="_设置id范围提示"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap" data-show="idRangeSwitch">
     <div class="optionLine">
       <span data-xztext="_图像作品"></span>
@@ -708,18 +725,72 @@
         placeholder="0"
       />
     </div>
+
+    <div class="optionLine">
+      <span data-xztext="_书签ID_图像作品"></span>
+      <input
+        type="radio"
+        name="idRangeComparisonForBookmarkImageWorks"
+        id="idRangeComparisonForBookmarkImageWorks1"
+        class="need_beautify radio"
+        value=">"
+        checked
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="idRangeComparisonForBookmarkImageWorks1">&gt;</label>
+      <input
+        type="radio"
+        name="idRangeComparisonForBookmarkImageWorks"
+        id="idRangeComparisonForBookmarkImageWorks2"
+        class="need_beautify radio"
+        value="<"
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="idRangeComparisonForBookmarkImageWorks2">&lt;</label>
+      <input
+        type="text"
+        name="idRangeValueForBookmarkImageWorks"
+        class="setinput_style w100 blue"
+        value="0"
+        placeholder="0"
+      />
+    </div>
+
+    <div class="optionLine">
+      <span data-xztext="_书签ID_小说"></span>
+      <input
+        type="radio"
+        name="idRangeComparisonForBookmarkNovelWorks"
+        id="idRangeComparisonForBookmarkNovelWorks1"
+        class="need_beautify radio"
+        value=">"
+        checked
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="idRangeComparisonForBookmarkNovelWorks1">&gt;</label>
+      <input
+        type="radio"
+        name="idRangeComparisonForBookmarkNovelWorks"
+        id="idRangeComparisonForBookmarkNovelWorks2"
+        class="need_beautify radio"
+        value="<"
+      />
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="idRangeComparisonForBookmarkNovelWorks2">&lt;</label>
+      <input
+        type="text"
+        name="idRangeValueForBookmarkNovelWorks"
+        class="setinput_style w100 blue"
+        value="0"
+        placeholder="0"
+      />
+    </div>
   </div>
 </div>
 
 <div class="option" data-no="14">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_设置投稿时间提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_投稿时间"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -727,6 +798,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_投稿时间"
+    data-msg="_设置投稿时间提示"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap" data-show="postDate">
     <div class="optionLine">
       <span class="pr4" data-xztext="_起始时间"></span>
@@ -784,15 +864,38 @@
   </div>
 </div>
 
+<div class="option" data-no="111">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_只下载这些语言的小说"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="novelLanguageSwitch"
+    class="need_beautify checkbox_switch"
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_只下载这些语言的小说"
+    data-msg="_只下载这些语言的小说的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="novelLanguageSwitch">
+    <textarea
+      class="centerPanelTextArea beautify_scrollbar"
+      name="novelLanguageList"
+      rows="1"
+      placeholder="zh-cn,ja,en"
+    ></textarea>
+  </div>
+</div>
+
 <div class="option" data-no="15">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_必须tag的提示文字"
-  >
-    <span data-xztext="_必须含有tag"></span>
-    <span class="gray"> ? </span>
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_标签必须含有"></span>
   </a>
   <input
     type="checkbox"
@@ -800,6 +903,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_标签必须含有"
+    data-msg="_标签必须含有的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="needTagSwitch">
     <span data-xztext="_匹配模式"></span>
     <input
@@ -831,14 +943,8 @@
 </div>
 
 <div class="option" data-no="16">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_排除tag的提示文字"
-  >
-    <span data-xztext="_不能含有tag"></span>
-    <span class="gray"> ? </span>
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_标签不能含有"></span>
   </a>
   <input
     type="checkbox"
@@ -846,47 +952,66 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_标签不能含有"
+    data-msg="_标签不能含有的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="notNeedTagSwitch">
-    <span data-xztext="_匹配模式"></span>
-    <span class="gray" data-xztext="_任一"></span>
-    <span class="verticalSplit"></span>
-    <input
-      type="radio"
-      id="tagMatchMode2"
-      class="need_beautify radio"
-      name="tagMatchMode"
-      value="whole"
-      checked
-    />
-    <span class="beautify_radio" tabindex="0"></span>
-    <label for="tagMatchMode2" data-xztext="_完全一致"></label>
-    <input
-      type="radio"
-      id="tagMatchMode1"
-      class="need_beautify radio"
-      name="tagMatchMode"
-      value="partial"
-    />
-    <span class="beautify_radio" tabindex="0"></span>
-    <label for="tagMatchMode1" data-xztext="_部分一致"></label>
-    <textarea
-      class="centerPanelTextArea beautify_scrollbar"
-      name="notNeedTag"
-      rows="1"
-      placeholder="tag1,tag2,tag3"
-    ></textarea>
+    <div class="optionLine">
+      <label for="notNeedTagWholeSwitch">
+        <span data-xztext="_使用全字匹配的标签"></span>
+      </label>
+      <input
+        type="checkbox"
+        name="notNeedTagWholeSwitch"
+        id="notNeedTagWholeSwitch"
+        class="need_beautify checkbox_switch"
+      />
+      <span class="beautify_switch" tabindex="0"></span>
+      <div class="subOptionWrap flexBasis100" data-show="notNeedTagWholeSwitch">
+        <textarea
+          class="centerPanelTextArea beautify_scrollbar"
+          name="notNeedTagWhole"
+          rows="1"
+          placeholder="tag1,tag2,tag3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="optionLine">
+      <label for="notNeedTagPartialSwitch">
+        <span data-xztext="_使用部分匹配的标签"></span>
+      </label>
+      <input
+        type="checkbox"
+        name="notNeedTagPartialSwitch"
+        id="notNeedTagPartialSwitch"
+        class="need_beautify checkbox_switch"
+      />
+      <span class="beautify_switch" tabindex="0"></span>
+      <div
+        class="subOptionWrap flexBasis100"
+        data-show="notNeedTagPartialSwitch"
+      >
+        <textarea
+          class="centerPanelTextArea beautify_scrollbar"
+          name="notNeedTagPartial"
+          rows="1"
+          placeholder="tag1,tag2,tag3"
+        ></textarea>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="option" data-no="17">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_针对特定用户屏蔽tag的提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_针对特定用户屏蔽标签"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -894,20 +1019,23 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_针对特定用户屏蔽标签"
+    data-msg="_针对特定用户屏蔽tag的提示"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="blockTagsForSpecificUser">
     <slot data-name="blockTagsForSpecificUser"></slot>
   </div>
 </div>
 
 <div class="option" data-no="18">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_标题必须含有的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_标题必须含有"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -915,6 +1043,14 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_标题必须含有"
+    data-msg="_标题必须含有的说明"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="subOptionWrap flexBasis100" data-show="titleIncludeSwitch">
     <textarea
@@ -927,14 +1063,8 @@
 </div>
 
 <div class="option" data-no="19">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_标题不能含有的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_标题不能含有"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -942,6 +1072,14 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_标题不能含有"
+    data-msg="_标题不能含有的说明"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="subOptionWrap flexBasis100" data-show="titleExcludeSwitch">
     <textarea
@@ -951,13 +1089,7 @@
       placeholder="word1,word2,word3"
     ></textarea>
 
-    <label
-      for="alsoCheckSeriesTitle"
-      class="has_tip"
-      data-xztext="_也检查系列标题"
-      data-xztip="_也检查系列标题的说明"
-    ></label>
-    <span class="gray mr4"> ? </span>
+    <label for="alsoCheckSeriesTitle" data-xztext="_也检查系列标题"></label>
     <input
       type="checkbox"
       name="alsoCheckSeriesTitle"
@@ -970,14 +1102,8 @@
 </div>
 
 <div class="option" data-no="20">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_多图作品的图片数量上限提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_多图作品的图片数量上限"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -985,6 +1111,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_多图作品的图片数量上限"
+    data-msg="_多图作品的图片数量上限提示"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
     &lt;=&nbsp;
     <input
@@ -1115,7 +1250,7 @@
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_不抓取下载过的作品的说明"
   >
     <span data-xztext="_不抓取下载过的作品"></span>
@@ -1137,14 +1272,8 @@
 </div>
 
 <div class="option" data-no="27">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_用户屏蔽名单的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_用户屏蔽名单"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1156,7 +1285,7 @@
     type="button"
     class="gray textButton showMsgBtn"
     data-title="_用户屏蔽名单"
-    data-msg="_用户屏蔽名单的说明2"
+    data-msg="_用户屏蔽名单的说明"
     data-xztext="_帮助"
   ></button>
   <div class="subOptionWrap flexBasis100" data-show="userBlockList">
@@ -1178,13 +1307,6 @@
       />
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setQuicklyBlockUsers" data-xztext="_快捷屏蔽用户"></label>
-      <button
-        type="button"
-        class="gray textButton showMsgBtn"
-        data-title="_快捷屏蔽用户"
-        data-msg="_快捷屏蔽用户的说明"
-        data-xztext="_帮助"
-      ></button>
     </div>
     <div class="optionLine">
       <input
@@ -1207,7 +1329,7 @@
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_减慢抓取速度的说明"
   >
     <span data-xztext="_减慢抓取速度"></span>
@@ -1251,7 +1373,7 @@
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_定时抓取的间隔时间的说明"
   >
     <span data-xztext="_定时抓取的间隔时间"></span>
@@ -1266,15 +1388,46 @@
   <span class="mr4" data-xztext="_分钟"></span>
 </div>
 
+<div class="option" data-no="93">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_预览搜索页面的抓取结果"></span>
+  </a>
+  <input
+    type="checkbox"
+    name="previewResult"
+    class="need_beautify checkbox_switch"
+    checked
+  />
+  <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_预览搜索页面的抓取结果"
+    data-msg="_预览搜索页面的抓取结果说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="previewResult">
+    <div class="optionLine">
+      <label
+        for="previewResultPageSize"
+        data-xztext="_每页显示的作品数量"
+      ></label>
+      <input
+        type="text"
+        name="previewResultPageSize"
+        id="previewResultPageSize"
+        class="setinput_style blue w80"
+        value="100"
+      />
+    </div>
+  </div>
+</div>
+
 <div class="option" data-no="30">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_自动导出抓取结果的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_自动导出抓取结果"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1282,6 +1435,15 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自动导出抓取结果"
+    data-msg="_自动导出抓取结果的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="autoExportResult">
     <div class="optionLine">
       <span data-xztext="_当抓取结果大于指定数量时启用"></span>
@@ -1318,14 +1480,8 @@
 </div>
 
 <div class="option" data-no="31">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_导出ID列表的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_导出ID列表"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -1333,6 +1489,14 @@
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_导出ID列表"
+    data-msg="_导出ID列表的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="32">
@@ -1371,6 +1535,9 @@
   >
 __DEFAULT_NAME_RULE_FOR_ARTWORK__</textarea
   >
+  <div class="secondary_hint is-hidden mb4" id="tipNameRuleMustHaveIndex">
+    <span data-xztext="_提示命名规则里必须有序号"></span>
+  </div>
 
   <p class="tip fileNameTip namingTipArea" id="fileNameTip">
     <span data-xztext="_命名标记的提示"></span>
@@ -1529,6 +1696,9 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <br />
     * <span class="blue name">{AI}</span>
     <span data-xztext="_系列小说的命名标记_AI"></span>
+    <br />
+    * <span class="blue name">{human}</span>
+    <span data-xztext="_系列小说的命名标记_human"></span>
     <br />
     <span class="blue name">{bmk}</span>
     <span data-xztext="_系列小说的命名标记_bmk"></span>
@@ -1922,15 +2092,18 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="45">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_自定义用户名的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_自定义用户名"></span>
-    <span class="gray"> ? </span>
   </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自定义用户名"
+    data-msg="_自定义用户名的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <slot data-name="setUserNameSlot"></slot>
 </div>
 
@@ -1938,7 +2111,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_序号起始值的说明"
   >
     <span data-xztext="_序号起始值"></span>
@@ -1969,7 +2142,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_第一张图不带序号说明"
   >
     <span data-xztext="_第一张图不带序号"></span>
@@ -2013,14 +2186,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="48">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_在序号前面填充0的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在序号前面填充0"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2028,7 +2195,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
-  <div class="subOptionWrap" data-show="zeroPadding">
+
+  <div class="subOptionWrap noGrow" data-show="zeroPadding">
     <span data-xztext="_序号总长度"></span>
     <input
       type="text"
@@ -2037,6 +2205,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       value="3"
     />
   </div>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在序号前面填充0"
+    data-msg="_在序号前面填充0的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="49">
@@ -2055,7 +2231,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_移除用户名中的at和后续字符的说明"
   >
     <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -2113,7 +2289,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <input
     type="text"
     name="downloadThread"
-    class="has_tip setinput_style blue"
+    class="setinput_style blue w40"
     data-xztip="_下载线程的说明"
     value="3"
   />
@@ -2123,7 +2299,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_下载之后收藏作品的提示"
   >
     <span data-xztext="_下载之后收藏作品"></span>
@@ -2162,14 +2338,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="56">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_下载间隔的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_下载间隔"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2178,9 +2348,17 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   />
   <span class="beautify_switch" tabindex="0"></span>
 
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_下载间隔"
+    data-msg="_下载间隔的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="downloadIntervalSwitch">
     <div class="optionLine">
-      <span data-xztext="_当文件数量大于"></span>
+      <span data-xztext="_当抓取结果数量大于"></span>
       <input
         type="text"
         name="downloadIntervalOnWorksNumber"
@@ -2194,7 +2372,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       <input
         type="text"
         name="downloadInterval"
-        class="setinput_style blue"
+        class="setinput_style blue w40"
         value="1"
       />
       <span data-xztext="_秒"></span>
@@ -2289,7 +2467,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_文件体积限制的说明"
   >
     <span data-xztext="_文件体积限制"></span>
@@ -2321,7 +2499,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_使用前请先查看提示"
   >
     <span data-xztext="_把文件保存到用户上次选择的位置"></span>
@@ -2352,14 +2530,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="61">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_下载完成后显示通知的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_下载完成后显示通知"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2367,6 +2539,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_下载完成后显示通知"
+    data-msg="_下载完成后显示通知的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="62">
@@ -2440,7 +2620,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_radio" tabindex="0"></span>
     <label
-      class="has_tip"
       for="dupliStrategy2"
       data-xztip="_宽松模式说明"
       data-xztext="_宽松"
@@ -2455,7 +2634,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     />
     <span class="beautify_radio" tabindex="0"></span>
     <label
-      class="has_tip"
       for="dupliStrategy1"
       data-xztip="_严格模式说明"
       data-xztext="_严格"
@@ -2637,7 +2815,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_同时转换多少个动图的说明"
   >
     <span data-xztext="_同时转换多少个动图"></span>
@@ -2652,45 +2830,206 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="67">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_小说保存格式的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_小说保存格式"></span>
-    <span class="gray"> ? </span>
   </a>
-  <input
-    type="radio"
-    name="novelSaveAs"
-    id="novelSaveAs2"
-    class="need_beautify radio"
-    value="epub"
-    checked
-  />
-  <span class="beautify_radio" tabindex="0"></span>
-  <label for="novelSaveAs2"> EPUB </label>
-  <input
-    type="radio"
-    name="novelSaveAs"
-    id="novelSaveAs1"
-    class="need_beautify radio"
-    value="txt"
-  />
-  <span class="beautify_radio" tabindex="0"></span>
-  <label for="novelSaveAs1"> TXT </label>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_小说保存格式"
+    data-msg="_小说保存格式的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="novelSaveAs"
+      id="novelSaveAs2"
+      class="need_beautify radio"
+      value="epub"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelSaveAs2"> EPUB </label>
+    <input
+      type="radio"
+      name="novelSaveAs"
+      id="novelSaveAs1"
+      class="need_beautify radio"
+      value="txt"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="novelSaveAs1"> TXT </label>
+  </div>
+</div>
+
+<div class="option" data-no="109">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_EPUB文件的语言标签"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_EPUB文件的语言标签"
+    data-msg="_EPUB文件的语言标签的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceNovelLang"
+      class="need_beautify radio"
+      value="novelLang"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="epubLangSourceNovelLang" data-xztext="_使用小说的语言"></label>
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceDownloaderLang"
+      class="need_beautify radio"
+      value="downloaderLang"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubLangSourceDownloaderLang"
+      data-xztext="_使用下载器的语言"
+    ></label>
+    <input
+      type="radio"
+      name="epubLangSource"
+      id="epubLangSourceCustom"
+      class="need_beautify radio"
+      value="custom"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="epubLangSourceCustom" data-xztext="_自定义语言标签"></label>
+    <input
+      type="text"
+      name="epubCustomLang"
+      id="epubCustomLang"
+      class="setinput_style blue w50"
+      value="ja"
+    />
+  </div>
+</div>
+
+<div class="option" data-no="108">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_EPUB文件的排版方向"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_EPUB文件的排版方向"
+    data-msg="_EPUB文件的排版方向的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeHorizontal"
+      class="need_beautify radio"
+      value="horizontal"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeHorizontal"
+      data-xztext="_EPUB文字方向横排"
+    ></label>
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeVertical"
+      class="need_beautify radio"
+      value="vertical"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeVertical"
+      data-xztext="_EPUB文字方向竖排"
+    ></label>
+    <input
+      type="radio"
+      name="epubWritingMode"
+      id="epubWritingModeLangList"
+      class="need_beautify radio"
+      value="verticalForLangList"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label
+      for="epubWritingModeLangList"
+      data-xztext="_EPUB文字方向指定语言竖排"
+    ></label>
+    <input
+      type="text"
+      name="epubVerticalLangList"
+      id="epubVerticalLangList"
+      class="setinput_style blue w200"
+      placeholder="ja,zh-tw"
+      value="ja,zh-tw"
+    />
+  </div>
+</div>
+
+<div class="option" data-no="110">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_简繁转换"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_简繁转换"
+    data-msg="_简繁转换的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextNone"
+      class="need_beautify radio"
+      value="none"
+      checked
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextNone" data-xztext="_不转换"></label>
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextCn2tw"
+      class="need_beautify radio"
+      value="cn2tw"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextCn2tw" data-xztext="_简体转繁体"></label>
+    <input
+      type="radio"
+      name="convertNovelText"
+      id="convertNovelTextTw2cn"
+      class="need_beautify radio"
+      value="tw2cn"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="convertNovelTextTw2cn" data-xztext="_繁体转简体"></label>
+  </div>
 </div>
 
 <div class="option" data-no="68">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_在小说里保存元数据提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在小说里保存元数据"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2698,6 +3037,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在小说里保存元数据"
+    data-msg="_在小说里保存元数据提示"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="69">
@@ -2791,14 +3138,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="71">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_自动合并系列小说的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_自动合并系列小说"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2806,14 +3147,20 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
-  <div class="subOptionWrap" data-show="autoMergeNovel">
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_自动合并系列小说"
+    data-msg="_自动合并系列小说的说明"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="subOptionWrap flexBasis100" data-show="autoMergeNovel">
     <label
       for="skipNovelsInSeriesWhenAutoMerge"
       data-xztext="_不再单独下载系列里的小说"
-      class="has_tip"
-      data-xztip="_不再单独下载系列里的小说的说明"
     ></label>
-    <span class="gray"> ? &nbsp;</span>
     <input
       type="checkbox"
       name="skipNovelsInSeriesWhenAutoMerge"
@@ -2828,7 +3175,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 <div class="option" data-no="104">
   <a href="" target="_blank" class="settingNameStyle">
     <span
-      data-xztext="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说"
+      data-xztext="_在合并系列小说时只要有一篇小说符合筛选条件就保存该系列里的所有小说"
     ></span>
   </a>
   <input
@@ -2841,8 +3188,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <button
     type="button"
     class="textButton gray showMsgBtn"
-    data-title="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说"
-    data-msg="_在合并系列小说时只要有一篇小说符合过滤条件就保存该系列里的所有小说的提示"
+    data-title="_在合并系列小说时只要有一篇小说符合筛选条件就保存该系列里的所有小说"
+    data-msg="_在合并系列小说时只要有一篇小说符合筛选条件就保存该系列里的所有小说的提示"
     data-xztext="_帮助"
   ></button>
 </div>
@@ -2869,15 +3216,17 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="73">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_保存作品的元数据说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_保存作品的元数据"></span>
-    <span class="gray"> ? </span>
   </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_保存作品的元数据"
+    data-msg="_保存作品的元数据说明"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="optionLine">
     <span class="mb4" data-xztext="_作品类型带冒号"> </span>
@@ -2939,14 +3288,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="74">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_保存作品简介的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_保存作品的简介"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -2954,6 +3297,15 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_保存作品的简介"
+    data-msg="_保存作品简介的说明"
+    data-xztext="_帮助"
+  ></button>
+
   <div class="subOptionWrap flexBasis100" data-show="saveWorkDescription">
     <div class="optionLine">
       <span class="mb4" data-xztext="_作品类型带冒号"> </span>
@@ -2995,13 +3347,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     </div>
 
     <div class="optionLine">
-      <label
-        for="saveEachDescription"
-        data-xztext="_每个作品分别保存"
-        class="has_tip"
-        data-xztip="_简介的Links标记"
-      ></label>
-      <span class="gray"> ? &nbsp;</span>
+      <label for="saveEachDescription" data-xztext="_每个作品分别保存"></label>
       <input
         type="checkbox"
         name="saveEachDescription"
@@ -3028,7 +3374,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_预览作品的说明"
   >
     <span data-xztext="_预览作品"></span>
@@ -3156,7 +3502,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <div class="optionLine">
       <label
         for="wheelScrollSwitchImageOnPreviewWork"
-        class="has_tip"
         data-xztext="_使用鼠标滚轮切换作品里的图片"
         data-xztip="_这可能会阻止页面滚动"
       ></label>
@@ -3173,7 +3518,6 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     <div class="optionLine">
       <label
         for="swicthImageByKeyboard"
-        class="has_tip"
         data-xztext="_使用方向键和空格键切换图片"
         data-xztip="_使用方向键和空格键切换图片的提示"
       ></label>
@@ -3285,7 +3629,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_预览作品的详细信息的说明"
   >
     <span data-xztext="_预览作品的详细信息"></span>
@@ -3310,14 +3654,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="78">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_显示更大的缩略图的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_显示更大的缩略图"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3325,17 +3663,19 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_显示更大的缩略图"
+    data-msg="_显示更大的缩略图的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="79">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_替换方形缩略图以显示图片比例的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3344,17 +3684,19 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     checked
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_替换方形缩略图以显示图片比例"
+    data-msg="_替换方形缩略图以显示图片比例的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="80">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_在多图作品页面里显示缩略图列表的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3363,6 +3705,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     checked
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在多图作品页面里显示缩略图列表"
+    data-msg="_在多图作品页面里显示缩略图列表的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="81">
@@ -3381,7 +3731,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="settingNameStyle has_tip"
+    class="settingNameStyle"
     data-xztip="_缩略图上按钮的位置的说明"
   >
     <span data-xztext="_缩略图上按钮的位置"></span>
@@ -3491,14 +3841,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="86">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_高亮关注的用户的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_高亮关注的用户"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3507,6 +3851,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     checked
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_高亮关注的用户"
+    data-msg="_高亮关注的用户的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="87">
@@ -3551,15 +3903,17 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="88">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_下载器的收藏功能的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_下载器的收藏功能"></span>
-    <span class="gray"> ? </span>
   </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_下载器的收藏功能"
+    data-msg="_下载器的收藏功能的说明"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="optionLine">
     <span data-xztext="_是否添加标签" class="mr4"></span>
@@ -3609,15 +3963,17 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="89">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_显示复制按钮的提示"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_复制作品信息带高亮关键字"></span>
-    <span class="gray"> ? </span>
   </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_复制作品信息带高亮关键字"
+    data-msg="_显示复制按钮的提示"
+    data-xztext="_帮助"
+  ></button>
 
   <div class="optionLine">
     <span data-xztext="_复制内容" class="mr4"></span>
@@ -3709,14 +4065,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="90">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_在搜索页面添加快捷搜索区域的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3725,11 +4075,19 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     checked
   />
   <span class="beautify_switch" tabindex="0"></span>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在搜索页面添加快捷搜索区域"
+    data-msg="_在搜索页面添加快捷搜索区域的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="91">
   <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_过滤搜索页面的作品"></span>
+    <span data-xztext="_筛选搜索页面的作品"></span>
   </a>
   <input
     type="checkbox"
@@ -3740,21 +4098,15 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <button
     type="button"
     class="gray textButton showMsgBtn"
-    data-title="_过滤搜索页面的作品"
-    data-msg="_过滤搜索页面的作品的说明"
+    data-title="_筛选搜索页面的作品"
+    data-msg="_筛选搜索页面的作品的说明"
     data-xztext="_帮助"
   ></button>
 </div>
 
 <div class="option" data-no="92">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_在搜索页面里移除已关注用户的作品的说明"
-  >
+  <a href="" target="_blank" class="settingNameStyle">
     <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
-    <span class="gray"> ? </span>
   </a>
   <input
     type="checkbox"
@@ -3762,34 +4114,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
     class="need_beautify checkbox_switch"
   />
   <span class="beautify_switch" tabindex="0"></span>
-</div>
 
-<div class="option" data-no="93">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_预览搜索结果说明"
-  >
-    <span data-xztext="_预览搜索结果"></span>
-    <span class="gray"> ? </span>
-  </a>
-  <input
-    type="checkbox"
-    name="previewResult"
-    class="need_beautify checkbox_switch"
-    checked
-  />
-  <span class="beautify_switch" tabindex="0"></span>
-  <div class="subOptionWrap" data-show="previewResult">
-    <span class="settingNameStyle" data-xztext="_上限"></span>
-    <input
-      type="text"
-      name="previewResultLimit"
-      class="setinput_style blue w80"
-      value="3000"
-    />
-  </div>
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_在搜索页面里移除已关注用户的作品"
+    data-msg="_在搜索页面里移除已关注用户的作品的说明"
+    data-xztext="_帮助"
+  ></button>
 </div>
 
 <div class="option" data-no="94">
@@ -3866,7 +4198,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_选项卡切换方式的说明"
   >
     <span data-xztext="_选项卡切换方式"></span>
@@ -3981,7 +4313,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_背景图片的说明"
   >
     <span data-xztext="_背景图片"></span>
@@ -4042,14 +4374,8 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 </div>
 
 <div class="option" data-no="100">
-  <a
-    href=""
-    target="_blank"
-    class="has_tip settingNameStyle"
-    data-xztip="_高亮显示关键字的说明"
-  >
-    <span data-xztext="_高亮显示关键字"></span>
-    <span class="gray"> ? </span>
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_高亮显示设置名称里的关键字"></span>
   </a>
   <input
     type="checkbox"
@@ -4064,7 +4390,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_日志区域的默认可见性的说明"
   >
     <span data-xztext="_日志区域的默认可见性"></span>
@@ -4267,7 +4593,7 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
   <a
     href=""
     target="_blank"
-    class="has_tip settingNameStyle"
+    class="settingNameStyle"
     data-xztip="_管理设置的说明"
   >
     <span data-xztext="_管理设置"></span>

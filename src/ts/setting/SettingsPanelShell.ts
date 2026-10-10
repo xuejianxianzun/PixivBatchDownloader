@@ -6,10 +6,31 @@ import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { showOneTimeMsg } from '../ShowOneTimeMsg'
-import { states } from '../store/States'
-import { store } from '../store/Store'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
+import { PageId, PageIds } from './SettingsPanelTypes'
+
+/** 侧边导航里一个导航项的展示配置 */
+type NavItemConfig = {
+  /** 导航文案对应的 langText key */
+  textKey: string
+  /** 图标的 id（不含 #） */
+  lineIcon: string
+  /** 是否默认隐藏该导航项 */
+  hidden?: boolean
+}
+
+/** 侧边导航项的配置。key 与 PageIds 相同，所以新增/删除页面时，类型检查会提示这里需要同步修改 */
+const navItemConfigs: Record<PageId, NavItemConfig> = {
+  home: { textKey: '_首页_Home', lineIcon: 'home-line' },
+  filter: { textKey: '_筛选', lineIcon: 'filter-line' },
+  naming: { textKey: '_命名', lineIcon: 'rename-line' },
+  download: { textKey: '_下载', lineIcon: 'download-line' },
+  enhance: { textKey: '_增强', lineIcon: 'magic-line' },
+  general: { textKey: '_通用', lineIcon: 'setting-line' },
+  help: { textKey: '_帮助', lineIcon: 'help' },
+  search: { textKey: '_搜索', lineIcon: 'search-line', hidden: true },
+}
 
 /** 设置面板的外壳 */
 // - 负责 shell HTML 渲染
@@ -102,14 +123,7 @@ class SettingsPanelShell {
         <div class="centerWrap_con">
           <aside class="settingsPanel_sidebar beautify_scrollbar">
             <nav class="settingsPanel_nav">
-              ${this.createNavItem('home', '_首页_Home', 'home-line', 'home-fill')}
-              ${this.createNavItem('crawl', '_抓取', 'filter-line', 'filter-filling')}
-              ${this.createNavItem('naming', '_命名', 'rename-line', 'rename-fill')}
-              ${this.createNavItem('download', '_下载', 'download-line', 'download-fill')}
-              ${this.createNavItem('enhance', '_增强', 'magic-line', 'magic-fill')}
-              ${this.createNavItem('general', '_通用', 'setting-line', 'setting-fill')}
-              ${this.createNavItem('help', '_帮助', 'book-line', 'book-fill')}
-              ${this.createNavItem('search', '_搜索', 'search-line', 'search-fill', true)}
+              ${this.createNavItems()}
             </nav>
 
             <div class="settingsPanel_downloadSummary" id="settingsPanelDownloadSummary">
@@ -127,7 +141,7 @@ class SettingsPanelShell {
                 <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryPause" type="button" data-xztitle="_暂停下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#pause"></use></svg>
                 </button>
-                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_停止下载">
+                <button class="settingsPanel_downloadSummaryBtn" id="settingsPanelSummaryStop" type="button" data-xztitle="_放弃下载">
                   <svg class="icon" aria-hidden="true"><use xlink:href="#stop"></use></svg>
                 </button>
               </div>
@@ -168,28 +182,26 @@ class SettingsPanelShell {
     return this.init()
   }
 
-  private static createNavItem(
-    page: string,
-    textKey: string,
-    lineIcon: string,
-    fillIcon: string,
-    hidden = false
-  ) {
+  /** 遍历 PageIds，用 navItemConfigs 里的配置生成全部导航项。这样导航项的顺序和数量始终与 PageIds 一致 */
+  private static createNavItems() {
+    const indent = ' '.repeat(14)
+    return PageIds.map((page) =>
+      this.createNavItem(page, navItemConfigs[page])
+    ).join('\n' + indent)
+  }
+
+  private static createNavItem(page: PageId, config: NavItemConfig) {
+    const { textKey, lineIcon, hidden = false } = config
     const hiddenStr = hidden ? 'hidden' : ''
-    return `
-    <button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
-      <span class="settingsPanel_navIconWrap" aria-hidden="true">
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconLine">
-          <use xlink:href="#${lineIcon}"></use>
-        </svg>
-        <svg class="icon settingsPanel_navIcon settingsPanel_navIconFill">
-          <use xlink:href="#${fillIcon}"></use>
-        </svg>
-      </span>
-      <span class="settingsPanel_navText" data-xztext="${textKey}"></span>
-      <span class="ripple"></span>
-    </button>
-    `
+    return `<button class="settingsPanel_navItem hasRippleAnimation" data-page="${page}" type="button" ${hiddenStr}>
+        <span class="settingsPanel_navIconWrap" aria-hidden="true">
+          <svg class="icon settingsPanel_navIcon">
+            <use xlink:href="#${lineIcon}"></use>
+          </svg>
+        </span>
+        <span class="settingsPanel_navText" data-xztext="${textKey}"></span>
+        <span class="ripple"></span>
+      </button>`
   }
 
   private static setLangFlag() {
@@ -212,7 +224,7 @@ class SettingsPanelShell {
     window.addEventListener(EVT.list.settingInitialized, () => {
       showOneTimeMsg.show(
         'tipHowToUse',
-        lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告'),
+        lang.transl('_使用说明详情') + lang.transl('_账户可能被封禁的警告'),
         lang.transl('_使用说明')
       )
     })

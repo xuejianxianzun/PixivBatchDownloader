@@ -180,7 +180,7 @@ class UseDifferentNameRuleIfWorkHasTag {
       </div>
 
       <div class="inputItem rule">
-        <input type="text" class="has_tip setinput_style blue" data-ruleInput="${id}" value="${rule}" />
+        <input type="text" class="setinput_style blue" data-ruleInput="${id}" value="${rule}" />
       </div>
 
       <div class="btns">

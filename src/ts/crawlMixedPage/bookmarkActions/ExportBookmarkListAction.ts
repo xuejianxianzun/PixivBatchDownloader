@@ -29,9 +29,11 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
 
     EVT.fire('closeSettingsPanel')
     const msg = lang.transl('_导出收藏列表')
-    log.log(msg)
-    log.log('')
+    log.success('🚀' + msg)
+    log.log(lang.transl('_导出时会包含已删除或非公开的作品'))
     toast.show(msg)
+    // 测试用：该用户的收藏里有一些已删除的作品
+    // https://www.pixiv.net/users/3902314/bookmarks/artworks?rest=show
 
     const crawlNumber = settings.crawlNumber[pageType.type].value
     log.warning(
@@ -59,15 +61,34 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
           return null
         }
 
+        const checkAITag = workData.tags.includes('AI生成')
+        const AIWork = Tools.getAITypeTextEnglish(
+          checkAITag ? 2 : workData.aiType || 0
+        )
+
+        // 这里返回的数据类型是 BookmarkResult 的超集
         return {
           id: workData.id,
           type:
             (workData as ArtworkCommonData).illustType === undefined
               ? 'novels'
               : 'illusts',
-          restrict: workData.bookmarkData?.private || false,
+          title: workData.title,
+          aiType: workData.aiType,
+          AIWork,
+          xRestrict: Tools.getXRestrictText(workData.xRestrict),
+          createDate: workData.createDate,
+          userId: workData.userId,
+          userName: workData.userName,
           tags: workData.tags,
           bookmarkTags: bookmarkTags || [],
+          bookmarkId: workData.bookmarkData?.id || '',
+          // 收藏的隐私状态
+          bookmarkRestrict: workData.bookmarkData?.private
+            ? 'private'
+            : 'public',
+          // 作品是否为私密收藏。由于 restrict 这个名字的含义不够准确（用户可能误以是作品本身的私密状态），因此我在上面添加了 bookmarkRestrict 字段
+          restrict: workData.bookmarkData?.private || false,
         }
       },
       onCollected: async (bookmarkDataList) => {

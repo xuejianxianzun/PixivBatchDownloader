@@ -1,0 +1,298 @@
+[
+  {
+    "id": "0",
+    "i18n_key": "all",
+    "href": "https://www.pixiv.net/genre/novel",
+    "name": {
+      "zh-cn": "综合",
+      "zh-tw": "綜合",
+      "en": "All Genres",
+      "ja": "総合",
+      "ko": "종합",
+      "ms": "Keseluruhan",
+      "th": "ทั้งหมด"
+    }
+  },
+  {
+    "id": "0",
+    "i18n_key": "male",
+    "href_r18": "https://www.pixiv.net/genre/novel/male?mode=r18",
+    "name": {
+      "zh-cn": "受男性欢迎",
+      "zh-tw": "受男性歡迎",
+      "en": "Popular with male",
+      "ja": "男性に人気",
+      "ko": "남자에게 인기",
+      "ms": "Popular dengan lelaki",
+      "th": "นิยมในกลุ่มผู้ชาย"
+    }
+  },
+  {
+    "id": "0",
+    "i18n_key": "female",
+    "href_r18": "https://www.pixiv.net/genre/novel/female?mode=r18",
+    "name": {
+      "zh-cn": "受女性欢迎",
+      "zh-tw": "受女性歡迎",
+      "en": "Popular with female",
+      "ja": "女性に人気",
+      "ko": "여자에게 인기",
+      "ms": "Popular dengan perempuan",
+      "th": "นิยมในกลุ่มผู้หญิง"
+    }
+  },
+  {
+    "id": "1",
+    "i18n_key": "romance",
+    "href": "https://www.pixiv.net/genre/novel/romance",
+    "href_r18": "https://www.pixiv.net/genre/novel/romance?mode=r18",
+    "name": {
+      "zh-cn": "恋爱",
+      "zh-tw": "戀愛",
+      "en": "Romance",
+      "ja": "恋愛",
+      "ko": "연애",
+      "ms": "Percintaan",
+      "th": "ความรัก"
+    }
+  },
+  {
+    "id": "2",
+    "i18n_key": "isekai_fantasy",
+    "href": "https://www.pixiv.net/genre/novel/isekai_fantasy",
+    "href_r18": "https://www.pixiv.net/genre/novel/isekai_fantasy?mode=r18",
+    "name": {
+      "zh-cn": "异世界奇幻",
+      "zh-tw": "異世界奇幻",
+      "en": "Isekai fantasy",
+      "ja": "異世界ファンタジー",
+      "ko": "이세계 판타지",
+      "ms": "Fantasi dunia lain",
+      "th": "แฟนตาซีต่างโลก"
+    }
+  },
+  {
+    "id": "3",
+    "i18n_key": "contemporary_fantasy",
+    "href": "https://www.pixiv.net/genre/novel/contemporary_fantasy",
+    "href_r18": "https://www.pixiv.net/genre/novel/contemporary_fantasy?mode=r18",
+    "name": {
+      "zh-cn": "现代奇幻",
+      "zh-tw": "現代奇幻",
+      "en": "Contemporary fantasy",
+      "ja": "現代ファンタジー",
+      "ko": "현대 판타지",
+      "ms": "Fantasi zaman sekarang",
+      "th": "แฟนตาซีร่วมสมัย"
+    }
+  },
+  {
+    "id": "4",
+    "i18n_key": "mystery",
+    "href": "https://www.pixiv.net/genre/novel/mystery",
+    "href_r18": "https://www.pixiv.net/genre/novel/mystery?mode=r18",
+    "name": {
+      "zh-cn": "悬疑",
+      "zh-tw": "懸疑",
+      "en": "Mystery",
+      "ja": "ミステリー",
+      "ko": "미스테리",
+      "ms": "Misteri",
+      "th": "ลึกลับ/สืบสวน"
+    }
+  },
+  {
+    "id": "5",
+    "i18n_key": "horror",
+    "href": "https://www.pixiv.net/genre/novel/horror",
+    "href_r18": "https://www.pixiv.net/genre/novel/horror?mode=r18",
+    "name": {
+      "zh-cn": "恐怖",
+      "zh-tw": "恐怖",
+      "en": "Horror",
+      "ja": "ホラー",
+      "ko": "공포",
+      "ms": "Seram",
+      "th": "สยองขวัญ"
+    }
+  },
+  {
+    "id": "6",
+    "i18n_key": "sci_fi",
+    "href": "https://www.pixiv.net/genre/novel/sci-fi",
+    "href_r18": "https://www.pixiv.net/genre/novel/sci-fi?mode=r18",
+    "name": {
+      "zh-cn": "科幻",
+      "zh-tw": "科幻",
+      "en": "Sci-fi",
+      "ja": "SF",
+      "ko": "SF",
+      "ms": "Sains Fiksyen",
+      "th": "ไซไฟ (Sci-Fi)"
+    }
+  },
+  {
+    "id": "7",
+    "i18n_key": "literature",
+    "href": "https://www.pixiv.net/genre/novel/literature",
+    "href_r18": "https://www.pixiv.net/genre/novel/literature?mode=r18",
+    "name": {
+      "zh-cn": "文学",
+      "zh-tw": "文學",
+      "en": "Literature",
+      "ja": "文学",
+      "ko": "문학",
+      "ms": "Sastera",
+      "th": "วรรณกรรม"
+    }
+  },
+  {
+    "id": "8",
+    "i18n_key": "drama",
+    "href": "https://www.pixiv.net/genre/novel/drama",
+    "href_r18": "https://www.pixiv.net/genre/novel/drama?mode=r18",
+    "name": {
+      "zh-cn": "生活・情感",
+      "zh-tw": "生活・情感",
+      "en": "Drama",
+      "ja": "ヒューマンドラマ",
+      "ko": "휴먼드라마",
+      "ms": "Drama",
+      "th": "ละคร"
+    }
+  },
+  {
+    "id": "9",
+    "i18n_key": "historical_pieces",
+    "href": "https://www.pixiv.net/genre/novel/historical_pieces",
+    "href_r18": "https://www.pixiv.net/genre/novel/historical_pieces?mode=r18",
+    "name": {
+      "zh-cn": "历史・时代",
+      "zh-tw": "歷史・時代",
+      "en": "Historical pieces",
+      "ja": "歴史・時代",
+      "ko": "역사&시대",
+      "ms": "Sejarah/Zaman",
+      "th": "ประวัติศาสตร์/ยุคสมัย"
+    }
+  },
+  {
+    "id": "10",
+    "i18n_key": "bl",
+    "href": "https://www.pixiv.net/genre/novel/bl",
+    "href_r18": "https://www.pixiv.net/genre/novel/bl?mode=r18",
+    "name": {
+      "zh-cn": "BL",
+      "zh-tw": "BL",
+      "en": "BL (yaoi)",
+      "ja": "BL",
+      "ko": "BL",
+      "ms": "BL (yaoi)",
+      "th": "วาย/BL (yaoi)"
+    }
+  },
+  {
+    "id": "11",
+    "i18n_key": "yuri",
+    "href": "https://www.pixiv.net/genre/novel/yuri",
+    "href_r18": "https://www.pixiv.net/genre/novel/yuri?mode=r18",
+    "name": {
+      "zh-cn": "百合",
+      "zh-tw": "百合",
+      "en": "Yuri",
+      "ja": "百合",
+      "ko": "백합",
+      "ms": "Yuri",
+      "th": "Yuri"
+    }
+  },
+  {
+    "id": "12",
+    "i18n_key": "for_kids",
+    "href": "https://www.pixiv.net/genre/novel/for_kids",
+    "name": {
+      "zh-cn": "儿童向",
+      "zh-tw": "兒童向",
+      "en": "For kids",
+      "ja": "子供向け",
+      "ko": "아동용",
+      "ms": "Untuk kanak-kanak",
+      "th": "สำหรับเด็ก"
+    }
+  },
+  {
+    "id": "13",
+    "i18n_key": "poetry",
+    "href": "https://www.pixiv.net/genre/novel/poetry",
+    "href_r18": "https://www.pixiv.net/genre/novel/poetry?mode=r18",
+    "name": {
+      "zh-cn": "散文・诗歌",
+      "zh-tw": "散文・詩歌",
+      "en": "Poetry",
+      "ja": "詩",
+      "ko": "시",
+      "ms": "Puisi",
+      "th": "บทกวี"
+    }
+  },
+  {
+    "id": "14",
+    "i18n_key": "essays",
+    "href": "https://www.pixiv.net/genre/novel/non-fiction",
+    "href_r18": "https://www.pixiv.net/genre/novel/non-fiction?mode=r18",
+    "name": {
+      "zh-cn": "随笔・纪实",
+      "zh-tw": "隨筆・紀實",
+      "en": "Essays/non-fiction",
+      "ja": "エッセイ・ノンフィクション",
+      "ko": "에세이&논픽션",
+      "ms": "Karangan/bukan fiksyen",
+      "th": "งานเขียน/Non-fiction"
+    }
+  },
+  {
+    "id": "15",
+    "i18n_key": "screenplays",
+    "href": "https://www.pixiv.net/genre/novel/screenplays",
+    "href_r18": "https://www.pixiv.net/genre/novel/screenplays?mode=r18",
+    "name": {
+      "zh-cn": "剧本・台本",
+      "zh-tw": "劇本・腳本",
+      "en": "Screenplays/scripts",
+      "ja": "シナリオ・台本",
+      "ko": "시나리오&대본",
+      "ms": "Senario/Skrip",
+      "th": "บทละครและสคริปต์"
+    }
+  },
+  {
+    "id": "16",
+    "i18n_key": "reviews",
+    "href": "https://www.pixiv.net/genre/novel/reviews",
+    "href_r18": "https://www.pixiv.net/genre/novel/reviews?mode=r18",
+    "name": {
+      "zh-cn": "评论・感想",
+      "zh-tw": "評論・感想",
+      "en": "Reviews/opinion pieces",
+      "ja": "評論・感想",
+      "ko": "평론&감상",
+      "ms": "Ulasan/pendapat",
+      "th": "บทวิจารณ์/รีวิว"
+    }
+  },
+  {
+    "id": "17",
+    "i18n_key": "other",
+    "href": "https://www.pixiv.net/genre/novel/other",
+    "href_r18": "https://www.pixiv.net/genre/novel/other?mode=r18",
+    "name": {
+      "zh-cn": "其他",
+      "zh-tw": "其他",
+      "en": "Other",
+      "ja": "その他",
+      "ko": "기타",
+      "ms": "Lain-lain",
+      "th": "อื่น ๆ"
+    }
+  }
+]

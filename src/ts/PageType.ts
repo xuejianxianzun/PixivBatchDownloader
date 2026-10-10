@@ -5,9 +5,12 @@ import { Utils } from './utils/Utils'
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
-// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字和之前不一样，会导致读取到错误的配置
+// 因为有些设置使用了数字编号作为 key，如果一个页面类型的数字变得和之前不一样，就会读取到错误的配置
+// 备注：有些页面类型并没有单独的模块，因为它不需要使用特有的抓取流程或附加功能。添加这种分类只是为了方便判断。
+// 例如  NovelGenre 是小说分类页面，但并没有单独的模块处理它，它在初始化时会使用“不支持的页面”（Unsupported）的逻辑。
 enum PageName {
   /** -1 不支持的页面 */
+  // 在这种页面里，没有该页面特有的抓取按钮和抓取流程；用户只能使用通用的“手动选择作品”、快速下载等功能进行下载。
   Unsupported = -1,
   /** 0 主页 */
   Home,
@@ -36,6 +39,7 @@ enum PageName {
   /** 10 已关注用户的新作品 - 插画 */
   NewArtworkFromFollowing,
   /** 11 发现页面 */
+  // 其实应该是 Discovery，但是为了兼容性不修改。
   Discover,
   /** 12 大家的新作 - 插画 */
   NewArtworkFromAllUsers,
@@ -69,6 +73,19 @@ enum PageName {
   SearchUsers,
   /** 27 用户主页里的约稿分类页面 */
   UserRequest,
+  /** 28 小说分类页面 */
+  // 这个页面类型里有多个子分类页面，每个子分类里有 20 - 50 个左右的作品。
+  // 在 PC 端页面里，所有作品全部显示，所以没有分页，也不会加载新作品。
+  // 在移动端页面里，每页通常显示 10 个作品，有分页（无刷新加载），使用 API 获取每页的作品列表：
+  // https://www.pixiv.net/touch/ajax/genre/novel/isekai_fantasy?mode=safe&offset=0&limit=10&lang=zh
+  // limit 最大为 50，超过 50 的话会报错“不正确的请求”。
+  // 50 已经包含了所有作品。
+  // 目前我没有为它添加单独的模块进行初始化，因为没有用户提出过在这个页面批量下载的需求。
+  // 在 PC 端页面里，用户使用“手动选择作品”、全选功能即可满足下载需求（全选时会选择所有作品）。
+  // 在移动端页面里，每次全选只能选择这一页里的 10 个作品，凑合也能用。
+  NovelGenre,
+  /** 29 小说书签列表页面 */
+  NovelMarkerAll,
 }
 
 // 获取页面类型
@@ -228,6 +245,10 @@ class PageType {
       return PageName.Contest
     } else if (path.startsWith('/search/users')) {
       return PageName.SearchUsers
+    } else if (path.startsWith('/genre/novel')) {
+      return PageName.NovelGenre
+    } else if (path.includes('/novel/marker_all.php')) {
+      return PageName.NovelMarkerAll
     } else {
       // 没有匹配到可用的页面类型
       return PageName.Unsupported
@@ -385,6 +406,14 @@ class PageType {
       {
         type: PageName.UserRequest,
         url: 'https://www.pixiv.net/users/42787448/request',
+      },
+      {
+        type: PageName.NovelGenre,
+        url: 'https://www.pixiv.net/genre/novel',
+      },
+      {
+        type: PageName.NovelMarkerAll,
+        url: 'https://www.pixiv.net/novel/marker_all.php',
       },
     ]
 

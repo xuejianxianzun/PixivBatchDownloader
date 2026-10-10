@@ -187,7 +187,11 @@ class DownloadRecordManager {
   // 从 txt 文件导入
   // 每行一个文件 id（带序号），以换行分割
   private async importRecordFromTxt() {
-    const file = (await Utils.selectFile('.txt'))[0]
+    const files = await Utils.selectFile('.txt')
+    if (!files) {
+      return
+    }
+    const file = files[0]
     const text = await file.text()
 
     // 以换行分割

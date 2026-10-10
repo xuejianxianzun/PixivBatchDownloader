@@ -4,7 +4,7 @@ import { optionConfigs } from './OptionConfigs'
 import { OptionCategoryLevel1 } from './Settings'
 import { FormType } from './FormType'
 import { SettingsPanelHelp } from './SettingsPanelHelp'
-import { FoldableSection, PageId, pageIds } from './SettingsPanelTypes'
+import { FoldableSection, PageId, PageIds } from './SettingsPanelTypes'
 import { settingsPanelTipCard } from './SettingsPanelTipCard'
 
 type SettingsPanelLayoutResult = {
@@ -77,14 +77,24 @@ class SettingsPanelLayout {
   private otherBtnsVisibilityObserver?: MutationObserver
 
   public build(): SettingsPanelLayoutResult {
+    // 创建第一排抓取按钮的容器
     const crawlBtnsBlock = this.createSlotBlock(['stopCrawl', 'crawlBtns'])
+    // 在抓取按钮底部添加一个提示卡片
+    const cardTipHowToCrawlUserWorks = settingsPanelTipCard.use(
+      'tipHowToCrawlUserWorks'
+    )
+    if (cardTipHowToCrawlUserWorks) {
+      crawlBtnsBlock.append(cardTipHowToCrawlUserWorks)
+    }
     // 手动选择、手动排除各自独占一行，不与抓取按钮并排
     const selectWorkBtnsBlock = this.createSlotBlock(['selectWorkBtns'])
     const excludeWorkBtnsBlock = this.createSlotBlock(['excludeWorkBtns'])
     // 在手动排除按钮底部添加一个提示卡片
-    const card = settingsPanelTipCard.use('tipManuallyExcludeWorks')
-    if (card) {
-      excludeWorkBtnsBlock.append(card)
+    const cardTipManuallyExcludeWorks = settingsPanelTipCard.use(
+      'tipManuallyExcludeWorks'
+    )
+    if (cardTipManuallyExcludeWorks) {
+      excludeWorkBtnsBlock.append(cardTipManuallyExcludeWorks)
     }
     const otherBtnsBlock = this.createSlotBlock(['otherBtns'])
     const downloadBtnsBlock = this.createSlotBlock([
@@ -103,7 +113,7 @@ class SettingsPanelLayout {
 
     this.cacheNavElements()
 
-    pageIds.forEach((page) => {
+    PageIds.forEach((page) => {
       const pageEl = document.createElement('div')
       pageEl.className = 'settingsPanel_page'
       pageEl.dataset.page = page

@@ -13,6 +13,7 @@ import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
 import { workSelection } from '../WorkSelection'
+import { isLangInList } from '../utils/LangCode'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -25,19 +26,37 @@ export interface FilterOption {
   pageCount?: number
   tags?: string[]
   bookmarkCount?: number
-  /**是否已收藏。虽然可以传递对象，但在判断时只会判断是否为真 */
-  bookmarkData?: any
+  /**是否已收藏。
+   *
+   * 在检查收藏和未收藏的要求时（checkDownTypeByBmked），只需要判断是否为真
+   *
+   * 其他模块里如果有原始收藏数据，应该优先传递原始数据；没有的时候可以只传递是否已收藏的布尔值
+   */
+  bookmarkData?:
+    | any
+    | null
+    | {
+        id: string
+        private: boolean
+      }
   width?: number
   height?: number
   yes_rank?: number
   createDate?: string
-  mini?: string
+  imageUrl?: string
   size?: number
   userId?: string
   xRestrict?: 0 | 1 | 2
   title?: string
   seriesTitle?: string
   isOriginal?: boolean | null
+  /**
+   * 小说的语言，例如 ja、zh-cn。
+   *
+   * 只有小说才有语言。系列小说没有自己的语言，应使用它里面的小说的语言。
+   * 没有传递这个数据时（例如只知道系列 id），对应的过滤器会跳过检查。
+   */
+  language?: string
 }
 
 /**作品类型的数字表示。
@@ -84,7 +103,7 @@ class Filter {
   // 每个过滤器函数必须返回一个 boolean 值，false 表示排除这个作品,true 表示保留这个作品
   public async check(option: FilterOption): Promise<boolean> {
     // 检查这个作品是否被用户手动排除
-    if (!this.checkExcluded(option.id, option.IDTypeString)) {
+    if (!this.checkNotExcluded(option.id, option.IDTypeString)) {
       return false
     }
 
@@ -166,14 +185,18 @@ class Filter {
     }
 
     // 检查要排除的 tag
-    if (!this.checkExcludeTag(option.tags, option.id)) {
+    if (!this.checkExcludeTag(option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标签不能含有'),
+        'excludeWorkByExcludeTag'
+      )
       return false
     }
 
     // 检查必须包含的 tag
     if (!this.checkIncludeTag(option.tags)) {
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_必须含有tag'),
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标签必须含有'),
         'excludeWorkByIncludeTag'
       )
       return false
@@ -204,6 +227,18 @@ class Filter {
       return false
     }
 
+    if (!this.checkNovelLanguage(option.language)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl(
+            '_这篇小说的语言不符合只下载这些语言的小说的要求',
+            option.language!
+          ),
+        'excludeWorkByNovelLanguage' + option.language
+      )
+      return false
+    }
+
     // 检查宽高设置
     if (!this.checkWidthHeight(option.width, option.height)) {
       log.warning(
@@ -223,6 +258,21 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_id范围'),
         'excludeWorkByIdRange'
+      )
+      return false
+    }
+
+    // 检查书签 ID 范围设置
+    if (!this.checkIdRangeForBookmark(option.bookmarkData, option.workType)) {
+      // 图像作品和小说使用不同的设置值，日志也分别显示，方便用户知道是哪一项排除了作品
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_id范围') +
+          ': ' +
+          lang.transl(
+            option.workType === 3 ? '_书签ID_小说' : '_书签ID_图像作品'
+          ),
+        'excludeWorkByIdRangeForBookmark' + option.workType
       )
       return false
     }
@@ -310,14 +360,14 @@ class Filter {
 
     // 检查黑白图片
     // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
-    if (!(await this.checkBlackWhite(option.mini))) {
+    if (!(await this.checkBlackWhite(option.imageUrl))) {
       return false
     }
 
     return true
   }
 
-  /** 检查作品是否被两个条件排除：不能含有标签；Mute 里屏蔽的标签 */
+  /** 检查作品是否被两个条件排除：标签不能含有；Mute 里屏蔽的标签 */
   public async checkExcludeAndMuteTags(tags: string[]) {
     const checkExcludeTagResult = this.checkExcludeTag(tags)
     if (!checkExcludeTagResult) {
@@ -438,7 +488,7 @@ class Filter {
   }
 
   /** 检查过滤黑白图像设置 */
-  private async checkBlackWhite(imgUrl: FilterOption['mini']) {
+  public async checkBlackWhite(imgUrl: FilterOption['imageUrl']) {
     // 如果没有图片网址，或者没有排除任何一个选项，则不检查
     if (!imgUrl || (settings.downColorImg && settings.downBlackWhiteImg)) {
       return true
@@ -454,7 +504,7 @@ class Filter {
         ? lang.transl('_黑白图片')
         : lang.transl('_彩色图片')
       log.warning(
-        lang.transl('_下载器排除了一些作品原因') +
+        lang.transl('_下载器排除了一些作品或图片原因') +
           lang.transl('_图片色彩') +
           ': ' +
           colorText,
@@ -545,15 +595,42 @@ class Filter {
     return false
   }
 
-  private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
-  private readonly minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
+  private readonly oneHourTime = 60 * 60 * 1000 // 一小时的毫秒数
+
+  /** 压制日均收藏数量的「倍率」时，曲线的起点：发表时长（小时）。发表不足这个时长的一律按这个时长计算。
+   *
+   * 倍率是指「把收藏数量换算成日均收藏数量时，需要放大多少倍」。
+   * 一天有 24 小时，所以不压制时倍率 = 24 ÷ 发表小时数：发表 2 小时的作品放大 12 倍，发表 24 小时的放大 1 倍。
+   *
+   * 但作品刚发表时收藏数量增长得很快，之后会逐渐放缓，
+   * 所以线性外推会得到严重虚高的日均收藏数量，而且作品越新越不可靠：
+   * 例如一个发表了 0.5 小时、有 30 个收藏的作品，会被算成日均 1440 个收藏，明显偏高。
+   *
+   * 因此发表不足 24 小时的作品要压制倍率：倍率从 8（发表 2 小时及更短，等于把外推值压到三分之一）
+   * 线性增加到 24（发表 24 小时时，不再压制）。换算成日均收藏数量的系数就是「倍率 ÷ 发表小时数」，
+   * 即发表 2 小时时系数是 4、发表 24 小时时系数是 1。各刻度的具体数值见 notes/日均收藏数量的压制曲线.md。
+   *
+   * 下限取 8（而不是最初设想的 12）是 2026-09-29 用真实数据校准的结果：
+   * 拿 499 个作品的「发表时的收藏数量」和「24 小时后的真实收藏数量」对比，最初的下限偏松约 20%~40%
+   * （日均收藏数量设置为 600 时会误放 27 个、而误杀只有 4 个），改成 8 之后误放降到 6 个、误杀仍然是 4 个。
+   * 依据和局限见 notes/日均收藏数量的压制曲线.md 的「用真实数据校准」一节。
+   *
+   * ⚠️ 这里必须用「取下限」而不是「跳过检查」：跳过会在 2 小时处产生一个断崖
+   * （同一个作品在 1 小时 59 分和 2 小时 01 分会得到完全相反的结果），取下限则是连续的。 */
+  private readonly minimumHours = 2
+  /** 压制倍率的终点：发表时长（小时）。达到这个时长之后不再压制，倍率恢复为 normalRatio */
+  private readonly limitHours = 24
+  /** 倍率的下限。发表时长不足 minimumHours 时使用，等于把外推值压到三分之一 */
+  private readonly minimumRatio = 8
+  /** 倍率的上限。发表时长达到 limitHours 及更久时使用，等于不压制（等于原来的算法） */
+  private readonly normalRatio = 24
 
   /** 检查收藏数要求 */
   private checkBMK(
     bmk: FilterOption['bookmarkCount'],
     date: FilterOption['createDate']
   ) {
-    if (bmk === undefined || !settings.BMKNumSwitch) {
+    if (bmk === undefined || isNaN(bmk) || !settings.BMKNumSwitch) {
       return true
     }
 
@@ -569,15 +646,26 @@ class Filter {
     const createTime = new Date(date).getTime()
     const nowTime = Date.now()
 
-    // 如果作品发表时间太短（小于 4 小时）
-    if (nowTime - createTime < this.minimumTime) {
-      // 如果 4 小时里的收藏数量已经达到要求，则保留这个作品
-      // 如果 4 小时里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
-      return bmk >= settings.BMKNumAverage ? true : checkNumber
-    }
+    // 计算作品发表以来的小时数。发表时长不足 minimumHours（2 小时）的按 2 小时计算，避免除数过小
+    // （发表时间在未来、也就是时钟偏差导致算出负数时，也会被这里修正为 2 小时）
+    const hours = Math.max(
+      (nowTime - createTime) / this.oneHourTime,
+      this.minimumHours
+    )
 
-    const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
-    const average = bmk / day
+    // 计算倍率：发表不足 2 小时的为 minimumRatio（8），之后到 24 小时线性增加到正常的 24（不再压制）
+    // ⚠️ 这里的数字随 minimumRatio 变化，注释里不要再写死具体数值
+    // 文档：notes/日均收藏数量的压制曲线.md
+    const x = Math.min(
+      (hours - this.minimumHours) / (this.limitHours - this.minimumHours),
+      1
+    )
+    const ratio = this.minimumRatio + (this.normalRatio - this.minimumRatio) * x
+
+    // 日均收藏数量 = 收藏数量 × 倍率 ÷ 发表小时数。
+    // 例如发表 2 小时、有 200 个收藏的作品：倍率是 8，日均收藏数量 = 200 × 8 ÷ 2 = 800。
+    // 如果直接按 24 小时线性外推，会得到 200 × 24 ÷ 2 = 2400，明显虚高。
+    const average = (bmk * ratio) / hours
     const checkAverage = average >= settings.BMKNumAverage
 
     // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
@@ -641,22 +729,49 @@ class Filter {
     return result
   }
 
-  /** 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。 */
+  /** 检查作品是否符合排除 tag 的条件，只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+   *
+   * 全字匹配和部分匹配是两个独立的列表，可以同时生效，所以依次检查它们。
+   * 某个列表为空时，不检查它。 */
   private checkExcludeTag(tags: FilterOption['tags'], id?: FilterOption['id']) {
-    if (
-      !settings.notNeedTagSwitch ||
-      settings.notNeedTag.length === 0 ||
-      tags === undefined
-    ) {
+    if (!settings.notNeedTagSwitch || tags === undefined) {
       return true
     }
 
-    const notNeedTags = settings.notNeedTag.map((str) => str.toLowerCase())
+    // 先检查全字匹配的标签列表
+    if (
+      settings.notNeedTagWholeSwitch &&
+      settings.notNeedTagWhole.length > 0 &&
+      !this.matchExcludeTag(tags, settings.notNeedTagWhole, 'whole', id)
+    ) {
+      return false
+    }
+
+    // 再检查部分匹配的标签列表
+    if (
+      settings.notNeedTagPartialSwitch &&
+      settings.notNeedTagPartial.length > 0 &&
+      !this.matchExcludeTag(tags, settings.notNeedTagPartial, 'partial', id)
+    ) {
+      return false
+    }
+
+    return true
+  }
+
+  /** 用指定的匹配模式检查作品的标签，返回值表示是否保留这个作品 */
+  private matchExcludeTag(
+    tags: string[],
+    notNeedTags: string[],
+    mode: 'whole' | 'partial',
+    id?: FilterOption['id']
+  ) {
+    const list = notNeedTags.map((str) => str.toLowerCase())
 
     for (const tag of tags) {
-      for (const notNeed of notNeedTags) {
+      for (const notNeed of list) {
         // 部分匹配
-        if (settings.tagMatchMode === 'partial') {
+        if (mode === 'partial') {
           if (tag.toLowerCase().includes(notNeed)) {
             // 如果检查到了排除的 tag，进行复查
 
@@ -679,7 +794,7 @@ class Filter {
             }
           }
         } else {
-          // 全词匹配
+          // 全字匹配
           if (tag.toLowerCase() === notNeed) {
             return false
           }
@@ -746,6 +861,24 @@ class Filter {
     }
 
     return false
+  }
+
+  /** 检查小说的语言是否是用户指定的语言之一。外部可以只调用这一项，避免触发其他过滤条件 */
+  public checkNovelLanguage(language: FilterOption['language']) {
+    // 没有传递语言时无法检查，直接保留。
+    // 另外还有 language 字段可能为 'other' 的情况，如：
+    // https://www.pixiv.net/novel/show.php?id=17870298
+    // 此时不知道它实际的语言类型，所以使其通过检查
+    if (
+      !settings.novelLanguageSwitch ||
+      settings.novelLanguageList.length === 0 ||
+      !language ||
+      language === 'other'
+    ) {
+      return true
+    }
+
+    return isLangInList(language, settings.novelLanguageList)
   }
 
   /** 检查作品是否符合过滤宽高的条件 */
@@ -908,6 +1041,48 @@ class Filter {
     }
 
     return true
+  }
+
+  /** 检查书签 ID 范围设置。
+   *
+   * 只有当用户启用了「ID 范围」，并且传入的数据里有书签 ID（bookmarkData.id）时才进行检查。
+   * 没有收藏数据、只传了布尔值（表示是否已收藏）、或者数据里没有 id 时，都直接通过检查。
+   *
+   * 图像作品和小说的书签 ID 范围是两个独立的设置项，所以需要作品类型来决定使用哪一组设置值。
+   * 缺少 workType 时无法判断，直接跳过检查。 */
+  private checkIdRangeForBookmark(
+    bookmarkData: FilterOption['bookmarkData'],
+    workType: FilterOption['workType']
+  ) {
+    if (!settings.idRangeSwitch || !bookmarkData?.id) {
+      return true
+    }
+
+    // 缺少作品类型时，无法判断该用哪一组设置值，跳过检查
+    if (workType === undefined) {
+      return true
+    }
+
+    // 如果书签 ID 不可用，则不进行检查
+    const id = Number.parseInt(bookmarkData.id)
+    if (isNaN(id)) {
+      return true
+    }
+
+    // workType 为 -1、0、1、2 时都是图像作品（-1 表示笼统的图像作品，不区分插画、漫画、动图），为 3 时是小说
+    if (workType === 3) {
+      if (settings.idRangeComparisonForBookmarkNovelWorks === '>') {
+        return id > settings.idRangeValueForBookmarkNovelWorks
+      } else {
+        return id < settings.idRangeValueForBookmarkNovelWorks
+      }
+    } else {
+      if (settings.idRangeComparisonForBookmarkImageWorks === '>') {
+        return id > settings.idRangeValueForBookmarkImageWorks
+      } else {
+        return id < settings.idRangeValueForBookmarkImageWorks
+      }
+    }
   }
 
   /** 检查投稿时间设置 */
@@ -1123,8 +1298,14 @@ class Filter {
     }
   }
 
-  /** 检查这个作品是否被用户手动排除。返回 true 表示保留，false 表示排除 */
-  private checkExcluded(
+  /** 检查这个作品**没有被用户手动排除**。返回 true 表示没有被排除（应该保留），false 表示被排除了。
+   *
+   * 这是「手动排除作品」的唯一判断入口。其他模块需要判断某个作品是否被排除时也应该调用它，
+   * 不要自己再写一套匹配逻辑：排除列表里图像作品的类型是粗略的 illusts，而查询时可能传入
+   * 更具体的 manga、ugoira，只有这里处理了这种差异。
+   *
+   * 注意：这个作品被排除时，这里会输出一条警告日志，所以它不只是一个单纯的查询 */
+  public checkNotExcluded(
     id?: FilterOption['id'],
     type?: FilterOption['IDTypeString']
   ): boolean {

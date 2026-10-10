@@ -195,7 +195,8 @@ class QuicklyBlockUsers {
     // 主要是为了避免遮挡 pixiv 本身出现的小卡片
     // 默认显示在下方
     // 有时 activeEl 元素的高度为 0(这经常发生在一些用户头像上)，此时使用 24 px 的高度, 避免浮动面板遮挡住头像
-    let top = rect.y + (rect.height || 24)
+    const bottomPosition = rect.y + (rect.height || 24)
+    let top = bottomPosition
     panel.style.top = top + 'px'
     // 检测需要显示在上方的情况
     let showTop = false
@@ -220,23 +221,27 @@ class QuicklyBlockUsers {
     const panelRectList = panel.getClientRects()
     const panelHeight = panelRectList[0].height
 
+    // 面板高度不固定，所以先添加到 DOM 后再判断上下两侧是否放得下。
+    const topPosition = rect.y - panelHeight
+    // 底部留出滚动条的空间。
+    const bottomMargin = 16
+    const fitsTop = topPosition >= 0
+    const fitsBottom =
+      bottomPosition + panelHeight <= window.innerHeight - bottomMargin
+
     if (showTop) {
-      // 当面板显示在画师名字上方时，需要减去面板高度，但面板高度是不固定的
-      // 所以需要先添加面板到 DOM 上，然后才能获取面板高度，做出调整
-      top = rect.y - panelHeight
-      if (top < 0) {
-        top = 0
+      top = topPosition
+      if (!fitsTop && fitsBottom) {
+        top = bottomPosition
       }
-      panel.style.top = top + 'px'
-    } else {
-      // 当面板显示在下方时，防止其显示在可视区域之下
-      // 发生时这个情况，说明目标元素位于可视区域底部，此时面板显示在下方的话会导致看不到面板，因此需要上提一些
-      // 数字 16 是考虑到底部滚动条的高度，避免面板被滚动条遮挡
-      if (top + panelHeight > window.innerHeight) {
-        top = window.innerHeight - panelHeight - 16
-      }
-      panel.style.top = top + 'px'
+    } else if (fitsBottom) {
+      top = bottomPosition
+    } else if (fitsTop) {
+      top = topPosition
     }
+
+    // 两侧都放不下时仍贴着目标元素显示，避免为了留在视口内而遮住用户名。
+    panel.style.top = top + 'px'
   }
 
   private removePanel() {

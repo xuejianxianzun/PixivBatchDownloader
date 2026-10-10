@@ -11,6 +11,7 @@ export interface FormType extends HTMLFormElement {
   multiImageWorkImageLimit: HTMLInputElement
   downColorImg: HTMLInputElement
   downBlackWhiteImg: HTMLInputElement
+  coloredRatio: HTMLInputElement
   ugoiraSaveAsWebM: HTMLInputElement
   ugoiraSaveAsWebP: HTMLInputElement
   ugoiraSaveAsGIF: HTMLInputElement
@@ -30,9 +31,13 @@ export interface FormType extends HTMLFormElement {
   idRangeComparisonForImageWorks: RadioNodeList
   idRangeComparisonForNovelWorks: RadioNodeList
   idRangeComparisonForNovelSeries: RadioNodeList
+  idRangeComparisonForBookmarkImageWorks: RadioNodeList
+  idRangeComparisonForBookmarkNovelWorks: RadioNodeList
   idRangeValueForImageWorks: HTMLInputElement
   idRangeValueForNovelWorks: HTMLInputElement
   idRangeValueForNovelSeries: HTMLInputElement
+  idRangeValueForBookmarkImageWorks: HTMLInputElement
+  idRangeValueForBookmarkNovelWorks: HTMLInputElement
   setWidthAndOr: RadioNodeList
   setHeight: HTMLInputElement
   ratio: RadioNodeList
@@ -41,7 +46,8 @@ export interface FormType extends HTMLFormElement {
   postDateStart: HTMLInputElement
   postDateEnd: HTMLInputElement
   needTag: HTMLInputElement
-  notNeedTag: HTMLInputElement
+  notNeedTagWhole: HTMLTextAreaElement
+  notNeedTagPartial: HTMLTextAreaElement
   autoStartDownload: HTMLInputElement
   autoStartDownloadForQuickDownload: HTMLInputElement
   downloadThread: HTMLInputElement
@@ -54,18 +60,25 @@ export interface FormType extends HTMLFormElement {
   folderForMultiImageWorksRule: HTMLInputElement
   folderForMultiImageWorksImageNumber: HTMLInputElement
   previewResult: HTMLInputElement
-  previewResultLimit: HTMLInputElement
+  previewResultPageSize: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
   ratioSwitch: HTMLInputElement
   idRangeSwitch: HTMLInputElement
   needTagSwitch: HTMLInputElement
   notNeedTagSwitch: HTMLInputElement
+  notNeedTagWholeSwitch: HTMLInputElement
+  notNeedTagPartialSwitch: HTMLInputElement
   convertUgoiraThread: HTMLInputElement
   sizeSwitch: HTMLInputElement
   sizeMin: HTMLInputElement
   sizeMax: HTMLInputElement
   novelSaveAs: RadioNodeList
   saveNovelMeta: HTMLInputElement
+  epubWritingMode: RadioNodeList
+  epubVerticalLangList: HTMLInputElement
+  epubLangSource: RadioNodeList
+  epubCustomLang: HTMLInputElement
+  convertNovelText: RadioNodeList
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
   tagsSeparator: HTMLInputElement
@@ -99,7 +112,6 @@ export interface FormType extends HTMLFormElement {
   switchTabBar: RadioNodeList
   zeroPadding: HTMLInputElement
   zeroPaddingLength: HTMLInputElement
-  tagMatchMode: RadioNodeList
   showFastSearchArea: HTMLInputElement
   saveMetaType0: HTMLInputElement
   saveMetaType1: HTMLInputElement
@@ -194,6 +206,8 @@ export interface FormType extends HTMLFormElement {
   logVisibleDefault: HTMLInputElement
   fullNameLengthLimitSwitch: HTMLInputElement
   fullNameLengthLimit: HTMLInputElement
+  novelLanguageSwitch: HTMLInputElement
+  novelLanguageList: HTMLInputElement
   titleIncludeSwitch: HTMLInputElement
   titleIncludeList: HTMLInputElement
   titleExcludeSwitch: HTMLInputElement
