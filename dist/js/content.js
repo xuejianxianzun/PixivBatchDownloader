@@ -26157,6 +26157,7 @@ class CheckWarningMessage {
                 // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
                 // https://www.pixiv.net/users/11
                 // 但是下面这个判断条件不清楚以后是否会发生变化
+                // 备注：截止 2026-10-06，和当天一个被警告的用户收到的消息进行对比，这个判断条件依然是准确的。
                 if (msgData.latest_content.includes('policies.pixiv.net') &&
                     msgData.latest_content.includes('14')) {
                     // 如果找到了官方账号发送的警告消息，则判断时间
@@ -48707,306 +48708,252 @@ You can choose between two export strategies:<br>
         `Экспортировать сразу после каждого изменения настроек`,
     ],
     _版本更新说明: [
-        `本次更新的主要内容：<br>
-- 添加了全选作品、手动排除作品的功能<br>
-- 优化了预览作品功能<br>
-- 可以抓取用户主页里的约稿作品了<br>
-- 在网页右侧添加了查看日志的按钮<br>
-- 优化了移动端界面，提升用户体验<br>
-- 添加了自定义快捷键功能<br>
-- 其他优化和 Bug 修复<br>
-<strong>ℹ️提示：如何关闭“快捷屏蔽用户”功能</strong><br>
-上个版本我添加了“快捷屏蔽用户”功能，一些用户不知道如何关闭它。该功能只有当你启用了“用户屏蔽名单”之后才会生效，并且它的开关就在“用户屏蔽名单”里。<br>
-<strong>✨新增功能：全选当前显示的作品</strong><br>
-我在“开始抓取”区域里添加了这个按钮，点击它就可以选择当前页面上显示的所有作品。<br>
-<strong>✨新增功能：手动排除作品</strong><br>
-我在“开始抓取”区域里添加了这个按钮，快捷键是 <span class="blue">Alt</span> + <span class="blue">W</span>。它的操作方式和“手动选择作品”类似，但作用是标记你不想抓取的作品。<br>
-下载器不会抓取被排除的作品；如果它已经被抓取了，下载器会把它从抓取结果里删除。<br>
-<strong>✨新增功能：在多图作品页面里，你可以选择作品里的部分图片，然后下载它们</strong><br>
-在多图作品页面里，下载器会在大图下方添加缩略图列表。有时用户可能只想下载其中的一部分图片，所以我在这个区域里添加了一些按钮来实现这个功能。<br>
-<strong>⚙️优化了“自动开始下载”设置</strong><br>
-之前即使用户关闭了“自动开始下载”，快速下载任务也总是会自动开始下载。现在我区分了“普通下载任务”和“快速下载任务”，你可以分别设置它们是否自动开始下载。<br>
-<strong>✨在预览作品里新增子选项：允许预览图遮挡缩略图</strong><br>
-该选项默认未启用，启用之后可以让横图的预览图显示的更大。<br>
-默认行为变化：现在当你预览作品时，预览图不会遮挡缩略图，除非你启用这个选项。<br>
-<strong>✨在预览作品里添加了更小的图片尺寸：小图(540px)</strong><br>
-在弱网环境里，普通尺寸的图片可能加载比较慢，所以我添加了更小的尺寸：小图(540px)。大部分小图的体积只有 50 KB 左右，你可以根据需要选择这个尺寸。<br>
-<strong>✨在预览作品时，按 V 可以查看它的原始比例图片</strong><br>
-预览作品时显示的图片默认是缩略图，如果你想以 1:1 的比例查看原图，可以按 <span class="blue">V</span> 查看原图，再次按 <span class="blue">V</span> 可以关闭原图。<br>
-另外，当你查看原图时，也可以按 <span class="blue">B</span> 收藏作品了。<br>
-<strong>✨适配了用户主页里的“约稿”分类页面</strong><br>
-现在你可以在用户主页里抓取他的约稿作品了。<br>
-<strong>✨新增快捷键 Alt + Z，用来点击默认的抓取按钮</strong><br>
-快捷键 <span class="blue">Alt</span> + <span class="blue">Z</span> 可以点击默认的抓取按钮（具有蓝色背景的主按钮，通常是“开始抓取”），这样不需要打开设置面板就可以直接开始抓取。<br>
-<strong>✨新增设置：自定义快捷键</strong><br>
-如果你想修改下载器内置的部分快捷键，可以在“通用”-“操作方式”-“自定义快捷键”设置里进行修改。<br>
-<strong>✨优化日志功能</strong><br>
-- 在日志区域底部添加了两个按钮：手动导出日志、隐藏日志区域<br>
-- 把顶部的“显示日志”按钮移动到了右侧，避免遮挡 Pixiv 的搜索框。<br>
-<strong>✏️修改了一些设置的名字，功能没有变化</strong><br>
-- “导出日志”改为“自动导出日志”。这是为了与“手动导出日志”按钮区分。<br>
-- “在作品缩略图上显示放大按钮”改为“在作品缩略图上显示图片查看器按钮”。<br>
-- “复制按钮”改为“复制作品信息”。<br>
-- “同时下载数量”改为“同时下载多少个文件”。<br>
-<strong>🎨优化了下载器在移动端页面里的界面，提升用户体验</strong><br>
-之前在移动端页面里，下载器顶部的标题栏和导航栏占据了太多高度，导致下方内容区域的高度很小，使用起来很不方便。<br>
-现在我进行了优化：<br>
-- 减少了顶部板块的高度，并且增加了内容区域的高度<br>
-- 减小了一些元素的尺寸，使内容更加紧凑<br>
-- 优化了一些增强功能在移动端的使用体验<br>
-<strong>🐞修复问题：转换动图为 WebM 格式时，有极少数作品会转换失败</strong><br>
-<strong>😊优化了一些帮助内容和翻译文本</strong><br>
-<strong>😊其他优化和修复 Bug</strong>`,
-        `本次更新的主要內容：<br>
-- 新增了全選作品、手動排除作品的功能<br>
-- 優化了預覽作品功能<br>
-- 可以擷取使用者主頁裡的約稿作品了<br>
-- 在網頁右側新增了查看日誌的按鈕<br>
-- 優化了移動端介面，提升使用者體驗<br>
-- 新增了自訂快捷鍵功能<br>
-- 其他最佳化和 Bug 修復<br>
-<strong>ℹ️提示：如何關閉「快速封鎖使用者」功能</strong><br>
-上個版本我新增了「快速封鎖使用者」功能，一些使用者不知道如何關閉它。該功能只有當你啟用了「使用者封鎖名單」之後才會生效，而且它的開關就在「使用者封鎖名單」裡。<br>
-<strong>✨新增功能：全選目前顯示的作品</strong><br>
-我在「開始擷取」區域裡新增了這個按鈕，點擊它就可以選擇目前頁面上顯示的所有作品。<br>
-<strong>✨新增功能：手動排除作品</strong><br>
-我在「開始擷取」區域裡新增了這個按鈕，快捷鍵是 <span class="blue">Alt</span> + <span class="blue">W</span>。它的操作方式和「手動選擇作品」類似，但作用是標記你不想擷取的作品。<br>
-下載器不會擷取被排除的作品；如果它已經被擷取了，下載器會把它從擷取結果裡刪除。<br>
-<strong>✨新增功能：在多圖作品頁面裡，你可以選擇作品裡的部分圖片，然後下載它們</strong><br>
-在多圖作品頁面裡，下載器會在大圖下方新增縮圖清單。有時你可能只想下載其中的一部分圖片，所以我在這個區域裡新增了一些按鈕來實現這個功能。<br>
-<strong>⚙️優化了「自動開始下載」設定</strong><br>
-以前即使你關閉了「自動開始下載」，快速下載任務也總是會自動開始下載。現在我區分了「普通下載任務」和「快速下載任務」，你可以分別設定它們是否自動開始下載。<br>
-<strong>✨在預覽作品裡新增子選項：允許預覽圖遮擋縮圖</strong><br>
-該選項預設未啟用，啟用之後可以讓橫圖的預覽圖顯示得更大。<br>
-預設行為變化：現在當你預覽作品時，預覽圖不會遮擋縮圖，除非你啟用這個選項。<br>
-<strong>✨在預覽作品裡新增了更小的圖片尺寸：小圖(540px)</strong><br>
-在弱網環境裡，普通尺寸的圖片可能載入得比較慢，所以我新增了更小的尺寸：小圖(540px)。大部分小圖的體積只有 50 KB 左右，你可以根據需要選擇這個尺寸。<br>
-<strong>✨在預覽作品時，按 V 可以查看它的原始比例圖片</strong><br>
-預覽作品時顯示的圖片預設是縮圖，如果你想以 1:1 的比例查看原圖，可以按 <span class="blue">V</span> 查看原圖，再次按 <span class="blue">V</span> 可以關閉原圖。<br>
-另外，當你查看原圖時，也可以按 <span class="blue">B</span> 收藏作品了。<br>
-<strong>✨適配了使用者主頁裡的「約稿」分類頁面</strong><br>
-現在你可以在使用者主頁裡擷取他的約稿作品了。<br>
-<strong>✨新增快捷鍵 Alt + Z，用來點擊預設的擷取按鈕</strong><br>
-快捷鍵 <span class="blue">Alt</span> + <span class="blue">Z</span> 可以點擊預設的擷取按鈕（具有藍色背景的主按鈕，通常是「開始擷取」），這樣不需要開啟設定面板就可以直接開始擷取。<br>
-<strong>✨新增設定：自訂快捷鍵</strong><br>
-如果你想修改下載器內建的部分快捷鍵，可以在「通用」-「操作方式」-「自訂快捷鍵」設定裡進行修改。<br>
-<strong>✨優化日誌功能</strong><br>
-- 在日誌區域底部新增了兩個按鈕：手動匯出日誌、隱藏日誌區域<br>
-- 把頂部的「顯示日誌」按鈕移動到了右側，避免遮擋 Pixiv 的搜尋框。<br>
-<strong>✏️修改了一些設定的名字，功能沒有變化</strong><br>
-- 「匯出日誌」改為「自動匯出日誌」。這是為了與「手動匯出日誌」按鈕區分。<br>
-- 「在作品縮圖上顯示放大按鈕」改為「在作品縮圖上顯示圖片檢視器按鈕」。<br>
-- 「複製按鈕」改為「複製作品資訊」。<br>
-- 「同時下載數量」改為「同時下載多少個檔案」。<br>
-<strong>🎨優化了下載器在移動端頁面裡的介面，提升使用者體驗</strong><br>
-之前在移動端頁面裡，下載器頂部的標題欄和導覽列佔據了太多高度，導致下方內容區域的高度很小，使用起來很不方便。<br>
-現在我進行了優化：<br>
-- 減少了頂部板塊的高度，並增加了內容區域的高度<br>
-- 縮小了一些元素的尺寸，使內容更加緊湊<br>
-- 優化了一些增強功能在移動端的使用體驗<br>
-<strong>🐞修復問題：轉換動圖為 WebM 格式時，有極少數作品會轉換失敗</strong><br>
-<strong>😊優化了一些幫助內容和翻譯文字</strong><br>
-<strong>😊其他優化和修復 Bug</strong>`,
-        `Main contents of this update:<br>
-- Added the ability to select all works and to manually exclude works<br>
-- Improved the work preview feature<br>
-- You can now crawl request works from a user's homepage<br>
-- Added a button on the right side of the page for viewing the log<br>
-- Improved the mobile UI for a better user experience<br>
-- Added customizable hotkeys<br>
-- Other optimizations and bug fixes<br>
-<strong>ℹ️Tip: How to turn off the "Quickly block users" feature</strong><br>
-In the previous version I added the "Quickly block users" feature, and some users didn't know how to turn it off. This feature only takes effect when you have enabled the "User block list", and its switch is located inside the "User block list" setting.<br>
-<strong>✨New feature: Select all currently displayed works</strong><br>
-I added this button in the "Start crawling" area. Click it to select all works currently displayed on the page.<br>
-<strong>✨New feature: Manually exclude works</strong><br>
-I added this button in the "Start crawling" area. Its hotkey is <span class="blue">Alt</span> + <span class="blue">W</span>. It works in a similar way to "Manually select", but its purpose is to mark the works you don't want to crawl.<br>
-The downloader will not crawl excluded works; if a work has already been crawled, the downloader will remove it from the crawl results.<br>
-<strong>✨New feature: On multi-image work pages, you can choose some of the images in a work and download them</strong><br>
-On multi-image work pages, the downloader adds a thumbnail list below the large image. Sometimes you may only want to download some of the images, so I added some buttons in this area to make this possible.<br>
-<strong>⚙️Improved the "Start download automatically" setting</strong><br>
-Previously, even if you turned off "Start download automatically", quick download tasks always started downloading automatically. Now I distinguish between "Normal download tasks" and "Quick download tasks", and you can set separately whether each of them starts automatically.<br>
-<strong>✨Added a new sub-option in work preview: allow the preview image to cover thumbnails</strong><br>
-This option is disabled by default. Enabling it allows the preview image of landscape works to display larger.<br>
-Default behavior change: when you preview a work now, the preview image will not cover the thumbnails unless you enable this option.<br>
-<strong>✨Added a smaller image size in work preview: Small (540px)</strong><br>
-On slow networks, images of the normal size may load slowly, so I added a smaller size: Small (540px). Most small images are only about 50 KB, and you can choose this size as needed.<br>
-<strong>✨When previewing a work, press V to view the image at its original ratio</strong><br>
-The image displayed when previewing a work is the thumbnail by default. If you want to view the original image at 1:1 ratio, press <span class="blue">V</span> to show the original, and press <span class="blue">V</span> again to close it.<br>
-In addition, while viewing the original image, you can press <span class="blue">B</span> to bookmark the work.<br>
-<strong>✨Adapted to the "Request" category page on a user's homepage</strong><br>
-Now you can crawl a user's request works from their homepage.<br>
-<strong>✨New hotkey Alt + Z: click the default crawl button</strong><br>
-The hotkey <span class="blue">Alt</span> + <span class="blue">Z</span> clicks the default crawl button (the main button with a blue background, usually "Start crawling"), so you can start crawling without opening the settings panel.<br>
-<strong>✨New setting: Customize hotkeys</strong><br>
-If you want to modify some of the downloader's built-in hotkeys, you can do so in the "General" - "Operation method" - "Customize hotkeys" settings.<br>
-<strong>✨Improved the log feature</strong><br>
-- Added two buttons at the bottom of the log area: manually export log, and hide log area<br>
-- Moved the "Show log" button at the top to the right side, so that it no longer blocks Pixiv's search box.<br>
-<strong>✏️Renamed some settings; their functions are unchanged</strong><br>
-- "Export log" is renamed to "Auto export log". This is to distinguish it from the "manually export log" button.<br>
-- "Show the magnify button on work thumbnails" is renamed to "Show the image viewer button on work thumbnails".<br>
-- "Copy button" is renamed to "Copy work info".<br>
-- "Number of simultaneous downloads" is renamed to "How many files to download at the same time".<br>
-<strong>🎨Improved the downloader's interface on mobile pages to enhance the user experience</strong><br>
-Previously on mobile pages, the title bar and navigation bar at the top of the downloader took up too much height, leaving the content area below very short and inconvenient to use.<br>
-Now I have optimized it:<br>
-- Reduced the height of the top sections and increased the height of the content area<br>
-- Shrunk the size of some elements to make the content more compact<br>
-- Improved the experience of some enhanced features on mobile<br>
-<strong>🐞Fixed issue: when converting animated images to WebM format, a very small number of works failed to convert</strong><br>
-<strong>😊Improved some help content and translated texts</strong><br>
-<strong>😊Other optimizations and bug fixes</strong>`,
-        `今回の更新の主な内容：<br>
-- すべての作品を選択する機能と、作品を手動で除外する機能を追加しました<br>
-- 作品のプレビュー機能を最適化しました<br>
-- ユーザーのホームページにあるリクエスト作品をクロールできるようになりました<br>
-- ページ右側にログを表示するボタンを追加しました<br>
-- モバイル向けUIを最適化し、使いやすさを向上させました<br>
-- カスタムショートカットキー機能を追加しました<br>
-- その他の最適化とバグ修正<br>
-<strong>ℹ️ヒント：「ユーザーをすばやくブロック」機能のオフにする方法</strong><br>
-前回のバージョンで「ユーザーをすばやくブロック」機能を追加しましたが、一部のユーザーはそのオフの仕方を知りませんでした。この機能は「ユーザーブロックリスト」を有効にしている場合にのみ動作し、そのスイッチは「ユーザーブロックリスト」の中にあります。<br>
-<strong>✨新機能：現在表示されている作品をすべて選ぶ</strong><br>
-「クロールを開始する」エリアにこのボタンを追加しました。クリックすると、現在のページに表示されているすべての作品を選択できます。<br>
-<strong>✨新機能：作品を手動で除外する</strong><br>
-「クロールを開始する」エリアにこのボタンを追加しました。ショートカットキーは <span class="blue">Alt</span> + <span class="blue">W</span> です。操作方法は「手動で作品を選ぶ」に似ていますが、クロールしたくない作品をマークするための機能です。<br>
-ダウンローダーは除外された作品をクロールしません。すでにクロール済みの場合は、クロール結果から削除します。<br>
-<strong>✨新機能：複数画像の作品ページで、作品内の一部の画像を選択してダウンロードできるようになりました</strong><br>
-複数画像の作品ページでは、ダウンローダーは大きな画像の下にサムネイルリストを追加します。一部の画像だけをダウンロードしたい場合もあるため、このエリアにいくつかのボタンを追加してこの機能を実現しました。<br>
-<strong>⚙️「自動でダウンロードを開始する」設定を最適化しました</strong><br>
-以前は「自動でダウンロードを開始する」をオフにしていても、クイックダウンロードタスクは常に自動でダウンロードを開始していました。今回「通常ダウンロードタスク」と「クイックダウンロードタスク」を区別し、それぞれ自動で開始するかどうかを個別に設定できるようにしました。<br>
-<strong>✨作品プレビューに新しいサブオプションを追加：プレビュー画像がサムネイルを覆うことを許可</strong><br>
-このオプションはデフォルトでは無効です。有効にすると、横長の作品のプレビュー画像をより大きく表示できます。<br>
-デフォルトの動作の変更：作品をプレビューするとき、このオプションを有効にしない限り、プレビュー画像はサムネイルを覆わなくなりました。<br>
-<strong>✨作品プレビューに、より小さい画像サイズを追加：小図(540px)</strong><br>
-通信環境が良くない場合、通常サイズの画像の読み込みに時間がかかることがあります。そのため、より小さいサイズ「小図(540px)」を追加しました。ほとんどの小図は約 50 KB で、必要に応じてこのサイズを選択できます。<br>
-<strong>✨作品をプレビューするとき、V キーで元の比率の画像を表示できます</strong><br>
-作品プレビューで表示される画像はデフォルトではサムネイルです。1:1 の比率で原寸の画像を表示したい場合は、<span class="blue">V</span> キーで原寸画像を表示し、もう一度 <span class="blue">V</span> キーを押すと閉じることができます。<br>
-また、原寸画像を表示しているときは、<span class="blue">B</span> キーで作品をブックマークすることもできます。<br>
-<strong>✨ユーザーホームページの「リクエスト」カテゴリページに対応しました</strong><br>
-ユーザーのホームページから、そのユーザーのリクエスト作品をクロールできるようになりました。<br>
-<strong>✨新しいショートカットキー Alt + Z：デフォルトのクロールボタンをクリック</strong><br>
-ショートカットキー <span class="blue">Alt</span> + <span class="blue">Z</span> で、デフォルトのクロールボタン（青い背景のメインボタン。通常は「クロールを開始する」）をクリックできます。設定パネルを開かなくてもクロールを開始できます。<br>
-<strong>✨新しい設定：ショートカットキーのカスタマイズ</strong><br>
-ダウンローダー内蔵の一部のショートカットキーを変更したい場合は、「一般」-「操作方法」-「ショートカットキーのカスタマイズ」設定で変更できます。<br>
-<strong>✨ログ機能を最適化しました</strong><br>
-- ログエリアの下部に2つのボタンを追加：ログの手動エクスポート、ログエリアを非表示<br>
-- 上部の「ログを表示」ボタンを右側に移動し、Pixiv の検索ボックスを遮らないようにしました。<br>
-<strong>✏️一部の設定名を変更しました。機能に変更はありません</strong><br>
-- 「ログをエクスポート」を「ログを自動エクスポート」に変更しました。「ログの手動エクスポート」ボタンと区別するためです。<br>
-- 「作品サムネイルに拡大ボタンを表示」を「作品サムネイルに画像ビューアボタンを表示」に変更しました。<br>
-- 「コピーボタン」を「作品情報をコピー」に変更しました。<br>
-- 「同時ダウンロード数」を「同時にいくつのファイルをダウンロードするか」に変更しました。<br>
-<strong>🎨モバイルページでのダウンローダーのインターフェースを最適化し、使いやすさを向上させました</strong><br>
-以前はモバイルページで、ダウンローダー上部のタイトルバーとナビゲーションバーが高さを取りすぎて、下のコンテンツエリアが非常に小さく、使いにくくなっていました。<br>
-今回の最適化：<br>
-- 上部セクションの高さを減らし、コンテンツエリアの高さを増やしました<br>
-- 一部の要素のサイズを小さくして、コンテンツをよりコンパクトにしました<br>
-- 一部の拡張機能のモバイルでの使い勝手を最適化しました<br>
-<strong>🐞バグ修正：アニメーション画像を WebM 形式に変換するとき、ごく一部の作品で変換に失敗することがありました</strong><br>
-<strong>😊一部のヘルプコンテンツと翻訳テキストを最適化しました</strong><br>
-<strong>😊その他の最適化とバグ修正</strong>`,
-        `이번 업데이트의 주요 내용：<br>
-- 모든 작품 선택 및 작품 수동 제외 기능 추가<br>
-- 작품 미리보기 기능 최적화<br>
-- 사용자 홈페이지의 리퀘스트 작품을 크롤링할 수 있게 되었습니다<br>
-- 웹페이지 오른쪽에 로그 보기 버튼 추가<br>
-- 모바일 UI를 최적화하여 사용자 경험을 개선했습니다<br>
-- 사용자 지정 단축키 기능 추가<br>
-- 기타 최적화 및 버그 수정<br>
-<strong>ℹ️알림："빠르게 사용자 차단" 기능을 끄는 방법</strong><br>
-지난 버전에서 "빠르게 사용자 차단" 기능을 추가했는데, 일부 사용자는 끄는 방법을 몰랐습니다. 이 기능은 "사용자 차단 목록"을 활성화한 경우에만 동작하며, 그 스위치는 "사용자 차단 목록" 안에 있습니다.<br>
-<strong>✨새 기능：현재 표시된 작품 모두 선택</strong><br>
-"긁어오기 시작" 영역에 이 버튼을 추가했습니다. 클릭하면 현재 페이지에 표시된 모든 작품을 선택할 수 있습니다.<br>
-<strong>✨새 기능：작품 수동 제외</strong><br>
-"긁어오기 시작" 영역에 이 버튼을 추가했습니다. 단축키는 <span class="blue">Alt</span> + <span class="blue">W</span>입니다. 조작 방식은 "수동 선택"과 비슷하지만, 크롤링하고 싶지 않은 작품을 표시하는 기능입니다.<br>
-다운로더는 제외된 작품을 크롤링하지 않습니다. 이미 크롤링된 작품이 있다면 크롤링 결과에서 제거합니다.<br>
-<strong>✨새 기능：여러 이미지가 있는 작품 페이지에서 작품의 일부 이미지를 선택해 다운로드할 수 있습니다</strong><br>
-여러 이미지가 있는 작품 페이지에서 다운로더는 큰 이미지 아래에 썸네일 목록을 추가합니다. 일부 이미지만 다운로드하고 싶은 경우가 있어 이 영역에 몇 가지 버튼을 추가해 이 기능을 구현했습니다.<br>
-<strong>⚙️"다운로드를 자동으로 시작" 설정을 최적화했습니다</strong><br>
-이전에는 "다운로드를 자동으로 시작"을 꺼도 빠른 다운로드 작업은 항상 자동으로 다운로드를 시작했습니다. 이제 "일반 다운로드 작업"과 "빠른 다운로드 작업"을 구분하여 각각 자동 시작 여부를 개별적으로 설정할 수 있습니다.<br>
-<strong>✨작품 미리보기에 새 하위 옵션 추가：미리보기 이미지가 썸네일을 가리는 것을 허용</strong><br>
-이 옵션은 기본적으로 비활성화되어 있습니다. 활성화하면 가로형 작품의 미리보기 이미지를 더 크게 표시할 수 있습니다.<br>
-기본 동작 변경：이제 작품을 미리볼 때 이 옵션을 활성화하지 않으면 미리보기 이미지가 썸네일을 가리지 않습니다.<br>
-<strong>✨작품 미리보기에 더 작은 이미지 크기 추가：소형(540px)</strong><br>
-네트워크가 느린 환경에서는 일반 크기의 이미지 로딩이 느릴 수 있습니다. 그래서 더 작은 크기인 "소형(540px)"을 추가했습니다. 대부분의 소형 이미지는 약 50KB이며, 필요에 따라 이 크기를 선택할 수 있습니다.<br>
-<strong>✨작품을 미리볼 때 V 키를 누르면 원본 비율의 이미지를 볼 수 있습니다</strong><br>
-작품 미리보기에 표시되는 이미지는 기본적으로 썸네일입니다. 1:1 비율로 원본 이미지를 보려면 <span class="blue">V</span> 키를 눌러 원본 이미지를 표시하고, 다시 <span class="blue">V</span> 키를 누르면 닫을 수 있습니다.<br>
-또한 원본 이미지를 보고 있을 때 <span class="blue">B</span> 키를 눌러 작품을 북마크할 수도 있습니다.<br>
-<strong>✨사용자 홈페이지의 "리퀘스트" 카테고리 페이지 지원</strong><br>
-이제 사용자 홈페이지에서 그 사용자의 리퀘스트 작품을 크롤링할 수 있습니다.<br>
-<strong>✨새 단축키 Alt + Z：기본 크롤링 버튼 클릭</strong><br>
-단축키 <span class="blue">Alt</span> + <span class="blue">Z</span>를 누르면 기본 크롤링 버튼(파란색 배경의 기본 버튼, 보통 "긁어오기 시작")을 클릭할 수 있습니다. 설정 패널을 열지 않고도 바로 크롤링을 시작할 수 있습니다.<br>
-<strong>✨새 설정：단축키 사용자 지정</strong><br>
-다운로더에 내장된 일부 단축키를 변경하려면 "일반"-"조작 방법"-"단축키 사용자 지정" 설정에서 수정할 수 있습니다.<br>
-<strong>✨로그 기능 최적화</strong><br>
-- 로그 영역 하단에 버튼 2개 추가：로그 수동 내보내기, 로그 영역 숨기기<br>
-- 상단의 "로그 표시" 버튼을 오른쪽으로 이동하여 Pixiv의 검색 상자를 가리지 않도록 했습니다.<br>
-<strong>✏️일부 설정 이름을 변경했습니다. 기능에는 변화가 없습니다</strong><br>
-- "로그 내보내기"를 "로그 자동 내보내기"로 변경했습니다. "로그 수동 내보내기" 버튼과 구분하기 위해서입니다.<br>
-- "작품 썸네일에 확대 버튼 표시"를 "작품 썸네일에 이미지 뷰어 버튼 표시"로 변경했습니다.<br>
-- "복사 버튼"을 "작품 정보 복사"로 변경했습니다.<br>
-- "동시 다운로드 수"를 "동시에 몇 개의 파일을 다운로드할지"로 변경했습니다.<br>
-<strong>🎨모바일 페이지에서 다운로더 인터페이스를 최적화하여 사용자 경험을 개선했습니다</strong><br>
-이전에는 모바일 페이지에서 다운로더 상단의 제목 표시줄과 탐색 표시줄이 너무 많은 높이를 차지하여 아래 콘텐츠 영역이 매우 작아 사용하기 불편했습니다.<br>
-이번 최적화 내용：<br>
-- 상단 섹션의 높이를 줄이고 콘텐츠 영역의 높이를 늘렸습니다<br>
-- 일부 요소의 크기를 줄여 콘텐츠를 더 컴팩트하게 만들었습니다<br>
-- 일부 확장 기능의 모바일 사용 경험을 최적화했습니다<br>
-<strong>🐞버그 수정：움직이는 이미지를 WebM 형식으로 변환할 때 아주 일부 작품에서 변환에 실패할 수 있었습니다</strong><br>
-<strong>😊일부 도움말 콘텐츠와 번역 텍스트를 최적화했습니다</strong><br>
-<strong>😊기타 최적화 및 버그 수정</strong>`,
-        `Основное содержание этого обновления:<br>
-- Добавлена возможность выбрать все работы и вручную исключать работы<br>
-- Улучшена функция предпросмотра работ<br>
-- Теперь можно собирать работы из запросов на главной странице пользователя<br>
-- Справа на странице добавлена кнопка просмотра журнала<br>
-- Улучшен мобильный интерфейс для повышения удобства использования<br>
-- Добавлена функция настраиваемых горячих клавиш<br>
-- Другие улучшения и исправления ошибок<br>
-<strong>ℹ️Подсказка: как отключить функцию «Быстрая блокировка пользователей»</strong><br>
-В предыдущей версии я добавил функцию «Быстрая блокировка пользователей», и некоторые пользователи не знали, как её отключить. Эта функция действует только если включён «Список заблокированных пользователей», а её переключатель находится внутри «Списка заблокированных пользователей».<br>
-<strong>✨Новая функция: выбрать все отображаемые работы</strong><br>
-Я добавил эту кнопку в область «Начать сканирование». Нажмите её, чтобы выбрать все работы, отображаемые на текущей странице.<br>
-<strong>✨Новая функция: ручное исключение работ</strong><br>
-Я добавил эту кнопку в область «Начать сканирование». Горячая клавиша — <span class="blue">Alt</span> + <span class="blue">W</span>. Способ работы похож на «Ручной выбор», но её назначение — отмечать работы, которые вы не хотите сканировать.<br>
-Загрузчик не будет сканировать исключённые работы; если работа уже была просканирована, загрузчик удалит её из результатов сканирования.<br>
-<strong>✨Новая функция: на странице работы с несколькими изображениями можно выбрать часть изображений и скачать их</strong><br>
-На странице работы с несколькими изображениями загрузчик добавляет список миниатюр под большим изображением. Иногда вы можете захотеть скачать только часть изображений, поэтому я добавил несколько кнопок в эту область, чтобы реализовать эту возможность.<br>
-<strong>⚙️Улучшена настройка «Автоматически начинать загрузку»</strong><br>
-Раньше, даже если вы отключали «Автоматически начинать загрузку», быстрые загрузки всегда запускались автоматически. Теперь я различаю «Обычные загрузки» и «Быстрые загрузки», и вы можете отдельно настроить, запускаться ли им автоматически.<br>
-<strong>✨В предпросмотр работ добавлена новая подопция: разрешить изображению предпросмотра перекрывать миниатюры</strong><br>
-Эта опция отключена по умолчанию. При её включении изображение предпросмотра горизонтальных работ будет отображаться крупнее.<br>
-Изменение поведения по умолчанию: теперь при предпросмотре работы изображение предпросмотра не перекрывает миниатюры, если вы не включите эту опцию.<br>
-<strong>✨В предпросмотр работ добавлен меньший размер изображения: Маленькое (540px)</strong><br>
-При слабой сети изображения обычного размера могут загружаться медленно, поэтому я добавил меньший размер: Маленькое (540px). Большинство маленьких изображений весят около 50 КБ, и вы можете выбрать этот размер при необходимости.<br>
-<strong>✨При предпросмотре работы нажмите V, чтобы увидеть изображение в исходном масштабе</strong><br>
-При предпросмотре работы по умолчанию отображается миниатюра. Чтобы посмотреть исходное изображение в масштабе 1:1, нажмите <span class="blue">V</span>, чтобы показать исходное изображение, и нажмите <span class="blue">V</span> ещё раз, чтобы закрыть его.<br>
-Кроме того, при просмотре исходного изображения вы также можете нажать <span class="blue">B</span>, чтобы добавить работу в закладки.<br>
-<strong>✨Адаптирована страница категории «Запросы» на главной странице пользователя</strong><br>
-Теперь вы можете собирать работы из запросов пользователя на его главной странице.<br>
-<strong>✨Новая горячая клавиша Alt + Z для нажатия кнопки сканирования по умолчанию</strong><br>
-Горячая клавиша <span class="blue">Alt</span> + <span class="blue">Z</span> нажимает кнопку сканирования по умолчанию (главную кнопку с синим фоном, обычно «Начать сканирование»), поэтому вы можете начать сканирование, не открывая панель настроек.<br>
-<strong>✨Новая настройка: настраиваемые горячие клавиши</strong><br>
-Если вы хотите изменить некоторые встроенные горячие клавиши загрузчика, вы можете сделать это в настройках «Общие» - «Способ управления» - «Настраиваемые горячие клавиши».<br>
-<strong>✨Улучшена функция журнала</strong><br>
-- Внизу области журнала добавлены две кнопки: экспорт журнала вручную и скрытие области журнала<br>
-- Кнопка «Показать журнал» вверху перенесена вправо, чтобы не перекрывать поле поиска Pixiv.<br>
-<strong>✏️Переименованы некоторые настройки; функции не изменились</strong><br>
-- «Экспорт журнала» переименован в «Автоматический экспорт журнала». Это нужно, чтобы отличать его от кнопки «Экспорт журнала вручную».<br>
-- «Показывать кнопку увеличения на миниатюрах работ» переименована в «Показывать кнопку просмотра изображений на миниатюрах работ».<br>
-- «Кнопка копирования» переименована в «Копировать информацию о работе».<br>
-- «Количество одновременных загрузок» переименовано в «Сколько файлов загружать одновременно».<br>
-<strong>🎨Улучшен интерфейс загрузчика на мобильных страницах для повышения удобства использования</strong><br>
-Раньше на мобильных страницах строка заголовка и панель навигации в верхней части загрузчика занимали слишком много высоты, из-за чего область содержимого внизу была очень маленькой и неудобной в использовании.<br>
-Что я улучшил:<br>
-- Уменьшил высоту верхних секций и увеличил высоту области содержимого<br>
-- Уменьшил размеры некоторых элементов, чтобы контент стал компактнее<br>
-- Улучшил работу некоторых дополнительных функций на мобильных устройствах<br>
-<strong>🐞Исправлена ошибка: при преобразовании анимированных изображений в формат WebM в очень редких случаях некоторые работы не преобразовывались</strong><br>
-<strong>😊Улучшены некоторые справочные материалы и тексты переводов</strong><br>
-<strong>😊Другие улучшения и исправления ошибок</strong>`,
+        `<strong>🏷️新增命名标记：{human}</strong><br>
+<span class="blue">{human}</span>：当作品不是 AI 生成的作品时，输出 <span class="blue">Human</span>，否则忽略这个标记。它与 <span class="blue">{AI}</span> 相反，用来把人类创作的作品和 AI 生成的作品分开保存。<br>
+<strong>📚新增设置：只下载这些语言的小说</strong><br>
+该设置位于“筛选”-“作品数据”分类里。<br>
+你可以要求小说的语言必须是特定的语言，这样下载器才会抓取它。<br>
+<strong>📚新增设置：EPUB 文件的语言标签</strong><br>
+该设置位于“下载”-“小说”分类里。<br>
+现在下载器默认会使用小说的语言作为 EPUB 文件的语言标签。<br>
+<strong>📚新增设置：EPUB 文件的排版方向</strong><br>
+你可以设置小说内容使用横排还是竖排，也可以只为特定语言的小说（如日语、繁体中文）使用竖排。<br>
+<strong>📚新增设置：简繁转换</strong><br>
+下载器在下载小说时，会根据这个设置决定是否转换简体中文和繁体中文小说。默认不转换。<br>
+<strong>✨支持在小说书签列表页面里抓取</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小说书签列表页面</a><br>
+<strong>✨支持在小说分类页面里抓取</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">小说分类页面</a><br>
+<strong>🛸优化检查标签的过滤器：在检查小说标签时，会同时检查分类标记</strong><br>
+原创小说通常有分类，如“恋爱”、“异世界奇幻”，会显示在标签列表前面。<br>
+现在下载器会把分类名字添加到标签列表里，可以检查和保存它们。<br>
+<strong>✨优化了检测图片色彩的流程和设置项</strong><br>
+- 优化了判断图片色彩的算法，更加准确。<br>
+- 新增了“彩色占比阈值”的设置，用户可以调节对图片进行颜色检查时的宽松程度。<br>
+- 在抓取多图作品时，下载器会检查每一张图片的颜色，不必再等到下载时检查。<br>
+<strong>✨在“标签不能含有”里，你可以同时使用“全字匹配”和“部分匹配”了</strong><br>
+之前你只能在“全字匹配”和“部分匹配”里选择一种匹配模式，现在可以同时使用两种了。两种匹配模式有各自的开关和输入框，你可以根据自己的需要使用它们。<br>
+提示：你的旧设置会被继承，所以你不需要重新设置此项。<br>
+<strong>✨新增设置：在“ID 范围”设置里新增了“书签 ID”分类</strong><br>
+在你的收藏页面里，你可以使用书签 ID 来筛选新增的收藏。具体用法可以查看该设置的帮助信息。<br>
+<strong>⚙️调整“预览搜索页面的抓取结果”设置</strong><br>
+- 预览抓取结果时，作品会分页显示，以降低性能压力。<br>
+- 增加一个子选项：每页显示的作品数量。<br>
+- 移除了不再需要的“预览数量上限”设置。<br>
+- 把这个设置移动到“筛选”-“执行策略”里。<br>
+<strong>✏️一些名称变化（功能无变化）</strong><br>
+- 把导航区域里的“抓取”分类改名为“筛选”，使其更准确。<br>
+- 修改了一些设置的名字。<br>
+- “停止下载”按钮改名为“放弃下载”，使其更符合行为。<br>
+<strong>🐞修复多个已知问题</strong><br>
+由于数量较多，这里不再一一列出。<br>
+<strong>✨优化一些功能的细节，提高用户体验</strong><br>
+<strong>💡优化了一些帮助、日志、提示的文本</strong>`,
+        `<strong>🏷️新增命名標記：{human}</strong><br>
+<span class="blue">{human}</span>：當作品不是 AI 生成的作品時，會輸出 <span class="blue">Human</span>，否則忽略這個標記。它與 <span class="blue">{AI}</span> 相反，用來把人類創作的作品和 AI 生成的作品分開保存。<br>
+<strong>📚新增設定：只下載這些語言的小說</strong><br>
+該設定位於「篩選」-「作品數據」分類裡。<br>
+你可以要求小說的語言必須是特定的語言，這樣下載器才會擷取它。<br>
+<strong>📚新增設定：EPUB 檔案的語言標籤</strong><br>
+該設定位於「下載」-「小說」分類裡。<br>
+現在下載器預設會使用小說的語言作為 EPUB 檔案的語言標籤。<br>
+<strong>📚新增設定：EPUB 檔案的排版方向</strong><br>
+你可以設定小說內容使用橫排還是直排，也可以只為特定語言的小說（如日語、繁體中文）使用直排。<br>
+<strong>📚新增設定：簡繁轉換</strong><br>
+下載器在下載小說時，會根據這個設定決定是否轉換簡體中文和繁體中文小說。預設不轉換。<br>
+<strong>✨支援在小說書籤列表頁面裡擷取</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小說書籤列表頁面</a><br>
+<strong>✨支援在小說分類頁面裡擷取</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">小說分類頁面</a><br>
+<strong>🛸優化檢查標籤的篩選器：在檢查小說標籤時，會同時檢查分類標記</strong><br>
+原創小說通常有分類，如「戀愛」、「異世界奇幻」，會顯示在標籤列表前面。<br>
+現在下載器會把分類名字添加到標籤列表裡，可以檢查和保存它們。<br>
+<strong>✨優化了偵測圖片色彩的流程和設定項</strong><br>
+- 優化了判斷圖片色彩的演算法，更加準確。<br>
+- 新增了「彩色佔比閾值」的設定，使用者可以調整對圖片進行顏色檢查時的寬鬆程度。<br>
+- 在擷取多圖作品時，下載器會檢查每一張圖片的顏色，不必再等到下載時檢查。<br>
+<strong>✨在「標籤不能含有」裡，你可以同時使用「全字匹配」和「部分匹配」了</strong><br>
+之前你只能在「全字匹配」和「部分匹配」裡選擇一種匹配模式，現在可以同時使用兩種了。兩種匹配模式有各自的開關和輸入框，你可以根據自己的需要使用它們。<br>
+提示：你的舊設定會被繼承，所以你不需要重新設定此項。<br>
+<strong>✨新增設定：在「ID 範圍」設定裡新增了「書籤 ID」分類</strong><br>
+在你的收藏頁面裡，你可以使用書籤 ID 來篩選新增的收藏。具體用法可以查看該設定的說明資訊。<br>
+<strong>⚙️調整「預覽搜尋頁面的擷取結果」設定</strong><br>
+- 預覽擷取結果時，作品會分頁顯示，以降低效能壓力。<br>
+- 增加一個子選項：每頁顯示的作品數量。<br>
+- 移除了不再需要的「預覽數量上限」設定。<br>
+- 把這個設定移動到「篩選」-「執行策略」裡。<br>
+<strong>✏️一些名稱變化（功能無變化）</strong><br>
+- 把導航區域裡的「擷取」分類改名為「篩選」，使其更準確。<br>
+- 修改了一些設定的名字。<br>
+- 「停止下載」按鈕改名為「放棄下載」，使其更符合行為。<br>
+<strong>🐞修復多個已知問題</strong><br>
+由於數量較多，這裡不再一一列出。<br>
+<strong>✨優化一些功能的細節，提高使用者體驗</strong><br>
+<strong>💡優化了一些說明、日誌、提示的文字</strong>`,
+        `<strong>🏷️New naming marker: {human}</strong><br>
+<span class="blue">{human}</span>: when the work is not AI-generated, it outputs <span class="blue">Human</span>; otherwise this marker is ignored. It is the opposite of <span class="blue">{AI}</span>, and is used to save works created by humans separately from AI-generated works.<br>
+<strong>📚New setting: Only download novels in these languages</strong><br>
+This setting is in the "Filter" - "Work data" category.<br>
+You can require the language of a novel to be a specific language, and only then will the downloader crawl it.<br>
+<strong>📚New setting: The language tag of the EPUB file</strong><br>
+This setting is in the "Download" - "Novels" category.<br>
+Now the downloader uses the language of the novel as the language tag of the EPUB file by default.<br>
+<strong>📚New setting: Text layout direction of the EPUB file</strong><br>
+You can set the content of the novel to use horizontal or vertical layout, and you can also use vertical layout only for novels in specific languages (such as Japanese and Traditional Chinese).<br>
+<strong>📚New setting: Simplified-Traditional conversion</strong><br>
+When downloading novels, the downloader decides whether to convert Simplified Chinese and Traditional Chinese novels according to this setting. By default, no conversion is performed.<br>
+<strong>✨Support crawling on the novel markers page</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Novel markers page</a><br>
+<strong>✨Support crawling on the novel genre page</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">Novel genre page</a><br>
+<strong>🛸Improved the tag filter: when checking novel tags, genre markers are also checked</strong><br>
+Original novels usually have a genre, such as "Romance" or "Isekai Fantasy", which is displayed in front of the tag list.<br>
+Now the downloader adds the genre name to the tag list, so you can check and save them.<br>
+<strong>✨Improved the process and settings for detecting image colors</strong><br>
+- Improved the algorithm for judging image colors, making it more accurate.<br>
+- Added the "Color ratio threshold" setting, so you can adjust how lenient the color check is.<br>
+- When crawling multi-image works, the downloader checks the color of every image, instead of waiting until download time.<br>
+<strong>✨In "Tags must not contain", you can now use "Exact match" and "Partial match" at the same time</strong><br>
+Previously you could only choose one match mode between "Exact match" and "Partial match"; now you can use both at the same time. Each match mode has its own switch and input box, so you can use them as needed.<br>
+Tip: your old settings will be inherited, so you do not need to set this option again.<br>
+<strong>✨New setting: added the "Bookmark ID" category to the "ID range" setting</strong><br>
+On your bookmarks page, you can use the bookmark ID to filter newly added bookmarks. See the help information of this setting for details.<br>
+<strong>⚙️Adjusted the "Preview crawl results on search page" setting</strong><br>
+- When previewing crawl results, works are displayed page by page to reduce performance pressure.<br>
+- Added a sub-option: the number of works displayed per page.<br>
+- Removed the no longer needed "Preview count limit" setting.<br>
+- Moved this setting to "Filter" - "Execution strategy".<br>
+<strong>✏️Some name changes (no functional changes)</strong><br>
+- Renamed the "Crawl" category in the navigation area to "Filter", which is more accurate.<br>
+- Changed the names of some settings.<br>
+- Renamed the "Stop download" button to "Abandon download", which better matches its behavior.<br>
+<strong>🐞Fixed multiple known issues</strong><br>
+There are too many of them, so they are not listed one by one here.<br>
+<strong>✨Improved details of some features to enhance the user experience</strong><br>
+<strong>💡Improved some help, log and tip texts</strong>`,
+        `<strong>🏷️命名マーカーを追加：{human}</strong><br>
+<span class="blue">{human}</span>：作品が AI 生成作品ではない場合、<span class="blue">Human</span> を出力し、それ以外の場合はこのマーカーを無視します。<span class="blue">{AI}</span> とは反対に、人間が制作した作品と AI が生成した作品を分けて保存するために使います。<br>
+<strong>📚設定を追加：これらの言語の小説のみをダウンロード</strong><br>
+この設定は「フィルター」-「作品データ」カテゴリにあります。<br>
+小説の言語が特定の言語であることを要求できます。条件を満たさない小説はダウンローダーがクロールしません。<br>
+<strong>📚設定を追加：EPUB ファイルの言語タグ</strong><br>
+この設定は「ダウンロード」-「小説」カテゴリにあります。<br>
+現在、ダウンローダーは既定で小説の言語を EPUB ファイルの言語タグとして使用します。<br>
+<strong>📚設定を追加：EPUB ファイルの組版方向</strong><br>
+小説の本文を横書きにするか縦書きにするかを設定できます。また、特定の言語の小説（日本語、繁体字中国語など）にのみ縦書きを使用することもできます。<br>
+<strong>📚設定を追加：簡体字・繁体字の変換</strong><br>
+ダウンローダーは小説をダウンロードするとき、この設定に従って簡体字中国語と繁体字中国語の小説を変換するかどうかを決定します。既定では変換しません。<br>
+<strong>✨小説のしおり一覧ページでのクロールに対応しました</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小説のしおり一覧ページ</a><br>
+<strong>✨小説ジャンルページでのクロールに対応しました</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">小説ジャンルページ</a><br>
+<strong>🛸タグをチェックするフィルターを改善：小説のタグをチェックするとき、ジャンルマーカーも同時にチェックします</strong><br>
+オリジナル小説には通常ジャンルがあり、「恋愛」「異世界ファンタジー」のようにタグリストの前に表示されます。<br>
+現在、ダウンローダーはジャンル名をタグリストに追加するので、それらをチェックして保存できます。<br>
+<strong>✨画像の色を検出する処理と設定項目を改善しました</strong><br>
+- 画像の色を判定するアルゴリズムを改善し、より正確になりました。<br>
+- 「カラー割合の閾値」の設定を追加しました。画像の色チェックの寛容さを調整できます。<br>
+- 複数画像作品をクロールするとき、ダウンローダーはすべての画像の色をチェックします。ダウンロード時まで待つ必要はありません。<br>
+<strong>✨「タグに含めない」で、「完全一致」と「部分一致」を同時に使えるようになりました</strong><br>
+以前は「完全一致」と「部分一致」のどちらか 1 つしか選べませんでしたが、今は両方を同時に使えます。それぞれの一致モードに専用のスイッチと入力欄があるので、必要に応じて使い分けられます。<br>
+ヒント：以前の設定は引き継がれるので、この項目を再設定する必要はありません。<br>
+<strong>✨設定を追加：「ID 範囲」設定に「ブックマーク ID」カテゴリを追加しました</strong><br>
+ブックマークページで、ブックマーク ID を使って新しく追加されたブックマークを絞り込めます。詳しい使い方はこの設定のヘルプ情報をご覧ください。<br>
+<strong>⚙️「検索ページのクロール結果をプレビュー」設定を調整しました</strong><br>
+- クロール結果をプレビューするとき、作品はページごとに表示され、パフォーマンスへの負荷を抑えます。<br>
+- サブオプションを追加しました：1 ページに表示する作品数。<br>
+- 不要になった「プレビュー数の上限」設定を削除しました。<br>
+- この設定を「フィルター」-「実行戦略」に移動しました。<br>
+<strong>✏️いくつかの名称変更（機能に変更はありません）</strong><br>
+- ナビゲーション領域の「クロール」カテゴリを、より正確な「フィルター」に改名しました。<br>
+- 一部の設定の名前を変更しました。<br>
+- 「ダウンロード停止」ボタンを、動作により合った「ダウンロードの放棄」に改名しました。<br>
+<strong>🐞複数の既知の問題を修正しました</strong><br>
+数が多いため、ここでは個別には記載しません。<br>
+<strong>✨一部の機能の細部を改善し、ユーザー体験を向上させました</strong><br>
+<strong>💡一部のヘルプ、ログ、ヒントのテキストを改善しました</strong>`,
+        `<strong>🏷️새 이름 마커: {human}</strong><br>
+<span class="blue">{human}</span>: 작품이 AI 생성 작품이 아닐 때 <span class="blue">Human</span>을 출력하고, 그렇지 않으면 이 마커를 무시합니다. <span class="blue">{AI}</span>와 반대로, 사람이 만든 작품과 AI가 생성한 작품을 따로 저장하는 데 사용됩니다.<br>
+<strong>📚새 설정: 이러한 언어의 소설만 다운로드</strong><br>
+이 설정은 "필터" - "작품 데이터" 분류에 있습니다.<br>
+소설의 언어가 특정 언어여야만 다운로더가 크롤링하도록 요구할 수 있습니다.<br>
+<strong>📚새 설정: EPUB 파일의 언어 태그</strong><br>
+이 설정은 "다운로드" - "소설" 분류에 있습니다.<br>
+이제 다운로더는 기본적으로 소설의 언어를 EPUB 파일의 언어 태그로 사용합니다.<br>
+<strong>📚새 설정: EPUB 파일의 조판 방향</strong><br>
+소설 본문을 가로쓰기로 할지 세로쓰기로 할지 설정할 수 있고, 특정 언어의 소설(예: 일본어, 번체 중국어)에만 세로쓰기를 사용할 수도 있습니다.<br>
+<strong>📚새 설정: 간체-번체 변환</strong><br>
+다운로더는 소설을 다운로드할 때 이 설정에 따라 간체 중국어와 번체 중국어 소설을 변환할지 결정합니다. 기본적으로 변환하지 않습니다.<br>
+<strong>✨소설 책갈피 목록 페이지에서 크롤링을 지원합니다</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">소설 책갈피 목록 페이지</a><br>
+<strong>✨소설 장르 페이지에서 크롤링을 지원합니다</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">소설 장르 페이지</a><br>
+<strong>🛸태그 확인 필터 개선: 소설 태그를 확인할 때 장르 마커도 함께 확인합니다</strong><br>
+오리지널 소설에는 보통 장르가 있으며, "연애", "이세계 판타지"처럼 태그 목록 앞에 표시됩니다.<br>
+이제 다운로더는 장르 이름을 태그 목록에 추가하므로, 그것들을 확인하고 저장할 수 있습니다.<br>
+<strong>✨이미지 색상 감지 흐름과 설정 항목을 개선했습니다</strong><br>
+- 이미지 색상을 판단하는 알고리즘을 개선하여 더 정확해졌습니다.<br>
+- "컬러 비율 임계값" 설정을 추가했습니다. 이미지 색상 검사의 관대한 정도를 조절할 수 있습니다.<br>
+- 다중 이미지 작품을 크롤링할 때 다운로더는 모든 이미지의 색상을 검사합니다. 다운로드할 때까지 기다릴 필요가 없습니다.<br>
+<strong>✨"태그에 포함하면 안 됨"에서 "전체 일치"와 "부분 일치"를 동시에 사용할 수 있습니다</strong><br>
+이전에는 "전체 일치"와 "부분 일치" 중 하나의 일치 모드만 선택할 수 있었지만, 이제는 두 가지를 동시에 사용할 수 있습니다. 각 일치 모드에는 별도의 스위치와 입력란이 있으므로 필요에 따라 사용하면 됩니다.<br>
+안내: 이전 설정은 그대로 이어지므로 이 항목을 다시 설정할 필요가 없습니다.<br>
+<strong>✨새 설정: "ID 범위" 설정에 "북마크 ID" 분류를 추가했습니다</strong><br>
+북마크 페이지에서 북마크 ID를 사용해 새로 추가된 북마크를 걸러낼 수 있습니다. 자세한 사용법은 이 설정의 도움말을 참고하세요.<br>
+<strong>⚙️"검색 페이지 크롤링 결과 미리보기" 설정을 조정했습니다</strong><br>
+- 크롤링 결과를 미리 볼 때 작품이 페이지별로 표시되어 성능 부담을 줄입니다.<br>
+- 하위 옵션을 추가했습니다: 페이지당 표시할 작품 수.<br>
+- 더 이상 필요하지 않은 "미리보기 수량 상한" 설정을 제거했습니다.<br>
+- 이 설정을 "필터" - "실행 전략"으로 이동했습니다.<br>
+<strong>✏️일부 이름 변경 (기능 변경 없음)</strong><br>
+- 탐색 영역의 "크롤링" 분류를 더 정확한 "필터"로 이름을 변경했습니다.<br>
+- 일부 설정의 이름을 변경했습니다.<br>
+- "다운로드 중지" 버튼을 동작에 더 잘 맞는 "다운로드 포기"로 이름을 변경했습니다.<br>
+<strong>🐞알려진 여러 문제를 수정했습니다</strong><br>
+수량이 많아 여기서는 하나씩 나열하지 않습니다.<br>
+<strong>✨일부 기능의 세부 사항을 개선하여 사용자 경험을 높였습니다</strong><br>
+<strong>💡일부 도움말, 로그, 안내 텍스트를 개선했습니다</strong>`,
+        `<strong>🏷️Новый маркер имени: {human}</strong><br>
+<span class="blue">{human}</span>: если работа не создана ИИ, выводится <span class="blue">Human</span>, иначе этот маркер игнорируется. Он противоположен <span class="blue">{AI}</span> и нужен, чтобы сохранять работы, созданные людьми, отдельно от работ, сгенерированных ИИ.<br>
+<strong>📚Новая настройка: загружать только новеллы на этих языках</strong><br>
+Эта настройка находится в категории «Фильтр» - «Данные работы».<br>
+Вы можете потребовать, чтобы язык новеллы был одним из определённых языков — только тогда загрузчик просканирует её.<br>
+<strong>📚Новая настройка: языковой тег файла EPUB</strong><br>
+Эта настройка находится в категории «Скачивание» - «Новеллы».<br>
+Теперь загрузчик по умолчанию использует язык новеллы как языковой тег файла EPUB.<br>
+<strong>📚Новая настройка: направление вёрстки файла EPUB</strong><br>
+Вы можете задать горизонтальное или вертикальное направление текста новеллы, а также использовать вертикальное направление только для новелл на определённых языках (например, японском и традиционном китайском).<br>
+<strong>📚Новая настройка: преобразование между упрощённым и традиционным китайским</strong><br>
+При скачивании новелл загрузчик решает, преобразовывать ли новеллы на упрощённом и традиционном китайском, в соответствии с этой настройкой. По умолчанию преобразование не выполняется.<br>
+<strong>✨Добавлена поддержка сканирования на странице списка закладок новелл</strong><br>
+<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Страница списка закладок новелл</a><br>
+<strong>✨Добавлена поддержка сканирования на странице жанров новелл</strong><br>
+<a href="https://www.pixiv.net/genre/novel" target="_blank">Страница жанров новелл</a><br>
+<strong>🛸Улучшен фильтр проверки тегов: при проверке тегов новелл также проверяются маркеры жанра</strong><br>
+У оригинальных новелл обычно есть жанр, например «Романтика» или «Исекай-фэнтези», который отображается перед списком тегов.<br>
+Теперь загрузчик добавляет название жанра в список тегов, поэтому их можно проверять и сохранять.<br>
+<strong>✨Улучшены процесс и настройки определения цвета изображений</strong><br>
+- Улучшен алгоритм определения цвета изображений, он стал точнее.<br>
+- Добавлена настройка «Порог доли цвета», позволяющая регулировать, насколько мягкой будет проверка цвета изображений.<br>
+- При сканировании многоизображных работ загрузчик проверяет цвет каждого изображения, не дожидаясь момента скачивания.<br>
+<strong>✨В настройке «Теги не должны содержать» теперь можно одновременно использовать «Полное совпадение» и «Частичное совпадение»</strong><br>
+Раньше можно было выбрать только один режим совпадения — «Полное совпадение» или «Частичное совпадение», — теперь можно использовать оба одновременно. У каждого режима совпадения есть свой переключатель и поле ввода, поэтому вы можете использовать их по своему усмотрению.<br>
+Подсказка: ваши прежние настройки будут унаследованы, поэтому вам не нужно настраивать этот пункт заново.<br>
+<strong>✨Новая настройка: в настройке «Диапазон ID» добавлена категория «ID закладки»</strong><br>
+На странице ваших закладок вы можете использовать ID закладки, чтобы отфильтровать недавно добавленные закладки. Подробности см. в справочной информации этой настройки.<br>
+<strong>⚙️Изменена настройка «Предварительный просмотр результатов сканирования на странице поиска»</strong><br>
+- При предварительном просмотре результатов сканирования работы отображаются постранично, чтобы снизить нагрузку на производительность.<br>
+- Добавлен дополнительный параметр: количество работ, отображаемых на одной странице.<br>
+- Удалена ставшая ненужной настройка «Ограничение количества предварительного просмотра».<br>
+- Эта настройка перенесена в «Фильтр» - «Стратегия выполнения».<br>
+<strong>✏️Некоторые изменения названий (функции не изменились)</strong><br>
+- Категория «Сканирование» в области навигации переименована в «Фильтр» — это более точно.<br>
+- Изменены названия некоторых настроек.<br>
+- Кнопка «Остановить загрузку» переименована в «Отказаться от загрузки» — это больше соответствует её поведению.<br>
+<strong>🐞Исправлены несколько известных проблем</strong><br>
+Их слишком много, поэтому здесь они не перечисляются по отдельности.<br>
+<strong>✨Улучшены детали некоторых функций для повышения удобства использования</strong><br>
+<strong>💡Улучшены тексты некоторых справок, журнала и подсказок</strong>`,
     ],
     _用户的约稿页面: [
         `用户的约稿页面`,
@@ -55739,8 +55686,8 @@ class OptionConfigs {
             addedAt: 1774310400000,
         },
         {
-            no: 7,
-            nameKey: '_图片色彩',
+            no: 8,
+            nameKey: '_图片数量',
             name: '',
             categoryLevel1: 'filter',
             categoryLevel2: 'workType',
@@ -55750,8 +55697,8 @@ class OptionConfigs {
             searchWords: [],
         },
         {
-            no: 8,
-            nameKey: '_图片数量',
+            no: 7,
+            nameKey: '_图片色彩',
             name: '',
             categoryLevel1: 'filter',
             categoryLevel2: 'workType',
@@ -78868,6 +78815,31 @@ const illustsData = [
     [150400000, 1791010320000],
     [150410000, 1791026460000],
     [150420000, 1791039240000],
+    [150430000, 1791064620000],
+    [150440000, 1791089400000],
+    [150450000, 1791107460000],
+    [150460000, 1791119520000],
+    [150470000, 1791132720000],
+    [150480000, 1791168540000],
+    [150490000, 1791193440000],
+    [150500000, 1791206760000],
+    [150510000, 1791223080000],
+    [150520000, 1791259020000],
+    [150530000, 1791283440000],
+    [150540000, 1791296520000],
+    [150550000, 1791322200000],
+    [150560000, 1791354120000],
+    [150570000, 1791373560000],
+    [150580000, 1791386220000],
+    [150590000, 1791417600000],
+    [150600000, 1791449520000],
+    [150610000, 1791464460000],
+    [150620000, 1791480900000],
+    [150630000, 1791517020000],
+    [150640000, 1791541260000],
+    [150650000, 1791553800000],
+    [150660001, 1791570960000],
+    [150670000, 1791601200000],
 ];
 
 
@@ -81815,6 +81787,11 @@ const novelsData = [
     [29270000, 1790800928000],
     [29280001, 1790928284000],
     [29290000, 1791026018000],
+    [29300000, 1791114899000],
+    [29310000, 1791210990000],
+    [29320002, 1791340525000],
+    [29330000, 1791459533000],
+    [29340000, 1791561600000],
 ];
 
 

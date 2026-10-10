@@ -122,6 +122,7 @@ class CheckWarningMessage {
         // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
         // https://www.pixiv.net/users/11
         // 但是下面这个判断条件不清楚以后是否会发生变化
+        // 备注：截止 2026-10-06，和当天一个被警告的用户收到的消息进行对比，这个判断条件依然是准确的。
         if (
           msgData.latest_content.includes('policies.pixiv.net') &&
           msgData.latest_content.includes('14')

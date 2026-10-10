@@ -368,8 +368,8 @@ class OptionConfigs {
       addedAt: 1774310400000,
     },
     {
-      no: 7,
-      nameKey: '_图片色彩',
+      no: 8,
+      nameKey: '_图片数量',
       name: '',
       categoryLevel1: 'filter',
       categoryLevel2: 'workType',
@@ -379,8 +379,8 @@ class OptionConfigs {
       searchWords: [],
     },
     {
-      no: 8,
-      nameKey: '_图片数量',
+      no: 7,
+      nameKey: '_图片色彩',
       name: '',
       categoryLevel1: 'filter',
       categoryLevel2: 'workType',
