@@ -479,6 +479,7 @@ interface XzSetting {
   downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
   tipAltXToShowControlPanel: boolean
   tipAltSToSelectWork: boolean
+  tipMarqueeToSelectWork: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
   exportIDList: boolean
@@ -560,6 +561,7 @@ interface XzSetting {
   autoExportSettingsInterval: number
   tipManuallyExcludeWorks: boolean
   tipAltEToExcludeWork: boolean
+  tipMarqueeToExcludeWork: boolean
   /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
   hotkeys: HotkeyMap
   tipHowToCrawlUserWorks: boolean
@@ -1101,6 +1103,7 @@ class Settings {
     downloadOrderSortBy: 'ID',
     tipAltXToShowControlPanel: true,
     tipAltSToSelectWork: true,
+    tipMarqueeToSelectWork: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
     exportIDList: false,
@@ -1230,6 +1233,7 @@ class Settings {
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
     tipAltEToExcludeWork: true,
+    tipMarqueeToExcludeWork: true,
     hotkeys: defaultHotkeys,
     tipHowToCrawlUserWorks: true,
   }
@@ -1582,7 +1586,9 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipMarqueeToSelectWork', true)
     this.setSetting('tipAltEToExcludeWork', true)
+    this.setSetting('tipMarqueeToExcludeWork', true)
     this.setSetting('tipHowToCrawlUserWorks', true)
     this.setSetting('tipImageViewer', true)
     this.setSetting('tipBookmarkButton', true)

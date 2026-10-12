@@ -187,6 +187,32 @@
   top: 12px;
   z-index: -1;
 }
+html.ppdMarqueeActive {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.ppdMarqueeRect {
+  position: fixed;
+  z-index: 1001;
+  box-sizing: border-box;
+  pointer-events: none;
+  display: none;
+  border: 1px solid var(--beautify-blue);
+  background-color: rgba(29, 172, 245, 0.2);
+}
+.ppdMarqueeRect.ppdMarqueeRectExclude {
+  border-color: #f33939;
+  background-color: rgba(243, 57, 57, 0.2);
+}
+.ppdMarqueeHighlightSelect {
+  outline: 3px solid var(--beautify-blue);
+  outline-offset: -3px;
+}
+.ppdMarqueeHighlightExclude {
+  outline: 3px solid #f33939;
+  outline-offset: -3px;
+}
 .fastScreenArea {
   text-align: center;
   background: #fff;
@@ -4234,7 +4260,7 @@ iframe[name='expandedFooter'] {
   padding: 2px 5px;
 }
 :root {
-  --thumbnailListSelectorEl-color: #0096fa;
+  --thumbnailListSelectorEl-color: #00faa7;
 }
 #viewerWarpper {
   position: relative;

@@ -4389,9 +4389,7 @@ class ExcludeWork {
                 }
                 this.startExclude(ev);
                 this.clearBtn.style.display = 'flex';
-                if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__.showOneTimeMsg.show('tipAltEToExcludeWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTE手动排除作品'), _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动排除作品'));
-                }
+                this.showEnterModeTips();
             };
         }
         else {
@@ -4556,6 +4554,26 @@ class ExcludeWork {
             this.pauseExclude();
         }
     }
+    /** 显示进入排除模式时的一次性提示（快捷键、框选）。
+     * 多条提示会合并到一个弹窗里显示，各自只显示一次 */
+    showEnterModeTips() {
+        const items = [];
+        if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+            items.push({
+                key: 'tipAltEToExcludeWork',
+                msg: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTE手动排除作品'),
+            });
+        }
+        const tip1 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_点击手动排除作品的说明');
+        const tip2 = _Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile
+            ? _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_长按后拖动可以框选作品')
+            : _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_按住并拖动可以框选作品');
+        items.push({
+            key: 'tipMarqueeToExcludeWork',
+            msg: tip1 + '<br><br>' + tip2,
+        });
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__.showOneTimeMsg.showList(items, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动排除作品'));
+    }
     // 开始或继续排除
     startExclude(ev) {
         this.start = true;
@@ -4574,6 +4592,41 @@ class ExcludeWork {
     }
     canExclude() {
         return this.start && !this.pause;
+    }
+    /** 对一组作品缩略图元素执行“切换排除状态”操作（与单击作品时一致）。
+     * 用于框选提交：已排除的作品会被取消排除，未排除的作品会被排除。
+     * 同一个作品有多个缩略图时只处理一次 */
+    toggleElements(elements) {
+        const seen = new Set();
+        for (const el of elements) {
+            // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_15__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            let id = el.dataset.workid;
+            let type = el.dataset.worktype;
+            if (!id || !type) {
+                continue;
+            }
+            // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+            if (type === 'novels' || type === 'novelSeries') {
+                const idData = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelOrSeriesIDData(el);
+                if (idData) {
+                    id = idData.id;
+                    type = idData.type;
+                }
+                else {
+                    continue;
+                }
+            }
+            // 同一个 id 可能命中多个缩略图，去重，避免它们互相抵消
+            const key = id + '::' + type;
+            if (seen.has(key)) {
+                continue;
+            }
+            seen.add(key);
+            this.addId(el, id, type);
+        }
     }
     /** 启动或暂停手动排除作品（模拟点击控制按钮） */
     toggleExcludeWork() {
@@ -11445,9 +11498,7 @@ class SelectWork {
                 }
                 this.startSelect();
                 this.clearBtn.style.display = 'flex';
-                if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__.showOneTimeMsg.show('tipAltSToSelectWork', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTS手动选择作品'), _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动选择作品'));
-                }
+                this.showEnterModeTips();
             };
         }
         else {
@@ -11529,6 +11580,41 @@ class SelectWork {
         }
         else {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有找到任何作品'));
+        }
+    }
+    /** 对一组作品缩略图元素执行“切换选择状态”操作（与单击作品时一致）。
+     * 用于框选提交：已选择的作品会被取消选择，未选择的作品会被选中。
+     * 同一个作品有多个缩略图时只处理一次 */
+    toggleElements(elements) {
+        const seen = new Set();
+        for (const el of elements) {
+            // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_13__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            let id = el.dataset.workid;
+            let type = el.dataset.worktype;
+            if (!id || !type) {
+                continue;
+            }
+            // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+            if (type === 'novels' || type === 'novelSeries') {
+                const idData = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelOrSeriesIDData(el);
+                if (idData) {
+                    id = idData.id;
+                    type = idData.type;
+                }
+                else {
+                    continue;
+                }
+            }
+            // 同一个 id 可能命中多个缩略图，去重，避免它们互相抵消
+            const key = id + '::' + type;
+            if (seen.has(key)) {
+                continue;
+            }
+            seen.add(key);
+            this.addId(el, id, type);
         }
     }
     /** 退出手动选择模式，并取消所有选择的作品（供网页右侧的“退出全选”按钮调用） */
@@ -11646,6 +11732,26 @@ class SelectWork {
         if (ev.code === 'Escape') {
             this.pauseSelect();
         }
+    }
+    /** 显示进入选择模式时的一次性提示（快捷键、框选）。
+     * 多条提示会合并到一个弹窗里显示，各自只显示一次 */
+    showEnterModeTips() {
+        const items = [];
+        if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+            items.push({
+                key: 'tipAltSToSelectWork',
+                msg: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTS手动选择作品'),
+            });
+        }
+        const tip1 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_点击手动选择作品的说明');
+        const tip2 = _Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile
+            ? _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_长按后拖动可以框选作品')
+            : _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_按住并拖动可以框选作品');
+        items.push({
+            key: 'tipMarqueeToSelectWork',
+            msg: tip1 + '<br><br>' + tip2,
+        });
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_10__.showOneTimeMsg.showList(items, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_手动选择作品'));
     }
     // 开始或继续选择
     startSelect() {
@@ -12587,6 +12693,19 @@ class ShowOneTimeMsg {
                 btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
             });
         }
+    }
+    /** 一次显示多条一次性提示。每条提示按照自己的 key 独立判断，只显示尚未显示过的提示，
+     * 多条提示会合并到一个消息框里显示。全都显示过时不显示 */
+    showList(items, title) {
+        const pending = items.filter((item) => _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings[item.key] === true);
+        if (pending.length === 0) {
+            return;
+        }
+        pending.forEach((item) => (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)(item.key, false));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(pending.map((item) => item.msg).join('<br><br>'), {
+            title: title ? title : _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ' Help',
+            btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
+        });
     }
 }
 const showOneTimeMsg = new ShowOneTimeMsg();
@@ -15400,6 +15519,507 @@ const workSelection = new WorkSelection();
 
 /***/ }),
 
+/***/ "./src/ts/WorkSelectionMarquee.ts":
+/*!****************************************!*\
+  !*** ./src/ts/WorkSelectionMarquee.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   workSelectionMarquee: () => (/* binding */ workSelectionMarquee)
+/* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SelectWork */ "./src/ts/SelectWork.ts");
+/* harmony import */ var _ExcludeWork__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ExcludeWork */ "./src/ts/ExcludeWork.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_MarqueeMath__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/MarqueeMath */ "./src/ts/utils/MarqueeMath.ts");
+
+
+
+
+
+
+
+// 为「手动选择作品」和「手动排除作品」提供框选功能。
+// 文档：notes/为选择作品的功能添加框选功能.md
+//
+// 桌面端：按下鼠标左键后移动超过阈值即开始框选，松开提交。
+// 移动端：单指拖动是滚动页面的手势，所以需要长按后再拖动才会开始框选。
+// 框选的提交语义与单击相同：toggle（已选择的作品会被取消选择，未选择的作品会被选中）。
+// 处于选择 / 排除模式时，会阻止浏览器默认的文本选择和原生拖拽。
+// 另外，拖动结束后需要拦截一次 click，避免误触发作品的选择 / 排除。
+class WorkSelectionMarquee {
+    constructor() {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.isPixiv()) {
+            this.bindEvents();
+        }
+    }
+    /** 位移超过这个距离（px）视为已开始拖动。与 TapDetector 的阈值一致 */
+    moveThreshold = 10;
+    /** 移动端需要先长按这么久（ms）再拖动。与 Utils.longPress 的默认值一致 */
+    longPressTime = 500;
+    /** 自动滚动：鼠标距离视口上下边缘多少像素内时触发 */
+    autoScrollEdge = 50;
+    /** 自动滚动的最大速度（px / 帧） */
+    autoScrollMaxSpeed = 20;
+    /** 拖动结束后，在这个时长（ms）内拦截一次 click */
+    clickSuppressTime = 300;
+    /** 手势状态。
+     * idle：空闲。
+     * pressing：已按下，等待移动（移动端还会等待长按计时）。
+     * armed：移动端长按达成，等待拖动（桌面端不会出现这个状态）。
+     * dragging：正在框选。 */
+    state = 'idle';
+    /** 本次手势开始时所在的模式。手势期间模式发生变化时会取消本次手势 */
+    mode = null;
+    /** 按下时的 client 坐标（用于判断位移） */
+    startClientX = 0;
+    startClientY = 0;
+    /** 按下时的文档坐标（框选矩形的起点）。按下时计算一次，之后保持不变 */
+    startDocX = 0;
+    startDocY = 0;
+    /** 当前的 client 坐标（框选矩形的终点） */
+    currentClientX = 0;
+    currentClientY = 0;
+    /** 长按计时器（移动端） */
+    longPressTimer = null;
+    /** 拖动时 rAF 循环的 id */
+    tickId = null;
+    /** 拖动结束后，在这个时间戳之前拦截一次 click（桌面端）。
+     * 拦截后、或者下一次按下时重置为 0 */
+    suppressClickUntil = 0;
+    /** 框选矩形的元素。第一次拖动时创建，之后复用 */
+    marqueeEl;
+    /** 当前被临时高亮的缩略图集合，以及使用的高亮 class */
+    highlightSet = new Set();
+    highlightClass = 'ppdMarqueeHighlightSelect';
+    bindEvents() {
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            // 移动端
+            window.addEventListener('touchstart', this.onTouchStart, true);
+            // 阻止页面滚动时需要调用 preventDefault，所以必须设置 passive: false
+            window.addEventListener('touchmove', this.onTouchMove, {
+                capture: true,
+                passive: false,
+            });
+            window.addEventListener('touchend', this.onTouchEnd, true);
+            window.addEventListener('touchcancel', this.onTouchCancel, true);
+            // 阻止长按弹出的上下文菜单，避免打断「长按后拖动」的手势
+            window.addEventListener('contextmenu', this.onContextMenu, true);
+        }
+        else {
+            // 桌面端
+            window.addEventListener('mousedown', this.onMouseDown, true);
+            window.addEventListener('mousemove', this.onMouseMove, true);
+            window.addEventListener('mouseup', this.onMouseUp, true);
+            // 拖动结束后需要拦截一次 click，避免这个 click 被当作点击作品
+            document.addEventListener('click', this.onClickCapture, true);
+        }
+        window.addEventListener('blur', this.onBlur);
+        window.addEventListener('keydown', this.onKeyDown, true);
+        // 处于选择 / 排除模式时，阻止浏览器默认的文本选择和原生拖拽。
+        // 拖动可能在按下的下一个瞬间就发生，没有「长按成功」之类的提前时机，
+        // 所以守卫需要覆盖整个模式激活期，而不是只在拖动期间
+        document.addEventListener('selectstart', this.onSelectStart, true);
+        document.addEventListener('dragstart', this.onDragStart, true);
+        // 页面切换、模式状态变化时取消手势
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.onCancelEvent);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.workSelectionChange, this.onSelectionChange);
+    }
+    /** 当前是否有任一模式处于活动状态（模式激活、未暂停、未打开设置面板）。
+     * 与两个模块里指示器的显示条件一致 */
+    getActiveMode() {
+        if (_SelectWork__WEBPACK_IMPORTED_MODULE_2__.selectWork.canSelect() && !_SelectWork__WEBPACK_IMPORTED_MODULE_2__.selectWork.tempHide) {
+            return 'select';
+        }
+        if (_ExcludeWork__WEBPACK_IMPORTED_MODULE_3__.excludeWork.canExclude() && !_ExcludeWork__WEBPACK_IMPORTED_MODULE_3__.excludeWork.tempHide) {
+            return 'exclude';
+        }
+        return null;
+    }
+    /** 目标是否位于输入类元素内。是的话应放行，使搜索框等可以正常使用 */
+    isExcludedTarget(target) {
+        if (!(target instanceof Element)) {
+            return false;
+        }
+        return !!target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])');
+    }
+    /** 是否可以从这个目标上开始一次框选手势 */
+    canStart(target) {
+        if (this.getActiveMode() === null) {
+            return false;
+        }
+        if (this.isExcludedTarget(target)) {
+            return false;
+        }
+        return true;
+    }
+    /** 移动的距离是否已经超过阈值 */
+    moveEnough(clientX, clientY) {
+        return (Math.abs(clientX - this.startClientX) > this.moveThreshold ||
+            Math.abs(clientY - this.startClientY) > this.moveThreshold);
+    }
+    /** 开始一次手势。记录起始坐标、模式，并添加会话期间使用的 class */
+    startSession(clientX, clientY) {
+        this.mode = this.getActiveMode();
+        this.startClientX = clientX;
+        this.startClientY = clientY;
+        this.startDocX = clientX + window.scrollX;
+        this.startDocY = clientY + window.scrollY;
+        this.currentClientX = clientX;
+        this.currentClientY = clientY;
+        this.highlightClass =
+            this.mode === 'exclude'
+                ? 'ppdMarqueeHighlightExclude'
+                : 'ppdMarqueeHighlightSelect';
+        // 会话期间禁止文本选择和长按 callout（作为阻止默认行为的双保险）
+        document.documentElement.classList.add('ppdMarqueeActive');
+    }
+    /** 进入拖动状态，开始显示框选矩形 */
+    beginDrag() {
+        // 如果在按下之后、开始拖动之前，模式被关闭或切换了，则放弃本次手势
+        if (this.getActiveMode() !== this.mode) {
+            this.cleanup();
+            return;
+        }
+        this.state = 'dragging';
+        this.showMarqueeEl();
+        this.updateMarqueeRect();
+        this.updateHits();
+        this.tickId = requestAnimationFrame(this.tick);
+    }
+    /** 拖动期间的 rAF 循环：更新矩形、命中检测和自动滚动 */
+    tick = () => {
+        if (this.state !== 'dragging') {
+            this.tickId = null;
+            return;
+        }
+        this.updateMarqueeRect();
+        this.updateHits();
+        this.updateAutoScroll();
+        this.tickId = requestAnimationFrame(this.tick);
+    };
+    /** 用文档坐标返回当前的框选矩形 */
+    getDocRect() {
+        return (0,_utils_MarqueeMath__WEBPACK_IMPORTED_MODULE_6__.rectFromPoints)(this.startDocX, this.startDocY, this.currentClientX + window.scrollX, this.currentClientY + window.scrollY);
+    }
+    /** 显示框选矩形（第一次使用时创建元素） */
+    showMarqueeEl() {
+        if (!this.marqueeEl) {
+            this.marqueeEl = document.createElement('div');
+            this.marqueeEl.classList.add('ppdMarqueeRect');
+            document.body.appendChild(this.marqueeEl);
+        }
+        this.marqueeEl.classList.toggle('ppdMarqueeRectExclude', this.mode === 'exclude');
+        this.marqueeEl.style.display = 'block';
+    }
+    /** 更新框选矩形的位置和尺寸。显示坐标 = 文档坐标 - 当前滚动量，
+     * 这样滚动页面时矩形看起来会跟着页面内容移动 */
+    updateMarqueeRect() {
+        if (!this.marqueeEl) {
+            return;
+        }
+        const docRect = this.getDocRect();
+        this.marqueeEl.style.left = docRect.left - window.scrollX + 'px';
+        this.marqueeEl.style.top = docRect.top - window.scrollY + 'px';
+        this.marqueeEl.style.width = docRect.right - docRect.left + 'px';
+        this.marqueeEl.style.height = docRect.bottom - docRect.top + 'px';
+    }
+    /** 更新命中检测，并高亮 / 取消高亮对应的缩略图 */
+    updateHits() {
+        const docRect = this.getDocRect();
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+        const elements = document.querySelectorAll('.ppd-workThumbnail');
+        const hits = new Set();
+        for (const el of elements) {
+            // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_4__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+                continue;
+            }
+            const rect = el.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) {
+                // 不可见的元素（尺寸为 0），跳过
+                continue;
+            }
+            const docElRect = (0,_utils_MarqueeMath__WEBPACK_IMPORTED_MODULE_6__.toDocRect)({
+                left: rect.left,
+                top: rect.top,
+                right: rect.right,
+                bottom: rect.bottom,
+            }, scrollX, scrollY);
+            if ((0,_utils_MarqueeMath__WEBPACK_IMPORTED_MODULE_6__.rectsIntersect)(docRect, docElRect)) {
+                hits.add(el);
+            }
+        }
+        // 更新高亮：新进入的加上 class，离开的移除 class
+        for (const el of this.highlightSet) {
+            if (!hits.has(el)) {
+                el.classList.remove(this.highlightClass);
+            }
+        }
+        for (const el of hits) {
+            if (!this.highlightSet.has(el)) {
+                el.classList.add(this.highlightClass);
+            }
+        }
+        this.highlightSet = hits;
+    }
+    /** 拖动到视口上下边缘时自动滚动页面 */
+    updateAutoScroll() {
+        const y = this.currentClientY;
+        const edge = this.autoScrollEdge;
+        const bottomEdge = window.innerHeight - edge;
+        let speed = 0;
+        if (y < edge) {
+            // 向上滚动
+            speed = -Math.ceil(((edge - y) / edge) * this.autoScrollMaxSpeed);
+        }
+        else if (y > bottomEdge) {
+            // 向下滚动
+            speed = Math.ceil(((y - bottomEdge) / edge) * this.autoScrollMaxSpeed);
+        }
+        if (speed !== 0) {
+            window.scrollBy(0, speed);
+        }
+    }
+    /** 结束手势并提交框选结果（仅 dragging 状态会提交）。
+     * 提交后由两个模块执行 toggle（与单击作品的行为一致） */
+    finish() {
+        // 按最后一刻的矩形同步更新一次命中。
+        // 拖动结束前，最后一次移动之后 rAF 可能还没有执行过，
+        // 直接用当前高亮集合会漏掉最后移动的一小段
+        this.updateHits();
+        const elements = Array.from(this.highlightSet);
+        const mode = this.mode;
+        this.cleanup();
+        if (elements.length === 0) {
+            return;
+        }
+        if (mode === 'select') {
+            _SelectWork__WEBPACK_IMPORTED_MODULE_2__.selectWork.toggleElements(elements);
+        }
+        else if (mode === 'exclude') {
+            _ExcludeWork__WEBPACK_IMPORTED_MODULE_3__.excludeWork.toggleElements(elements);
+        }
+    }
+    /** 清理当前手势的状态和界面 */
+    cleanup() {
+        this.state = 'idle';
+        this.mode = null;
+        if (this.longPressTimer !== null) {
+            window.clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+        }
+        if (this.tickId !== null) {
+            cancelAnimationFrame(this.tickId);
+            this.tickId = null;
+        }
+        if (this.marqueeEl) {
+            this.marqueeEl.style.display = 'none';
+        }
+        for (const el of this.highlightSet) {
+            el.classList.remove(this.highlightClass);
+        }
+        this.highlightSet.clear();
+        document.documentElement.classList.remove('ppdMarqueeActive');
+    }
+    // ---- 桌面端事件 ----
+    onMouseDown = (ev) => {
+        if (ev.button !== 0) {
+            // 只响应鼠标左键
+            return;
+        }
+        // 这一次按下属于新的手势：重置拖动结束时设置的 click 拦截
+        this.suppressClickUntil = 0;
+        // 上一次手势的残留（例如在窗口外松开导致 mouseup 丢失）此时清理
+        if (this.state !== 'idle') {
+            this.cleanup();
+        }
+        if (!this.canStart(ev.target)) {
+            return;
+        }
+        this.state = 'pressing';
+        this.startSession(ev.clientX, ev.clientY);
+    };
+    onMouseMove = (ev) => {
+        if (this.state === 'idle') {
+            return;
+        }
+        // 鼠标左键已被松开（例如在窗口外松开、mouseup 丢失）时，清理并放弃本次手势
+        if (ev.buttons === 0) {
+            this.cleanup();
+            return;
+        }
+        this.currentClientX = ev.clientX;
+        this.currentClientY = ev.clientY;
+        if (this.state === 'pressing' && this.moveEnough(ev.clientX, ev.clientY)) {
+            // 位移超过阈值，开始框选
+            this.beginDrag();
+        }
+    };
+    onMouseUp = (ev) => {
+        if (ev.button !== 0 || this.state === 'idle') {
+            return;
+        }
+        if (this.state === 'dragging') {
+            this.finish();
+            // 拖动结束后，浏览器仍可能基于这次按下 / 松开发出 click，需要拦截它
+            this.suppressClickUntil = Date.now() + this.clickSuppressTime;
+        }
+        else {
+            // 没有移动（或移动距离很小）：不框选，本次操作按原有的单击逻辑处理
+            this.cleanup();
+        }
+    };
+    /** 拦截拖动结束后跟随而来的 click，避免误触发作品的选择 / 排除 */
+    onClickCapture = (ev) => {
+        if (Date.now() < this.suppressClickUntil) {
+            this.suppressClickUntil = 0;
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+    };
+    // ---- 移动端事件 ----
+    onTouchStart = (ev) => {
+        // 多指触摸（缩放等）：取消手势，并忽略这次触摸
+        if (ev.touches.length > 1) {
+            if (this.state !== 'idle') {
+                this.cleanup();
+            }
+            return;
+        }
+        if (this.state !== 'idle') {
+            return;
+        }
+        if (!this.canStart(ev.target)) {
+            return;
+        }
+        const touch = ev.touches[0];
+        this.state = 'pressing';
+        this.startSession(touch.clientX, touch.clientY);
+        // 长按计时。达成后进入 armed，等待拖动
+        this.longPressTimer = window.setTimeout(() => {
+            this.longPressTimer = null;
+            if (this.state === 'pressing') {
+                this.state = 'armed';
+            }
+        }, this.longPressTime);
+    };
+    onTouchMove = (ev) => {
+        if (this.state === 'idle') {
+            return;
+        }
+        // 多指触摸：取消手势
+        if (ev.touches.length > 1) {
+            this.cleanup();
+            return;
+        }
+        const touch = ev.touches[0];
+        if (this.state === 'pressing') {
+            // 长按计时期间移动过多，说明用户想滚动页面：取消手势，
+            // 并且不阻止默认行为，让浏览器正常滚动
+            if (this.moveEnough(touch.clientX, touch.clientY)) {
+                this.cleanup();
+            }
+            return;
+        }
+        // armed / dragging：阻止页面滚动
+        if (ev.cancelable) {
+            ev.preventDefault();
+        }
+        this.currentClientX = touch.clientX;
+        this.currentClientY = touch.clientY;
+        if (this.state === 'armed' &&
+            this.moveEnough(touch.clientX, touch.clientY)) {
+            // 长按后移动超过阈值，开始框选
+            this.beginDrag();
+        }
+    };
+    onTouchEnd = (ev) => {
+        if (this.state === 'idle') {
+            return;
+        }
+        const wasArmed = this.state === 'armed';
+        const wasDragging = this.state === 'dragging';
+        if (wasArmed || wasDragging) {
+            // 长按达成后，本次触摸不应该再被当作点击处理。
+            // 两个模块和 WorkThumbnail 的点击处理都挂在 touchend 上，这里阻止它们
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+        if (wasDragging) {
+            this.finish();
+        }
+        else {
+            this.cleanup();
+        }
+    };
+    onTouchCancel = () => {
+        if (this.state !== 'idle') {
+            this.cleanup();
+        }
+    };
+    /** 移动端长按的上下文菜单会打断「长按后拖动」的手势，需要阻止。
+     * 只在有活动手势时阻止，不影响正常情况下的长按菜单 */
+    onContextMenu = (ev) => {
+        if (this.state !== 'idle' && this.getActiveMode() !== null) {
+            ev.preventDefault();
+        }
+    };
+    // ---- 公共事件 ----
+    onBlur = () => {
+        if (this.state !== 'idle') {
+            this.cleanup();
+        }
+    };
+    /** 手势进行中按 Esc：只取消当前框选，不触发「Esc 暂停模式」的原有行为 */
+    onKeyDown = (ev) => {
+        if (ev.code !== 'Escape' || this.state === 'idle') {
+            return;
+        }
+        this.cleanup();
+        ev.stopPropagation();
+    };
+    /** 选择 / 排除模式激活时，阻止浏览器默认的文本选择 */
+    onSelectStart = (ev) => {
+        if (this.getActiveMode() === null || this.isExcludedTarget(ev.target)) {
+            return;
+        }
+        ev.preventDefault();
+    };
+    /** 选择 / 排除模式激活时，阻止浏览器原生的拖拽 */
+    onDragStart = (ev) => {
+        if (this.getActiveMode() === null || this.isExcludedTarget(ev.target)) {
+            return;
+        }
+        ev.preventDefault();
+    };
+    onCancelEvent = () => {
+        if (this.state !== 'idle') {
+            this.cleanup();
+        }
+    };
+    onSelectionChange = () => {
+        if (this.state === 'idle') {
+            return;
+        }
+        // 手势期间模式被关闭或切换时，取消本次手势
+        if (this.getActiveMode() !== this.mode) {
+            this.cleanup();
+        }
+    };
+}
+const workSelectionMarquee = new WorkSelectionMarquee();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/WorkThumbnail.ts":
 /*!*********************************!*\
   !*** ./src/ts/WorkThumbnail.ts ***!
@@ -16633,7 +17253,7 @@ class CrawlLatestFewWorks {
         // 在定制版本里是默认显示的，所以需要在切换到不可使用的页面时隐藏它
         // if (!this.enable) {
         // window.setTimeout(() => {
-        //   options.hideOption([15])
+        //   options.hideOption([2])
         // }, 0)
         // }
     }
@@ -16690,23 +17310,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _StopCrawl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
 /* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../SelectWork */ "./src/ts/SelectWork.ts");
 /* harmony import */ var _ExcludeWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ExcludeWork */ "./src/ts/ExcludeWork.ts");
-/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
-/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
-/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
-/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
-/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _WorkSelectionMarquee__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../WorkSelectionMarquee */ "./src/ts/WorkSelectionMarquee.ts");
+/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
+/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
+/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
+/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // 初始化所有页面抓取流程的基类
 
 
@@ -16723,6 +17344,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // import '../SelectWorkRightButtons'
+
 
 
 
@@ -16788,7 +17410,7 @@ class InitPageBase {
         this.initAny();
         // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
-        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
+        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_16__.destroyManager.register(this.destroy.bind(this));
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('setSlowCrawlMode', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'slowCrawl' && data.value) {
@@ -16830,7 +17452,7 @@ class InitPageBase {
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
         });
         // 设置用于调试的 flag
-        _PPDTask__WEBPACK_IMPORTED_MODULE_31__.ppdTask.register(1, 'Only crawl IdList', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_32__.ppdTask.register(1, 'Only crawl IdList', () => {
             this.onlyCrawlIdList = !this.onlyCrawlIdList;
             if (this.onlyCrawlIdList) {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On');
@@ -16872,8 +17494,8 @@ class InitPageBase {
     /**在日志上显示一些提示 */
     showLogTip() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.removeWorksOfFollowedUsersOnSearchPage &&
-            (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
-                _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
+            (_PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.NovelSearch)) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel) {
@@ -16900,7 +17522,7 @@ class InitPageBase {
         // 检查是否可以开始抓取
         // states.busy 表示下载器正在抓取或正在下载
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
             return;
         }
         // 下载器空闲，此时检查是否有已存在的抓取结果
@@ -16910,10 +17532,10 @@ class InitPageBase {
         // 清空日志
         // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_29__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-        const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.showTip();
+        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+        const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.showTip();
         if (wrongSetting) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
@@ -16922,7 +17544,7 @@ class InitPageBase {
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
         await _filter_Mute__WEBPACK_IMPORTED_MODULE_11__.mute.getMuteSettings();
         this.getWantPage();
-        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_27__.crawlLatestFewWorks.showLog();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
         this.showLogTip();
         this.finishedRequest = 0;
         this.crawlFinishBecauseStopCrawl = false;
@@ -16957,7 +17579,7 @@ class InitPageBase {
         // 如果下载器正忙则把 id 列表添加到等待队列中
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(..._idList);
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
         }
@@ -16965,12 +17587,12 @@ class InitPageBase {
             if (!this.confirmRecrawl()) {
                 return;
             }
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_29__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
-            const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.showTip();
+            const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.showTip();
             if (wrongSetting) {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
@@ -16995,7 +17617,7 @@ class InitPageBase {
     getIdList() { }
     /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
     async checkUserId(userId) {
-        return await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+        return await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
             userId,
         });
     }
@@ -17014,7 +17636,7 @@ class InitPageBase {
         const filteredIDList = [];
         for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
             let check = true;
-            check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+            check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
                 id: idData.id,
                 IDTypeString: idData.type,
                 workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
@@ -17037,16 +17659,16 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.isPixiv()) {
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList) {
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
                 for (const result of resultList) {
-                    _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.formatDateTimeInFilename()}.json`);
+                    _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.formatDateTimeInFilename()}.json`);
                 }
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表');
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.success(msg);
             }
             return;
         }
@@ -17109,11 +17731,11 @@ class InitPageBase {
         const id = idData.id;
         if (!id) {
             const msg = 'Error: work id is invalid!';
-            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.error(msg);
             throw new Error(msg);
         }
         // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它
-        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
             id,
             IDTypeString: idData.type,
             workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
@@ -17122,20 +17744,20 @@ class InitPageBase {
             return this.afterGetWorksData();
         }
         try {
-            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
+            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.Unlisted;
             if (idData.type === 'novels') {
                 // 小说数据尝试从缓存中获取，这是因为“自动合并系列小说”里也需要获取小说数据。
                 // 如果不使用缓存，则必定会导致一个小说发送两次请求
                 // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
                 // 但通常问题不大
-                const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_26__.cacheWorkData.getWorkDataAsync(id, 'novel', unlisted);
+                const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.getWorkDataAsync(id, 'novel', unlisted);
                 // 自动合并系列小说
                 const seriesId = data.body.seriesNavData?.seriesId;
                 const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel;
                 if (canMerge) {
                     const seriseTitle = data.body.seriesNavData?.title;
                     this.mergedNovelCount++;
-                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_28__.autoMergeNovel.merge(seriesId, seriseTitle);
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
                 }
                 // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
                 if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
@@ -17146,7 +17768,7 @@ class InitPageBase {
             else if (idData.type === 'novelSeries') {
                 // 合并系列小说
                 this.mergedNovelCount++;
-                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_30__.MergeNovel().merge(id, idData.title, true);
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__.MergeNovel().merge(id, idData.title, true);
                 this.afterGetWorksData();
             }
             else {
@@ -17172,7 +17794,7 @@ class InitPageBase {
                 // 注意：这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sleep(2000);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(2000);
                 this.getWorksData(idData);
             }
         }
@@ -17185,7 +17807,7 @@ class InitPageBase {
             return this.crawlFinished();
         }
         // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__.vipSearchOptimize.checkBookmarkCount(data))) {
+        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__.vipSearchOptimize.checkBookmarkCount(data))) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
             // 指示抓取已停止
             _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = true;
@@ -17196,7 +17818,7 @@ class InitPageBase {
         // 这样可以加快抓取速度
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
                 id: nextIDData.id,
                 IDTypeString: nextIDData.type,
                 workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
@@ -17212,14 +17834,14 @@ class InitPageBase {
             // 如果有缓存数据就不需要添加间隔时间，因为小说会使用缓存的数据，不必发送请求
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
             if (nextIDData && nextIDData.type === 'novels') {
-                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_26__.cacheWorkData.get(nextIDData.id, 'novel');
+                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(nextIDData.id, 'novel');
                 if (cache) {
                     return this.getWorksData();
                 }
             }
             // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
             if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
             this.getWorksData();
         }
@@ -17258,12 +17880,12 @@ class InitPageBase {
             ]);
             let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrderSortBy);
             // 在搜索页面预览抓取结果时，始终按收藏数量排序
-            if (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch &&
+            if (_PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.ArtworkSearch &&
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult) {
                 key = 'bmk';
             }
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
         }
         else {
             // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
@@ -17314,7 +17936,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         if (!_store_States__WEBPACK_IMPORTED_MODULE_8__.states.timedCrawlMode) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.error(msg);
         }
     }
     /** 抓取完成后，对结果进行排序 */
@@ -17322,7 +17944,7 @@ class InitPageBase {
     /**定时抓取的按钮 */
     addStartTimedCrawlBtn(cb) {
         this.addInitPageBtn('crawlBtns', '_定时抓取', '_定时抓取说明', 'scheduleCrawling', 'brand').addEventListener('click', () => {
-            _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__.timedCrawl.start(cb);
+            _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__.timedCrawl.start(cb);
         });
     }
     /**取消定时抓取的按钮 */
@@ -36008,7 +36630,7 @@ const langText = {
     ],
     _设置收藏数量的提示: [
         `最小值和最大值：<br>
-    你可以设置作品的收藏数量范围，以排除不需要的作品。<br>
+    它用来检查作品的收藏总数。你可以设置收藏数量范围，以排除不需要的作品。<br>
     <br>
     日均收藏数量：<br>
     这是一个补充设置，目的是筛选<strong>近期新发布的</strong>高质量作品，你可以根据需要启用它。<br>
@@ -36024,7 +36646,7 @@ const langText = {
     收藏数量范围和日均收藏数量是两个独立、互相补充的筛选条件。只要作品满足这两个条件中的任意一种，就会被抓取。<br>
     日均收藏数量适合作为补充手段来筛选近期发布的作品。它不适合用来筛选发布很久的作品，因为作品发布越久，日均收藏数量就越低。`,
         `最小值和最大值：<br>
-    你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
+    它用來檢查作品的收藏總數。你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
     <br>
     日均收藏數量：<br>
     這是一個補充設定，目的是篩選<strong>近期新發布的</strong>高品質作品，你可以根據需要啟用它。<br>
@@ -36040,7 +36662,7 @@ const langText = {
     收藏數量範圍和日均收藏數量是兩個獨立、互相補充的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被擷取。<br>
     日均收藏數量適合作為補充手段來篩選近期發布的作品。它不適合用來篩選發布很久的作品，因為作品發布越久，日均收藏數量就越低。`,
         `Minimum and maximum:<br>
-    You can set a bookmark count range for works, to exclude the ones you do not need.<br>
+    It checks the total bookmark count of a work. You can set a bookmark count range for works, to exclude the ones you do not need.<br>
     <br>
     Average number of daily bookmarks:<br>
     This is a supplementary setting, aimed at filtering <strong>recently published</strong> high-quality works. You can enable it as needed.<br>
@@ -36056,7 +36678,7 @@ const langText = {
     The bookmark count range and the average number of daily bookmarks are two independent filter conditions that complement each other. A work will be crawled as long as it meets either one of them.<br>
     The average number of daily bookmarks is suitable as a supplementary way to filter recently published works. It is not suitable for filtering works published long ago, because the longer a work has been published, the lower its average number of daily bookmarks becomes.`,
         `最小値と最大値：<br>
-    作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
+    これは作品のブックマーク数の合計をチェックするためのものです。作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
     <br>
     1 日の平均ブックマーク数：<br>
     これは補助的な設定で、<strong>最近公開された</strong>高品質な作品を絞り込むことが目的です。必要に応じて有効にしてください。<br>
@@ -36072,7 +36694,7 @@ const langText = {
     ブックマーク数の範囲と 1 日の平均ブックマーク数は、互いに補完し合う独立した 2 つの絞り込み条件です。作品はどちらか一方を満たせばクロールされます。<br>
     1 日の平均ブックマーク数は、最近公開された作品を絞り込む補助手段として適しています。公開されてから時間が経つほど 1 日の平均ブックマーク数は低くなるため、ずっと前に公開された作品の絞り込みには適していません。`,
         `최솟값과 최댓값:<br>
-    작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
+    이 설정은 작품의 북마크 수 총합을 확인하는 데 사용됩니다. 작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
     <br>
     일일 평균 북마크 수:<br>
     이것은 <strong>최근에 게시된</strong> 고품질 작품을 선별하기 위한 보조 설정입니다. 필요에 따라 사용할 수 있습니다.<br>
@@ -36088,7 +36710,7 @@ const langText = {
     북마크 수 범위와 일일 평균 북마크 수는 서로 독립적이면서 상호 보완적인 두 개의 선별 조건입니다. 작품은 둘 중 하나만 만족해도 크롤링됩니다.<br>
     일일 평균 북마크 수는 최근에 게시된 작품을 선별하는 보조 수단으로 적합합니다. 게시된 지 오래된 작품을 선별하는 데는 적합하지 않습니다. 게시된 지 오래될수록 일일 평균 북마크 수가 낮아지기 때문입니다.`,
         `Минимум и максимум:<br>
-    Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
+    Она используется для проверки общего количества закладок у работ. Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
     <br>
     Среднее количество ежедневных закладок:<br>
     Это дополнительная настройка, предназначенная для отбора <strong>недавно опубликованных</strong> высококачественных работ. Вы можете включить её при необходимости.<br>
@@ -40535,24 +41157,26 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
     ],
     _快捷键ALTS手动选择作品: [
-        `使用这个功能，你可以从网页上选择你喜欢的作品。点击一个作品即可选择它；可以多选。<br>
-    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。<br>
-    该功能的默认快捷键是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以启动或暂停手动选择模式。`,
-        `使用這個功能，你可以從網頁上選擇你喜歡的作品。點擊一個作品即可選擇它；可以多選。<br>
-    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。<br>
-    該功能的預設快捷鍵是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以啟動或暫停手動選擇模式。`,
-        `With this feature, you can select the works you like directly on the webpage. Click a work to select it; multiple selection is supported.<br>
-    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.<br>
-    The default hotkey for this feature is <span class="blue">Alt</span> + <span class="blue">S</span>, which starts or pauses manual selection mode.`,
-        `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品をクリックすると選択でき、複数選択も可能です。<br>
-    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。<br>
-    この機能の既定のショートカットキーは <span class="blue">Alt</span> + <span class="blue">S</span> で、手動選択モードを開始または一時停止できます。`,
-        `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
-    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.<br>
-    이 기능의 기본 단축키는 <span class="blue">Alt</span> + <span class="blue">S</span>이며, 수동 선택 모드를 시작하거나 일시 중지할 수 있습니다.`,
-        `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на работу, чтобы выбрать её; можно выбирать несколько.<br>
-    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.<br>
-    Горячая клавиша по умолчанию для этой функции — <span class="blue">Alt</span> + <span class="blue">S</span>, она запускает или приостанавливает режим ручного выбора.`,
+        `你可以使用快捷键开始或暂停手动选择作品，默认是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+        `你可以使用快捷鍵開始或暫停手動選擇作品，預設是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+        `You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+        `ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。`,
+        `단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.`,
+        `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+    ],
+    _点击手动选择作品的说明: [
+        `使用这个功能，你可以从网页上选择你喜欢的作品。在作品的缩略图上点击就可以选择它；可以多选。<br>
+    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。`,
+        `使用這個功能，你可以從網頁上選擇你喜歡的作品。在作品的縮圖上點擊就可以選擇它；可以多選。<br>
+    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。`,
+        `With this feature, you can select the works you like directly on the webpage. Click a work's thumbnail to select it; multiple selection is supported.<br>
+    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.`,
+        `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品のサムネイルをクリックすると選択でき、複数選択も可能です。<br>
+    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。`,
+        `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품의 썸네일을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
+    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.`,
+        `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на миниатюру работы, чтобы выбрать её; можно выбирать несколько.<br>
+    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.`,
     ],
     _抓取选择的作品: [
         `抓取选择的作品`,
@@ -49026,6 +49650,48 @@ There are too many of them, so they are not listed one by one here.<br>
         `ショートカットキーで作品の手動除外を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span> です。`,
         `단축키로 작품 수동 제외를 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>입니다.`,
         `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручное исключение работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>.`,
+    ],
+    _点击手动排除作品的说明: [
+        `如果你要抓取的作品里有一些不喜欢的作品，你可以点击它来排除它。可以多选。<br>
+    下载器不会抓取被排除的作品。如果它已经被抓取了，下载器会把它从抓取结果里删除。`,
+        `如果你要擷取的作品裡有一些不喜歡的作品，你可以點擊它來排除它。可以多選。<br>
+    下載器不會擷取被排除的作品。如果它已經被擷取了，下載器會把它從擷取結果裡刪除。`,
+        `If there are some works you don't like among the works you want to crawl, you can click on them to exclude them. Multiple selection is supported.<br>
+    The downloader will not crawl excluded works. If they have already been crawled, it will remove them from the crawl results.`,
+        `クロールしたい作品の中に気に入らない作品がある場合、それをクリックすると除外できます。複数選択も可能です。<br>
+    ダウンローダーは除外された作品をクロールしません。すでにクロールされている場合は、クロール結果から削除します。`,
+        `크롤링하려는 작품 중에 마음에 들지 않는 작품이 있으면 클릭하여 제외할 수 있습니다. 여러 개를 선택할 수 있습니다.<br>
+    다운로더는 제외된 작품을 크롤링하지 않습니다. 이미 크롤링된 경우 크롤링 결과에서 제거합니다.`,
+        `Если среди работ, которые вы хотите сканировать, есть те, что вам не нравятся, вы можете нажать на них, чтобы исключить. Можно выбирать несколько.<br>
+    Загрузчик не сканирует исключённые работы. Если они уже просканированы, он удаляет их из результатов сканирования.`,
+    ],
+    _按住并拖动可以框选作品: [
+        `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，按下鼠标左键并移动，即可框选作品。`,
+        `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，按下滑鼠左鍵並移動，即可框選作品。`,
+        `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, hold down the left mouse button and drag to box-select works.`,
+        `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、マウスの左ボタンを押したままドラッグすると、作品を範囲選択できます。`,
+        `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 마우스 왼쪽 버튼을 누른 채 드래그하면 작품을 범위 선택할 수 있습니다.`,
+        `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения зажмите левую кнопку мыши и двигайте курсор, чтобы выделить работы рамкой.`,
+    ],
+    _长按后拖动可以框选作品: [
+        `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，在页面上长按 0.5 秒之后拖动，即可框选作品。`,
+        `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，在頁面上長按 0.5 秒之後拖曳，即可框選作品。`,
+        `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, long press on the page for 0.5 seconds, then drag to box-select works.`,
+        `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、ページ上で 0.5 秒間長押ししてからドラッグすると、作品を範囲選択できます。`,
+        `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 페이지에서 0.5초 동안 길게 누른 다음 드래그하면 작품을 범위 선택할 수 있습니다.`,
+        `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения нажмите и удерживайте страницу 0,5 секунды, затем перетащите, чтобы выделить работы рамкой.`,
     ],
     _快捷键: [
         `快捷键`,
@@ -58743,6 +59409,7 @@ class Settings {
         downloadOrderSortBy: 'ID',
         tipAltXToShowControlPanel: true,
         tipAltSToSelectWork: true,
+        tipMarqueeToSelectWork: true,
         tipBookmarkButton: true,
         highlightFollowingUsers: true,
         exportIDList: false,
@@ -58870,6 +59537,7 @@ class Settings {
         autoExportSettingsInterval: 24,
         tipManuallyExcludeWorks: true,
         tipAltEToExcludeWork: true,
+        tipMarqueeToExcludeWork: true,
         hotkeys: defaultHotkeys,
         tipHowToCrawlUserWorks: true,
     };
@@ -59158,7 +59826,9 @@ class Settings {
         this.setSetting('tipPreviewWork', true);
         this.setSetting('tipHotkeysViewLargeImage', true);
         this.setSetting('tipAltSToSelectWork', true);
+        this.setSetting('tipMarqueeToSelectWork', true);
         this.setSetting('tipAltEToExcludeWork', true);
+        this.setSetting('tipMarqueeToExcludeWork', true);
         this.setSetting('tipHowToCrawlUserWorks', true);
         this.setSetting('tipImageViewer', true);
         this.setSetting('tipBookmarkButton', true);
@@ -82425,6 +83095,48 @@ function isLangInList(langCode, list) {
     });
 }
 
+
+
+/***/ }),
+
+/***/ "./src/ts/utils/MarqueeMath.ts":
+/*!*************************************!*\
+  !*** ./src/ts/utils/MarqueeMath.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   rectFromPoints: () => (/* binding */ rectFromPoints),
+/* harmony export */   rectsIntersect: () => (/* binding */ rectsIntersect),
+/* harmony export */   toDocRect: () => (/* binding */ toDocRect)
+/* harmony export */ });
+// 框选功能的纯计算函数。与 DOM 无关，便于单元测试。
+// 文档：notes/为选择作品的功能添加框选功能.md
+/** 由两个点生成规范化的矩形（保证 left ≤ right、top ≤ bottom） */
+function rectFromPoints(x1, y1, x2, y2) {
+    return {
+        left: Math.min(x1, x2),
+        top: Math.min(y1, y2),
+        right: Math.max(x1, x2),
+        bottom: Math.max(y1, y2),
+    };
+}
+/** 判断两个矩形是否有重叠区域。
+ * 宽或高为 0 的线状矩形，只要穿过对方内部（不含边界）也算相交。 */
+function rectsIntersect(a, b) {
+    return (a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+}
+/** 把视口坐标的矩形转换为文档坐标（加上滚动量） */
+function toDocRect(rect, scrollX, scrollY) {
+    return {
+        left: rect.left + scrollX,
+        top: rect.top + scrollY,
+        right: rect.right + scrollX,
+        bottom: rect.bottom + scrollY,
+    };
+}
 
 
 /***/ }),

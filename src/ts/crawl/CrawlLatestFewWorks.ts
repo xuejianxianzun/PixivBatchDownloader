@@ -40,7 +40,7 @@ class CrawlLatestFewWorks {
     // 在定制版本里是默认显示的，所以需要在切换到不可使用的页面时隐藏它
     // if (!this.enable) {
     // window.setTimeout(() => {
-    //   options.hideOption([15])
+    //   options.hideOption([2])
     // }, 0)
     // }
   }

@@ -446,7 +446,7 @@ export const langText = {
   ],
   _设置收藏数量的提示: [
     `最小值和最大值：<br>
-    你可以设置作品的收藏数量范围，以排除不需要的作品。<br>
+    它用来检查作品的收藏总数。你可以设置收藏数量范围，以排除不需要的作品。<br>
     <br>
     日均收藏数量：<br>
     这是一个补充设置，目的是筛选<strong>近期新发布的</strong>高质量作品，你可以根据需要启用它。<br>
@@ -462,7 +462,7 @@ export const langText = {
     收藏数量范围和日均收藏数量是两个独立、互相补充的筛选条件。只要作品满足这两个条件中的任意一种，就会被抓取。<br>
     日均收藏数量适合作为补充手段来筛选近期发布的作品。它不适合用来筛选发布很久的作品，因为作品发布越久，日均收藏数量就越低。`,
     `最小值和最大值：<br>
-    你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
+    它用來檢查作品的收藏總數。你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
     <br>
     日均收藏數量：<br>
     這是一個補充設定，目的是篩選<strong>近期新發布的</strong>高品質作品，你可以根據需要啟用它。<br>
@@ -478,7 +478,7 @@ export const langText = {
     收藏數量範圍和日均收藏數量是兩個獨立、互相補充的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被擷取。<br>
     日均收藏數量適合作為補充手段來篩選近期發布的作品。它不適合用來篩選發布很久的作品，因為作品發布越久，日均收藏數量就越低。`,
     `Minimum and maximum:<br>
-    You can set a bookmark count range for works, to exclude the ones you do not need.<br>
+    It checks the total bookmark count of a work. You can set a bookmark count range for works, to exclude the ones you do not need.<br>
     <br>
     Average number of daily bookmarks:<br>
     This is a supplementary setting, aimed at filtering <strong>recently published</strong> high-quality works. You can enable it as needed.<br>
@@ -494,7 +494,7 @@ export const langText = {
     The bookmark count range and the average number of daily bookmarks are two independent filter conditions that complement each other. A work will be crawled as long as it meets either one of them.<br>
     The average number of daily bookmarks is suitable as a supplementary way to filter recently published works. It is not suitable for filtering works published long ago, because the longer a work has been published, the lower its average number of daily bookmarks becomes.`,
     `最小値と最大値：<br>
-    作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
+    これは作品のブックマーク数の合計をチェックするためのものです。作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
     <br>
     1 日の平均ブックマーク数：<br>
     これは補助的な設定で、<strong>最近公開された</strong>高品質な作品を絞り込むことが目的です。必要に応じて有効にしてください。<br>
@@ -510,7 +510,7 @@ export const langText = {
     ブックマーク数の範囲と 1 日の平均ブックマーク数は、互いに補完し合う独立した 2 つの絞り込み条件です。作品はどちらか一方を満たせばクロールされます。<br>
     1 日の平均ブックマーク数は、最近公開された作品を絞り込む補助手段として適しています。公開されてから時間が経つほど 1 日の平均ブックマーク数は低くなるため、ずっと前に公開された作品の絞り込みには適していません。`,
     `최솟값과 최댓값:<br>
-    작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
+    이 설정은 작품의 북마크 수 총합을 확인하는 데 사용됩니다. 작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
     <br>
     일일 평균 북마크 수:<br>
     이것은 <strong>최근에 게시된</strong> 고품질 작품을 선별하기 위한 보조 설정입니다. 필요에 따라 사용할 수 있습니다.<br>
@@ -526,7 +526,7 @@ export const langText = {
     북마크 수 범위와 일일 평균 북마크 수는 서로 독립적이면서 상호 보완적인 두 개의 선별 조건입니다. 작품은 둘 중 하나만 만족해도 크롤링됩니다.<br>
     일일 평균 북마크 수는 최근에 게시된 작품을 선별하는 보조 수단으로 적합합니다. 게시된 지 오래된 작품을 선별하는 데는 적합하지 않습니다. 게시된 지 오래될수록 일일 평균 북마크 수가 낮아지기 때문입니다.`,
     `Минимум и максимум:<br>
-    Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
+    Она используется для проверки общего количества закладок у работ. Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
     <br>
     Среднее количество ежедневных закладок:<br>
     Это дополнительная настройка, предназначенная для отбора <strong>недавно опубликованных</strong> высококачественных работ. Вы можете включить её при необходимости.<br>
@@ -4978,24 +4978,26 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
   ],
   _快捷键ALTS手动选择作品: [
-    `使用这个功能，你可以从网页上选择你喜欢的作品。点击一个作品即可选择它；可以多选。<br>
-    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。<br>
-    该功能的默认快捷键是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以启动或暂停手动选择模式。`,
-    `使用這個功能，你可以從網頁上選擇你喜歡的作品。點擊一個作品即可選擇它；可以多選。<br>
-    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。<br>
-    該功能的預設快捷鍵是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以啟動或暫停手動選擇模式。`,
-    `With this feature, you can select the works you like directly on the webpage. Click a work to select it; multiple selection is supported.<br>
-    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.<br>
-    The default hotkey for this feature is <span class="blue">Alt</span> + <span class="blue">S</span>, which starts or pauses manual selection mode.`,
-    `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品をクリックすると選択でき、複数選択も可能です。<br>
-    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。<br>
-    この機能の既定のショートカットキーは <span class="blue">Alt</span> + <span class="blue">S</span> で、手動選択モードを開始または一時停止できます。`,
-    `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
-    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.<br>
-    이 기능의 기본 단축키는 <span class="blue">Alt</span> + <span class="blue">S</span>이며, 수동 선택 모드를 시작하거나 일시 중지할 수 있습니다.`,
-    `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на работу, чтобы выбрать её; можно выбирать несколько.<br>
-    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.<br>
-    Горячая клавиша по умолчанию для этой функции — <span class="blue">Alt</span> + <span class="blue">S</span>, она запускает или приостанавливает режим ручного выбора.`,
+    `你可以使用快捷键开始或暂停手动选择作品，默认是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+    `你可以使用快捷鍵開始或暫停手動選擇作品，預設是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+    `You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+    `ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。`,
+    `단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.`,
+    `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+  ],
+  _点击手动选择作品的说明: [
+    `使用这个功能，你可以从网页上选择你喜欢的作品。在作品的缩略图上点击就可以选择它；可以多选。<br>
+    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。`,
+    `使用這個功能，你可以從網頁上選擇你喜歡的作品。在作品的縮圖上點擊就可以選擇它；可以多選。<br>
+    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。`,
+    `With this feature, you can select the works you like directly on the webpage. Click a work's thumbnail to select it; multiple selection is supported.<br>
+    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.`,
+    `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品のサムネイルをクリックすると選択でき、複数選択も可能です。<br>
+    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。`,
+    `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품의 썸네일을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
+    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.`,
+    `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на миниатюру работы, чтобы выбрать её; можно выбирать несколько.<br>
+    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.`,
   ],
   _抓取选择的作品: [
     `抓取选择的作品`,
@@ -13474,6 +13476,48 @@ There are too many of them, so they are not listed one by one here.<br>
     `ショートカットキーで作品の手動除外を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span> です。`,
     `단축키로 작품 수동 제외를 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>입니다.`,
     `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручное исключение работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>.`,
+  ],
+  _点击手动排除作品的说明: [
+    `如果你要抓取的作品里有一些不喜欢的作品，你可以点击它来排除它。可以多选。<br>
+    下载器不会抓取被排除的作品。如果它已经被抓取了，下载器会把它从抓取结果里删除。`,
+    `如果你要擷取的作品裡有一些不喜歡的作品，你可以點擊它來排除它。可以多選。<br>
+    下載器不會擷取被排除的作品。如果它已經被擷取了，下載器會把它從擷取結果裡刪除。`,
+    `If there are some works you don't like among the works you want to crawl, you can click on them to exclude them. Multiple selection is supported.<br>
+    The downloader will not crawl excluded works. If they have already been crawled, it will remove them from the crawl results.`,
+    `クロールしたい作品の中に気に入らない作品がある場合、それをクリックすると除外できます。複数選択も可能です。<br>
+    ダウンローダーは除外された作品をクロールしません。すでにクロールされている場合は、クロール結果から削除します。`,
+    `크롤링하려는 작품 중에 마음에 들지 않는 작품이 있으면 클릭하여 제외할 수 있습니다. 여러 개를 선택할 수 있습니다.<br>
+    다운로더는 제외된 작품을 크롤링하지 않습니다. 이미 크롤링된 경우 크롤링 결과에서 제거합니다.`,
+    `Если среди работ, которые вы хотите сканировать, есть те, что вам не нравятся, вы можете нажать на них, чтобы исключить. Можно выбирать несколько.<br>
+    Загрузчик не сканирует исключённые работы. Если они уже просканированы, он удаляет их из результатов сканирования.`,
+  ],
+  _按住并拖动可以框选作品: [
+    `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，按下鼠标左键并移动，即可框选作品。`,
+    `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，按下滑鼠左鍵並移動，即可框選作品。`,
+    `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, hold down the left mouse button and drag to box-select works.`,
+    `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、マウスの左ボタンを押したままドラッグすると、作品を範囲選択できます。`,
+    `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 마우스 왼쪽 버튼을 누른 채 드래그하면 작품을 범위 선택할 수 있습니다.`,
+    `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения зажмите левую кнопку мыши и двигайте курсор, чтобы выделить работы рамкой.`,
+  ],
+  _长按后拖动可以框选作品: [
+    `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，在页面上长按 0.5 秒之后拖动，即可框选作品。`,
+    `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，在頁面上長按 0.5 秒之後拖曳，即可框選作品。`,
+    `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, long press on the page for 0.5 seconds, then drag to box-select works.`,
+    `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、ページ上で 0.5 秒間長押ししてからドラッグすると、作品を範囲選択できます。`,
+    `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 페이지에서 0.5초 동안 길게 누른 다음 드래그하면 작품을 범위 선택할 수 있습니다.`,
+    `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения нажмите и удерживайте страницу 0,5 секунды, затем перетащите, чтобы выделить работы рамкой.`,
   ],
   _快捷键: [
     `快捷键`,
