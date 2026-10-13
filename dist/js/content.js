@@ -1410,8 +1410,12 @@ class API {
         const url = `https://www.pixiv.net/ajax/user/${id}?full=${full}`;
         return this.fetch(url);
     }
-    /** 获取某个用户特定类型下的作品 id 列表
-     * 这个 API 里只包含了作品的部分数据，不是完整的数据 */
+    /** 获取某个用户特定类型下的作品 id 列表。
+     *
+     * 如果不传递第二个参数，就会返回所有类型的作品。
+     * 如果你只需要获取部分类型的作品，可以通过第二个参数来指定。
+     *
+     * 备注：这个 API 里只包含了每个作品的部分数据，不是完整的数据 */
     static async getUserWorksByType(id, type = ['illusts', 'manga', 'novels']) {
         let typeSet = new Set(type);
         let result = [];
@@ -7138,13 +7142,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
 /* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
 /* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
-/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
-/* harmony import */ var _crawlMixedPage_InitDashboardPage__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./crawlMixedPage/InitDashboardPage */ "./src/ts/crawlMixedPage/InitDashboardPage.ts");
-/* harmony import */ var _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./crawlMixedPage/InitContestPage */ "./src/ts/crawlMixedPage/InitContestPage.ts");
-/* harmony import */ var _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./crawlMixedPage/InitUserRequestPage */ "./src/ts/crawlMixedPage/InitUserRequestPage.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _crawlMixedPage_InitDashboardPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./crawlMixedPage/InitDashboardPage */ "./src/ts/crawlMixedPage/InitDashboardPage.ts");
+/* harmony import */ var _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./crawlMixedPage/InitContestPage */ "./src/ts/crawlMixedPage/InitContestPage.ts");
+/* harmony import */ var _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./crawlMixedPage/InitUserRequestPage */ "./src/ts/crawlMixedPage/InitUserRequestPage.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
-
 
 
 
@@ -7212,7 +7214,7 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
                 return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelMarkerAll:
-                if (_Config__WEBPACK_IMPORTED_MODULE_30__.Config.mobile) {
+                if (_Config__WEBPACK_IMPORTED_MODULE_29__.Config.mobile) {
                     return new _crawlNovelPage_InitNovelMarkerAllPageOnMobile__WEBPACK_IMPORTED_MODULE_21__.InitNovelMarkerAllPageOnMobile();
                 }
                 return new _crawlNovelPage_InitNovelMarkerAllPageOnPC__WEBPACK_IMPORTED_MODULE_20__.InitNovelMarkerAllPageOnPC();
@@ -7238,16 +7240,14 @@ class InitPage {
                 return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_23__.InitFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted:
                 return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_25__.InitUnlistedPage();
-            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
-                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_26__.InitRequestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_24__.InitUnsupportedPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Dashboard:
-                return new _crawlMixedPage_InitDashboardPage__WEBPACK_IMPORTED_MODULE_27__.InitDashboardPage();
+                return new _crawlMixedPage_InitDashboardPage__WEBPACK_IMPORTED_MODULE_26__.InitDashboardPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Contest:
-                return new _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_28__.InitContestPage();
+                return new _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_27__.InitContestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserRequest:
-                return new _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_29__.InitUserRequestPage();
+                return new _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__.InitUserRequestPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_24__.InitUnsupportedPage();
         }
@@ -17982,33 +17982,6 @@ class InitPageBase {
 
 /***/ }),
 
-/***/ "./src/ts/crawl/InitRequestPage.ts":
-/*!*****************************************!*\
-  !*** ./src/ts/crawl/InitRequestPage.ts ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
-/* harmony export */ });
-/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-
-// 投稿页面
-class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    initAny() { }
-    addCrawlBtns() { }
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/crawl/InitUnsupportedPage.ts":
 /*!*********************************************!*\
   !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
@@ -21774,7 +21747,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     /** 当前查询的收藏时间，可能为空 */
     bm = '';
     /** 根据页数，计算要抓取的作品个数 */
-    requsetNumber = 0;
+    requestNumber = 0;
     /** 每次请求多少个数量，是 100 个。同时 API 里也是每次请求 100 个 */
     onceRequest = 100;
     /** 记录检查了多少作品（不论结果是否通过都计入） */
@@ -21863,10 +21836,10 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             this.offset = 0;
         }
         if (this.crawlNumber === -1) {
-            this.requsetNumber = _Config__WEBPACK_IMPORTED_MODULE_3__.Config.worksNumberLimit;
+            this.requestNumber = _Config__WEBPACK_IMPORTED_MODULE_3__.Config.worksNumberLimit;
         }
         else {
-            this.requsetNumber = onceNumber * this.crawlNumber;
+            this.requestNumber = onceNumber * this.crawlNumber;
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.tag = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getTagFromURL();
         this.isHide = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'rest') === 'hide';
@@ -21901,16 +21874,16 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             return this.getIdListFinished();
         }
         if (data.body.works.length === 0 ||
-            this.idList.length >= this.requsetNumber ||
-            this.filteredNumber >= this.requsetNumber) {
-            if (this.idList.length > this.requsetNumber) {
-                this.idList.splice(this.requsetNumber, this.idList.length);
+            this.idList.length >= this.requestNumber ||
+            this.filteredNumber >= this.requestNumber) {
+            if (this.idList.length > this.requestNumber) {
+                this.idList.splice(this.requestNumber, this.idList.length);
             }
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.concat(this.idList);
             return this.getIdListFinished();
         }
         for (const workData of data.body.works) {
-            if (this.filteredNumber >= this.requsetNumber) {
+            if (this.filteredNumber >= this.requestNumber) {
                 break;
             }
             const workType = workData.illustType === undefined
@@ -21947,7 +21920,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.type = 'illusts';
         this.idList = [];
         this.offset = 0;
-        this.requsetNumber = 0;
+        this.requestNumber = 0;
         this.filteredNumber = 0;
     }
 }
