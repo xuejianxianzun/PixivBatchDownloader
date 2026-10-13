@@ -89,6 +89,8 @@ class ImportResult {
 
     // 发送通知
     EVT.fire('crawlComplete')
+    // 通知其它模块（如搜索页的预览模块）：导入已完成，store 里已经是导入的数据
+    EVT.fire('importResultComplete')
 
     msgBox.success(lang.transl('_导入成功'))
   }

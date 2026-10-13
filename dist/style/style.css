@@ -1,30 +1,17 @@
-#deleteWorkEl {
-  box-sizing: border-box;
-  position: fixed;
-  z-index: 10000;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: red;
-  pointer-events: none;
-  display: none;
-}
 @keyframes moveRight {
   from {
-    left: -100vw;
+    transform: translateX(0);
   }
   to {
-    left: -98vw;
+    transform: translateX(2vw);
   }
 }
 @keyframes moveBottom {
   from {
-    top: -100vh;
+    transform: translateY(0);
   }
   to {
-    top: -98vh;
+    transform: translateY(2vh);
   }
 }
 #selectWorkEl {
@@ -51,7 +38,7 @@
   background-image: linear-gradient(to right, var(--beautify-blue) 0%, var(--beautify-blue) 50%, transparent 50%);
   background-size: 8px 1px;
   background-repeat: repeat-x;
-  animation: moveRight 2s linear infinite;
+  animation: moveRight 2s steps(60) infinite;
 }
 #selectWorkEl::after {
   content: '';
@@ -64,7 +51,7 @@
   background-image: linear-gradient(to bottom, var(--beautify-blue) 0%, var(--beautify-blue) 50%, transparent 50%);
   background-size: 1px 8px;
   background-repeat: repeat-y;
-  animation: moveBottom 1s linear infinite;
+  animation: moveBottom 1s steps(30) infinite;
 }
 .selectedWorkFlag {
   position: absolute;
@@ -101,18 +88,18 @@
 }
 @keyframes moveRightExclude {
   from {
-    left: -100vw;
+    transform: translateX(0);
   }
   to {
-    left: -98vw;
+    transform: translateX(2vw);
   }
 }
 @keyframes moveBottomExclude {
   from {
-    top: -100vh;
+    transform: translateY(0);
   }
   to {
-    top: -98vh;
+    transform: translateY(2vh);
   }
 }
 #excludeWorkEl {
@@ -139,7 +126,7 @@
   background-image: linear-gradient(to right, #f5222d 0%, #f5222d 50%, transparent 50%);
   background-size: 8px 1px;
   background-repeat: repeat-x;
-  animation: moveRightExclude 2s linear infinite;
+  animation: moveRightExclude 2s steps(60) infinite;
 }
 #excludeWorkEl::after {
   content: '';
@@ -152,7 +139,7 @@
   background-image: linear-gradient(to bottom, #f5222d 0%, #f5222d 50%, transparent 50%);
   background-size: 1px 8px;
   background-repeat: repeat-y;
-  animation: moveBottomExclude 1s linear infinite;
+  animation: moveBottomExclude 1s steps(30) infinite;
 }
 .excludedWorkFlag {
   position: absolute;
@@ -4396,7 +4383,7 @@ iframe[name='expandedFooter'] {
   background-image: linear-gradient(to right, var(--thumbnailListSelectorEl-color) 0%, var(--thumbnailListSelectorEl-color) 50%, transparent 50%);
   background-size: 8px 1px;
   background-repeat: repeat-x;
-  animation: moveRight 2s linear infinite;
+  animation: moveRight 2s steps(60) infinite;
 }
 #thumbnailListSelectorEl::after {
   content: '';
@@ -4409,7 +4396,7 @@ iframe[name='expandedFooter'] {
   background-image: linear-gradient(to bottom, var(--thumbnailListSelectorEl-color) 0%, var(--thumbnailListSelectorEl-color) 50%, transparent 50%);
   background-size: 1px 8px;
   background-repeat: repeat-y;
-  animation: moveBottom 1s linear infinite;
+  animation: moveBottom 1s steps(30) infinite;
 }
 .xz_PreviewWorkDetailPanel {
   background: #fff;

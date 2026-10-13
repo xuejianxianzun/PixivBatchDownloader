@@ -122,6 +122,8 @@ class EVENT {
     exportResult: 'exportResult',
     /** 当需要导入抓取结果时触发 */
     importResult: 'importResult',
+    /** 抓取结果导入完成时触发（导入的数据已经保存到 store 之后） */
+    importResultComplete: 'importResultComplete',
     /** 当需要保存用户头像时触发 */
     saveAvatarImage: 'saveAvatarImage',
     /** 当需要保存用户头像为图标时触发 */
@@ -258,6 +260,7 @@ class EVENT {
       | 'exportCSV'
       | 'exportResult'
       | 'importResult'
+      | 'importResultComplete'
       | 'saveAvatarImage'
       | 'saveAvatarIcon'
       | 'saveUserCover'

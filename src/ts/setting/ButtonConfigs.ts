@@ -327,12 +327,6 @@ class ButtonConfigs {
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'SearchPage',
     },
-    {
-      id: 'manuallyDeleteWork',
-      nameKey: '_手动删除作品',
-      categoryLevel1: 'startCrawl',
-      categoryLevel2: 'SearchPage',
-    },
     // startCrawl - Ranking
     {
       id: 'crawlRankingWork',

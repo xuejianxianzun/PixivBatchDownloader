@@ -74,8 +74,12 @@ class SearchResultPreview {
   private showPreviewFrameId = 0
   /** 防止异步筛选任务重叠 */
   private isFiltering = false
-  /** 异步筛选期间请求删除的作品 id */
+  /** 异步筛选期间被排除、等筛选结束后再删除的作品 id */
   private pendingDeleteIds = new Set<number>()
+  /** 是否已经安排了一次延时重绘。用于合并同一轮事件里的多次调用 */
+  private renderScheduled = false
+  /** 抓取进行中修改了会影响抓取结果的设置时，等抓取结束后再重建一次抓取结果 */
+  private pendingRebuildAfterCrawl = false
   /** 分页控件。作品列表的顶部和底部各一份，它们显示的内容始终相同 */
   private paginations: PaginationControl[] = []
   /** 修改这些设置后需要重新生成抓取结果 */
@@ -96,9 +100,6 @@ class SearchResultPreview {
   /** 恢复预览的最大重试次数。pixiv 的作品列表可能比恢复流程更晚渲染出来 */
   private readonly restoredPreviewMaxRetry = 25
 
-  /** 初始化退出手动删除模式的回调 */
-  constructor(private readonly exitManualDeleteMode: () => void = () => {}) {}
-
   /** 初始化预览、结果变更和收藏相关事件 */
   public init() {
     // 在移动端不启用此功能
@@ -118,9 +119,18 @@ class SearchResultPreview {
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
       window.addEventListener(ev, this.renderAfterDownload)
     }
+    // 抓取进行中修改了会影响抓取结果的设置时，等抓取结束后再补一次重建（见 refreshResults）
+    for (const ev of [EVT.list.crawlComplete, EVT.list.crawlEmpty]) {
+      window.addEventListener(ev, this.applyPendingRebuildAfterCrawl)
+    }
     window.addEventListener(EVT.list.langChange, this.updateLanguage)
     // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
     window.addEventListener(EVT.list.resume, this.onResume)
+    // 导入了抓取结果之后，用导入的数据重新绘制预览列表
+    window.addEventListener(
+      EVT.list.importResultComplete,
+      this.onImportResultComplete
+    )
     // URL 变化时移除上一个页面里添加的预览卡片
     window.addEventListener(EVT.list.pageSwitch, this.onPageSwitch)
     // 用户开启或关闭“预览搜索页面的抓取结果”设置时
@@ -139,8 +149,15 @@ class SearchResultPreview {
     for (const ev of [EVT.list.downloadComplete, EVT.list.downloadStop]) {
       window.removeEventListener(ev, this.renderAfterDownload)
     }
+    for (const ev of [EVT.list.crawlComplete, EVT.list.crawlEmpty]) {
+      window.removeEventListener(ev, this.applyPendingRebuildAfterCrawl)
+    }
     window.removeEventListener(EVT.list.langChange, this.updateLanguage)
     window.removeEventListener(EVT.list.resume, this.onResume)
+    window.removeEventListener(
+      EVT.list.importResultComplete,
+      this.onImportResultComplete
+    )
     window.removeEventListener(EVT.list.pageSwitch, this.onPageSwitch)
     window.removeEventListener(
       EVT.list.settingChange,
@@ -218,7 +235,6 @@ class SearchResultPreview {
 
   /** 开始由搜索页按钮发起的抓取，初始化预览结果状态 */
   public startCrawl() {
-    this.exitManualDeleteMode()
     this.previewContainerPrepared = false
     // 不需要清空抓取结果：它在 store 里，store 会在 crawlStart 时重置
     this.crawlStartBySelf = true
@@ -426,7 +442,10 @@ class SearchResultPreview {
     }, 0)
   }
 
-  /** 根据会影响结果的设置变更重新生成抓取结果 */
+  /** 根据会影响结果的设置变更重新生成抓取结果。
+   *
+   * 抓取进行中不在这里重建（会把待抓取队列一起清空），先记下标记，
+   * 等抓取结束后由 applyPendingRebuildAfterCrawl() 补一次重建 */
   public refreshResults(event: CustomEventInit) {
     if (states.crawlTagList) {
       return
@@ -448,7 +467,35 @@ class SearchResultPreview {
       return
     }
 
+    // 抓取进行中不能在这里重建：reAddResult() 内部的 store.reset() 会把
+    // store.idList（待抓取队列）一并清空，导致剩余的作品不再被抓取、抓取提前结束。
+    // 先记下标记，等抓取结束后再补一次重建（那时是安全的，设置依然会作用于全部结果）
+    if (states.crawling) {
+      this.pendingRebuildAfterCrawl = true
+      return
+    }
+
     // 这些设置会影响每个作品要下载哪些文件，所以要按当前的作品列表重建抓取结果
+    this.reAddResult([...store.resultMeta])
+    this.renderCurrentPage()
+    EVT.fire('resultChange')
+  }
+
+  /** 抓取结束后，补做一次在抓取期间被推迟的抓取结果重建（见 refreshResults）。
+   *
+   * 抓取可能以 crawlComplete（完成/停止）或 crawlEmpty（没有结果）结束：
+   * 前者需要补做重建；后者没有结果可重建，只清掉标记。
+   * 本监听的注册时机早于 finishCrawl，所以会在抓取结束的整页重绘之前先把结果重建好 */
+  private applyPendingRebuildAfterCrawl = (event: Event) => {
+    if (!this.pendingRebuildAfterCrawl) {
+      return
+    }
+    this.pendingRebuildAfterCrawl = false
+
+    if (event.type === EVT.list.crawlEmpty || store.resultMeta.length === 0) {
+      return
+    }
+
     this.reAddResult([...store.resultMeta])
     this.renderCurrentPage()
     EVT.fire('resultChange')
@@ -524,11 +571,8 @@ class SearchResultPreview {
     this.updatePagination()
   }
 
-  /** 根据当前页码重新渲染预览作品，默认退出手动删除模式 */
-  private renderCurrentPage(exitDeleteMode = true) {
-    if (exitDeleteMode) {
-      this.exitManualDeleteMode()
-    }
+  /** 根据当前页码重新渲染预览作品 */
+  private renderCurrentPage() {
     if (
       !settings.previewResult ||
       !this.worksWrap ||
@@ -912,7 +956,7 @@ class SearchResultPreview {
       // 可能的情况：
       // - 用户尚未开始抓取
       // - 用户已经开始抓取，但现在还没有任何抓取结果
-      toast.warning(lang.transl('_缺少必要的数据'))
+      toast.error(lang.transl('_没有可用的抓取结果'))
       return false
     }
 
@@ -1024,62 +1068,33 @@ class SearchResultPreview {
     }
   }
 
-  /** 从当前结果中移除指定的作品（由“手动删除作品”调用）
-   * @param idNum 作品的数字 id */
-  public removeWork(idNum: number) {
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
-    if (Number.isNaN(idNum)) {
-      return
-    }
-
-    if (this.isFiltering) {
-      if (!this.pendingDeleteIds.has(idNum)) {
-        this.pendingDeleteIds.add(idNum)
-        toast.success(lang.transl('_已调整抓取结果'))
-      }
-      return
-    }
-
-    if (store.resultMeta.length === 0) {
-      toast.warning(lang.transl('_缺少必要的数据'))
-      return
-    }
-
-    const beforeLength = store.resultMeta.length
-    const newResultMeta = store.resultMeta.filter(
-      (result) => result.idNum !== idNum
-    )
-    if (newResultMeta.length === beforeLength) {
-      return
-    }
-
-    this.reAddResult(newResultMeta)
-    this.renderCurrentPage(false)
-    EVT.fire('resultChange')
-    toast.success(lang.transl('_已调整抓取结果'))
-  }
-
   /** 处理“手动排除作品”功能排除的作品。
    *
    * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
    * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
    *
-   * 抓取进行中时，ExcludeWork 已经把它从抓取结果里移除了，所以下面的过滤不会改变数量、会直接返回。
+   * 抓取进行中时不在这里重建结果：本方法会调用 reAddResult()，而它内部的 store.reset()
+   * 会把 store.idList（待抓取队列）一并清空，导致剩余的作品不再被抓取、抓取提前结束。
+   * 所以抓取中由 ExcludeWork 的 removeWorkById() 精确移除这一个作品（不动队列），
+   * 这里只安排一次延时重绘，让被排除的卡片立即消失。
    *
-   * 只有「正在传输」时不在这里处理，见方法内的判断。
-   * 已暂停（包括恢复了未完成的抓取结果之后）时也会真正删除，与「手动删除作品」按钮的行为一致。 */
+   * 正在传输时也不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标
+   * 派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
+   * 开始下载的文件标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
+   *
+   * 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉。
+   * 已暂停时是安全的：reAddResult() 会按文件 id 迁移下载状态，保持 store.result 与
+   * downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。 */
   private onManuallyExcludeWork = (event: CustomEventInit) => {
-    // 正在传输时不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标派发的，
-    // 重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未开始下载的文件
-    // 标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
-    //
-    // 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉，
-    // 效果和「手动删除作品」按钮一样。已暂停时是安全的：reAddResult 会按文件 id 迁移下载状态，
-    // 保持 store.result 与 downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。
+    // 抓取进行中：数据交给 ExcludeWork.removeWorkById() 精确移除（见上方注释），
+    // 这里只安排延时重绘。⚠️ 不能在这里调用 reAddResult()：它内部的 store.reset()
+    // 会清空 store.idList，导致待抓取的作品全部丢失
+    if (states.crawling) {
+      this.scheduleRender()
+      return
+    }
+
+    // 正在传输时不在这里处理：见上方注释，交给 DownloadControl 处理
     if (states.downloading) {
       return
     }
@@ -1096,6 +1111,16 @@ class SearchResultPreview {
       return
     }
 
+    // 异步筛选期间先记录 id，等筛选结束后再删除：筛选还在遍历修改前的 store.resultMeta，
+    // 直接删会被它以旧数据重建回去
+    if (this.isFiltering) {
+      if (!this.pendingDeleteIds.has(deleteId)) {
+        this.pendingDeleteIds.add(deleteId)
+        toast.success(lang.transl('_已调整抓取结果'))
+      }
+      return
+    }
+
     const beforeLength = store.resultMeta.length
     const newResultMeta = store.resultMeta.filter(
       (result) => result.idNum !== deleteId
@@ -1105,7 +1130,7 @@ class SearchResultPreview {
     }
 
     this.reAddResult(newResultMeta)
-    this.renderCurrentPage(false)
+    this.renderCurrentPage()
     EVT.fire('resultChange')
     toast.success(lang.transl('_已调整抓取结果'))
   }
@@ -1121,9 +1146,25 @@ class SearchResultPreview {
    * 也可能让下载器重新进入准备下载的流程。 */
   private renderAfterDownload = () => {
     // 延后到本轮事件处理完毕再重绘：DownloadControl 也监听这两个事件，它需要先改完 store
+    this.scheduleRender()
+  }
+
+  /** 安排一次「本轮事件处理完毕后」的预览重绘（包含数量刷新）。
+   *
+   * 用于「数据由其他模块在本轮事件里修改」的场景（见各调用处的注释）：延后一拍，
+   * 等它们先改完 store，再统一重绘一次。
+   *
+   * 同一轮里重复调用只会重绘一次，避免一次性排除大量作品时反复重绘 */
+  private scheduleRender() {
+    if (this.renderScheduled) {
+      return
+    }
+
+    this.renderScheduled = true
     window.setTimeout(() => {
+      this.renderScheduled = false
       this.showCount()
-      this.renderCurrentPage(false)
+      this.renderCurrentPage()
     }, 0)
   }
 
@@ -1141,13 +1182,30 @@ class SearchResultPreview {
     this.renderPreview()
   }
 
+  /** 用户导入了抓取结果之后，用导入的数据重新绘制预览列表。
+   *
+   * 导入流程会替换整个 store（见 ImportResult.import），但它不经过搜索页的抓取流程，
+   * 所以 finishCrawl 的 crawlStartBySelf 守卫会跳过重绘，这里由导入完成事件主动重绘。
+   * renderPreview 不要求 crawlStartBySelf（与恢复、开启设置两条路径相同），正好复用。
+   *
+   * 抓取进行中不处理：避免与抓取流程的增量渲染冲突。
+   * 正常情况下导入入口已被 states.busy 拦下，这里再挡一层是为了不依赖别的模块的内部判断。 */
+  private onImportResultComplete = () => {
+    if (this.crawlStartBySelf || states.crawling) {
+      return
+    }
+
+    this.renderPreview()
+  }
+
   /** 用当前的抓取结果绘制预览列表。
    *
    * 调用处：恢复了未完成的抓取结果之后（onResume）；
-   * 以及用户开启了“预览搜索页面的抓取结果”设置（onPreviewResultChange）。
+   * 用户开启了“预览搜索页面的抓取结果”设置（onPreviewResultChange）；
+   * 用户导入了抓取结果之后（onImportResultComplete）。
    *
-   * 这两条调用路径都不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，
-   * 需要在这里自己准备容器。而且它们的时机可能早于 pixiv 渲染出作品列表，
+   * 这几条调用路径都不会经过搜索页的抓取流程，容器可能还没被本模块接管，
+   * 需要在这里自己准备它。而且它们的时机可能早于 pixiv 渲染出作品列表，
    * 所以找不到容器时会延迟重试。
    *
    * ⚠️ 这里**不能**用 crawlStartBySelf 早退：抓取进行中用户也可能开启“预览”设置，
@@ -1205,7 +1263,7 @@ class SearchResultPreview {
     }
 
     this.showCount()
-    this.renderCurrentPage(false)
+    this.renderCurrentPage()
   }
 
   /** 通过容器事件委托处理预览卡片的收藏按钮 */

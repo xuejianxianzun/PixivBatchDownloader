@@ -75,10 +75,15 @@ class SettingsPanelLayout {
   private readonly canonicalContainers = new Map<string, HTMLDivElement>()
   private homePinnedContent!: HTMLDivElement
   private otherBtnsVisibilityObserver?: MutationObserver
+  private filterCrawlResultBtnsObserver?: MutationObserver
 
   public build(): SettingsPanelLayoutResult {
     // 创建第一排抓取按钮的容器
     const crawlBtnsBlock = this.createSlotBlock(['stopCrawl', 'crawlBtns'])
+    // 搜索页里「过滤抓取结果」的按钮（在结果中筛选、清除多图、清除动图）单独占一行
+    const filterCrawlResultBtnsBlock = this.createSlotBlock([
+      'filterCrawlResultBtns',
+    ])
     // 在抓取按钮底部添加一个提示卡片
     const cardTipHowToCrawlUserWorks = settingsPanelTipCard.use(
       'tipHowToCrawlUserWorks'
@@ -149,6 +154,7 @@ class SettingsPanelLayout {
 
     this.buildHomePage(
       crawlBtnsBlock,
+      filterCrawlResultBtnsBlock,
       selectWorkBtnsBlock,
       excludeWorkBtnsBlock,
       otherBtnsBlock,
@@ -188,6 +194,7 @@ class SettingsPanelLayout {
 
   private buildHomePage(
     crawlBtnsBlock: HTMLDivElement,
+    filterCrawlResultBtnsBlock: HTMLDivElement,
     selectWorkBtnsBlock: HTMLDivElement,
     excludeWorkBtnsBlock: HTMLDivElement,
     otherBtnsBlock: HTMLDivElement,
@@ -227,13 +234,15 @@ class SettingsPanelLayout {
       stickyEligible: false,
       type: 'panel',
     })
-    // 抓取、手动选择、手动排除各自独占一行
+    // 抓取、过滤抓取结果、手动选择、手动排除各自独占一行
     crawlBlock.content.append(
       crawlBtnsBlock,
+      filterCrawlResultBtnsBlock,
       selectWorkBtnsBlock,
       excludeWorkBtnsBlock
     )
     home.append(crawlBlock.root)
+    this.bindFilterCrawlResultBtnsVisibility(filterCrawlResultBtnsBlock)
 
     const downloadBlock = this.createSection({
       page: 'home',
@@ -267,6 +276,22 @@ class SettingsPanelLayout {
     otherBlock.content.append(otherBtnsBlock)
     home.append(otherBlock.root)
     this.bindHomeOtherBtnsVisibility(otherBlock, otherBtnsBlock)
+  }
+
+  /** 「过滤抓取结果」按钮块只在搜索页里有内容（其他页面里它是空的）。
+   * 空块时隐藏它，避免在「开始抓取」区块里留下一行空位 */
+  private bindFilterCrawlResultBtnsVisibility(block: HTMLDivElement) {
+    const toggle = () => {
+      const hasButtons = block.querySelector('button') !== null
+      block.style.display = hasButtons ? '' : 'none'
+    }
+    toggle()
+    this.filterCrawlResultBtnsObserver?.disconnect()
+    this.filterCrawlResultBtnsObserver = new MutationObserver(toggle)
+    this.filterCrawlResultBtnsObserver.observe(block, {
+      childList: true,
+      subtree: true,
+    })
   }
 
   private bindHomeOtherBtnsVisibility(

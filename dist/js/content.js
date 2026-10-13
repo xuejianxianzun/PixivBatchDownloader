@@ -4071,6 +4071,8 @@ class EVENT {
         exportResult: 'exportResult',
         /** 当需要导入抓取结果时触发 */
         importResult: 'importResult',
+        /** 抓取结果导入完成时触发（导入的数据已经保存到 store 之后） */
+        importResultComplete: 'importResultComplete',
         /** 当需要保存用户头像时触发 */
         saveAvatarImage: 'saveAvatarImage',
         /** 当需要保存用户头像为图标时触发 */
@@ -18667,172 +18669,46 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _SearchResultPreview__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SearchResultPreview */ "./src/ts/crawlArtworkPage/SearchResultPreview.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 
 
 
-
-
-
-
-// 在搜索页面里添加批量清除和手动删除作品的按钮
+// 在搜索页面里添加批量清除作品的按钮（清除多图作品、清除动图作品）
 //
-// 这个模块只负责界面部分：按钮、手动删除模式的指示器、在作品列表上委托点击。
-// 它不接触抓取结果，而是直接调用 SearchResultPreview 的方法 —— 抓取结果、作品列表容器、
-// 页面重绘都由预览模块负责，本模块通过它提供的少量方法取用。
-// 之前这里是派发全局事件（clearMultiple / clearUgoira / deleteWork）来通知预览模块的，
+// 这个模块只负责添加这两个按钮并绑定点击事件。它不接触抓取结果，点击按钮时直接调用
+// SearchResultPreview 的方法 —— 抓取结果、作品列表容器、页面重绘都由预览模块负责。
+//
+// 之前这里是派发全局事件（clearMultiple / clearUgoira）来通知预览模块的，
 // 但这两个模块只在搜索页面里一对一存在，用全局事件反而绕了一圈，所以改成了直接调用。
+//
+// 原先还有一个「手动删除作品」按钮（在预览卡片上点击即从抓取结果删除），
+// 因为它的作用与「手动排除作品」重复，已被移除。需要删除作品时请使用「手动排除作品」。
 class DeleteWorks {
     preview;
     constructor(preview) {
         this.preview = preview;
-        this.icon = this.createDeleteIcon();
-        this.bindEvents();
     }
-    /** 预览卡片的选择器 */
-    cardSelector = `.${_SearchResultPreview__WEBPACK_IMPORTED_MODULE_6__.SearchResultPreview.listClass}`;
-    delMode = false; // 是否处于手动删除作品状态
-    icon; // 手动删除时，显示一个指示图标
-    iconId = 'deleteWorkEl';
-    left = 0;
-    top = 0;
-    half = 12;
-    delBtn;
-    delBtnText;
-    /** 手动删除模式下注册点击事件的作品列表容器 */
-    deleteEventTarget = null;
     /** 添加本模块提供的全部按钮 */
     addBtns() {
         this.addFilterBtn('_清除多图作品', 'clearMultiImageWork', () => this.preview.clearMultiple());
         this.addFilterBtn('_清除动图作品', 'clearUgoiraWork', () => this.preview.clearUgoira());
-        this.addManuallyDeleteBtn();
     }
-    /** 退出手动删除模式并移除列表级点击监听 */
-    exitDeleteMode = () => {
-        if (!this.delMode) {
-            return;
-        }
-        this.delMode = false;
-        this.deleteEventTarget?.removeEventListener('click', this.handleDeleteClick, true);
-        this.deleteEventTarget = null;
-        this.updateDeleteIcon();
-        if (this.delBtnText) {
-            _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(this.delBtnText, '_手动删除作品');
-        }
-    };
-    /** 销毁手动删除模块及其全局事件 */
-    destroy() {
-        this.exitDeleteMode();
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, this.exitDeleteMode);
-        window.removeEventListener('mousemove', this.onMouseMove, true);
-        this.icon?.remove();
-    }
-    bindEvents() {
-        // 切换页面时，退出手动删除模式
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, this.exitDeleteMode);
-        // 鼠标移动时保存鼠标的坐标
-        window.addEventListener('mousemove', this.onMouseMove, true);
-    }
-    /** 鼠标移动时保存鼠标的坐标 */
-    onMouseMove = (ev) => {
-        this.left = ev.clientX;
-        this.top = ev.clientY;
-        this.updateDeleteIcon();
-    };
     /** 添加由预览模块处理的“清除某一类作品”的按钮 */
     addFilterBtn(text, id, callback) {
-        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', text, '', id, 'secondary', 'danger').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('filterCrawlResultBtns', text, '', id, 'secondary', 'danger').addEventListener('click', () => {
             if (!this.checkCanDelete()) {
                 return;
             }
             callback();
         }, false);
     }
-    /** 添加手动删除作品按钮 */
-    addManuallyDeleteBtn() {
-        this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('crawlBtns', '_手动删除作品', '_手动删除作品Title', 'manuallyDeleteWork', 'secondary', 'danger');
-        this.delBtnText = this.delBtn.querySelector('span') ?? undefined;
-        this.delBtn.addEventListener('click', (ev) => {
-            if (ev.detail > 0) {
-                this.left = ev.clientX;
-                this.top = ev.clientY;
-            }
-            this.toggleDeleteMode();
-        });
-    }
-    /** 切换手动删除模式 */
-    async toggleDeleteMode() {
-        if (this.delMode) {
-            this.exitDeleteMode();
-            return;
-        }
-        if (!this.checkCanDelete()) {
-            return;
-        }
-        // 直接向预览模块要作品列表容器，不再从某个卡片元素反查它的父元素。
-        // 传 false：这里只想找已有的列表，不要为了进入删除模式而创建容器、隐藏 pixiv 的列表
-        const wrap = this.preview.findWorksWrap(false);
-        if (!wrap || !wrap.querySelector(this.cardSelector)) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示当前页面上没有可以用于手动删除的元素'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_手动删除作品'),
-            });
-            return;
-        }
-        this.delMode = true;
-        this.deleteEventTarget = wrap;
-        wrap.addEventListener('click', this.handleDeleteClick, true);
-        this.updateDeleteIcon();
-        if (this.delBtnText) {
-            _Language__WEBPACK_IMPORTED_MODULE_0__.lang.updateText(this.delBtnText, '_退出手动删除');
-        }
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(100);
-        if (this.delMode) {
-            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('closeSettingsPanel');
-        }
-    }
-    /** 在作品列表容器上委托处理手动删除操作 */
-    handleDeleteClick = (ev) => {
-        if (!this.delMode || !(ev.target instanceof Element)) {
-            return;
-        }
-        const card = ev.target.closest(this.cardSelector);
-        if (!card) {
-            return;
-        }
-        ev.preventDefault();
-        ev.stopPropagation();
-        // 只把作品 id 交给预览模块：它会修改抓取结果并重绘整个列表。
-        // 所以这里不需要自己删除卡片元素，交给预览模块统一处理
-        this.preview.removeWork(Number.parseInt(card.dataset.id || ''));
-    };
     /** 检查是否存在可以操作的抓取结果 */
     checkCanDelete() {
         if (!this.preview.hasResult) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果'));
+            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果'));
             return false;
         }
         return true;
-    }
-    createDeleteIcon() {
-        const el = document.createElement('div');
-        el.id = this.iconId;
-        document.body.appendChild(el);
-        return el;
-    }
-    updateDeleteIcon() {
-        if (!this.icon) {
-            return;
-        }
-        this.icon.style.display = this.delMode ? 'block' : 'none';
-        // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
-        if (this.delMode) {
-            this.icon.style.left = this.left - this.half + 'px';
-            this.icon.style.top = this.top - this.half + 'px';
-        }
     }
 }
 
@@ -19922,12 +19798,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         super();
         this.init();
     }
-    /** 管理搜索页上的批量清除和手动删除操作 */
-    deleteWorks;
     /** 管理搜索页面上的抓取结果预览和二次筛选 */
-    searchResultPreview = new _SearchResultPreview__WEBPACK_IMPORTED_MODULE_21__.SearchResultPreview(() => {
-        this.deleteWorks?.exitDeleteMode();
-    });
+    searchResultPreview = new _SearchResultPreview__WEBPACK_IMPORTED_MODULE_21__.SearchResultPreview();
     getIdListLogKey = 'crawlArtworkSearchPageListPage';
     APIPath = 'artworks';
     option = {};
@@ -20011,17 +19883,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
         this.addCancelTimedCrawlBtn();
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__.crawlTagList.init();
-        this.addInitPageBtn('crawlBtns', '_在结果中筛选', '_在结果中筛选说明', 'filterResults', 'brand').addEventListener('click', () => {
+        this.addInitPageBtn('filterCrawlResultBtns', '_在结果中筛选', '_在结果中筛选说明', 'filterResults', 'brand').addEventListener('click', () => {
             this.searchResultPreview.filterResults();
         });
     }
     /** 添加搜索页结果的批量操作控件 */
     addAnyElement() {
-        // DeleteWorks 直接持有预览模块：它只负责按钮和删除模式的界面部分，
+        // DeleteWorks 直接持有预览模块：它只负责按钮的界面部分，
         // 抓取结果的修改和页面重绘都交给预览模块
-        const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_2__.DeleteWorks(this.searchResultPreview);
-        this.deleteWorks = deleteWorks;
-        deleteWorks.addBtns();
+        new _DeleteWorks__WEBPACK_IMPORTED_MODULE_2__.DeleteWorks(this.searchResultPreview).addBtns();
         // 添加收藏本页所有作品的功能
         const bookmarkAllBtn = this.addInitPageBtn('otherBtns', '_收藏本页面的所有作品', '', 'bookmarkAllWorksOnSearchPage', 'brand');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__.BookmarkAllWorks(bookmarkAllBtn);
@@ -20062,12 +19932,12 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     /**销毁页面切换后不再适用的元素、定时器和全局事件 */
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.clearSlot('crawlBtns');
+        _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.clearSlot('filterCrawlResultBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.clearSlot('otherBtns');
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlComplete, this.searchResultPreview.finishCrawl);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.settingChange, this.onSettingChange);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlTag, this.crawlTag);
-        this.deleteWorks?.destroy();
         this.searchResultPreview.destroy();
         window.clearInterval(this.removeBlockIntervalId);
     }
@@ -20498,7 +20368,6 @@ __webpack_require__.r(__webpack_exports__);
 // 现在渲染预览卡片时是分页的。
 // 我试过不用分页的方案：为卡片设置 content-visibility: auto; 使浏览器不渲染离屏内容，也不会立刻加载离屏的图片。首屏先渲染前 N 张、其余用 requestIdleCallback 分批补充渲染。但是当卡片数量很多时，几乎所有操作都会有明显的卡顿，因此改回了分页方案。
 class SearchResultPreview {
-    exitManualDeleteMode;
     /** 预览作品列表项的类名 */
     static listClass = 'searchList';
     /** 多图作品标记的类名 */
@@ -20529,8 +20398,12 @@ class SearchResultPreview {
     showPreviewFrameId = 0;
     /** 防止异步筛选任务重叠 */
     isFiltering = false;
-    /** 异步筛选期间请求删除的作品 id */
+    /** 异步筛选期间被排除、等筛选结束后再删除的作品 id */
     pendingDeleteIds = new Set();
+    /** 是否已经安排了一次延时重绘。用于合并同一轮事件里的多次调用 */
+    renderScheduled = false;
+    /** 抓取进行中修改了会影响抓取结果的设置时，等抓取结束后再重建一次抓取结果 */
+    pendingRebuildAfterCrawl = false;
     /** 分页控件。作品列表的顶部和底部各一份，它们显示的内容始终相同 */
     paginations = [];
     /** 修改这些设置后需要重新生成抓取结果 */
@@ -20550,10 +20423,6 @@ class SearchResultPreview {
     restoredPreviewTimer = 0;
     /** 恢复预览的最大重试次数。pixiv 的作品列表可能比恢复流程更晚渲染出来 */
     restoredPreviewMaxRetry = 25;
-    /** 初始化退出手动删除模式的回调 */
-    constructor(exitManualDeleteMode = () => { }) {
-        this.exitManualDeleteMode = exitManualDeleteMode;
-    }
     /** 初始化预览、结果变更和收藏相关事件 */
     init() {
         // 在移动端不启用此功能
@@ -20569,9 +20438,15 @@ class SearchResultPreview {
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
             window.addEventListener(ev, this.renderAfterDownload);
         }
+        // 抓取进行中修改了会影响抓取结果的设置时，等抓取结束后再补一次重建（见 refreshResults）
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlEmpty]) {
+            window.addEventListener(ev, this.applyPendingRebuildAfterCrawl);
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updateLanguage);
         // 恢复了未完成的抓取结果之后，用恢复的数据绘制预览列表
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.onResume);
+        // 导入了抓取结果之后，用导入的数据重新绘制预览列表
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.importResultComplete, this.onImportResultComplete);
         // URL 变化时移除上一个页面里添加的预览卡片
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.onPageSwitch);
         // 用户开启或关闭“预览搜索页面的抓取结果”设置时
@@ -20586,8 +20461,12 @@ class SearchResultPreview {
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop]) {
             window.removeEventListener(ev, this.renderAfterDownload);
         }
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlEmpty]) {
+            window.removeEventListener(ev, this.applyPendingRebuildAfterCrawl);
+        }
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.langChange, this.updateLanguage);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resume, this.onResume);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.importResultComplete, this.onImportResultComplete);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.onPageSwitch);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, this.onPreviewResultChange);
         window.removeEventListener('addBMK', this.addBookmark);
@@ -20654,7 +20533,6 @@ class SearchResultPreview {
     }
     /** 开始由搜索页按钮发起的抓取，初始化预览结果状态 */
     startCrawl() {
-        this.exitManualDeleteMode();
         this.previewContainerPrepared = false;
         // 不需要清空抓取结果：它在 store 里，store 会在 crawlStart 时重置
         this.crawlStartBySelf = true;
@@ -20823,7 +20701,10 @@ class SearchResultPreview {
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('worksUpdate');
         }, 0);
     };
-    /** 根据会影响结果的设置变更重新生成抓取结果 */
+    /** 根据会影响结果的设置变更重新生成抓取结果。
+     *
+     * 抓取进行中不在这里重建（会把待抓取队列一起清空），先记下标记，
+     * 等抓取结束后由 applyPendingRebuildAfterCrawl() 补一次重建 */
     refreshResults(event) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlTagList) {
             return;
@@ -20841,11 +20722,35 @@ class SearchResultPreview {
             _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length === 0) {
             return;
         }
+        // 抓取进行中不能在这里重建：reAddResult() 内部的 store.reset() 会把
+        // store.idList（待抓取队列）一并清空，导致剩余的作品不再被抓取、抓取提前结束。
+        // 先记下标记，等抓取结束后再补一次重建（那时是安全的，设置依然会作用于全部结果）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawling) {
+            this.pendingRebuildAfterCrawl = true;
+            return;
+        }
         // 这些设置会影响每个作品要下载哪些文件，所以要按当前的作品列表重建抓取结果
         this.reAddResult([..._store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta]);
         this.renderCurrentPage();
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
     }
+    /** 抓取结束后，补做一次在抓取期间被推迟的抓取结果重建（见 refreshResults）。
+     *
+     * 抓取可能以 crawlComplete（完成/停止）或 crawlEmpty（没有结果）结束：
+     * 前者需要补做重建；后者没有结果可重建，只清掉标记。
+     * 本监听的注册时机早于 finishCrawl，所以会在抓取结束的整页重绘之前先把结果重建好 */
+    applyPendingRebuildAfterCrawl = (event) => {
+        if (!this.pendingRebuildAfterCrawl) {
+            return;
+        }
+        this.pendingRebuildAfterCrawl = false;
+        if (event.type === _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlEmpty || _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length === 0) {
+            return;
+        }
+        this.reAddResult([..._store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta]);
+        this.renderCurrentPage();
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
+    };
     /** 查找并缓存搜索结果容器 */
     setWorksWrap(wrap) {
         if (this.worksWrap !== wrap) {
@@ -20902,11 +20807,8 @@ class SearchResultPreview {
         }
         this.updatePagination();
     };
-    /** 根据当前页码重新渲染预览作品，默认退出手动删除模式 */
-    renderCurrentPage(exitDeleteMode = true) {
-        if (exitDeleteMode) {
-            this.exitManualDeleteMode();
-        }
+    /** 根据当前页码重新渲染预览作品 */
+    renderCurrentPage() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult ||
             !this.worksWrap ||
             !this.previewContainerPrepared) {
@@ -21324,54 +21226,32 @@ class SearchResultPreview {
             _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
         }
     }
-    /** 从当前结果中移除指定的作品（由“手动删除作品”调用）
-     * @param idNum 作品的数字 id */
-    removeWork(idNum) {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
-            return;
-        }
-        if (Number.isNaN(idNum)) {
-            return;
-        }
-        if (this.isFiltering) {
-            if (!this.pendingDeleteIds.has(idNum)) {
-                this.pendingDeleteIds.add(idNum);
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
-            }
-            return;
-        }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
-            return;
-        }
-        const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
-        const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.filter((result) => result.idNum !== idNum);
-        if (newResultMeta.length === beforeLength) {
-            return;
-        }
-        this.reAddResult(newResultMeta);
-        this.renderCurrentPage(false);
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
-        _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
-    }
     /** 处理“手动排除作品”功能排除的作品。
      *
      * 这里直接按 id 修改抓取结果，不再查找页面上对应的卡片：页面是分页显示的，
      * 被排除的作品可能位于其他页，此时页面上并没有它的元素。
      *
-     * 抓取进行中时，ExcludeWork 已经把它从抓取结果里移除了，所以下面的过滤不会改变数量、会直接返回。
+     * 抓取进行中时不在这里重建结果：本方法会调用 reAddResult()，而它内部的 store.reset()
+     * 会把 store.idList（待抓取队列）一并清空，导致剩余的作品不再被抓取、抓取提前结束。
+     * 所以抓取中由 ExcludeWork 的 removeWorkById() 精确移除这一个作品（不动队列），
+     * 这里只安排一次延时重绘，让被排除的卡片立即消失。
      *
-     * 只有「正在传输」时不在这里处理，见方法内的判断。
-     * 已暂停（包括恢复了未完成的抓取结果之后）时也会真正删除，与「手动删除作品」按钮的行为一致。 */
+     * 正在传输时也不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标
+     * 派发的，重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未
+     * 开始下载的文件标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
+     *
+     * 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉。
+     * 已暂停时是安全的：reAddResult() 会按文件 id 迁移下载状态，保持 store.result 与
+     * downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。 */
     onManuallyExcludeWork = (event) => {
-        // 正在传输时不在这里处理：这里会重建抓取结果，而下载任务是按 store.result 的下标派发的，
-        // 重建结果会打乱下标。这种情况交给 DownloadControl 处理（它会把该作品尚未开始下载的文件
-        // 标记为跳过），预览列表则在下载结束后由 renderAfterDownload 重绘。
-        //
-        // 除此之外（空闲、已暂停、恢复了未完成的抓取结果）都直接把作品从抓取结果里删掉，
-        // 效果和「手动删除作品」按钮一样。已暂停时是安全的：reAddResult 会按文件 id 迁移下载状态，
-        // 保持 store.result 与 downloadStates 长度一致；在飞文件回报时也会按 id 重新定位下标。
+        // 抓取进行中：数据交给 ExcludeWork.removeWorkById() 精确移除（见上方注释），
+        // 这里只安排延时重绘。⚠️ 不能在这里调用 reAddResult()：它内部的 store.reset()
+        // 会清空 store.idList，导致待抓取的作品全部丢失
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawling) {
+            this.scheduleRender();
+            return;
+        }
+        // 正在传输时不在这里处理：见上方注释，交给 DownloadControl 处理
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.downloading) {
             return;
         }
@@ -21385,13 +21265,22 @@ class SearchResultPreview {
         if (Number.isNaN(deleteId)) {
             return;
         }
+        // 异步筛选期间先记录 id，等筛选结束后再删除：筛选还在遍历修改前的 store.resultMeta，
+        // 直接删会被它以旧数据重建回去
+        if (this.isFiltering) {
+            if (!this.pendingDeleteIds.has(deleteId)) {
+                this.pendingDeleteIds.add(deleteId);
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
+            }
+            return;
+        }
         const beforeLength = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.length;
         const newResultMeta = _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.resultMeta.filter((result) => result.idNum !== deleteId);
         if (newResultMeta.length === beforeLength) {
             return;
         }
         this.reAddResult(newResultMeta);
-        this.renderCurrentPage(false);
+        this.renderCurrentPage();
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resultChange');
         _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已调整抓取结果'));
     };
@@ -21406,11 +21295,25 @@ class SearchResultPreview {
      * 也可能让下载器重新进入准备下载的流程。 */
     renderAfterDownload = () => {
         // 延后到本轮事件处理完毕再重绘：DownloadControl 也监听这两个事件，它需要先改完 store
-        window.setTimeout(() => {
-            this.showCount();
-            this.renderCurrentPage(false);
-        }, 0);
+        this.scheduleRender();
     };
+    /** 安排一次「本轮事件处理完毕后」的预览重绘（包含数量刷新）。
+     *
+     * 用于「数据由其他模块在本轮事件里修改」的场景（见各调用处的注释）：延后一拍，
+     * 等它们先改完 store，再统一重绘一次。
+     *
+     * 同一轮里重复调用只会重绘一次，避免一次性排除大量作品时反复重绘 */
+    scheduleRender() {
+        if (this.renderScheduled) {
+            return;
+        }
+        this.renderScheduled = true;
+        window.setTimeout(() => {
+            this.renderScheduled = false;
+            this.showCount();
+            this.renderCurrentPage();
+        }, 0);
+    }
     /** 下载器恢复了未完成的抓取结果（见 Resume 模块）之后，绘制预览列表。
      *
      * 抓取进行中不处理：那时预览列表由抓取流程增量绘制（onResultAdded），
@@ -21423,13 +21326,28 @@ class SearchResultPreview {
         }
         this.renderPreview();
     };
+    /** 用户导入了抓取结果之后，用导入的数据重新绘制预览列表。
+     *
+     * 导入流程会替换整个 store（见 ImportResult.import），但它不经过搜索页的抓取流程，
+     * 所以 finishCrawl 的 crawlStartBySelf 守卫会跳过重绘，这里由导入完成事件主动重绘。
+     * renderPreview 不要求 crawlStartBySelf（与恢复、开启设置两条路径相同），正好复用。
+     *
+     * 抓取进行中不处理：避免与抓取流程的增量渲染冲突。
+     * 正常情况下导入入口已被 states.busy 拦下，这里再挡一层是为了不依赖别的模块的内部判断。 */
+    onImportResultComplete = () => {
+        if (this.crawlStartBySelf || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawling) {
+            return;
+        }
+        this.renderPreview();
+    };
     /** 用当前的抓取结果绘制预览列表。
      *
      * 调用处：恢复了未完成的抓取结果之后（onResume）；
-     * 以及用户开启了“预览搜索页面的抓取结果”设置（onPreviewResultChange）。
+     * 用户开启了“预览搜索页面的抓取结果”设置（onPreviewResultChange）；
+     * 用户导入了抓取结果之后（onImportResultComplete）。
      *
-     * 这两条调用路径都不会经过搜索页的抓取流程，所以预览容器还没有被本模块接管，
-     * 需要在这里自己准备容器。而且它们的时机可能早于 pixiv 渲染出作品列表，
+     * 这几条调用路径都不会经过搜索页的抓取流程，容器可能还没被本模块接管，
+     * 需要在这里自己准备它。而且它们的时机可能早于 pixiv 渲染出作品列表，
      * 所以找不到容器时会延迟重试。
      *
      * ⚠️ 这里**不能**用 crawlStartBySelf 早退：抓取进行中用户也可能开启“预览”设置，
@@ -21477,7 +21395,7 @@ class SearchResultPreview {
             this.preparePreviewContainer();
         }
         this.showCount();
-        this.renderCurrentPage(false);
+        this.renderCurrentPage();
     };
     /** 通过容器事件委托处理预览卡片的收藏按钮 */
     onPreviewClick = (event) => {
@@ -27840,7 +27758,7 @@ class DownloadControl {
                         this.setDownloadThread();
                     }
                     else if (this.pause) {
-                        // 暂停时抓取结果可能被重建（如在结果中筛选、手动删除作品），已下载数量会随之变化。
+                        // 暂停时抓取结果可能被重建（如在结果中筛选），已下载数量会随之变化。
                         // 但状态列表里还保存着可以继续的进度，所以只同步数字，不重画进度条。
                         // 只同步数字，不做「是否下载完毕」的判定，避免像 setDownloaded 那样把暂停状态清掉
                         this.syncDownloadedCount();
@@ -29783,7 +29701,7 @@ class DownloadStates {
     }
     /** 把当前的状态列表转换成「文件 id → 下载状态」的映射。
      *
-     * 抓取结果被整体重建时（如在结果中筛选、手动删除作品），状态列表的下标就不再对应原来的文件，
+     * 抓取结果被整体重建时（如在结果中筛选、手动排除作品），状态列表的下标就不再对应原来的文件，
      * 所以在重建前调用它保存映射，重建完成后再用 remapTo 写回。
      * 这样已经下载完成的文件不会因为重建而需要重新下载，状态列表的长度也始终与 store.result 一致
      * （长度不一致会让下载时读到 store.result 之外的下标）。
@@ -30308,6 +30226,8 @@ class ImportResult {
         }
         // 发送通知
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlComplete');
+        // 通知其它模块（如搜索页的预览模块）：导入已完成，store 里已经是导入的数据
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('importResultComplete');
         _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'));
     }
 }
@@ -31886,7 +31806,7 @@ class ProgressBar {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.crawlStart, () => {
             this.hide();
         });
-        // 抓取结果被筛选、手动删除等操作改变后，立即更新总进度条上显示的作品总数
+        // 抓取结果被筛选、手动排除等操作改变后，立即更新总进度条上显示的作品总数
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.resultChange, this.setTotalNumber);
     }
     /** 更新总进度条上显示的作品总数（文件总数）。
@@ -38848,30 +38768,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `움직이는 일러스트 작품 지우기`,
         `Убрать Ugoira(gif) работы`,
     ],
-    _手动删除作品: [
-        `手动删除作品`,
-        `手動刪除作品`,
-        `Manually delete works`,
-        `作品を手動で削除する`,
-        `수동 지우기`,
-        `Ручное удаление`,
-    ],
-    _手动删除作品Title: [
-        `可以在下载前手动删除不需要的作品`,
-        `可以在下載前手動刪除不需要的作品，點擊作品刪除。`,
-        `You can manually delete unwanted work before downloading`,
-        `ダウンロードする前に不要な作品を手動で削除することができます`,
-        `다운로드를 원하지 않는 작품을 수동으로 지울 수 있습니다.`,
-        `Вы можете вручную удалить нежелательные работы перед загрузкой`,
-    ],
-    _退出手动删除: [
-        `退出手动删除`,
-        `結束手動刪除`,
-        `Exit manual delete mode`,
-        `削除モードを終了する`,
-        `수동 지우기 종료`,
-        `Выйти из ручного удаления`,
-    ],
     _抓取本页作品: [
         `抓取本页作品`,
         `擷取本頁作品`,
@@ -39551,7 +39447,7 @@ Quick download tasks are triggered by these actions:<br>
     启用预览功能时，下载器不会自动开始下载，这是为了让用户可以对抓取结果再次进行筛选。<br>
     在这些页面上，你可以使用设置面板里的这些按钮调整抓取结果：<br>
     - 修改筛选条件后点击在结果中筛选；<br>
-    - 清除多图作品、清除动图作品、手动删除作品、手动排除作品。<br>
+    - 清除多图作品、清除动图作品、手动排除作品。<br>
     <br>
     另外，当抓取结果较多时，下载器会分页显示，以降低性能压力。你可以设置每页显示的作品数量。`,
         `當你在搜尋頁面（/tags 和 /search）裡擷取插畫、漫畫作品時，下載器可以把擷取到的作品顯示在頁面上，並且按照收藏數量從高到低排序。<br>
@@ -39559,7 +39455,7 @@ Quick download tasks are triggered by these actions:<br>
     啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對擷取結果再次進行篩選。<br>
     在這些頁面上，你可以使用設定面板裡的這些按鈕調整擷取結果：<br>
     - 修改篩選條件後點擊在結果中篩選；<br>
-    - 清除多圖作品、清除動圖作品、手動刪除作品、手動排除作品。<br>
+    - 清除多圖作品、清除動圖作品、手動排除作品。<br>
     <br>
     另外，當擷取結果較多時，下載器會分頁顯示，以降低效能壓力。你可以設定每頁顯示的作品數量。`,
         `When you crawl illustrations and manga on search pages (/tags and /search), the downloader can display the crawled works on the page, sorted by bookmark count from highest to lowest.<br>
@@ -39567,7 +39463,7 @@ Quick download tasks are triggered by these actions:<br>
     When the preview feature is enabled, the downloader will not start downloading automatically, so that you can filter the crawl results again.<br>
     On these pages, you can use these buttons in the settings panel to adjust the crawl results:<br>
     - After changing the filter conditions, click "Screen in results";<br>
-    - Remove multi-image works, remove ugoira works, manually delete works, manually exclude works.<br>
+    - Remove multi-image works, remove ugoira works, manually exclude works.<br>
     <br>
     In addition, when there are many crawl results, the downloader will display them in pages to reduce performance pressure. You can set the number of works shown per page.`,
         `検索ページ（/tags と /search）でイラストやマンガ作品をクロールするとき、ダウンローダーはクロールした作品をページ上に表示し、ブックマークの数が多い順に並べ替えることができます。<br>
@@ -39575,7 +39471,7 @@ Quick download tasks are triggered by these actions:<br>
     プレビュー機能を有効にしているとき、ダウンローダーは自動的にダウンロードを開始しません。これはユーザーがクロール結果を再度スクリーニングできるようにするためです。<br>
     これらのページでは、設定パネルにある以下のボタンでクロール結果を調整できます：<br>
     - フィルター条件を変更したあとに「結果の中からスクリーニング」をクリックする；<br>
-    - 複数画像をクリア、うごイラ作品を削除する、作品を手動で削除する、手動で作品を除外。<br>
+    - 複数画像をクリア、うごイラ作品を削除する、手動で作品を除外。<br>
     <br>
     また、クロール結果が多い場合、ダウンローダーはパフォーマンスへの負荷を下げるためにページ分割して表示します。1 ページに表示する作品数を設定できます。`,
         `검색 페이지(/tags 및 /search)에서 일러스트와 만화 작품을 크롤링할 때, 다운로더는 크롤링한 작품을 페이지에 표시하고 북마크 수가 높은 순서대로 정렬할 수 있습니다.<br>
@@ -39583,7 +39479,7 @@ Quick download tasks are triggered by these actions:<br>
     미리보기 기능을 사용하면 다운로더가 자동으로 다운로드를 시작하지 않습니다. 사용자가 크롤링 결과를 다시 선별할 수 있도록 하기 위함입니다.<br>
     이 페이지에서는 설정 패널의 다음 버튼으로 크롤링 결과를 조정할 수 있습니다:<br>
     - 필터 조건을 수정한 뒤 "결과 중에서 선별"을 클릭합니다;<br>
-    - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 지우기, 수동 제외.<br>
+    - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 제외.<br>
     <br>
     또한 크롤링 결과가 많을 때 다운로더는 성능 부담을 줄이기 위해 페이지로 나누어 표시합니다. 페이지당 표시할 작품 수를 설정할 수 있습니다.`,
         `При сканировании иллюстраций и манги на страницах поиска (/tags и /search) загрузчик может отображать найденные работы на странице, отсортированные по количеству закладок от большего к меньшему.<br>
@@ -39591,7 +39487,7 @@ Quick download tasks are triggered by these actions:<br>
     Когда функция предварительного просмотра включена, загрузчик не начинает загрузку автоматически — это сделано для того, чтобы вы могли снова отфильтровать результаты сканирования.<br>
     На этих страницах вы можете изменить результаты сканирования с помощью этих кнопок на панели настроек:<br>
     - Изменив условия фильтрации, нажмите «Экран результатов»;<br>
-    - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное удаление, ручное исключение.<br>
+    - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное исключение.<br>
     <br>
     Кроме того, когда результатов сканирования много, загрузчик отображает их постранично, чтобы снизить нагрузку на производительность. Вы можете настроить количество работ на странице.`,
     ],
@@ -50137,38 +50033,6 @@ One possible reason: Your Pixiv account has been banned.`,
         `Ожидался формат данных JSON, но полученные данные не являются JSON. Сканирование отменено.<br>
 Одна из возможных причин: ваша учетная запись заблокирована Pixiv.`,
     ],
-    _提示当前页面上没有可以用于手动删除的元素: [
-        `当你启用“预览搜索页面的抓取结果”功能之后，下载器会把抓取到的作品显示在页面上，供用户查看。<br>
-    现在页面上没有下载器添加的作品，所以无法使用手动删除作品功能。<br>
-    这可能是因为你没有启用“预览搜索页面的抓取结果”功能，或者目前没有任何抓取结果。<br>
-    <br>
-    作为替代方案，你可以使用“手动排除作品”按钮来排除不需要的作品。`,
-        `啟用「預覽搜尋頁面的擷取結果」功能後，下載器會將擷取到的作品顯示在頁面上，供你查看。<br>
-    目前頁面上沒有下載器添加的作品，因此無法使用「手動刪除作品」功能。<br>
-    這可能是因為你沒有啟用「預覽搜尋頁面的擷取結果」功能，或目前沒有任何擷取結果。<br>
-    <br>
-    你也可以改用「手動排除作品」按鈕，排除不需要的作品。`,
-        `When you enable "Preview crawl results on search page", the downloader displays crawled works on the page so you can review them.<br>
-    There are currently no works added by the downloader on the page, so you can't use "Manually delete works".<br>
-    This may be because "Preview crawl results on search page" is disabled or there are no crawl results yet.<br>
-    <br>
-    Alternatively, you can use the "Manually exclude" button to exclude works you don't want.`,
-        `「検索ページのクロール結果をプレビュー」機能を有効にすると、ダウンローダーがクロールした作品がページ上に表示され、確認できます。<br>
-    現在、ページ上にダウンローダーが追加した作品がないため、「作品を手動で削除する」機能は使えません。<br>
-    「検索ページのクロール結果をプレビュー」機能が有効になっていないか、クロール結果がまだない可能性があります。<br>
-    <br>
-    代わりに、「手動で作品を除外」ボタンを使って、不要な作品を除外できます。`,
-        `"검색 페이지 크롤링 결과 미리보기" 기능을 활성화하면 다운로더가 긁어온 작품을 페이지에 표시하여 확인할 수 있습니다.<br>
-    현재 페이지에 다운로더가 추가한 작품이 없어 "수동으로 작품 지우기" 기능을 사용할 수 없습니다.<br>
-    "검색 페이지 크롤링 결과 미리보기" 기능이 활성화되어 있지 않거나 아직 긁어온 결과가 없기 때문일 수 있습니다.<br>
-    <br>
-    대신 "수동 제외" 버튼을 사용해 원하지 않는 작품을 제외할 수 있습니다.`,
-        `Когда вы включаете функцию «Предварительный просмотр результатов сканирования на странице поиска», загрузчик показывает просканированные работы на странице, чтобы вы могли их просмотреть.<br>
-    Сейчас на странице нет работ, добавленных загрузчиком, поэтому функцию «Вручную удалить работу» использовать нельзя.<br>
-    Возможно, функция «Предварительный просмотр результатов сканирования на странице поиска» не включена или результатов сканирования пока нет.<br>
-    <br>
-    Вместо этого можно нажать кнопку «Ручное исключение», чтобы исключить ненужные работы.`,
-    ],
     _提示检查图片色彩会增加抓取所需时间: [
         `注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。`,
         `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加擷取所需的時間。`,
@@ -53664,12 +53528,6 @@ class ButtonConfigs {
         {
             id: 'clearUgoiraWork',
             nameKey: '_清除动图作品',
-            categoryLevel1: 'startCrawl',
-            categoryLevel2: 'SearchPage',
-        },
-        {
-            id: 'manuallyDeleteWork',
-            nameKey: '_手动删除作品',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'SearchPage',
         },
@@ -60885,9 +60743,14 @@ class SettingsPanelLayout {
     canonicalContainers = new Map();
     homePinnedContent;
     otherBtnsVisibilityObserver;
+    filterCrawlResultBtnsObserver;
     build() {
         // 创建第一排抓取按钮的容器
         const crawlBtnsBlock = this.createSlotBlock(['stopCrawl', 'crawlBtns']);
+        // 搜索页里「过滤抓取结果」的按钮（在结果中筛选、清除多图、清除动图）单独占一行
+        const filterCrawlResultBtnsBlock = this.createSlotBlock([
+            'filterCrawlResultBtns',
+        ]);
         // 在抓取按钮底部添加一个提示卡片
         const cardTipHowToCrawlUserWorks = _SettingsPanelTipCard__WEBPACK_IMPORTED_MODULE_4__.settingsPanelTipCard.use('tipHowToCrawlUserWorks');
         if (cardTipHowToCrawlUserWorks) {
@@ -60944,7 +60807,7 @@ class SettingsPanelLayout {
             this.pageInners.set(page, inner);
             this.stickyEls.set(page, sticky);
         });
-        this.buildHomePage(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar);
+        this.buildHomePage(crawlBtnsBlock, filterCrawlResultBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar);
         this.buildCategoryPages();
         this.buildHelpPage();
         for (const option of this.optionElements.values()) {
@@ -60967,7 +60830,7 @@ class SettingsPanelLayout {
             this.navEls.set(button.dataset.page, button);
         });
     }
-    buildHomePage(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar) {
+    buildHomePage(crawlBtnsBlock, filterCrawlResultBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock, otherBtnsBlock, downloadBtnsBlock, downloadEmptyHint, downloadArea, progressBar) {
         const home = this.pageInners.get('home');
         const homeTipsWrap = document.createElement('div');
         homeTipsWrap.className = 'settingsPanel_helpTips settingsPanel_homeTips';
@@ -60996,9 +60859,10 @@ class SettingsPanelLayout {
             stickyEligible: false,
             type: 'panel',
         });
-        // 抓取、手动选择、手动排除各自独占一行
-        crawlBlock.content.append(crawlBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock);
+        // 抓取、过滤抓取结果、手动选择、手动排除各自独占一行
+        crawlBlock.content.append(crawlBtnsBlock, filterCrawlResultBtnsBlock, selectWorkBtnsBlock, excludeWorkBtnsBlock);
         home.append(crawlBlock.root);
+        this.bindFilterCrawlResultBtnsVisibility(filterCrawlResultBtnsBlock);
         const downloadBlock = this.createSection({
             page: 'home',
             id: 'downloadArea',
@@ -61025,6 +60889,21 @@ class SettingsPanelLayout {
         otherBlock.content.append(otherBtnsBlock);
         home.append(otherBlock.root);
         this.bindHomeOtherBtnsVisibility(otherBlock, otherBtnsBlock);
+    }
+    /** 「过滤抓取结果」按钮块只在搜索页里有内容（其他页面里它是空的）。
+     * 空块时隐藏它，避免在「开始抓取」区块里留下一行空位 */
+    bindFilterCrawlResultBtnsVisibility(block) {
+        const toggle = () => {
+            const hasButtons = block.querySelector('button') !== null;
+            block.style.display = hasButtons ? '' : 'none';
+        };
+        toggle();
+        this.filterCrawlResultBtnsObserver?.disconnect();
+        this.filterCrawlResultBtnsObserver = new MutationObserver(toggle);
+        this.filterCrawlResultBtnsObserver.observe(block, {
+            childList: true,
+            subtree: true,
+        });
     }
     bindHomeOtherBtnsVisibility(otherBlock, otherBtnsBlock) {
         const toggleOtherBlock = () => {
@@ -63976,7 +63855,7 @@ class Store {
      * 否则会把它们又加回来。所以这里按 idNum 记住它们。
      *
      * 唯一真正依赖记录的是「搜索页预览的结果重建」，也就是这一组操作触发的重建：
-     * 在结果中筛选 / 清除多图作品 / 清除动图作品 / 手动删除作品 / 手动排除作品 / 改「只抓取前 N 张」。
+     * 在结果中筛选 / 清除多图作品 / 清除动图作品 / 手动排除作品 / 改「只抓取前 N 张」。
      * 这些操作会修改抓取结果。
      * 如果用户在抓取时排除了某种颜色的图片（如黑白图片），那么在重建抓取结果时，
      * 为了不让被排除掉的图片再次加回来，就需要保存这些被色彩检查排除的索引。
