@@ -40,6 +40,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/414
 
 这是一个优化，并且带来了一个新的用途：用户可以把其他页面里的抓取结果导出，在搜索页面里导入，即可预览里面的作品。不过目前只会预览图像作品，不会预览小说或系列小说。
 
+### ⌨️Input 组件里 Enter 不再用作提交；只有 Ctrl + Enter 才会提交
+
 ## 19.5.0 2026-10-10
 
 ### 🏷️新增命名标记：{human}

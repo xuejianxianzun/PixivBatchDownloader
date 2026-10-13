@@ -50,7 +50,7 @@ class InitBookmarkPage extends InitPageBase {
   private bm = ''
 
   /** 根据页数，计算要抓取的作品个数 */
-  private requsetNumber = 0
+  private requestNumber = 0
   /** 每次请求多少个数量，是 100 个。同时 API 里也是每次请求 100 个 */
   private readonly onceRequest = 100
   /** 记录检查了多少作品（不论结果是否通过都计入） */
@@ -245,9 +245,9 @@ class InitBookmarkPage extends InitPageBase {
     }
 
     if (this.crawlNumber === -1) {
-      this.requsetNumber = Config.worksNumberLimit
+      this.requestNumber = Config.worksNumberLimit
     } else {
-      this.requsetNumber = onceNumber * this.crawlNumber
+      this.requestNumber = onceNumber * this.crawlNumber
     }
 
     store.tag = Tools.getTagFromURL()
@@ -304,18 +304,18 @@ class InitBookmarkPage extends InitPageBase {
 
     if (
       data.body.works.length === 0 ||
-      this.idList.length >= this.requsetNumber ||
-      this.filteredNumber >= this.requsetNumber
+      this.idList.length >= this.requestNumber ||
+      this.filteredNumber >= this.requestNumber
     ) {
-      if (this.idList.length > this.requsetNumber) {
-        this.idList.splice(this.requsetNumber, this.idList.length)
+      if (this.idList.length > this.requestNumber) {
+        this.idList.splice(this.requestNumber, this.idList.length)
       }
       store.idList = store.idList.concat(this.idList)
       return this.getIdListFinished()
     }
 
     for (const workData of data.body.works) {
-      if (this.filteredNumber >= this.requsetNumber) {
+      if (this.filteredNumber >= this.requestNumber) {
         break
       }
       const workType =
@@ -362,7 +362,7 @@ class InitBookmarkPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
-    this.requsetNumber = 0
+    this.requestNumber = 0
     this.filteredNumber = 0
   }
 }

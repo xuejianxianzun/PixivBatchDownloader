@@ -1158,7 +1158,7 @@ class Tools {
 
   /**根据作品类型字符串，返回对应的数字 */
   static getWorkTypeNumber(
-    workTypeString: WorkTypeString
+    workTypeString: WorkTypeString | IDTypeString
   ): 0 | 1 | 2 | 3 | undefined {
     switch (workTypeString) {
       case 'illusts':

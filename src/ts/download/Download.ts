@@ -587,7 +587,7 @@ class Download {
     if (wh.width === 0 || wh.height === 0) {
       log.error(
         lang.transl('_获取图片的宽高时出现错误') +
-        Tools.createWorkLink(result.id)
+          Tools.createWorkLink(result.id)
       )
       return true
       // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。

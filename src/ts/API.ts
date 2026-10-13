@@ -278,8 +278,12 @@ class API {
     return this.fetch(url)
   }
 
-  /** 获取某个用户特定类型下的作品 id 列表
-   * 这个 API 里只包含了作品的部分数据，不是完整的数据 */
+  /** 获取某个用户特定类型下的作品 id 列表。
+   *
+   * 如果不传递第二个参数，就会返回所有类型的作品。
+   * 如果你只需要获取部分类型的作品，可以通过第二个参数来指定。
+   *
+   * 备注：这个 API 里只包含了每个作品的部分数据，不是完整的数据 */
   static async getUserWorksByType(
     id: string,
     type: userWorksType[] = ['illusts', 'manga', 'novels']

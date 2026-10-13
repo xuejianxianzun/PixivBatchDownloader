@@ -7380,23 +7380,23 @@ class Input {
                 this.remove();
                 return;
             }
-            // 按 Enter 或 Ctrl + Enter 都提交。
+            // 按 Ctrl + Enter 提交。单独按 Enter 不提交：保留默认行为，在输入框里插入换行。
             // ⚠️ 用 ev.key 而不是 ev.code 判断：小键盘的 Enter（ev.code 是 NumpadEnter）的 ev.key 也是 'Enter'，
-            // 这样两种 Enter 都能提交。
+            // 这样两种 Enter 都能识别。
             if (ev.key !== 'Enter') {
-                return;
-            }
-            // 排除其他修饰键：只有「不按修饰键」和「只按 Ctrl」这两种组合会提交，
-            // Shift / Alt / Meta（macOS 的 Cmd）以及它们和 Ctrl 的任意组合都不提交。
-            if (ev.shiftKey || ev.altKey || ev.metaKey) {
                 return;
             }
             // 输入法正在组词时（中文、日文的候选框），Enter 是用来确认候选词的，不能当成提交
             if (ev.isComposing || ev.keyCode === 229) {
                 return;
             }
-            // 阻止默认行为：输入框是 textarea 时，按 Enter 默认会插入换行，这里要把它换成提交。
-            // 想换行请用 Shift + Enter —— Shift 组合不会被拦截，会保留「插入换行」的默认行为。
+            // 只有「只按 Ctrl」这一种组合会提交。
+            // 不按 Ctrl 的 Enter（单独按、Shift + Enter 等）会保留默认行为：在输入框里插入换行。
+            // Shift / Alt / Meta（macOS 的 Cmd）以及它们和 Ctrl 的任意组合也都不提交。
+            if (!ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
+                return;
+            }
+            // 阻止默认行为，然后提交
             ev.preventDefault();
             // 此时输入框还没有失去焦点，change 事件可能还没触发，所以直接读一次当前的值
             this.value = input.value;
@@ -7416,7 +7416,7 @@ class Input {
         const wrap = document.querySelector(`#${this.id}`);
         wrap && wrap.remove();
     }
-    /**当用户提交后（点击提交按钮，或者按 Enter / Ctrl + Enter），返回 value。注意：可能会返回空字符串
+    /**当用户提交后（点击提交按钮，或者按 Ctrl + Enter），返回 value。注意：可能会返回空字符串
      * 如果用户点击取消按钮，则抛出 reject
      */
     async submit() {
@@ -39199,10 +39199,10 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `Введите ID для сканирования`,
     ],
     _输入id进行抓取的提示文字: [
-        `请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。`,
-        `請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。`,
+        `请输入作品 ID。如果有多个 ID，则以换行分割（即每行一个ID）。`,
+        `請輸入作品 ID。如果有多個 ID，則以換行分隔（即每行一個 ID）。`,
         `Enter work IDs. For multiple IDs, separate them with newlines (one ID per line).`,
-        `作品IDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。`,
+        `作品IDを入力してください。 複数の ID がある場合は、1 行に 1 つの ID を付けます。`,
         `작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).`,
         `Пожалуйста, введите идентификатор работы. Если идентификаторов несколько, то по одному идентификатору на строку.`,
     ],
