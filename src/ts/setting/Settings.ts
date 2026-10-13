@@ -302,7 +302,13 @@ interface XzSetting {
   sizeSwitch: boolean
   sizeMin: number
   sizeMax: number
+  /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的小说保存格式 */
+  // 如果删掉它，那么当用户恢复或导入旧设置时，不会继承这个旧设置里保存的格式。
+  // 顺序：它的顺序必须位于 novelSaveAsEPUB 和 novelSaveAsTXT 之前，
+  // 这样才不会产生错误的覆盖。
   novelSaveAs: 'txt' | 'epub'
+  novelSaveAsEPUB: boolean
+  novelSaveAsTXT: boolean
   saveNovelMeta: boolean
   /**
    * EPUB 排版方向。horizontal 横排（默认），vertical 竖排（适合日语等 CJK 小说），
@@ -912,6 +918,8 @@ class Settings {
     sizeMin: 0,
     sizeMax: 100,
     novelSaveAs: 'epub',
+    novelSaveAsEPUB: true,
+    novelSaveAsTXT: false,
     saveNovelMeta: true,
     epubWritingMode: 'horizontal',
     epubVerticalLangList: ['ja', 'zh-tw'],
@@ -1615,7 +1623,7 @@ class Settings {
   }
 
   /** 更新设置项的值 */
-  // 其他模块应该通过这个方法更改设置，这样才能够：
+  // 注意：其他模块应该通过这个方法更改设置，这样才能够：
   // 1. 触发 settingChange 事件，让其他模块能够监听到该设置的变化
   // 2. 让下载器持久保存修改后的设置
   // 3. 进行类型转换，以及兼容一些旧设置
@@ -1626,6 +1634,15 @@ class Settings {
     // 把旧版本里已经废弃的设置名转换成新的设置名，这样旧设置的值会被迁移到新的设置项上，而不是被丢弃
     key = convertOldSettings.convertKey(key) as SettingKeys
 
+    // 如果当前版本的默认设置里不存在这个 key，就直接返回。
+    // 基于这一点，可以从默认设置里删除旧设置里 deprecated 的 key 的两种情况是：
+    // 1. 不需要从这个 key 里继承旧的设置；
+    // 2. 需要继承旧的设置，并且上面的 convertOldSettings.convertKey 会把它转换为新的 key，
+    // 所以旧 key 不需要一直留着。
+    //
+    // 不应该从默认设置里删除旧 key 的情况是：
+    // 需要从这个 key 里继承旧的设置，并且 convertOldSettings.convertKey 不会把它转换为新的 key。
+    // 如果此时删除了旧的 key，这里就会直接返回，不会继承旧的设置。
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -1646,6 +1663,12 @@ class Settings {
       this.settings.ugoiraSaveAsAPNG = value === 'apng'
       this.settings.ugoiraSaveAsZIP = value === 'zip'
       this.settings.ugoiraSaveAsUgoira = false
+    }
+
+    // 如果存在旧的 novelSaveAs 设置（单选），就使用它的值来设置新设置（多选）的状态
+    if (key === 'novelSaveAs') {
+      this.settings.novelSaveAsEPUB = value === 'epub'
+      this.settings.novelSaveAsTXT = value === 'txt'
     }
 
     // 将传入的值转换成选项对应的类型

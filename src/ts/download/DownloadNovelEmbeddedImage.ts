@@ -222,7 +222,12 @@ class DownloadNovelEmbeddedImage {
     }
   }
 
-  // 获取正文里上传的图片 id 和引用的图片 id
+  /** 获取这篇小说里所有图片的数据 */
+  // 小说里的图片有两种来源：
+  // - 上传的图片（小说作者直接上传到小说里的图片）
+  // - 引用的图片（引用其他插画作品里的图片）
+  // 这篇小说同时包含了两种图片，可以用于测试：
+  // https://www.pixiv.net/novel/show.php?id=18016618
   private async getImageList(
     novelID: string,
     content: string,

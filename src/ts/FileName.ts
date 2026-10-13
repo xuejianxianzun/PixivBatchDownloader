@@ -1,4 +1,5 @@
 import { settings } from './setting/Settings'
+import { novelSaveFormat } from './download/NovelSaveFormat'
 import { nameRuleManager } from './setting/NameRuleManager'
 import './setting/SetUserName'
 import { setTagAlias } from './setting/SetTagAlias'
@@ -42,7 +43,9 @@ class FileName {
     let ext = data.ext
     // 处理小说的扩展名
     if (data.type === 3) {
-      ext = settings.novelSaveAs
+      // 小说可能同时保存多种格式，文件名使用默认格式的扩展名。
+      // 保存其他格式时，会在下载环节替换扩展名（Download.getNovelFileURL）
+      ext = novelSaveFormat.getDefaultFormat()
     }
 
     const extResult = '.' + ext

@@ -158,9 +158,18 @@ export interface NovelMeta {
   userName: string
   /** 小说的字数或单词数（取决于小说的语言） */
   charCount?: number
-  /**嵌入的图片 id 以及其原图 URL。例如：
+  /** 每条记录的格式例如：
    *
    * "12136542": "https://i.pximg.net/novel-cover-original/img/2022/07/20/00/09/34/tei441171884625_be457733c2b6806cee908f7a39498c9f.png"
+   *
+   * 注意：这个属性里只保存了上传到小说里的图片的数据，没有保存引用（自其他作品）的图片的数据。
+   *
+   * 这是因为在小说数据里，上传的图片是有现成的 url 的（data.body.textEmbeddedImages），可以直接保存到这个属性里；
+   * 但引用的图片只在小说正文里有 id 标记，没有可以直接获取的 url，
+   * 需要发送额外的请求（API.getNovelInsertIllustsData）才能获取其原图 URL。
+   *
+   * 目前下载器在保存抓取结果时，只保存了上传的图片的数据。
+   * 至于引用的图片，则在下载阶段获取（DownloadNovelEmbeddedImage.ts 里的 getImageList 方法）。
    */
   embeddedImages: null | {
     [key: string]: string

@@ -17,6 +17,7 @@ import { DateFormat } from '../utils/DateFormat'
 import { pageType } from '../PageType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { mergeNovelFileName } from './MergeNovelFileName'
+import { novelSaveFormat } from './NovelSaveFormat'
 import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
 import { states } from '../store/States'
@@ -271,8 +272,8 @@ class MergeNovel {
       'tipMergeNovelSkipMergedNovels'
     )
 
-    // 如果用户选择的保存格式是 txt，则提示使用 EPUB 格式。这是因为很多小说阅读器都无法识别 txt 里的章节标记，所以使用 EPUB 格式是更好的选择
-    if (settings.novelSaveAs === 'txt') {
+    // 如果用户没有选择 epub 格式，则提示使用 EPUB 格式。这是因为很多小说阅读器都无法识别 txt 里的章节标记，所以使用 EPUB 格式是更好的选择
+    if (!novelSaveFormat.getFormats().includes('epub')) {
       log.warning(
         lang.transl('_合并小说时提示用户使用EPUB格式'),
         'mergeNovelRecommendEPUB'
@@ -379,7 +380,7 @@ class MergeNovel {
     return body
   }
 
-  /** 根据用户选择的保存格式进入 TXT 或 EPUB 合并流程。 */
+  /** 根据用户选择的保存格式，依次执行 TXT / EPUB 合并流程。 */
   private async mergeByFormat(body: NovelSeriesData['body']) {
     // 转换系列里的每篇小说正文时，只输出一次日志
     convertNovelText.logStart(
@@ -395,11 +396,24 @@ class MergeNovel {
     // 元数据里的标题和简介也要转换用字。这里统一转换一次，避免在每个章节里重复转换
     await this.convertMetaText()
 
-    if (settings.novelSaveAs === 'txt') {
-      await this.mergeTXT()
-    } else {
-      await this.mergeEPUB(body)
+    // 用户可以同时选择多种保存格式，需要全部处理。
+    // 文件名里的扩展名是默认格式的，处理其他格式时要替换成实际的扩展名
+    const defaultName = this.novelName
+    for (const format of novelSaveFormat.getFormats()) {
+      // 用户在处理上一个格式期间停止了抓取：不再处理后续格式（由 merge 输出终止日志）
+      if (states.stopCrawl) {
+        break
+      }
+
+      this.novelName = Utils.replaceExtension(defaultName, '.' + format)
+      if (format === 'txt') {
+        await this.mergeTXT()
+      } else {
+        await this.mergeEPUB(body)
+      }
     }
+    // 恢复默认格式的文件名（后续的 downloadSeriesCoverFile 等方法会用到它）
+    this.novelName = defaultName
   }
 
   /**
@@ -451,8 +465,8 @@ class MergeNovel {
 
     this.logDownloadSeriesCover()
     // 在 mergeEPUB 里会先加载一遍封面图片，所以这里有可能会从缓存加载，就不需要添加等待时间
-    // 只有当保存格式为 txt 时，才需要在这里再下载一次封面图片
-    if (settings.novelSaveAs === 'txt') {
+    // 只有当保存格式里没有 epub 时，才需要在这里再下载一次封面图片
+    if (!novelSaveFormat.getFormats().includes('epub')) {
       await this.sleep(this.downloadInterval)
     }
     await downloadNovelCover.download(coverUrl, this.novelName)
@@ -479,7 +493,7 @@ class MergeNovel {
     for (const data of this.allNovelData) {
       const record: DownloadRecordType = {
         id: data.id,
-        n: `${data.id}-${data.title}.${settings.novelSaveAs}`,
+        n: `${data.id}-${data.title}.${novelSaveFormat.getDefaultFormat()}`,
         d: data.updateDate,
       }
       // console.log('add download record',data.no, record)
@@ -1444,10 +1458,15 @@ class MergeNovel {
         part = current.part
       }
       // 为这个分割的文件生成新的文件名（添加了 part 编号）
-      name = mergeNovelFileName.getName(
-        this.seriesData!,
-        this.seriesBookmarkCount,
-        part + 1
+      // mergeNovelFileName 生成的扩展名是默认格式的，而分卷只会发生在 EPUB 流程里，
+      // 所以这里按当前文件名（this.novelName）的扩展名替换一次，确保与实际保存的格式一致
+      name = Utils.replaceExtension(
+        mergeNovelFileName.getName(
+          this.seriesData!,
+          this.seriesBookmarkCount,
+          part + 1
+        ),
+        '.' + Utils.getExtension(this.novelName)
       )
     }
 

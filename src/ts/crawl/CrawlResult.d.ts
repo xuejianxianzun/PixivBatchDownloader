@@ -1266,7 +1266,7 @@ export interface NovelData {
       workTitle: null
       workCaption: null
     }
-    /**小说正文里嵌入的图片资源。如果小说里没有嵌入的图片则为 null */
+    /**这个属性保存着上传到这篇小说里的图片的资源。如果小说里没有上传的图片则为 null */
     textEmbeddedImages: null | {
       /**key 就是 novelImageId，图片的 id（小说正文里的图片标记里的数字 [uploadedimage:12136542] */
       [key: string]: {

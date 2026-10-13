@@ -3850,7 +3850,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - 它是纯文本文件。<br>
     - 虽然它也能用小说阅读器打开，但是对于章节的识别往往不准确。<br>
-    - 由于 TXT 文件里无法保存图片，因此当你选择 TXT 格式时，小说里的图片会单独保存。`,
+    - 由于 TXT 文件里无法保存图片，因此当你选择 TXT 格式时，小说里的图片会单独保存。<br>
+    <br>
+    备注：<br>
+    你可以只选择一种格式，也可以同时选择两种格式。<br>
+    如果你没有选择任何格式，下载器会使用 EPUB 格式。`,
     `EPUB：<br>
     - 它是電子書格式，需要使用小說閱讀器開啟（例如 Koodo Reader、Thorium Reader、calibre 等，也有一些網站可以在瀏覽器裡開啟 EPUB 檔案進行閱讀）。<br>
     - 當小說分為多個章節時，閱讀器可以準確識別章節目錄。<br>
@@ -3859,7 +3863,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - 它是純文字檔案。<br>
     - 雖然它也能用小說閱讀器開啟，但是對於章節的識別往往不準確。<br>
-    - 由於 TXT 檔案裡無法儲存圖片，因此當你選擇 TXT 格式時，小說裡的圖片會單獨儲存。`,
+    - 由於 TXT 檔案裡無法儲存圖片，因此當你選擇 TXT 格式時，小說裡的圖片會單獨儲存。<br>
+    <br>
+    備註：<br>
+    你可以只選擇一種格式，也可以同時選擇兩種格式。<br>
+    如果你沒有選擇任何格式，下載器會使用 EPUB 格式。`,
     `EPUB:<br>
     - It is an e-book format, so it needs to be opened with a novel reader (for example, Koodo Reader, Thorium Reader, calibre, etc. There are also some websites that can open EPUB files for reading in the browser).<br>
     - When the novel is divided into multiple chapters, the reader can accurately recognize the chapter list.<br>
@@ -3868,7 +3876,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - It is a plain text file.<br>
     - Although it can also be opened with a novel reader, chapters are often not recognized accurately.<br>
-    - Since pictures cannot be saved in a TXT file, when you select the TXT format, the pictures in the novel will be saved separately.`,
+    - Since pictures cannot be saved in a TXT file, when you select the TXT format, the pictures in the novel will be saved separately.<br>
+    <br>
+    Note:<br>
+    You can select only one format, or select both formats at the same time.<br>
+    If you don't select any format, the downloader will use the EPUB format.`,
     `EPUB：<br>
     - 電子書籍形式です。小説リーダーで開く必要があります（例：Koodo Reader、Thorium Reader、calibre など。ブラウザで EPUB ファイルを開いて読めるウェブサイトもあります）。<br>
     - 小説が複数の章に分かれている場合、リーダーは章の目次を正確に認識できます。<br>
@@ -3877,7 +3889,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - プレーンテキストファイルです。<br>
     - 小説リーダーで開くこともできますが、章の認識はしばしば不正確です。<br>
-    - TXT ファイルには画像を保存できないため、TXT 形式を選択した場合、小説内の画像は別途保存されます。`,
+    - TXT ファイルには画像を保存できないため、TXT 形式を選択した場合、小説内の画像は別途保存されます。<br>
+    <br>
+    備考：<br>
+    1 つの形式だけを選択することも、2 つの形式を同時に選択することもできます。<br>
+    何も選択しない場合、ダウンローダーは EPUB 形式を使用します。`,
     `EPUB:<br>
     - 전자책 형식이므로 소설 리더로 열어야 합니다(예: Koodo Reader, Thorium Reader, calibre 등. 브라우저에서 EPUB 파일을 열어 읽을 수 있는 웹사이트도 있습니다).<br>
     - 소설이 여러 장으로 나뉘어 있을 때 리더는 장 목록을 정확하게 인식할 수 있습니다.<br>
@@ -3886,7 +3902,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - 일반 텍스트 파일입니다.<br>
     - 소설 리더로 열 수도 있지만, 장을 정확하게 인식하지 못하는 경우가 많습니다.<br>
-    - TXT 파일에는 그림을 저장할 수 없으므로 TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다.`,
+    - TXT 파일에는 그림을 저장할 수 없으므로 TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다.<br>
+    <br>
+    참고:<br>
+    한 가지 형식만 선택할 수도 있고, 두 가지 형식을 동시에 선택할 수도 있습니다.<br>
+    아무 형식도 선택하지 않으면 다운로더는 EPUB 형식을 사용합니다.`,
     `EPUB:<br>
     - Это формат электронной книги, для открытия нужна программа для чтения (например, Koodo Reader, Thorium Reader, calibre и др.; есть также сайты, которые открывают файлы EPUB для чтения в браузере).<br>
     - Если роман разделён на несколько глав, программа для чтения может точно распознать список глав.<br>
@@ -3895,7 +3915,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - Это простой текстовый файл.<br>
     - Его тоже можно открыть программой для чтения, но главы часто распознаются неточно.<br>
-    - Поскольку в файле TXT невозможно сохранить изображения, при выборе формата TXT изображения в романе будут сохранены отдельно.`,
+    - Поскольку в файле TXT невозможно сохранить изображения, при выборе формата TXT изображения в романе будут сохранены отдельно.<br>
+    <br>
+    Примечание:<br>
+    Можно выбрать только один формат или оба формата одновременно.<br>
+    Если вы не выбрали ни одного формата, загрузчик будет использовать формат EPUB.`,
   ],
   _在小说里保存元数据: [
     `在小说里保存<span class="key">元数据</span>`,

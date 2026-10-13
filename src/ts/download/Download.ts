@@ -16,6 +16,7 @@ import { filter } from '../filter/Filter'
 import { downloadRecord } from './DownloadRecord'
 import { SettingKeys, settings } from '../setting/Settings'
 import { makeSingleNovelFile } from './MakeSingleNovelFile'
+import { novelSaveFormat } from './NovelSaveFormat'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { msgBox } from '../MsgBox'
@@ -333,16 +334,66 @@ class Download {
     EVT.fire('downloadError', fileId)
   }
 
-  /** 生成小说文件 */
+  /** 生成小说文件。用户可以同时选择多种保存格式：
+   * 非主格式会在这里直接下载（不会返回下载成功或失败的消息，不影响下载状态）；
+   * 主格式的 Blob 会返回给调用方，继续走正常的下载流程 */
   private async getNovelFileURL(novelMeta: NovelMeta | null, filename: string) {
     if (!novelMeta) {
       throw new Error('Not found novelMeta')
     }
 
-    const blob = await makeSingleNovelFile[
-      settings.novelSaveAs === 'epub' ? 'makeEPUB' : 'makeTXT'
-    ](novelMeta, filename)
-    return blob
+    // 把主格式放到最后处理：先下载其他格式，最后再处理主格式。
+    // 这样主文件（下载记录、下载状态、进度条都记它）会以正常流程结束
+    const mainFormat = novelSaveFormat.getDefaultFormat()
+    const formats = novelSaveFormat
+      .getFormats()
+      .filter((format) => format !== mainFormat)
+      .concat(mainFormat)
+
+    let blob: Blob | null = null
+
+    while (formats.length > 0) {
+      const format = formats.shift()!
+      const isMain = format === mainFormat
+      // 文件名里的扩展名是默认格式的，处理其他格式时要替换成实际的扩展名
+      const newFileName = Utils.replaceExtension(filename, '.' + format)
+
+      // 独立封面文件只下载一次，所以只有主格式的流程会下载它
+      let file: Blob | null = null
+      if (format === 'epub') {
+        file = await makeSingleNovelFile.makeEPUB(
+          novelMeta,
+          newFileName,
+          isMain
+        )
+      } else {
+        file = await makeSingleNovelFile.makeTXT(novelMeta, newFileName, isMain)
+      }
+
+      if (!file) {
+        continue
+      }
+
+      if (!isMain) {
+        // 这不是主格式，直接在这里下载它（此时不会返回下载成功或失败的消息）
+        this.setProgressBar(newFileName, file.size, file.size)
+
+        // 等待上一个文件下载完成
+        await this.waitPreviousFileDownload()
+
+        const blobURL = URL.createObjectURL(file)
+        this.sendDownload(file, blobURL, newFileName, novelMeta.id, -1, false)
+        await Utils.sleep(200)
+        setTimeout(() => {
+          URL.revokeObjectURL(blobURL)
+        }, 3000)
+      } else {
+        // 这是主格式，返回这个 Blob 文件，让后续下载流程继续处理
+        blob = file
+      }
+    }
+
+    return blob!
   }
 
   private lastUgoiraFileName = ''

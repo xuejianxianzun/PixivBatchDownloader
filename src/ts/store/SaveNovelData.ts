@@ -2,6 +2,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { NovelData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { settings } from '../setting/Settings'
+import { novelSaveFormat } from '../download/NovelSaveFormat'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 
@@ -81,8 +82,9 @@ class SaveNovelData {
         tagsTranslOnly: tags,
         user: user,
         userId: userId,
-        // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
-        ext: settings.novelSaveAs,
+        // 这里的 ext 并不重要，下载时会根据保存格式设置自动生成对应的数据。
+        // 用户可能同时选择多种保存格式，这里保存默认格式
+        ext: novelSaveFormat.getDefaultFormat(),
         bmk: bmk,
         bmkId: body.bookmarkData ? body.bookmarkData.id : '',
         bookmarked: bookmarked,

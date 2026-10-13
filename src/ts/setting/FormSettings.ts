@@ -172,9 +172,10 @@ class FormSettings {
       'autoExportSettings',
       'allowPreviewCoverThumbnail',
       'novelLanguageSwitch',
+      'novelSaveAsEPUB',
+      'novelSaveAsTXT',
     ],
     radio: [
-      'novelSaveAs',
       'widthComparison',
       'heightComparison',
       'userRatioLimit',

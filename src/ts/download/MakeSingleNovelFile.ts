@@ -51,11 +51,22 @@ class MakeSingleNovelFile {
     return
   }
 
-  public async makeTXT(data: NovelMeta, filename: string) {
+  /** 生成 TXT 文件。
+   *
+   * downloadCoverFile 表示是否下载独立的封面文件（小说封面会保存为单独的图片文件）。
+   * 用户可以同时保存多种格式，此时由调用方决定只在其中一个格式的流程里下载它，避免重复下载 */
+  public async makeTXT(
+    data: NovelMeta,
+    filename: string,
+    downloadCoverFile = true
+  ) {
     await this.waitForIdle()
     this.busy = true
 
-    await this.downloadCover(data.id, data.title, data.coverUrl, filename)
+    // 独立封面文件只下载一次（见 downloadCoverFile 的说明）
+    if (downloadCoverFile) {
+      await this.downloadCover(data.id, data.title, data.coverUrl, filename)
+    }
 
     let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
@@ -102,11 +113,22 @@ class MakeSingleNovelFile {
     })
   }
 
-  public async makeEPUB(data: NovelMeta, filename: string): Promise<Blob> {
+  /** 生成 EPUB 文件。
+   *
+   * downloadCoverFile 表示是否下载独立的封面文件（小说封面会保存为单独的图片文件）。
+   * 用户可以同时保存多种格式，此时由调用方决定只在其中一个格式的流程里下载它，避免重复下载 */
+  public async makeEPUB(
+    data: NovelMeta,
+    filename: string,
+    downloadCoverFile = true
+  ): Promise<Blob> {
     await this.waitForIdle()
     this.busy = true
 
-    await this.downloadCover(data.id, data.title, data.coverUrl, filename)
+    // 独立封面文件只下载一次（见 downloadCoverFile 的说明）
+    if (downloadCoverFile) {
+      await this.downloadCover(data.id, data.title, data.coverUrl, filename)
+    }
 
     let content = await replaceNovelWords.replace(data.seriesId, data.content)
 
