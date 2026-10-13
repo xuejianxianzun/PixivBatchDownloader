@@ -24478,6 +24478,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -24489,6 +24491,10 @@ class GetNovelGlossarys {
         // 先获取设定资料的分类、每条设定资料的简略数据
         // 注意：此时每条设定资料缺少 detail 数据（此时为 null），之后会在下面获取并进行填充
         await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(interval);
+        // 用户在合并过程中停止了抓取：不再请求设定资料（返回空数据，调用方会终止合并）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.stopCrawl) {
+            return { result: [], replaceeItemIds: [] };
+        }
         const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
         const result = glossaryData.body.categories;
         const replaceeItemIds = glossaryData.body.replaceeItemIds || [];
@@ -24504,6 +24510,10 @@ class GetNovelGlossarys {
         for (const categorie of result) {
             for (const item of categorie.items) {
                 await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(interval);
+                // 用户在等待期间停止了抓取：不再请求后续的设定资料（返回已获取的部分数据，调用方会终止合并）
+                if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.stopCrawl) {
+                    return { result, replaceeItemIds };
+                }
                 const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossaryItem(item.seriesId, item.id);
                 item.detail = data.body.item.detail;
                 total++;
@@ -25249,6 +25259,9 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     addAnyElement() {
         this.addInitPageBtn('crawlBtns', '_合并系列小说', '', 'mergeSeriesNovel', 'brand').addEventListener('click', async () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeSettingsPanel');
+            // 开始合并前重置停止状态：上一次抓取如果被停止过，states.stopCrawl 会保持为 true，
+            // 否则这个合并会被立即终止
+            _store_States__WEBPACK_IMPORTED_MODULE_6__.states.stopCrawl = false;
             const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getSeriesId();
             let seriseTitle = '';
             // 尝试获取系列标题
@@ -26190,7 +26203,8 @@ class AutoMergeNovel {
     idTitleMap = {};
     /** 指示是否可以工作。如果为 true 则不进行合并；为 false 时允许合并。
      *
-     * 当抓取完毕、抓取停止时，不再处理等待队列里的任务，但当前进行中的这个合并任务会正常执行完。 */
+     * 当抓取完毕、抓取停止时，不再处理等待队列里的任务。当前进行中的合并任务也会尽快终止：
+     * 用户在合并过程中点击停止后，MergeNovel 里的检查点会终止这个合并。 */
     stop = true;
     /** 在本次抓取任务里，自动合并的系列里一共包含多少篇小说 */
     novelTotal = 0;
@@ -26203,9 +26217,16 @@ class AutoMergeNovel {
         this.pendingQueue.push(seriesId);
         return true;
     }
-    /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它 */
+    /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它。
+     *
+     * 返回空字符串表示等待期间被停止（此时等待队列已被清空），调用方应停止处理 */
     async next() {
         while (true) {
+            if (this.stop) {
+                // 停止后不再等待，返回空字符串。否则如果等待队列已被清空（抓取完毕、停止时 reset 会清空它），
+                // 下面的条件永远不会满足，这个循环会永远等待下去
+                return '';
+            }
             if (this.pendingQueue.length > 0 &&
                 this.pendingQueue[0] !== this.workingId) {
                 return this.pendingQueue[0];
@@ -26253,6 +26274,11 @@ class AutoMergeNovel {
         this.idTitleMap[seriesId] = seriesTitle || '';
         this.showTip();
         this.workingId = await this.next();
+        // 等待期间被停止时 next 会返回空字符串（见 next 方法），此时不再进行合并。
+        // 这时 reset 已经清空了等待队列和 workingId，所以不需要再清理
+        if (!this.workingId) {
+            return;
+        }
         const seriesTitleLog = this.idTitleMap[this.workingId];
         const novelTotal = await new _MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(this.workingId, seriesTitleLog, true);
         if (this.stop) {
@@ -26268,7 +26294,8 @@ class AutoMergeNovel {
     enableTip = true;
     bindEvents() {
         // 抓取完毕、抓取停止时，重置一些状态
-        // 当抓取停止时，如果当前正在合并一个系列，那么它会正常完成，不会被取消。剩余的合并任务会取消（因为等待队列会被清空）
+        // 当抓取停止时，当前正在合并的系列也会被终止（由 MergeNovel 里的检查点处理），
+        // 剩余的合并任务会取消（因为等待队列会被清空）
         const stopEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl];
         stopEvents.forEach((evt) => {
             window.addEventListener(evt, () => {
@@ -30596,25 +30623,54 @@ class MergeNovel {
         this.logMergeStart(link);
         this.closeSettingsPanelOnSeriesPage();
         const gotNovelIds = await this.tryGetNovelIds(link);
+        // 用户在合并过程中停止了抓取。优先按「已停止」处理（此时可能还没拿到小说列表）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return this.stopMerge(link);
+        }
         if (!gotNovelIds) {
             return 0;
         }
         this.enableSlowModeIfNeeded();
         await this.getAllNovelData();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return this.stopMerge(link);
+        }
         if (this.allNovelData.length === 0) {
             _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过合并系列小说')} ${link}`);
             return 0;
         }
         await this.loadGlossaryData(seriesId);
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return this.stopMerge(link);
+        }
         const body = await this.loadSeriesData();
+        if (!body) {
+            // loadSeriesData 返回 null：用户在等待期间停止了抓取
+            return this.stopMerge(link);
+        }
         this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_17__.mergeNovelFileName.getName(this.seriesData, this.seriesBookmarkCount);
         this.getSeriesLanguage();
         await this.mergeByFormat(body);
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return this.stopMerge(link);
+        }
         await this.downloadSeriesCoverFile(body.cover.urls.original);
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return this.stopMerge(link);
+        }
         this.logMergeFinished(link);
         await this.saveMergedNovelDownloadRecords();
         this.scheduleReset();
         return this.allNovelData.length;
+    }
+    /** 用户在合并过程中停止了抓取，终止合并。
+     *
+     * 合并系列小说会持续发送网络请求，可能持续较长时间。用户点击停止（states.stopCrawl
+     * 变为 true）后，各流程里的检查点会调用这个方法：输出提示日志并返回 0（合并的小说数量）。
+     */
+    stopMerge(link) {
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(`🛑${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已停止合并系列小说')} ${link}`);
+        return 0;
     }
     /** 初始化这次合并任务使用的上下文数据，并返回系列链接。 */
     initMergeContext(seriesId, seriesTitle, slowMode = false) {
@@ -30673,7 +30729,10 @@ class MergeNovel {
             return false;
         }
         if (this.novelIdListFiltered.length === 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过合并系列小说')} ${link}`);
+            // 如果是用户停止抓取导致的中止，不打「跳过」日志（由 merge 统一输出「已停止合并」）
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过合并系列小说')} ${link}`);
+            }
             return false;
         }
         return true;
@@ -30710,10 +30769,16 @@ class MergeNovel {
         // 生成设定资料的文本内容
         this.seriesGlossaryText = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_13__.getNovelGlossarys.storeGlossaryText(data.result);
     }
-    /** 获取系列本身的详细数据，并同步更新当前实例上的系列信息。 */
+    /** 获取系列本身的详细数据，并同步更新当前实例上的系列信息。
+     *
+     * 返回 null 表示用户在等待期间停止了抓取（合并会被终止）。 */
     async loadSeriesData() {
         // 获取这个系列本身的详细数据
         await this.sleep(this.crawlInterval);
+        // 用户在等待期间停止了抓取：不再请求系列数据
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return null;
+        }
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取系列数据'));
         this.seriesData = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesData(this.seriesId);
         const body = this.seriesData.body;
@@ -30818,6 +30883,10 @@ class MergeNovel {
     /** 合并系列小说并生成 TXT 文件。 */
     async mergeTXT() {
         await this.downloadTXTAssets();
+        // 用户在下载图片期间停止了抓取：不生成合并文件（由 merge 输出终止日志）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return;
+        }
         const text = [];
         const seriesMeta = this.buildTXTSeriesMeta();
         if (seriesMeta) {
@@ -30825,6 +30894,10 @@ class MergeNovel {
         }
         for (const data of this.allNovelData) {
             text.push(await this.buildTXTNovelSection(data));
+        }
+        // 用户在生成文本期间停止了抓取：不生成、不下载合并文件（由 merge 输出终止日志）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return;
         }
         const blob = new Blob(text, {
             type: 'text/plain',
@@ -30835,10 +30908,18 @@ class MergeNovel {
     async downloadTXTAssets() {
         // 保存为 txt 格式时，在这里下载小说内嵌的图片
         for (const data of this.allNovelData) {
+            // 用户在合并过程中停止了抓取：不再下载内嵌图片
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                return;
+            }
             await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, this.novelName, 'merge novel');
         }
         // 保存设定资料里的图片
         for (const item of this.glossaryImages) {
+            // 用户在合并过程中停止了抓取：不再下载设定资料图片
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                return;
+            }
             if (item) {
                 this.logDownloadGlossaryImage(item);
                 await _DownloadNovelGlossaryImage__WEBPACK_IMPORTED_MODULE_7__.downloadNovelGlossaryImage.download(item.urls, this.novelName, item.novelImageId, this.seriesId);
@@ -30957,6 +31038,10 @@ class MergeNovel {
         let index = 0;
         // 把创建 EPUB 的步骤放到一个函数里，方便在需要分割文件时多次调用
         const generateEPUB = async () => {
+            // 用户在合并过程中停止了抓取：不生成 EPUB 文件（由 merge 输出终止日志）
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                return;
+            }
             // 如果需要保存设定资料里的图片，就先把 description 里的图片标记替换为 EPUB 中可用的图片标签
             const needSaveGlossaryImages = this.checkNeedSaveGlossaryImages(index);
             const currentDescription = this.buildEPUBDescriptionWithImages(description, needSaveGlossaryImages);
@@ -30970,6 +31055,10 @@ class MergeNovel {
             const episodeCovers = [];
             // 循环添加每篇小说的内容
             for (; index < this.allNovelData.length; index++) {
+                // 用户在合并过程中停止了抓取：放弃生成当前文件、不再下载后续章节的图片
+                if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                    return;
+                }
                 const data = this.allNovelData[index];
                 const novelId = data.id;
                 // 添加这篇小说的封面图片、元数据、正文内容
@@ -31151,6 +31240,10 @@ class MergeNovel {
         }
         // 在 EPUB 文件初始化之后，下载并保存设定资料里的图片
         for (const item of this.glossaryImages) {
+            // 用户在合并过程中停止了抓取：不再下载设定资料图片
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                return;
+            }
             if (item) {
                 this.logDownloadGlossaryImage(item);
                 const image = await _DownloadNovelGlossaryImage__WEBPACK_IMPORTED_MODULE_7__.downloadNovelGlossaryImage.getImage(item.urls, 'arrayBuffer');
@@ -31166,6 +31259,10 @@ class MergeNovel {
     async addSeriesCoverToEPUB(jepub, seriesCoverUrl) {
         // 添加这个系列的封面图片到 EPUB 文件里
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage || !seriesCoverUrl) {
+            return;
+        }
+        // 用户在合并过程中停止了抓取：不再下载系列封面
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
             return;
         }
         await this.sleep(this.downloadInterval);
@@ -31255,6 +31352,10 @@ class MergeNovel {
     }
     /** 获取这个系列里所有小说的 id */
     async getNovelIds() {
+        // 用户在合并过程中停止了抓取：不再请求小说列表
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return;
+        }
         const seriesContents = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         let list = seriesContents.body.page.seriesContents;
         const thisPageIdNumber = list.length;
@@ -31347,6 +31448,10 @@ class MergeNovel {
         const total = this.novelIdList.length;
         let count = 0;
         for (const id of this.novelIdList) {
+            // 用户在合并过程中停止了抓取：不再获取后续小说的数据
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                break;
+            }
             // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
             // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
             count++;
@@ -31393,6 +31498,10 @@ class MergeNovel {
             // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
             // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
             await this.sleep(this.crawlInterval);
+            // 用户在等待期间停止了抓取：不再请求这篇小说的数据（返回 null，调用方会转入终止流程）
+            if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+                return null;
+            }
             data = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelData(id);
             _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_16__.cacheWorkData.set(data);
             return data;
@@ -31491,6 +31600,10 @@ class MergeNovel {
         return false;
     }
     async saveEPUBFile(jepub, complete = false) {
+        // 用户在合并过程中停止了抓取：不生成、不下载合并文件（由 merge 输出终止日志）
+        if (_store_States__WEBPACK_IMPORTED_MODULE_20__.states.stopCrawl) {
+            return;
+        }
         let name = this.novelName;
         // 判断是否需要添加 part 标记
         let addPartFlag = true;
@@ -39801,6 +39914,14 @@ Quick download tasks are triggered by these actions:<br>
         `시리즈 소설 병합 건너뛰기`,
         `Пропустить объединение серий романов`,
     ],
+    _已停止合并系列小说: [
+        `已停止合并系列小说`,
+        `已停止合併系列小說`,
+        `Stopped merging the novel series`,
+        `シリーズ小説のマージを停止しました`,
+        `시리즈 소설 병합 중지됨`,
+        `Объединение серий романов остановлено`,
+    ],
     _获取小说列表: [
         `获取小说列表`,
         `獲取小說列表`,
@@ -46438,12 +46559,12 @@ If you want to use this feature, please note:
         `Из-за большого размера изображений в этой серии романов, она была разделена на {} файлов`,
     ],
     _提示有一个系列正在合并中: [
-        `注意：有一个系列正在合并中，它会继续工作直到完成合并。如果你不需要它了，可以刷新这个页面`,
-        `注意：有一個系列正在合併中，它會繼續工作直到完成合併。如果你不需要它了，可以刷新這個頁面`,
-        `Note: There is a series currently being merged, and it will continue working until the merge is complete. If you no longer need it, you can refresh this page`,
-        `注意：シリーズが1つマージ中です。マージが完了するまで作業を続けます。それが必要なくなったら、このページを更新できます`,
-        `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
-        `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если она вам больше не нужна, вы можете обновить эту страницу`,
+        `注意：有一个系列正在合并中，它会在当前操作结束后停止合并`,
+        `注意：有一個系列正在合併中，它會在目前操作結束後停止合併`,
+        `Note: A series is currently being merged. It will stop merging after the current operation finishes`,
+        `注意：シリーズが1つマージ中です。現在の操作が終わり次第、マージを停止します`,
+        `주의: 시리즈 하나가 병합 중입니다. 현재 작업이 끝나면 병합을 중지합니다`,
+        `Примечание: одна серия в процессе объединения. Она остановит объединение после завершения текущей операции`,
     ],
     _合并系列小说时的命名规则: [
         `合并系列小说时的<span class="key">命名</span>规则`,
@@ -63526,7 +63647,7 @@ class SaveNovelData {
                     language: body.language,
                 },
                 xRestrict: body.xRestrict,
-                genre: body.genre,
+                genre: body.genre || null,
             });
         }
     }

@@ -162,18 +162,33 @@ class MergeNovel {
     this.closeSettingsPanelOnSeriesPage()
 
     const gotNovelIds = await this.tryGetNovelIds(link)
+    // 用户在合并过程中停止了抓取。优先按「已停止」处理（此时可能还没拿到小说列表）
+    if (states.stopCrawl) {
+      return this.stopMerge(link)
+    }
     if (!gotNovelIds) {
       return 0
     }
 
     this.enableSlowModeIfNeeded()
     await this.getAllNovelData()
+    if (states.stopCrawl) {
+      return this.stopMerge(link)
+    }
     if (this.allNovelData.length === 0) {
       log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
       return 0
     }
     await this.loadGlossaryData(seriesId)
+    if (states.stopCrawl) {
+      return this.stopMerge(link)
+    }
+
     const body = await this.loadSeriesData()
+    if (!body) {
+      // loadSeriesData 返回 null：用户在等待期间停止了抓取
+      return this.stopMerge(link)
+    }
 
     this.novelName = mergeNovelFileName.getName(
       this.seriesData!,
@@ -181,12 +196,29 @@ class MergeNovel {
     )
     this.getSeriesLanguage()
     await this.mergeByFormat(body)
+    if (states.stopCrawl) {
+      return this.stopMerge(link)
+    }
+
     await this.downloadSeriesCoverFile(body.cover.urls.original)
+    if (states.stopCrawl) {
+      return this.stopMerge(link)
+    }
 
     this.logMergeFinished(link)
     await this.saveMergedNovelDownloadRecords()
     this.scheduleReset()
     return this.allNovelData.length
+  }
+
+  /** 用户在合并过程中停止了抓取，终止合并。
+   *
+   * 合并系列小说会持续发送网络请求，可能持续较长时间。用户点击停止（states.stopCrawl
+   * 变为 true）后，各流程里的检查点会调用这个方法：输出提示日志并返回 0（合并的小说数量）。
+   */
+  private stopMerge(link: string) {
+    log.warning(`🛑${lang.transl('_已停止合并系列小说')} ${link}`)
+    return 0
   }
 
   /** 初始化这次合并任务使用的上下文数据，并返回系列链接。 */
@@ -272,7 +304,10 @@ class MergeNovel {
     }
 
     if (this.novelIdListFiltered.length === 0) {
-      log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+      // 如果是用户停止抓取导致的中止，不打「跳过」日志（由 merge 统一输出「已停止合并」）
+      if (!states.stopCrawl) {
+        log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+      }
       return false
     }
 
@@ -321,10 +356,16 @@ class MergeNovel {
     this.seriesGlossaryText = getNovelGlossarys.storeGlossaryText(data.result)
   }
 
-  /** 获取系列本身的详细数据，并同步更新当前实例上的系列信息。 */
+  /** 获取系列本身的详细数据，并同步更新当前实例上的系列信息。
+   *
+   * 返回 null 表示用户在等待期间停止了抓取（合并会被终止）。 */
   private async loadSeriesData() {
     // 获取这个系列本身的详细数据
     await this.sleep(this.crawlInterval)
+    // 用户在等待期间停止了抓取：不再请求系列数据
+    if (states.stopCrawl) {
+      return null
+    }
     log.log(lang.transl('_获取系列数据'))
     this.seriesData = await API.getNovelSeriesData(this.seriesId)
     const body = this.seriesData.body
@@ -457,6 +498,10 @@ class MergeNovel {
   /** 合并系列小说并生成 TXT 文件。 */
   private async mergeTXT() {
     await this.downloadTXTAssets()
+    // 用户在下载图片期间停止了抓取：不生成合并文件（由 merge 输出终止日志）
+    if (states.stopCrawl) {
+      return
+    }
 
     const text: string[] = []
     const seriesMeta = this.buildTXTSeriesMeta()
@@ -466,6 +511,11 @@ class MergeNovel {
 
     for (const data of this.allNovelData) {
       text.push(await this.buildTXTNovelSection(data))
+    }
+
+    // 用户在生成文本期间停止了抓取：不生成、不下载合并文件（由 merge 输出终止日志）
+    if (states.stopCrawl) {
+      return
     }
 
     const blob = new Blob(text, {
@@ -483,6 +533,11 @@ class MergeNovel {
   private async downloadTXTAssets() {
     // 保存为 txt 格式时，在这里下载小说内嵌的图片
     for (const data of this.allNovelData) {
+      // 用户在合并过程中停止了抓取：不再下载内嵌图片
+      if (states.stopCrawl) {
+        return
+      }
+
       await downloadNovelEmbeddedImage.TXT(
         data.id,
         data.title,
@@ -495,6 +550,11 @@ class MergeNovel {
 
     // 保存设定资料里的图片
     for (const item of this.glossaryImages) {
+      // 用户在合并过程中停止了抓取：不再下载设定资料图片
+      if (states.stopCrawl) {
+        return
+      }
+
       if (item) {
         this.logDownloadGlossaryImage(item)
         await downloadNovelGlossaryImage.download(
@@ -644,6 +704,11 @@ class MergeNovel {
 
     // 把创建 EPUB 的步骤放到一个函数里，方便在需要分割文件时多次调用
     const generateEPUB = async () => {
+      // 用户在合并过程中停止了抓取：不生成 EPUB 文件（由 merge 输出终止日志）
+      if (states.stopCrawl) {
+        return
+      }
+
       // 如果需要保存设定资料里的图片，就先把 description 里的图片标记替换为 EPUB 中可用的图片标签
       const needSaveGlossaryImages = this.checkNeedSaveGlossaryImages(index)
       const currentDescription = this.buildEPUBDescriptionWithImages(
@@ -666,6 +731,11 @@ class MergeNovel {
 
       // 循环添加每篇小说的内容
       for (; index < this.allNovelData.length; index++) {
+        // 用户在合并过程中停止了抓取：放弃生成当前文件、不再下载后续章节的图片
+        if (states.stopCrawl) {
+          return
+        }
+
         const data = this.allNovelData[index]
         const novelId = data.id
         // 添加这篇小说的封面图片、元数据、正文内容
@@ -899,6 +969,11 @@ class MergeNovel {
 
     // 在 EPUB 文件初始化之后，下载并保存设定资料里的图片
     for (const item of this.glossaryImages) {
+      // 用户在合并过程中停止了抓取：不再下载设定资料图片
+      if (states.stopCrawl) {
+        return
+      }
+
       if (item) {
         this.logDownloadGlossaryImage(item)
         const image = await downloadNovelGlossaryImage.getImage(
@@ -921,6 +996,11 @@ class MergeNovel {
   private async addSeriesCoverToEPUB(jepub: any, seriesCoverUrl: string) {
     // 添加这个系列的封面图片到 EPUB 文件里
     if (!settings.downloadNovelCoverImage || !seriesCoverUrl) {
+      return
+    }
+
+    // 用户在合并过程中停止了抓取：不再下载系列封面
+    if (states.stopCrawl) {
       return
     }
 
@@ -1039,6 +1119,11 @@ class MergeNovel {
 
   /** 获取这个系列里所有小说的 id */
   private async getNovelIds(): Promise<void> {
+    // 用户在合并过程中停止了抓取：不再请求小说列表
+    if (states.stopCrawl) {
+      return
+    }
+
     const seriesContents = await API.getNovelSeriesContent(
       this.seriesId,
       this.limit,
@@ -1154,6 +1239,11 @@ class MergeNovel {
     let count = 0
 
     for (const id of this.novelIdList) {
+      // 用户在合并过程中停止了抓取：不再获取后续小说的数据
+      if (states.stopCrawl) {
+        break
+      }
+
       // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
       // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
       count++
@@ -1212,6 +1302,10 @@ class MergeNovel {
       // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
       // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
       await this.sleep(this.crawlInterval)
+      // 用户在等待期间停止了抓取：不再请求这篇小说的数据（返回 null，调用方会转入终止流程）
+      if (states.stopCrawl) {
+        return null
+      }
       data = await API.getNovelData(id)
       cacheWorkData.set(data)
       return data
@@ -1254,12 +1348,12 @@ class MergeNovel {
         log.warning(lang.transl('_排除小说') + ': ' + link)
         return null
       }
-      log.log(
-        '通过检查: ' +
-          Tools.createWorkLink(novelId, `#${order} ${title}`, 'novel') +
-          '，标签: ' +
-          tags.join(', ')
-      )
+      // log.log(
+      //   '通过检查: ' +
+      //     Tools.createWorkLink(novelId, `#${order} ${title}`, 'novel') +
+      //     '，标签: ' +
+      //     tags.join(', ')
+      // )
     }
 
     return {
@@ -1328,6 +1422,11 @@ class MergeNovel {
   }
 
   private async saveEPUBFile(jepub: any, complete: boolean = false) {
+    // 用户在合并过程中停止了抓取：不生成、不下载合并文件（由 merge 输出终止日志）
+    if (states.stopCrawl) {
+      return
+    }
+
     let name = this.novelName
 
     // 判断是否需要添加 part 标记

@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 interface GlossaryResult {
   id: string
@@ -27,6 +28,10 @@ class GetNovelGlossarys {
     // 先获取设定资料的分类、每条设定资料的简略数据
     // 注意：此时每条设定资料缺少 detail 数据（此时为 null），之后会在下面获取并进行填充
     await Utils.sleep(interval)
+    // 用户在合并过程中停止了抓取：不再请求设定资料（返回空数据，调用方会终止合并）
+    if (states.stopCrawl) {
+      return { result: [], replaceeItemIds: [] }
+    }
     const glossaryData = await API.getNovelSeriesGlossary(seriesId)
     const result = glossaryData.body.categories as unknown as GlossaryResult[]
     const replaceeItemIds = glossaryData.body.replaceeItemIds || []
@@ -44,6 +49,10 @@ class GetNovelGlossarys {
     for (const categorie of result) {
       for (const item of categorie.items) {
         await Utils.sleep(interval)
+        // 用户在等待期间停止了抓取：不再请求后续的设定资料（返回已获取的部分数据，调用方会终止合并）
+        if (states.stopCrawl) {
+          return { result, replaceeItemIds }
+        }
         const data = await API.getNovelSeriesGlossaryItem(
           item.seriesId,
           item.id
