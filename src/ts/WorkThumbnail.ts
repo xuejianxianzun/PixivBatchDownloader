@@ -184,11 +184,19 @@ abstract class WorkThumbnail {
   protected createObserver(target: HTMLElement) {
     const observer = new MutationObserver((records) => {
       for (const record of records) {
-        if (record.addedNodes.length > 0) {
-          // 遍历被添加的元素
-          for (const newEl of record.addedNodes) {
-            this.findThumbnail(newEl as HTMLElement)
-          }
+        if (record.addedNodes.length === 0) {
+          continue
+        }
+
+        // 忽略设置面板内部的 DOM 变化：面板里的变化很频繁，且面板里不会有作品缩略图。
+        // childList 记录的 target 与 addedNodes 同属一棵子树，所以按 target 判断一次即可
+        if (Utils.isInSettingsPanel(record.target)) {
+          continue
+        }
+
+        // 遍历被添加的元素
+        for (const newEl of record.addedNodes) {
+          this.findThumbnail(newEl as HTMLElement)
         }
       }
     })

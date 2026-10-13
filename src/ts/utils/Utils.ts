@@ -255,6 +255,20 @@ class Utils {
     return location.host.endsWith('.pixiv.net')
   }
 
+  /** 设置面板的根元素。缓存它，用于忽略面板内部的 DOM 变化 */
+  private static settingsPanelEl: HTMLElement | null = null
+
+  /** 判断节点是否位于下载器设置面板内部。
+   * 以 body 为观察范围的 MutationObserver 用它忽略面板内部的 DOM 变化
+   * （面板里的变化很频繁，且面板里不会有作品缩略图） */
+  static isInSettingsPanel(node: Node) {
+    // 面板会随页面重建，所以检测 isConnected，必要时重新查询（惰性，平时只查一次）
+    if (!this.settingsPanelEl || !this.settingsPanelEl.isConnected) {
+      this.settingsPanelEl = document.querySelector('.centerWrap')
+    }
+    return !!this.settingsPanelEl && this.settingsPanelEl.contains(node)
+  }
+
   /** 从 url 中获取指定的查询字段的值 */
   // 注意：返回值经过 encodeURIComponent 编码！
   static getURLSearchField(url: string, query: string) {

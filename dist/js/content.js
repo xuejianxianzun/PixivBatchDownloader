@@ -16182,11 +16182,17 @@ class WorkThumbnail {
     createObserver(target) {
         const observer = new MutationObserver((records) => {
             for (const record of records) {
-                if (record.addedNodes.length > 0) {
-                    // 遍历被添加的元素
-                    for (const newEl of record.addedNodes) {
-                        this.findThumbnail(newEl);
-                    }
+                if (record.addedNodes.length === 0) {
+                    continue;
+                }
+                // 忽略设置面板内部的 DOM 变化：面板里的变化很频繁，且面板里不会有作品缩略图。
+                // childList 记录的 target 与 addedNodes 同属一棵子树，所以按 target 判断一次即可
+                if (_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.isInSettingsPanel(record.target)) {
+                    continue;
+                }
+                // 遍历被添加的元素
+                for (const newEl of record.addedNodes) {
+                    this.findThumbnail(newEl);
                 }
             }
         });
@@ -21131,7 +21137,7 @@ class SearchResultPreview {
             // 可能的情况：
             // - 用户尚未开始抓取
             // - 用户已经开始抓取，但现在还没有任何抓取结果
-            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_缺少必要的数据'));
+            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有可用的抓取结果'));
             return false;
         }
         this.isFiltering = true;
@@ -52942,11 +52948,16 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
     createObserver(target) {
         const observer = new MutationObserver((records) => {
             for (const record of records) {
-                if (record.addedNodes.length > 0) {
-                    // 遍历被添加的元素，检查其中的作品元素
-                    for (const newEl of record.addedNodes) {
-                        this.findWorks(newEl);
-                    }
+                if (record.addedNodes.length === 0) {
+                    continue;
+                }
+                // 忽略设置面板内部的 DOM 变化（原因见 WorkThumbnail.createObserver）
+                if (_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isInSettingsPanel(record.target)) {
+                    continue;
+                }
+                // 遍历被添加的元素，检查其中的作品元素
+                for (const newEl of record.addedNodes) {
+                    this.findWorks(newEl);
                 }
             }
         });
@@ -83492,6 +83503,18 @@ class Utils {
     // 判断当前页面是否属于 pixiv.net
     static isPixiv() {
         return location.host.endsWith('.pixiv.net');
+    }
+    /** 设置面板的根元素。缓存它，用于忽略面板内部的 DOM 变化 */
+    static settingsPanelEl = null;
+    /** 判断节点是否位于下载器设置面板内部。
+     * 以 body 为观察范围的 MutationObserver 用它忽略面板内部的 DOM 变化
+     * （面板里的变化很频繁，且面板里不会有作品缩略图） */
+    static isInSettingsPanel(node) {
+        // 面板会随页面重建，所以检测 isConnected，必要时重新查询（惰性，平时只查一次）
+        if (!this.settingsPanelEl || !this.settingsPanelEl.isConnected) {
+            this.settingsPanelEl = document.querySelector('.centerWrap');
+        }
+        return !!this.settingsPanelEl && this.settingsPanelEl.contains(node);
     }
     /** 从 url 中获取指定的查询字段的值 */
     // 注意：返回值经过 encodeURIComponent 编码！
