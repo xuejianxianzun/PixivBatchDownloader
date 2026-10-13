@@ -57,6 +57,8 @@ export interface FilterOption {
    * 没有传递这个数据时（例如只知道系列 id），对应的过滤器会跳过检查。
    */
   language?: string
+  /** 文件的扩展名，例如 jpg、png 等。仅在需要检查文件类型时传递使用 */
+  ext?: string
 }
 
 /**作品类型的数字表示。
@@ -115,6 +117,18 @@ class Filter {
           ': ' +
           this.getWorkTypeText(option.workType),
         'excludeWorkByWorkType' + option.workType
+      )
+      return false
+    }
+
+    // 检查图片格式设置（只对插画和漫画生效）
+    if (
+      !this.checkImageFormat(option.workType, option.IDTypeString, option.ext)
+    ) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_你排除了图片格式x', option.ext!),
+        'excludeWorkByImageFormat' + option.ext
       )
       return false
     }
@@ -402,6 +416,49 @@ class Filter {
       default:
         return true
     }
+  }
+
+  /** 检查图片的扩展名是否被用户排除了。只对插画和漫画进行检查。
+   *
+   * - 没有传递 ext 时跳过检查
+   * - 只检查 jpg 和 png 两种扩展名，其他扩展名跳过检查
+   * - 用户没有排除这个格式时跳过检查
+   * - 用户排除了这个格式，且作品是插画或漫画时返回 false */
+  public checkImageFormat(
+    workType?: FilterOption['workType'],
+    IDTypeString?: FilterOption['IDTypeString'],
+    ext?: string
+  ) {
+    // 没有传递扩展名时跳过检查
+    if (!ext) {
+      return true
+    }
+
+    // 设置值和对比时的值都不带点，所以先去掉扩展名里的点
+    ext = ext.replaceAll('.', '')
+
+    // 目前只检查 jpg 和 png 两种扩展名
+    if (ext !== 'jpg' && ext !== 'png') {
+      return true
+    }
+
+    // 用户没有排除这个格式
+    if (ext === 'jpg' && settings.downJPGImg) {
+      return true
+    }
+    if (ext === 'png' && settings.downPNGImg) {
+      return true
+    }
+
+    // 用户排除了这个格式。这个过滤器只对插画和漫画生效，其他类型的作品不受影响
+    if (workType === 0 || workType === 1) {
+      return false
+    }
+    if (IDTypeString === 'illusts' || IDTypeString === 'manga') {
+      return false
+    }
+
+    return true
   }
 
   private checkDownTypeByAge(xRestrict?: FilterOption['xRestrict']) {

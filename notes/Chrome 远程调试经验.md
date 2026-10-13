@@ -185,6 +185,13 @@ DevTools 自己的窗口 title 会伪装成 `DevTools - www.pixiv.net/artworks/.
 4. **复现环境要和真实一致。** 用 jsdom 之类的模拟环境得出的结论，在真机上可能完全相反
    （例如会发现某个组件其实早就存在于 DOM 中）。涉及登录态、扩展、用户脚本的问题，
    只能连真浏览器验证。
+5. **原生对话框会冻住页面。** `window.confirm` / `alert` / `beforeunload`（**原生**对话框）
+   打开时页面 JS 冻结，`Runtime.evaluate` 全部**超时挂起**（很像死循环，其实是对话框在等点击）。
+   - 恢复：`Runtime.terminateExecution` 可直接中断阻塞（2026-10-13 实测有效，之后求值立即恢复）；
+     或 `Page.handleJavaScriptDialog {accept}` 主动应答（无对话框时返回 "No dialog is showing"）。
+   - 本项目注意：点「开始抓取」时若**已有未下载的抓取结果**，会弹 `confirmRecrawl()` 的
+     `window.confirm`（「这个标签页里已经有抓取结果了……」）——自动化测试点击前先处理这个状态，
+     别让流程停在对话框上。
 
 ## 六、安全
 

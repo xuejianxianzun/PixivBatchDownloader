@@ -137,6 +137,23 @@ class Download {
     // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
     const url = result[settings.imageSize] || result.original
 
+    // 检查图片的扩展名是否被用户排除了。
+    // 在抓取时检查过了，这里再检查一次是因为：用户可能在抓取完成后才排除了某些格式的图片，所以下载时也需要再次检查。
+    // 对于多图作品，现在会检查每一张图片
+    const useUrl = result[settings.imageSize] || result.original
+    const extForCheck = Utils.getExtension(useUrl)
+
+    if (!filter.checkImageFormat(result.type, undefined, extForCheck)) {
+      return this.skipDownload(
+        { id: arg.id, type: result.type, reason: 'excludedImageFormat' },
+        lang.transl(
+          '_不保存图片因为你排除了这种格式',
+          Tools.createWorkLink(arg.id),
+          extForCheck
+        )
+      )
+    }
+
     // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
     // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
     if (settings.imageSize !== 'original') {
@@ -570,7 +587,7 @@ class Download {
     if (wh.width === 0 || wh.height === 0) {
       log.error(
         lang.transl('_获取图片的宽高时出现错误') +
-          Tools.createWorkLink(result.id)
+        Tools.createWorkLink(result.id)
       )
       return true
       // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。

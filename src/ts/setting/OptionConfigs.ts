@@ -390,6 +390,18 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 112,
+      nameKey: '_图片格式',
+      name: '',
+      categoryLevel1: 'filter',
+      categoryLevel2: 'workType',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: [],
+      searchWords: ['jpg', 'png'],
+      addedAt: 1791902975000,
+    },
+    {
       no: 10,
       nameKey: '_收藏数量',
       name: '',

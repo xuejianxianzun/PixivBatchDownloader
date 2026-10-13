@@ -26,6 +26,7 @@ class ShowEnabledFilter {
     this.getOriginalType()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
+    this.getImageFormat()
     this.getDownTypeByBmked()
     this.getDoNotCrawlDownloadedWorks()
     this.getMultiImageWorkImageLimit()
@@ -171,6 +172,17 @@ class ShowEnabledFilter {
     if (tips.length > 0) {
       log.warning(lang.transl('_排除作品类型') + tips.join(', '))
       log.warning(lang.transl('_提示检查图片色彩会增加抓取所需时间'))
+    }
+  }
+
+  /** 提示图片格式设置 */
+  private getImageFormat() {
+    const tips = []
+    !settings.downJPGImg && tips.push('.jpg')
+    !settings.downPNGImg && tips.push('.png')
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除图片格式') + tips.join(', '))
     }
   }
 

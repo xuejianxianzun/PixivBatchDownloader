@@ -1018,6 +1018,14 @@ And so on.
     `🛸제외된 작품 유형: `,
     `🛸Исключает эти виды работ: `,
   ],
+  _排除图片格式: [
+    `🛸排除图片格式：`,
+    `🛸排除圖片格式：`,
+    `🛸Excludes these image formats: `,
+    `🛸これらの画像形式を除外：`,
+    `🛸제외된 이미지 형식: `,
+    `🛸Исключает эти форматы изображений: `,
+  ],
   _多图作品: [
     `多图作品`,
     `多圖作品`,
@@ -3631,6 +3639,14 @@ Quick download tasks are triggered by these actions:<br>
     `Fanbox ダウンロード`,
     `Fanbox 다운로더`,
     `Fanbox загрузчик`,
+  ],
+  _不保存图片因为你排除了这种格式: [
+    `{} 没有被保存，因为你排除了这种格式：{}`,
+    `{} 並未儲存，因為你排除了這種格式：{}`,
+    `{} was not saved because you excluded this format: {}`,
+    `{} はあなたがこの形式を除外したため、保存されていません：{}`,
+    `이 형식을 제외했기 때문에 {} 파일이 저장되지 않았습니다: {}`,
+    `{} не был(и) сохранен(ы), потому что вы исключили этот формат: {}`,
   ],
   _不保存图片因为体积: [
     `{} 没有被保存，因为它的体积不符合设定。`,
@@ -7189,6 +7205,48 @@ During downloading, the downloader checks the color again after the image is dow
 Если вы исключили изображения одного из цветов, загрузчик будет проверять цвет и при сканировании, и при загрузке.<br>
 При сканировании загрузчик загружает миниатюру изображения для проверки; если изображение не соответствует условиям, оно не будет сохранено.<br>
 При загрузке загрузчик ещё раз проверяет цвет после того, как изображение загружено; если оно не соответствует условиям, файл не будет сохранён на диск.`,
+  ],
+  _图片格式: [
+    `图片<span class="key">格式</span>`,
+    `圖片<span class="key">格式</span>`,
+    `Image <span class="key">format</span>`,
+    `画像の<span class="key">形式</span>`,
+    `이미지 <span class="key">형식</span>`,
+    `<span class="key">Формат</span> изображения`,
+  ],
+  _你排除了图片格式x: [
+    `你排除了图片格式 {}`,
+    `你排除了圖片格式 {}`,
+    `You have excluded the {} image format`,
+    `画像形式 {} を除外しました`,
+    `이미지 형식 {}을(를) 제외했습니다`,
+    `Вы исключили формат изображения {}`,
+  ],
+  _图片格式的说明: [
+    `你可以根据需要，决定是否下载 <span class="blue">.jpg</span> 和 <span class="blue">.png</span> 格式的图片。<br>
+    <br>
+    备注：<br>
+    该设置只会检查插画和漫画里的图片，不会检查动图和小说里的图片。`,
+    `你可以根據需要，決定是否下載 <span class="blue">.jpg</span> 和 <span class="blue">.png</span> 格式的圖片。<br>
+    <br>
+    備註：<br>
+    該設定只會檢查插畫和漫畫裡的圖片，不會檢查動圖和小說裡的圖片。`,
+    `You can decide whether to download images in <span class="blue">.jpg</span> and <span class="blue">.png</span> format as needed.<br>
+    <br>
+    Note:<br>
+    This setting only checks the images in illustrations and manga. It does not check the images in ugoira or novels.`,
+    `必要に応じて、<span class="blue">.jpg</span> と <span class="blue">.png</span> 形式の画像をダウンロードするかどうかを決められます。<br>
+    <br>
+    備考：<br>
+    この設定はイラストとマンガの画像のみをチェックし、うごイラと小説の画像はチェックしません。`,
+    `필요에 따라 <span class="blue">.jpg</span> 및 <span class="blue">.png</span> 형식의 이미지를 다운로드할지 결정할 수 있습니다.<br>
+    <br>
+    참고:<br>
+    이 설정은 일러스트와 만화의 이미지만 확인하며, 움직이는 일러스트와 소설의 이미지는 확인하지 않습니다.`,
+    `При необходимости вы можете решить, загружать ли изображения в форматах <span class="blue">.jpg</span> и <span class="blue">.png</span>.<br>
+    <br>
+    Примечание:<br>
+    Эта настройка проверяет только изображения в иллюстрациях и манге. Изображения в Ugoira и новеллах не проверяются.`,
   ],
   _图片数量: [
     `图片<span class="key">数量</span>`,

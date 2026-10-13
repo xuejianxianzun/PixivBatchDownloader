@@ -41,6 +41,8 @@ class FormSettings {
       'downMultiImg',
       'downColorImg',
       'downBlackWhiteImg',
+      'downJPGImg',
+      'downPNGImg',
       'downNotBookmarked',
       'downBookmarked',
       'onlyCrawlFirstFewImagesSwitch',

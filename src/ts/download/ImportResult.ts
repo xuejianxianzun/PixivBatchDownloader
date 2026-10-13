@@ -8,6 +8,7 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { filter } from '../filter/Filter'
 import { Tools } from '../Tools'
+import { settings } from '../setting/Settings'
 
 class ImportResult {
   constructor() {
@@ -50,6 +51,9 @@ class ImportResult {
     // 根据过滤选项，过滤导入的结果
     const temp: Result[] = []
     for (const result of loadedJSON) {
+      const useUrl = result[settings.imageSize] || result.original
+      const extForCheck = Utils.getExtension(useUrl)
+
       const check = await filter.check({
         aiType: result.aiType,
         id: result.idNum,
@@ -66,6 +70,7 @@ class ImportResult {
         createDate: result.date,
         userId: result.userId,
         xRestrict: result.xRestrict,
+        ext: extForCheck,
       })
       if (check) {
         temp.push(result)

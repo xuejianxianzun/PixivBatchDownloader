@@ -228,6 +228,10 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
+  /** 是否下载 JPG 格式的图片 */
+  downJPGImg: boolean
+  /** 是否下载 PNG 格式的图片 */
+  downPNGImg: boolean
   /** 非白色像素里，有颜色的像素的占比超过这个值时，就认为它是彩色图片。取值范围 1 - 100 */
   coloredRatio: number
   downNotBookmarked: boolean
@@ -848,6 +852,8 @@ class Settings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
+    downJPGImg: true,
+    downPNGImg: true,
     coloredRatio: 25,
     downNotBookmarked: true,
     downBookmarked: true,

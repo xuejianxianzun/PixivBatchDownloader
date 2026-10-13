@@ -65,6 +65,7 @@ export interface DonwloadSkipData {
     | '404'
     | '500'
     | 'excludedType'
+    | 'excludedImageFormat'
 }
 
 // 所有任务的信息
