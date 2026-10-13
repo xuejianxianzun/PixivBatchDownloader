@@ -112,6 +112,7 @@ class SaveNovelData {
           language: body.language,
         },
         xRestrict: body.xRestrict,
+        genre: body.genre || null,
       })
     }
   }

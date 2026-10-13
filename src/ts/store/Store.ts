@@ -235,6 +235,7 @@ class Store {
     commentCount: 0,
     xRestrict: 0,
     sl: null,
+    genre: null,
   }
 
   /** 添加每个作品的数据。只需要传递有值的属性
