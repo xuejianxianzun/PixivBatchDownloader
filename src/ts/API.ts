@@ -55,6 +55,9 @@ interface LikeResponse {
   body:
     | []
     | {
+        // 你是否已经给这个作品点赞过了
+        // 如果未点赞则是 false；如果已点赞则是 true
+        // 只有未点赞时才能使点赞数 +1。所以不能重复刷赞
         is_liked: boolean
       }
 }

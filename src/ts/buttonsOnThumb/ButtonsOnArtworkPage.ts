@@ -9,6 +9,7 @@ import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
 import { lang } from '../Language'
 import { ImageViewer } from '../ImageViewer'
 import { copyWorkInfo } from '../CopyWorkInfo'
+import { likeWork } from '../LikeWork'
 
 /** 在插画、漫画作品的详情页面里，在每张大图的旁边显示一些按钮 */
 // 对于单图作品，下载器会直接显示按钮
@@ -152,6 +153,8 @@ class ButtonsOnArtworkPage extends ButtonsOnThumbConfig {
       })
     } else if (config.name === 'copyBtnOnThumb') {
       copyWorkInfo.receive(idData, index)
+    } else if (config.name === 'likeBtnOnThumb') {
+      likeWork.like(id)
     } else if (config.name === 'downloadBtnOnThumb') {
       idData.downloadIndexes = [index]
       EVT.fire('crawlIdList', [idData])

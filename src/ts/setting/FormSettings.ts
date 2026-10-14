@@ -140,6 +140,7 @@ class FormSettings {
       'copyFormatText',
       'copyFormatHtml',
       'showCopyBtnOnThumb',
+      'showLikeBtnOnThumb',
       'crawlLatestFewWorks',
       'rememberTheLastSaveLocation',
       'autoMergeNovel',

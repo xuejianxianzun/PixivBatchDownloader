@@ -5,6 +5,7 @@ import { Config } from '../Config'
 import { ImageViewer } from '../ImageViewer'
 import { IDData } from '../store/StoreType'
 import { copyWorkInfo } from '../CopyWorkInfo'
+import { likeWork } from '../LikeWork'
 import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { lang } from '../Language'
 import { ButtonsOnThumbConfig, BtnConfig } from './ButtonsOnThumbConfig'
@@ -118,6 +119,8 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsOnThumbConfig {
       })
     } else if (config.name === 'copyBtnOnThumb') {
       copyWorkInfo.receive(idData, index)
+    } else if (config.name === 'likeBtnOnThumb') {
+      likeWork.like(this.currentWorkId)
     } else if (config.name === 'downloadBtnOnThumb') {
       // 在多图作品的缩略图列表上点击下载按钮时，只下载这一张图片
       if (onThumbList) {

@@ -2,6 +2,11 @@
 
 记录用 Chrome DevTools Protocol（CDP）连接**正在使用的浏览器**做真机调试的方法与坑。
 
+备注：
+- 这个文档是在该仓库作者的电脑上测试、编写的，环境是 Windows 11、Chrome 浏览器，编写此文档的智能体是 WorkBuddy。
+- 如果有下面提到的配置脚本，则需要严格遵守此文档的说明；有新的经验、踩坑的话也可以更新此文档。
+- 在其他人的电脑上，情况可能不同，也没有下面提到的配套脚本，此时该文档仅供参考。
+
 配套脚本在 `~/.workbuddy/skills/browser-layout-probe/`：
 
 - `cdp-attach.mjs` —— 命令行入口（列标签页 / 执行表达式）
@@ -203,3 +208,7 @@ DevTools 自己的窗口 title 会伪装成 `DevTools - www.pixiv.net/artworks/.
 
 🔒 调试端点等同于「本机任意程序可完全控制浏览器」。不用时 `--stop-session` 断开，
 并在 `chrome://inspect` 里取消勾选。
+
+## 个性化
+
+有个文档针对该仓库作者的使用环境，做了更个性化的说明。如果 `c:/document/github/本机 Chrome CDP 调试指南.md` 文件存在，则读取该文件里的说明；如果文件不存在则忽略。

@@ -514,6 +514,7 @@ interface XzSetting {
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
   showCopyBtnOnThumb: boolean
+  showLikeBtnOnThumb: boolean
   copyFormatImage: boolean
   copyFormatText: boolean
   copyFormatHtml: boolean
@@ -1141,6 +1142,7 @@ class Settings {
     copyWorkInfoFormat:
       'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
     showCopyBtnOnThumb: true,
+    showLikeBtnOnThumb: false,
     copyFormatImage: false,
     copyFormatText: true,
     copyFormatHtml: true,

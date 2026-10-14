@@ -8,7 +8,7 @@ export interface ToastArgOptional {
   color?: string
   /**设置背景颜色。默认为浅蓝色，或者是语义所对应的颜色 */
   bgColor?: string
-  /**设置提示出现后的停留时间（毫秒），默认 1500 ms */
+  /**设置提示出现后的停留时间（毫秒），默认 1800 ms */
   stay?: number
   /**出现时的动画效果
    *
@@ -83,7 +83,7 @@ class Toast {
     msg: '',
     color: Colors.white,
     bgColor: Colors.bgBrightBlue,
-    stay: 1500,
+    stay: 1800,
     enter: 'up',
     leave: 'fade',
     position: 'mouse',

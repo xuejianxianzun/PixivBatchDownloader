@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="icon"
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   width="128"
+   height="128"
+   xmlns="http://www.w3.org/2000/svg">
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="72"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    <path d="M 328 509 H 178 A 68 68 0 0 0 110 577 V 805 A 68 68 0 0 0 178 873 H 328" />
+    <path d="M 328 873 V 621 C 328 505 345 389 396 231 C 413 178 454 145 495 152 C 542 158 570 208 572 274 C 574 338 561 389 555 436 L 841 436 A 73 73 0 0 1 914 509 L 914 800 A 73 73 0 0 1 841 873 Z" />
+  </g>
+</svg>
