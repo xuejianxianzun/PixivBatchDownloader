@@ -17494,6 +17494,7 @@ class InitPageBase {
     /**
      * 初始化任意内容。如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里。
      * 通常用来初始化特有的组件、功能、事件、状态等。
+     * 默认是空方法，子类可以根据需要覆写。
      */
     initAny() { }
     /** 销毁初始化页面时添加的元素和事件监听器 */
@@ -17569,6 +17570,10 @@ class InitPageBase {
      * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
      */
     async crawlIdList(idList) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlUserList) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前正在抓取用户列表所以不接受新的抓取任务'));
+            return;
+        }
         // 对 idList 进行去重
         // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
         const _idList = [];
@@ -18167,11 +18172,16 @@ const logErrorStatus = new LogErrorStatus();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   stopCrawl: () => (/* binding */ stopCrawl)
+/* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -18185,9 +18195,16 @@ class StopCrawl {
     btn;
     /**创建停止抓取按钮 */
     addBtn() {
-        this.btn = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('stopCrawl', '_停止抓取', '', 'stopCrawling', 'secondary', 'danger');
+        this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', '_停止抓取', '', 'stopCrawling', 'secondary', 'danger');
         this.hide();
         this.btn.addEventListener('click', () => {
+            // 抓取用户列表时，停止抓取会终止整个任务，所以需要让用户确认。
+            // 用户取消时不会触发 stopCrawl 事件，也就不会有后续的停止流程
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.crawlUserList) {
+                if (!window.confirm(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_停止抓取用户列表的提示'))) {
+                    return;
+                }
+            }
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('stopCrawl');
         });
         // 触发 stopCrawl 事件之后，states.stopCrawl 会被设置为 true
@@ -18199,13 +18216,22 @@ class StopCrawl {
             this.show();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
+            // 抓取用户列表的任务在下载阶段也需要显示停止按钮（它由该任务自己控制隐藏时机），所以此时不隐藏它
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.crawlUserList) {
+                return;
+            }
             this.hide();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl, () => {
             this.hide();
+            // 抓取用户列表的任务会自己输出停止的提示
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.crawlUserList) {
+                return;
+            }
             this.log();
         });
     }
+    /**隐藏停止抓取按钮 */
     hide() {
         this.btn.style.display = 'none';
     }
@@ -18215,10 +18241,11 @@ class StopCrawl {
     log() {
         const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已停止抓取');
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.error('🛑' + msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
     }
 }
-new StopCrawl();
+const stopCrawl = new StopCrawl();
+
 
 
 /***/ }),
@@ -21667,6 +21694,668 @@ const crawlTagList = new CrawlTagList();
 
 /***/ }),
 
+/***/ "./src/ts/crawlMixedPage/CrawlUserList.ts":
+/*!************************************************!*\
+  !*** ./src/ts/crawlMixedPage/CrawlUserList.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   crawlUserList: () => (/* binding */ crawlUserList)
+/* harmony export */ });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../filter/Mute */ "./src/ts/filter/Mute.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _crawl_StopCrawl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawl/StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
+/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+// 抓取用户列表。
+// 在首页输入多个用户 ID，下载器会逐个抓取这些用户的作品。
+// 它以用户为单位：一个用户的作品下载完毕之后，才会开始处理下一个用户。
+//
+// 本模块不属于某个页面类型，也不继承其他模块，而是复用了 InitPageBase 里的抓取流程。
+// 每轮循环都相当于执行一次普通的抓取：
+// 1. 循环开始时设置 busy、quickCrawl 状态，并触发 crawlStart（这会重置 store、显示停止按钮、复位下载模块）。
+// 2. 抓取一个用户的作品列表，然后逐个抓取作品数据。
+// 3. 抓完后触发 crawlComplete，下载模块会自动开始下载（需要启用“快速下载任务”）。
+// 4. 等下载完成后，继续处理下一个用户。
+//
+// 任务数据会保存到本地存储，如果用户中途关闭了页面，可以重新打开并恢复任务。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class CrawlUserList {
+    constructor() {
+        this.bindEvents();
+    }
+    /** 任务数据在本地存储里使用的键名 */
+    storeName = 'crawlUserListTask';
+    /** 每次任务开始时 +1。旧任务的异步流程在发现这个值变化后会立即退出 */
+    runId = 0;
+    /** 用户是否停止了本模块的任务 */
+    stopped = false;
+    /** 要抓取的用户 ID 列表 */
+    idList = [];
+    /** 从每个用户那里抓取多少个作品。等于 Config.worksNumberLimit 时表示抓取所有作品 */
+    crawlWorksNumber = 0;
+    /** 正在处理的用户在 idList 里的索引。这个值会保存到本地存储，用于恢复任务 */
+    progressIndex = 0;
+    /** 当前用户这一轮是否已经结束（无抓取结果，或者下载完成、用户放弃下载） */
+    userDone = false;
+    /** 本模块设置的 beforeunload 回调。任务结束时需要把它还原成之前的值 */
+    combinedBeforeUnload = null;
+    /** 设置 beforeunload 回调之前，window 上原有的回调 */
+    prevBeforeUnload = null;
+    bindEvents() {
+        // 用户点击“停止抓取”按钮时，停止整个任务
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.stopCrawl, this.onStopCrawl);
+        // 这些事件都表示当前用户这一轮已经结束
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlEmpty, this.onUserDone);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadComplete, this.onUserDone);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop, this.onUserDone);
+        // downloadStop 只会在用户点击“放弃下载”按钮时触发，此时给出提示
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop, this.onGiveUpDownload);
+    }
+    onStopCrawl = () => {
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList) {
+            return;
+        }
+        this.stopTask();
+    };
+    onUserDone = () => {
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList) {
+            return;
+        }
+        this.userDone = true;
+    };
+    /** 用户点击“放弃下载”按钮时，说明放弃下载只会跳过当前用户，不会终止整个任务 */
+    onGiveUpDownload = () => {
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表时放弃下载的提示'), 'crawlUserListGiveUpDownload');
+    };
+    /** 检测任务是否已经被中断（用户停止了任务，或者已经开始了新任务） */
+    isInterrupted(epoch) {
+        return this.stopped || epoch !== this.runId;
+    }
+    /** 公共入口。点击首页的“抓取用户列表”按钮时调用 */
+    async ready() {
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('closeSettingsPanel');
+        if (_store_States__WEBPACK_IMPORTED_MODULE_16__.states.busy) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
+        }
+        // 如果有未完成的任务数据，询问用户是否恢复它
+        const taskData = this.restoreData();
+        if (taskData) {
+            const confirm = window.confirm(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_检测到有未完成的抓取用户列表任务要恢复该任务吗'));
+            if (confirm) {
+                return this.resumeTask(taskData);
+            }
+        }
+        await this.newTask();
+    }
+    /** 恢复之前未完成的任务 */
+    resumeTask(data) {
+        // 用户在弹窗上确认时，下载器可能又变忙了
+        if (_store_States__WEBPACK_IMPORTED_MODULE_16__.states.busy) {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_无法恢复抓取用户列表任务因为下载器正忙'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表'),
+            });
+        }
+        this.idList = data.idList;
+        this.crawlWorksNumber = data.crawlWorksNumber;
+        this.progressIndex = data.progressIndex;
+        // 输出任务开始时的日志
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('clearLog');
+        this.showStartLogs();
+        _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已恢复抓取用户列表任务'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表'),
+        });
+        // 从之前正在处理的那个用户开始
+        this.startRun(this.progressIndex);
+    }
+    /** 开始一个新任务 */
+    async newTask() {
+        // 输入用户 ID 列表
+        const idList = await this.inputIDList();
+        if (idList === null) {
+            return;
+        }
+        // 输入抓取的作品数量
+        const crawlWorksNumber = await this.inputNumber();
+        if (crawlWorksNumber === null) {
+            return;
+        }
+        // 输入期间下载器可能变忙了
+        if (_store_States__WEBPACK_IMPORTED_MODULE_16__.states.busy) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
+        }
+        this.idList = idList;
+        this.crawlWorksNumber = crawlWorksNumber;
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('clearLog');
+        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取用户列表'));
+        this.showStartLogs();
+        this.startRun(0);
+    }
+    /** 让用户输入用户 ID 列表 */
+    async inputIDList() {
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_3__.Input({
+            type: 'textarea',
+            rows: 6,
+            instruction: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表的输入框提示'),
+            placeholder: '163536\n12539859\n1980643\n28172249\n73117898',
+        });
+        const value = await input.submit();
+        if (!value) {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_本次操作已取消'));
+            return null;
+        }
+        // 把输入按行分开，去掉空行
+        const array = value
+            .split('\n')
+            .map((str) => str.trim())
+            .filter((str) => str !== '');
+        if (array.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_本次操作已取消'));
+            return null;
+        }
+        // 要求全部是数字
+        for (const str of array) {
+            if (!/^\d+$/.test(str)) {
+                _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_用户ID必须全部是数字'));
+                return null;
+            }
+        }
+        // 去重
+        return Array.from(new Set(array));
+    }
+    /** 让用户输入从每个用户那里抓取多少个作品 */
+    async inputNumber() {
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_3__.Input({
+            instruction: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取作品数量的输入框提示'),
+            placeholder: '-1',
+            value: '-1',
+        });
+        const value = await input.submit();
+        if (!value) {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_本次操作已取消'));
+            return null;
+        }
+        // 把值格式化为整数
+        const num = Number.parseInt(value);
+        // 要求是有效的数字，且只能是 -1（表示抓取所有作品）或者大于 0
+        if (Number.isNaN(num) || num === 0 || (num < 0 && num !== -1)) {
+            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_数字必须设置为负1或者大于0'));
+            return null;
+        }
+        return num === -1 ? _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksNumberLimit : num;
+    }
+    /** 输出任务开始时的日志 */
+    showStartLogs() {
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取用户列表'));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_一共有x个用户ID', this.idList.length.toString()));
+        if (this.crawlWorksNumber === _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksNumberLimit) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_从每个用户那里抓取所有作品'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_从每个用户那里抓取x个作品', this.crawlWorksNumber.toString()));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_慢速抓取'));
+        // 输出空字符串，起到占据一个空行的效果
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+    }
+    /** 开始运行任务 */
+    async startRun(fromIndex) {
+        this.stopped = false;
+        this.runId++;
+        const epoch = this.runId;
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList = true;
+        // states.stopCrawl 会保持为 true 直到下一次任务开始，所以这里要重置它
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.stopCrawl = false;
+        // 把进度限制在有效范围内
+        if (!Number.isFinite(fromIndex) || fromIndex < 0) {
+            fromIndex = 0;
+        }
+        fromIndex = Math.min(Math.floor(fromIndex), this.idList.length);
+        // 保存任务数据，并在任务完成前阻止用户关闭页面
+        this.storeData();
+        this.wrapBeforeUnload();
+        // 预先获取用户在 Pixiv 的屏蔽设定，供后面的预检查使用
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_10__.mute.getMuteSettings();
+        this.runLoop(epoch, fromIndex);
+    }
+    /** 按顺序处理每个用户 */
+    async runLoop(epoch, fromIndex) {
+        for (let i = fromIndex; i < this.idList.length; i++) {
+            // 记录正在处理哪个用户
+            this.progressIndex = i;
+            this.storeData();
+            await this.crawlOneUser(epoch, i);
+            if (this.isInterrupted(epoch)) {
+                return;
+            }
+        }
+        // 所有用户都处理完毕
+        this.completeTask();
+    }
+    /** 抓取一个用户的作品 */
+    async crawlOneUser(epoch, index) {
+        const id = this.idList[index];
+        // 每轮循环开始时，先设置状态，再触发 crawlStart。
+        // 触发 crawlStart 会重置 store（避免上一个用户的抓取结果残留），
+        // 并显示“停止抓取”按钮、复位下载模块
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.busy = true;
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.quickCrawl = true;
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlStart');
+        // 重置本轮的结束标记
+        this.userDone = false;
+        // 检查这个用户是否被屏蔽了。如果被屏蔽，则跳过它，不发送抓取请求
+        if (!(await _filter_Filter__WEBPACK_IMPORTED_MODULE_9__.filter.check({ userId: id }))) {
+            return;
+        }
+        if (this.isInterrupted(epoch)) {
+            return;
+        }
+        // 获取用户名，用于在日志里显示
+        let userName = '';
+        try {
+            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserProfile(id);
+            userName = profile.body.name;
+        }
+        catch {
+            // 请求出错，或者用户不存在、已注销
+        }
+        if (!userName) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取用户资料失败跳过该用户', _Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.createUserLink(id)));
+            return;
+        }
+        if (this.isInterrupted(epoch)) {
+            return;
+        }
+        // 在日志里显示这个用户的信息
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取用户的作品', _Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.createUserLink(id, userName), id));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_他在队列中的位置是x', `${index + 1}/${this.idList.length}`));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始获取作品列表'));
+        // 获取他的作品的 ID 列表
+        let works = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserWorksByType(id);
+        if (this.isInterrupted(epoch)) {
+            return;
+        }
+        // 按作品 ID 从大到小排列（从最新的作品开始抓取）
+        works.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty('id', 'desc'));
+        // 如果只需要抓取部分作品，则裁剪
+        if (this.crawlWorksNumber < works.length) {
+            works = works.slice(0, this.crawlWorksNumber);
+        }
+        // 覆写 store.idList
+        _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList = works;
+        // 处理作品 ID 列表，然后抓取每个作品的数据
+        const hasResult = await this.getIdListFinished(epoch);
+        if (this.isInterrupted(epoch)) {
+            return;
+        }
+        // 等待本轮的下载结束，然后再处理下一个用户。
+        // 每轮都会等待：如果“快速下载任务”被设置为不自动开始下载，下载不会自动开始，
+        // 此时会等待用户手动开始下载（或放弃下载），而不是跳过下载、直接丢弃这一轮的抓取结果
+        if (hasResult) {
+            await this.waitUserDone(epoch);
+        }
+    }
+    /** 处理该用户的作品 ID 列表，然后抓取每个作品的数据。
+     *
+     * @returns 抓取结果不为空时返回 true（表示本轮需要等待下载完成） */
+    async getIdListFinished(epoch) {
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+        const filteredIDList = [];
+        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList) {
+            if (this.isInterrupted(epoch)) {
+                return false;
+            }
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_9__.filter.check({
+                id: idData.id,
+                IDTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (check) {
+                filteredIDList.push(idData);
+            }
+        }
+        _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList = filteredIDList;
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.length === 0) {
+            return this.noResult();
+        }
+        // 如果要抓取的作品数量比较多，显示使用小号抓取的提示
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.length > 6000) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_提示使用小号下载'));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.length.toString()));
+        // 导出 ID 列表，并结束这个用户的处理流程。
+        // 注意：不要在导出后触发 stopCrawl 事件，否则会停掉整个抓取用户列表的任务
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_16__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.isPixiv()) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList);
+                for (const result of resultList) {
+                    _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.formatDateTimeInFilename()}.json`);
+                }
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出ID列表');
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.success(msg);
+            }
+            return false;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始获取作品信息'));
+        // 逐个抓取每个作品的数据
+        await this.getWorksDataSerial(epoch);
+        return _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.result.length > 0;
+    }
+    /** 逐个抓取作品的详细数据。
+     *
+     * 总是串行发送请求，并且每次请求之间添加间隔时间（除非下一个作品使用了缓存数据） */
+    async getWorksDataSerial(epoch) {
+        // 记录是否需要添加间隔时间（在第一次实际发送请求之前不需要）
+        let needDelay = false;
+        while (_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.length > 0) {
+            if (this.isInterrupted(epoch)) {
+                return;
+            }
+            const idData = _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.shift();
+            // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它，这样也不会发送请求
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_9__.filter.check({
+                id: idData.id,
+                IDTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (!check) {
+                continue;
+            }
+            // 如果要实际发送请求，则添加间隔时间。
+            // 如果这个作品是小说，并且缓存里有它的数据，就不需要添加间隔时间（不必发送请求）
+            if (needDelay) {
+                const useCache = idData.type === 'novels' && !!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__.cacheWorkData.get(idData.id, 'novel');
+                if (!useCache) {
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
+                    if (this.isInterrupted(epoch)) {
+                        return;
+                    }
+                }
+            }
+            await this.getOneWorkData(epoch, idData);
+            if (this.isInterrupted(epoch)) {
+                return;
+            }
+            needDelay = true;
+            // 输出进度日志
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.resultMeta.length.toString())}`, 'getWorksProgress');
+        }
+        // 所有作品都处理完毕
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_17__.store.result.length === 0) {
+            this.noResult();
+        }
+        else {
+            this.crawlFinished();
+        }
+    }
+    /** 抓取一个作品的详细数据 */
+    async getOneWorkData(epoch, idData) {
+        const id = idData.id;
+        if (!id) {
+            const msg = 'Error: work id is invalid!';
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+            throw new Error(msg);
+        }
+        try {
+            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.Unlisted;
+            if (idData.type === 'novels') {
+                // 小说数据尝试从缓存中获取，这是因为“自动合并系列小说”里也需要获取小说数据。
+                // 如果不使用缓存，则必定会导致一个小说发送两次请求
+                const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_13__.cacheWorkData.getWorkDataAsync(id, 'novel', unlisted);
+                // 自动合并系列小说
+                const seriesId = data.body.seriesNavData?.seriesId;
+                const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoMergeNovel;
+                if (canMerge) {
+                    const seriesTitle = data.body.seriesNavData?.title;
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_11__.autoMergeNovel.merge(seriesId, seriesTitle);
+                }
+                // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
+                if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.skipNovelsInSeriesWhenAutoMerge) {
+                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_15__.saveNovelData.save(data);
+                }
+            }
+            else {
+                // 获取图像作品的数据
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id, unlisted);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_14__.saveArtworkData.save(data, idData.downloadIndexes);
+            }
+        }
+        catch (error) {
+            if (error?.status) {
+                // 请求成功，但状态码不正常。不重试，跳过这个作品
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_19__.Tools.createWorkLinkByIDData(idData);
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_因为网络错误跳过这个作品', link));
+            }
+            else {
+                // 请求失败，一般是
+                // TypeError: Failed to fetch
+                // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
+                // 对于这种请求没能成功发送的错误，会输出 null
+                // 注意：这里也会捕获到 save 作品数据时的错误（如果有）
+                console.error(error);
+                // 等待一段时间，然后再次发送这个请求
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(2000);
+                if (this.isInterrupted(epoch)) {
+                    return;
+                }
+                return this.getOneWorkData(epoch, idData);
+            }
+        }
+    }
+    /** 抓取完毕（有抓取结果时） */
+    crawlFinished() {
+        _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.crawlCompleteTime = new Date();
+        // 对文件进行排序
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setFileDownloadOrder) {
+            // 按照用户设置的规则进行排序
+            const scheme = new Map([
+                ['ID', 'id'],
+                ['bookmarkCount', 'bmk'],
+                ['bookmarkID', 'bmkId'],
+            ]);
+            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy);
+            // 在搜索页面预览抓取结果时，始终按收藏数量排序
+            if (_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.ArtworkSearch &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
+                key = 'bmk';
+            }
+            _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_共抓取到n个作品产生了n个抓取结果', _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.resultMeta.length.toString(), _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.result.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取完毕'));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+        // 发出抓取完毕的信号，下载模块会据此自动开始下载
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlComplete');
+        // 自动导出抓取结果
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResult &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_17__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultNumber) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultCSV) {
+                _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('exportCSV');
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultJSON) {
+                _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('exportResult');
+            }
+        }
+    }
+    /** 抓取结果为 0 时显示提示 */
+    noResult() {
+        // 先触发 crawlComplete，后触发 crawlEmpty
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlComplete');
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlEmpty');
+        // 批量抓取时，会有多个用户没有抓取结果，所以这里只输出日志，不显示消息框
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取结果为零的提示');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
+        // 输出空字符串，起到占据一个空行的效果
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+        return false;
+    }
+    /** 等待当前用户的下载结束（下载完成，或者用户放弃下载） */
+    async waitUserDone(epoch) {
+        // 这里使用轮询而不是监听 promise，因为 crawlEmpty 是同步触发的，
+        // 如果等抓取流程结束后才挂监听，就会漏掉它
+        while (!this.userDone) {
+            if (this.isInterrupted(epoch)) {
+                return;
+            }
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(100);
+        }
+    }
+    /** 所有用户都处理完毕 */
+    completeTask() {
+        this.finishTask();
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表完毕');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + msg);
+        // 输出空字符串，起到占据一个空行的效果
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.success(msg);
+    }
+    /** 用户停止了任务 */
+    stopTask() {
+        if (this.stopped) {
+            return;
+        }
+        this.stopped = true;
+        this.finishTask();
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已停止抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error('🛑' + msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(msg);
+    }
+    /** 任务结束时的收尾工作 */
+    finishTask() {
+        this.restoreBeforeUnload();
+        this.clearStore();
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList = false;
+        // 延后复位循环开始时设置的快速抓取标记。
+        // 下载模块会在 crawlComplete 之后的事件队列里执行 readyDownload。如果此时快速抓取标记已经被复位，
+        // 它会把最后一轮的抓取结果当作普通下载任务处理，并可能自动开始下载（取决于普通下载任务的设置）。
+        // 所以延后一个事件周期再复位它，让下载模块仍然按快速下载任务来处理最后一轮的结果。
+        // 停止任务时不会触发 downloadComplete 等事件，所以必须自己复位它
+        window.setTimeout(() => {
+            _store_States__WEBPACK_IMPORTED_MODULE_16__.states.quickCrawl = false;
+        }, 0);
+        // 复位 busy 标记。任务正常结束时它已经被复位了，
+        // 但如果最后一轮走了“导出 ID 列表”或者跳过了用户，就不会被复位
+        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.busy = false;
+        // 隐藏停止按钮。它在下载阶段也会显示，所以任务结束时需要手动隐藏它
+        _crawl_StopCrawl__WEBPACK_IMPORTED_MODULE_12__.stopCrawl.hide();
+    }
+    /** 把任务数据保存到本地存储 */
+    storeData() {
+        const data = {
+            idList: this.idList,
+            crawlWorksNumber: this.crawlWorksNumber,
+            progressIndex: this.progressIndex,
+        };
+        localStorage.setItem(this.storeName, JSON.stringify(data));
+    }
+    /** 从本地存储里读取任务数据。没有数据或数据无效时返回 null */
+    restoreData() {
+        const str = localStorage.getItem(this.storeName);
+        if (!str) {
+            return null;
+        }
+        try {
+            const data = JSON.parse(str);
+            if (!Array.isArray(data.idList) || data.idList.length === 0) {
+                return null;
+            }
+            if (typeof data.crawlWorksNumber !== 'number') {
+                return null;
+            }
+            if (typeof data.progressIndex !== 'number') {
+                return null;
+            }
+            return data;
+        }
+        catch {
+            return null;
+        }
+    }
+    /** 清除本地存储里的任务数据 */
+    clearStore() {
+        localStorage.removeItem(this.storeName);
+    }
+    /** 在任务完成之前，阻止用户关闭或刷新页面 */
+    wrapBeforeUnload() {
+        this.restoreBeforeUnload();
+        this.prevBeforeUnload = window.onbeforeunload;
+        this.combinedBeforeUnload = (ev) => {
+            // 先执行之前注册的回调
+            if (typeof this.prevBeforeUnload === 'function') {
+                const result = this.prevBeforeUnload.call(window, ev);
+                if (result === false) {
+                    return false;
+                }
+            }
+            // 抓取用户列表的任务尚未完成时，提示用户
+            if (_store_States__WEBPACK_IMPORTED_MODULE_16__.states.crawlUserList) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取用户列表任务尚未完成的提示'), {
+                    btn: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_我知道了'),
+                });
+                return false;
+            }
+        };
+        window.onbeforeunload = this.combinedBeforeUnload;
+    }
+    /** 还原 beforeunload 回调 */
+    restoreBeforeUnload() {
+        if (this.combinedBeforeUnload &&
+            window.onbeforeunload === this.combinedBeforeUnload) {
+            window.onbeforeunload = this.prevBeforeUnload;
+        }
+        this.combinedBeforeUnload = null;
+    }
+}
+const crawlUserList = new CrawlUserList();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlMixedPage/InitBookmarkPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitBookmarkPage.ts ***!
@@ -22750,7 +23439,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CrawlUserList__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./CrawlUserList */ "./src/ts/crawlMixedPage/CrawlUserList.ts");
 // 初始化首页
+
 
 
 
@@ -22784,15 +23475,19 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             : 'illusts';
     }
     addCrawlBtns() {
-        this.downIdButton = this.addInitPageBtn('crawlBtns', '_输入id进行抓取', '', 'crawlById', 'brand');
+        const crawlUserListButton = this.addInitPageBtn('crawlBtns', '_抓取用户列表', '', 'crawlUserList', 'brand');
+        crawlUserListButton.addEventListener('click', () => {
+            _CrawlUserList__WEBPACK_IMPORTED_MODULE_14__.crawlUserList.ready();
+        });
+        this.downIdButton = this.addInitPageBtn('crawlBtns', '_抓取作品列表', '', 'crawlById', 'brand');
         this.downIdButton.addEventListener('click', () => {
             this.inputIDList();
         });
-        const crawlIdRange = this.addInitPageBtn('crawlBtns', '_抓取id区间', '', 'crawlIdRange', 'brand');
+        const crawlIdRange = this.addInitPageBtn('crawlBtns', '_抓取作品id区间', '', 'crawlIdRange', 'brand');
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
-        this.importIDListButton = this.addInitPageBtn('crawlBtns', '_导入ID列表', '', 'importIDList', 'brand');
+        this.importIDListButton = this.addInitPageBtn('crawlBtns', '_导入作品ID列表', '', 'importIDList', 'brand');
         this.importIDListButton.addEventListener('click', () => {
             this.importIDList();
         });
@@ -22834,7 +23529,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         const input = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
             type: 'textarea',
             rows: 6,
-            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_输入id进行抓取的提示文字') +
+            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取作品列表的提示文字') +
                 '<br><br>' +
                 _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.type === 'illusts'
                     ? '_输入的ID视为图像ID'
@@ -22866,13 +23561,13 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         let end = 0;
         // 接收起点
         const startInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
-            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间说明') +
+            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取作品id区间说明') +
                 '<br><br>' +
                 _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.type === 'illusts'
                     ? '_输入的ID视为图像ID'
                     : '_输入的ID视为小说ID') +
                 '<br><br>' +
-                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间起点'),
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取作品id区间起点'),
             placeholder: '100',
         });
         const startValue = await startInput.submit();
@@ -22890,7 +23585,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         // 接收终点
         const endInput = new _Input__WEBPACK_IMPORTED_MODULE_12__.Input({
-            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间终点'),
+            instruction: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取作品id区间终点'),
             placeholder: '200',
         });
         const endValue = await endInput.submit();
@@ -22908,7 +23603,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         // 提示抓取范围，便于用户分批次抓取的时候查看
         // 这里使用的是一个单独的元素，而非在日志里输出。因为日志区域可能会被清空，导致提示消失
-        const tip = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取id区间') + `: ${start} - ${end}`;
+        const tip = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取作品id区间') + `: ${start} - ${end}`;
         this.idRangeTip.textContent = tip;
         this.idRangeTip.style.display = 'block';
         // 生成 id 列表
@@ -22933,8 +23628,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     async awaitClickBtn() {
         return new Promise((resolve) => {
             // 显示提示信息
-            const msgWrap = _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入ID列表的说明'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入ID列表'),
+            const msgWrap = _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入作品ID列表的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入作品ID列表'),
             });
             const content = msgWrap.querySelector('.content');
             content.innerHTML = content.innerHTML + '<br><br>';
@@ -22973,7 +23668,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_10__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入ID列表'));
+        _Log__WEBPACK_IMPORTED_MODULE_10__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入作品ID列表'));
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlStart');
         _store_States__WEBPACK_IMPORTED_MODULE_11__.states.stopCrawl = false;
         this.crawlFinishBecauseStopCrawl = false;
@@ -39163,15 +39858,15 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `Настройки блокировки`,
     ],
     _举报: [`举报`, `檢舉`, `Report`, `報告`, `신고`, `Пожаловаться`],
-    _输入id进行抓取: [
-        `输入 ID 进行抓取`,
-        `輸入 ID 進行擷取`,
-        `Enter ID to crawl`,
-        `IDを入力してクロールする`,
-        `ID를 입력하여 긁어오기`,
-        `Введите ID для сканирования`,
+    _抓取作品列表: [
+        `抓取作品列表`,
+        `擷取作品列表`,
+        `Crawl work list`,
+        `作品リストをクロール`,
+        `작품 목록 긁어오기`,
+        `Сканировать список работ`,
     ],
-    _输入id进行抓取的提示文字: [
+    _抓取作品列表的提示文字: [
         `请输入作品 ID。如果有多个 ID，则以换行分割（即每行一个ID）。`,
         `請輸入作品 ID。如果有多個 ID，則以換行分隔（即每行一個 ID）。`,
         `Enter work IDs. For multiple IDs, separate them with newlines (one ID per line).`,
@@ -39280,7 +39975,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `你可以设置是否自动开始下载。<br>
 <br>
 下载任务分为两种：<br>
-- 普通下载任务：下载器的“开始抓取”区域里有多个抓取按钮，点击第一排的抓取按钮通常会建立普通下载任务，只有两个按钮例外：“定时抓取”和“抓取标签列表”。<br>
+- 普通下载任务：下载器的“开始抓取”区域里有多个抓取按钮，点击第一排的抓取按钮通常会建立普通下载任务，只有三个按钮例外：“定时抓取”、“抓取标签列表”和“抓取用户列表”。<br>
 - 快速下载任务：直接点击下载按钮，或者抓取手动选择的作品。这些行为有更强烈的“立即下载”或“自动下载”的需求，所以以前下载器总是会自动下载它们。现在你也可以把它们设置为不自动开始下载。<br>
 <br>
 快速下载任务会由这些行为触发：<br>
@@ -39292,11 +39987,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 点击收藏按钮或点赞按钮建立的下载任务<br>
 - 定时抓取<br>
 - 抓取标签列表<br>
-- 在首页里输入 ID 进行抓取、抓取 ID 区间`,
+- 在首页里抓取作品列表、抓取作品 ID 区间<br>
+- 抓取用户列表`,
         `你可以設定是否自動開始下載。<br>
 <br>
 下載任務分為兩種：<br>
-- 普通下載任務：下載器的「開始擷取」區域裡有多個擷取按鈕，點擊第一排的擷取按鈕通常會建立普通下載任務，只有兩個按鈕例外：「定時擷取」和「擷取標籤列表」。<br>
+- 普通下載任務：下載器的「開始擷取」區域裡有多個擷取按鈕，點擊第一排的擷取按鈕通常會建立普通下載任務，只有三個按鈕例外：「定時擷取」、「擷取標籤列表」和「擷取用戶列表」。<br>
 - 快速下載任務：直接點擊下載按鈕，或者擷取手動選擇的作品。這些行為有更強烈的「立即下載」或「自動下載」的需求，所以以前下載器總是會自動下載它們。現在你也可以把它們設定為不自動開始下載。<br>
 <br>
 快速下載任務會由這些行為觸發：<br>
@@ -39308,11 +40004,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 點擊收藏按鈕或點讚按鈕建立的下載任務<br>
 - 定時擷取<br>
 - 擷取標籤列表<br>
-- 在首頁裡輸入 ID 進行擷取、擷取 ID 區間`,
+- 在首頁裡擷取作品列表、擷取作品 ID 區間<br>
+- 擷取用戶列表`,
         `You can set whether to start downloading automatically.<br>
 <br>
 There are two types of download tasks:<br>
-- Normal download task: there are multiple crawl buttons in the "Start crawling" area of the downloader. Clicking the crawl buttons in the first row usually creates a normal download task, with only two exceptions: "Timed crawl" and "Crawl tag list".<br>
+- Normal download task: there are multiple crawl buttons in the "Start crawling" area of the downloader. Clicking the crawl buttons in the first row usually creates a normal download task, with only three exceptions: "Timed crawl", "Crawl tag list" and "Crawl user list".<br>
 - Quick download task: directly clicking the download button, or crawling manually selected works. These actions have a stronger need for "download immediately" or "auto-download", so the downloader always used to download them automatically. Now you can also set them not to start downloading automatically.<br>
 <br>
 Quick download tasks are triggered by these actions:<br>
@@ -39324,11 +40021,12 @@ Quick download tasks are triggered by these actions:<br>
 - Download tasks created by clicking the bookmark button or the like button<br>
 - Timed crawl<br>
 - Crawl tag list<br>
-- Entering an ID to crawl or crawling an ID range on the HomePage`,
+- Crawling a work list or a work ID range on the HomePage<br>
+- Crawl user list`,
         `自動でダウンロードを開始するかどうかを設定できます。<br>
 <br>
 ダウンロードタスクは2種類あります：<br>
-- 通常ダウンロードタスク：ダウンローダーの「クロールを開始する」エリアには複数のクロールボタンがあります。1列目のクロールボタンをクリックすると、通常は通常ダウンロードタスクが作成されます。例外は「時限クロール」と「タグのリストをクロール」の2つのボタンだけです。<br>
+- 通常ダウンロードタスク：ダウンローダーの「クロールを開始する」エリアには複数のクロールボタンがあります。1列目のクロールボタンをクリックすると、通常は通常ダウンロードタスクが作成されます。例外は「時限クロール」、「タグのリストをクロール」、「ユーザーリストをクロール」の3つのボタンだけです。<br>
 - クイックダウンロードタスク：ダウンロードボタンを直接クリックするか、手動で選択した作品をクロールします。これらの操作には「すぐにダウンロード」または「自動ダウンロード」という強いニーズがあるため、以前はダウンローダーは常に自動的にダウンロードしていました。現在は、自動的にダウンロードを開始しないように設定することもできます。<br>
 <br>
 クイックダウンロードタスクは次の操作でトリガーされます：<br>
@@ -39340,11 +40038,12 @@ Quick download tasks are triggered by these actions:<br>
 - ブックマークボタンまたはいいねボタンをクリックして作成されたダウンロードタスク<br>
 - 時限クロール<br>
 - タグのリストをクロール<br>
-- ホームで ID を入力してクロールする、または ID 範囲をクロールする`,
+- ホームで作品リストをクロールする、または作品 ID 範囲をクロールする<br>
+- ユーザーリストをクロール`,
         `다운로드를 자동으로 시작할지 여부를 설정할 수 있습니다.<br>
 <br>
 다운로드 작업에는 두 가지 유형이 있습니다:<br>
-- 일반 다운로드 작업: 다운로더의 "긁어오기 시작" 영역에는 여러 크롤링 버튼이 있습니다. 첫 번째 줄의 크롤링 버튼을 클릭하면 일반적으로 일반 다운로드 작업이 생성됩니다. 예외는 "시간 제한 크롤링"과 "태그 긁어오기" 두 버튼뿐입니다.<br>
+- 일반 다운로드 작업: 다운로더의 "긁어오기 시작" 영역에는 여러 크롤링 버튼이 있습니다. 첫 번째 줄의 크롤링 버튼을 클릭하면 일반적으로 일반 다운로드 작업이 생성됩니다. 예외는 "시간 제한 크롤링", "태그 긁어오기", "사용자 목록 긁어오기" 세 버튼뿐입니다.<br>
 - 빠른 다운로드 작업: 다운로드 버튼을 직접 클릭하거나 수동으로 선택한 작품을 크롤링합니다. 이러한 동작은 "즉시 다운로드" 또는 "자동 다운로드"에 대한 요구가 더 강하므로 이전에는 다운로더가 항상 자동으로 다운로드했습니다. 이제 자동으로 다운로드를 시작하지 않도록 설정할 수도 있습니다.<br>
 <br>
 빠른 다운로드 작업은 다음 동작으로 트리거됩니다:<br>
@@ -39356,11 +40055,12 @@ Quick download tasks are triggered by these actions:<br>
 - 북마크 버튼 또는 좋아요 버튼을 클릭하여 생성된 다운로드 작업<br>
 - 시간 제한 크롤링<br>
 - 태그 긁어오기<br>
-- 홈에서 ID를 입력하여 긁어오기 또는 ID 범위 긁어오기`,
+- 홈에서 작품 목록 긁어오기 또는 작품 ID 범위 긁어오기<br>
+- 사용자 목록 긁어오기`,
         `Вы можете настроить, начинать ли загрузку автоматически.<br>
 <br>
 Задачи загрузки бывают двух типов:<br>
-- Обычная загрузка: в области «Начать сканирование» загрузчика есть несколько кнопок сканирования. Нажатие кнопок сканирования в первом ряду обычно создает обычную задачу загрузки, за исключением двух кнопок: «Сканирование по таймеру» и «Сканировать список тегов».<br>
+- Обычная загрузка: в области «Начать сканирование» загрузчика есть несколько кнопок сканирования. Нажатие кнопок сканирования в первом ряду обычно создает обычную задачу загрузки, за исключением трёх кнопок: «Сканирование по таймеру», «Сканировать список тегов» и «Сканировать список пользователей».<br>
 - Быстрая загрузка: нажатие кнопки загрузки напрямую или сканирование вручную выбранных работ. Эти действия имеют более сильную потребность в «немедленной загрузке» или «автоматической загрузке», поэтому раньше загрузчик всегда загружал их автоматически. Теперь вы также можете настроить их так, чтобы они не начинали загружаться автоматически.<br>
 <br>
 Быстрая загрузка запускается следующими действиями:<br>
@@ -39372,7 +40072,8 @@ Quick download tasks are triggered by these actions:<br>
 - Задачи загрузки, созданные нажатием кнопки закладки или кнопки «Нравится»<br>
 - Сканирование по таймеру<br>
 - Сканирование списка тегов<br>
-- Ввод ID для сканирования или сканирование диапазона идентификаторов на главной`,
+- Сканирование списка работ или диапазона идентификаторов работ на главной<br>
+- Сканировать список пользователей`,
     ],
     _转换任务提示: [
         `正在转换 {} 个文件`,
@@ -41342,6 +42043,244 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `사용자 목록 크롤링 시작`,
         `Начать сканирование списка пользователей`,
     ],
+    _抓取用户列表: [
+        `抓取用户列表`,
+        `擷取用戶列表`,
+        `Crawl user list`,
+        `ユーザーリストをクロール`,
+        `사용자 목록 긁어오기`,
+        `Сканировать список пользователей`,
+    ],
+    _抓取用户列表的输入框提示: [
+        `请输入用户 ID 列表，每个 ID 之间以换行分隔（即每行一个 ID）。<br>
+<br>
+提示：<br>
+- 这个功能是为一次性抓取多个用户而设计的。如果你只需要下载一个用户的作品，可以进入他的主页并开始抓取。<br>
+- 如果你需要设置一些筛选条件（如作品类型、收藏数量、时间范围、标签），请先进行设置，然后再开始抓取。<br>
+- 请确认在“抓取完成后，自动开始下载”设置里勾选了“快速下载任务”，否则下载器不会自动开始下载。<br>
+- 在执行过程中，不要在这个标签页里执行其他抓取任务。如果有需要，你可以打开新的 Pixiv 标签页进行浏览和下载。<br>
+- 在执行过程中，如果你不小心关闭了这个网页，可以重新进入该页面，并点击“抓取用户列表”按钮来恢复进度。<br>
+- 在执行过程中，如果你想放弃（终止）该任务，可以点击“停止抓取”按钮。该任务会立即终止，并且不能从中断处恢复。`,
+        `請輸入用戶 ID 列表，每個 ID 之間以換行分隔（即每行一個 ID）。<br>
+<br>
+提示：<br>
+- 這個功能是為一次性擷取多個用戶而設計的。如果你只需要下載一個用戶的作品，可以進入他的主頁並開始擷取。<br>
+- 如果你需要設定一些篩選條件（如作品類型、收藏數量、時間範圍、標籤），請先進行設定，然後再開始擷取。<br>
+- 請確認在「擷取完成後，自動開始下載」設定裡勾選了「快速下載任務」，否則下載器不會自動開始下載。<br>
+- 在執行過程中，請不要在這個標籤頁裡執行其他擷取任務。如果有需要，你可以開啟新的 Pixiv 標籤頁進行瀏覽和下載。<br>
+- 在執行過程中，如果你不小心關閉了這個網頁，可以重新進入該頁面，並點擊「擷取用戶列表」按鈕來恢復進度。<br>
+- 在執行過程中，如果你想放棄（終止）該任務，可以點擊「停止擷取」按鈕。該任務會立即終止，並且不能從中斷處恢復。`,
+        `Please enter a list of user IDs, with each ID separated by a line break (one ID per line).<br>
+<br>
+Notes:<br>
+- This feature is designed for crawling multiple users at once. If you only need to download one user's works, you can go to their profile page and start crawling there.<br>
+- If you need to set some filter conditions (such as work type, bookmark count, time range, tags), set them first, then start crawling.<br>
+- Please make sure that "Quick download task" is ticked in the "Start downloading automatically after crawling is complete" setting, otherwise the downloader will not start downloading automatically.<br>
+- While the task is running, do not start other crawl tasks in this tab. If needed, you can open a new Pixiv tab for browsing and downloading.<br>
+- If you accidentally close this page while the task is running, you can open this page again and click the "Crawl user list" button to resume your progress.<br>
+- If you want to give up on (terminate) the task while it is running, click the "Stop crawling" button. The task will be terminated immediately, and you will not be able to resume from where it stopped.`,
+        `ユーザー ID のリストを入力してください。各 ID は改行で区切ります（1 行に 1 つの ID）。<br>
+<br>
+ヒント：<br>
+- この機能は複数のユーザーを一度にクロールするために設計されています。1 人のユーザーの作品をダウンロードしたいだけなら、そのユーザーのプロフィールページを開いてクロールを開始してください。<br>
+- 作品の種類・ブックマーク数・期間・タグなどのフィルター条件を設定したい場合は、先に設定してからクロールを開始してください。<br>
+- 「クロール完了後、自動的にダウンロードを開始」の設定で「クイックダウンロードタスク」にチェックが入っていることを確認してください。そうしないとダウンローダーは自動でダウンロードを開始しません。<br>
+- 実行中は、このタブで他のクロールタスクを実行しないでください。必要な場合は、新しい Pixiv タブを開いて閲覧やダウンロードを行えます。<br>
+- 実行中に誤ってこのページを閉じてしまった場合は、このページを開き直し、「ユーザーリストをクロール」ボタンをクリックすると続きから再開できます。<br>
+- 実行中にこのタスクを放棄（終了）したい場合は、「クロールをやめる」ボタンをクリックしてください。タスクはすぐに終了し、中断した位置から再開することはできません。`,
+        `사용자 ID 목록을 입력해주세요. 각 ID는 줄바꿈으로 구분합니다 (한 줄에 하나의 ID).<br>
+<br>
+안내:<br>
+- 이 기능은 여러 사용자를 한 번에 크롤링하기 위해 설계되었습니다. 한 사용자의 작품만 다운로드하려면 해당 사용자의 프로필 페이지에서 크롤링을 시작하세요.<br>
+- 작품 유형, 북마크 수, 기간, 태그 등 필터 조건을 설정해야 한다면 먼저 설정한 후에 크롤링을 시작하세요.<br>
+- "크롤링 완료 후 자동으로 다운로드 시작" 설정에서 "빠른 다운로드 작업"이 체크되어 있는지 확인하세요. 그렇지 않으면 다운로더가 자동으로 다운로드를 시작하지 않습니다.<br>
+- 작업 실행 중에는 이 탭에서 다른 크롤링 작업을 실행하지 마세요. 필요하다면 새 Pixiv 탭을 열어 브라우징과 다운로드를 할 수 있습니다.<br>
+- 작업 실행 중에 실수로 이 페이지를 닫았다면, 이 페이지로 다시 들어가서 "사용자 목록 크롤링" 버튼을 클릭하여 이어서 진행할 수 있습니다.<br>
+- 작업 실행 중에 이 작업을 포기(종료)하고 싶다면 "크롤링 중지" 버튼을 클릭하세요. 작업은 즉시 종료되며, 중단된 지점에서 재개할 수 없습니다.`,
+        `Пожалуйста, введите список идентификаторов пользователей, разделяя каждый идентификатор переводом строки (один идентификатор на строку).<br>
+<br>
+Примечания:<br>
+- Эта функция предназначена для разового сканирования нескольких пользователей. Если вам нужно скачать работы только одного пользователя, откройте его страницу профиля и начните сканирование там.<br>
+- Если вам нужно задать условия фильтрации (например, тип работ, количество закладок, диапазон дат, теги), сначала настройте их, а затем начинайте сканирование.<br>
+- Убедитесь, что в настройке «Начать загрузку автоматически после завершения сканирования» отмечено «Быстрая загрузка», иначе загрузчик не начнёт загрузку автоматически.<br>
+- Во время выполнения задачи не запускайте другие задачи сканирования в этой вкладке. При необходимости откройте новую вкладку Pixiv для просмотра и загрузки.<br>
+- Если вы случайно закроете эту страницу во время выполнения задачи, вы можете снова открыть её и нажать кнопку «Сканировать список пользователей», чтобы продолжить.<br>
+- Если во время выполнения вы захотите отказаться от задачи (прервать её), нажмите кнопку «Остановить сканирование». Задача будет немедленно прекращена, и вы не сможете продолжить с того места, где она остановилась.`,
+    ],
+    _用户ID必须全部是数字: [
+        `用户 ID 必须全部是数字`,
+        `用戶 ID 必須全部是數字`,
+        `User IDs must all be numbers`,
+        `ユーザー ID はすべて数字である必要があります`,
+        `사용자 ID는 모두 숫자여야 합니다`,
+        `Идентификаторы пользователей должны состоять только из цифр`,
+    ],
+    _抓取作品数量的输入框提示: [
+        `你想从每个用户那里抓取多少个作品？<br>
+<br>
+提示：<br>
+- 下载器会从最新的作品开始抓取，即按作品 ID 从大到小抓取。<br>
+- 如果你只想抓取部分作品，可以输入具体的数字；<br>
+- 如果你想抓取所有作品，可以输入 <span class="blue">-1</span> 或者一个很大的数字。`,
+        `你想從每個用戶那裡擷取多少個作品？<br>
+<br>
+提示：<br>
+- 下載器會從最新的作品開始擷取，即按作品 ID 從大到小擷取。<br>
+- 如果你只想擷取部分作品，可以輸入具體的數字；<br>
+- 如果你想擷取所有作品，可以輸入 <span class="blue">-1</span> 或者一個很大的數字。`,
+        `How many works do you want to crawl from each user?<br>
+<br>
+Notes:<br>
+- The downloader starts crawling from the newest works, that is, by work ID from largest to smallest.<br>
+- If you only want to crawl some of the works, you can enter a specific number;<br>
+- If you want to crawl all works, you can enter <span class="blue">-1</span> or a very large number.`,
+        `各ユーザーから何件の作品をクロールしますか？<br>
+<br>
+ヒント：<br>
+- ダウンローダーは最新の作品からクロールを開始します。つまり、作品 ID が大きいものから順にクロールします。<br>
+- 一部の作品だけをクロールしたい場合は、具体的な数字を入力してください。<br>
+- すべての作品をクロールしたい場合は、<span class="blue">-1</span> または非常に大きな数字を入力してください。`,
+        `각 사용자로부터 몇 개의 작품을 크롤링하시겠습니까?<br>
+<br>
+안내:<br>
+- 다운로더는 최신 작품부터 크롤링을 시작합니다. 즉, 작품 ID가 큰 것부터 크롤링합니다.<br>
+- 일부 작품만 크롤링하려면 구체적인 숫자를 입력하세요.<br>
+- 모든 작품을 크롤링하려면 <span class="blue">-1</span> 또는 아주 큰 숫자를 입력하세요.`,
+        `Сколько работ вы хотите сканировать у каждого пользователя?<br>
+<br>
+Примечания:<br>
+- Загрузчик начинает сканирование с самых новых работ, то есть по идентификатору работы от большего к меньшему.<br>
+- Если вы хотите отсканировать только часть работ, введите конкретное число;<br>
+- Если вы хотите отсканировать все работы, введите <span class="blue">-1</span> или очень большое число.`,
+    ],
+    _数字必须设置为负1或者大于0: [
+        `数字必须设置为 -1 或者大于 0`,
+        `數字必須設定為 -1 或者大於 0`,
+        `The number must be set to -1 or greater than 0`,
+        `数値は -1 または 0 より大きい値に設定してください`,
+        `숫자는 -1 또는 0보다 큰 값으로 설정해야 합니다`,
+        `Число должно быть установлено в -1 или больше 0`,
+    ],
+    _检测到有未完成的抓取用户列表任务要恢复该任务吗: [
+        `检测到有未完成的“抓取用户列表”任务，要恢复该任务吗？`,
+        `偵測到有未完成的「擷取用戶列表」任務，要恢復該任務嗎？`,
+        `An unfinished "Crawl user list" task was detected. Do you want to resume it?`,
+        `未完了の「ユーザーリストをクロール」タスクが検出されました。このタスクを再開しますか？`,
+        `완료되지 않은 "사용자 목록 크롤링" 작업이 있습니다. 이 작업을 복구하시겠습니까?`,
+        `Обнаружена незавершённая задача «Сканировать список пользователей». Возобновить её?`,
+    ],
+    _无法恢复抓取用户列表任务因为下载器正忙: [
+        `下载器正忙，可能正在抓取或下载，所以无法恢复未完成的“抓取用户列表”任务。<br>你可以停止当前进行中的任务，或者等任务完成后重试该操作。`,
+        `下載器忙碌中，可能正在擷取或下載，因此無法恢復未完成的「擷取用戶列表」任務。<br>你可以停止目前進行中的任務，或者等任務完成後重試該操作。`,
+        `The downloader is busy; it may be crawling or downloading, so the unfinished "Crawl user list" task cannot be resumed.<br>You can stop the current task, or wait until it finishes and try again.`,
+        `ダウンローダーがビジー状態です（クロールまたはダウンロード中）。そのため、未完了の「ユーザーリストをクロール」タスクを再開できません。<br>現在のタスクを停止するか、タスクの完了後に再度お試しください。`,
+        `다운로더가 사용 중입니다(크롤링 또는 다운로드 중). 완료되지 않은 "사용자 목록 크롤링" 작업을 복구할 수 없습니다.<br>현재 진행 중인 작업을 중지하거나, 작업이 완료된 후에 다시 시도하세요.`,
+        `Загрузчик занят: возможно, он сканирует или скачивает, поэтому незавершённую задачу «Сканировать список пользователей» нельзя возобновить.<br>Вы можете остановить текущую задачу или дождаться её завершения и повторить попытку.`,
+    ],
+    _已恢复抓取用户列表任务: [
+        `已恢复之前的任务。<br>下载器会从之前正在处理的那个用户开始，重新进入抓取和下载流程。<br>如果你之前已经下载了他的一些文件，可以启用“不下载重复文件”功能，以避免下载重复的文件。`,
+        `已恢復之前的任務。<br>下載器會從之前正在處理的那個用戶開始，重新進入擷取和下載流程。<br>如果你之前已經下載了他的一些檔案，可以啟用「不下載重複檔案」功能，以避免下載重複的檔案。`,
+        `The previous task has been resumed.<br>The downloader will start the crawl and download process again, from the user it was processing before.<br>If you have already downloaded some of their files, you can enable "Don't download duplicate files" to avoid downloading duplicate files.`,
+        `以前のタスクを再開しました。<br>ダウンローダーは前回処理していたユーザーから、クロールとダウンロードの処理をやり直します。<br>すでにそのユーザーのファイルをいくつかダウンロードしている場合は、「重複ファイルをダウンロードしない」機能を有効にすると、重複したファイルのダウンロードを避けられます。`,
+        `이전 작업을 복구했습니다.<br>다운로더는 이전에 처리하던 사용자부터 크롤링과 다운로드 과정을 다시 시작합니다.<br>이미 그의 파일을 일부 다운로드했다면 "중복 파일 다운로드하지 않기" 기능을 활성화하여 중복 파일 다운로드를 피할 수 있습니다.`,
+        `Предыдущая задача возобновлена.<br>Загрузчик начнёт процесс сканирования и скачивания заново с того пользователя, которого он обрабатывал ранее.<br>Если вы уже скачали некоторые его файлы, включите функцию «Не загружать дубликаты файлов», чтобы избежать повторной загрузки файлов.`,
+    ],
+    _抓取用户列表任务尚未完成的提示: [
+        `抓取用户列表的任务尚未完成。如果你确实想放弃任务，请点击下载器设置面板里的“停止抓取”按钮。`,
+        `擷取用戶列表的任務尚未完成。如果你確實想放棄任務，請點擊下載器設定面板裡的「停止擷取」按鈕。`,
+        `The crawl user list task is not finished yet. If you really want to abandon the task, click the "Stop crawling" button in the downloader's settings panel.`,
+        `ユーザーリストをクロールするタスクがまだ完了していません。本当にタスクを放棄したい場合は、ダウンローダーの設定パネルにある「クロールをやめる」ボタンをクリックしてください。`,
+        `사용자 목록 크롤링 작업이 아직 완료되지 않았습니다. 정말로 작업을 포기하려면 다운로더 설정 패널의 "크롤링 중지" 버튼을 클릭하세요.`,
+        `Задача сканирования списка пользователей ещё не завершена. Если вы действительно хотите отказаться от неё, нажмите кнопку «Остановить сканирование» на панели настроек загрузчика.`,
+    ],
+    _停止抓取用户列表的提示: [
+        `下载器正在抓取用户列表，停止抓取会终止该任务，确定要终止吗？`,
+        `下載器正在擷取用戶列表，停止擷取會終止該任務，確定要終止嗎？`,
+        `The downloader is crawling the user list. Stopping the crawl will terminate this task. Are you sure you want to stop it?`,
+        `ダウンローダーはユーザーリストをクロールしています。クロールを停止するとこのタスクは終了します。停止してもよろしいですか？`,
+        `다운로더가 사용자 목록을 크롤링하는 중입니다. 크롤링을 중지하면 이 작업이 종료됩니다. 정말 중지하시겠습니까?`,
+        `Загрузчик сканирует список пользователей. Остановка сканирования завершит эту задачу. Вы уверены, что хотите остановить?`,
+    ],
+    _抓取用户列表时放弃下载的提示: [
+        `💡提示：在抓取用户列表时，放弃下载只会跳过当前这个用户，不会终止整个抓取任务。下载器会继续抓取下一个用户。如果你想彻底终止抓取用户列表，可以点击“停止抓取”按钮。`,
+        `💡提示：在擷取用戶列表時，放棄下載只會跳過目前這個用戶，不會終止整個擷取任務。下載器會繼續擷取下一個用戶。如果你想徹底終止擷取用戶列表，可以點擊「停止擷取」按鈕。`,
+        `💡 Tip: While crawling the user list, abandoning the download will only skip the current user. It will not terminate the entire crawl task. The downloader will continue with the next user. If you want to stop the crawl user list task completely, click the "Stop crawling" button.`,
+        `💡 ヒント：ユーザーリストをクロール中にダウンロードを放棄しても、現在のユーザーをスキップするだけで、クロールタスク全体は終了しません。ダウンローダーは次のユーザーの処理を続行します。ユーザーリストのクロールを完全に終了したい場合は、「クロールをやめる」ボタンをクリックしてください。`,
+        `💡 팁: 사용자 목록을 크롤링하는 중에 다운로드를 포기하면 현재 이 사용자만 건너뛰고, 전체 크롤링 작업은 종료되지 않습니다. 다운로더는 다음 사용자를 계속 크롤링합니다. 사용자 목록 크롤링을 완전히 종료하려면 "크롤링 중지" 버튼을 클릭하세요.`,
+        `💡 Подсказка: во время сканирования списка пользователей отказ от загрузки пропустит только текущего пользователя и не завершит всю задачу сканирования. Загрузчик продолжит со следующим пользователем. Если вы хотите полностью остановить сканирование списка пользователей, нажмите кнопку «Остановить сканирование».`,
+    ],
+    _一共有x个用户ID: [
+        `一共有 {} 个用户 ID`,
+        `一共有 {} 個用戶 ID`,
+        `There are {} user IDs in total`,
+        `ユーザー ID は合計 {} 個です`,
+        `총 {}개의 사용자 ID가 있습니다`,
+        `Всего {} идентификаторов пользователей`,
+    ],
+    _从每个用户那里抓取所有作品: [
+        `从每个用户那里抓取所有作品`,
+        `從每個用戶那裡擷取所有作品`,
+        `Crawl all works from each user`,
+        `各ユーザーからすべての作品をクロールします`,
+        `각 사용자로부터 모든 작품을 크롤링합니다`,
+        `Сканировать все работы каждого пользователя`,
+    ],
+    _从每个用户那里抓取x个作品: [
+        `从每个用户那里抓取 {} 个作品`,
+        `從每個用戶那裡擷取 {} 個作品`,
+        `Crawl {} works from each user`,
+        `各ユーザーから {} 件の作品をクロールします`,
+        `각 사용자로부터 {}개의 작품을 크롤링합니다`,
+        `Сканировать {} работ у каждого пользователя`,
+    ],
+    _开始抓取用户的作品: [
+        `开始抓取 {} 的作品，用户 ID 为 {}`,
+        `開始擷取 {} 的作品，用戶 ID 為 {}`,
+        `Start crawling the works of {}, user ID: {}`,
+        `{} の作品のクロールを開始します。ユーザー ID: {}`,
+        `{}의 작품 크롤링을 시작합니다. 사용자 ID: {}`,
+        `Начато сканирование работ {}, идентификатор пользователя: {}`,
+    ],
+    _他在队列中的位置是x: [
+        `他在队列中的位置是 {}`,
+        `他在隊列中的位置是 {}`,
+        `Their position in the queue is {}`,
+        `待機キュー内の彼の位置は {} です`,
+        `대기 큐에서의 그의 위치는 {}입니다`,
+        `Его позиция в очереди: {}`,
+    ],
+    _开始获取作品列表: [
+        `开始获取作品列表`,
+        `開始取得作品列表`,
+        `Start getting the works list`,
+        `作品リストの取得を開始します`,
+        `작품 목록 가져오기 시작`,
+        `Начато получение списка работ`,
+    ],
+    _抓取用户列表完毕: [
+        `抓取用户列表完毕`,
+        `擷取用戶列表完畢`,
+        `Crawl user list complete`,
+        `ユーザーリストのクロールが完了しました`,
+        `사용자 목록 크롤링 완료`,
+        `Сканирование списка пользователей завершено`,
+    ],
+    _已停止抓取用户列表: [
+        `已停止抓取用户列表`,
+        `已停止擷取用戶列表`,
+        `Stopped crawling user list`,
+        `ユーザーリストのクロールを停止しました`,
+        `사용자 목록 크롤링을 중지했습니다`,
+        `Сканирование списка пользователей остановлено`,
+    ],
+    _获取用户资料失败跳过该用户: [
+        `获取用户资料失败，跳过该用户：{}`,
+        `取得用戶資料失敗，跳過該用戶：{}`,
+        `Failed to get the user's profile, skipping this user: {}`,
+        `ユーザー情報の取得に失敗したため、このユーザーをスキップします：{}`,
+        `사용자 정보를 가져오지 못해 이 사용자를 건너뜁니다: {}`,
+        `Не удалось получить профиль пользователя, пропуск этого пользователя: {}`,
+    ],
     _用户数量为0: [
         `用户数量为 0`,
         `用戶數量為 0`,
@@ -42308,15 +43247,15 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `전체 화면 보기`,
         `Просмотр на весь экран`,
     ],
-    _抓取id区间: [
-        `抓取 ID 区间`,
-        `擷取 ID 區間`,
-        `Crawl ID range`,
-        `ID 範囲をクロール`,
-        `ID 범위 긁어오기`,
-        `Сканировать диапазон идентификаторов`,
+    _抓取作品id区间: [
+        `抓取作品 ID 区间`,
+        `擷取作品 ID 區間`,
+        `Crawl work ID range`,
+        `作品 ID 範囲をクロール`,
+        `작품 ID 범위 긁어오기`,
+        `Сканировать диапазон идентификаторов работ`,
     ],
-    _抓取id区间说明: [
+    _抓取作品id区间说明: [
         `你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。`,
         `你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要擷取很多 ID，請考慮拆分成多個任務。我建議每批擷取的 ID 數量不要超過 100,000 個。`,
         `You can set a range of work IDs and crawl all works in this range (including the beginning and end IDs). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.`,
@@ -42324,7 +43263,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.`,
         `Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов сканирования, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.`,
     ],
-    _抓取id区间起点: [
+    _抓取作品id区间起点: [
         `请输入开始的 ID: `,
         `請輸入開始的 ID: `,
         `Please type in the beginning ID: `,
@@ -42332,7 +43271,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
         `시작 ID를 입력해주세요: `,
         `Пожалуйста, введите начальный идентификатор: `,
     ],
-    _抓取id区间终点: [
+    _抓取作品id区间终点: [
         `请输入结束的 ID: `,
         `請輸入結束的 ID: `,
         `Please type in the ending ID: `,
@@ -44751,16 +45690,16 @@ There is also a button at the bottom of the log area for manually exporting logs
         `팔로우 목록 가져오기`,
         `Получение списка подписок`,
     ],
-    _导入ID列表: [
-        `导入 ID 列表`,
-        `匯入 ID 列表`,
-        `Import ID list`,
-        `インポートIDリスト`,
-        `ID 목록 가져오기`,
-        `Список идентификаторов импорта`,
+    _导入作品ID列表: [
+        `导入作品 ID 列表`,
+        `匯入作品 ID 列表`,
+        `Import work ID list`,
+        `作品 ID リストをインポート`,
+        `작품 ID 목록 가져오기`,
+        `Импорт списка идентификаторов работ`,
     ],
-    _导入ID列表的说明: [
-        `请选择一个 JSON 文件。它的代码格式如下：
+    _导入作品ID列表的说明: [
+        `请选择一个包含了作品 ID 列表的 JSON 文件。它的代码格式如下：
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -44769,7 +45708,7 @@ There is also a button at the bottom of the log area for manually exporting logs
 ]
 </pre>
 type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
-        `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+        `請選擇一個包含了作品 ID 列表的 JSON 檔案。它的程式碼格式如下：<pre>
 [
   { "id": "142565679", "type": "illusts" },
   { "id": "24769308", "type": "novels" },
@@ -44777,7 +45716,7 @@ type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
 ]
 </pre>
 type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
-        `Please select a JSON file. Its code format is as follows:
+        `Please select a JSON file that contains a list of work IDs. Its code format is as follows:
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -44786,7 +45725,7 @@ type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
 ]
 </pre>
 type can be "illusts", "novels" or "novelSeries".`,
-        `JSONファイルを選択してください。コード形式は次のとおりです。
+        `作品 ID リストを含む JSON ファイルを選択してください。コード形式は次のとおりです。
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -44795,7 +45734,7 @@ type can be "illusts", "novels" or "novelSeries".`,
 ]
 </pre>
 type は "illusts"、"novels" または "novelSeries" です。`,
-        `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+        `작품 ID 목록이 포함된 JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -44804,7 +45743,7 @@ type は "illusts"、"novels" または "novelSeries" です。`,
 ]
 </pre>
 type 은 "illusts", "novels" 또는 "novelSeries"가 될 수 있습니다.`,
-        `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+        `Пожалуйста, выберите файл JSON, содержащий список идентификаторов работ. Формат его кода следующий:
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -44832,7 +45771,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 获取每个页面里的作品 ID 列表<br>
     - 汇总到一起（将所有作品 ID 放在同一个 JSON 文件中）<br>
     - 关闭此设置<br>
-    - 使用首页的“导入 ID 列表”功能开始抓取<br>`,
+    - 使用首页的“导入作品 ID 列表”功能开始抓取<br>`,
         `如果你啟用了這個設定，那麼下載器在擷取階段的早期，獲取到作品 ID 列表之後就會立刻停止擷取，並匯出作品 ID 列表。<br>
     此時下載器不會執行完整的擷取流程，也不會開始下載，並且會忽略大多數篩選條件（因為此時沒有作品的詳細資料）。<br>
     <br>
@@ -44842,7 +45781,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 獲取每個頁面裡的作品 ID 列表<br>
     - 彙總到一起（將所有作品 ID 放在同一個 JSON 檔案中）<br>
     - 關閉此設定<br>
-    - 使用首頁的「匯入 ID 列表」功能開始擷取<br>`,
+    - 使用首頁的「匯入作品 ID 列表」功能開始擷取<br>`,
         `If you enable this setting, the downloader will stop crawling as soon as it obtains the work ID list early in the crawl phase, and export the work ID list.<br>
     In this case the downloader will not run the complete crawl process, will not start downloading, and will ignore most filter conditions (because there is no detailed data about the works at that point).<br>
     <br>
@@ -44852,7 +45791,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - Get the work ID list from each page<br>
     - Combine them together (put all the work IDs in the same JSON file)<br>
     - Disable this setting<br>
-    - Use the "Import ID list" feature on the home page to start crawling<br>`,
+    - Use the "Import work ID list" feature on the home page to start crawling<br>`,
         `この設定を有効にすると、ダウンローダーはクロール段階の早い時点で作品 ID リストを取得した直後にクロールを停止し、作品 ID リストをエクスポートします。<br>
     このときダウンローダーは完全なクロール処理を実行せず、ダウンロードも開始せず、ほとんどのフィルター条件を無視します（この時点では作品の詳細データがないためです）。<br>
     <br>
@@ -44862,7 +45801,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 各ページの作品 ID リストを取得する<br>
     - 1 つにまとめる（すべての作品 ID を同じ JSON ファイルに入れる）<br>
     - この設定を無効にする<br>
-    - ホームの「インポートIDリスト」機能を使ってクロールを開始する<br>`,
+    - ホームの「作品 ID リストをインポート」機能を使ってクロールを開始する<br>`,
         `이 설정을 활성화하면 다운로더는 크롤링 단계 초반에 작품 ID 목록을 가져온 직후 크롤링을 중지하고, 작품 ID 목록을 내보냅니다.<br>
     이때 다운로더는 전체 크롤링 과정을 실행하지 않고 다운로드도 시작하지 않으며, 대부분의 필터 조건을 무시합니다(이 시점에는 작품의 상세 데이터가 없기 때문입니다).<br>
     <br>
@@ -44872,7 +45811,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 각 페이지의 작품 ID 목록 가져오기<br>
     - 하나로 모으기(모든 작품 ID를 같은 JSON 파일에 넣기)<br>
     - 이 설정 비활성화<br>
-    - 홈의 "ID 목록 가져오기" 기능으로 크롤링 시작<br>`,
+    - 홈의 "작품 ID 목록 가져오기" 기능으로 크롤링 시작<br>`,
         `Если вы включите эту настройку, загрузчик остановит сканирование сразу после получения списка ID работ на раннем этапе сканирования и экспортирует список ID работ.<br>
     В этом случае загрузчик не выполнит полный процесс сканирования, не начнёт загрузку и проигнорирует большинство условий фильтрации (поскольку на этом этапе нет подробных данных о работах).<br>
     <br>
@@ -44882,7 +45821,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - Получите список ID работ с каждой страницы<br>
     - Объедините их вместе (поместите все ID работ в один файл JSON)<br>
     - Отключите эту настройку<br>
-    - Используйте функцию «Список идентификаторов импорта» на главной странице, чтобы начать сканирование<br>`,
+    - Используйте функцию «Импорт списка идентификаторов работ» на главной странице, чтобы начать сканирование<br>`,
     ],
     _导入的用户ID数量: [
         `导入的用户 ID 数量：`,
@@ -50871,6 +51810,26 @@ One possible reason: Your Pixiv account has been banned.`,
         `⏭️이 시리즈 소설의 언어는 {}이며, "이러한 언어의 소설만 다운로드" 요구 사항을 충족하지 않으므로 다운로더는 이 시리즈의 남은 소설을 건너뜁니다.`,
         `⏭️Язык этой серии новелл — {}, что не соответствует требованию «Загружать только новеллы на этих языках», поэтому загрузчик пропустит остальные новеллы этой серии.`,
     ],
+    _当前正在抓取用户列表所以不接受新的抓取任务: [
+        `该操作已被阻止，原因是：<br>
+    这个标签页里正在执行抓取用户列表的任务，为了避免干扰，期间不会接受新的抓取任务。<br>
+    你可以打开一个新的标签页（里面没有执行抓取用户列表的任务），这样你就可以正常抓取其他作品了。`,
+        `該操作已被阻止，原因是：<br>
+    這個標籤頁裡正在執行擷取用戶列表的任務，為了避免干擾，期間不會接受新的擷取任務。<br>
+    你可以開啟一個新的標籤頁（裡面沒有執行擷取用戶列表的任務），這樣你就可以正常擷取其他作品了。`,
+        `This operation has been blocked because:<br>
+    A crawl user list task is running in this tab. To avoid interference, new crawl tasks will not be accepted while it is running.<br>
+    You can open a new tab (which is not running a crawl user list task), and then you can crawl other works normally.`,
+        `この操作はブロックされました。理由：<br>
+    このタブではユーザーリストをクロールするタスクが実行中です。干渉を避けるため、その間は新しいクロールタスクを受け付けません。<br>
+    新しいタブ（ユーザーリストをクロールするタスクが実行されていないタブ）を開けば、他の作品を通常どおりクロールできます。`,
+        `이 작업은 차단되었습니다. 이유:<br>
+    이 탭에서는 사용자 목록 크롤링 작업이 실행 중입니다. 간섭을 피하기 위해 그동안 새로운 크롤링 작업을 받지 않습니다.<br>
+    새 탭(사용자 목록 크롤링 작업이 실행되지 않는 탭)을 열면 다른 작품을 정상적으로 크롤링할 수 있습니다.`,
+        `Это действие заблокировано, потому что:<br>
+    В этой вкладке выполняется задача сканирования списка пользователей. Чтобы избежать помех, новые задачи сканирования не принимаются, пока она выполняется.<br>
+    Вы можете открыть новую вкладку (в которой не выполняется задача сканирования списка пользователей), и тогда вы сможете нормально сканировать другие работы.`,
+    ],
 };
 
 
@@ -53837,19 +54796,25 @@ class ButtonConfigs {
         // startCrawl - HomePage
         {
             id: 'crawlById',
-            nameKey: '_输入id进行抓取',
+            nameKey: '_抓取作品列表',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'HomePage',
         },
         {
             id: 'crawlIdRange',
-            nameKey: '_抓取id区间',
+            nameKey: '_抓取作品id区间',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'HomePage',
         },
         {
             id: 'importIDList',
-            nameKey: '_导入ID列表',
+            nameKey: '_导入作品ID列表',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'HomePage',
+        },
+        {
+            id: 'crawlUserList',
+            nameKey: '_抓取用户列表',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'HomePage',
         },
@@ -64008,6 +64973,8 @@ class States {
     bookmarkMode = false;
     /**抓取标签列表时使用的标记 */
     crawlTagList = false;
+    /**抓取用户列表时使用的标记 */
+    crawlUserList = false;
     /**是否处于下载中 */
     downloading = false;
     /** 是否正在抓取（抓取流程正在运行）。

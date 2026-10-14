@@ -192,6 +192,12 @@ DevTools 自己的窗口 title 会伪装成 `DevTools - www.pixiv.net/artworks/.
    - 本项目注意：点「开始抓取」时若**已有未下载的抓取结果**，会弹 `confirmRecrawl()` 的
      `window.confirm`（「这个标签页里已经有抓取结果了……」）——自动化测试点击前先处理这个状态，
      别让流程停在对话框上。
+   - ⚠️ **在主世界覆盖 `window.confirm` 没用**：扩展的 content script 运行在 **isolated world**，
+     它调用的是自己那个 world 里的 `window.confirm`，主世界的赋值影响不到它。
+     所以「先覆盖 confirm → 再点击按钮」挡不住对话框（2026-10-14 实测：页面照旧冻结，`Runtime.evaluate`
+     30 秒超时）。这类对话框只能用 `Page.handleJavaScriptDialog {accept}` 应答，或让人在浏览器里点。
+     同理，想改扩展的设置开关，只能点 DOM（DOM 是共享的，主世界 `element.click()` 有效），
+     不能直接改它 world 里的变量。
 
 ## 六、安全
 

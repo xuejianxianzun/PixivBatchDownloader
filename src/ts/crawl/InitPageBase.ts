@@ -290,6 +290,11 @@ abstract class InitPageBase {
    * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
    */
   protected async crawlIdList(idList: IDData[]) {
+    if (states.crawlUserList) {
+      msgBox.warning(lang.transl('_当前正在抓取用户列表所以不接受新的抓取任务'))
+      return
+    }
+
     // 对 idList 进行去重
     // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
     const _idList: IDData[] = []

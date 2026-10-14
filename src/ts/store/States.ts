@@ -42,6 +42,9 @@ class States {
   /**抓取标签列表时使用的标记 */
   public crawlTagList = false
 
+  /**抓取用户列表时使用的标记 */
+  public crawlUserList = false
+
   /**是否处于下载中 */
   public downloading = false
 

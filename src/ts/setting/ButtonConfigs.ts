@@ -248,19 +248,25 @@ class ButtonConfigs {
     // startCrawl - HomePage
     {
       id: 'crawlById',
-      nameKey: '_输入id进行抓取',
+      nameKey: '_抓取作品列表',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },
     {
       id: 'crawlIdRange',
-      nameKey: '_抓取id区间',
+      nameKey: '_抓取作品id区间',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },
     {
       id: 'importIDList',
-      nameKey: '_导入ID列表',
+      nameKey: '_导入作品ID列表',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'HomePage',
+    },
+    {
+      id: 'crawlUserList',
+      nameKey: '_抓取用户列表',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },

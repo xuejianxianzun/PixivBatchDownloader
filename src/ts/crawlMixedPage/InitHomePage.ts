@@ -14,6 +14,7 @@ import { log } from '../Log'
 import { states } from '../store/States'
 import { Input } from '../Input'
 import { pageType } from '../PageType'
+import { crawlUserList } from './CrawlUserList'
 
 class InitHomePage extends InitPageBase {
   constructor() {
@@ -39,9 +40,20 @@ class InitHomePage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
+    const crawlUserListButton = this.addInitPageBtn(
+      'crawlBtns',
+      '_抓取用户列表',
+      '',
+      'crawlUserList',
+      'brand'
+    )
+    crawlUserListButton.addEventListener('click', () => {
+      crawlUserList.ready()
+    })
+
     this.downIdButton = this.addInitPageBtn(
       'crawlBtns',
-      '_输入id进行抓取',
+      '_抓取作品列表',
       '',
       'crawlById',
       'brand'
@@ -52,7 +64,7 @@ class InitHomePage extends InitPageBase {
 
     const crawlIdRange = this.addInitPageBtn(
       'crawlBtns',
-      '_抓取id区间',
+      '_抓取作品id区间',
       '',
       'crawlIdRange',
       'brand'
@@ -63,7 +75,7 @@ class InitHomePage extends InitPageBase {
 
     this.importIDListButton = this.addInitPageBtn(
       'crawlBtns',
-      '_导入ID列表',
+      '_导入作品ID列表',
       '',
       'importIDList',
       'brand'
@@ -128,7 +140,7 @@ class InitHomePage extends InitPageBase {
       type: 'textarea',
       rows: 6,
       instruction:
-        lang.transl('_输入id进行抓取的提示文字') +
+        lang.transl('_抓取作品列表的提示文字') +
         '<br><br>' +
         lang.transl(
           this.type === 'illusts'
@@ -168,7 +180,7 @@ class InitHomePage extends InitPageBase {
     // 接收起点
     const startInput = new Input({
       instruction:
-        lang.transl('_抓取id区间说明') +
+        lang.transl('_抓取作品id区间说明') +
         '<br><br>' +
         lang.transl(
           this.type === 'illusts'
@@ -176,7 +188,7 @@ class InitHomePage extends InitPageBase {
             : '_输入的ID视为小说ID'
         ) +
         '<br><br>' +
-        lang.transl('_抓取id区间起点'),
+        lang.transl('_抓取作品id区间起点'),
       placeholder: '100',
     })
 
@@ -194,7 +206,7 @@ class InitHomePage extends InitPageBase {
 
     // 接收终点
     const endInput = new Input({
-      instruction: lang.transl('_抓取id区间终点'),
+      instruction: lang.transl('_抓取作品id区间终点'),
       placeholder: '200',
     })
 
@@ -212,7 +224,7 @@ class InitHomePage extends InitPageBase {
 
     // 提示抓取范围，便于用户分批次抓取的时候查看
     // 这里使用的是一个单独的元素，而非在日志里输出。因为日志区域可能会被清空，导致提示消失
-    const tip = lang.transl('_抓取id区间') + `: ${start} - ${end}`
+    const tip = lang.transl('_抓取作品id区间') + `: ${start} - ${end}`
     this.idRangeTip.textContent = tip
     this.idRangeTip.style.display = 'block'
 
@@ -242,8 +254,8 @@ class InitHomePage extends InitPageBase {
   private async awaitClickBtn(): Promise<void> {
     return new Promise((resolve) => {
       // 显示提示信息
-      const msgWrap = msgBox.show(lang.transl('_导入ID列表的说明'), {
-        title: lang.transl('_导入ID列表'),
+      const msgWrap = msgBox.show(lang.transl('_导入作品ID列表的说明'), {
+        title: lang.transl('_导入作品ID列表'),
       })
       const content = msgWrap.querySelector('.content') as HTMLDivElement
       content.innerHTML = content.innerHTML + '<br><br>'
@@ -291,7 +303,7 @@ class InitHomePage extends InitPageBase {
       }
     }
 
-    log.success('🚀' + lang.transl('_导入ID列表'))
+    log.success('🚀' + lang.transl('_导入作品ID列表'))
 
     EVT.fire('crawlStart')
     states.stopCrawl = false
