@@ -13711,8 +13711,12 @@ class Toast {
     }
     /**
      * 计算轻提示的 top 值
-     * 如果同一个 position 里已经存在尚未被移除的轻提示，就需要调整位置以避免重叠：
-     * 优先显示在 stackDirection 指定的方向上，该方向空间不足时显示在另一个方向上
+     *
+     * 如果同一个 position 里已经存在尚未被移除的轻提示，为了避免重叠，需要调整位置：
+     * 从原本的位置开始，沿 stackDirection 指定的方向寻找一个不会和已有提示冲突的位置。
+     * 每次与某些提示冲突（重叠、或者距离小于 gap）时，就移动到这些提示中位于该方向最外侧的一个的外侧，继续检查。
+     * 这样可以停留在提示之间的空隙里（如果空隙足够），而不是总是跳到所有提示的上方/下方。
+     * 如果首选方向的空间不足，则显示在另一个方向上。
      * @param baseTop 这个轻提示原本的 top 值
      * @param height 这个轻提示的高度
      * @param position 这个轻提示的位置
@@ -13722,27 +13726,73 @@ class Toast {
         const maxTop = window.innerHeight - height - this.minTop;
         const clamp = (top) => Math.max(this.minTop, Math.min(top, maxTop));
         const queue = this.cleanQueue(position);
+        // 原本的位置。没有已存在的提示时直接使用这个位置
+        const base = clamp(baseTop);
         if (queue.length === 0) {
-            return clamp(baseTop);
+            return base;
         }
-        // 查找已有提示占据的最下端和最上端
+        // 从原本的位置开始，沿首选方向寻找。最多移动 queue.length 次（正常情况下会提前结束）
+        let top = base;
+        for (let i = 0; i <= queue.length; i++) {
+            // 与当前位置冲突的提示里，位于该方向最外侧的位置
+            const edge = this.getOuterEdge(top, height, queue);
+            if (edge === undefined) {
+                // 当前位置不会与任何提示冲突
+                break;
+            }
+            // 移动到这些冲突提示的外侧，继续检查
+            top =
+                this.stackDirection === 'above'
+                    ? edge - height - this.gap
+                    : edge + this.gap;
+        }
+        // 首选方向的空间足够时，就使用这个位置
+        if (this.stackDirection === 'above' ? top >= this.minTop : top <= maxTop) {
+            return top;
+        }
+        // 首选方向的空间不足，显示在另一个方向的边缘
         let bottom = 0;
         let uppermost = Infinity;
         for (const item of queue) {
             bottom = Math.max(bottom, item.top + item.height);
             uppermost = Math.min(uppermost, item.top);
         }
-        // 显示在已有提示下方、上方时各自的 top 值，以及这个方向是否放得下
-        const below = bottom + this.gap;
-        const above = uppermost - height - this.gap;
-        const belowFits = below + height <= window.innerHeight - this.minTop;
-        const aboveFits = above >= this.minTop;
         if (this.stackDirection === 'above') {
             // 上方空间不足时，显示在已有提示的下方
-            return aboveFits ? above : clamp(below);
+            return clamp(bottom + this.gap);
         }
         // 下方空间不足时，显示在已有提示的上方
-        return belowFits ? below : clamp(above);
+        return clamp(uppermost - height - this.gap);
+    }
+    /**找出与轻提示冲突（重叠、或者距离小于 gap）的提示里，位于 stackDirection 方向最外侧的位置。
+     *
+     * 向上时返回冲突提示里最小的 top；向下时返回最大的 bottom。没有冲突时返回 undefined */
+    getOuterEdge(top, height, queue) {
+        let edge;
+        for (const item of queue) {
+            if (!this.isTooClose(top, height, item)) {
+                continue;
+            }
+            const value = this.stackDirection === 'above' ? item.top : item.top + item.height;
+            if (edge === undefined) {
+                edge = value;
+            }
+            else {
+                edge =
+                    this.stackDirection === 'above'
+                        ? Math.min(edge, value)
+                        : Math.max(edge, value);
+            }
+        }
+        return edge;
+    }
+    /**检查轻提示在指定的 top 值显示时，是否与队列里的某个提示距离太近。
+     *
+     * 「太近」指两个提示重叠、或者它们之间的间距小于 gap */
+    isTooClose(top, height, item) {
+        // 两个提示之间的间距（取上方或下方相隔的距离）。重叠时是负数
+        const space = Math.max(item.top - (top + height), top - (item.top + item.height));
+        return space < this.gap;
     }
     /**清除指定队列里已经被移除的元素，返回剩余的元素 */
     cleanQueue(position) {
