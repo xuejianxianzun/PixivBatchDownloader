@@ -36,7 +36,8 @@ class WorkPublishTime {
     const length = type === 'illusts' ? this.illustsLength : this.novelsLength
     const index = Math.floor(id / this.gap)
 
-    // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+    // 如果传入的 id 大于等于最后一条记录的 id，也就是说传入的 id 可能比数据源里最后一个作品的发表时间更晚，
+    // 则把开始时间设置为最后一条记录的时间，结束时间设置为现在。
     if (index >= length - 1) {
       return [data[length - 1][1], Date.now()]
     }

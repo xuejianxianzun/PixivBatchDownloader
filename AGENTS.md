@@ -36,6 +36,7 @@
 - `src/ts/Toast.ts`：轻提示，用于显示不重要的信息。轻提示内容会在短暂停留后自行消失，所以不会打扰用户。
 - `src/ts/WorkThumbnail.ts`：它会查找网页里的所有作品缩略图元素（包括在未来动态添加的缩略图元素），为其添加 `ppd-workThumbnail` 类名、`data-workid` 和 `data-worktype` 数据属性。一些预览作品、选择作品的模块依赖它的这些预处理。
 - `src/static/lib/icon-sprite.js`：下载器里使用的图标。它们的原始文件是 SVG 文件，保存在 `src/static/icons/` 文件夹里，由 `generate-icon-sprite.js` 从 SVG 文件生成精灵图。下载器的 SVG 图标通常使用 line 风格而非 fill 风格，线条较细。
+- `src/ts/filter/WorkPublishTime.ts`：下载器内置了作品发布时间数据。在只有作品的 ID 和类型、没有其他详细数据时，如果要获取大致的发布时间范围进行判断，可以从这个模块里获取。
 - `src/style/`：Less 样式源码。
 - `dist/`：编译产物目录。
 - `notes/`：设计说明、调研记录、截图等。修改复杂功能前，先检查这里是否已有说明。

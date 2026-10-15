@@ -21,6 +21,7 @@ import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
 import { filter } from '../filter/Filter'
 import { mute } from '../filter/Mute'
+import { workPublishTime } from '../filter/WorkPublishTime'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
 import { stopCrawl } from '../crawl/StopCrawl'
 import { cacheWorkData } from '../store/CacheWorkData'
@@ -383,8 +384,27 @@ class CrawlUserList {
       return
     }
 
-    // 按作品 ID 从大到小排列（从最新的作品开始抓取）
-    works.sort(Utils.sortByProperty('id', 'desc'))
+    // 对作品排序，从最新的作品开始抓取
+    // 如果同时存在小说和其它类型的作品，则按发布时间排序。
+    // 因为小说的作品 ID 比图片作品小一个数量级，只按 ID 排序时，新发表的小说经常会排在旧的图片作品后面。
+    // 如果全部是小说，则按作品 ID 排序即可，不需要获取发布时间
+    const hasNovels = works.some((work) => work.type === 'novels')
+    const hasNonNovels = works.some((work) => work.type !== 'novels')
+    if (hasNovels && hasNonNovels) {
+      // 使用 WorkPublishTime 里的数据获取每个作品的发布时间范围，取开始时间作为排序依据
+      const worksWithTime = works.map((work) => ({
+        work,
+        time: workPublishTime.getTimeRange(
+          Number(work.id),
+          work.type === 'novels' ? 'novels' : 'illusts'
+        )[0],
+      }))
+      worksWithTime.sort((a, b) => b.time - a.time)
+      works = worksWithTime.map((item) => item.work)
+    } else {
+      // 如果没有小说作品、或者全部是小说，就直接按作品 ID 从大到小排列
+      works.sort(Utils.sortByProperty('id', 'desc'))
+    }
 
     // 如果只需要抓取部分作品，则裁剪
     if (this.crawlWorksNumber < works.length) {
