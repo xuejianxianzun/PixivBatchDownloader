@@ -51,10 +51,12 @@ class ButtonsOnNovelThumbOnPC extends ButtonsOnThumbConfig {
   }
 
   private filterBtn() {
-    // btnsConfig 里有些按钮不适合在小说缩略图上显示
-    // 现在只需要显示下载按钮，所以需要过滤
+    // btnsConfig 里有些按钮不适合在小说缩略图上显示，
+    // 例如查看图片、复制信息，因为这些按钮是为图像作品设计的。
+    // 在这里过滤出要在小说缩略图上显示的按钮
     return this.btnsConfig.filter(
-      (config) => config.name === 'downloadBtnOnThumb'
+      (config) =>
+        config.name === 'downloadBtnOnThumb' || config.name === 'likeBtnOnThumb'
     )
   }
 

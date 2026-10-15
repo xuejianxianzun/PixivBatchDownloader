@@ -17032,7 +17032,7 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MO
     filterBtn() {
         // btnsConfig 里有些按钮不适合在小说缩略图上显示
         // 现在只需要显示下载按钮，所以需要过滤
-        return this.btnsConfig.filter((config) => config.name === 'downloadBtnOnThumb');
+        return this.btnsConfig.filter((config) => (config.name === 'downloadBtnOnThumb' || config.name === 'likeBtnOnThumb'));
     }
     createAllBtn() {
         this.filterBtn().forEach((config) => {
