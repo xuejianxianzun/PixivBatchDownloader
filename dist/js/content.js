@@ -1752,7 +1752,8 @@ class API {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   canRequestInBatch: () => (/* binding */ canRequestInBatch)
+/* harmony export */   canRequestInBatch: () => (/* binding */ canRequestInBatch),
+/* harmony export */   logStoppedByAccountWarning: () => (/* binding */ logStoppedByAccountWarning)
 /* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
@@ -1769,6 +1770,7 @@ __webpack_require__.r(__webpack_exports__);
  * （见 Log.ts 开头的说明），所以即使在循环里每次迭代都调用，也不会刷屏。
  *
  * 抓取流程和下载流程不需要调用它，因为它们会响应 stopCrawl / downloadPause 事件而自动停止。
+ * 它们停止时，由 CheckWarningMessage 调用 logStoppedByAccountWarning() 输出停止原因的日志。
  * 这个函数是给那些不理会这两个事件、但自身会批量发送请求的模块用的（例如批量收藏、批量关注）。
  *
  * 这些操作没有「恢复执行」的功能，需要用户刷新页面之后重新执行。 */
@@ -1776,10 +1778,18 @@ function canRequestInBatch(nameKey) {
     if (!_store_States__WEBPACK_IMPORTED_MODULE_2__.states.accountWarning) {
         return true;
     }
+    logStoppedByAccountWarning(nameKey);
+    return false;
+}
+/** 输出一条「因为账户被警告，下载器已停止某某操作」的红色警告日志。
+ *
+ * canRequestInBatch()、以及被警告而停止的抓取 / 下载流程（由 CheckWarningMessage 调用）都会用到它。
+ * nameKey 是这次操作的名称（langText 里的 key）。日志带 key 参数，
+ * 所以内容相同的日志只会占一行（见 Log.ts 开头的说明）。 */
+function logStoppedByAccountWarning(nameKey) {
     _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户被警告时停止操作的提示', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(nameKey)), 
     // 带上 key：同一次操作里的多处检查（例如循环里每次迭代）只会占一行日志
     'accountWarning' + nameKey);
-    return false;
 }
 
 
@@ -17822,6 +17832,9 @@ class InitPageBase {
     /** 重设抓取 id 列表时使用的变量或标记 */
     resetGetIdListStatus() { }
     /** 获取作品的数据 */
+    // 在抓取作品数据时，如果账户被警告，
+    // src/ts/download/CheckWarningMessage.ts 的 handleWarning 方法会触发 stopCrawl 事件，
+    // 所以这里会停止抓取。
     async getWorksData(idData) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.crawlFinished();
@@ -27394,11 +27407,13 @@ class BookmarkAfterDL {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -27419,7 +27434,7 @@ class CheckWarningMessage {
      * 抓取和下载都可能在短时间内产生大量请求，但检查站内信本身也是一次请求，
      * 间隔太短就会检查得过于频繁，没有必要。
      * ⚠️ 这里复用了 Config.retryTime，如果以后它的值被调整，这个间隔也会跟着变 */
-    checkInterval = _Config__WEBPACK_IMPORTED_MODULE_2__.Config.retryTime;
+    checkInterval = _Config__WEBPACK_IMPORTED_MODULE_3__.Config.retryTime;
     /** 已下载（成功保存到硬盘上）的文件数量每增加这个数量，就检查一次站内信 */
     downloadedUnit = 100;
     /** API 请求次数每增加这个数量，就检查一次站内信。
@@ -27453,15 +27468,15 @@ class CheckWarningMessage {
     }
     /** 判断是否满足检查站内信的条件，满足则检查一次 */
     async checkCondition() {
-        const needCheck = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloadSuccessCount >=
+        const needCheck = _store_States__WEBPACK_IMPORTED_MODULE_6__.states.downloadSuccessCount >=
             this.lastCheckDownloaded + this.downloadedUnit ||
-            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.apiRequestCount >= this.lastCheckApiRequest + this.apiRequestUnit;
+            _store_States__WEBPACK_IMPORTED_MODULE_6__.states.apiRequestCount >= this.lastCheckApiRequest + this.apiRequestUnit;
         if (!needCheck) {
             return;
         }
         // 更新基线。两个条件都以「上次检查站内信时」为基准，所以只要检查了，就都要一起更新
-        this.lastCheckDownloaded = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloadSuccessCount;
-        this.lastCheckApiRequest = _store_States__WEBPACK_IMPORTED_MODULE_5__.states.apiRequestCount;
+        this.lastCheckDownloaded = _store_States__WEBPACK_IMPORTED_MODULE_6__.states.downloadSuccessCount;
+        this.lastCheckApiRequest = _store_States__WEBPACK_IMPORTED_MODULE_6__.states.apiRequestCount;
         const result = await this.check();
         if (result) {
             this.handleWarning();
@@ -27470,24 +27485,27 @@ class CheckWarningMessage {
     /** 检测到账户被警告之后要做的事 */
     handleWarning() {
         // 下载中和抓取中的流程会响应这两个事件而自动暂停/停止。
+        // 这两个流程不调用 canRequestInBatch，所以在这里输出停止原因的日志。
         // 两者都不在时（例如正在执行批量收藏）就不需要触发它们，交给下面的 accountWarning 事件处理。
         // ⚠️ 判断「正在抓取」要用 states.crawling，不能用 states.busy —— busy 还会被
         // 批量取消收藏、批量移除标签等操作设为 true，用它会触发没有意义的 stopCrawl
         let tip = '';
-        if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.downloading) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadPause');
-            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载已暂停');
+        if (_store_States__WEBPACK_IMPORTED_MODULE_6__.states.downloading) {
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('downloadPause');
+            tip = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载已暂停');
+            (0,_AccountWarning__WEBPACK_IMPORTED_MODULE_1__.logStoppedByAccountWarning)('_下载文件');
         }
-        else if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.crawling) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('stopCrawl');
-            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已停止抓取');
+        else if (_store_States__WEBPACK_IMPORTED_MODULE_6__.states.crawling) {
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('stopCrawl');
+            tip = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已停止抓取');
+            (0,_AccountWarning__WEBPACK_IMPORTED_MODULE_1__.logStoppedByAccountWarning)('_抓取作品');
         }
-        _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(tip
-            ? _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_过度访问警告') + '<br>' + tip
-            : _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_过度访问警告'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(tip
+            ? _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_过度访问警告') + '<br>' + tip
+            : _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_过度访问警告'));
         // 通知那些不理会 stopCrawl / downloadPause 事件、但自身会批量发送请求的模块。
         // 这些模块会检查 states.accountWarning，并停止后续的操作（见 AccountWarning.ts）
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('accountWarning');
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('accountWarning');
     }
     async check() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getLatestMessage(3);
@@ -45757,12 +45775,18 @@ There is also a button at the bottom of the log area for manually exporting logs
         `Сканирование остановлено`,
     ],
     _账户被警告时停止操作的提示: [
-        `你的账户可能被 Pixiv 警告了，因此下载器已停止{}的操作。如果有需要，你可以在以后刷新该页面并再次执行该操作。`,
-        `你的帳號可能被 Pixiv 警告了，因此下載器已停止{}的操作。如果有需要，你可以在之後重新整理該頁面並再次執行該操作。`,
-        `Your account may have been warned by Pixiv, so the downloader has stopped this operation: {}. If necessary, you can reload this page later and perform the operation again.`,
-        `あなたのアカウントは Pixiv から警告を受けた可能性があるため、ダウンローダーは{}の操作を停止しました。必要であれば、後でこのページを再読み込みしてから、もう一度実行してください。`,
-        `계정이 Pixiv로부터 경고를 받았을 가능성이 있으므로 다운로더가 {} 작업을 중지했습니다. 필요하다면 나중에 이 페이지를 새로 고친 뒤 다시 실행할 수 있습니다.`,
-        `Возможно, ваш аккаунт получил предупреждение от Pixiv, поэтому загрузчик остановил операцию: {}. При необходимости вы можете позже перезагрузить эту страницу и выполнить её снова.`,
+        `⚠️下载器检测到你的账户可能被 Pixiv 警告了，这通常是因为你使用下载器大量抓取/下载导致的。为避免进一步的限制，下载器已停止执行当前任务：{}。<br>
+    如果有需要，你可以在一段时间后刷新页面，并重新执行该任务。`,
+        `⚠️下載器檢測到你的帳號可能被 Pixiv 警告了，這通常是因為你使用下載器大量擷取/下載導致的。為避免進一步的限制，下載器已停止執行目前任務：{}。<br>
+    如果有需要，你可以在一段時間後重新整理頁面，並重新執行該任務。`,
+        `⚠️The downloader has detected that your account may have been warned by Pixiv. This is usually caused by large-scale crawling/downloading using the downloader. To avoid further restrictions, the downloader has stopped executing the current task: {}.<br>
+    If necessary, you can reload the page after a while and execute the task again.`,
+        `⚠️ダウンローダーは、あなたのアカウントが Pixiv から警告を受けた可能性を検出しました。これは通常、ダウンローダーを使って大量にクロール/ダウンロードしたことが原因です。これ以上の制限を避けるため、ダウンローダーは現在のタスクの実行を停止しました：{}。<br>
+    必要であれば、しばらくしてからページを再読み込みし、タスクをもう一度実行してください。`,
+        `⚠️다운로더가 계정이 Pixiv로부터 경고를 받았을 가능성을 감지했습니다. 이는 보통 다운로더를 사용한 대량의 크롤링/다운로드로 인한 것입니다. 추가 제한을 피하기 위해 다운로더가 현재 작업 실행을 중지했습니다: {}.<br>
+    필요하다면 잠시 후에 페이지를 새로 고친 뒤, 작업을 다시 실행할 수 있습니다.`,
+        `⚠️Загрузчик обнаружил, что ваш аккаунт, возможно, получил предупреждение от Pixiv. Обычно это вызвано массовым сканированием/скачиванием с помощью загрузчика. Чтобы избежать дальнейших ограничений, загрузчик остановил выполнение текущей задачи: {}.<br>
+    При необходимости вы можете через некоторое время перезагрузить страницу и снова выполнить эту задачу.`,
     ],
     _添加收藏: [
         `添加收藏`,
@@ -45811,6 +45835,22 @@ There is also a button at the bottom of the log area for manually exporting logs
         `フォロー一覧の取得`,
         `팔로우 목록 가져오기`,
         `Получение списка подписок`,
+    ],
+    _下载文件: [
+        `下载文件`,
+        `下載檔案`,
+        `Downloading files`,
+        `ファイルのダウンロード`,
+        `파일 다운로드`,
+        `Скачивание файлов`,
+    ],
+    _抓取作品: [
+        `抓取作品`,
+        `擷取作品`,
+        `Crawling works`,
+        `作品のクロール`,
+        `작품 긁어오기`,
+        `Сканирование работ`,
     ],
     _导入作品ID列表: [
         `导入作品 ID 列表`,

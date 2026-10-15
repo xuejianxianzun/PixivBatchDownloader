@@ -504,6 +504,9 @@ abstract class InitPageBase {
   protected resetGetIdListStatus() {}
 
   /** 获取作品的数据 */
+  // 在抓取作品数据时，如果账户被警告，
+  // src/ts/download/CheckWarningMessage.ts 的 handleWarning 方法会触发 stopCrawl 事件，
+  // 所以这里会停止抓取。
   protected async getWorksData(idData?: IDData): Promise<void> {
     if (states.stopCrawl) {
       return this.crawlFinished()

@@ -1,4 +1,5 @@
 import { API } from '../API'
+import { logStoppedByAccountWarning } from '../AccountWarning'
 import { EVT } from '../EVT'
 import { Config } from '../Config'
 import { lang } from '../Language'
@@ -79,6 +80,7 @@ class CheckWarningMessage {
   /** 检测到账户被警告之后要做的事 */
   private handleWarning() {
     // 下载中和抓取中的流程会响应这两个事件而自动暂停/停止。
+    // 这两个流程不调用 canRequestInBatch，所以在这里输出停止原因的日志。
     // 两者都不在时（例如正在执行批量收藏）就不需要触发它们，交给下面的 accountWarning 事件处理。
     // ⚠️ 判断「正在抓取」要用 states.crawling，不能用 states.busy —— busy 还会被
     // 批量取消收藏、批量移除标签等操作设为 true，用它会触发没有意义的 stopCrawl
@@ -86,9 +88,11 @@ class CheckWarningMessage {
     if (states.downloading) {
       EVT.fire('downloadPause')
       tip = lang.transl('_下载已暂停')
+      logStoppedByAccountWarning('_下载文件')
     } else if (states.crawling) {
       EVT.fire('stopCrawl')
       tip = lang.transl('_已停止抓取')
+      logStoppedByAccountWarning('_抓取作品')
     }
 
     msgBox.error(
