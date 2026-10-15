@@ -153,6 +153,8 @@ class FormSettings {
       'crawlOriginalWork',
       'crawlNonOriginalWork',
       'looseMatchOriginal',
+      'crawlFollowedUsers',
+      'crawlNonFollowedUsers',
       'DonotCrawlAlreadyDownloadedWorks',
       'showBorderOnDownloadedWorks',
       'removeEmoji',

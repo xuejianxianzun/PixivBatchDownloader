@@ -544,6 +544,10 @@ interface XzSetting {
   crawlOriginalWork: boolean
   crawlNonOriginalWork: boolean
   looseMatchOriginal: boolean
+  /** 「来自用户」过滤器：保留已关注用户的作品 */
+  crawlFollowedUsers: boolean
+  /** 「来自用户」过滤器：保留未关注用户的作品 */
+  crawlNonFollowedUsers: boolean
   tipImageViewer: boolean
   removeEmoji: boolean
   serialNoStart: 0 | 1
@@ -1170,6 +1174,8 @@ class Settings {
     crawlOriginalWork: true,
     crawlNonOriginalWork: true,
     looseMatchOriginal: true,
+    crawlFollowedUsers: true,
+    crawlNonFollowedUsers: true,
     tipImageViewer: true,
     removeEmoji: false,
     serialNoStart: 0,

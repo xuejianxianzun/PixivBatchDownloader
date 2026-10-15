@@ -23,7 +23,7 @@
 - `src/ts/download/`：下载相关逻辑。
 - `src/ts/FileName.ts`：为下载的文件生成文件名。用户可以自定义文件名规则。
 - `src/ts/setting/Settings.ts`：保存下载器的设置、当设置发生变化时派发事件进行通知。
-- `src/ts/filter/Filter.ts`：过滤器系统。用户可以设置一些过滤条件，以排除不符合条件的作品（抓取结果），只保留符合条件的作品。
+- `src/ts/filter/Filter.ts`：过滤器系统。用户可以设置一些过滤条件，以排除不符合条件的作品（抓取结果），只保留符合条件的作品。在开始抓取时，还会使用 `src/ts/filter/ShowEnabledFilter.ts` 在日志里显示已启用的过滤条件。
 - `src/ts/API.ts`：封装了对 Pixiv.net 的一些 API 的请求。
 - `src/ts/EVT.ts`：事件系统。有许多模块会触发事件；监听事件有助于解耦。
 - `src/ts/Tools.ts`：与本项目耦合的工具类。

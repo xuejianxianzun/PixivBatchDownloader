@@ -220,6 +220,8 @@ export interface FormType extends HTMLFormElement {
   crawlOriginalWork: HTMLInputElement
   crawlNonOriginalWork: HTMLInputElement
   looseMatchOriginal: HTMLInputElement
+  crawlFollowedUsers: HTMLInputElement
+  crawlNonFollowedUsers: HTMLInputElement
   removeEmoji: HTMLInputElement
   serialNoStart: HTMLInputElement
   DonotCrawlAlreadyDownloadedWorks: HTMLInputElement

@@ -21,13 +21,25 @@
 备注：
 该功能有一些已知问题，可以查看文档 `notes/添加抓取用户列表的功能.md` 里的“已知问题”章节。
 
-### ✨新增设置：图片格式
+### ✨新增筛选设置：来自用户
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/521
+
+使用这个设置，你可以只抓取已关注/未关注用户的作品。默认全部抓取。
+
+该设置位于“筛选”-“作品类型”里。
+
+### ✨新增筛选设置：图片格式
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/414
 
-该设置位于“筛选”-“作品类型”里。如果有需要，你可以使用它来排除 .jpg 或 .png 图片。
+如果有需要，你可以使用它来排除 .jpg 或 .png 图片。
+
+该设置位于“筛选”-“作品类型”里。
 
 ### ✨新增设置：在作品缩略图上显示点赞按钮
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
 点击点赞按钮可以给这个作品点赞。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，起到点赞 + 下载的双重作用。
 

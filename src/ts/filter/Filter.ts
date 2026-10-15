@@ -14,6 +14,7 @@ import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
 import { workSelection } from '../WorkSelection'
 import { isLangInList } from '../utils/LangCode'
+import { followingList } from '../FollowingList'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -316,6 +317,11 @@ class Filter {
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户屏蔽名单'),
         'excludeWorkByBlockList'
       )
+      return false
+    }
+
+    // 检查作品是否来自被允许的用户（「来自用户」过滤器）
+    if (!this.checkFollowedUser(option.userId)) {
       return false
     }
 
@@ -1220,6 +1226,54 @@ class Filter {
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
     return !settings.blockList.includes(userId)
+  }
+
+  /** 检查作品是否来自被允许的用户（「来自用户」过滤器）。
+   *
+   * 只检查用户未勾选的子选项：
+   * - 用户未勾选「已关注的用户」时，排除已关注用户的作品；
+   * - 用户未勾选「未关注的用户」时，排除未关注用户的作品。
+   *
+   * 注意：这个检查依赖关注用户列表。如果关注列表尚未加载（following 为空数组），
+   * 则无法判断用户是否已关注，此时把用户视为「未关注」。 */
+  private checkFollowedUser(userId: FilterOption['userId']) {
+    if (userId === undefined) {
+      return true
+    }
+
+    // 两个子选项都勾选时不会排除任何作品，此时不需要检查关注列表
+    if (settings.crawlFollowedUsers && settings.crawlNonFollowedUsers) {
+      return true
+    }
+
+    // 检查这个用户是否已被关注
+    const isFollowed = followingList.following.includes(userId)
+
+    // 用户未勾选「已关注的用户」，而这个作品来自已关注的用户，则排除它
+    if (!settings.crawlFollowedUsers && isFollowed) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_来自用户带高亮') +
+          ': ' +
+          lang.transl('_已关注的用户'),
+        'excludeWorkByFollowedUser'
+      )
+      return false
+    }
+
+    // 用户未勾选「未关注的用户」，而这个作品来自未关注的用户，则排除它
+    if (!settings.crawlNonFollowedUsers && !isFollowed) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_来自用户带高亮') +
+          ': ' +
+          lang.transl('_未关注的用户'),
+        'excludeWorkByFollowedUser'
+      )
+      return false
+    }
+
+    return true
   }
 
   private readonly MiB = 1024 * 1024

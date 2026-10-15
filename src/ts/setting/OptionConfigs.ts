@@ -368,6 +368,18 @@ class OptionConfigs {
       addedAt: 1774310400000,
     },
     {
+      no: 114,
+      nameKey: '_来自用户带高亮',
+      name: '',
+      categoryLevel1: 'filter',
+      categoryLevel2: 'workType',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_已关注的用户', '_未关注的用户'],
+      searchWords: [],
+      addedAt: 1792065628983,
+    },
+    {
       no: 8,
       nameKey: '_图片数量',
       name: '',
