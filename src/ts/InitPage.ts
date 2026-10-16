@@ -30,6 +30,7 @@ import { InitDashboardPage } from './crawlMixedPage/InitDashboardPage'
 import { InitContestPage } from './crawlMixedPage/InitContestPage'
 import { InitUserRequestPage } from './crawlMixedPage/InitUserRequestPage'
 import { InitWatchListNovelPage } from './crawlMixedPage/InitWatchListNovelPage'
+import { InitWatchListMangaPage } from './crawlMixedPage/InitWatchListMangaPage'
 import { Config } from './Config'
 
 class InitPage {
@@ -107,6 +108,8 @@ class InitPage {
         return new InitUserRequestPage()
       case pageType.list.WatchListNovel:
         return new InitWatchListNovelPage()
+      case pageType.list.WatchListManga:
+        return new InitWatchListMangaPage()
       default:
         return new InitUnsupportedPage()
     }

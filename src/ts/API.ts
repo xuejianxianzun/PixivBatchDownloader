@@ -32,6 +32,9 @@ import {
   RequestWorksData,
   NovelMarkerAllData,
   WatchListNovelData,
+  WatchListMangaData,
+  TouchWatchListNovelData,
+  TouchWatchListMangaData,
 } from './crawl/CrawlResult'
 
 import {
@@ -775,7 +778,30 @@ class API {
   }
 
   static async getWatchListNovelData(p: number): Promise<WatchListNovelData> {
+    // 备注：网址里的 new=1 是固定的。不带 new=1 也可以获取到数据，但数据格式不同。
+    // 所以我推测 new=1 是该 URL 对应的新版 API 的标志。
     const url = `https://www.pixiv.net/ajax/watch_list/novel?p=${p}&new=1&lang=zh`
+    return this.fetch(url)
+  }
+
+  static async getWatchListMangaData(p: number): Promise<WatchListMangaData> {
+    const url = `https://www.pixiv.net/ajax/watch_list/manga?p=${p}&lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 移动端的小说追更列表页面使用的 API。每页最多 10 个系列小说 */
+  static async getTouchWatchListNovelData(
+    p: number
+  ): Promise<TouchWatchListNovelData> {
+    const url = `https://www.pixiv.net/touch/ajax/watch_list/novel?p=${p}&limit=10&new=1&lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 移动端的漫画追更列表页面使用的 API。每页最多 10 个系列漫画 */
+  static async getTouchWatchListMangaData(
+    p: number
+  ): Promise<TouchWatchListMangaData> {
+    const url = `https://www.pixiv.net/touch/ajax/watch_list/manga?p=${p}&limit=10&lang=zh`
     return this.fetch(url)
   }
 }

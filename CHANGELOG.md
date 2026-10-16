@@ -2,11 +2,13 @@
 
 ## next
 
-### ✨可以在追更列表里抓取作品了
+### ✨新增支持的页面类型：可以在追更列表里抓取作品了
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/427
 
-现在你可以批量抓取追更的小说、漫画了。
+追更列表页面：https://www.pixiv.net/following/watchlist/novels
+
+现在下载器可以批量抓取你追更的小说、漫画了。
 
 ### ✨新增功能：抓取用户列表
 

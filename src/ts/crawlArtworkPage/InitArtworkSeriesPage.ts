@@ -3,8 +3,7 @@ import { InitPageBase } from '../crawl/InitPageBase'
 import { API } from '../API'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
-import { filter, FilterOption } from '../filter/Filter'
-import { store } from '../store/Store'
+import { saveSeriesWorks } from '../crawl/SaveSeriesWorks'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
@@ -65,46 +64,8 @@ class InitArtworkSeriesPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    // 保存本页面的作品的 id 列表
-    const idList: string[] = []
-    for (const info of data.body.page.series) {
-      idList.push(info.workId)
-    }
-    // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
-
-    // 从 illust 里查找 id 对应的数据，进行过滤
-    for (const work of data.body.thumbnails.illust) {
-      if (!idList.includes(work.id)) {
-        continue
-      }
-      if (work.isAdContainer) {
-        continue
-      }
-
-      // 过滤器进行检查
-      const filterOpt: FilterOption = {
-        aiType: work.aiType,
-        id: work.id,
-        isOriginal: work.isOriginal,
-        tags: work.tags,
-        title: work.title,
-        bookmarkData: !!work.bookmarkData,
-        width: work.pageCount === 1 ? work.width : 0,
-        height: work.pageCount === 1 ? work.height : 0,
-        workType: work.illustType,
-        userId: work.userId,
-        createDate: work.createDate,
-        xRestrict: work.xRestrict,
-      }
-
-      // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-      if (await filter.check(filterOpt)) {
-        store.idList.push({
-          type: 'illusts',
-          id: work.id,
-        })
-      }
-    }
+    // 保存本页面的作品
+    await saveSeriesWorks.save(data.body)
 
     // 如果 data.body.page.series 为空，就是到了最后一页
     const endFlag = data.body.page.series.length === 0

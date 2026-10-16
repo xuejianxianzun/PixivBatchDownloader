@@ -2319,26 +2319,28 @@ export type NovelMarkerAllItem = {
 /** 在小说书签列表页面里，通过 API 获得的数据。每页 10 条数据，纯数组。 */
 export type NovelMarkerAllData = NovelMarkerAllItem[]
 
-/** 追更列表的小说分类页面里，通过 API 获得的数据。
+/** 追更列表的页面（小说分类、漫画分类）里，通过 API 获得的数据的公共部分。
  *
- * https://www.pixiv.net/ajax/watch_list/novel?p=1&new=1&lang=zh
+ * 这两个页面里全都是系列作品，没有单篇作品，它们返回的数据有很多相同的字段。
  *
- * 该页面里全都是系列作品，没有单篇作品。每页最多 24 个系列小说，数据在 `body.thumbnails.novelSeries` 里。
+ * 小说分类：https://www.pixiv.net/ajax/watch_list/novel?p=1&new=1&lang=zh
+ *
+ * 漫画分类：https://www.pixiv.net/ajax/watch_list/manga?p=1&lang=zh
  */
-export interface WatchListNovelData {
+interface WatchListDataCommon {
   error: boolean
   message: string
   body: {
     page: {
-      /** 追更列表里的系列小说总数。是数字字符串 */
+      /** 追更列表里的系列总数。是数字字符串 */
       total: string
       /** 最大页码 */
       maxPage: number
-      /** 当前登录用户追更的系列小说的 id 列表。
+      /** 当前登录用户追更的系列 id 列表。
        *
-       * 注意：这个列表里的 id 可能比 `body.thumbnails.novelSeries` 里的多。
+       * 注意：这个列表里的 id 可能比页面上的系列数据里的多。
        * 如果一个系列已被删除，watchedSeriesIds 里可能仍然存在该系列的 id。
-       * 所以抓取时应该以 `body.thumbnails.novelSeries` 里的系列数据为准，不要直接使用watchedSeriesIds
+       * 所以抓取时应该以页面上的系列数据为准，不要直接使用 watchedSeriesIds
        */
       watchedSeriesIds: string[]
     }
@@ -2361,90 +2363,6 @@ export interface WatchListNovelData {
     }
     /** 在这个页面里是空数组 */
     tagTranslation: []
-    thumbnails: {
-      /** 在这个页面里是空数组，因为这里没有插画·漫画作品 */
-      illust: []
-      /** 在这个页面里是空数组，因为这里没有单篇小说 */
-      novel: []
-      /** 系列小说的数据集合。每页最多 24 条 */
-      novelSeries: {
-        /** 系列 id */
-        id: string
-        /** 系列标题 */
-        title: string
-        /** 标题和简介的翻译数据。在这个页面里始终是 null */
-        titleCaptionTranslation: null
-        /** 系列的封面图片 */
-        cover: {
-          urls: {
-            '240mw': string
-            '480mw': string
-            '1200x1200': string
-            '128x128': string
-            original: string
-          }
-        }
-        /** 系列的标签 */
-        tags: string[]
-        /** 0 全年龄，1 R-18，2 R-18G */
-        xRestrict: 0 | 1 | 2
-        /** 是否为原创作品 */
-        isOriginal: boolean
-        /** 类型。是数字字符串 */
-        genre: string
-        /** 系列创建时间 */
-        createDateTime: string
-        /** 系列更新时间 */
-        updateDateTime: string
-        /** 系列作者的用户 id */
-        userId: string
-        /** 系列作者的用户名 */
-        userName: string
-        /** 系列作者的头像图片 URL */
-        profileImageUrl: string
-        bookmarkCount: number
-        /** 是否为单篇（短篇）作品 */
-        isOneshot: boolean
-        /** 系列的简介 */
-        caption: string
-        /** 系列是否已完结 */
-        isConcluded: boolean
-        /** 系列里的小说数量 */
-        episodeCount: number
-        /** 系列里已发布的小说数量 */
-        publishedEpisodeCount: number
-        /** 最后一篇小说的发布时间 */
-        latestPublishDateTime: string
-        /** 最后一篇小说的 id */
-        latestEpisodeId: string
-        /** 是否已追更这个系列。在这个页面里应该都是 true */
-        isWatched: boolean
-        /** 这个系列更新时是否发送通知 */
-        isNotifying: boolean
-        restrict: number
-        /** 系列里所有小说的总字数 */
-        textLength: number
-        /** 系列里所有小说的总字符数 */
-        wordCount: number
-        /** 阅读系列里所有小说所需的时长，单位是秒 */
-        readingTime: number
-        /** 系列里已发布的小说的总字数 */
-        publishedTextLength: number
-        /** 系列里已发布的小说的总字符数 */
-        publishedWordCount: number
-        /** 阅读系列里已发布的小说所需的时长，单位是秒 */
-        publishedReadingTime: number
-        useWordCount: boolean
-        /** 是否为 AI 生成的作品。0 未知 1 否 2 是 */
-        aiType: 0 | 1 | 2
-      }[]
-      /** 在这个页面里是空数组 */
-      novelDraft: []
-      /** 在这个页面里是空数组 */
-      collection: []
-    }
-    /** 在这个页面里是空数组 */
-    illustSeries: []
     /** 在这个页面里是空数组 */
     requests: []
     /** 本页作品所属的用户的数据集合 */
@@ -2470,6 +2388,345 @@ export interface WatchListNovelData {
       isBlocking: boolean
       background: null
       commission: null
+    }[]
+  }
+}
+
+/** 追更列表里的小说系列数据。
+ *
+ * 在 PC 端和移动端里，这个数据的结构相同
+ */
+interface WatchListNovelSeries {
+  /** 系列 id */
+  id: string
+  /** 系列标题 */
+  title: string
+  /** 标题和简介的翻译数据。在这个页面里始终是 null */
+  titleCaptionTranslation: null
+  /** 系列的封面图片 */
+  cover: {
+    urls: {
+      '240mw': string
+      '480mw': string
+      '1200x1200': string
+      '128x128': string
+      original: string
+    }
+  }
+  /** 系列的标签 */
+  tags: string[]
+  /** 0 全年龄，1 R-18，2 R-18G */
+  xRestrict: 0 | 1 | 2
+  /** 是否为原创作品 */
+  isOriginal: boolean
+  /** 类型。是数字字符串 */
+  genre: string
+  /** 系列创建时间 */
+  createDateTime: string
+  /** 系列更新时间 */
+  updateDateTime: string
+  /** 系列作者的用户 id */
+  userId: string
+  /** 系列作者的用户名 */
+  userName: string
+  /** 系列作者的头像图片 URL */
+  profileImageUrl: string
+  bookmarkCount: number
+  /** 是否为单篇（短篇）作品 */
+  isOneshot: boolean
+  /** 系列的简介 */
+  caption: string
+  /** 系列是否已完结 */
+  isConcluded: boolean
+  /** 系列里的小说数量 */
+  episodeCount: number
+  /** 系列里已发布的小说数量 */
+  publishedEpisodeCount: number
+  /** 最后一篇小说的发布时间 */
+  latestPublishDateTime: string
+  /** 最后一篇小说的 id */
+  latestEpisodeId: string
+  /** 是否已追更这个系列。在这个页面里应该都是 true */
+  isWatched: boolean
+  /** 这个系列更新时是否发送通知 */
+  isNotifying: boolean
+  restrict: number
+  /** 系列里所有小说的总字数 */
+  textLength: number
+  /** 系列里所有小说的总字符数 */
+  wordCount: number
+  /** 阅读系列里所有小说所需的时长，单位是秒 */
+  readingTime: number
+  /** 系列里已发布的小说的总字数 */
+  publishedTextLength: number
+  /** 系列里已发布的小说的总字符数 */
+  publishedWordCount: number
+  /** 阅读系列里已发布的小说所需的时长，单位是秒 */
+  publishedReadingTime: number
+  useWordCount: boolean
+  /** 是否为 AI 生成的作品。0 未知 1 否 2 是 */
+  aiType: 0 | 1 | 2
+}
+
+/** 追更列表的小说分类页面里，通过 API 获得的数据。
+ *
+ * https://www.pixiv.net/ajax/watch_list/novel?p=1&new=1&lang=zh
+ *
+ * 该页面里全都是系列作品，没有单篇作品。每页最多 24 个系列小说，数据在 `body.thumbnails.novelSeries` 里。
+ */
+export interface WatchListNovelData extends WatchListDataCommon {
+  body: WatchListDataCommon['body'] & {
+    thumbnails: {
+      /** 在这个页面里是空数组，因为这里没有插画·漫画作品 */
+      illust: []
+      /** 在这个页面里是空数组，因为这里没有单篇小说 */
+      novel: []
+      /** 系列小说的数据集合。每页最多 24 条 */
+      novelSeries: WatchListNovelSeries[]
+      /** 在这个页面里是空数组 */
+      novelDraft: []
+      /** 在这个页面里是空数组 */
+      collection: []
+    }
+    /** 在这个页面里是空数组 */
+    illustSeries: []
+  }
+}
+
+/** 追更列表的漫画分类页面里，通过 API 获得的数据。
+ *
+ * https://www.pixiv.net/ajax/watch_list/manga?p=1&lang=zh
+ *
+ * 该页面里全都是系列作品，没有单篇作品。每页最多 24 个系列漫画，数据在 `body.illustSeries` 里。
+ */
+export interface WatchListMangaData extends WatchListDataCommon {
+  body: WatchListDataCommon['body'] & {
+    thumbnails: {
+      /** 本页面的系列里的最新作品数据，每个系列对应一条数据。
+       *
+       * 这只是页面显示用的数据，抓取时不要使用它，应该以 `body.illustSeries` 里的系列数据为准
+       */
+      illust: {
+        id: string
+        title: string
+        illustType: 0 | 1 | 2
+        xRestrict: 0 | 1 | 2
+        restrict: 0 | 1 | 2
+        sl: 0 | 2 | 4 | 6
+        url: string
+        description: string
+        tags: string[]
+        userId: string
+        userName: string
+        width: number
+        height: number
+        pageCount: number
+        isBookmarkable: boolean
+        bookmarkData: null | {
+          id: string
+          private: boolean
+        }
+        alt: string
+        titleCaptionTranslation: {
+          workTitle: null | string
+          workCaption: null | string
+        }
+        createDate: string
+        updateDate: string
+        isUnlisted: boolean
+        isMasked: boolean
+        /** 是否为 AI 生成的作品。0 未知 1 否 2 是 */
+        aiType: 0 | 1 | 2
+        /** 不清楚具体含义，实测是 0 */
+        visibilityScope: number
+        /** 实测只有 240mw 这一个尺寸 */
+        urls: {
+          '240mw': string
+        }
+        /** 作品所属的系列 id */
+        seriesId: string
+        /** 作品所属的系列标题 */
+        seriesTitle: string
+        /** 系列作者的头像图片 URL */
+        profileImageUrl: string
+      }[]
+      /** 在这个页面里是空数组，因为这里没有单篇小说 */
+      novel: []
+      /** 在这个页面里是空数组，因为这里没有系列小说 */
+      novelSeries: []
+      /** 在这个页面里是空数组 */
+      novelDraft: []
+      /** 在这个页面里是空数组 */
+      collection: []
+    }
+    /** 追更的漫画系列的数据集合。每页最多 24 条 */
+    illustSeries: {
+      /** 系列 id */
+      id: string
+      /** 系列作者的用户 id */
+      userId: string
+      /** 系列标题 */
+      title: string
+      /** 系列的说明 */
+      description: string
+      /** 系列的简介 */
+      caption: string
+      /** 系列里的作品数量 */
+      total: number
+      content_order: null
+      /** 系列的封面图片 URL */
+      url: string
+      coverImageSl: number
+      /** 系列里第一个作品的 id */
+      firstIllustId: string
+      /** 系列里最新一个作品的 id */
+      latestIllustId: string
+      /** 系列创建时间 */
+      createDate: string
+      /** 系列更新时间 */
+      updateDate: string
+      watchCount: null
+      /** 是否已追更这个系列。在这个页面里应该都是 true */
+      isWatched: boolean
+      /** 这个系列更新时是否发送通知 */
+      isNotifying: boolean
+      /** 系列里是否包含限制级内容 */
+      isRestrictedContent: boolean
+    }[]
+  }
+}
+
+/** 移动端的追更列表页面（小说分类、漫画分类）里，通过 API 获得的数据的公共部分。
+ *
+ * 移动端的 API 与 PC 端的 API 不同，数据结构也不同。
+ *
+ * 小说分类：https://www.pixiv.net/touch/ajax/watch_list/novel?p=1&limit=10&new=1&lang=zh
+ *
+ * 漫画分类：https://www.pixiv.net/touch/ajax/watch_list/manga?p=1&limit=10&lang=zh
+ */
+interface TouchWatchListDataCommon {
+  error: boolean
+  message: string
+  body: {
+    /** 追更列表里的系列总数。是数字字符串 */
+    total: string
+    /** 最大页码 */
+    maxPage: number
+    /** 当前登录用户追更的系列 id 列表。
+     *
+     * 注意：这个列表里的 id 可能比页面上的系列数据里的多。
+     * 如果一个系列已被删除，watchedSeriesIds 里可能仍然存在该系列的 id。
+     * 所以抓取时应该以页面上的系列数据为准，不要直接使用 watchedSeriesIds
+     */
+    watchedSeriesIds: string[]
+    /** 广告数据。下载器不需要这些数据，所以不需要声明它的类型 */
+    ads: {}
+  }
+}
+
+/** 移动端的小说追更列表页面里，通过 API 获得的数据。
+ *
+ * https://www.pixiv.net/touch/ajax/watch_list/novel?p=1&limit=10&new=1&lang=zh
+ *
+ * 该页面里全都是系列作品，没有单篇作品。每页最多 10 个系列小说，数据在 `body.novelSeries` 里。
+ */
+export interface TouchWatchListNovelData extends TouchWatchListDataCommon {
+  body: TouchWatchListDataCommon['body'] & {
+    /** 系列小说的数据集合。每页最多 10 条。数据的结构与 PC 端相同 */
+    novelSeries: WatchListNovelSeries[]
+  }
+}
+
+/** 移动端的漫画追更列表页面里，通过 API 获得的数据。
+ *
+ * https://www.pixiv.net/touch/ajax/watch_list/manga?p=1&limit=10&lang=zh
+ *
+ * 该页面里全都是系列作品，没有单篇作品。每页最多 10 个系列漫画，数据在 `body.illustSeries` 里。
+ */
+export interface TouchWatchListMangaData extends TouchWatchListDataCommon {
+  body: TouchWatchListDataCommon['body'] & {
+    /** 追更的漫画系列的数据集合。每页最多 10 条 */
+    illustSeries: {
+      /** 系列 id */
+      id: string
+      user_id: string
+      /** 系列标题 */
+      title: string
+      /** 系列的说明 */
+      caption: string
+      /** 系列里的作品数量。是数字字符串 */
+      total: string
+      content_order: null
+      /** 系列封面图片 URL。实测可能是 false */
+      url: string | boolean
+      update_date: string
+      first_illust_id: string | null
+      latest_illust_id: string | null
+      /** 系列里的最新作品的数据。实测可能是 null */
+      latest_work: null | {
+        illust_id: string
+        illust_user_id: string
+        illust_title: string
+        illust_ext: string
+        illust_width: string
+        illust_height: string
+        illust_restrict: string
+        illust_x_restrict: string
+        illust_create_date: string
+        illust_upload_date: string
+        illust_server_id: string
+        illust_hash: null
+        illust_type: string
+        illust_sanity_level: number
+        illust_ad_safety_level: string
+        illust_book_style: string
+        illust_page_count: string
+        illust_comment_off_setting: string
+        illust_ai_type: string
+        illust_mask_apple_app_store: string
+        illust_mask_google_play_store: string
+        illust_custom_thumbnail_upload_datetime: null | string
+        illust_mask_rule_set: {
+          _illust_mask: number
+        }
+        user_account: string
+        user_name: string
+        user_status: string
+        url: {
+          '250x250': string
+          '240mw': string
+        }
+      }
+      /** 系列作者的数据 */
+      user: {
+        user_id: string
+        user_status: string
+        user_account: string
+        user_name: string
+        /** 是否为高级会员。是数字字符串 */
+        user_premium: string
+        /** 用户头像图片 */
+        profile_img: {
+          main: string
+          main_s: string
+        }
+        profile_img_app_check_status: number
+        profile_img_mask_rule_set: {
+          mask: number
+        }
+      }
+      /** 系列作者的用户 id */
+      userId: string
+      /** 系列封面图片 URL。实测可能是 false */
+      coverImage: string | boolean
+      /** 系列里的作品数量。是数字字符串 */
+      workCount: string
+      display_series_content_count: string
+      firstWorkId: string | null
+      /** 是否已追更这个系列。在这个页面里应该都是 true */
+      is_watched: boolean
+      /** 这个系列更新时是否发送通知 */
+      is_notifying: boolean
     }[]
   }
 }

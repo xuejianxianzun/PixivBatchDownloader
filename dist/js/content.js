@@ -1738,7 +1738,23 @@ class API {
         return this.fetch(url);
     }
     static async getWatchListNovelData(p) {
+        // 备注：网址里的 new=1 是固定的。不带 new=1 也可以获取到数据，但数据格式不同。
+        // 所以我推测 new=1 是该 URL 对应的新版 API 的标志。
         const url = `https://www.pixiv.net/ajax/watch_list/novel?p=${p}&new=1&lang=zh`;
+        return this.fetch(url);
+    }
+    static async getWatchListMangaData(p) {
+        const url = `https://www.pixiv.net/ajax/watch_list/manga?p=${p}&lang=zh`;
+        return this.fetch(url);
+    }
+    /** 移动端的小说追更列表页面使用的 API。每页最多 10 个系列小说 */
+    static async getTouchWatchListNovelData(p) {
+        const url = `https://www.pixiv.net/touch/ajax/watch_list/novel?p=${p}&limit=10&new=1&lang=zh`;
+        return this.fetch(url);
+    }
+    /** 移动端的漫画追更列表页面使用的 API。每页最多 10 个系列漫画 */
+    static async getTouchWatchListMangaData(p) {
+        const url = `https://www.pixiv.net/touch/ajax/watch_list/manga?p=${p}&limit=10&lang=zh`;
         return this.fetch(url);
     }
 }
@@ -7163,8 +7179,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./crawlMixedPage/InitContestPage */ "./src/ts/crawlMixedPage/InitContestPage.ts");
 /* harmony import */ var _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./crawlMixedPage/InitUserRequestPage */ "./src/ts/crawlMixedPage/InitUserRequestPage.ts");
 /* harmony import */ var _crawlMixedPage_InitWatchListNovelPage__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./crawlMixedPage/InitWatchListNovelPage */ "./src/ts/crawlMixedPage/InitWatchListNovelPage.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _crawlMixedPage_InitWatchListMangaPage__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./crawlMixedPage/InitWatchListMangaPage */ "./src/ts/crawlMixedPage/InitWatchListMangaPage.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -7233,7 +7251,7 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
                 return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelMarkerAll:
-                if (_Config__WEBPACK_IMPORTED_MODULE_30__.Config.mobile) {
+                if (_Config__WEBPACK_IMPORTED_MODULE_31__.Config.mobile) {
                     return new _crawlNovelPage_InitNovelMarkerAllPageOnMobile__WEBPACK_IMPORTED_MODULE_21__.InitNovelMarkerAllPageOnMobile();
                 }
                 return new _crawlNovelPage_InitNovelMarkerAllPageOnPC__WEBPACK_IMPORTED_MODULE_20__.InitNovelMarkerAllPageOnPC();
@@ -7269,6 +7287,8 @@ class InitPage {
                 return new _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__.InitUserRequestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.WatchListNovel:
                 return new _crawlMixedPage_InitWatchListNovelPage__WEBPACK_IMPORTED_MODULE_29__.InitWatchListNovelPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.WatchListManga:
+                return new _crawlMixedPage_InitWatchListMangaPage__WEBPACK_IMPORTED_MODULE_30__.InitWatchListMangaPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_24__.InitUnsupportedPage();
         }
@@ -18338,6 +18358,78 @@ const logErrorStatus = new LogErrorStatus();
 
 /***/ }),
 
+/***/ "./src/ts/crawl/SaveSeriesWorks.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/crawl/SaveSeriesWorks.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   saveSeriesWorks: () => (/* binding */ saveSeriesWorks)
+/* harmony export */ });
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+/** 保存系列页面的 API 数据里的作品。
+ *
+ * 系列页面的 API（https://www.pixiv.net/ajax/series/61267?p=1）返回的数据里：
+ * - `body.page.series` 里的才是当前页面的系列作品，但是只有 id 和 order 数据；
+ * - `body.thumbnails.illust` 里包含了更详细的数据，并且额外包含了在系列页面里，
+ *   显示在作品列表右侧的一些作品，其中有些并不属于当前页面的系列作品。
+ *
+ * 所以这里先从 `body.page.series` 里取出本页面的作品 id，再从 `body.thumbnails.illust` 里
+ * 查找 id 对应的数据，进行过滤，然后把符合要求的作品保存到 store.idList 里。
+ */
+class SaveSeriesWorks {
+    /** 保存一个系列页面里的作品。传入的是系列 API 返回的 body 数据 */
+    async save(body) {
+        // 保存本页面的作品的 id 列表
+        const idList = [];
+        for (const info of body.page.series) {
+            idList.push(info.workId);
+        }
+        // 从 illust 里查找 id 对应的数据，进行过滤
+        for (const work of body.thumbnails.illust) {
+            if (!idList.includes(work.id)) {
+                continue;
+            }
+            if (work.isAdContainer) {
+                continue;
+            }
+            // 过滤器进行检查
+            const filterOpt = {
+                aiType: work.aiType,
+                id: work.id,
+                isOriginal: work.isOriginal,
+                tags: work.tags,
+                title: work.title,
+                bookmarkData: !!work.bookmarkData,
+                width: work.pageCount === 1 ? work.width : 0,
+                height: work.pageCount === 1 ? work.height : 0,
+                workType: work.illustType,
+                userId: work.userId,
+                createDate: work.createDate,
+                xRestrict: work.xRestrict,
+            };
+            // 这个 api 的 illust 数据可能是插画也可能是漫画
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_0__.filter.check(filterOpt)) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.idList.push({
+                    type: 'illusts',
+                    id: work.id,
+                });
+            }
+        }
+    }
+}
+const saveSeriesWorks = new SaveSeriesWorks();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawl/StopCrawl.ts":
 /*!***********************************!*\
   !*** ./src/ts/crawl/StopCrawl.ts ***!
@@ -19217,15 +19309,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _crawl_SaveSeriesWorks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../crawl/SaveSeriesWorks */ "./src/ts/crawl/SaveSeriesWorks.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化插画/漫画的系列作品页面
-
 
 
 
@@ -19250,76 +19340,41 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     initAny() { }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.type].value;
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
     }
     nextStep() {
         // 设置起始页码
-        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 获取系列 id
         this.seriesId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getSeriesId();
         this.getIdList();
     }
     async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         let p = this.startpageNo + this.listPageFinished;
         const data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getSeriesData(this.seriesId, p);
         this.listPageFinished++;
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
             return this.getIdListFinished();
         }
-        // 保存本页面的作品的 id 列表
-        const idList = [];
-        for (const info of data.body.page.series) {
-            idList.push(info.workId);
-        }
-        // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
-        // 从 illust 里查找 id 对应的数据，进行过滤
-        for (const work of data.body.thumbnails.illust) {
-            if (!idList.includes(work.id)) {
-                continue;
-            }
-            if (work.isAdContainer) {
-                continue;
-            }
-            // 过滤器进行检查
-            const filterOpt = {
-                aiType: work.aiType,
-                id: work.id,
-                isOriginal: work.isOriginal,
-                tags: work.tags,
-                title: work.title,
-                bookmarkData: !!work.bookmarkData,
-                width: work.pageCount === 1 ? work.width : 0,
-                height: work.pageCount === 1 ? work.height : 0,
-                workType: work.illustType,
-                userId: work.userId,
-                createDate: work.createDate,
-                xRestrict: work.xRestrict,
-            };
-            // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                    type: 'illusts',
-                    id: work.id,
-                });
-            }
-        }
+        // 保存本页面的作品
+        await _crawl_SaveSeriesWorks__WEBPACK_IMPORTED_MODULE_4__.saveSeriesWorks.save(data.body);
         // 如果 data.body.page.series 为空，就是到了最后一页
         const endFlag = data.body.page.series.length === 0;
         // 抓取完毕
         if (endFlag ||
             p >= this.maxCount ||
             this.listPageFinished === this.crawlNumber) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
             this.getIdListFinished();
         }
         else {
             // 继续抓取
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
             this.getIdList();
         }
     }
@@ -24589,6 +24644,178 @@ class InitUserRequestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 /***/ }),
 
+/***/ "./src/ts/crawlMixedPage/InitWatchListMangaPage.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/crawlMixedPage/InitWatchListMangaPage.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitWatchListMangaPage: () => (/* binding */ InitWatchListMangaPage)
+/* harmony export */ });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _crawl_SaveSeriesWorks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../crawl/SaveSeriesWorks */ "./src/ts/crawl/SaveSeriesWorks.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
+
+
+
+
+
+
+
+
+
+
+// 追更列表的漫画分类页面
+// 该页面里全都是系列作品，没有单篇作品。
+// 备注：有些系列里没有任何作品，这样的系列不会显示出来。所以肉眼看到的一页里的系列数量可能少于最大值。
+class InitWatchListMangaPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    getIdListLogKey = 'getIdListOnWatchListMangaPage';
+    addCrawlBtns() {
+        this.addInitPageBtn('crawlBtns', '_抓取追更列表', '', 'crawlWatchList', 'brand').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    nextStep() {
+        if (this.crawlNumber === -1 || this.crawlNumber > 30) {
+            this.setSlowCrawl();
+        }
+        // 设置起始页码
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLSearchField(location.href, 'p');
+        this.startpageNo = parseInt(p) || 1;
+        this.getIdList();
+    }
+    getWantPage() {
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_6__.pageType.type].value;
+        if (this.crawlNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取x页_每页最多含有x个作品', this.crawlNumber.toString(), _Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile ? '10' : '24'));
+        }
+    }
+    async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        const p = this.startpageNo + this.listPageFinished;
+        // 移动端和 PC 端使用的 API 不同
+        const result = await this.getSeriesDataOnPage(p);
+        this.listPageFinished++;
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        // 如果请求出错，或者没有获取到系列数据，则结束抓取
+        if (!result) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取列表页时遇到错误结束抓取'));
+            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('stopCrawl');
+            return this.getIdListFinished();
+        }
+        // 逐个获取每个系列里的所有作品。
+        // 注意：不对系列使用过滤器检查，因为系列不是作品。过滤器会在获取作品时对每个作品进行检查
+        for (const series of result.seriesList) {
+            await this.getWorksOfSeries(series.id);
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+                return this.getIdListFinished();
+            }
+        }
+        // 判断是否到了最后一页，或者抓取到了指定的页数
+        if (p >= result.maxPage || this.listPageFinished === this.crawlNumber) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_列表页抓取完成'));
+            this.getIdListFinished();
+        }
+        else {
+            // 继续抓取
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+            }
+            this.getIdList();
+        }
+    }
+    /** 获取本页面的系列数据。
+     *
+     * 移动端和 PC 端使用的 API 不同，返回的数据结构也不同，所以需要分别处理。
+     * 如果请求出错，返回 null */
+    async getSeriesDataOnPage(p) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
+            // 移动端
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getTouchWatchListMangaData(p);
+            if (data.error || !data.body?.illustSeries) {
+                return null;
+            }
+            return {
+                seriesList: data.body.illustSeries,
+                maxPage: data.body.maxPage,
+            };
+        }
+        else {
+            // PC 端
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getWatchListMangaData(p);
+            if (data.error || !data.body?.illustSeries) {
+                return null;
+            }
+            return {
+                seriesList: data.body.illustSeries,
+                maxPage: data.body.page.maxPage,
+            };
+        }
+    }
+    /** 获取一个系列里的所有作品。
+     *
+     * 一个系列里可能有多个作品，分为多个页面。
+     * 这里总是抓取这个系列里所有页数的作品，直到最后一页 */
+    async getWorksOfSeries(seriesId) {
+        let page = 1;
+        while (true) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+                return;
+            }
+            // 输出日志，让用户知道下载器正在抓取
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在抓取'), 'crawlWatchListMangaSeries');
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getSeriesData(seriesId, page);
+            // 如果请求出错，则结束抓取
+            if (data.error || !data.body?.page) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取列表页时遇到错误结束抓取'));
+                _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('stopCrawl');
+                return;
+            }
+            // 保存这个页面里的作品
+            await _crawl_SaveSeriesWorks__WEBPACK_IMPORTED_MODULE_2__.saveSeriesWorks.save(data.body);
+            // 如果 data.body.page.series 为空，就是到了最后一页
+            if (data.body.page.series.length === 0) {
+                break;
+            }
+            page++;
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+            }
+        }
+    }
+    resetGetIdListStatus() {
+        this.listPageFinished = 0;
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlMixedPage/InitWatchListNovelPage.ts":
 /*!*********************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitWatchListNovelPage.ts ***!
@@ -24611,6 +24838,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -24650,7 +24879,7 @@ class InitWatchListNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取x页_每页最多含有x个作品', this.crawlNumber.toString(), '24'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取x页_每页最多含有x个作品', this.crawlNumber.toString(), _Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile ? '10' : '24'));
         }
     }
     async getIdList() {
@@ -24658,20 +24887,21 @@ class InitWatchListNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             return this.getIdListFinished();
         }
         const p = this.startpageNo + this.listPageFinished;
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getWatchListNovelData(p);
+        // 移动端和 PC 端使用的 API 不同
+        const result = await this.getSeriesDataOnPage(p);
         this.listPageFinished++;
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         // 如果请求出错，或者没有获取到系列数据，则结束抓取
-        if (data.error || !data.body?.thumbnails?.novelSeries) {
+        if (!result) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取列表页时遇到错误结束抓取'));
             _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('stopCrawl');
             return this.getIdListFinished();
         }
         // 保存本页面的系列 id 列表
         // 这个页面里全都是系列作品，没有单篇作品，所以只保存系列 id
-        for (const series of data.body.thumbnails.novelSeries) {
+        for (const series of result.seriesList) {
             // 注意：这里没有传递 tags，因为系列数据里的 tags 是它里面的小说的 tags，不能用来对整个系列进行过滤。
             // 系列小说也没有自己的语言，语言会在保存小说数据时（SaveNovelData）进行检查
             const filterOpt = {
@@ -24692,8 +24922,7 @@ class InitWatchListNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             }
         }
         // 判断是否到了最后一页，或者抓取到了指定的页数
-        if (p >= data.body.page.maxPage ||
-            this.listPageFinished === this.crawlNumber) {
+        if (p >= result.maxPage || this.listPageFinished === this.crawlNumber) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_列表页抓取完成'));
             this.getIdListFinished();
         }
@@ -24704,6 +24933,34 @@ class InitWatchListNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                 await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
             this.getIdList();
+        }
+    }
+    /** 获取本页面的系列数据。
+     *
+     * 移动端和 PC 端使用的 API 不同，返回的数据结构也不同，所以需要分别处理。
+     * 如果请求出错，返回 null */
+    async getSeriesDataOnPage(p) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+            // 移动端
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getTouchWatchListNovelData(p);
+            if (data.error || !data.body?.novelSeries) {
+                return null;
+            }
+            return {
+                seriesList: data.body.novelSeries,
+                maxPage: data.body.maxPage,
+            };
+        }
+        else {
+            // PC 端
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getWatchListNovelData(p);
+            if (data.error || !data.body?.thumbnails?.novelSeries) {
+                return null;
+            }
+            return {
+                seriesList: data.body.thumbnails.novelSeries,
+                maxPage: data.body.page.maxPage,
+            };
         }
     }
     resetGetIdListStatus() {

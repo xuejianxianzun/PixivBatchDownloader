@@ -9,6 +9,7 @@ import { settings } from '../setting/Settings'
 import { states } from '../store/States'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
+import { Config } from '../Config'
 
 // 追更列表的小说分类页面
 // 该页面里全都是系列作品，没有单篇作品。
@@ -53,7 +54,7 @@ class InitWatchListNovelPage extends InitPageBase {
         lang.transl(
           '_抓取x页_每页最多含有x个作品',
           this.crawlNumber.toString(),
-          '24'
+          Config.mobile ? '10' : '24'
         )
       )
     }
@@ -66,7 +67,8 @@ class InitWatchListNovelPage extends InitPageBase {
 
     const p = this.startpageNo + this.listPageFinished
 
-    const data = await API.getWatchListNovelData(p)
+    // 移动端和 PC 端使用的 API 不同
+    const result = await this.getSeriesDataOnPage(p)
     this.listPageFinished++
 
     if (states.stopCrawl) {
@@ -74,7 +76,7 @@ class InitWatchListNovelPage extends InitPageBase {
     }
 
     // 如果请求出错，或者没有获取到系列数据，则结束抓取
-    if (data.error || !data.body?.thumbnails?.novelSeries) {
+    if (!result) {
       log.error(lang.transl('_抓取列表页时遇到错误结束抓取'))
       EVT.fire('stopCrawl')
       return this.getIdListFinished()
@@ -82,7 +84,7 @@ class InitWatchListNovelPage extends InitPageBase {
 
     // 保存本页面的系列 id 列表
     // 这个页面里全都是系列作品，没有单篇作品，所以只保存系列 id
-    for (const series of data.body.thumbnails.novelSeries) {
+    for (const series of result.seriesList) {
       // 注意：这里没有传递 tags，因为系列数据里的 tags 是它里面的小说的 tags，不能用来对整个系列进行过滤。
       // 系列小说也没有自己的语言，语言会在保存小说数据时（SaveNovelData）进行检查
       const filterOpt: FilterOption = {
@@ -105,10 +107,7 @@ class InitWatchListNovelPage extends InitPageBase {
     }
 
     // 判断是否到了最后一页，或者抓取到了指定的页数
-    if (
-      p >= data.body.page.maxPage ||
-      this.listPageFinished === this.crawlNumber
-    ) {
+    if (p >= result.maxPage || this.listPageFinished === this.crawlNumber) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
@@ -123,6 +122,34 @@ class InitWatchListNovelPage extends InitPageBase {
       }
 
       this.getIdList()
+    }
+  }
+
+  /** 获取本页面的系列数据。
+   *
+   * 移动端和 PC 端使用的 API 不同，返回的数据结构也不同，所以需要分别处理。
+   * 如果请求出错，返回 null */
+  private async getSeriesDataOnPage(p: number) {
+    if (Config.mobile) {
+      // 移动端
+      const data = await API.getTouchWatchListNovelData(p)
+      if (data.error || !data.body?.novelSeries) {
+        return null
+      }
+      return {
+        seriesList: data.body.novelSeries,
+        maxPage: data.body.maxPage,
+      }
+    } else {
+      // PC 端
+      const data = await API.getWatchListNovelData(p)
+      if (data.error || !data.body?.thumbnails?.novelSeries) {
+        return null
+      }
+      return {
+        seriesList: data.body.thumbnails.novelSeries,
+        maxPage: data.body.page.maxPage,
+      }
     }
   }
 
