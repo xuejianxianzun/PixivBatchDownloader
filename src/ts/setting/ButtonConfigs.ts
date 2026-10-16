@@ -129,6 +129,11 @@ class ButtonConfigs {
           order: 13,
           nameKey: '_小说书签列表页面',
         },
+        WatchList: {
+          id: 'WatchList',
+          order: 14,
+          nameKey: '_追更列表页面',
+        },
       },
     },
     downloadArea: {
@@ -413,6 +418,13 @@ class ButtonConfigs {
       nameKey: '_开始抓取',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'NovelMarkerAll',
+    },
+    // startCrawl - WatchList
+    {
+      id: 'crawlWatchList',
+      nameKey: '_抓取追更列表',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'WatchList',
     },
     // downloadArea - CrawlResults
     {

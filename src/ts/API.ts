@@ -31,6 +31,7 @@ import {
   UserRequestSentPageInfo,
   RequestWorksData,
   NovelMarkerAllData,
+  WatchListNovelData,
 } from './crawl/CrawlResult'
 
 import {
@@ -770,6 +771,11 @@ class API {
     p: number
   ): Promise<NovelMarkerAllData> {
     const url = `https://www.pixiv.net/touch/ajax_api/novel_api.php?endpoint=novel&mode=marker_all&id=${userId}&p=${p}`
+    return this.fetch(url)
+  }
+
+  static async getWatchListNovelData(p: number): Promise<WatchListNovelData> {
+    const url = `https://www.pixiv.net/ajax/watch_list/novel?p=${p}&new=1&lang=zh`
     return this.fetch(url)
   }
 }

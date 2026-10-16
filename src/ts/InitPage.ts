@@ -29,6 +29,7 @@ import { InitUnlistedPage } from './crawlMixedPage/InitUnlistedPage'
 import { InitDashboardPage } from './crawlMixedPage/InitDashboardPage'
 import { InitContestPage } from './crawlMixedPage/InitContestPage'
 import { InitUserRequestPage } from './crawlMixedPage/InitUserRequestPage'
+import { InitWatchListNovelPage } from './crawlMixedPage/InitWatchListNovelPage'
 import { Config } from './Config'
 
 class InitPage {
@@ -104,6 +105,8 @@ class InitPage {
         return new InitContestPage()
       case pageType.list.UserRequest:
         return new InitUserRequestPage()
+      case pageType.list.WatchListNovel:
+        return new InitWatchListNovelPage()
       default:
         return new InitUnsupportedPage()
     }

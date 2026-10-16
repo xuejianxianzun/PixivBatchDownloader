@@ -1737,6 +1737,10 @@ class API {
         const url = `https://www.pixiv.net/touch/ajax_api/novel_api.php?endpoint=novel&mode=marker_all&id=${userId}&p=${p}`;
         return this.fetch(url);
     }
+    static async getWatchListNovelData(p) {
+        const url = `https://www.pixiv.net/ajax/watch_list/novel?p=${p}&new=1&lang=zh`;
+        return this.fetch(url);
+    }
 }
 
 
@@ -7158,8 +7162,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_InitDashboardPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./crawlMixedPage/InitDashboardPage */ "./src/ts/crawlMixedPage/InitDashboardPage.ts");
 /* harmony import */ var _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./crawlMixedPage/InitContestPage */ "./src/ts/crawlMixedPage/InitContestPage.ts");
 /* harmony import */ var _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./crawlMixedPage/InitUserRequestPage */ "./src/ts/crawlMixedPage/InitUserRequestPage.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _crawlMixedPage_InitWatchListNovelPage__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./crawlMixedPage/InitWatchListNovelPage */ "./src/ts/crawlMixedPage/InitWatchListNovelPage.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -7227,7 +7233,7 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkFromAllUsers:
                 return new _crawlArtworkPage_InitNewArtworkFromAllUsersPage__WEBPACK_IMPORTED_MODULE_13__.InitNewArtworkFromAllUsersPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelMarkerAll:
-                if (_Config__WEBPACK_IMPORTED_MODULE_29__.Config.mobile) {
+                if (_Config__WEBPACK_IMPORTED_MODULE_30__.Config.mobile) {
                     return new _crawlNovelPage_InitNovelMarkerAllPageOnMobile__WEBPACK_IMPORTED_MODULE_21__.InitNovelMarkerAllPageOnMobile();
                 }
                 return new _crawlNovelPage_InitNovelMarkerAllPageOnPC__WEBPACK_IMPORTED_MODULE_20__.InitNovelMarkerAllPageOnPC();
@@ -7261,6 +7267,8 @@ class InitPage {
                 return new _crawlMixedPage_InitContestPage__WEBPACK_IMPORTED_MODULE_27__.InitContestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserRequest:
                 return new _crawlMixedPage_InitUserRequestPage__WEBPACK_IMPORTED_MODULE_28__.InitUserRequestPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.WatchListNovel:
+                return new _crawlMixedPage_InitWatchListNovelPage__WEBPACK_IMPORTED_MODULE_29__.InitWatchListNovelPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_24__.InitUnsupportedPage();
         }
@@ -9048,6 +9056,10 @@ var PageName;
     PageName[PageName["NovelGenre"] = 28] = "NovelGenre";
     /** 29 小说书签列表页面 */
     PageName[PageName["NovelMarkerAll"] = 29] = "NovelMarkerAll";
+    /** 30 追更列表的小说分类页面 */
+    PageName[PageName["WatchListNovel"] = 30] = "WatchListNovel";
+    /** 31 追更列表的漫画分类页面 */
+    PageName[PageName["WatchListManga"] = 31] = "WatchListManga";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -9206,6 +9218,12 @@ class PageType {
         }
         else if (path.includes('/novel/marker_all.php')) {
             return PageName.NovelMarkerAll;
+        }
+        else if (path.includes('/following/watchlist/novels')) {
+            return PageName.WatchListNovel;
+        }
+        else if (path.includes('/following/watchlist/manga')) {
+            return PageName.WatchListManga;
         }
         else {
             // 没有匹配到可用的页面类型
@@ -9368,8 +9386,12 @@ class PageType {
                 url: 'https://www.pixiv.net/genre/novel',
             },
             {
-                type: PageName.NovelMarkerAll,
-                url: 'https://www.pixiv.net/novel/marker_all.php',
+                type: PageName.WatchListNovel,
+                url: 'https://www.pixiv.net/following/watchlist/novels',
+            },
+            {
+                type: PageName.WatchListManga,
+                url: 'https://www.pixiv.net/following/watchlist/manga',
             },
         ];
         for (const item of testPageList) {
@@ -17030,9 +17052,10 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MO
         });
     }
     filterBtn() {
-        // btnsConfig 里有些按钮不适合在小说缩略图上显示
-        // 现在只需要显示下载按钮，所以需要过滤
-        return this.btnsConfig.filter((config) => (config.name === 'downloadBtnOnThumb' || config.name === 'likeBtnOnThumb'));
+        // btnsConfig 里有些按钮不适合在小说缩略图上显示，
+        // 例如查看图片、复制信息，因为这些按钮是为图像作品设计的。
+        // 在这里过滤出要在小说缩略图上显示的按钮
+        return this.btnsConfig.filter((config) => config.name === 'downloadBtnOnThumb' || config.name === 'likeBtnOnThumb');
     }
     createAllBtn() {
         this.filterBtn().forEach((config) => {
@@ -24566,6 +24589,132 @@ class InitUserRequestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 /***/ }),
 
+/***/ "./src/ts/crawlMixedPage/InitWatchListNovelPage.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/crawlMixedPage/InitWatchListNovelPage.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitWatchListNovelPage: () => (/* binding */ InitWatchListNovelPage)
+/* harmony export */ });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
+
+
+
+
+
+
+// 追更列表的小说分类页面
+// 该页面里全都是系列作品，没有单篇作品。
+class InitWatchListNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    getIdListLogKey = 'getIdListOnWatchListNovelPage';
+    addCrawlBtns() {
+        this.addInitPageBtn('crawlBtns', '_抓取追更列表', '', 'crawlWatchList', 'brand').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    nextStep() {
+        if (this.crawlNumber === -1 || this.crawlNumber > 30) {
+            this.setSlowCrawl();
+        }
+        // 设置起始页码
+        const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'p');
+        this.startpageNo = parseInt(p) || 1;
+        this.getIdList();
+    }
+    getWantPage() {
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_6__.pageType.type].value;
+        if (this.crawlNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取x页_每页最多含有x个作品', this.crawlNumber.toString(), '24'));
+        }
+    }
+    async getIdList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        const p = this.startpageNo + this.listPageFinished;
+        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getWatchListNovelData(p);
+        this.listPageFinished++;
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+            return this.getIdListFinished();
+        }
+        // 如果请求出错，或者没有获取到系列数据，则结束抓取
+        if (data.error || !data.body?.thumbnails?.novelSeries) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取列表页时遇到错误结束抓取'));
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('stopCrawl');
+            return this.getIdListFinished();
+        }
+        // 保存本页面的系列 id 列表
+        // 这个页面里全都是系列作品，没有单篇作品，所以只保存系列 id
+        for (const series of data.body.thumbnails.novelSeries) {
+            // 注意：这里没有传递 tags，因为系列数据里的 tags 是它里面的小说的 tags，不能用来对整个系列进行过滤。
+            // 系列小说也没有自己的语言，语言会在保存小说数据时（SaveNovelData）进行检查
+            const filterOpt = {
+                aiType: series.aiType,
+                id: series.id,
+                isOriginal: series.isOriginal,
+                IDTypeString: 'novelSeries',
+                seriesTitle: series.title,
+                userId: series.userId,
+                xRestrict: series.xRestrict,
+            };
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_9__.store.idList.push({
+                    id: series.id,
+                    type: 'novelSeries',
+                    title: series.title,
+                });
+            }
+        }
+        // 判断是否到了最后一页，或者抓取到了指定的页数
+        if (p >= data.body.page.maxPage ||
+            this.listPageFinished === this.crawlNumber) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_列表页抓取完成'));
+            this.getIdListFinished();
+        }
+        else {
+            // 继续抓取
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+            }
+            this.getIdList();
+        }
+    }
+    resetGetIdListStatus() {
+        this.listPageFinished = 0;
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlMixedPage/QuickCrawl.ts":
 /*!*********************************************!*\
   !*** ./src/ts/crawlMixedPage/QuickCrawl.ts ***!
@@ -26908,7 +27057,8 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 id: novelId,
                 isOriginal: novelId ? work.isOriginal : null,
                 // 只检查单篇小说的收藏数据。系列小说本身没有收藏数据，所以不进行检查。
-                // PS：此时系列小说也有 bookmarkData，但其数字不是每篇小说的收藏数量之和，我不清楚这个数字怎么来的
+                // PS：此时系列小说也有 bookmarkData，但其数字不是每篇小说的收藏数量之和。
+                // 可能是收藏了系列内小说的用户的数量；每个用户只统计一次。
                 bookmarkData: novelId ? work.bookmarkData : undefined,
                 bookmarkCount: novelId ? work.bookmarkCount : undefined,
                 workType: 3,
@@ -41012,6 +41162,14 @@ Quick download tasks are triggered by these actions:<br>
         `시리즈 소설 긁어오기`,
         `Просканировать серию новелл`,
     ],
+    _抓取追更列表: [
+        `抓取追更列表`,
+        `擷取追更列表`,
+        `Crawl watch list`,
+        `ウォッチリストをクロール`,
+        `구독 목록 긁어오기`,
+        `Просканировать список отслеживаемых`,
+    ],
     _合并系列小说: [
         `合并系列小说`,
         `合併系列小說`,
@@ -52131,6 +52289,14 @@ One possible reason: Your Pixiv account has been banned.`,
         `소설 책갈피 목록 페이지`,
         `Страница списка закладок новеллы`,
     ],
+    _追更列表页面: [
+        `追更列表页面`,
+        `追更列表頁面`,
+        `Watch list page`,
+        `ウォッチリストページ`,
+        `구독 목록 페이지`,
+        `Страница списка отслеживаемых`,
+    ],
     _未登录用户无法抓取: [
         `未登录用户无法抓取`,
         `未登入使用者無法擷取`,
@@ -55031,6 +55197,11 @@ class ButtonConfigs {
                     order: 13,
                     nameKey: '_小说书签列表页面',
                 },
+                WatchList: {
+                    id: 'WatchList',
+                    order: 14,
+                    nameKey: '_追更列表页面',
+                },
             },
         },
         downloadArea: {
@@ -55314,6 +55485,13 @@ class ButtonConfigs {
             nameKey: '_开始抓取',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'NovelMarkerAll',
+        },
+        // startCrawl - WatchList
+        {
+            id: 'crawlWatchList',
+            nameKey: '_抓取追更列表',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'WatchList',
         },
         // downloadArea - CrawlResults
         {
@@ -60740,6 +60918,22 @@ class Settings {
                 value: -1,
                 tip: '_负1或者大于0',
             },
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListNovel]: {
+                work: false,
+                page: true,
+                min: 1,
+                max: -1,
+                value: -1,
+                tip: '_负1或者大于0',
+            },
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListManga]: {
+                work: false,
+                page: true,
+                min: 1,
+                max: -1,
+                value: -1,
+                tip: '_负1或者大于0',
+            },
         },
         onlyCrawlFirstFewImagesSwitch: false,
         onlyCrawlFirstFewImagesCount: 1,
@@ -60914,6 +61108,8 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserRequest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelGenre]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelMarkerAll]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListManga]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForArtwork,
         },
         nameRuleForEachPageTypeForNovel: {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
@@ -60947,6 +61143,8 @@ class Settings {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.UserRequest]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelGenre]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.NovelMarkerAll]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListNovel]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
+            [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.WatchListManga]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRuleForNovel,
         },
         showNotificationAfterDownloadComplete: false,
         boldKeywords: true,

@@ -22,7 +22,18 @@ export interface FilterOption {
   aiType?: 0 | 1 | 2
   id?: number | string
   workType?: WorkType
-  /** ID 类型。注意有可能是 novelSeries，一些过滤器不会检查这个类型 */
+  /** ID 类型。
+   * 注意： ID 类型可能是系列小说 novelSeries。
+   * 系列的一些属性与系列内部单篇小说的属性可能不同，例如 tags、createDate。
+   * 所以当 ID 类型是 novelSeries 时，只应该传递系列相关的必要数据，避免传递会和单篇小说混淆的数据。
+   *
+   * 大部分过滤方法都是为了过滤单个作品而设计的，不适合用来过滤系列小说。
+   * 所以一些过滤方法会对 novelSeries 早退；
+   * 有些过滤方法没有判断 novelSeries，可能会把它当做单个作品来处理，这是比较危险的。
+   *
+   * 可以安全传递的系列数据，可以参考：
+   * src/ts/crawlMixedPage/InitWatchListNovelPage.ts 里的 filterOpt。
+   */
   IDTypeString?: IDTypeString
   pageCount?: number
   tags?: string[]

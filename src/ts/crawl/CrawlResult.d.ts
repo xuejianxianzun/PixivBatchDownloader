@@ -2318,3 +2318,158 @@ export type NovelMarkerAllItem = {
 }
 /** 在小说书签列表页面里，通过 API 获得的数据。每页 10 条数据，纯数组。 */
 export type NovelMarkerAllData = NovelMarkerAllItem[]
+
+/** 追更列表的小说分类页面里，通过 API 获得的数据。
+ *
+ * https://www.pixiv.net/ajax/watch_list/novel?p=1&new=1&lang=zh
+ *
+ * 该页面里全都是系列作品，没有单篇作品。每页最多 24 个系列小说，数据在 `body.thumbnails.novelSeries` 里。
+ */
+export interface WatchListNovelData {
+  error: boolean
+  message: string
+  body: {
+    page: {
+      /** 追更列表里的系列小说总数。是数字字符串 */
+      total: string
+      /** 最大页码 */
+      maxPage: number
+      /** 当前登录用户追更的系列小说的 id 列表。
+       *
+       * 注意：这个列表里的 id 可能比 `body.thumbnails.novelSeries` 里的多。
+       * 如果一个系列已被删除，watchedSeriesIds 里可能仍然存在该系列的 id。
+       * 所以抓取时应该以 `body.thumbnails.novelSeries` 里的系列数据为准，不要直接使用watchedSeriesIds
+       */
+      watchedSeriesIds: string[]
+    }
+    zoneConfig: {
+      header: { url: string }
+      footer: { url: string }
+      logo: { url: string }
+      ad_logo: { url: string }
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        /** 在这个 API 里是 false，不是对象 */
+        ogp: false
+        /** 在这个 API 里是 false，不是对象 */
+        twitter: false
+      }
+    }
+    /** 在这个页面里是空数组 */
+    tagTranslation: []
+    thumbnails: {
+      /** 在这个页面里是空数组，因为这里没有插画·漫画作品 */
+      illust: []
+      /** 在这个页面里是空数组，因为这里没有单篇小说 */
+      novel: []
+      /** 系列小说的数据集合。每页最多 24 条 */
+      novelSeries: {
+        /** 系列 id */
+        id: string
+        /** 系列标题 */
+        title: string
+        /** 标题和简介的翻译数据。在这个页面里始终是 null */
+        titleCaptionTranslation: null
+        /** 系列的封面图片 */
+        cover: {
+          urls: {
+            '240mw': string
+            '480mw': string
+            '1200x1200': string
+            '128x128': string
+            original: string
+          }
+        }
+        /** 系列的标签 */
+        tags: string[]
+        /** 0 全年龄，1 R-18，2 R-18G */
+        xRestrict: 0 | 1 | 2
+        /** 是否为原创作品 */
+        isOriginal: boolean
+        /** 类型。是数字字符串 */
+        genre: string
+        /** 系列创建时间 */
+        createDateTime: string
+        /** 系列更新时间 */
+        updateDateTime: string
+        /** 系列作者的用户 id */
+        userId: string
+        /** 系列作者的用户名 */
+        userName: string
+        /** 系列作者的头像图片 URL */
+        profileImageUrl: string
+        bookmarkCount: number
+        /** 是否为单篇（短篇）作品 */
+        isOneshot: boolean
+        /** 系列的简介 */
+        caption: string
+        /** 系列是否已完结 */
+        isConcluded: boolean
+        /** 系列里的小说数量 */
+        episodeCount: number
+        /** 系列里已发布的小说数量 */
+        publishedEpisodeCount: number
+        /** 最后一篇小说的发布时间 */
+        latestPublishDateTime: string
+        /** 最后一篇小说的 id */
+        latestEpisodeId: string
+        /** 是否已追更这个系列。在这个页面里应该都是 true */
+        isWatched: boolean
+        /** 这个系列更新时是否发送通知 */
+        isNotifying: boolean
+        restrict: number
+        /** 系列里所有小说的总字数 */
+        textLength: number
+        /** 系列里所有小说的总字符数 */
+        wordCount: number
+        /** 阅读系列里所有小说所需的时长，单位是秒 */
+        readingTime: number
+        /** 系列里已发布的小说的总字数 */
+        publishedTextLength: number
+        /** 系列里已发布的小说的总字符数 */
+        publishedWordCount: number
+        /** 阅读系列里已发布的小说所需的时长，单位是秒 */
+        publishedReadingTime: number
+        useWordCount: boolean
+        /** 是否为 AI 生成的作品。0 未知 1 否 2 是 */
+        aiType: 0 | 1 | 2
+      }[]
+      /** 在这个页面里是空数组 */
+      novelDraft: []
+      /** 在这个页面里是空数组 */
+      collection: []
+    }
+    /** 在这个页面里是空数组 */
+    illustSeries: []
+    /** 在这个页面里是空数组 */
+    requests: []
+    /** 本页作品所属的用户的数据集合 */
+    users: {
+      partial: number
+      comment: string
+      /** 这个用户是否关注了当前登录用户 */
+      followedBack: boolean
+      userId: string
+      /** 用户名 */
+      name: string
+      /** 用户头像图片 URL */
+      image: string
+      /** 用户头像图片 URL，大图 */
+      imageBig: string
+      /** 是否为高级会员 */
+      premium: boolean
+      /** 当前登录用户是否已关注这个用户 */
+      isFollowed: boolean
+      /** 是否为当前登录用户的好友 */
+      isMypixiv: boolean
+      /** 当前登录用户是否已屏蔽这个用户 */
+      isBlocking: boolean
+      background: null
+      commission: null
+    }[]
+  }
+}

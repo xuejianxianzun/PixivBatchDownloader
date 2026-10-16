@@ -86,6 +86,10 @@ enum PageName {
   NovelGenre,
   /** 29 小说书签列表页面 */
   NovelMarkerAll,
+  /** 30 追更列表的小说分类页面 */
+  WatchListNovel,
+  /** 31 追更列表的漫画分类页面 */
+  WatchListManga,
 }
 
 // 获取页面类型
@@ -249,6 +253,10 @@ class PageType {
       return PageName.NovelGenre
     } else if (path.includes('/novel/marker_all.php')) {
       return PageName.NovelMarkerAll
+    } else if (path.includes('/following/watchlist/novels')) {
+      return PageName.WatchListNovel
+    } else if (path.includes('/following/watchlist/manga')) {
+      return PageName.WatchListManga
     } else {
       // 没有匹配到可用的页面类型
       return PageName.Unsupported
@@ -412,8 +420,12 @@ class PageType {
         url: 'https://www.pixiv.net/genre/novel',
       },
       {
-        type: PageName.NovelMarkerAll,
-        url: 'https://www.pixiv.net/novel/marker_all.php',
+        type: PageName.WatchListNovel,
+        url: 'https://www.pixiv.net/following/watchlist/novels',
+      },
+      {
+        type: PageName.WatchListManga,
+        url: 'https://www.pixiv.net/following/watchlist/manga',
       },
     ]
 
