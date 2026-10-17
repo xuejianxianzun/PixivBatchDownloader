@@ -109,6 +109,9 @@ export interface FormType extends HTMLFormElement {
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
   createFolderTagList2: HTMLTextAreaElement
+  createFolderByBookmarkTag: HTMLInputElement
+  createFolderBookmarkTagList: HTMLTextAreaElement
+  createFolderBookmarkTagList2: HTMLTextAreaElement
   downAllAges: HTMLInputElement
   downR18: HTMLInputElement
   downR18G: HTMLInputElement

@@ -87,7 +87,8 @@ class SaveNovelData {
         // 用户可能同时选择多种保存格式，这里保存默认格式
         ext: novelSaveFormat.getDefaultFormat(),
         bmk: bmk,
-        bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+        // 小说详情 API 返回的收藏 id 是数字，转换成字符串，保持抓取结果里的类型一致
+        bmkId: body.bookmarkData ? String(body.bookmarkData.id) : '',
         ...bookmarkTags.getForResult(body.bookmarkData),
         bookmarked: bookmarked,
         date: body.createDate,

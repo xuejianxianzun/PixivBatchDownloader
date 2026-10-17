@@ -824,6 +824,18 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 115,
+      nameKey: '_使用第一个匹配的收藏标签建立文件夹带高亮',
+      name: '',
+      categoryLevel1: 'naming',
+      categoryLevel2: 'adjustFolders',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_文件夹'],
+      searchWords: [],
+      addedAt: 1792265427161,
+    },
+    {
       no: 44,
       nameKey: '_标签别名',
       name: '',

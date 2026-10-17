@@ -384,6 +384,9 @@ interface XzSetting {
   createFolderByTag: boolean
   createFolderTagList: string[]
   createFolderTagList2: string[]
+  createFolderByBookmarkTag: boolean
+  createFolderBookmarkTagList: string[]
+  createFolderBookmarkTagList2: string[]
   downloadUgoiraFirst: boolean
   downAllAges: boolean
   downR18: boolean
@@ -987,6 +990,9 @@ class Settings {
     createFolderByTag: false,
     createFolderTagList: [],
     createFolderTagList2: [],
+    createFolderByBookmarkTag: false,
+    createFolderBookmarkTagList: [],
+    createFolderBookmarkTagList2: [],
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
@@ -1305,6 +1311,8 @@ class Settings {
     'notNeedTagPartial',
     'createFolderTagList',
     'createFolderTagList2',
+    'createFolderBookmarkTagList',
+    'createFolderBookmarkTagList2',
     'exportLogExclude',
     'novelLanguageList',
     'titleIncludeList',

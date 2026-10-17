@@ -6,6 +6,7 @@ import { setTagAlias } from './setting/SetTagAlias'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './Config'
+import { bookmarkTags } from './BookmarkTags'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
 import { Tools } from './Tools'
@@ -14,6 +15,25 @@ import { lang } from './Language'
 
 interface NamingSchema {
   [key: string]: { value: string; safe: boolean }
+}
+
+/** 「使用第一个匹配的标签建立文件夹」系列标记的配置。
+ *
+ * 作品标签和收藏标签都可以用同一套逻辑来匹配，所以把差异部分抽成这个配置 */
+interface MatchTagFolderConfig {
+  /** 用于匹配的标签列表。可以是作品的标签，也可以是作品的收藏标签 */
+  tags: string[]
+  /** 收藏 id。如果提供了这个值，会优先使用 BookmarkTags 缓存里的最新标签，
+   * 缓存里没有这个作品时才使用 tags */
+  bookmarkId?: string
+  /** 这个功能是否已启用 */
+  enabled: boolean
+  /** 用户设置的标签列表所在的设置项 */
+  key:
+    | 'createFolderTagList'
+    | 'createFolderTagList2'
+    | 'createFolderBookmarkTagList'
+    | 'createFolderBookmarkTagList2'
 }
 
 // 生成文件名
@@ -501,18 +521,51 @@ class FileName {
     {
       flag: '{match_tag_folder}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList',
+        }),
     },
     // {match_tag_folder} 和 {match_tag_folder1} 是相同的
     {
       flag: '{match_tag_folder1}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList',
+        }),
     },
     {
       flag: '{match_tag_folder2}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList2'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList2',
+        }),
+    },
+    // 使用收藏标签来建立文件夹。旧的任务数据里可能没有 bookmarkTags，所以要提供默认值
+    {
+      flag: '{match_bookmark_tag_folder1}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.bookmarkTags || [],
+          bookmarkId: data.bmkId,
+          enabled: settings.createFolderByBookmarkTag,
+          key: 'createFolderBookmarkTagList',
+        }),
+    },
+    {
+      flag: '{match_bookmark_tag_folder2}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.bookmarkTags || [],
+          bookmarkId: data.bmkId,
+          enabled: settings.createFolderByBookmarkTag,
+          key: 'createFolderBookmarkTagList2',
+        }),
     },
   ]
 
@@ -555,23 +608,31 @@ class FileName {
     return ''
   }
 
-  /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
+  /** 获取「使用第一个匹配的标签建立文件夹」系列标记的返回值。
+   *
+   * 作品本身的标签和收藏标签列表都使用这个方法进行匹配，差异由 config 决定 */
   private getMatchTagFolder(
     rule: string,
     flag: string,
-    data: Result,
-    key: 'createFolderTagList' | 'createFolderTagList2'
+    config: MatchTagFolderConfig
   ): string {
     if (
       !rule.includes(flag) ||
-      !settings.createFolderByTag ||
-      settings[key].length === 0
+      !config.enabled ||
+      settings[config.key].length === 0
     ) {
       return ''
     }
 
+    // 收藏标签可能在抓取之后发生变化（用户在当前页面添加或移除了标签），
+    // 而抓取结果里保存的是抓取时的旧数据。
+    // 所以这里优先使用 BookmarkTags 缓存里的最新数据，缓存里没有这个作品时才使用抓取结果里的数据
+    const tags = config.bookmarkId
+      ? bookmarkTags.getForMatch(config.bookmarkId, config.tags)
+      : config.tags
+
     let value = ''
-    const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+    const workTags = tags.map((val) => val.toLowerCase())
 
     // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
     // 注意：标签别名是始终保持原本的大小写的，没有转换成小写
@@ -591,7 +652,7 @@ class FileName {
     // 例如 用户输入顺序：A,B
     // 作品 tag 里的顺序：B,A
     if (aliasList.size > 0) {
-      for (const userTag of settings[key]) {
+      for (const userTag of settings[config.key]) {
         if (aliasList.has(userTag)) {
           value = userTag
           // console.log('用户使用的别名：', userTag)
@@ -602,7 +663,7 @@ class FileName {
 
     // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
     if (!value) {
-      for (const userTag of settings[key]) {
+      for (const userTag of settings[config.key]) {
         if (workTags.includes(userTag.toLowerCase())) {
           value = userTag
           break

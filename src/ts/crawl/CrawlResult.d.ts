@@ -1129,7 +1129,11 @@ export interface NovelData {
     aiType: 0 | 1 | 2
     bookmarkCount: number
     bookmarkData: null | {
-      id: string
+      /** 收藏 id。
+       *
+       * 注意：这个接口返回的收藏 id 是**数字**，而书签列表接口（/ajax/user/{id}/{type}/bookmarks）
+       * 返回的收藏 id 是**字符串**。使用它去查询缓存时记得统一转换成字符串 */
+      id: string | number
       private: boolean
     }
     /** 字符数量。CJK 文本使用这个值 */

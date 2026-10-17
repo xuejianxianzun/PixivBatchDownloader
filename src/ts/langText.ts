@@ -1950,19 +1950,35 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _命名标记_match_tag_folder1: [
     `它是"使用第一个匹配的标签建立文件夹"里第一个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
-    `它是「使用第一個匹配的標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
-    `This is the match result of the first tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
-    `これは「最初にマッチしたタグを使ってフォルダーを作成する」の最初のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
-    `이것은 "처음 매칭된 태그로 폴더 만들기"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
-    `Это результат совпадения первого списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+    `它是「使用第一個符合的標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the first tag list in "Create a folder with the first matched tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初の一致するタグにフォルダを作成」の最初のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 태그로 디렉토리 생성"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения первого списка тегов в настройке "Создать папку с первым совпавшим тегом". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
   ],
   _命名标记_match_tag_folder2: [
     `它是"使用第一个匹配的标签建立文件夹"里第二个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
-    `它是「使用第一個匹配的標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
-    `This is the match result of the second tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
-    `これは「最初にマッチしたタグを使ってフォルダーを作成する」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
-    `이것은 "처음 매칭된 태그로 폴더 만들기"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
-    `Это результат совпадения второго списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+    `它是「使用第一個符合的標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the second tag list in "Create a folder with the first matched tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初の一致するタグにフォルダを作成」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 태그로 디렉토리 생성"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения второго списка тегов в настройке "Создать папку с первым совпавшим тегом". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+  ],
+  _命名标记_match_bookmark_tag_folder1: [
+    `它是"使用第一个匹配的收藏标签建立文件夹"里第一个标签列表的匹配结果。如果你启用了这个设置，并且作品的收藏标签匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+    `它是「使用第一個符合的收藏標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且作品的收藏標籤匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the first tag list in "Create a folder with the first matched bookmark tag". If you have enabled this setting and the work's bookmark tags contain a tag you set, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初に一致するブックマークタグにフォルダを作成」の最初のタグリストのマッチ結果です。この設定を有効にしていて、作品のブックマークタグが設定したタグとマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 북마크 태그로 디렉토리 생성"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 작품의 북마크 태그가 설정한 태그와 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения первого списка тегов в настройке «Создать папку с первым совпавшим тегом закладки». Если вы включили эту настройку и теги закладок работы содержат заданный вами тег, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+  ],
+  _命名标记_match_bookmark_tag_folder2: [
+    `它是"使用第一个匹配的收藏标签建立文件夹"里第二个标签列表的匹配结果。如果你启用了这个设置，并且作品的收藏标签匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+    `它是「使用第一個符合的收藏標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且作品的收藏標籤匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the second tag list in "Create a folder with the first matched bookmark tag". If you have enabled this setting and the work's bookmark tags contain a tag you set, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初に一致するブックマークタグにフォルダを作成」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、作品のブックマークタグが設定したタグとマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 북마크 태그로 디렉토리 생성"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 작품의 북마크 태그가 설정한 태그와 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения второго списка тегов в настройке «Создать папку с первым совпавшим тегом закладки». Если вы включили эту настройку и теги закладок работы содержат заданный вами тег, токен выведет этот тег; в противном случае он будет проигнорирован.`,
   ],
   _命名标记tags_trans: [
     `作品的标签列表，并且附带翻译后的标签`,
@@ -6150,6 +6166,94 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 Совпадение точное, без учёта регистра. Если вы задали <span class="blue">A</span>, совпадут <span class="blue">a</span> и <span class="blue">A</span>, но не <span class="blue">abc</span>.<br>
 Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
 Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
+  ],
+  _使用第一个匹配的收藏标签建立文件夹带高亮: [
+    `使用第一个匹配的<span class="key">收藏</span>标签建立文件夹`,
+    `使用第一個符合的<span class="key">收藏</span>標籤建立資料夾`,
+    `Create a folder with the first matched <span class="key">bookmark</span> tag`,
+    `最初に一致する<span class="key">ブックマーク</span>タグにフォルダを作成`,
+    `첫 번째 일치하는 <span class="key">북마크</span> 태그로 디렉토리 생성`,
+    `Создать папку с первым совпавшим тегом <span class="key">закладки</span>`,
+  ],
+  _使用第一个匹配的收藏标签建立文件夹的说明: [
+    `当你在你的收藏页面里抓取作品时，如果想使用某些收藏标签（而不是作品本身的标签）来建立文件夹，就可以使用这个设置。<br>
+    <br>
+先填写你想设置为文件夹名字的标签，然后修改命名规则，添加特殊标记来建立文件夹。例如：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+原理：<br>
+这个设置会检查你为已收藏的作品添加的标签（可能是你设置的自定义标签）。如果作品的收藏标签与你在这里设置的某个标签相同，下载器就可以输出这个标签，用于文件夹或文件名里。<br>
+<br>
+使用方法：<br>
+可以参考“使用第一个匹配的标签建立文件夹”设置的帮助内容，两者的使用方法非常相似。区别在于：<br>
+- 这个设置使用 <span class="blue">{match_bookmark_tag_folder1}</span> 和 <span class="blue">{match_bookmark_tag_folder2}</span> 标记输出匹配结果。<br>
+- 这个设置在匹配标签时，使用的是你为已收藏的作品添加的自定义标签（<span class="blue">{bookmark_tags}</span>），而不是作品本身的标签（<span class="blue">{tags_translate}</span>）。<br>
+- 只有当你在自己的收藏页面里抓取时，这个设置才会生效。这是因为在收藏页面里，下载器可以获取到你为作品添加的收藏标签；但是在其他页面里，下载器获取不到你设置的收藏标签，所以这个设置无效（不会建立文件夹）。<br>`,
+    `當你在你的收藏頁面裡擷取作品時，如果想使用某些收藏標籤（而不是作品本身的標籤）來建立資料夾，就可以使用這個設定。<br>
+<br>
+先填寫你想設定為資料夾名字的標籤，然後修改命名規則，新增特殊標記來建立資料夾。例如：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+原理：<br>
+這個設定會檢查你為已收藏的作品新增的標籤（可能是你設定的自訂標籤）。如果作品的收藏標籤與你在這裡設定的某個標籤相同，下載器就可以輸出這個標籤，用於資料夾或檔案名稱裡。<br>
+<br>
+使用方法：<br>
+可以參考「使用第一個符合的標籤建立資料夾」設定的幫助內容，兩者的使用方法非常相似。區別在於：<br>
+- 這個設定使用 <span class="blue">{match_bookmark_tag_folder1}</span> 和 <span class="blue">{match_bookmark_tag_folder2}</span> 標記輸出匹配結果。<br>
+- 這個設定在匹配標籤時，使用的是你為已收藏的作品新增的自訂標籤（<span class="blue">{bookmark_tags}</span>），而不是作品本身的標籤（<span class="blue">{tags_translate}</span>）。<br>
+- 只有當你在自己的收藏頁面裡擷取時，這個設定才會生效。這是因為在收藏頁面裡，下載器可以取得你為作品新增的收藏標籤；但是在其他頁面裡，下載器取得不到你設定的收藏標籤，所以這個設定無效（不會建立資料夾）。<br>`,
+    `When you crawl works on your bookmarks page, you can use this setting if you want to create folders by certain bookmark tags (instead of the tags of the works themselves).<br>
+<br>
+First, enter the tags you want to use as folder names, then modify your naming rule to add special tokens that create the folders. For example:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+How it works:<br>
+This setting checks the tags you added to your bookmarked works (which may be custom tags you set). If a work's bookmark tags contain one of the tags you set here, the downloader can output that tag and use it in folder or file names.<br>
+<br>
+How to use:<br>
+You can refer to the help content of the "Create a folder with the first matched tag" setting; the usage is very similar. The differences are:<br>
+- This setting outputs the match result with the <span class="blue">{match_bookmark_tag_folder1}</span> and <span class="blue">{match_bookmark_tag_folder2}</span> tokens.<br>
+- When matching tags, this setting uses the custom tags you added to your bookmarked works (<span class="blue">{bookmark_tags}</span>) instead of the work's own tags (<span class="blue">{tags_translate}</span>).<br>
+- This setting only works when you crawl on your own bookmarks page. This is because the downloader can get the bookmark tags you added to works on the bookmarks page, but cannot get them on other pages, so the setting has no effect there (no folders will be created).<br>`,
+    `ブックマークページで作品をクロールするとき、作品自体のタグではなく、特定のブックマークタグでフォルダーを作成したい場合にこの設定を使用できます。<br>
+<br>
+まずフォルダー名にしたいタグを入力し、次に命名規則を変更して、フォルダーを作成する特殊トークンを追加します。例：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+仕組み：<br>
+この設定は、ブックマークした作品に追加したタグ（あなたが設定したカスタムタグの場合もあります）をチェックします。作品のブックマークタグに、ここで設定したタグと同じものがあれば、ダウンローダーはそのタグを出力し、フォルダー名やファイル名に使用できます。<br>
+<br>
+使い方：<br>
+「最初の一致するタグにフォルダを作成」設定のヘルプ内容を参考にしてください。使い方は非常に似ています。違いは次のとおりです：<br>
+- この設定は <span class="blue">{match_bookmark_tag_folder1}</span> と <span class="blue">{match_bookmark_tag_folder2}</span> トークンで一致結果を出力します。<br>
+- タグを照合するとき、この設定は作品自体のタグ（<span class="blue">{tags_translate}</span>）ではなく、ブックマークした作品に追加したカスタムタグ（<span class="blue">{bookmark_tags}</span>）を使用します。<br>
+- この設定は、自分のブックマークページでクロールする場合にのみ有効です。ブックマークページではダウンローダーが作品に追加したブックマークタグを取得できますが、他のページでは取得できないため、この設定は無効です（フォルダーは作成されません）。<br>`,
+    `북마크 페이지에서 작품을 긁어올 때, 작품 자체의 태그가 아닌 특정 북마크 태그로 폴더를 만들고 싶다면 이 설정을 사용할 수 있습니다.<br>
+<br>
+먼저 폴더 이름으로 사용할 태그를 입력한 다음, 명명 규칙을 수정하여 폴더를 만드는 특수 토큰을 추가하세요. 예:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+원리:<br>
+이 설정은 북마크한 작품에 추가한 태그(직접 설정한 사용자 지정 태그일 수 있음)를 확인합니다. 작품의 북마크 태그에 여기에서 설정한 태그와 같은 것이 있으면, 다운로더가 해당 태그를 출력하여 폴더나 파일 이름에 사용할 수 있습니다.<br>
+<br>
+사용 방법:<br>
+"첫 번째 일치하는 태그로 디렉토리 생성" 설정의 도움말 내용을 참고하세요. 사용 방법은 매우 비슷합니다. 차이점은 다음과 같습니다:<br>
+- 이 설정은 <span class="blue">{match_bookmark_tag_folder1}</span> 및 <span class="blue">{match_bookmark_tag_folder2}</span> 토큰으로 일치 결과를 출력합니다.<br>
+- 태그를 일치시킬 때 이 설정은 작품 자체의 태그(<span class="blue">{tags_translate}</span>)가 아니라 북마크한 작품에 추가한 사용자 지정 태그(<span class="blue">{bookmark_tags}</span>)를 사용합니다.<br>
+- 이 설정은 자신의 북마크 페이지에서 긁어올 때만 유효합니다. 북마크 페이지에서는 다운로더가 작품에 추가한 북마크 태그를 가져올 수 있지만, 다른 페이지에서는 가져올 수 없기 때문에 이 설정은 효과가 없습니다(폴더가 생성되지 않음).<br>`,
+    `Когда вы сканируете работы на странице своих закладок, вы можете использовать эту настройку, если хотите создавать папки по определённым тегам закладок (а не по тегам самих работ).<br>
+<br>
+Сначала введите теги, которые хотите использовать как имена папок, затем измените правило именования, добавив специальные токены для создания папок. Например:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+Принцип:<br>
+Эта настройка проверяет теги, которые вы добавили к работам в закладках (это могут быть ваши собственные теги). Если теги закладок работы совпадают с одним из заданных здесь тегов, загрузчик может вывести этот тег и использовать его в именах папок или файлов.<br>
+<br>
+Как использовать:<br>
+Вы можете обратиться к справке настройки «Создать папку с первым совпавшим тегом»; способ использования очень похож. Отличия:<br>
+- Эта настройка выводит результат совпадения с помощью токенов <span class="blue">{match_bookmark_tag_folder1}</span> и <span class="blue">{match_bookmark_tag_folder2}</span>.<br>
+- При сопоставлении тегов эта настройка использует собственные теги, добавленные вами к работам в закладках (<span class="blue">{bookmark_tags}</span>), а не теги самой работы (<span class="blue">{tags_translate}</span>).<br>
+- Эта настройка действует только при сканировании на вашей собственной странице закладок. Это связано с тем, что на странице закладок загрузчик может получить добавленные вами теги закладок, а на других страницах — не может, поэтому там настройка не действует (папки не создаются).<br>`,
   ],
   _全年龄: [
     `全年龄`,
@@ -12286,51 +12390,63 @@ Tip: Click a token name to copy it.<br>`,
     `如果一个标签有多种变体，你可以为它们设置一个通用的别名。例如 <span class="blue">GenshinImpact</span> 有多个变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
 <br>
-子选项：<br>
-- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
-对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
+你可以在这些设置里使用别名来代替原始标签：<br>
+- 使用第一个匹配的标签建立文件夹<br>
+- 使用第一个匹配的收藏标签建立文件夹<br>
 <br>
-另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
+应用到文件名里的 {tags} 系列标记：<br>
+如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+对于上面的例子，下载器在生成文件名时，会把标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。`,
     `如果一個標籤有多種變體，你可以為它們設定一個通用的別名。例如 <span class="blue">GenshinImpact</span> 有多個變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
 <br>
-子選項：<br>
-- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
-對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
+你可以在這些設定裡使用別名來代替原始標籤：<br>
+- 使用第一個符合的標籤建立資料夾<br>
+- 使用第一個符合的收藏標籤建立資料夾<br>
 <br>
-另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
+應用到檔名裡的 {tags} 系列標記：<br>
+如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+對於上面的例子，下載器在生成檔名時，會把標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。`,
     `If a tag has multiple variants, you can set a common alias for them. For example, <span class="blue">GenshinImpact</span> has multiple variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
 <br>
-Sub-options:<br>
-- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
-Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
+You can use aliases in place of the original tags in these settings:<br>
+- Create a folder with the first matched tag<br>
+- Create a folder with the first matched bookmark tag<br>
 <br>
-Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
+{tags} series tokens applied to the file name:<br>
+If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).`,
     `タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。例えば <span class="blue">GenshinImpact</span> には複数の表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
 <br>
-サブオプション：<br>
-- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
-上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
+これらの設定では、元のタグの代わりに別名を使用できます：<br>
+- 最初の一致するタグにフォルダを作成<br>
+- 最初に一致するブックマークタグにフォルダを作成<br>
 <br>
-また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
+ファイル名に適用される {tags} 系のトークン：<br>
+このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+上の例の場合、ダウンローダーはファイル名を生成する際、タグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。`,
     `태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 여러 변형이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
 <br>
-하위 옵션：<br>
-- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
-위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
+이 설정들에서는 원래 태그 대신 별칭을 사용할 수 있습니다：<br>
+- 첫 번째 일치하는 태그로 디렉토리 생성<br>
+- 첫 번째 일치하는 북마크 태그로 디렉토리 생성<br>
 <br>
-또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
+파일 이름에 적용되는 {tags} 계열 토큰：<br>
+이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+위 예시의 경우, 다운로더가 파일 이름을 생성할 때 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.`,
     `Если тег имеет несколько вариантов написания, вы можете задать для них общий псевдоним. Например, у <span class="blue">GenshinImpact</span> есть несколько вариантов: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
 <br>
-Вложенные параметры:<br>
-- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
-Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах работы на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
+В этих настройках можно использовать псевдонимы вместо исходных тегов:<br>
+- Создать папку с первым совпавшим тегом<br>
+- Создать папку с первым совпавшим тегом закладки<br>
 <br>
-Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
+Токены серии {tags}, применяемые в имени файла:<br>
+Если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).`,
   ],
   _别名: [`别名`, `別名`, `Alias`, `別名`, `별칭`, `Псевдоним`],
   _标签列表: [
@@ -13298,6 +13414,14 @@ If you enable this setting, the downloader will merge all novels.`,
     `この効果を実現するには、「フォルダーとファイルの名前」-「命名規則」に <span class="blue name">/{match_tag_folder1}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
     `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
     `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
+  ],
+  _提示还需要添加特定命名规则才能创建文件夹_match_bookmark_tag_folder: [
+    `你还需要在“文件夹和文件的名字”-“命名规则”里添加 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 才能实现这个效果。你可以点击“帮助”按钮查看详细说明。`,
+    `你還需要在「資料夾和檔案的名稱」-「命名規則」裡添加 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 才能實現這個效果。你可以點擊「幫助」按鈕查看詳細說明。`,
+    `You also need to add <span class="blue name">/{match_bookmark_tag_folder1}/</span> in "Folder and file names" - "Naming rules" to achieve this effect. You can click the "Help" button to see detailed instructions.`,
+    `この効果を実現するには、「フォルダーとファイルの名前」-「命名規則」に <span class="blue name">/{match_bookmark_tag_folder1}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
+    `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
+    `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_bookmark_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
   ],
   _小技巧_可选片段: [
     `小技巧：可选片段`,

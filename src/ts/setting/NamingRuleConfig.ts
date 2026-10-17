@@ -69,6 +69,16 @@ class NamingRuleConfig {
       mayEmpty: true,
       help: '_命名标记_match_tag_folder2',
     },
+    {
+      name: '{match_bookmark_tag_folder1}',
+      mayEmpty: true,
+      help: '_命名标记_match_bookmark_tag_folder1',
+    },
+    {
+      name: '{match_bookmark_tag_folder2}',
+      mayEmpty: true,
+      help: '_命名标记_match_bookmark_tag_folder2',
+    },
   ]
 
   public getOptionList() {
