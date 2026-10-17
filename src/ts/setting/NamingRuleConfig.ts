@@ -23,6 +23,11 @@ class NamingRuleConfig {
       mayEmpty: false,
       help: '_命名标记tags_transl_only',
     },
+    {
+      name: '{bookmark_tags}',
+      mayEmpty: true,
+      help: '_命名标记bookmark_tags',
+    },
     { name: '{page_tag}', mayEmpty: true, help: '_文件夹标记page_tag' },
     { name: '{type}', mayEmpty: false, help: '_命名标记type' },
     { name: '{type_illust}', mayEmpty: true, help: '_命名标记type_illust' },

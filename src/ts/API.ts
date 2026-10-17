@@ -51,6 +51,7 @@ import { Config } from './Config'
 import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
 import { Utils } from './utils/Utils'
+import { bookmarkTags } from './BookmarkTags'
 
 /** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
@@ -152,8 +153,8 @@ class API {
     return attemptRequest()
   }
 
-  /** 获取收藏数据
-   * 这个 api 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
+  /** 在书签页面里，获取作品列表数据的 API。里面含有这一页里每个作品的收藏标签信息。
+   * 这个 API 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
   static async getBookmarkData(
     userId: string,
     type: 'illusts' | 'novels' = 'illusts',
@@ -169,7 +170,12 @@ class API {
       hide ? 'hide' : 'show'
     }&order=${order}&mode=${mode}&work_tag=${work_tag}&bm=${bm}&rdm=${Math.random()}`
 
-    return this.fetch(url)
+    const data = await this.fetch<BookmarkData>(url)
+
+    // 保存这一页里的收藏标签，供之后生成抓取结果时使用（见 BookmarkTags）
+    bookmarkTags.add(data.body?.bookmarkTags)
+
+    return data
   }
 
   /** 添加收藏 */

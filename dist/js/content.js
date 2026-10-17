@@ -1248,6 +1248,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./BookmarkTags */ "./src/ts/BookmarkTags.ts");
+
 
 
 
@@ -1330,11 +1332,14 @@ class API {
         };
         return attemptRequest();
     }
-    /** 获取收藏数据
-     * 这个 api 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
+    /** 在书签页面里，获取作品列表数据的 API。里面含有这一页里每个作品的收藏标签信息。
+     * 这个 API 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
     static async getBookmarkData(userId, type = 'illusts', tag, offset, hide = false, order = 'desc', mode = 'all', work_tag = '', bm = '') {
         const url = `https://www.pixiv.net/ajax/user/${userId}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'}&order=${order}&mode=${mode}&work_tag=${work_tag}&bm=${bm}&rdm=${Math.random()}`;
-        return this.fetch(url);
+        const data = await this.fetch(url);
+        // 保存这一页里的收藏标签，供之后生成抓取结果时使用（见 BookmarkTags）
+        _BookmarkTags__WEBPACK_IMPORTED_MODULE_5__.bookmarkTags.add(data.body?.bookmarkTags);
+        return data;
     }
     /** 添加收藏 */
     static async addBookmark(id, type, tags, hide, token) {
@@ -2802,6 +2807,102 @@ const bookmark = new Bookmark();
 
 /***/ }),
 
+/***/ "./src/ts/BookmarkTags.ts":
+/*!********************************!*\
+  !*** ./src/ts/BookmarkTags.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   bookmarkTags: () => (/* binding */ bookmarkTags)
+/* harmony export */ });
+/** 缓存作品的收藏标签（bookmarkTags）。
+ *
+ * 收藏标签是用户在收藏一个作品之后，为这个收藏添加的标签，不是作品本身的标签。
+ * 这些数据只在书签列表页面的 API 里返回：/ajax/user/{userId}/{type}/bookmarks
+ *
+ * 数据的来源有两种：
+ * - 网页本身请求这个 API 时，由注入脚本（lib/bookmark_tags_observer.js）把数据发送到内容脚本；
+ * - 下载器请求这个 API 时（API.getBookmarkData），直接把数据保存到这里。
+ *
+ * 这个缓存保存在内存里，页面刷新后会清空。
+ */
+class BookmarkTags {
+    /** key 是收藏 id（作品的 bookmarkData.id），value 是这个收藏的标签集合 */
+    cache = new Map();
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        // 接收注入脚本发送过来的数据
+        window.addEventListener('message', (event) => {
+            if (event.source !== window) {
+                return;
+            }
+            const data = event.data;
+            if (data &&
+                data.source === 'pixiv-downloader-bookmark-tags' &&
+                data.bookmarkTags) {
+                this.add(data.bookmarkTags);
+            }
+        });
+        // 通知注入脚本：内容脚本已经就绪。注入脚本收到后会重新发送
+        // 之前缓存的数据，因为那些消息是在内容脚本就绪之前发送的，收不到
+        window.postMessage({
+            source: 'pixiv-downloader-bookmark-tags',
+            ready: true,
+        }, window.location.origin);
+    }
+    /** 保存一批收藏标签数据。key 是收藏 id，value 是标签列表 */
+    add(bookmarkTags) {
+        if (!bookmarkTags) {
+            return;
+        }
+        for (const [bookmarkId, tags] of Object.entries(bookmarkTags)) {
+            if (!Array.isArray(tags)) {
+                continue;
+            }
+            const tagSet = this.cache.get(bookmarkId);
+            if (tagSet) {
+                tags.forEach((tag) => tagSet.add(tag));
+            }
+            else {
+                this.cache.set(bookmarkId, new Set(tags));
+            }
+        }
+    }
+    /** 根据收藏 id 获取收藏标签。如果缓存里没有这个收藏 id，返回 undefined */
+    get(bookmarkId) {
+        if (!bookmarkId) {
+            return undefined;
+        }
+        const tagSet = this.cache.get(bookmarkId);
+        if (!tagSet || tagSet.size === 0) {
+            return undefined;
+        }
+        return [...tagSet];
+    }
+    /** 根据作品的收藏数据获取收藏标签，返回一个可以直接展开到抓取结果里的对象。
+     *
+     * 如果缓存里没有这个收藏的标签，返回空对象，而不会覆盖抓取结果里的默认值。
+     * 因为 store.addResult 使用 Object.assign 合并数据，如果传递 bookmarkTags: undefined，
+     * 会把默认值（空数组）也覆盖成 undefined */
+    getForResult(bookmarkData) {
+        const tags = this.get(bookmarkData ? bookmarkData.id : undefined);
+        if (!tags) {
+            return {};
+        }
+        return { bookmarkTags: tags };
+    }
+}
+const bookmarkTags = new BookmarkTags();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/CheckUnsupportBrowser.ts":
 /*!*****************************************!*\
   !*** ./src/ts/CheckUnsupportBrowser.ts ***!
@@ -3629,15 +3730,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   copyWorkInfo: () => (/* binding */ copyWorkInfo)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FileName */ "./src/ts/FileName.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BookmarkTags */ "./src/ts/BookmarkTags.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -3653,14 +3756,14 @@ class CopyWorkInfo {
     /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
     async receive(idData, p) {
         const id = idData.id;
-        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Unlisted;
+        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_6__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_6__.pageType.list.Unlisted;
         try {
             // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
             const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted);
             this.copy(data, p);
         }
         catch (error) {
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
+            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取作品数据失败'));
         }
     }
     // 类型守卫
@@ -3668,29 +3771,29 @@ class CopyWorkInfo {
         return 'illustType' in data.body;
     }
     async copy(data, p) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_至少需要选择一种复制格式'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'),
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatImage &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatHtml &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatText) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_至少需要选择一种复制格式'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_复制失败'),
             });
             return;
         }
         try {
             const copyData = {};
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatText) {
                 // 构造纯文本内容
                 const plainText = this.convertTextFormat(data, 'text', p);
                 const textBlob = new Blob([plainText], { type: 'text/plain' });
                 copyData['text/plain'] = textBlob;
             }
-            const needCopyImage = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage || _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml;
+            const needCopyImage = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatImage || _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatHtml;
             if (needCopyImage) {
                 let imageUrl = '';
                 if (this.isImageWork(data)) {
                     // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
                     // 不过对于动图来说，各个尺寸的图片其实都是小图
-                    imageUrl = data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize];
+                    imageUrl = data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyImageSize];
                     if (p !== undefined && [0, 1].includes(data.body.illustType)) {
                         imageUrl = imageUrl.replace('p0', `p${p}`);
                     }
@@ -3700,19 +3803,19 @@ class CopyWorkInfo {
                     imageUrl = data.body.coverUrl;
                 }
                 if (!imageUrl) {
-                    _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
+                    _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有找到可用的图片网址'));
                     return;
                 }
-                const name = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize === 'original'
+                const name = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyImageSize === 'original'
                     ? '_正在加载图片'
                     : '_正在加载缩略图';
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl(name));
+                _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl(name));
                 // 先使用 fetch 获取图片的 Blob
                 // 这可以解决 Tainted canvases 的问题
                 const imageBlob = await fetch(imageUrl).then((res) => res.blob());
                 // 添加 image/png 内容
                 // 缩略图的格式都是 jpg，但 Chrome 目前不支持复制 image/jpeg 内容，所以需要转换成 png 格式
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatImage) {
                     // 使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
                     const image = new Image();
                     const url = URL.createObjectURL(imageBlob);
@@ -3744,7 +3847,7 @@ class CopyWorkInfo {
                 }
                 // 添加 text/html 内容
                 // 此时图片转换成了 DataURL，所以可以复制 jpg 文件，不需要转换成 png 格式
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyFormatHtml) {
                     // 把图片的 Blob 转换为 DataURL
                     const dataUrl = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -3771,7 +3874,7 @@ class CopyWorkInfo {
             }
             const clipboardItem = new ClipboardItem(copyData);
             await navigator.clipboard.write([clipboardItem]);
-            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
+            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已复制'));
             // 复制混合内容（富文本）还有一种方法：
             // 是把 html 内容写入到一个隐藏的 contenteditable div 里，然后使用 document.execCommand('copy') 复制
             // 但这个方法的效果和上面的方法一致，在各个软件里粘贴时的表现是一样的，所以没必要使用
@@ -3801,10 +3904,10 @@ class CopyWorkInfo {
             // 3. 由于这个 try catch 也包含了网络请求部分，所以网络请求出错应该也会在这里显示详细信息
             let msg = err.toString();
             if (msg.includes('Document is not focused')) {
-                msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制时网页需要处于焦点状态');
+                msg = _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_复制时网页需要处于焦点状态');
             }
-            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg, {
-                title: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'),
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(msg, {
+                title: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_复制失败'),
             });
             console.error('复制失败:', err);
             console.trace();
@@ -3818,29 +3921,32 @@ class CopyWorkInfo {
     // - 额外添加了 {n} 和 {url} 标记
     // - 在每个标签前面加上 # 符号
     convertTextFormat(data, format = 'text', p) {
-        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getPageTitle();
-        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getTagFromURL();
+        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
+        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getTagFromURL();
         const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
-        const tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data).map((str) => '#' + str);
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both', 'check').map((str) => '#' + str);
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'transl', 'check').map((str) => '#' + str);
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data).map((str) => '#' + str);
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both', 'check').map((str) => '#' + str);
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl', 'check').map((str) => '#' + str);
+        let _bookmarkTags = [];
+        const _bookmarkTagsArray = _BookmarkTags__WEBPACK_IMPORTED_MODULE_1__.bookmarkTags.get(data.body.bookmarkData?.id) || [];
+        _bookmarkTags = _bookmarkTagsArray.map((str) => '#' + str);
         // 判断是不是 AI 生成的作品
-        const tagsWithTransl2 = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both', 'check');
+        const tagsWithTransl2 = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both', 'check');
         let aiType = body.aiType;
         if (aiType !== 2) {
-            if (_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.checkAIFromTags(tagsWithTransl2)) {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.checkAIFromTags(tagsWithTransl2)) {
                 aiType = 2;
             }
         }
         // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
-        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getAIGeneratedMark(aiType);
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getAIGeneratedMark(aiType);
         const AITag = '#' + aiMarkString;
         if (aiMarkString) {
             if (tags.includes(AITag) === false) {
-                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tags, AITag);
-                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tagsWithTransl, AITag);
-                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tagsTranslOnly, AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.unshiftTag(tags, AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.unshiftTag(tagsWithTransl, AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.unshiftTag(tagsTranslOnly, AITag);
             }
         }
         // aiType 在上面已经用 Tools.checkAIFromTags 修正过了，所以这里不需要再从 tags 里判断一次
@@ -3900,18 +4006,19 @@ class CopyWorkInfo {
             '{userid}': userID,
             '{user_id}': userID,
             '{px}': this.getPX(body),
-            '{tags}': tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
-            '{tags_translate}': tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
-            '{tags_transl_only}': tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
+            '{tags}': tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.tagsSeparator),
+            '{tags_translate}': tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.tagsSeparator),
+            '{tags_transl_only}': tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.tagsSeparator),
+            '{bookmark_tags}': _bookmarkTags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.tagsSeparator),
             '{bmk}': body.bookmarkCount,
             '{bmk_id}': body.bookmarkData ? body.bookmarkData.id : '',
-            '{bmk_1000}': _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.getBKM1000(body.bookmarkCount),
+            '{bmk_1000}': _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.getBKM1000(body.bookmarkCount),
             '{like}': body.likeCount,
             '{view}': body.viewCount,
-            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
-            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
-            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
-            '{type}': _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksTypeName[type],
+            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.dateFormat),
+            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.dateFormat),
+            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.dateFormat),
+            '{type}': _Config__WEBPACK_IMPORTED_MODULE_2__.Config.worksTypeName[type],
             '{AI}': AI ? 'AI' : '',
             '{human}': !AI ? 'Human' : '',
             '{series_title}': seriesTitle,
@@ -3920,7 +4027,7 @@ class CopyWorkInfo {
             '{sl}': 'sl' in body ? body.sl : '',
         };
         // 替换标记
-        let str = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyWorkInfoFormat;
+        let str = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.copyWorkInfoFormat;
         Object.entries(cfg).forEach(([key, val]) => {
             // console.log(`${key}\t${val}`)
             str = str.replace(new RegExp(key, 'g'), val);
@@ -5071,6 +5178,12 @@ class FileName {
                     : this.handleTagsRule(data.tagsTranslOnly),
                 safe: false,
             },
+            '{bookmark_tags}': {
+                value: !ruleWithExpandedSpecialTags.includes('{bookmark_tags}')
+                    ? ''
+                    : this.handleTagsRule(data.bookmarkTags),
+                safe: false,
+            },
             '{bmk}': {
                 value: data.bmk.toString(),
                 safe: true,
@@ -5453,8 +5566,11 @@ class FileName {
         }
         return rule;
     }
-    /** 生成 {tags} 系列标记的值 */
-    handleTagsRule(tags) {
+    /** 生成 {tags} 系列标记的值。
+     *
+     * tags 可能为 undefined：恢复旧版本保存的任务时，旧数据里没有 bookmarkTags 这类新字段。
+     * 所以这里给一个默认值，避免读取 undefined 时抛出错误 */
+    handleTagsRule(tags = []) {
         return _setting_SetTagAlias__WEBPACK_IMPORTED_MODULE_4__.setTagAlias.handleTagsNamingRule(tags).join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator);
     }
     /** 是否要为这个文件创建文件夹 */
@@ -24727,7 +24843,7 @@ class InitWatchListMangaPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             return this.getIdListFinished();
         }
         // 逐个获取每个系列里的所有作品。
-        // 注意：不对系列使用过滤器检查，因为系列不是作品。过滤器会在获取作品时对每个作品进行检查
+        // 注意：不对漫画系列使用过滤器检查。过滤器会在获取作品时对每个作品进行检查
         for (const series of result.seriesList) {
             await this.getWorksOfSeries(series.id);
             if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
@@ -39710,6 +39826,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
         `번역된 태그`,
         `Теги перевода`,
     ],
+    _命名标记bookmark_tags: [
+        `作品的收藏标签列表。当你收藏一个作品之后，可以为它添加自定义的收藏标签；这个标记用来输出作品的收藏标签。注意：1. 只有当你在收藏页面里抓取作品时，这个标记才是有效的；在其他页面里抓取时无效（通常不会输出内容）。2. 如果你没有为作品添加收藏标签，那么这个标记也不会输出内容。`,
+        `作品的收藏標籤清單。當你收藏一個作品之後，可以為它新增自訂的收藏標籤；這個標記用來輸出作品的收藏標籤。注意：1. 只有當你在收藏頁面裡擷取作品時，這個標記才是有效的；在其他頁面裡擷取時無效（通常不會輸出內容）。2. 如果你沒有為作品新增收藏標籤，那麼這個標記也不會輸出內容。`,
+        `The list of bookmark tags of the work. After you bookmark a work, you can add custom bookmark tags to it; this token outputs the work's bookmark tags. Note: 1. This token is only valid when you crawl works on the bookmarks page; it is invalid when crawling on other pages (usually outputs nothing). 2. If you haven't added any bookmark tags to the work, this token will also output nothing.`,
+        `作品のブックマークタグのリスト。作品をブックマークした後、その作品に独自のブックマークタグを追加できます。このトークンは作品のブックマークタグを出力します。注意：1. このトークンはブックマークページで作品をクロールする場合にのみ有効です。他のページでクロールする場合は無効です（通常は何も出力されません）。2. 作品にブックマークタグを追加していない場合、このトークンも何も出力しません。`,
+        `작품의 북마크 태그 목록. 작품을 북마크한 후 해당 작품에 사용자 지정 북마크 태그를 추가할 수 있습니다. 이 토큰은 작품의 북마크 태그를 출력합니다. 참고: 1. 이 토큰은 북마크 페이지에서 작품을 긁어올 때만 유효합니다. 다른 페이지에서 긁어올 때는 유효하지 않습니다(보통 아무것도 출력되지 않음). 2. 작품에 북마크 태그를 추가하지 않았다면 이 토큰도 아무것도 출력하지 않습니다.`,
+        `Список тегов закладок работы. После добавления работы в закладки вы можете добавить к ней собственные теги закладок; этот токен выводит теги закладок работы. Примечание: 1. Этот токен действует только при сканировании работ на странице ваших закладок; на других страницах он не действует (обычно ничего не выводит). 2. Если вы не добавили к работе теги закладок, этот токен также ничего не выведет.`,
+    ],
     _命名标记date: [
         `作品的创建时间。如 <span class="blue">2019-08-29</span>。`,
         `作品的建立時間。例如：<span class="blue">2019-08-29</span>。`,
@@ -42055,12 +42179,12 @@ Note: This clears the downloader's download record, not the browser's download h
         `Тег <span class="key">символ разделения</span>`,
     ],
     _标签分隔符号提示: [
-        `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
-        `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
-        `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
-        `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
-        `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
-        `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
+        `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
+        `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
+        `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
+        `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
+        `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
+        `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
     ],
     _导出csv: [
         `导出 CSV 文件`,
@@ -49999,7 +50123,7 @@ Tip: Click a token name to copy it.<br>`,
 如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
 <br>
 子选项：<br>
-- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
 <br>
 另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
@@ -50007,7 +50131,7 @@ Tip: Click a token name to copy it.<br>`,
 如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
 <br>
 子選項：<br>
-- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
 <br>
 另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
@@ -50015,7 +50139,7 @@ Tip: Click a token name to copy it.<br>`,
 If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
 <br>
 Sub-options:<br>
-- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
 <br>
 Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
@@ -50023,7 +50147,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
 <br>
 サブオプション：<br>
-- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
 <br>
 また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
@@ -50031,7 +50155,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
 <br>
 하위 옵션：<br>
-- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
 <br>
 또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
@@ -50039,7 +50163,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
 <br>
 Вложенные параметры:<br>
-- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах работы на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
 <br>
 Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
@@ -57974,6 +58098,11 @@ class NamingRuleConfig {
             mayEmpty: false,
             help: '_命名标记tags_transl_only',
         },
+        {
+            name: '{bookmark_tags}',
+            mayEmpty: true,
+            help: '_命名标记bookmark_tags',
+        },
         { name: '{page_tag}', mayEmpty: true, help: '_文件夹标记page_tag' },
         { name: '{type}', mayEmpty: false, help: '_命名标记type' },
         { name: '{type_illust}', mayEmpty: true, help: '_命名标记type_illust' },
@@ -65324,6 +65453,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../BookmarkTags */ "./src/ts/BookmarkTags.ts");
+
 
 
 
@@ -65463,6 +65594,7 @@ class SaveArtworkData {
                     ext: _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getExtension(original),
                     bmk: bmk,
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+                    ..._BookmarkTags__WEBPACK_IMPORTED_MODULE_8__.bookmarkTags.getForResult(body.bookmarkData),
                     bookmarked: bookmarked,
                     date: body.createDate,
                     uploadDate: body.uploadDate,
@@ -65519,6 +65651,7 @@ class SaveArtworkData {
                     ext: ext,
                     bmk: bmk,
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+                    ..._BookmarkTags__WEBPACK_IMPORTED_MODULE_8__.bookmarkTags.getForResult(body.bookmarkData),
                     bookmarked: bookmarked,
                     date: body.createDate,
                     uploadDate: body.uploadDate,
@@ -65652,6 +65785,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_NovelSaveFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../download/NovelSaveFormat */ "./src/ts/download/NovelSaveFormat.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../BookmarkTags */ "./src/ts/BookmarkTags.ts");
+
 
 
 
@@ -65725,6 +65860,7 @@ class SaveNovelData {
                 ext: _download_NovelSaveFormat__WEBPACK_IMPORTED_MODULE_2__.novelSaveFormat.getDefaultFormat(),
                 bmk: bmk,
                 bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+                ..._BookmarkTags__WEBPACK_IMPORTED_MODULE_5__.bookmarkTags.getForResult(body.bookmarkData),
                 bookmarked: bookmarked,
                 date: body.createDate,
                 uploadDate: body.uploadDate,
@@ -66237,6 +66373,7 @@ class Store {
         tags: [],
         tagsWithTransl: [],
         tagsTranslOnly: [],
+        bookmarkTags: [],
         user: '',
         userId: '',
         fullWidth: 0,
@@ -86580,51 +86717,52 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _IconHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./IconHelper */ "./src/ts/IconHelper.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _setting_AutoExportSettings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/AutoExportSettings */ "./src/ts/setting/AutoExportSettings.ts");
-/* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
-/* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
-/* harmony import */ var _setting_SettingsPanelBootstrap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/SettingsPanelBootstrap */ "./src/ts/setting/SettingsPanelBootstrap.ts");
-/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
-/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
-/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/ShowTip */ "./src/ts/setting/ShowTip.ts");
-/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_setting_ShowTip__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
-/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
-/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
-/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
-/* harmony import */ var _HotkeyListener__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./HotkeyListener */ "./src/ts/HotkeyListener.ts");
-/* harmony import */ var _setting_HotkeyEditor__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./setting/HotkeyEditor */ "./src/ts/setting/HotkeyEditor.ts");
+/* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BookmarkTags */ "./src/ts/BookmarkTags.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _setting_AutoExportSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/AutoExportSettings */ "./src/ts/setting/AutoExportSettings.ts");
+/* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
+/* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
+/* harmony import */ var _setting_SettingsPanelBootstrap__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/SettingsPanelBootstrap */ "./src/ts/setting/SettingsPanelBootstrap.ts");
+/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
+/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
+/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./setting/ShowTip */ "./src/ts/setting/ShowTip.ts");
+/* harmony import */ var _setting_ShowTip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_setting_ShowTip__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
+/* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
+/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowBorderOnDownloadedWorks__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowBorderOnDownloadedWorks */ "./src/ts/ShowBorderOnDownloadedWorks.ts");
+/* harmony import */ var _setting_QuicklyBlockUsers__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./setting/QuicklyBlockUsers */ "./src/ts/setting/QuicklyBlockUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _HotkeyListener__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./HotkeyListener */ "./src/ts/HotkeyListener.ts");
+/* harmony import */ var _setting_HotkeyEditor__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ./setting/HotkeyEditor */ "./src/ts/setting/HotkeyEditor.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -86634,6 +86772,7 @@ __webpack_require__.r(__webpack_exports__);
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  */
+
 
 
 

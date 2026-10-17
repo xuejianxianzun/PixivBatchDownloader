@@ -604,18 +604,25 @@ export interface UserProfileAllData {
   }
 }
 
-/** 获取书签数据 */
+/** 获取一批作品的书签数据 */
 export interface BookmarkData {
   error: boolean
   message: string
   body: {
-    /** 保存了这一页里所有作品的收藏标签。key 是作品的 bookmarkData.id，value 是标签列表。
+    /** 保存了这一页里所有作品的收藏标签。
+     * 注意：这不是作品原本的标签，而是用户为该收藏所添加的标签。
+     * key 是作品的 bookmarkData.id，value 是标签列表。
      *
-     * 注意：这不是作品原本的标签，而是用户为该收藏所添加的标签。并且只有添加了收藏标签的作品才会存在于这个对象里。没有收藏标签的作品没有对应的记录。
+     * 示例：
+     * {
+     *   "24101260272": ["ロリ", "獣耳", "白髪"]
+     * }
      *
+     * 备注：
+     * 1. 如果一个作品没有任何收藏标签，那么 bookmarkTags 里就没有它的记录。
      * 例如：一页的 48 个作品里只有 30 个添加了收藏标签，那么 bookmarkTags 对象里只会有 30 个键值对。
-     *
-     * 仅当获取自己的收藏数据时有这个属性，获取别人的收藏数据时没有这个属性。
+     * 也因为这个原因，每条记录的数组必定有值，不会是空数组。
+     * 2. 仅当获取自己的收藏数据时有这个属性，获取别人的收藏数据时没有这个属性。
      */
     bookmarkTags?: Record<string, string[]>
     works: ArtworkCommonData[] | NovelCommonData[]

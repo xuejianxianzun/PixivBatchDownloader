@@ -213,6 +213,7 @@ class Store {
     tags: [],
     tagsWithTransl: [],
     tagsTranslOnly: [],
+    bookmarkTags: [],
     user: '',
     userId: '',
     fullWidth: 0,

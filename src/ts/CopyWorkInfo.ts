@@ -1,4 +1,5 @@
 import { API } from './API'
+import { bookmarkTags } from './BookmarkTags'
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { fileName } from './FileName'
@@ -220,6 +221,10 @@ class CopyWorkInfo {
     const tagsTranslOnly = Tools.extractTags(data, 'transl', 'check').map(
       (str) => '#' + str
     )
+    let _bookmarkTags: string[] = []
+    const _bookmarkTagsArray =
+      bookmarkTags.get(data.body.bookmarkData?.id) || []
+    _bookmarkTags = _bookmarkTagsArray.map((str) => '#' + str)
 
     // 判断是不是 AI 生成的作品
     const tagsWithTransl2 = Tools.extractTags(data, 'both', 'check')
@@ -308,6 +313,7 @@ class CopyWorkInfo {
       '{tags}': tags.join(settings.tagsSeparator),
       '{tags_translate}': tagsWithTransl.join(settings.tagsSeparator),
       '{tags_transl_only}': tagsTranslOnly.join(settings.tagsSeparator),
+      '{bookmark_tags}': _bookmarkTags.join(settings.tagsSeparator),
       '{bmk}': body.bookmarkCount,
       '{bmk_id}': body.bookmarkData ? body.bookmarkData.id : '',
       '{bmk_1000}': fileName.getBKM1000(body.bookmarkCount),

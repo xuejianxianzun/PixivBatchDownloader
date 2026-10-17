@@ -7,6 +7,7 @@ import { store } from './Store'
 import { Tools } from '../Tools'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import { bookmarkTags } from '../BookmarkTags'
 
 // 保存图片作品的数据
 class SaveArtworkData {
@@ -163,6 +164,7 @@ class SaveArtworkData {
             ext: Utils.getExtension(original),
             bmk: bmk,
             bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+            ...bookmarkTags.getForResult(body.bookmarkData),
             bookmarked: bookmarked,
             date: body.createDate,
             uploadDate: body.uploadDate,
@@ -222,6 +224,7 @@ class SaveArtworkData {
           ext: ext,
           bmk: bmk,
           bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+          ...bookmarkTags.getForResult(body.bookmarkData),
           bookmarked: bookmarked,
           date: body.createDate,
           uploadDate: body.uploadDate,

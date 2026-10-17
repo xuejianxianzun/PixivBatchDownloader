@@ -5,6 +5,7 @@ import { settings } from '../setting/Settings'
 import { novelSaveFormat } from '../download/NovelSaveFormat'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { bookmarkTags } from '../BookmarkTags'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -87,6 +88,7 @@ class SaveNovelData {
         ext: novelSaveFormat.getDefaultFormat(),
         bmk: bmk,
         bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+        ...bookmarkTags.getForResult(body.bookmarkData),
         bookmarked: bookmarked,
         date: body.createDate,
         uploadDate: body.uploadDate,

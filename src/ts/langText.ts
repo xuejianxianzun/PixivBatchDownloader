@@ -1980,6 +1980,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `번역된 태그`,
     `Теги перевода`,
   ],
+  _命名标记bookmark_tags: [
+    `作品的收藏标签列表。当你收藏一个作品之后，可以为它添加自定义的收藏标签；这个标记用来输出作品的收藏标签。注意：1. 只有当你在收藏页面里抓取作品时，这个标记才是有效的；在其他页面里抓取时无效（通常不会输出内容）。2. 如果你没有为作品添加收藏标签，那么这个标记也不会输出内容。`,
+    `作品的收藏標籤清單。當你收藏一個作品之後，可以為它新增自訂的收藏標籤；這個標記用來輸出作品的收藏標籤。注意：1. 只有當你在收藏頁面裡擷取作品時，這個標記才是有效的；在其他頁面裡擷取時無效（通常不會輸出內容）。2. 如果你沒有為作品新增收藏標籤，那麼這個標記也不會輸出內容。`,
+    `The list of bookmark tags of the work. After you bookmark a work, you can add custom bookmark tags to it; this token outputs the work's bookmark tags. Note: 1. This token is only valid when you crawl works on the bookmarks page; it is invalid when crawling on other pages (usually outputs nothing). 2. If you haven't added any bookmark tags to the work, this token will also output nothing.`,
+    `作品のブックマークタグのリスト。作品をブックマークした後、その作品に独自のブックマークタグを追加できます。このトークンは作品のブックマークタグを出力します。注意：1. このトークンはブックマークページで作品をクロールする場合にのみ有効です。他のページでクロールする場合は無効です（通常は何も出力されません）。2. 作品にブックマークタグを追加していない場合、このトークンも何も出力しません。`,
+    `작품의 북마크 태그 목록. 작품을 북마크한 후 해당 작품에 사용자 지정 북마크 태그를 추가할 수 있습니다. 이 토큰은 작품의 북마크 태그를 출력합니다. 참고: 1. 이 토큰은 북마크 페이지에서 작품을 긁어올 때만 유효합니다. 다른 페이지에서 긁어올 때는 유효하지 않습니다(보통 아무것도 출력되지 않음). 2. 작품에 북마크 태그를 추가하지 않았다면 이 토큰도 아무것도 출력하지 않습니다.`,
+    `Список тегов закладок работы. После добавления работы в закладки вы можете добавить к ней собственные теги закладок; этот токен выводит теги закладок работы. Примечание: 1. Этот токен действует только при сканировании работ на странице ваших закладок; на других страницах он не действует (обычно ничего не выводит). 2. Если вы не добавили к работе теги закладок, этот токен также ничего не выведет.`,
+  ],
   _命名标记date: [
     `作品的创建时间。如 <span class="blue">2019-08-29</span>。`,
     `作品的建立時間。例如：<span class="blue">2019-08-29</span>。`,
@@ -4330,12 +4338,12 @@ Note: This clears the downloader's download record, not the browser's download h
     `Тег <span class="key">символ разделения</span>`,
   ],
   _标签分隔符号提示: [
-    `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
-    `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
-    `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
-    `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
-    `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
-    `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
+    `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
+    `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
+    `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
+    `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
+    `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
+    `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
   ],
   _导出csv: [
     `导出 CSV 文件`,
@@ -12279,7 +12287,7 @@ Tip: Click a token name to copy it.<br>`,
 如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
 <br>
 子选项：<br>
-- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
 <br>
 另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
@@ -12287,7 +12295,7 @@ Tip: Click a token name to copy it.<br>`,
 如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
 <br>
 子選項：<br>
-- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
 <br>
 另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
@@ -12295,7 +12303,7 @@ Tip: Click a token name to copy it.<br>`,
 If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
 <br>
 Sub-options:<br>
-- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
 <br>
 Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
@@ -12303,7 +12311,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
 <br>
 サブオプション：<br>
-- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
+- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
 上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
 <br>
 また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
@@ -12311,7 +12319,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
 <br>
 하위 옵션：<br>
-- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
 <br>
 또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
@@ -12319,7 +12327,7 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
 Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
 <br>
 Вложенные параметры:<br>
-- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
+- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
 Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах работы на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
 <br>
 Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,

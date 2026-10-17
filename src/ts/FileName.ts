@@ -197,6 +197,12 @@ class FileName {
           : this.handleTagsRule(data.tagsTranslOnly),
         safe: false,
       },
+      '{bookmark_tags}': {
+        value: !ruleWithExpandedSpecialTags.includes('{bookmark_tags}')
+          ? ''
+          : this.handleTagsRule(data.bookmarkTags),
+        safe: false,
+      },
       '{bmk}': {
         value: data.bmk.toString(),
         safe: true,
@@ -652,8 +658,11 @@ class FileName {
     return rule
   }
 
-  /** 生成 {tags} 系列标记的值 */
-  private handleTagsRule(tags: string[]): string {
+  /** 生成 {tags} 系列标记的值。
+   *
+   * tags 可能为 undefined：恢复旧版本保存的任务时，旧数据里没有 bookmarkTags 这类新字段。
+   * 所以这里给一个默认值，避免读取 undefined 时抛出错误 */
+  private handleTagsRule(tags: string[] = []): string {
     return setTagAlias.handleTagsNamingRule(tags).join(settings.tagsSeparator)
   }
 
