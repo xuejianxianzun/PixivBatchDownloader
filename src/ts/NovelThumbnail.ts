@@ -71,6 +71,12 @@ class NovelThumbnail extends WorkThumbnail {
 
   protected readonly selectors: string[] = []
 
+  /** 小说缩略图的内容可能会变化（例如在追更列表里，一开始展示的是系列里最新的一篇小说，
+   * 之后只剩下系列链接），所以在鼠标进入时重新检查元素当前对应的 id 和类型 */
+  protected refreshWorkData(el: HTMLElement) {
+    return Tools.getNovelOrSeriesIDData(el)
+  }
+
   protected findThumbnail(parent: HTMLElement) {
     if (!parent.querySelectorAll) {
       return

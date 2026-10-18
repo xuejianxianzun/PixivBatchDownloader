@@ -4946,7 +4946,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 }
 .btnOnThumb {
   position: absolute;
-  z-index: 99999;
+  z-index: 19;
   left: 0px;
   top: 0px;
   width: 32px;
@@ -4968,7 +4968,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   opacity: 0.8;
 }
 .btnOnThumb#zoomBtnOnThumb {
-  z-index: 99998;
+  z-index: 18;
 }
 .xzBGLayer {
   position: absolute;

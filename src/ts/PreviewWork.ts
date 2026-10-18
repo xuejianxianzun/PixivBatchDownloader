@@ -16,7 +16,7 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
 import { filter } from './filter/Filter'
-import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
+import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -327,7 +327,7 @@ class PreviewWork {
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
+          addBookmarkFromWorkThumb.add(this.workData, this.workEL)
         }
 
         // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片

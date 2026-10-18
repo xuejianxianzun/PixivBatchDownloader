@@ -7,6 +7,7 @@ type BtnConfig = {
     | 'downloadBtnOnThumb'
     | 'copyBtnOnThumb'
     | 'likeBtnOnThumb'
+    | 'bookmarkBtnOnThumb'
   order: number
   icon: string
   btn: HTMLButtonElement
@@ -34,15 +35,23 @@ class ButtonsOnThumbConfig {
     },
     {
       name: 'likeBtnOnThumb',
-      order: 3,
+      order: 4,
       icon: 'like-line',
       btn: document.createElement('button'),
       title: '_点赞',
       show: () => settings.showLikeBtnOnThumb,
     },
     {
+      name: 'bookmarkBtnOnThumb',
+      order: 3,
+      icon: 'star-line',
+      btn: document.createElement('button'),
+      title: '_收藏',
+      show: () => settings.showBookmarkBtnOnThumb,
+    },
+    {
       name: 'downloadBtnOnThumb',
-      order: 4,
+      order: 5,
       icon: 'download',
       btn: document.createElement('button'),
       title: '_下载',

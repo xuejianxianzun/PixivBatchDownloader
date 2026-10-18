@@ -42,7 +42,7 @@ const addTagsUrlPattern = /\/ajax\/(illusts|novels)\/bookmarks\/add_tags/
  * - https://www.pixiv.net/ajax/illusts/bookmarks/remove_tags
  *
  * 作用：在书签页面里，当你移除已收藏作品的收藏标签时，网页会向这个 API 发送 POST 请求。
- * 请求载荷是 JSON，例如 {"removeTags":["肉便器"],"bookmarkIds":["3701868755"]}：
+ * 请求载荷是 JSON，例如 {"removeTags":["测试"],"bookmarkIds":["3701868755"]}：
  * - removeTags 里是要移除的标签，可能有多条（注意字段名和添加时的 tags 不一样）
  * - bookmarkIds 里是收藏 id，可能有多个
  * 响应体里没有需要提取的数据（body 是空数组）。

@@ -518,6 +518,7 @@ interface XzSetting {
   copyWorkInfoFormat: string
   showCopyBtnOnThumb: boolean
   showLikeBtnOnThumb: boolean
+  showBookmarkBtnOnThumb: boolean
   copyFormatImage: boolean
   copyFormatText: boolean
   copyFormatHtml: boolean
@@ -1173,6 +1174,7 @@ class Settings {
       'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
     showCopyBtnOnThumb: true,
     showLikeBtnOnThumb: false,
+    showBookmarkBtnOnThumb: false,
     copyFormatImage: false,
     copyFormatText: true,
     copyFormatHtml: true,

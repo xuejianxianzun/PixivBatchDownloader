@@ -116,7 +116,7 @@ Firefox 浏览器可以从 **[Add-Ons](https://addons.mozilla.org/firefox/addon/
 
 3. 你可以通过微信或支付宝扫码转账：
 
-![微信](https://xuejianxianzun.github.io/PBDWiki/zh-cn/images/weixin.png) ![支付宝](https://xuejianxianzun.github.io/PBDWiki/zh-cn/images/alipay.png)
+![微信](https://xuejianxianzun.github.io/PBDWiki/template/zh-cn/images/weixin.png) ![支付宝](https://xuejianxianzun.github.io/PBDWiki/template/zh-cn/images/alipay.png)
 
 # 开发
 

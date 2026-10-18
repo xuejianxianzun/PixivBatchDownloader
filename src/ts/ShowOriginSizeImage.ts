@@ -12,7 +12,7 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { cacheWorkData } from './store/CacheWorkData'
 import { toast } from './Toast'
 import { states } from './store/States'
-import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
+import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
 
 interface Style {
   imgW: number
@@ -258,7 +258,7 @@ class ShowOriginSizeImage {
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
+          addBookmarkFromWorkThumb.add(this.workData, this.workEL)
         }
 
         // 按 Esc 键时取消预览

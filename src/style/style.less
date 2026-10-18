@@ -469,9 +469,14 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 }
 
 .btnOnThumb {
-  position: absolute;
   // 如果使用 fixed，将导致页面滚动时按钮停留在原地，造成不好的体验，所以使用 absolute
-  z-index: 99999;
+  position: absolute;
+  // 为什么 z-index 是 19：
+  // 当鼠标放在用户名上时，Pixiv 会显示一个用户信息的小卡片，包含 3 个作品缩略图。
+  // 这个卡片的 z-index 是 12，所以缩略图上的按钮的层级需要比它更高。
+  // 同时 z-index 也不宜太大，否则可能会预期之外的显示在某些元素上方。
+  // 因此使用了大于 12 的 19。
+  z-index: 19;
   display: none;
   left: 0px;
   top: 0px;
@@ -495,7 +500,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   }
 
   &#zoomBtnOnThumb {
-    z-index: 99998;
+    z-index: 18;
   }
 }
 

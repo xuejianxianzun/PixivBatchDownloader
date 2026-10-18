@@ -142,6 +142,7 @@ class FormSettings {
       'copyFormatHtml',
       'showCopyBtnOnThumb',
       'showLikeBtnOnThumb',
+      'showBookmarkBtnOnThumb',
       'crawlLatestFewWorks',
       'rememberTheLastSaveLocation',
       'autoMergeNovel',

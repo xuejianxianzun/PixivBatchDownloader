@@ -116,6 +116,8 @@ class Tools {
 
   /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
   static getIllustId(url?: string) {
+    // 在 Unlisted 页面里会忽略传入的 url，固定返回当前页面网址里的 id
+    // 这不会导致错误，因为在 Unlisted 页面里，只会有一个作品（就是网址里的 id 对应的作品），不会有其他作品。
     if (pageType.type === pageType.list.Unlisted) {
       return Utils.getURLPathField(window.location.pathname, 'unlisted')
     }
@@ -142,6 +144,8 @@ class Tools {
   /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
   // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
+    // 在 Unlisted 页面里会忽略传入的 url，固定返回当前页面网址里的 id
+    // 这不会导致错误，因为在 Unlisted 页面里，只会有一个作品（就是网址里的 id 对应的作品），不会有其他作品。
     if (pageType.type === pageType.list.Unlisted) {
       return Utils.getURLPathField(window.location.pathname, 'unlisted')
     }
@@ -254,21 +258,27 @@ class Tools {
   /** 传入一个小说或系列小说的 DOM 元素，重新对它进行检查，返回该元素现在的真实 IDData。
    *
    * 优先查找小说 ID，其次查找系列小说 ID，否则返回 null */
-  static getNovelOrSeriesIDData(el?: HTMLElement): IDData | null {
+  static getNovelOrSeriesIDData(el?: HTMLElement): {
+    type: 'novels' | 'novelSeries'
+    id: string
+  } | null {
     if (!el) {
       return null
     }
 
-    const novelLink = el.querySelector<HTMLAnchorElement>(
-      `a[href*="/novel/show.php?id="]`
-    )
+    // 缩略图元素本身可能就是链接（例如移动端的一些选择器）
+    const novelLink =
+      el.nodeName === 'A'
+        ? (el as HTMLAnchorElement)
+        : el.querySelector<HTMLAnchorElement>(`a[href*="/novel/show.php?id="]`)
+
     if (novelLink) {
-      const novelId = Tools.getNovelId(novelLink.href)
-      // 小说 id 仍然存在，返回小说 IDData
-      if (novelId) {
+      // 直接从链接里提取小说 id
+      const test = novelLink.href.match(/novel\/show\.php\?id=(\d+)/)
+      if (test && test[1]) {
         return {
           type: 'novels',
-          id: novelId,
+          id: test[1],
         }
       }
     }

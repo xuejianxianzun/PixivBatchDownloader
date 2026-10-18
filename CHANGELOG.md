@@ -79,6 +79,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/414
 
 该设置位于“筛选”-“作品类型”里。
 
+### ✨新增设置：在作品缩略图上显示收藏按钮
+
+这样便于用户使用下载器的收藏功能来收藏作品。
+
+该设置位于“增强”-“缩略图上的按钮”分类。
+
 ### ✨新增设置：在作品缩略图上显示点赞按钮
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535

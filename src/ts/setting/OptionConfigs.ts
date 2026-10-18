@@ -1362,6 +1362,19 @@ class OptionConfigs {
       addedAt: 1792003659342,
     },
     {
+      no: 116,
+      nameKey: '_在作品缩略图上显示收藏按钮',
+      name: '',
+      categoryLevel1: 'enhance',
+      categoryLevel2: 'thumbnailButtons',
+      pinned: false,
+      hideOnPixivision: true,
+      hideOnMobile: true,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1792323483088,
+    },
+    {
       no: 85,
       nameKey: '_在作品缩略图上显示下载按钮',
       name: '',
@@ -1397,7 +1410,7 @@ class OptionConfigs {
     },
     {
       no: 88,
-      nameKey: '_下载器的收藏功能',
+      nameKey: '_下载器收藏作品时的行为',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'other',

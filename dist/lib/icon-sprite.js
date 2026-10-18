@@ -2158,7 +2158,40 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
     
      id="path1"
      style="stroke-width:0.861289"
-     inkscape:label="path1" /></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
+     inkscape:label="path1" /></symbol><symbol id="star-line" viewBox="0 0 1024 1024"><defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.8828125"
+     inkscape:cx="63.943712"
+     inkscape:cy="64"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="2551"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="72"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g1"
+     transform="matrix(1.1020255,0,0,1.1020255,-52.237043,-47.213413)"
+     style="stroke-width:59.1614;stroke-dasharray:none">
+    <path
+       d="m 512,110 87.56,269.48 H 882.91 L 653.68,546.03 741.24,815.52 512,648.97 282.76,815.52 370.32,546.03 141.09,379.48 h 283.35 z"
+       id="path1"
+       style="stroke-width:59.1614;stroke-dasharray:none" />
+  </g></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
      id="defs2" />
   <sodipodi:namedview
      id="namedview2"
