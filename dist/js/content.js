@@ -17031,8 +17031,11 @@ class ButtonsOnArtworkPage extends _ButtonsOnThumbConfig__WEBPACK_IMPORTED_MODUL
         // 添加按钮
         this.btnsConfig.forEach((config) => {
             // 这里只显示图像作品页面里适用的按钮。
-            // 收藏按钮是给作品缩略图用的，而且作品页面里已经有快速收藏按钮（工具栏的 ✩），所以不在这里显示
-            if (config.name === 'bookmarkBtnOnThumb') {
+            // 不显示收藏按钮和点赞按钮。
+            // 这两个按钮是给作品用的（而非作品里的单张图片），而且作品大图下方也有这两个按钮，
+            // 所以不在缩略图上显示这两个按钮
+            if (config.name === 'bookmarkBtnOnThumb' ||
+                config.name === 'likeBtnOnThumb') {
                 return;
             }
             if (config.show()) {
@@ -37338,10 +37341,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
+// Mute API 的文档：
+// notes/用户屏蔽设定-mute.md
 class Mute {
     userList = [];
     tagList = [];
     got = false; // 是否获取过用户设置
+    /** 上一次发起请求的时间戳，用于限制执行间隔 */
+    lastRequestTime = 0;
+    /** 两次执行之间的最小间隔（毫秒）。在这段时间内重复调用会直接返回，不会发起请求 */
+    interval = 60 * 1000;
+    /** 正在进行的请求。在它结束之前，后续的调用会复用这个请求，而不是再发起一次 */
+    pending = null;
     /**检查传入的 user id 是否包含在用户屏蔽设置里 */
     async checkUser(id) {
         // 检查时，要求至少进行过一次获取用户设置的操作
@@ -37361,8 +37372,13 @@ class Mute {
         return this.tagList.includes(tag);
     }
     // 此模块不会在初始化时获取设置，这是为了避免增加一次无谓的网络请求
-    // 当执行此模块的 check 方法时，如果没有获取过设置，则此模块会主动获取一次设置
+    // 当执行此模块的 check 方法时，如果之前没有获取过设置，则此模块会主动获取一次设置
     // 其他模块也可以在必要的时候（如开始抓取时）直接执行此方法，预先获取设置，为后面的流程做准备
+    //
+    // 屏蔽设置通常不会频繁变化，而且浏览器对这个 API 的缓存时间很短（两次调用的间隔超过约 5 秒
+    // 就不会使用缓存，而是发起真实请求），所以这里限制了执行间隔：间隔内的调用不会发起请求，
+    // 而是直接返回，沿用上一次获取到的设置。这样可以降低请求频率，避免占用请求数量的配额。
+    // 返回值是状态码；如果因为间隔限制而跳过了请求，也会返回 200。
     async getMuteSettings(showTips = true) {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isPixiv()) {
             this.got = true;
@@ -37371,6 +37387,26 @@ class Mute {
         if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
             return 401;
         }
+        // 上一次请求还没结束时，等待它完成。如果这里直接返回，
+        // 并发调用（例如同时检查多个作品）会拿到还没填充的空白列表，导致屏蔽失效
+        if (this.pending) {
+            return this.pending;
+        }
+        const now = Date.now();
+        if (now - this.lastRequestTime < this.interval) {
+            return 200;
+        }
+        this.lastRequestTime = now;
+        this.pending = this.requestMuteSettings(showTips);
+        try {
+            return await this.pending;
+        }
+        finally {
+            this.pending = null;
+        }
+    }
+    /** 发起请求获取屏蔽设置，并更新 userList 和 tagList 列表 */
+    async requestMuteSettings(showTips) {
         this.userList = [];
         this.tagList = [];
         try {

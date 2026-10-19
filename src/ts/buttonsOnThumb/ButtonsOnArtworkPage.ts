@@ -82,7 +82,10 @@ class ButtonsOnArtworkPage extends ButtonsOnThumbConfig {
       // 不显示收藏按钮和点赞按钮。
       // 这两个按钮是给作品用的（而非作品里的单张图片），而且作品大图下方也有这两个按钮，
       // 所以不在缩略图上显示这两个按钮
-      if (config.name === 'bookmarkBtnOnThumb' || config.name === 'likeBtnOnThumb') {
+      if (
+        config.name === 'bookmarkBtnOnThumb' ||
+        config.name === 'likeBtnOnThumb'
+      ) {
         return
       }
 

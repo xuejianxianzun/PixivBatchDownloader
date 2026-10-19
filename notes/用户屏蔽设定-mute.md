@@ -4,6 +4,8 @@
   - [检查是否屏蔽了指定用户](#检查是否屏蔽了指定用户)
   - [检查是否屏蔽了指定作品](#检查是否屏蔽了指定作品)
   - [添加一个屏蔽项](#添加一个屏蔽项)
+    - [屏蔽一个标签](#屏蔽一个标签)
+    - [屏蔽一个用户](#屏蔽一个用户)
   - [删除一个屏蔽项](#删除一个屏蔽项)
 
 # 屏蔽设定
@@ -32,7 +34,7 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
 - `value` 当项目是 tag 时为 tag 名称；当项目是 user 时为 userId
 - `label` 当项目是 tag 时为 tag 名称；当项目是 user 时为用户名
 - `iconUrl` 当项目是 tag 时为 `null`；当项目是 user 时为用户头像 url
-- `enabled` 这个项目是否启用。如果为 `false`，则这个项目虽然存在，但是并没有实际上屏蔽。可能导致为 `false` 的原因：以前使用会员功能屏蔽了多个 tag，后来会员过期了，但是屏幕项目还在，只是失效了。
+- `enabled` 这个项目是否启用。如果为 `false`，则这个项目虽然存在，但是并没有实际上屏蔽。可能导致为 `false` 的原因：以前使用会员功能屏蔽了多个 tag，后来会员过期了，但是屏蔽项目还在，只是失效了。
 - `isMuted` 是否屏蔽这个项目。目前看到的都是 `true`。
 - `listType` `'existing'` 表示这个项目存在于“設定中”区域里；`'candidate'` 指这个项目存在于“候補”区域里。这只表示它们显示的区域，不应作为判断的标准。
 
@@ -219,18 +221,23 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
 
 `https://www.pixiv.net/ajax/mute/items/add`
 
-body:
+### 屏蔽一个标签
 
-示例： 
+body 的示例： 
 
-```javascript
+```ts
 {
-   context: 'illust',
+    // 在图像作品页面里添加屏蔽时，content 时 illust；
+    // 在小说页面里添加屏蔽时，content 时 novel
+   context: 'illust' | 'novel',
+    // 屏蔽标签时，type 固定为 tag
    type: 'tag',
-   value: 'FGO'
+    // 屏蔽的标签，经过编码
+   value: string
 }
 ```
 
+示例：
 `context=illust&type=tag&value=FGO`
 
 返回：
@@ -242,6 +249,26 @@ body:
     "body": ""
 }
 ```
+### 屏蔽一个用户
+
+body 的示例： 
+
+```javascript
+{
+    // 在图像作品页面里添加屏蔽时，content 时 illust；
+    // 在小说页面里添加屏蔽时，content 时 novel
+   context: 'illust',
+    // 屏蔽用户时，type 固定为 user
+   type: 'user',
+   // 屏蔽的用户的 id，是 string 形式的数字
+   value: string
+}
+```
+
+示例：
+`context=illust&type=user&value=120334950`
+
+返回值同上。
 
 ## 删除一个屏蔽项
 
@@ -249,4 +276,4 @@ body:
 
 `https://www.pixiv.net/ajax/mute/items/delete`
 
-body 同上。
+body、返回值与“添加一个屏蔽项”里的相同。
