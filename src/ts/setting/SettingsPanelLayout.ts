@@ -341,6 +341,14 @@ class SettingsPanelLayout {
           this.makeCanonicalKey(page, group.id),
           section.content
         )
+        // 如果这个分类配置了提示卡片，就把它添加到分类区域的顶部
+        if (group.tipCardKey) {
+          const tipCard = settingsPanelTipCard.use(group.tipCardKey)
+          if (tipCard) {
+            section.content.append(tipCard)
+          }
+        }
+        // 在每个分类区域里添加空提示卡片
         this.createEmptyCategoryHint(section.content)
       })
     })

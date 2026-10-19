@@ -148,7 +148,7 @@ class PreviewWork {
           showOneTimeMsg.show(
             'tipPreviewWork',
             lang.transl('_预览作品的快捷键说明'),
-            lang.transl('_预览作品')
+            lang.transl('_当鼠标停留在作品缩略图上时预览作品')
           )
         }
       }

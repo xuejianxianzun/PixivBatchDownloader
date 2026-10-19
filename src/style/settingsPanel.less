@@ -1920,6 +1920,19 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
+
+      // 用户点击确认按钮之后隐藏（is-hidden），
+      // 或者外部判断当前不需要显示时隐藏（is-context-hidden）
+      &.is-hidden,
+      &.is-context-hidden {
+        display: none;
+      }
+    }
+
+    // 二级分类区域里的提示卡片
+    .settingsPanel_titleContent .settingsPanel_tipCard {
+      width: calc(100% - 20px);
+      margin: 10px auto 0;
     }
 
     .settingsPanel_tipIcon {

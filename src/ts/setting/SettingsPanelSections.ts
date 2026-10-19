@@ -249,6 +249,23 @@ class SettingsPanelSections {
       'is-hidden',
       !section.root.classList.contains('expanded') || !allOptionsHidden
     )
+
+    // 隐藏分类顶部的提示卡片：只有当分类里有设置项、但它们全部被隐藏时才隐藏。
+    // 例如 pixivision 页面里「缩略图上的按钮」分类里的设置全部被隐藏了，
+    // 此时分类区域只显示“没有可用内容”的提示，不应该再显示提示卡片。
+    // ⚠️ 不能写成「!allOptionsHidden」：那个条件的意思是“至少有一个设置项可见”，会把条件写反。
+    // ⚠️ 也要排除「分类里还没有设置项」的情况：构建分类区域时设置项还没被放进来，
+    // 此时没有任何可见的设置项，但分类并不是空的
+    const tipCard = section.content.querySelector(
+      '.settingsPanel_tipCard'
+    ) as HTMLDivElement | null
+    const hasVisibleOption = [...options].some(
+      (option) => option.style.display !== 'none'
+    )
+    tipCard?.classList.toggle(
+      'is-context-hidden',
+      options.length > 0 && !hasVisibleOption
+    )
   }
 
   private areAllSectionsExpanded() {

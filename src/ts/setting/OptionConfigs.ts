@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { settings, OptionCategoryLevel1 } from './Settings'
 import { lang } from '../Language'
 import { LangTextKey } from '../langText'
+import type { TipCardKey } from './SettingsPanelTipCard'
 
 type CategorySchema = {
   [key in OptionCategoryLevel1]: {
@@ -24,6 +25,8 @@ type CategorySchema = {
         nameKey: LangTextKey
         /** 二级分类的图标 */
         icon: string
+        /** 在这个二级分类的顶部显示的提示卡片。只有需要显示提示卡片时才设置这个属性 */
+        tipCardKey?: TipCardKey
       }
     }
   }
@@ -221,6 +224,7 @@ class OptionConfigs {
           order: 2,
           icon: 'category-thumbnail-buttons-line',
           nameKey: '_分组_缩略图上的按钮',
+          tipCardKey: 'tipButtonsOnThumbnail',
         },
         other: {
           id: 'other',
@@ -939,7 +943,7 @@ class OptionConfigs {
     },
     {
       no: 53,
-      nameKey: '_下载之后收藏作品',
+      nameKey: '_下载之后自动收藏作品',
       name: '',
       categoryLevel1: 'download',
       categoryLevel2: 'behavior',
@@ -1232,7 +1236,7 @@ class OptionConfigs {
     // 增强
     {
       no: 75,
-      nameKey: '_预览作品',
+      nameKey: '_当鼠标停留在作品缩略图上时预览作品',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1244,7 +1248,7 @@ class OptionConfigs {
     },
     {
       no: 76,
-      nameKey: '_长按右键显示大图',
+      nameKey: '_在缩略图上长按鼠标右键时查看大图',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1256,7 +1260,7 @@ class OptionConfigs {
     },
     {
       no: 77,
-      nameKey: '_预览作品的详细信息',
+      nameKey: '_当鼠标停留在作品缩略图上时显示详细信息',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1314,7 +1318,7 @@ class OptionConfigs {
     },
     {
       no: 82,
-      nameKey: '_缩略图上按钮的位置',
+      nameKey: '_按钮在缩略图上的位置',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1326,19 +1330,19 @@ class OptionConfigs {
     },
     {
       no: 83,
-      nameKey: '_在作品缩略图上显示图片查看器按钮',
+      nameKey: '_显示图片查看器按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
       pinned: false,
       hideOnPixivision: true,
       hideOnMobile: true,
-      searchWordKeys: ['_放大镜', '_图片查看器', '_在作品缩略图上显示放大按钮'],
+      searchWordKeys: ['_放大镜', '_图片查看器'],
       searchWords: [],
     },
     {
       no: 84,
-      nameKey: '_在缩略图上显示复制按钮',
+      nameKey: '_显示复制按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1350,7 +1354,7 @@ class OptionConfigs {
     },
     {
       no: 113,
-      nameKey: '_在缩略图上显示点赞按钮',
+      nameKey: '_显示点赞按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1363,7 +1367,7 @@ class OptionConfigs {
     },
     {
       no: 116,
-      nameKey: '_在作品缩略图上显示收藏按钮',
+      nameKey: '_显示收藏按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1376,7 +1380,7 @@ class OptionConfigs {
     },
     {
       no: 85,
-      nameKey: '_在作品缩略图上显示下载按钮',
+      nameKey: '_显示下载按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1487,12 +1491,12 @@ class OptionConfigs {
     },
     {
       no: 95,
-      nameKey: '_选项卡切换方式',
+      nameKey: '_如何切换下载器的标签页',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'operation',
       pinned: false,
-      searchWordKeys: [],
+      searchWordKeys: ['_导航分类', '_选项卡'],
       searchWords: [],
     },
     {
@@ -1562,12 +1566,12 @@ class OptionConfigs {
     },
     {
       no: 101,
-      nameKey: '_日志区域的默认可见性',
+      nameKey: '_日志区域默认',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'log',
       pinned: false,
-      searchWordKeys: [],
+      searchWordKeys: ['_显示', '_隐藏'],
       searchWords: [],
       addedAt: 1772287652821,
     },
@@ -1606,7 +1610,7 @@ class OptionConfigs {
     },
     {
       no: 103,
-      nameKey: '_管理设置',
+      nameKey: '_管理下载器的设置',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'manageSettings',

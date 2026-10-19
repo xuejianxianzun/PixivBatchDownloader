@@ -584,6 +584,7 @@ interface XzSetting {
   /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
   hotkeys: HotkeyMap
   tipHowToCrawlUserWorks: boolean
+  tipButtonsOnThumbnail: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -1287,6 +1288,7 @@ url: {url}`,
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
+    tipButtonsOnThumbnail: true,
     tipAltEToExcludeWork: true,
     tipMarqueeToExcludeWork: true,
     hotkeys: defaultHotkeys,
@@ -1655,6 +1657,7 @@ url: {url}`,
     this.setSetting('tipCloseAskFileSaveLocation', true)
     this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
+    this.setSetting('tipButtonsOnThumbnail', true)
     this.setSetting('tipManuallyExcludeWorks', true)
 
     msgBox.show(lang.transl('_重新显示帮助的说明'), {

@@ -19,7 +19,7 @@ import { msgBox } from '../MsgBox'
 
 type WorkType = 'illusts' | 'novels'
 
-// 在作品页面里添加快速收藏按钮
+// 在作品页面里添加快速收藏按钮（下载器的收藏按钮✩）
 class QuickBookmark {
   constructor() {
     workToolBar.register(

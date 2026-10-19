@@ -1164,6 +1164,7 @@ export interface NovelData {
     /**小说的分类，是字符串形式的数字，如'0' */
     genre: string
     content: string
+    /** 小说的封面图片的 URL */
     coverUrl: string
     suggestedSettings: {
       viewMode: number

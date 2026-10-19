@@ -4658,21 +4658,13 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `북마크 작품`,
     `Закладки работ`,
   ],
-  _下载之后收藏作品: [
-    `下载之后<span class="key">收藏</span>作品`,
-    `下載之後<span class="key">收藏</span>作品`,
-    `<span class="key">Bookmark</span> works after downloading`,
-    `ダウンロードした作品を<span class="key">ブックマーク</span>する`,
-    `다운로드 후 작품 <span class="key">북마크</span>`,
-    `<span class="key">Закладка</span> работ после загрузки`,
-  ],
-  _下载之后收藏作品的提示: [
-    `下载文件之后，自动收藏这个作品。`,
-    `下載檔案之後，自動收藏這個作品。`,
-    `After you download a file, the downloader will automatically bookmark the work.`,
-    `ダウンロード後、作品は自動的にブックマークされます。`,
-    `파일을 다운로드하면, 자동으로 작품을 북마크합니다.`,
-    `После загрузки файла загрузчик автоматически делает закладку`,
+  _下载之后自动收藏作品: [
+    `下载之后自动<span class="key">收藏</span>作品`,
+    `下載之後自動<span class="key">收藏</span>作品`,
+    `Automatically <span class="key">bookmark</span> works after downloading`,
+    `ダウンロードした作品を自動的に<span class="key">ブックマーク</span>する`,
+    `다운로드 후 작품을 자동으로 <span class="key">북마크</span>`,
+    `Автоматически <span class="key">добавлять работы в закладки</span> после загрузки`,
   ],
   _下载器收藏作品时的行为: [
     `下载器<span class="key">收藏</span>作品时的行为 (✩)`,
@@ -4688,11 +4680,11 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     下载器的收藏功能可以通过这些方式触发：<br>
     - 点击下载器显示的五角星（✩）收藏按钮。该按钮可能会出现在多个界面里。<br>
     - 在预览作品时、使用图片查看器时，使用快捷键（B）收藏这个作品。<br>
-    - 使用“下载之后收藏作品”功能批量添加收藏。<br>
+    - 使用“下载之后自动收藏作品”功能批量添加收藏。<br>
     - 在一些页面里，使用“附加功能”区域里的按钮批量管理收藏。<br>
     <br>
     是否添加标签：<br>
-    是否添加作品本身的标签。<br>
+    是否添加作品自身的标签。<br>
     <br>
     是否公开：<br>
     添加为公开收藏或者非公开收藏。<br>
@@ -4705,11 +4697,11 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     下載器的收藏功能可以透過這些方式觸發：<br>
     - 點擊下載器顯示的五角星（✩）收藏按鈕。該按鈕可能會出現在多個頁面裡。<br>
     - 在預覽作品時、使用圖片查看器時，使用快捷鍵（B）收藏這個作品。<br>
-    - 使用「下載之後收藏作品」功能批量添加收藏。<br>
+    - 使用「下載之後自動收藏作品」功能批量添加收藏。<br>
     - 在一些頁面裡，使用「附加功能」區域裡的按鈕批量管理收藏。<br>
     <br>
     是否添加標籤：<br>
-    是否添加作品本身的標籤。<br>
+    是否添加作品自身的標籤。<br>
     <br>
     是否公開：<br>
     添加為公開收藏或者非公開收藏。<br>
@@ -4722,7 +4714,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     The downloader's bookmark feature can be triggered in these ways:<br>
     - Click the star (✩) bookmark button shown by the downloader. This button may appear on several pages.<br>
     - Bookmark the work with the shortcut key (B) while previewing a work or using the image viewer.<br>
-    - Add bookmarks in bulk with the "Bookmark works after downloading" feature.<br>
+    - Add bookmarks in bulk with the "Automatically bookmark works after downloading" feature.<br>
     - Manage bookmarks in bulk with the buttons in the "Extra features" area on some pages.<br>
     <br>
     Whether to add tags:<br>
@@ -4739,11 +4731,11 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     ダウンローダーのブックマーク機能は、次の方法で実行できます：<br>
     - ダウンローダーが表示する星（✩）のブックマークボタンをクリックする。このボタンは複数のページに表示されることがあります。<br>
     - 作品をプレビューするときや画像ビューアを使うときに、ショートカットキー（B）でこの作品をブックマークする。<br>
-    - 「ダウンロードした作品をブックマークする」機能でまとめてブックマークを追加する。<br>
+    - 「ダウンロードした作品を自動的にブックマークする」機能でまとめてブックマークを追加する。<br>
     - 一部のページで「追加機能」エリアのボタンを使ってまとめてブックマークを管理する。<br>
     <br>
     タグを追加するかどうか：<br>
-    作品自体のタグを追加するかどうか。<br>
+    作品自身のタグを追加するかどうか。<br>
     <br>
     公開するか：<br>
     公開ブックマークまたは非公開ブックマークとして追加します。<br>
@@ -4756,7 +4748,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     다운로더의 북마크 기능은 다음과 같은 방법으로 실행할 수 있습니다:<br>
     - 다운로더가 표시하는 별(✩) 북마크 버튼을 클릭합니다. 이 버튼은 여러 페이지에 표시될 수 있습니다.<br>
     - 작품을 미리 볼 때나 이미지 뷰어를 사용할 때 단축키(B)로 이 작품을 북마크합니다.<br>
-    - "다운로드 후 작품 북마크" 기능으로 북마크를 한꺼번에 추가합니다.<br>
+    - "다운로드 후 작품을 자동으로 북마크" 기능으로 북마크를 한꺼번에 추가합니다.<br>
     - 일부 페이지의 "부가 기능" 영역에 있는 버튼으로 북마크를 한꺼번에 관리합니다.<br>
     <br>
     태그 추가 여부:<br>
@@ -4773,7 +4765,7 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     Функцию закладок загрузчика можно вызвать следующими способами:<br>
     - Нажать кнопку закладки в виде звезды (✩), которую показывает загрузчик. Эта кнопка может отображаться на разных страницах.<br>
     - Добавить работу в закладки с помощью горячей клавиши (B) при предпросмотре работы или в просмотрщике изображений.<br>
-    - Добавлять закладки пакетно с помощью функции «Закладка работ после загрузки».<br>
+    - Добавлять закладки пакетно с помощью функции «Автоматически добавлять работы в закладки после загрузки».<br>
     - Управлять закладками пакетно с помощью кнопок в области «Дополнительные функции» на некоторых страницах.<br>
     <br>
     Добавлять теги или нет:<br>
@@ -4803,6 +4795,14 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `Добавлять теги или нет`,
   ],
   _添加: [`添加`, `添加`, `Add`, `追加`, `추가`, `Добавить`],
+  _添加作品自身的标签: [
+    `添加作品自身的标签`,
+    `添加作品自身的標籤`,
+    `Add the work's own tags`,
+    `作品自身のタグを追加`,
+    `작품 자체의 태그 추가`,
+    `Добавить теги самой работы`,
+  ],
   _不添加: [
     `不添加`,
     `不添加`,
@@ -4877,21 +4877,13 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `다크 모드`,
     `Темный режим`,
   ],
-  _管理设置: [
-    `管理<span class="key">设置</span>`,
-    `管理<span class="key">設定</span>`,
-    `Manage <span class="key">settings</span>`,
-    `<span class="key">設定</span>の管理`,
-    `<span class="key">설정</span> 관리`,
-    `Изменение <span class="key">настроек</span>`,
-  ],
-  _管理设置的说明: [
-    `你可以管理下载器的设置，比如导出以备份设置、分享给别人、重置设置。`,
-    `你可以管理下載器的設定，比如匯出以備份設定、分享給別人、重置設定。`,
-    `You can manage the Downloader settings, such as exporting to back up your settings, sharing with others, and resetting your settings.`,
-    `設定をバックアップするためのエクスポート、他のユーザーとの共有、設定のリセットなど、ダウンローダーの設定を管理できます。`,
-    `다운로더 설정을 관리할 수 있습니다. 예를 들어, 설정을 백업하기 위한 내보내기, 다른 사람과 공유하기, 설정을 재설정할 수 있습니다.`,
-    `Вы можете управлять настройками Downloader, такими как экспорт для резервного копирования ваших настроек, предоставление общего доступа другим лицам и сброс ваших настроек.`,
+  _管理下载器的设置: [
+    `<span class="key">管理</span>下载器的设置`,
+    `<span class="key">管理</span>下載器的設定`,
+    `<span class="key">Manage</span> Downloader settings`,
+    `ダウンローダーの設定を<span class="key">管理</span>`,
+    `다운로더 설정 <span class="key">관리</span>`,
+    `<span class="key">Управление</span> настройками загрузчика`,
   ],
   _导出设置: [
     `导出设置`,
@@ -5874,30 +5866,22 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     `업데이트에 성공하였습니다.`,
     `обновление завершено`,
   ],
-  _在作品缩略图上显示图片查看器按钮: [
-    `在作品缩略图上显示<span class="key">图片查看器</span>按钮`,
-    `在作品縮圖上顯示<span class="key">圖片查看器</span>按鈕`,
-    `Show <span class="key">Image viewer</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">画像ビューア</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">이미지 뷰어</span> 버튼 표시`,
-    `Показать кнопку <span class="key">Просмотрщик изображений</span> на миниатюре`,
-  ],
-  _在作品缩略图上显示放大按钮: [
-    `在作品缩略图上显示<span class="key">放大</span>按钮`,
-    `在作品縮圖上顯示<span class="key">放大</span>按鈕`,
-    `Show <span class="key">zoom</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">拡大</span>ボタンを表示`,
-    `썸네일에 <span class="key">확대</span> 버튼 표시`,
-    `Показать кнопку <span class="key">увеличить</span> на миниатюре`,
+  _显示图片查看器按钮: [
+    `显示<span class="key">图片查看器</span>按钮`,
+    `顯示<span class="key">圖片查看器</span>按鈕`,
+    `Show <span class="key">image viewer</span> button`,
+    `<span class="key">画像ビューア</span>ボタンを表示`,
+    `<span class="key">이미지 뷰어</span> 버튼 표시`,
+    `Показать кнопку <span class="key">просмотрщика изображений</span>`,
   ],
   _放大镜: [`放大镜`, `放大鏡`, `Magnifying glass`, `拡大鏡`, `돋보기`, `Лупа`],
-  _在作品缩略图上显示下载按钮: [
-    `在作品缩略图上显示<span class="key">下载</span>按钮`,
-    `在作品縮圖上顯示<span class="key">下載</span>按鈕`,
-    `Show <span class="key">download</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示`,
-    `썸네일에 <span class="key">다운로드</span> 버튼 표시`,
-    `Показать кнопку <span class="key">загрузить</span> на миниатюре`,
+  _显示下载按钮: [
+    `显示<span class="key">下载</span>按钮`,
+    `顯示<span class="key">下載</span>按鈕`,
+    `Show <span class="key">download</span> button`,
+    `<span class="key">ダウンロード</span>ボタンを表示`,
+    `<span class="key">다운로드</span> 버튼 표시`,
+    `Показать кнопку <span class="key">загрузки</span>`,
   ],
   _已发送下载请求: [
     `已发送下载请求`,
@@ -6326,22 +6310,23 @@ You can refer to the help content of the "Create a folder with the first matched
     `끝 ID를 입력해주세요: `,
     `Пожалуйста, введите конечный идентификатор: `,
   ],
-  _选项卡切换方式: [
-    `<span class="key">选项卡</span>切换方式`,
-    `<span class="key">頁籤</span>切換方式`,
-    `How to switch <span class="key">tabs</span>`,
-    `<span class="key">タブ</span>切り替え方式`,
-    `<span class="key">탭</span> 전환 방식`,
-    `Как переключать <span class="key">вкладки</span>`,
+  _如何切换下载器的标签页: [
+    `如何<span class="key">切换</span>下载器的标签页`,
+    `如何<span class="key">切換</span>下載器的頁籤`,
+    `How to <span class="key">switch</span> Downloader tabs`,
+    `ダウンローダーのタブを<span class="key">切り替える</span>方法`,
+    `다운로더 탭을 <span class="key">전환</span>하는 방법`,
+    `Как <span class="key">переключать</span> вкладки загрузчика`,
   ],
-  _选项卡切换方式的说明: [
-    `设置如何切换下载器的一级分类导航。`,
-    `設定如何切換下載器的頂部分類導航。`,
-    `Sets how to switch the primary category navigation of the Downloader.`,
-    `ダウンローダーの主要カテゴリナビゲーションを切り替える方法を設定します。`,
-    `다운로더의 주요 카테고리 내비게이션을 전환하는 방법을 설정합니다.`,
-    `Устанавливает способ переключения основной навигации по категориям в Загрузчике.`,
+  _导航分类: [
+    `导航分类`,
+    `導航分類`,
+    `Navigation category`,
+    `ナビゲーションカテゴリ`,
+    `탐색 카테고리`,
+    `Навигационная категория`,
   ],
+  _选项卡: [`选项卡`, `選項卡`, `Tab`, `タブ`, `탭`, `Вкладка`],
   _鼠标经过: [
     `鼠标经过`,
     `滑鼠經過`,
@@ -6744,21 +6729,13 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `Формат файла: `,
   ],
   _格式: [`格式`, `格式`, `Format`, `形式`, `형식`, `Формат`],
-  _预览作品: [
-    `<span class="key">预览</span>作品`,
-    `<span class="key">預覽</span>作品`,
-    `<span class="key">Preview</span> works`,
-    `作品の<span class="key">プレビュー</span>`,
-    `작품 <span class="key">미리보기</span>`,
-    `<span class="key">Превью</span> работ`,
-  ],
-  _预览作品的说明: [
-    `当鼠标放在图片的缩略图上时，下载器可以显示更大的图片。`,
-    `當滑鼠放在圖片的縮圖上時，下載器可以顯示更大的圖片。`,
-    `When you hover the mouse over the image thumbnail, the downloader can display a larger image.`,
-    `画像のサムネイルの上にマウスを置くと、ダウンローダーはより大きな画像を表示できます。`,
-    `이미지 섬네일 위에 마우스를 올려 놓으면 다운로더가 더 큰 이미지를 표시합니다.`,
-    `При наведении указателя мыши на миниатюру изображения загрузчик может отобразить увеличенное изображение.`,
+  _当鼠标停留在作品缩略图上时预览作品: [
+    `当鼠标停留在作品缩略图上时，<span class="key">预览</span>作品`,
+    `當滑鼠停留在作品縮圖上時，<span class="key">預覽</span>作品`,
+    `<span class="key">Preview</span> works when hovering over work thumbnails`,
+    `作品のサムネイルにマウスを乗せたときに作品を<span class="key">プレビュー</span>`,
+    `작품 썸네일에 마우스를 올리면 작품 <span class="key">미리보기</span>`,
+    `<span class="key">Предпросмотр</span> работы при наведении курсора на миниатюру`,
   ],
   _点击鼠标左键可以关闭预览图: [
     `点击鼠标左键可以关闭预览图`,
@@ -6802,13 +6779,21 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `Оригинальный размер`,
   ],
   _增强: [`增强`, `增強`, `Enhance`, `強化機能`, `향상`, `Улучшение`],
-  _长按右键显示大图: [
-    `在缩略图上长按鼠标右键时显示<span class="key">大图</span>`,
-    `在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>`,
-    `Long press the right mouse button on a thumbnail to display the <span class="key">large image</span>`,
-    `サムネイル上でマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>が表示されます`,
-    `썸네일에서 마우스 오른쪽 버튼을 길게 누르면 <span class="key">큰 이미지</span>가 표시됩니다`,
-    `При длительном нажатии правой кнопки мыши на миниатюре отображается <span class="key">крупное изображение</span>`,
+  _在缩略图上长按鼠标右键时查看大图: [
+    `在缩略图上长按鼠标右键时，查看<span class="key">大图</span>`,
+    `在縮圖上長按滑鼠右鍵時，查看<span class="key">大圖</span>`,
+    `Long press the right mouse button on a thumbnail to view the <span class="key">large image</span>`,
+    `サムネイル上でマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>を表示`,
+    `썸네일에서 마우스 오른쪽 버튼을 길게 누르면 <span class="key">큰 이미지</span> 보기`,
+    `При длительном нажатии правой кнопки мыши на миниатюре открывается <span class="key">крупное изображение</span>`,
+  ],
+  _在缩略图上长按鼠标右键时查看大图的说明: [
+    `在预览作品时，按 <span class="blue">V</span> 也可以触发此功能`,
+    `在預覽作品時，按 <span class="blue">V</span> 也可以觸發此功能`,
+    `You can also trigger this feature by pressing <span class="blue">V</span> while previewing a work`,
+    `作品をプレビューしているときに <span class="blue">V</span> を押しても、この機能を実行できます`,
+    `작품을 미리보기할 때 <span class="blue">V</span> 키를 눌러도 이 기능을 실행할 수 있습니다`,
+    `Эту функцию также можно вызвать, нажав <span class="blue">V</span> во время предпросмотра работы`,
   ],
   _鼠标滚轮切换图片: [
     `预览多图作品时，可以使用鼠标滚轮切换图片。`,
@@ -6899,12 +6884,12 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `,
   ],
   _替换方形缩略图以显示图片比例: [
-    `替换方形<span class="key">缩略图</span>以显示图片比例`,
-    `替換方形<span class="key">縮圖</span>以顯示圖片比例`,
-    `Replace square <span class="key">thumbnails</span> to show image ratio`,
-    `正方形の<span class="key">サムネイル</span>を置き換えて、画像のスケールを表示`,
-    `이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체`,
-    `Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения`,
+    `替换方形缩略图以显示图片<span class="key">比例</span>`,
+    `替換方形縮圖以顯示圖片<span class="key">比例</span>`,
+    `Replace square thumbnails to show image <span class="key">ratio</span>`,
+    `正方形のサムネイルを置き換えて、画像の<span class="key">比率</span>を表示`,
+    `이미지 <span class="key">종횡비</span>를 표시하기 위해 정사각형 썸네일 교체`,
+    `Замените квадратные миниатюры, чтобы показать <span class="key">соотношение</span> сторон изображения`,
   ],
   _替换方形缩略图以显示图片比例的说明: [
     `Pixiv 默认的缩略图是正方形的，看不到图片的全貌，也看不出是横图还是竖图。<br>
@@ -9122,12 +9107,12 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 8. Очистите историю загрузок браузера, затем перезапустите браузер. Этот метод может не сработать, но очистка ненужной истории загрузок полезна. Совет: Если история загрузок браузера велика, это может привести к зависанию браузера при запуске или открытии страницы управления загрузками на некоторое время и вызвать другие потенциальные проблемы.`,
   ],
   _在多图作品页面里显示缩略图列表: [
-    `在多图作品页面里显示<span class="key">缩略图</span>列表`,
-    `在多圖作品頁面裡顯示<span class="key">縮圖</span>列表`,
-    `Show <span class="key">thumbnail</span> list on multi-image work pages`,
-    `複数画像作品ページで<span class="key">サムネイル</span>一覧を表示`,
-    `멀티 이미지 작품 페이지에서 <span class="key">썸네일</span> 목록을 표시`,
-    `На странице работы с несколькими изображениями отображайте список <span class="key">миниатюр</span>`,
+    `在多图作品页面里显示缩略图<span class="key">列表</span>`,
+    `在多圖作品頁面裡顯示縮圖<span class="key">列表</span>`,
+    `Show thumbnail <span class="key">list</span> on multi-image work pages`,
+    `複数画像作品ページでサムネイル<span class="key">一覧</span>を表示`,
+    `멀티 이미지 작품 페이지에서 썸네일 <span class="key">목록</span>을 표시`,
+    `На странице работы с несколькими изображениями отображайте <span class="key">список</span> миниатюр`,
   ],
   _在多图作品页面里显示缩略图列表的说明: [
     `在多图作品页面里，下载器会在作品大图区域下方添加缩略图列表。你不仅可以查看每一张图片的预览图，还可以快速下载单张图片，或者选择一部分图片然后下载。`,
@@ -9154,21 +9139,13 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     `북마크 페이지에서 다운로더의 "홈 / 추가 기능" 영역에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.`,
     `На странице закладок в разделе «Главная / Дополнительные функции» загрузчика есть некоторые функции, которые помогут вам управлять своими закладками.`,
   ],
-  _预览作品的详细信息: [
-    `预览作品的<span class="key">详细</span>信息`,
+  _当鼠标停留在作品缩略图上时显示详细信息: [
+    `当鼠标停留在作品缩略图上时，显示<span class="key">详细</span>信息`,
     `預覽作品時的<span class="key">詳細</span>資料`,
     `Preview the <span class="key">details</span> of the work`,
     `作品の<span class="key">詳細</span>をプレビュー`,
     `작품의 <span class="key">상세한 정보</span>를 미리보다`,
     `Предпросмотр <span class="key">подробностей</span> работы`,
-  ],
-  _预览作品的详细信息的说明: [
-    `鼠标放在作品缩略图上即可查看作品数据`,
-    `滑鼠放在作品縮圖上即可檢視作品資料`,
-    `Mouse over the thumbnail of the work to view the work data`,
-    `作品のサムネイルにマウスをかざすだけで作品データを見ることができます`,
-    `마우스를 작품 썸네일 위에 놓으면 작품 데이터를 볼 수 있다`,
-    `Наведите мышь на миниатюру работы, чтобы увидеть данные о ней.`,
   ],
   _显示区域宽度: [
     `显示区域宽度`,
@@ -9825,29 +9802,29 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `<span class="key">복사</span> 작품 정보`,
     `<span class="key">Копировать</span> информацию о работе`,
   ],
-  _在缩略图上显示复制按钮: [
-    `在作品缩略图上显示<span class="key">复制</span>按钮`,
-    `在作品縮略圖上顯示<span class="key">複製</span>按鈕`,
-    `Display <span class="key">copy</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">コピー</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">복사</span> 버튼 표시`,
-    `Отображать кнопку <span class="key">копирования</span> на миниатюре работы`,
+  _显示复制按钮: [
+    `显示<span class="key">复制</span>按钮`,
+    `顯示<span class="key">複製</span>按鈕`,
+    `Display <span class="key">copy</span> button`,
+    `<span class="key">コピー</span>ボタンを表示`,
+    `<span class="key">복사</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">копирования</span>`,
   ],
-  _在缩略图上显示点赞按钮: [
-    `在作品缩略图上显示<span class="key">点赞</span>按钮`,
-    `在作品縮圖上顯示<span class="key">點讚</span>按鈕`,
-    `Display <span class="key">like</span> button on work thumbnail`,
-    `作品のサムネイルに<span class="key">いいね</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">좋아요</span> 버튼 표시`,
-    `Отображать кнопку <span class="key">лайка</span> на миниатюре работы`,
+  _显示点赞按钮: [
+    `显示<span class="key">点赞</span>按钮`,
+    `顯示<span class="key">點讚</span>按鈕`,
+    `Display <span class="key">like</span> button`,
+    `<span class="key">いいね</span>ボタンを表示`,
+    `<span class="key">좋아요</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">лайка</span>`,
   ],
-  _在作品缩略图上显示收藏按钮: [
-    `在作品缩略图上显示<span class="key">收藏</span>按钮`,
-    `在作品縮圖上顯示<span class="key">收藏</span>按鈕`,
-    `Display <span class="key">bookmark</span> button on work thumbnail`,
-    `作品のサムネイルに<span class="key">ブックマーク</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">북마크</span> 버튼 표시`,
-    `Отображать кнопку <span class="key">закладки</span> на миниатюре работы`,
+  _显示收藏按钮: [
+    `显示<span class="key">收藏</span>按钮`,
+    `顯示<span class="key">收藏</span>按鈕`,
+    `Display <span class="key">bookmark</span> button`,
+    `<span class="key">ブックマーク</span>ボタンを表示`,
+    `<span class="key">북마크</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">закладки</span>`,
   ],
   _点击复制按钮的说明: [
     `点击复制按钮可以复制作品的图片和一些数据。<br>具体说明可以查看“增强”-“其他”里的“复制作品信息”设置。`,
@@ -9861,32 +9838,32 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `点击点赞按钮可以给这个作品点赞。<br>
     <br>
     另外，如果你在“下载”-“下载行为”里启用了“点击点赞按钮时下载作品”功能，那么下载器在点赞的同时还会下载这个作品。<br>
-    在这种情况下，你可以用缩略图上的点赞按钮代替下载按钮，也就是可以关闭“在作品缩略图上显示下载按钮”，这样就不会显示不需要的按钮。<br>
+    在这种情况下，你可以用缩略图上的点赞按钮代替下载按钮，也就是可以关闭“显示下载按钮”，这样就不会显示不需要的按钮。<br>
     不过这个技巧只能在 PC 端浏览器里使用；在移动端浏览器里，下载器不会显示点赞按钮，因此它无法替代下载按钮。`,
     `點擊點讚按鈕可以給這個作品點讚。<br>
     <br>
     另外，如果你在「下載」-「下載行為」裡啟用了「點選點讚按鈕時下載作品」功能，那麼下載器在點讚的同時還會下載這個作品。<br>
-    在這種情況下，你可以用縮圖上的點讚按鈕代替下載按鈕，也就是可以關閉「在作品縮圖上顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
+    在這種情況下，你可以用縮圖上的點讚按鈕代替下載按鈕，也就是可以關閉「顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
     不過這個技巧只能在 PC 端瀏覽器裡使用；在移動端瀏覽器裡，下載器不會顯示點讚按鈕，因此它無法替代下載按鈕。`,
     `Clicking the like button gives this work a like.<br>
     <br>
     Also, if you have enabled the "Download a work when you click the like button" feature in "Download" - "Download behavior", the downloader will also download the work at the same time.<br>
-    In this case, you can use the like button on the thumbnail instead of the download button, which means you can turn off "Show download button on thumbnail" so that unnecessary buttons are not displayed.<br>
+    In this case, you can use the like button on the thumbnail instead of the download button, which means you can turn off "Show download button" so that unnecessary buttons are not displayed.<br>
     However, this tip only works in PC browsers; in mobile browsers, the downloader does not show the like button, so it cannot replace the download button.`,
     `いいねボタンをクリックすると、この作品にいいねできます。<br>
     <br>
     また、「ダウンロード」-「ダウンロード動作」で「いいねボタンをクリックすると作品がダウンロードされます」機能を有効にしている場合、ダウンローダーはいいねと同時にこの作品をダウンロードします。<br>
-    この場合、サムネイル上のいいねボタンをダウンロードボタンの代わりに使えます。つまり、「作品のサムネイルにダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
+    この場合、サムネイル上のいいねボタンをダウンロードボタンの代わりに使えます。つまり、「ダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
     ただし、この方法は PC のブラウザでのみ使用できます。モバイルブラウザでは、ダウンローダーはいいねボタンを表示しないため、ダウンロードボタンの代わりにはなりません。`,
     `좋아요 버튼을 클릭하면 이 작품에 좋아요를 표시할 수 있습니다.<br>
     <br>
     또한 "다운로드"-"다운로드 동작"에서 "좋아요 버튼 클릭 시 작품 다운로드" 기능을 활성화한 경우, 다운로더는 좋아요와 동시에 이 작품을 다운로드합니다.<br>
-    이 경우 썸네일의 좋아요 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "썸네일에 다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
+    이 경우 썸네일의 좋아요 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
     다만 이 팁은 PC 브라우저에서만 사용할 수 있습니다. 모바일 브라우저에서는 다운로더가 좋아요 버튼을 표시하지 않으므로 다운로드 버튼을 대체할 수 없습니다.`,
     `Нажатие кнопки лайка позволяет поставить лайк этой работе.<br>
     <br>
     Кроме того, если вы включили функцию «Загрузка произведения при нажатии на кнопку лайк» в разделе «Скачивание» - «Поведение загрузки», загрузчик также скачает эту работу одновременно с лайком.<br>
-    В этом случае вы можете использовать кнопку лайка на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузить на миниатюре», и тогда ненужные кнопки не будут отображаться.<br>
+    В этом случае вы можете использовать кнопку лайка на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузки», и тогда ненужные кнопки не будут отображаться.<br>
     Однако этот приём работает только в браузерах на ПК; в мобильных браузерах загрузчик не показывает кнопку лайка, поэтому она не может заменить кнопку загрузки.`,
   ],
   _点击收藏按钮的说明: [
@@ -9894,37 +9871,37 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     如果你想设置点击该按钮时的行为，请查看“增强”-“其他”里的“下载器收藏作品时的行为（✩）”设置。<br>
     <br>
     另外，如果你在“下载”-“下载行为”里启用了“点击收藏按钮时下载作品”功能，那么下载器在收藏的同时还会下载这个作品。<br>
-    在这种情况下，你可以用缩略图上的收藏按钮代替下载按钮，也就是可以关闭“在作品缩略图上显示下载按钮”，这样就不会显示不需要的按钮。<br>
+    在这种情况下，你可以用缩略图上的收藏按钮代替下载按钮，也就是可以关闭“显示下载按钮”，这样就不会显示不需要的按钮。<br>
     不过这个技巧只能在 PC 端浏览器里使用；在移动端浏览器里，下载器不会显示收藏按钮，因此它无法替代下载按钮。`,
     `點擊收藏按鈕可以把這個作品加入你的 Pixiv 收藏裡。<br>
     如果你想設定點擊該按鈕時的行為，請查看「增強」-「其他」裡的「下載器收藏作品時的行為（✩）」設定。<br>
     <br>
     另外，如果你在「下載」-「下載行為」裡啟用了「點選收藏按鈕時下載作品」功能，那麼下載器在收藏的同時還會下載這個作品。<br>
-    在這種情況下，你可以用縮圖上的收藏按鈕代替下載按鈕，也就是可以關閉「在作品縮圖上顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
+    在這種情況下，你可以用縮圖上的收藏按鈕代替下載按鈕，也就是可以關閉「顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
     不過這個技巧只能在 PC 端瀏覽器裡使用；在移動端瀏覽器裡，下載器不會顯示收藏按鈕，因此它無法替代下載按鈕。`,
     `Clicking the bookmark button adds this work to your Pixiv bookmarks.<br>
     To configure what happens when you click this button, see the "Behavior when the downloader bookmarks a work (✩)" setting in "Enhance" - "Others".<br>
     <br>
     Also, if you have enabled the "Download a work when you click the bookmark button" feature in "Download" - "Download behavior", the downloader will also download the work at the same time.<br>
-    In this case, you can use the bookmark button on the thumbnail instead of the download button, which means you can turn off "Show download button on thumbnail" so that unnecessary buttons are not displayed.<br>
+    In this case, you can use the bookmark button on the thumbnail instead of the download button, which means you can turn off "Show download button" so that unnecessary buttons are not displayed.<br>
     However, this tip only works in PC browsers; in mobile browsers, the downloader does not show the bookmark button, so it cannot replace the download button.`,
     `ブックマークボタンをクリックすると、この作品を Pixiv のブックマークに追加できます。<br>
     このボタンをクリックしたときの動作を設定するには、「強化機能」-「その他」の「ダウンローダーが作品をブックマークするときの動作（✩）」設定をご覧ください。<br>
     <br>
     また、「ダウンロード」-「ダウンロード動作」で「ブックマークボタンをクリックすると作品をダウンロード」機能を有効にしている場合、ダウンローダーはブックマークと同時にこの作品をダウンロードします。<br>
-    この場合、サムネイル上のブックマークボタンをダウンロードボタンの代わりに使えます。つまり、「作品のサムネイルにダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
+    この場合、サムネイル上のブックマークボタンをダウンロードボタンの代わりに使えます。つまり、「ダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
     ただし、この方法は PC のブラウザでのみ使用できます。モバイルブラウザでは、ダウンローダーはブックマークボタンを表示しないため、ダウンロードボタンの代わりにはなりません。`,
     `북마크 버튼을 클릭하면 이 작품을 Pixiv 북마크에 추가할 수 있습니다.<br>
     이 버튼을 클릭했을 때의 동작을 설정하려면 "향상"-"그 외"의 "다운로더가 작품을 북마크할 때의 동작(✩)" 설정을 참고하세요.<br>
     <br>
     또한 "다운로드"-"다운로드 동작"에서 "북마크 버튼 클릭 시 작품 다운로드" 기능을 활성화한 경우, 다운로더는 북마크와 동시에 이 작품을 다운로드합니다.<br>
-    이 경우 썸네일의 북마크 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "썸네일에 다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
+    이 경우 썸네일의 북마크 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
     다만 이 팁은 PC 브라우저에서만 사용할 수 있습니다. 모바일 브라우저에서는 다운로더가 북마크 버튼을 표시하지 않으므로 다운로드 버튼을 대체할 수 없습니다.`,
     `Нажатие кнопки закладки добавляет эту работу в ваши закладки Pixiv.<br>
     Чтобы настроить поведение при нажатии этой кнопки, см. настройку «Поведение загрузчика при добавлении работ в закладки (✩)» в разделе «Улучшение» - «Другие настройки».<br>
     <br>
     Кроме того, если вы включили функцию «Загрузка произведения при нажатии кнопки закладка» в разделе «Скачивание» - «Поведение загрузки», загрузчик также скачает эту работу одновременно с добавлением в закладки.<br>
-    В этом случае вы можете использовать кнопку закладки на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузить на миниатюре», и тогда ненужные кнопки не будут отображаться.<br>
+    В этом случае вы можете использовать кнопку закладки на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузки», и тогда ненужные кнопки не будут отображаться.<br>
     Однако этот приём работает только в браузерах на ПК; в мобильных браузерах загрузчик не показывает кнопку закладки, поэтому она не может заменить кнопку загрузки.`,
   ],
   _显示复制按钮的提示: [
@@ -11392,21 +11369,13 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `탈퇴한 사용자를 찾을 수 없습니다`,
     `Не найдено удалённых/деактивированных пользователей`,
   ],
-  _日志区域的默认可见性: [
-    `日志区域的默认<span class="key">可见性</span>`,
-    `日誌區域的預設<span class="key">可見性</span>`,
-    `Default <span class="key">visibility</span> of the log area`,
-    `ログ領域のデフォルト<span class="key">可視性</span>`,
-    `로그 영역의 기본 <span class="key">가시성</span>`,
-    `Область журнала по умолчанию <span class="key">видимость</span>`,
-  ],
-  _日志区域的默认可见性的说明: [
-    `当下载器在页面顶部输出日志时，你可以控制日志区域默认显示还是隐藏。`,
-    `當下載器在頁面頂部輸出日誌時，你可以控制日誌區域預設顯示還是隱藏。`,
-    `When the downloader outputs logs at the top of the page, you can control whether the log area is shown or hidden by default.`,
-    `ダウンロードツールがページ上部にログを出力する際、ログ領域のデフォルト表示（表示／非表示）を制御できます。`,
-    `다운로더가 페이지 상단에 로그를 출력할 때, 로그 영역의 기본 표시 또는 숨김을 제어할 수 있습니다。`,
-    `Когда загрузчик выводит логи в верхней части страницы, вы можете управлять, будет ли область журнала отображаться или скрываться по умолчанию.`,
+  _日志区域默认: [
+    `日志区域<span class="key">默认</span>`,
+    `日誌區域<span class="key">預設</span>`,
+    `Log area by <span class="key">default</span>`,
+    `ログ領域の<span class="key">デフォルト</span>`,
+    `로그 영역 <span class="key">기본값</span>`,
+    `Область журнала по <span class="key">умолчанию</span>`,
   ],
   _显示: [`显示`, `顯示`, `Show`, `表示`, `표시`, `Показать`],
   _隐藏: [`隐藏`, `隱藏`, `Hide`, `非表示`, `숨기기`, `Скрыть`],
@@ -11984,14 +11953,6 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `<span class="key">이미 다운로드한</span> 작품 크롤링 안 함`,
     `Не сканировать <span class="key">уже скачанные</span> работы`,
   ],
-  _不抓取下载过的作品的说明: [
-    `如果下载器里有这个作品的下载记录，就不会抓取它。`,
-    `如果下載器裡有這個作品的下載記錄，就不會擷取它。`,
-    `If the downloader has a download record for this work, it will not be crawled.`,
-    `ダウンロードツールにこの作品のダウンロード記録がある場合、クロールしません。`,
-    `다운로더에 이 작품의 다운로드 기록이 있으면 크롤링하지 않습니다.`,
-    `Если в загрузчике есть запись о скачивании этой работы, она не будет сканирована.`,
-  ],
   _不抓取下载过的作品的帮助信息: [
     `该功能依赖下载器自己保存的下载记录。<br>如果你启用了该功能，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。这样可以减少不必要的抓取，节约时间。<br>这个功能也有助于增量更新，因为你可以只抓取没有下载过的作品。<br><br>另外，在合并系列小说时，启用该设置可以跳过有下载记录的小说，只合并系列里新增的小说。不过需要注意的是，以前下载器在合并系列小说时不会保存每篇小说的下载记录，所以它们可能依然会被下载一次，之后就可以不再重复下载了。`,
     `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器在擷取每個作品前會先檢查它是否有下載記錄，如果有就不擷取它。這樣可以減少不必要的擷取，節約時間。<br>這個功能也有助於增量更新，因為你可以只擷取沒有下載過的作品。<br><br>另外，在合併系列小說時，啟用該設定可以跳過有下載記錄的小說，只合併系列裡新增的小說。不過需要注意的是，以前下載器在合併系列小說時不會保存每篇小說的下載記錄，所以它們可能依然會被下載一次，之後就可以不再重複下載了。`,
@@ -12057,21 +12018,21 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `여기서의 다운로드 기록은 다운로더가 저장한 자체 다운로드 기록을 의미하며, 브라우저의 다운로드 기록이 아닙니다. 다운로더를 사용하여 작품을 성공적으로 다운로드할 때마다 다운로드 기록이 생성됩니다. 각 기록에는 해당 작품의 ID, 업로드 날짜, 파일명이 저장됩니다.<br>다운로더의 일부 기능은 다운로드 기록에 의존합니다. 예: 다운로드된 작품을 크롤링하지 않음, 중복 파일 다운로드하지 않음, 다운로드된 작품에 테두리 표시.<br><br>버튼:<br>- 내보내기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 내보낼 수 있습니다. 이렇게 하면 기록을 백업하거나 다른 브라우저에서 가져와 다운로드 기록을 동기화할 수 있습니다.<br>- 가져오기: 이 버튼을 클릭하면 이전에 내보낸 다운로드 기록 파일을 선택하여 기존 다운로드 기록에 병합할 수 있습니다. 필요하다면 하드 디스크에 이미 다운로드된 파일에 대한 다운로드 기록을 만들어 가져올 수도 있습니다. 구체적인 방법은 이 설정 이름을 클릭하여 Wiki에서 자세한 설명을 확인하세요.<br>- 지우기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 지울 수 있습니다.<br><br>추가 설명:<br>- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록을 지워도 다운로더의 다운로드 기록에는 영향을 주지 않으므로 브라우저 다운로드 기록을 안심하고 지울 수 있습니다.<br>- <strong>주의:</strong> 브라우저 데이터를 지울 때 "쿠키 및 기타 사이트 데이터"를 지우면 다운로더의 다운로드 기록이 지워집니다! 필요하다면 데이터를 정리하기 전에 다운로더의 다운로드 기록을 내보내고 나중에 가져오세요.<br>- 이는 신뢰할 수 있는 기능이 아닙니다. 다운로더는 하드 디스크의 파일을 읽을 권한이 없으며, 자신이 저장한 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 이를 알지 못하고 여전히 파일이 다운로드된 것으로 간주합니다. 이 경우 다운로드 기록에 의존하는 기능이 오판할 수 있으므로, 필요에 따라 이러한 기능을 끌 수 있습니다.`,
     `Здесь под записями загрузки подразумеваются собственные записи загрузки, сохранённые загрузчиком, а не история загрузок браузера. Каждый раз, когда вы успешно загружаете произведение с помощью загрузчика, создаётся одна запись загрузки. Каждая запись сохраняет ID произведения, дату загрузки и имя файла.<br>Некоторые функции загрузчика зависят от записей загрузки, например: не сканировать загруженные работы, не загружать повторяющиеся файлы, показывать рамку на загруженных работах.<br><br>Кнопки:<br>- Экспорт: нажатие этой кнопки позволяет экспортировать записи загрузки загрузчика, что позволяет создавать резервную копию записей или импортировать их в другом браузере для синхронизации записей загрузки.<br>- Импорт: нажатие этой кнопки позволяет выбрать ранее экспортированный файл записей загрузки и объединить его с существующими записями. При необходимости вы также можете создать запись загрузки для уже загруженных на жёсткий диск файлов и импортировать её. Подробный способ можно узнать, нажав на название этой настройки и проверив подробные инструкции в Wiki.<br>- Очистить: нажатие этой кнопки позволяет очистить записи загрузки загрузчика.<br><br>Дополнительные пояснения:<br>- Записи загрузки загрузчика хранятся в IndexedDB браузера. Очистка истории загрузок браузера не влияет на записи загрузки загрузчика, поэтому вы можете спокойно очищать историю загрузок браузера.<br>- <strong>Внимание:</strong> При очистке данных браузера очистка «Cookies и другие данные сайтов» приведёт к удалению записей загрузки загрузчика! При необходимости вы можете экспортировать записи загрузки загрузчика перед очисткой данных, а затем импортировать их обратно.<br>- Это не надёжная функция. Загрузчик не имеет разрешения на чтение файлов на жёстком диске и может полагаться только на свои собственные сохранённые записи загрузки. Если вы удалите загруженные файлы, загрузчик об этом не узнает и по-прежнему будет считать, что файлы загружены. В таком случае функции, зависящие от записей загрузки, могут давать ложные срабатывания, поэтому вы можете отключить эти функции по мере необходимости.`,
   ],
-  _缩略图上按钮的位置: [
-    `缩略图上按钮的<span class="key">位置</span>`,
-    `縮略圖上按鈕的<span class="key">位置</span>`,
+  _按钮在缩略图上的位置: [
+    `按钮在缩略图上的<span class="key">位置</span>`,
+    `按鈕在縮圖上的<span class="key">位置</span>`,
     `Button <span class="key">position</span> on thumbnails`,
     `サムネイル上のボタンの<span class="key">位置</span>`,
     `썸네일에 있는 버튼의 <span class="key">위치</span>`,
     `Позиция <span class="key">кнопок</span> на миниатюрах`,
   ],
-  _缩略图上按钮的位置的说明: [
-    `下载器会在作品缩略图上显示一些按钮，你可以设置它们显示在缩略图的左侧还是右侧。`,
-    `下載器會在作品縮略圖上顯示一些按鈕，你可以設定它們顯示在縮略圖的左側還是右側。`,
-    `The downloader will display some buttons on the work thumbnails. You can set whether they appear on the left or right side of the thumbnail.`,
-    `ダウンローダーは作品のサムネイル上にいくつかのボタンを表示します。サムネイルの左側または右側に表示するかを設定できます。`,
-    `다운로더는 작품 썸네일에 일부 버튼을 표시하며, 썸네일의 왼쪽 또는 오른쪽에 표시되도록 설정할 수 있습니다.`,
-    `Загрузчик будет отображать некоторые кнопки на миниатюрах произведений. Вы можете настроить, будут ли они отображаться слева или справа от миниатюры.`,
+  _提示下载器会在缩略图上显示一些按钮: [
+    `当鼠标经过作品缩略图时，下载器会显示一些功能按钮。你可以设置按钮的位置，以及是否启用某些按钮。`,
+    `當滑鼠經過作品縮圖時，下載器會顯示一些功能按鈕。你可以設定按鈕的位置，以及是否啟用某些按鈕。`,
+    `When you move the mouse over a work thumbnail, the downloader displays some function buttons. You can set the button position and whether to enable certain buttons.`,
+    `作品のサムネイルにマウスを乗せると、ダウンローダーはいくつかの機能ボタンを表示します。ボタンの位置や、どのボタンを有効にするかを設定できます。`,
+    `작품 썸네일에 마우스를 올리면 다운로더가 몇 가지 기능 버튼을 표시합니다. 버튼의 위치와 일부 버튼의 사용 여부를 설정할 수 있습니다.`,
+    `При наведении курсора на миниатюру работы загрузчик отображает несколько функциональных кнопок. Вы можете настроить расположение кнопок и то, какие из них включены.`,
   ],
   _左侧: [`左侧`, `左側`, `Left`, `左側`, `왼쪽`, `Левая сторона`],
   _右侧: [`右侧`, `右側`, `Right`, `右側`, `오른쪽`, `Правая сторона`],

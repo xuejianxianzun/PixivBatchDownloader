@@ -2874,6 +2874,14 @@ body.mobile #rightButtonContainer {
   align-items: flex-start;
   gap: 10px;
 }
+.centerWrap .centerWrap_con .settingsPanel_tipCard.is-hidden,
+.centerWrap .centerWrap_con .settingsPanel_tipCard.is-context-hidden {
+  display: none;
+}
+.centerWrap .centerWrap_con .settingsPanel_titleContent .settingsPanel_tipCard {
+  width: calc(100% - 20px);
+  margin: 10px auto 0;
+}
 .centerWrap .centerWrap_con .settingsPanel_tipIcon {
   width: 26px;
   height: 26px;
