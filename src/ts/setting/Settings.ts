@@ -1170,8 +1170,13 @@ class Settings {
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat:
-      'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
+    // 这个设置项的输入框是 textarea，里面的换行就是真正的换行符。
+    // 以前用 {n} 表示换行，它会在 ConvertOldSettings.convertString 里被转换成换行符
+    copyWorkInfoFormat: `id: {id}
+title: {title}
+tags: {tags}
+user: {user}
+url: {url}`,
     showCopyBtnOnThumb: true,
     showLikeBtnOnThumb: false,
     showBookmarkBtnOnThumb: false,

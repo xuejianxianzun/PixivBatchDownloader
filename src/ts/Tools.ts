@@ -1468,7 +1468,10 @@ class Tools {
     return null
   }
 
-  /**根据文本长度，动态设置 textarea 的高度 */
+  /**根据文本长度，动态设置 textarea 的高度。
+   *
+   * 这个方法适合处理不换行的长文本，根据内容长度调整行数。
+   */
   static setRows(el: HTMLTextAreaElement | null) {
     if (!el) {
       return

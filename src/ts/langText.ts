@@ -9976,42 +9976,34 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   _复制内容的格式的提示: [
     `你可以设置文字内容的格式，这会影响 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式复制的内容。
 <br>
-你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线、每个标签的名称。
-<br>
+你可以使用命名规则里的所有标签，也可以输入自定义字符，例如输入空格、下划线、说明文字。<br>
+你可以使用回车换行，下载器会保持你设置的换行格式。<br>
 另外，你还可以使用这些标签：`,
     `你可以設定文字內容的格式，這會影響 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式複製的內容。
 <br>
-你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如空格、下劃線、每個標籤的名稱。
-<br>
+你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如輸入空格、下劃線、說明文字。<br>
+你可以使用 Enter 鍵換行，下載器會保持你設定的換行格式。<br>
 另外，你還可以使用這些標籤：`,
     `You can set the format of the text content, which will affect the content copied in <span class="blue">text/plain</span> and <span class="blue">text/html</span> formats.
 <br>
-You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, the name of each tag.
-<br>
+You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, or descriptive text.<br>
+You can press Enter to insert line breaks, and the downloader will keep the line breaks as you set them.<br>
 Additionally, you can use these tags:`,
     `テキスト内容の形式を設定できます。これにより、<span class="blue">text/plain</span> および <span class="blue">text/html</span> 形式でコピーされる内容に影響します。
 <br>
-命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、各タグの名前です。
-<br>
+命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、説明文などです。<br>
+Enter キーで改行できます。ダウンローダーは設定した改行の形式をそのまま保持します。<br>
 さらに、これらのタグを使用できます：`,
     `텍스트 내용의 형식을 설정할 수 있으며, 이는 <span class="blue">text/plain</span> 및 <span class="blue">text/html</span> 형식으로 복사되는 내용에 영향을 미칩니다.
 <br>
-명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 각 태그의 이름.
-<br>
+명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 설명 문구 등입니다.<br>
+Enter 키로 줄을 바꿀 수 있으며, 다운로더는 설정한 줄 바꿈 형식을 그대로 유지합니다.<br>
 또한, 이러한 태그를 사용할 수 있습니다:`,
     `Вы можете установить формат текстового содержимого, что повлияет на содержимое, копируемое в форматах <span class="blue">text/plain</span> и <span class="blue">text/html</span>.
 <br>
-Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания, имя каждого тега.
-<br>
+Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, например пробелы, подчеркивания, поясняющий текст.<br>
+Вы можете нажимать Enter для переноса строки — загрузчик сохранит заданные вами переносы строк.<br>
 Кроме того, вы можете использовать эти теги:`,
-  ],
-  _换行标记的说明: [
-    `换行`,
-    `換行`,
-    `Line break`,
-    `改行`,
-    `줄 바꿈`,
-    `Перенос строки`,
   ],
   _url标记的说明: [
     `这个作品的网址`,
