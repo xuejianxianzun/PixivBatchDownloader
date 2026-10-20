@@ -91,6 +91,8 @@ export interface FormType extends HTMLFormElement {
   bmkAfterDL: HTMLInputElement
   widthTag: RadioNodeList
   restrict: RadioNodeList
+  showBookmarkPanel: HTMLInputElement
+  bookmarkPanelCommonTagsMax: HTMLInputElement
   userBlockList: HTMLInputElement
   quicklyBlockUsers: HTMLInputElement
   blockList: HTMLInputElement

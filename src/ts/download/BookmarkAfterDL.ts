@@ -192,7 +192,12 @@ class BookmarkAfterDL {
       this.task.queue.push({
         id: id.toString(),
         type: data.type === 3 ? 'novels' : 'illusts',
-        tags: [...data.tags],
+        // 设置里选择了“添加翻译后的标签”时，使用抓取结果里的翻译后的标签
+        tags: [
+          ...(settings.widthTag === 'transl' && data.tagsTranslOnly
+            ? data.tagsTranslOnly
+            : data.tags),
+        ],
         needAddTag: settings.widthTagBoolean,
         restrict: settings.restrictBoolean,
         slowly: store.result.length > 30,

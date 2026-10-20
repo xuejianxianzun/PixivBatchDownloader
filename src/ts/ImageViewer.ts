@@ -8,6 +8,7 @@ import { toast } from './Toast'
 import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { bookmark } from './Bookmark'
+import { bookmarkPanel, BookmarkPanelOption } from './BookmarkPanel'
 import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
@@ -100,7 +101,11 @@ class ImageViewer {
   // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
   private bindShortcuts() {
     document.addEventListener('keydown', (ev) => {
-      if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+      // 收藏操作面板显示时，不响应本模块的快捷键，避免再次弹出面板
+      if (!this.show || bookmarkPanel.isOpen) {
+        return
+      }
+      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
         return
       }
 
@@ -129,7 +134,11 @@ class ImageViewer {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        // 收藏操作面板显示时，不响应本模块的快捷键，避免再次弹出面板、或者按 Esc 时连带关闭图片查看器
+        if (!this.show || bookmarkPanel.isOpen) {
+          return
+        }
+        if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
           return
         }
 
@@ -584,16 +593,56 @@ class ImageViewer {
 
     this.addBtn(li)
 
-    li.addEventListener('click', async () => {
-      // 添加收藏
-      this.addBookmark()
-
-      // 下载这个作品
-      downloadOnClickBookmark.send(this.workData!.body.illustId)
+    li.addEventListener('click', () => {
+      // 添加收藏。确认之后（没有启用收藏面板时就是点击时）下载这个作品
+      this.addBookmark(() => {
+        downloadOnClickBookmark.send(this.workData!.body.illustId)
+      })
     })
   }
 
-  private async addBookmark() {
+  /**添加收藏
+   *
+   * @param onConfirmed 用户确认收藏之后（没有显示操作面板时，就是开始收藏之前）调用。
+   * 此时还没有发送收藏请求；用户取消了操作面板时不会调用它。
+   */
+  private async addBookmark(onConfirmed?: () => void) {
+    // 按照“是否添加标签”设置来决定使用原始标签还是翻译后的标签
+    let tags = bookmark.getTagsBySetting(this.workData!)
+    let restrict: boolean | undefined = undefined
+    // 是否添加标签。不指定时使用“是否添加标签”设置的值
+    let needAddTag: boolean | undefined = undefined
+
+    // 启用了操作面板时，先显示面板，等用户在面板上确认之后再收藏
+    if (settings.showBookmarkPanel) {
+      // 面板显示期间要禁用查看器自己的键盘响应。
+      // 查看器（viewerjs）在 document 上监听了 keydown，按 Esc 会关闭查看器、按方向键、空格会在背后切换图片、控制播放，
+      // 而本模块的快捷键监听只能拦住本模块自己的处理，拦不住查看器内部的监听
+      const keyboard = this.myViewer.options.keyboard
+      this.myViewer.options.keyboard = false
+      let option: BookmarkPanelOption | undefined
+      try {
+        option = await bookmarkPanel.show(
+          this.cfg.workId,
+          'illusts',
+          this.workData
+        )
+      } finally {
+        this.myViewer.options.keyboard = keyboard
+      }
+
+      if (!option) {
+        // 用户取消了面板，不进行收藏
+        return
+      }
+      tags = option.tags
+      restrict = option.restrict
+      needAddTag = true
+    }
+
+    // 用户已经确认收藏（没有启用面板时就是开始收藏）。在发送收藏请求之前通知调用方
+    onConfirmed?.()
+
     // 显示提示
     toast.show(lang.transl('_收藏'), {
       bgColor: Colors.bgBlue,
@@ -602,7 +651,9 @@ class ImageViewer {
     const status = await bookmark.add(
       this.cfg.workId,
       'illusts',
-      Tools.extractTags(this.workData!)
+      tags,
+      needAddTag,
+      restrict
     )
 
     if (status === 200) {

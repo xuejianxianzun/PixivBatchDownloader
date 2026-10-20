@@ -1,4 +1,5 @@
-<!-- 设置项的编号是递增的，现在最大值是 107
+<!-- 设置项的编号必须唯一（置顶、隐藏设置、wiki 链接都按它存），新增时取当前最大值 + 1。
+显示顺序不看编号，而是看 OptionConfigs.options 数组里的顺序。
 帮助按钮上的文字有两种：
 - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 - 如果帮助文字直接在设置面板里显示，则使用“_提示” -->
@@ -4033,14 +4034,14 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
 
 <div class="option" data-no="88">
   <a href="" target="_blank" class="settingNameStyle">
-    <span data-xztext="_下载器收藏作品时的行为"></span>
+    <span data-xztext="_下载器收藏作品时的默认行为"></span>
   </a>
 
   <button
     type="button"
     class="gray textButton showMsgBtn"
-    data-title="_下载器收藏作品时的行为"
-    data-msg="_下载器收藏作品时的行为的说明"
+    data-title="_下载器收藏作品时的默认行为"
+    data-msg="_下载器收藏作品时的默认行为的说明"
     data-xztext="_帮助"
   ></button>
 
@@ -4074,20 +4075,83 @@ __DEFAULT_NAME_RULE_FOR_NOVEL__</textarea
       name="widthTag"
       id="widthTag1"
       class="need_beautify radio"
-      value="yes"
+      value="origin"
       checked
     />
     <span class="beautify_radio" tabindex="0"></span>
-    <label for="widthTag1" data-xztext="_添加作品自身的标签"></label>
+    <label for="widthTag1" data-xztext="_添加作品的原始标签"></label>
     <input
       type="radio"
       name="widthTag"
       id="widthTag2"
       class="need_beautify radio"
-      value="no"
+      value="transl"
     />
     <span class="beautify_radio" tabindex="0"></span>
-    <label for="widthTag2" data-xztext="_不添加"></label>
+    <label for="widthTag2" data-xztext="_添加翻译后的标签"></label>
+    <input
+      type="radio"
+      name="widthTag"
+      id="widthTag3"
+      class="need_beautify radio"
+      value="none"
+    />
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="widthTag3" data-xztext="_不添加"></label>
+  </div>
+</div>
+
+<div class="option" data-no="117">
+  <a href="" target="_blank" class="settingNameStyle">
+    <span data-xztext="_收藏面板"></span>
+  </a>
+
+  <button
+    type="button"
+    class="gray textButton showMsgBtn"
+    data-title="_收藏面板"
+    data-msg="_收藏面板的帮助"
+    data-xztext="_帮助"
+  ></button>
+
+  <div class="optionLine">
+    <label
+      for="showBookmarkPanel"
+      data-xztext="_手动收藏作品时显示收藏面板"
+    ></label>
+    <input
+      type="checkbox"
+      name="showBookmarkPanel"
+      id="showBookmarkPanel"
+      class="need_beautify checkbox_switch"
+      checked
+    />
+    <span class="beautify_switch" tabindex="0"></span>
+  </div>
+
+  <div class="optionLine">
+    <label
+      for="bookmarkPanelCommonTagsMax"
+      data-xztext="_显示多少个常用标签"
+    ></label>
+    <input
+      type="text"
+      name="bookmarkPanelCommonTagsMax"
+      id="bookmarkPanelCommonTagsMax"
+      class="setinput_style blue w50"
+      value="30"
+    />
+    <span class="gray">0 - 100</span>
+  </div>
+
+  <div class="optionLine">
+    <button
+      type="button"
+      class="textButton fireEvent borderButton"
+      id="clearBookmarkPanelCommonTags"
+      data-event="clearBookmarkPanelCommonTags"
+      data-xztext="_清空常用的标签"
+    ></button>
   </div>
 </div>
 

@@ -1,0 +1,524 @@
+// 手动收藏作品时显示的“操作面板”
+
+.xzBookmarkPanelMask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 3000;
+  background-color: rgba(0, 0, 0, 0.42);
+}
+
+.xzBookmarkPanel {
+  position: fixed;
+  // 层级不要超过 9999，因为 msgBox 的层级是 9999，需要避免遮挡住 msgBox
+  // 层级需要大于 2015（图片查看器的层级）
+  z-index: 3001;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  width: 50vw;
+  max-width: 700px;
+  max-height: 88vh;
+  overflow: auto;
+  padding: 18px 20px;
+  border: 1px solid rgba(15, 30, 50, 0.06);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow:
+    0 12px 40px rgba(15, 30, 50, 0.18),
+    0 2px 8px rgba(15, 30, 50, 0.08);
+  font-size: 14px;
+  line-height: 1.6;
+  color: #444;
+  text-align: left;
+
+  &.mobile {
+    width: 84vw;
+    padding: 16px;
+
+    // 移动端没有实体键盘，不显示快捷键提示
+    .submitArea .submitBtn .hotkey {
+      display: none;
+    }
+  }
+
+  .closeBtn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #9aa4ae;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: #f0f2f5;
+      color: #5c6771;
+    }
+  }
+
+  .hide {
+    display: none;
+  }
+
+  // 查看原图时面板会临时隐藏（它仍然在页面上，只是不显示）。
+  // 遮罩层不隐藏：原图的层级比遮罩层高，所以不影响查看；同时还能避免用户误点到下面的页面
+  &.is-hidden {
+    display: none;
+  }
+
+  // 作品的简要信息。用一个浅色的卡片和下面的设置区域区分开
+  .workCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid #eef1f4;
+    border-radius: 10px;
+    background: #f6f8fa;
+
+    .cover {
+      flex-shrink: 0;
+      width: 33%;
+      max-width: 180px;
+      max-height: 180px;
+      border-radius: 8px;
+      background: #fff;
+      object-fit: contain;
+      // 点击封面图可以查看大图
+      cursor: pointer;
+      transition:
+        opacity 0.15s ease,
+        box-shadow 0.15s ease;
+
+      &:hover {
+        opacity: 0.86;
+        box-shadow: 0 0 0 2px var(--beautify-blue);
+      }
+    }
+
+    .workInfoRight {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  // 一级标题（作品标题）
+  .workTitle {
+    margin: 0 0 6px;
+    // 给右上角的关闭按钮留出空间，避免长标题被遮住
+    padding-right: 26px;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #222;
+    overflow-wrap: anywhere;
+  }
+
+  // 各个区域的标题（二级标题）
+  .sectionTitle {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: #333;
+  }
+
+  .tipText {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #8b95a1;
+
+    .blue {
+      color: var(--blue-buttons-bg);
+    }
+  }
+
+  // 设置区域之间用一条很淡的分隔线隔开
+  .section {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #eef1f4;
+  }
+
+  // 不加分隔线的区域，让它和上一个区域在视觉上是一个整体
+  .section.noDivider {
+    margin-top: 6px;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  // “使用的收藏标签”达到上限时的警告文字。它跟在“标签数量”后面，和它显示在同一行
+  .maxTagsTip {
+    color: #d27e00;
+  }
+
+  // 标签列表
+  .tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 3px;
+    // 抵消标签自身的 padding，让标签里的文字和上方的标题左对齐
+    margin: 0 -6px;
+
+    .tag {
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: 13px;
+      line-height: 20px;
+      color: var(--beautify-blue);
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  // 已经添加到“使用的收藏标签”里的标签，显示一个标记。
+  // 色系和 hover 的浅蓝色相同，只是不透明度更高一些
+  .workTagList .tag.is-added,
+  .commonTagList .tag.is-added {
+    background-color: rgba(25, 157, 245, 0.12);
+  }
+
+  // 这些列表里的标签是“点击添加”，使用浅蓝色背景
+  .workTagList .tag:hover,
+  .commonTagList .tag:hover {
+    background-color: rgba(25, 157, 245, 0.1);
+  }
+
+  // 已添加的标签在 hover 时要继续保留标记颜色，否则会被上面的 hover 规则冲淡
+  .workTagList .tag.is-added:hover,
+  .commonTagList .tag.is-added:hover {
+    background-color: rgba(25, 157, 245, 0.28);
+  }
+
+  // 这个列表里的标签是“点击移除”，使用浅红色背景
+  .bookmarkTagList .tag:hover {
+    background-color: rgba(243, 57, 57, 0.1);
+  }
+
+  // 美化的单选框
+  .radioOption {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 0;
+    margin-right: 18px;
+    color: #444;
+    cursor: pointer;
+    user-select: none;
+
+    input {
+      display: none;
+    }
+
+    .radioMark {
+      position: relative;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      width: 16px;
+      height: 16px;
+      margin-right: 7px;
+      border: 1.5px solid #c6ccd2;
+      border-radius: 50%;
+      transition: border-color 0.15s ease;
+    }
+
+    &:hover .radioMark {
+      border-color: var(--beautify-blue);
+    }
+
+    input:checked + .radioMark {
+      border-color: var(--beautify-blue);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        right: 3px;
+        bottom: 3px;
+        border-radius: 50%;
+        background-color: var(--beautify-blue);
+      }
+    }
+
+    input:checked ~ .radioText {
+      color: var(--beautify-blue);
+      font-weight: 500;
+    }
+  }
+
+  .radioRow {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .radioColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  // 手动添加标签的输入区域。它是一个独立的功能，没有缩进
+  .customInput {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+
+    .customInputLabel {
+      flex-shrink: 0;
+      font-size: 13px;
+      color: #444;
+    }
+
+    .tagInput {
+      flex: 1;
+      min-width: 140px;
+      max-width: 340px;
+      box-sizing: border-box;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid #d8dde3;
+      border-radius: 6px;
+      outline: 0;
+      font-size: 13px;
+      line-height: 28px;
+      color: #444;
+      background-color: #fff;
+      transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+      &::placeholder {
+        color: #a9b2bc;
+      }
+
+      &:focus {
+        border-color: var(--beautify-blue);
+        box-shadow: 0 0 0 3px rgba(25, 157, 245, 0.15);
+      }
+    }
+
+    .addTagBtn {
+      flex-shrink: 0;
+      height: 30px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--blue-buttons-bg);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+      &:hover {
+        background-color: #0b98d8;
+        box-shadow: 0 2px 8px rgba(14, 168, 239, 0.35);
+      }
+
+      &:active {
+        background-color: #0a8cc6;
+      }
+    }
+  }
+
+  // 提交按钮。按钮自身水平居中，快捷键的提示放在按钮内部
+  .submitArea {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #eef1f4;
+
+    .submitBtn {
+      display: inline-flex;
+      align-items: center;
+      height: 42px;
+      padding: 0 22px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--blue-buttons-bg);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(14, 168, 239, 0.35);
+      transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        background-color 0.15s ease;
+
+      &:hover {
+        background-color: #12b0f5;
+        box-shadow: 0 6px 18px rgba(14, 168, 239, 0.42);
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(14, 168, 239, 0.35);
+      }
+
+      .submitText {
+        letter-spacing: 1px;
+      }
+
+      .hotkey {
+        margin-left: 12px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background-color: rgba(255, 255, 255, 0.22);
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+// 暗色主题
+.theme-dark.xzBookmarkPanel {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: var(--settings-panel-bg-dark);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  color: #d5d9de;
+
+  .closeBtn {
+    color: #8b95a1;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #cfd6dd;
+    }
+  }
+
+  .workCard {
+    border-color: rgba(255, 255, 255, 0.06);
+    background: #20262d;
+
+    .cover {
+      background: #171b20;
+    }
+  }
+
+  .workTitle {
+    color: #fff;
+  }
+
+  .sectionTitle {
+    color: #ddd;
+  }
+
+  .tipText {
+    color: #8e99a4;
+  }
+
+  .maxTagsTip {
+    color: #e8a53a;
+  }
+
+  .section,
+  .submitArea {
+    border-color: rgba(255, 255, 255, 0.07);
+  }
+
+  .tagList .tag {
+    color: #6ec7ff;
+  }
+
+  .workTagList .tag.is-added,
+  .commonTagList .tag.is-added {
+    background-color: rgba(25, 157, 245, 0.3);
+  }
+
+  .workTagList .tag:hover,
+  .commonTagList .tag:hover {
+    background-color: rgba(25, 157, 245, 0.18);
+  }
+
+  .workTagList .tag.is-added:hover,
+  .commonTagList .tag.is-added:hover {
+    background-color: rgba(25, 157, 245, 0.4);
+  }
+
+  .bookmarkTagList .tag:hover {
+    background-color: rgba(243, 57, 57, 0.2);
+  }
+
+  .radioOption {
+    color: #d5d9de;
+
+    .radioMark {
+      border-color: #5c6771;
+    }
+
+    input:checked ~ .radioText {
+      color: #6ec7ff;
+    }
+  }
+
+  .customInput {
+    .customInputLabel {
+      color: #d5d9de;
+    }
+
+    .tagInput {
+      border-color: #3a424b;
+      color: #e3e8ed;
+      background-color: #171b20;
+
+      &::placeholder {
+        color: #6f7a85;
+      }
+
+      &:focus {
+        border-color: var(--beautify-blue);
+        box-shadow: 0 0 0 3px rgba(25, 157, 245, 0.2);
+      }
+    }
+  }
+}
+
+.mobile.xzBookmarkPanel {
+  .workCard {
+    .cover {
+      // 在移动端，不显示封面图片。因为封面图像显示在左侧，标签列表显示在右侧，
+      // 而移动端的宽度很窄，会导致标签列表占据很大高度
+      // 所以在移动端隐藏封面图片，把宽度全部让给标签列表显示，
+      // 这样可以减少收藏面板的整体高度，便于使用。
+      // 实际上，在移动端目前只有一种情况会触发收藏面板，就是在作品页面里点击收藏按钮。
+      // 所以此时显示封面图片的必要性也不大。
+      display: none;
+    }
+  }
+
+  .customInput {
+    .customInputLabel {
+      // 在移动端，让“手动添加标签”占据整行，让输入框和按钮换到下一行
+      flex-basis: 100%;
+    }
+  }
+}

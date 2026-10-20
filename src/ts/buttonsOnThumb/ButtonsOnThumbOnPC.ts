@@ -128,15 +128,16 @@ abstract class ButtonsOnThumbOnPC extends ButtonsOnThumbConfig {
 
     const isNovel = workType === 'novels'
 
-    // 如果启用了“点击收藏按钮时下载作品”，就同时下载这个作品
-    downloadOnClickBookmark.send(workId, isNovel ? 'novels' : 'illusts')
-
     try {
       const workData = await cacheWorkData.getWorkDataAsync(
         workId,
         isNovel ? 'novel' : 'artwork'
       )
-      addBookmarkFromWorkThumb.add(workData, this.workEL)
+      await addBookmarkFromWorkThumb.add(workData, this.workEL, () => {
+        // 用户确认收藏之后（没有启用收藏面板时就是点击按钮时）下载这个作品。
+        // 这个回调在发送收藏请求之前执行，所以不会被收藏请求拖慢
+        downloadOnClickBookmark.send(workId, isNovel ? 'novels' : 'illusts')
+      })
     } catch {
       // 获取作品数据失败时，无法收藏这个作品
       toast.error(lang.transl('_添加收藏失败'))

@@ -78,17 +78,6 @@ class ButtonsOnArtworkPage extends ButtonsOnThumbConfig {
     let order = 0
     // 添加按钮
     this.btnsConfig.forEach((config) => {
-      // 这里只显示图像作品页面里适用的按钮。
-      // 不显示收藏按钮和点赞按钮。
-      // 这两个按钮是给作品用的（而非作品里的单张图片），而且作品大图下方也有这两个按钮，
-      // 所以不在缩略图上显示这两个按钮
-      if (
-        config.name === 'bookmarkBtnOnThumb' ||
-        config.name === 'likeBtnOnThumb'
-      ) {
-        return
-      }
-
       if (config.show()) {
         config.btn = this.createBtn(config, order)
         a.appendChild(config.btn)

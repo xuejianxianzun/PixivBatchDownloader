@@ -645,6 +645,9 @@ class Tools {
    *
    * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
    *
+   * 'both' 的排列方式默认是「全部原版 tag + 全部翻译后的 tag」。如果传入 interleave 为 true，
+   * 则改成「一个原版 tag 后面跟着它的翻译」，一一对应（需要成对展示时使用）。
+   *
    * 可选参数 purpose:
    *
    * 'save' 表示提取标签用于保存抓取结果（会在文件名里使用），'check' 表示提取标签用于检查、显示。
@@ -662,17 +665,22 @@ class Tools {
   static extractTags(
     data: ArtworkData | NovelData,
     type: 'origin' | 'transl' | 'both' = 'origin',
-    purpose: 'save' | 'check' = 'check'
+    purpose: 'save' | 'check' = 'check',
+    /** 'both' 时，是否让一个原标签和它的翻译标签相邻（=true）还是先返回全部原标签、再返回全部翻译标签（=false）。
+     *
+     * 默认 false。需要成对展示时（例如收藏面板里的标签列表）才传 true */
+    interleave = false
   ) {
     const tags: string[] = []
-    const tagsTransl: string[] = []
+    // 翻译后的 tag。它的下标与 tags 一一对应；某个 tag 没有翻译、或者不需要翻译时，这个位置是空的（稀疏数组）
+    const tagsTransl: (string | undefined)[] = []
 
     const tagArr: artworkDataTagsItem[] | novelDataTagsItem[] =
       data.body.tags.tags
 
     for (const tagData of tagArr) {
       // 添加原版 tag
-      tags.push(tagData.tag)
+      const index = tags.push(tagData.tag) - 1
 
       // 添加翻译的 tag
       // 备注：在小说的数据里，tag 都没有翻译
@@ -701,31 +709,51 @@ class Tools {
             }
           }
 
-          if (
-            originTagIsChineseAndTranslatedTagIsEnglish &&
-            purpose === 'save'
-          ) {
+          const useOriginTag =
+            originTagIsChineseAndTranslatedTagIsEnglish && purpose === 'save'
+
+          if (type === 'transl') {
             // 当原标签是中文，翻译后的标签是纯英文
             // 并且用途是保存抓取结果时，则使用原标签，而不是翻译后的标签
             // 这是为了缩短文件名，并优先使用中文作为文件名
-            tagsTransl.push(tagData.tag)
-          } else {
-            // 如果原标签不是中文或者翻译后的标签不是纯英文，直接使用翻译后的标签
-            tagsTransl.push(tagData.translation.en)
+            tagsTransl[index] = useOriginTag
+              ? tagData.tag
+              : tagData.translation.en
+          } else if (!useOriginTag) {
+            // 'both' 时，如果翻译后的标签和原标签相同，就不必再保存一次（原标签已经添加了）
+            tagsTransl[index] = tagData.translation.en
           }
-        } else {
-          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签
-          tagsTransl.push(tagData.tag)
+        } else if (type === 'transl') {
+          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签。
+          // 这样翻译列表里依然会有这个 tag，不会影响按翻译后的 tag 进行检查
+          tagsTransl[index] = tagData.tag
         }
+        // 'both' 时，没有翻译的 tag 不需要添加到 tagsTransl，因为原标签已经添加了
       }
     }
+
+    // 翻译后的标签。稀疏数组里的空位要先去掉
+    const translTags = tagsTransl.filter((tag) => tag !== undefined) as string[]
 
     if (type === 'origin') {
       return tags
     } else if (type === 'transl') {
-      return Array.from(new Set(tagsTransl))
+      return Array.from(new Set(translTags))
+    } else if (!interleave) {
+      // 'both'：全部原标签在前，全部翻译标签在后（这是以前的顺序，不能随意改变，
+      // 例如文件名里的 {tags_translate} 就依赖这个顺序）
+      return Array.from(new Set(tags.concat(translTags)))
     } else {
-      return Array.from(new Set(tags.concat(tagsTransl)))
+      // 'both'：依次添加原标签和它对应的翻译标签，这样两者是相邻的
+      const result: string[] = []
+      tags.forEach((tag, index) => {
+        result.push(tag)
+        const transl = tagsTransl[index]
+        if (transl !== undefined && transl !== tag) {
+          result.push(transl)
+        }
+      })
+      return Array.from(new Set(result))
     }
   }
 

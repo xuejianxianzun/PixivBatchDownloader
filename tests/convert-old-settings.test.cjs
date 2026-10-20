@@ -68,3 +68,16 @@ test('其它设置项的转换不受影响', () => {
   // 无关的设置项原样返回
   assert.equal(convertOldSettings.convertString('tagsSeparator', ','), ',')
 })
+
+test('widthTag 的旧值转换成新的语义值', () => {
+  // 最早的值：1 / -1
+  assert.equal(convertOldSettings.convertString('widthTag', '1'), 'origin')
+  assert.equal(convertOldSettings.convertString('widthTag', '-1'), 'none')
+  // 上一版的值：yes 对应“添加作品的原始标签”，no 对应“不添加”
+  assert.equal(convertOldSettings.convertString('widthTag', 'yes'), 'origin')
+  assert.equal(convertOldSettings.convertString('widthTag', 'no'), 'none')
+  // 已经是新值的不被改动
+  assert.equal(convertOldSettings.convertString('widthTag', 'origin'), 'origin')
+  assert.equal(convertOldSettings.convertString('widthTag', 'transl'), 'transl')
+  assert.equal(convertOldSettings.convertString('widthTag', 'none'), 'none')
+})

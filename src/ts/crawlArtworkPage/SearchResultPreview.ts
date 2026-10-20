@@ -1,4 +1,5 @@
 import { bookmark } from '../Bookmark'
+import { bookmarkPanel } from '../BookmarkPanel'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
@@ -1295,9 +1296,8 @@ class SearchResultPreview {
     const e = new CustomEvent('addBMK', {
       detail: { data: { id: data.idNum, tags: data.tags, el: button } },
     })
+    // 下载作品的操作在 addBookmark 里执行：启用了收藏操作面板时，要等用户确认之后才下载
     window.dispatchEvent(e)
-
-    downloadOnClickBookmark.send(data.idNum.toString())
   }
 
   /** 收藏搜索结果预览卡片中的作品 */
@@ -1306,10 +1306,36 @@ class SearchResultPreview {
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
+        // 设置里选择了“添加翻译后的标签”时，使用抓取结果里的翻译后的标签
+        let tags =
+          settings.widthTag === 'transl' && r.tagsTranslOnly
+            ? r.tagsTranslOnly
+            : data.tags
+        let restrict: boolean | undefined = undefined
+        // 是否添加标签。不指定时使用“是否添加标签”设置的值
+        let needAddTag: boolean | undefined = undefined
+
+        // 启用了操作面板时，先显示面板，等用户在面板上确认之后再收藏
+        if (settings.showBookmarkPanel) {
+          const option = await bookmarkPanel.show(data.id.toString(), 'illusts')
+          if (!option) {
+            // 用户取消了面板，不进行收藏，也不下载
+            return
+          }
+          tags = option.tags
+          restrict = option.restrict
+          needAddTag = true
+        }
+
+        // 如果启用了“点击收藏按钮时下载作品”，就下载这个作品（在上面的面板确认之后才执行）
+        downloadOnClickBookmark.send(data.id.toString())
+
         const status = await bookmark.add(
           data.id.toString(),
           'illusts',
-          data.tags
+          tags,
+          needAddTag,
+          restrict
         )
         if (status === 200) {
           // 同步数据

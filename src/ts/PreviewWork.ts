@@ -17,6 +17,7 @@ import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/Display
 import { logErrorStatus } from './crawl/LogErrorStatus'
 import { filter } from './filter/Filter'
 import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
+import { bookmarkPanel } from './BookmarkPanel'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -252,6 +253,10 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
+        // 收藏操作面板显示时，不响应本模块的快捷键，避免再次弹出面板、或者按 Esc 时连带关闭预览
+        if (bookmarkPanel.isOpen) {
+          return
+        }
         if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
           return
         }

@@ -6,6 +6,7 @@ import { token } from '../Token'
 import { pageType } from '../PageType'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
+import { bookmarkPanel } from '../BookmarkPanel'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { showOneTimeMsg } from '../ShowOneTimeMsg'
@@ -16,6 +17,7 @@ import { cacheWorkData } from '../store/CacheWorkData'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { msgBox } from '../MsgBox'
+import { settings } from '../setting/Settings'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -161,17 +163,17 @@ class QuickBookmark {
         if (!Config.mobile) {
           pixivBMKBtn = this.pixivBMKDiv!.querySelector('button')
         }
-        this.addBookmark(pixivBMKBtn, this.likeBtn!)
-
-        // 只有当找不到 Pixiv 自身的收藏按钮时，才由快速收藏按钮触发下载
-        if (!pixivBMKBtn) {
-          this.sendDownload()
-        }
+        this.addBookmark(pixivBMKBtn, this.likeBtn!, () => {
+          // 只有当找不到 Pixiv 自身的收藏按钮时，才由快速收藏按钮触发下载
+          if (!pixivBMKBtn) {
+            this.sendDownload()
+          }
+        })
 
         showOneTimeMsg.show(
           'tipBookmarkButton',
           lang.transl('_下载器的收藏按钮默认会添加作品的标签'),
-          lang.transl('_下载器收藏作品时的行为')
+          lang.transl('_下载器收藏作品时的默认行为')
         )
       }
     })
@@ -208,9 +210,15 @@ class QuickBookmark {
     }
   }
 
+  /**添加收藏
+   *
+   * @param onConfirmed 用户确认收藏之后（没有显示操作面板时，就是开始收藏之前）调用。
+   * 此时还没有发送收藏请求；用户取消了操作面板时不会调用它。
+   */
   private async addBookmark(
     pixivBMKBtn: HTMLDivElement | HTMLButtonElement | null,
-    likeBtn: HTMLButtonElement
+    likeBtn: HTMLButtonElement,
+    onConfirmed?: () => void
   ) {
     const type = this.isNovel ? 'novels' : 'illusts'
     const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
@@ -224,6 +232,26 @@ class QuickBookmark {
       return
     }
 
+    // 启用了操作面板时，先显示面板，等用户在面板上确认之后再收藏
+    // 按照“是否添加标签”设置来决定使用原始标签还是翻译后的标签
+    let tags = bookmark.getTagsBySetting(this.workData!)
+    let restrict: boolean | undefined = undefined
+    // 是否添加标签。不指定时使用“是否添加标签”设置的值
+    let needAddTag: boolean | undefined = undefined
+    if (settings.showBookmarkPanel) {
+      const option = await bookmarkPanel.show(id, type, this.workData)
+      if (!option) {
+        // 用户取消了面板，不进行收藏
+        return
+      }
+      tags = option.tags
+      restrict = option.restrict
+      needAddTag = true
+    }
+
+    // 用户已经确认收藏（没有启用面板时就是开始收藏）。在发送收藏请求之前通知调用方
+    onConfirmed?.()
+
     // 先模拟点击 Pixiv 原本的收藏按钮，这是为了显示推荐作品
     // 这会发送一次 Pixiv 原生的收藏请求
     pixivBMKBtn?.click()
@@ -233,11 +261,7 @@ class QuickBookmark {
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
     await Utils.sleep(100)
-    const status = await bookmark.add(
-      id,
-      type,
-      Tools.extractTags(this.workData!)
-    )
+    const status = await bookmark.add(id, type, tags, needAddTag, restrict)
 
     if (status === 403) {
       return

@@ -29,9 +29,13 @@ class ConvertOldSettings {
       '2': 'vertical',
       '3': 'userSet',
     },
+    // widthTag 的值改过两次：最早是 '1' / '-1'，之后是 'yes' / 'no'，现在是 'origin' / 'transl' / 'none'。
+    // 这里一次性把两种旧值都转换成现在的值：旧值 yes 对应“添加作品的原始标签”，no 对应“不添加”
     widthTag: {
-      '1': 'yes',
-      '-1': 'no',
+      '1': 'origin',
+      '-1': 'none',
+      yes: 'origin',
+      no: 'none',
     },
     restrict: {
       '1': 'yes',

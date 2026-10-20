@@ -199,7 +199,8 @@ class BookmarkAllWorks {
         this.bookmarKData.push({
           type: id.type,
           id: data.body.id,
-          tags: Tools.extractTags(data),
+          // 按照“是否添加标签”设置来决定使用原始标签还是翻译后的标签
+          tags: bookmark.getTagsBySetting(data),
           restrict: false,
         })
       } catch (error) {

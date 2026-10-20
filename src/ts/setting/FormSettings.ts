@@ -181,6 +181,7 @@ class FormSettings {
       'novelLanguageSwitch',
       'novelSaveAsEPUB',
       'novelSaveAsTXT',
+      'showBookmarkPanel',
     ],
     radio: [
       'widthComparison',
@@ -267,6 +268,7 @@ class FormSettings {
       'autoExportSettingsInterval',
       'epubCustomLang',
       'epubVerticalLangList',
+      'bookmarkPanelCommonTagsMax',
     ],
     textarea: [
       'notNeedTagWhole',

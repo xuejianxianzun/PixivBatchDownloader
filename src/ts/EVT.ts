@@ -104,6 +104,8 @@ class EVENT {
     settingsPanelClosed: 'settingsPanelClosed',
     /** 当下载器在页面上创建的作品列表全部完成时触发 */
     worksUpdate: 'worksUpdate',
+    /** 当需要清空收藏面板的“常用的标签”列表时触发 */
+    clearBookmarkPanelCommonTags: 'clearBookmarkPanelCommonTags',
     /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
     clearDownloadRecord: 'clearDownloadRecord',
     /** 当需要导出下载记录时触发 */
@@ -163,6 +165,8 @@ class EVENT {
     callShowOriginSizeImage: 'callShowOriginSizeImage',
     /** 显示原比例图片时触发 */
     showOriginSizeImage: 'showOriginSizeImage',
+    /** 关闭原比例图片时触发 */
+    hideOriginSizeImage: 'hideOriginSizeImage',
     /** 语言类型改变时触发 */
     langChange: 'langChange',
     /** 开始定时抓取时触发 */
@@ -251,6 +255,7 @@ class EVENT {
       | 'settingsPanelOpened'
       | 'settingsPanelClosed'
       | 'worksUpdate'
+      | 'clearBookmarkPanelCommonTags'
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
       | 'importDownloadRecord'
@@ -275,6 +280,7 @@ class EVENT {
       | 'clearBG'
       | 'clickBtnOnThumb'
       | 'showOriginSizeImage'
+      | 'hideOriginSizeImage'
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'

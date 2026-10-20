@@ -86,6 +86,12 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
+/** “常用的标签”里的一项：一个标签及其使用次数 */
+export interface BookmarkPanelCommonTag {
+  tag: string
+  count: number
+}
+
 /** 一个快捷键组合。key 为 KeyboardEvent.code（如 'KeyX'、'Digit1'），未设置时为空字符串 */
 export interface HotkeyCombo {
   key: string
@@ -355,14 +361,31 @@ interface XzSetting {
   bmkAfterDL: boolean
 
   // 选项在表单中的值
-  widthTag: 'yes' | 'no'
-  // 根据表单中的值转换为实际使用的值
+  // origin 添加作品的原始标签，transl 添加翻译后的标签，none 不添加标签
+  widthTag: 'origin' | 'transl' | 'none'
+  // 根据表单中的值转换为实际使用的值：只要不是 none 就表示要添加标签
   widthTagBoolean: boolean
 
   // 选项在表单中的值
   restrict: 'yes' | 'no'
   // 根据表单中的值转换为实际使用的值
   restrictBoolean: boolean
+
+  /** 手动收藏 1 个作品时，是否显示收藏面板，让用户设置收藏参数 */
+  showBookmarkPanel: boolean
+  /** 收藏面板最多显示多少个“常用的标签”。取值范围是 0 - 100 */
+  bookmarkPanelCommonTagsMax: number
+  /** 收藏面板里“添加到”这个单选组的值。public 公开收藏，private 匿名收藏。
+   *
+   * 记住用户上一次的选择，这样下次打开面板时会使用它。默认值是 public */
+  bookmarkPanelRestrict: 'public' | 'private'
+  /** 收藏面板里“标签策略”这个单选组的值。
+   *
+   * origin 使用作品的原标签，transl 使用作品翻译后的标签，none 不使用标签，custom 使用用户输入的标签。
+   * 默认值是 origin */
+  bookmarkPanelTagMode: 'origin' | 'transl' | 'none' | 'custom'
+  /** 收藏面板里“常用的标签”列表。它只在通过收藏面板发送收藏请求时更新，没有长度限制 */
+  bookmarkPanelCommonTags: BookmarkPanelCommonTag[]
 
   userBlockList: boolean
   blockList: string[]
@@ -968,10 +991,15 @@ class Settings {
     dateFormat: 'YYYY-MM-DD',
     userSetLang: 'auto',
     bmkAfterDL: false,
-    widthTag: 'yes',
+    widthTag: 'origin',
     restrict: 'no',
     widthTagBoolean: true,
     restrictBoolean: false,
+    showBookmarkPanel: false,
+    bookmarkPanelCommonTagsMax: 30,
+    bookmarkPanelRestrict: 'public',
+    bookmarkPanelTagMode: 'origin',
+    bookmarkPanelCommonTags: [],
     userBlockList: false,
     removeBlockedUsersWork: true,
     quicklyBlockUsers: true,
@@ -1269,6 +1297,7 @@ url: {url}`,
         preview: true,
         thumbnail: false,
         thumbnailButtons: false,
+        bookmark: false,
         other: false,
         searchPage: false,
       },
@@ -1911,7 +1940,7 @@ url: {url}`,
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {
-      this.settings.widthTagBoolean = value === 'yes'
+      this.settings.widthTagBoolean = value !== 'none'
     }
     if (key === 'restrict') {
       this.settings.restrictBoolean = value === 'yes'
