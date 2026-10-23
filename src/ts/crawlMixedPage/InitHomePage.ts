@@ -91,7 +91,7 @@ class InitHomePage extends InitPageBase {
       '_清空已保存的抓取结果',
       '',
       'clearSavedCrawlResult',
-      'brand'
+      'warning'
     ).addEventListener('click', () => {
       EVT.fire('clearSavedCrawl')
     })

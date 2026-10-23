@@ -251,8 +251,6 @@ class Resume {
       return
     }
 
-    log.log(lang.transl('_正在恢复抓取结果'))
-
     this.taskId = meta.id
 
     // 2 恢复抓取结果
@@ -265,23 +263,34 @@ class Resume {
       promiseList.push(this.IDB.get(this.dataName, id))
     }
 
-    await Promise.all(promiseList).then((res) => {
-      // 恢复数据时不适合使用 store.addResult，因为那样会被多图作品设置影响，可能导致恢复的数据和之前下载时不一致
-      // 所以这里直接替换整个 store.result
-      store.result = []
-      const r = res as TaskData[]
-      for (const taskData of r) {
-        for (const data of taskData.data) {
-          store.result.push(data)
-        }
+    const res: TaskData[] = (await Promise.all(promiseList)) as TaskData[]
+
+    // 先取出恢复的数据，判断数量之后再决定是否替换 store.result。
+    // ⚠️ 不能先清空 store.result：如果保存下来的结果是 0 个，而内存里还有结果，
+    // 那会静默清空内存里的结果却不触发 resume 事件，其他模块（下载状态、进度条、预览列表等）就会变陈旧
+    const restored: Result[] = []
+    for (const taskData of res) {
+      for (const data of taskData.data) {
+        restored.push(data)
       }
+    }
 
-      store.resetDownloadCount()
+    // 如果保存的抓取结果是 0 个，则不继续执行恢复流程，也不会触发恢复事件。
+    // 注意：保存 0 个结果是有意义的（它会覆盖之前保存的结果，见 saveData 的注释），这里只是不从它恢复
+    if (restored.length === 0) {
+      return
+    }
 
-      // 过去没有保存过 resultMeta，所以这里根据刚刚恢复的 result 反向生成它。
-      // 这样恢复之后“在结果中筛选”、预览列表等功能才能正常工作
-      store.restoreResultMetaFromResult()
-    })
+    // 恢复数据时不适合使用 store.addResult，因为那样会被多图作品设置影响，可能导致恢复的数据和之前下载时不一致
+    // 所以这里直接替换整个 store.result
+    store.result = restored
+
+    log.log(lang.transl('_正在恢复抓取结果'))
+    store.resetDownloadCount()
+
+    // 过去没有保存过 resultMeta，所以这里根据刚刚恢复的 result 反向生成它。
+    // 这样恢复之后“在结果中筛选”、预览列表等功能才能正常工作
+    store.restoreResultMetaFromResult()
 
     // 3 恢复下载状态
     const data = (await this.IDB.get(
