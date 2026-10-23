@@ -33,7 +33,17 @@ class GetNovelGlossarys {
       return { result: [], replaceeItemIds: [] }
     }
     const glossaryData = await API.getNovelSeriesGlossary(seriesId)
-    const result = glossaryData.body.categories as unknown as GlossaryResult[]
+
+    // ⚠️ 复制一份再填充 detail（见下面 item.detail 的赋值）：
+    // Firefox 的 MV3 内容脚本里 fetch 的响应对象属于页面 compartment（XrayWrapper），
+    // 虽然当前写入的也是页面对象（所以能成功），但修改响应数据很脆弱：
+    // 一旦以后改成写入自己创建的对象，就会抛 “Not allowed to define cross-origin object…”
+    const result = ((glossaryData.body.categories || []) as any[]).map(
+      (categorie) => ({
+        ...categorie,
+        items: ((categorie.items || []) as any[]).map((item) => ({ ...item })),
+      })
+    ) as unknown as GlossaryResult[]
     const replaceeItemIds = glossaryData.body.replaceeItemIds || []
 
     if (result.length === 0) {

@@ -18413,8 +18413,7 @@ class DownloadBtnOnThumbOnMobile {
      *
      * 这里也不能设置 z-index: 1：那会让缩略图盖住 pixiv 原本的收藏按钮 ——
      * 收藏按钮是缩略图**外面**的元素（兄弟/叔侄关系），自身 z-index 为 auto，会被压在下面。
-     * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮的 z-index: 99999
-     * 限制在缩略图内部，避免按钮盖住页面上其他内容。
+     * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮限制在缩略图内部，避免按钮盖住页面上其他内容。
      */
     makePositioned(target) {
         if (getComputedStyle(target).position !== 'static') {
@@ -23318,8 +23317,11 @@ class CrawlUserList {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取用户的作品', _Tools__WEBPACK_IMPORTED_MODULE_20__.Tools.createUserLink(id, userName), id));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_他在队列中的位置是x', `${index + 1}/${this.idList.length}`));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始获取作品列表'));
-        // 获取他的作品的 ID 列表
-        let works = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserWorksByType(id);
+        // 获取他的作品的 ID 列表。
+        // ⚠️ 复制一份再使用：Firefox 的 MV3 内容脚本里 fetch 的响应对象属于页面 compartment（XrayWrapper），
+        // 往它里面写自己创建的对象会报错。这个数组之后会排序、并临时赋给 store.idList，
+        // 复制一份可以避免修改响应数据，也避免别的模块往这个响应数组里 push
+        let works = [...(await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserWorksByType(id))];
         if (this.isInterrupted(epoch)) {
             return;
         }
@@ -24816,7 +24818,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         });
     }
     addAnyElement() {
-        this.addInitPageBtn('otherBtns', '_清空已保存的抓取结果', '', 'clearSavedCrawlResult', 'danger').addEventListener('click', () => {
+        this.addInitPageBtn('otherBtns', '_清空已保存的抓取结果', '', 'clearSavedCrawlResult', 'warning').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('clearSavedCrawl');
         });
     }
@@ -26819,7 +26821,14 @@ class GetNovelGlossarys {
             return { result: [], replaceeItemIds: [] };
         }
         const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
-        const result = glossaryData.body.categories;
+        // ⚠️ 复制一份再填充 detail（见下面 item.detail 的赋值）：
+        // Firefox 的 MV3 内容脚本里 fetch 的响应对象属于页面 compartment（XrayWrapper），
+        // 虽然当前写入的也是页面对象（所以能成功），但修改响应数据很脆弱：
+        // 一旦以后改成写入自己创建的对象，就会抛 “Not allowed to define cross-origin object…”
+        const result = (glossaryData.body.categories || []).map((categorie) => ({
+            ...categorie,
+            items: (categorie.items || []).map((item) => ({ ...item })),
+        }));
         const replaceeItemIds = glossaryData.body.replaceeItemIds || [];
         if (result.length === 0) {
             return { result, replaceeItemIds };
@@ -33808,12 +33817,21 @@ class MergeNovel {
             // 获取完整的标签列表（根据作品属性，可能会添加一些标签）用于检查
             const findNovelData = seriesContents.body.thumbnails.novel.find((n) => n.id === item.id);
             if (findNovelData && findNovelData.tags) {
-                // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里
-                findNovelData.tags.tags = [];
-                findNovelData.tags.forEach((str) => {
-                    findNovelData.tags.tags.push({ tag: str });
-                });
-                tags = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.buildNovelTags({ body: findNovelData }).tags;
+                // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里。
+                // ⚠️ 不要直接修改 findNovelData：Firefox 的 MV3 内容脚本里 fetch 用的是页面的 fetch，
+                // Response.json() 返回的对象属于页面 compartment（内容脚本看到的是 XrayWrapper），
+                // 往它里面写自己创建的对象（包括空数组）会抛出
+                // “Not allowed to define cross-origin object as property on ... XrayWrapper”。
+                // 所以这里只读取它的数据，构造一个本地对象再使用
+                const novelData = {
+                    ...findNovelData,
+                    tags: {
+                        tags: Array.from(findNovelData.tags, (tag) => ({
+                            tag,
+                        })),
+                    },
+                };
+                tags = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.buildNovelTags({ body: novelData }).tags;
             }
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__.filter.check({
                 id: item.id,

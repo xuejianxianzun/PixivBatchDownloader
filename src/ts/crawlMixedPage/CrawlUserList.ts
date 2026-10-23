@@ -378,8 +378,11 @@ class CrawlUserList {
     )
     log.log(lang.transl('_开始获取作品列表'))
 
-    // 获取他的作品的 ID 列表
-    let works = await API.getUserWorksByType(id)
+    // 获取他的作品的 ID 列表。
+    // ⚠️ 复制一份再使用：Firefox 的 MV3 内容脚本里 fetch 的响应对象属于页面 compartment（XrayWrapper），
+    // 往它里面写自己创建的对象会报错。这个数组之后会排序、并临时赋给 store.idList，
+    // 复制一份可以避免修改响应数据，也避免别的模块往这个响应数组里 push
+    let works = [...(await API.getUserWorksByType(id))]
     if (this.isInterrupted(epoch)) {
       return
     }

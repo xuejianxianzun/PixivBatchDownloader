@@ -1184,12 +1184,21 @@ class MergeNovel {
         (n) => n.id === item.id
       )
       if (findNovelData && findNovelData.tags) {
-        // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里
-        findNovelData.tags.tags = []
-        findNovelData.tags.forEach((str: string) => {
-          findNovelData.tags.tags.push({ tag: str })
-        })
-        tags = Tools.buildNovelTags({ body: findNovelData } as NovelData).tags
+        // 模拟 NovelData 的结构，需要把标签列表放到 tags.tags 里。
+        // ⚠️ 不要直接修改 findNovelData：Firefox 的 MV3 内容脚本里 fetch 用的是页面的 fetch，
+        // Response.json() 返回的对象属于页面 compartment（内容脚本看到的是 XrayWrapper），
+        // 往它里面写自己创建的对象（包括空数组）会抛出
+        // “Not allowed to define cross-origin object as property on ... XrayWrapper”。
+        // 所以这里只读取它的数据，构造一个本地对象再使用
+        const novelData = {
+          ...findNovelData,
+          tags: {
+            tags: Array.from(findNovelData.tags as string[], (tag) => ({
+              tag,
+            })),
+          },
+        }
+        tags = Tools.buildNovelTags({ body: novelData } as NovelData).tags
       }
 
       const check = await filter.check({

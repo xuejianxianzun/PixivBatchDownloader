@@ -164,6 +164,16 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
 有些设置之前的名字很简短，以至于含义不清楚，用户需要查看帮助才能知道准确的含义。现在我把它们的名字改的更加准确了。
 
+### 🐞修复问题：在 Firefox 浏览器上，合并系列小说时出错
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/695
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/698
+
+Fireox 的 XrayWrapper 机制导致合并系列小说时的一处代码报错，进而导致合并系列小说失败。
+
+这是只在 Firefox 等 Gecko 内核的浏览器上才会出现的问题，现在修复。
+
 ### 💡优化了一些帮助内容
 
 ## 19.5.0 2026-10-10

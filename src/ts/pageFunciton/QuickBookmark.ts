@@ -252,8 +252,11 @@ class QuickBookmark {
     // 用户已经确认收藏（没有启用面板时就是开始收藏）。在发送收藏请求之前通知调用方
     onConfirmed?.()
 
-    // 先模拟点击 Pixiv 原本的收藏按钮，这是为了显示推荐作品
+    // 先模拟点击 Pixiv 原本的收藏按钮，这是为了让页面显示「推荐作品」区域。
     // 这会发送一次 Pixiv 原生的收藏请求
+    // 在作品页面里，Pixiv 的收藏按钮在收藏成功之后会显示「推荐作品」。这个 UI 是收藏动作成功后的
+    //  一次性副作用，没有可以单独调用的函数，所以只能点击它来触发。
+    // 如果想要不发送原生收藏请求，又可以显示「推荐作品」区域，就需要借助注入脚本拦截原生请求并返回伪造的成功响应。我曾经让 AI 实现过，但是改动较大，所以没有采用。
     pixivBMKBtn?.click()
     // 取消监听心形收藏按钮的变化
     this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect()
@@ -300,7 +303,7 @@ class QuickBookmark {
     try {
       API.addLike(id, type, token.token)
       likeBtn.style.color = '#0096fa'
-    } catch (error: Error | any) {}
+    } catch (error: Error | any) { }
   }
 
   private setBtnStyle() {
