@@ -178,6 +178,31 @@ DevTools 自己的窗口 title 会伪装成 `DevTools - www.pixiv.net/artworks/.
 
 异常中断（超时被杀）很容易留下 `about:blank`。用 `--close` 或事后 `--close-match=blank` 清理。
 
+### 改完 `dist/` 后让 Chrome 重载未打包扩展
+
+⚠️ **最容易踩的坑：重载的 profile 和你检查的页面不是同一个。**
+
+Chrome 会把多个 profile 托管在同一个浏览器进程里，`Target.getTargets` 一次就能列出**所有 profile** 的页面和窗口。
+本机实测有两个窗口：主屏窗口 `left≈-7`（`browserContextId=56F9…`）和左侧副屏窗口 `left≈-1470`
+（`browserContextId=725C…`），两边都装了同一个扩展（同路径 → 同 id）。
+而**扩展的重载是按 profile 生效的**：在 A profile 里 `chrome.runtime.reload()`（或 `Extensions.loadUnpacked`）
+不会刷新 B profile 已经注入的 content script。
+
+2026-10-24 就因为这一点误判过「重载成功但页面还是旧脚本」：测试页在主屏窗口，重载的却是另一个 profile；
+换成在测试页所在 profile 的扩展 SW 上 `chrome.runtime.reload()` 后立刻生效。
+
+- 先定位：`Target.getTargets` 看页面的 `browserContextId`；`Browser.getWindowForTarget` 看窗口 `bounds`
+  （负的 `left` = 左侧副屏）。别凭「我以为在副屏操作」判断。
+- 然后在**测试页所在的 profile** 里重载：
+  - `chrome.runtime.reload()`：要求该 profile 的扩展 SW target 存在（MV3 的 SW 睡眠后 target 消失，
+    命令会报 target 不存在）；
+  - 浏览器级 `Extensions.loadUnpacked {"path": "...\\dist"}`：不需要 SW，但同样只作用于某一个 profile，
+    而且不保证真的重新注入。
+- 重载后**务必验证**：挑一个**本版本才新增**的特征（按钮顺序 / id、新 `symbol`、新文案），
+  不要看旧版本就存在的元素。
+- 更省事的做法：把测试页开在**同一个 profile**（`Target.createTarget` 支持传 `browserContextId`），
+  别在两个窗口/profile 之间来回切。
+
 ## 五、诊断手法的经验
 
 这几条和具体项目无关，什么时候都适用：

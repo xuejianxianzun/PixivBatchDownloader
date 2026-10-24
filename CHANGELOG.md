@@ -146,6 +146,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
 ### ⌨️Input 组件里 Enter 不再用作提交；只有 Ctrl + Enter 才会提交
 
+### ✨在图片查看器里添加了两个按钮
+
+添加了查看作品信息和点赞的按钮。
+
 ### 🎨设置“复制作品信息”的“文本格式”时，可以直接换行
 
 之前用户需要使用 `{n}` 标记表示换行，但这样很不直观，查看、修改规则时效率很低。

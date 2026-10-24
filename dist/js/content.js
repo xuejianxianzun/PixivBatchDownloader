@@ -5040,6 +5040,10 @@ class EVENT {
         sendBrowserDownload: 'sendBrowserDownload',
         /**预览作品详细信息的面板关闭后触发 */
         PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+        /**在图片查看器里点击「作品信息」按钮时触发，用于切换详情面板。数据是 { anchor, workData } */
+        toggleImageViewerDetailInfo: 'toggleImageViewerDetailInfo',
+        /**需要隐藏由图片查看器打开的详情面板时触发。点击查看器里的其他按钮、关闭查看器时都会触发 */
+        hideImageViewerDetailInfo: 'hideImageViewerDetailInfo',
         /**通过鼠标滚轮事件来切换预览图 */
         wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
         /**当关注的用户列表发生变化时触发 */
@@ -7538,18 +7542,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _BookmarkPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./BookmarkPanel */ "./src/ts/BookmarkPanel.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _LikeWork__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./LikeWork */ "./src/ts/LikeWork.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 // https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -7607,7 +7613,8 @@ class ImageViewer {
         oldViewerContainer && oldViewerContainer.remove();
         // 旧的查看器被移除，它已不再显示，复位显示标记
         // （旧的实例不会触发 hide 事件，所以在这里主动复位，避免状态残留）
-        _store_States__WEBPACK_IMPORTED_MODULE_16__.states.imageViewerIsShow = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_17__.states.imageViewerIsShow = false;
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('hideImageViewerDetailInfo');
         const wrap = await this.createImageList();
         if (wrap) {
             this.bindShortcuts();
@@ -7713,16 +7720,16 @@ class ImageViewer {
     // 图片查看器需要一个图片列表元素，创建缩略图列表
     async createImageList() {
         // 获取作品数据
-        if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.has(this.cfg.workId)) {
-            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.getWorkDataAsync(this.cfg.workId, 'artwork');
+        if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.has(this.cfg.workId)) {
+            this.workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.getWorkDataAsync(this.cfg.workId, 'artwork');
         }
         else {
             this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = true);
             try {
-                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Unlisted;
+                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_12__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_12__.pageType.list.Unlisted;
                 const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
                 this.workData = data;
-                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.set(data);
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__.cacheWorkData.set(data);
             }
             catch (error) {
                 _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_获取作品数据失败'));
@@ -7772,17 +7779,19 @@ class ImageViewer {
         const setIndex = (index) => {
             this.index = index;
             // 记录当前查看的图片索引到 states 里，以便当用户预览这张图片或显示其大图时，能正确显示最后查看的这张图片
-            _store_States__WEBPACK_IMPORTED_MODULE_16__.states.indexRecord[this.cfg.workId] = index;
+            _store_States__WEBPACK_IMPORTED_MODULE_17__.states.indexRecord[this.cfg.workId] = index;
         };
         // 图片查看器显示之后
         this.viewerUl.addEventListener('shown', () => {
             this.show = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_16__.states.imageViewerIsShow = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_17__.states.imageViewerIsShow = true;
             // 添加自定义的按钮
             this.addOneToOneBtn();
+            this.addDetailInfoBtn();
             this.addCopyWorkLinkBtn();
-            this.addBookmarkBtn();
             this.addCopyBtn();
+            this.addLikeBtn();
+            this.addBookmarkBtn();
             this.addDownloadCurrentImageBtn();
             this.addDownloadBtn();
             // 如果图片数量只有 1 个，则不显示缩略图一栏
@@ -7795,7 +7804,9 @@ class ImageViewer {
         // 退出图片查看器时（可能尚未完全退出）
         this.viewerUl.addEventListener('hide', () => {
             this.show = false;
-            _store_States__WEBPACK_IMPORTED_MODULE_16__.states.imageViewerIsShow = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_17__.states.imageViewerIsShow = false;
+            // 查看器关闭后，由它打开的详情面板也要一起关闭
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('hideImageViewerDetailInfo');
         });
         // 查看每一张图片时，如果处于 1:1 模式，就把图片缩放到 100%
         // viewed 事件是图片加载完成时触发的
@@ -7815,7 +7826,7 @@ class ImageViewer {
         const date = this.workData?.body.uploadDate;
         let dateString = '';
         if (date) {
-            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_14__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.dateFormat);
+            dateString = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_15__.DateFormat.format(date, _setting_Settings__WEBPACK_IMPORTED_MODULE_16__.settings.dateFormat);
         }
         const handleToTop = this.moveToTop.bind(this);
         const pageCount = this.pageCount;
@@ -7871,7 +7882,7 @@ class ImageViewer {
         }
         else {
             // 如果没有指定显示哪一张图片，则检查这个 id 在 states 里是否有记录上次查看的图片索引，如果有的话就显示上次查看的图片
-            option.initialViewIndex = _store_States__WEBPACK_IMPORTED_MODULE_16__.states.indexRecord[this.cfg.workId] || 0;
+            option.initialViewIndex = _store_States__WEBPACK_IMPORTED_MODULE_17__.states.indexRecord[this.cfg.workId] || 0;
         }
         this.myViewer = new Viewer(this.viewerUl, option);
         // 预加载第一张要显示的图片
@@ -7879,7 +7890,7 @@ class ImageViewer {
         img.src = firstImageURL.replace('p0', 'p' + option.initialViewIndex);
         if (this.cfg.autoStart) {
             // 启动图片查看器
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的快捷键列表'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_14__.showOneTimeMsg.show('tipImageViewer', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器的快捷键列表'), _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_图片查看器'));
             this.myViewer.show();
         }
     }
@@ -7928,6 +7939,38 @@ class ImageViewer {
         li.addEventListener('click', () => {
             this.isOriginalSize = !this.isOriginalSize;
             this.setOriginalSize();
+        });
+    }
+    // 添加查看作品信息的按钮。点击它会在按钮上方显示作品的详细信息
+    addDetailInfoBtn() {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'button');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_查看作品信息'));
+        li.classList.add(this.addBtnClass);
+        li.id = 'imageViewerDetailInfoBtn';
+        li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#info"></use>
+</svg>`;
+        this.addBtn(li);
+        li.addEventListener('click', () => {
+            // 查看器显示时一定有作品数据，这里只是让类型收窄
+            if (!this.workData) {
+                return;
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('toggleImageViewerDetailInfo', {
+                anchor: li,
+                workData: this.workData,
+            });
+        });
+        // 点击查看器里的其他按钮时（包括查看器自身的上一张、下一张、播放），隐藏详情面板。
+        // 工具栏是按钮的父元素，所以一个监听器就能覆盖全部按钮
+        li.parentElement?.addEventListener('click', (ev) => {
+            const target = ev.target;
+            if (target === li || li.contains(target)) {
+                return;
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('hideImageViewerDetailInfo');
         });
     }
     // 设置原始尺寸显示
@@ -8029,7 +8072,7 @@ class ImageViewer {
         li.addEventListener('click', this.copy.bind(this));
     }
     copy() {
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__.copyWorkInfo.receive({
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__.copyWorkInfo.receive({
             id: this.cfg.workId,
             type: 'illusts',
         }, this.index);
@@ -8053,8 +8096,32 @@ class ImageViewer {
         li.addEventListener('click', () => {
             // 添加收藏。确认之后（没有启用收藏面板时就是点击时）下载这个作品
             this.addBookmark(() => {
-                _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_10__.downloadOnClickBookmark.send(this.workData.body.illustId);
+                _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_11__.downloadOnClickBookmark.send(this.workData.body.illustId);
             });
+        });
+    }
+    // 添加点赞按钮
+    addLikeBtn() {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'button');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_点赞'));
+        li.classList.add(this.addBtnClass);
+        li.id = 'imageViewerLikeBtn';
+        li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#like-line"></use>
+</svg>`;
+        // 显示这个作品的点赞状态
+        if (this.workData.body.likeData) {
+            li.classList.add('liked');
+        }
+        this.addBtn(li);
+        li.addEventListener('click', async () => {
+            const liked = await _LikeWork__WEBPACK_IMPORTED_MODULE_8__.likeWork.like(this.cfg.workId, 'illusts');
+            if (liked) {
+                // 点赞成功后，把按钮设为高亮色
+                li.classList.add('liked');
+            }
         });
     }
     /**添加收藏
@@ -8069,7 +8136,7 @@ class ImageViewer {
         // 是否添加标签。不指定时使用“是否添加标签”设置的值
         let needAddTag = undefined;
         // 启用了操作面板时，先显示面板，等用户在面板上确认之后再收藏
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.showBookmarkPanel) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_16__.settings.showBookmarkPanel) {
             // 面板显示期间要禁用查看器自己的键盘响应。
             // 查看器（viewerjs）在 document 上监听了 keydown，按 Esc 会关闭查看器、按方向键、空格会在背后切换图片、控制播放，
             // 而本模块的快捷键监听只能拦住本模块自己的处理，拦不住查看器内部的监听
@@ -8094,7 +8161,7 @@ class ImageViewer {
         onConfirmed?.();
         // 显示提示
         _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_10__.Colors.bgBlue,
         });
         const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(this.cfg.workId, 'illusts', tags, needAddTag, restrict);
         if (status === 200) {
@@ -8107,7 +8174,7 @@ class ImageViewer {
         }
         else {
             const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_添加收藏失败');
-            _MsgBox__WEBPACK_IMPORTED_MODULE_17__.msgBox.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
         }
     }
@@ -8695,7 +8762,10 @@ class LikeWork {
      *
      * @param type 作品类型。默认为图像作品
      *
-     * 如果启用了“点击点赞按钮时下载作品”，会同时触发快速下载（不会等待点赞请求完成） */
+     * 如果启用了“点击点赞按钮时下载作品”，会同时触发快速下载（不会等待点赞请求完成）
+     *
+     * @returns 这个作品是否处于已点赞状态。刚刚点赞成功、或者之前已经赞过都返回 true；
+     * 请求失败时返回 false。调用方可以据此更新按钮的样式 */
     async like(id, type = 'illusts') {
         _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_点赞'));
         // 如果启用了“点击点赞按钮时下载作品”，就同时下载这个作品
@@ -8719,6 +8789,8 @@ class LikeWork {
                 else {
                     _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_点赞成功'));
                 }
+                // 这两种情况下作品都处于已点赞状态
+                return true;
             }
             else {
                 _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_点赞失败'));
@@ -8727,6 +8799,7 @@ class LikeWork {
         catch {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_点赞失败'));
         }
+        return false;
     }
 }
 const likeWork = new LikeWork();
@@ -11557,6 +11630,13 @@ class PreviewWorkDetailInfo {
     mouseY = 0;
     show = false;
     delayShowTimer = undefined;
+    /** 是否由图片查看器打开。这种模式下：面板总是显示（不受 PreviewWorkDetailInfo 设置限制）、
+     * 固定在图片查看器的按钮上方、总是使用暗色主题。
+     * 关闭方式与平时相同：点击面板（包括它上面的按钮）就会关闭；只是鼠标移出时不关闭，
+     * 因为鼠标需要从按钮移动到面板上 */
+    fromImageViewer = false;
+    /** 图片查看器里的「作品信息」按钮，面板显示在它的上方 */
+    viewerAnchor = null;
     bindEvents() {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__.artworkThumbnail.onEnter((el, id, ev) => {
             window.clearTimeout(this.resetWorkIdTimer);
@@ -11588,12 +11668,26 @@ class PreviewWorkDetailInfo {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.remove();
         });
+        // 图片查看器里点击「作品信息」按钮：切换详情面板的显示 / 隐藏
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.toggleImageViewerDetailInfo, (ev) => {
+            const data = ev.detail?.data;
+            if (!data?.anchor || !data.workData) {
+                return;
+            }
+            this.toggleFromImageViewer(data.anchor, data.workData);
+        });
+        // 点击图片查看器里的其他按钮、关闭图片查看器：隐藏详情面板
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.hideImageViewerDetailInfo, () => {
+            this.hideFromImageViewer();
+        });
         window.addEventListener('mousemove', (ev) => {
             this.mouseX = ev.clientX;
             this.mouseY = ev.clientY;
         });
         window.addEventListener('keydown', (ev) => {
-            if (ev.key === 'Escape' && this.show) {
+            // 从图片查看器打开时，Esc 留给查看器（查看器会因此关闭，面板随之关闭）。
+            // 否则两个监听器都会响应同一次 Esc，导致面板和查看器一起关闭
+            if (ev.key === 'Escape' && this.show && !this.fromImageViewer) {
                 ev.stopPropagation();
                 ev.preventDefault();
                 this.remove();
@@ -11602,6 +11696,31 @@ class PreviewWorkDetailInfo {
             capture: true,
             passive: true,
         });
+    }
+    /** 由图片查看器的「作品信息」按钮调用：显示或隐藏详情面板。
+     *
+     * 从查看器打开时总是显示，不检查 PreviewWorkDetailInfo 设置。
+     * @param anchor 图片查看器里的按钮，面板显示在它的上方
+     * @param workData 作品数据。查看器里已经有这个数据了，不需要再次请求 */
+    async toggleFromImageViewer(anchor, workData) {
+        if (this.show) {
+            const openedFromViewer = this.fromImageViewer;
+            this.remove();
+            // 这次点击是「隐藏」，不要再打开
+            if (openedFromViewer) {
+                return;
+            }
+        }
+        this.fromImageViewer = true;
+        this.viewerAnchor = anchor;
+        await this.create(workData);
+    }
+    /** 隐藏由图片查看器打开的详情面板。
+     * 点击图片查看器里的其他按钮、关闭图片查看器时调用 */
+    hideFromImageViewer() {
+        if (this.fromImageViewer) {
+            this.remove();
+        }
     }
     readyShow() {
         window.clearTimeout(this.delayShowTimer);
@@ -11626,14 +11745,20 @@ class PreviewWorkDetailInfo {
             this.workId = '';
         }, 300);
     }
-    async create() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWorkDetailInfo || this.show) {
+    async create(viewerWorkData) {
+        // 从图片查看器打开时总是显示，不检查 PreviewWorkDetailInfo 设置
+        if (this.show || (!viewerWorkData && !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWorkDetailInfo)) {
             return;
         }
         this.show = true;
         _store_States__WEBPACK_IMPORTED_MODULE_11__.states.previewWorkDetailInfoPanelIsShow = true;
         window.clearTimeout(this.resetWorkIdTimer);
-        const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork');
+        const workData = viewerWorkData ||
+            (await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__.cacheWorkData.getWorkDataAsync(this.workId, 'artwork'));
+        // 等待数据期间面板可能已经被关闭了（例如用户又点了一次按钮），此时不要再创建
+        if (!this.show) {
+            return;
+        }
         const wrap = document.createElement('div');
         // 设置文字内容
         // 生成 tag 内容
@@ -11752,48 +11877,78 @@ class PreviewWorkDetailInfo {
         // 设置样式
         wrap.classList.add('xz_PreviewWorkDetailPanel', 'beautify_scrollbar');
         wrap.style.width = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewDetailInfoWidth + 'px';
+        // 点击面板的任何位置（包括它上面的按钮）都关闭面板。
+        // 按钮自己的点击处理绑在按钮上，会先执行，所以复制之类的功能不受影响
         wrap.addEventListener('click', () => {
             this.remove(wrap);
         });
-        wrap.addEventListener('mouseleave', () => {
-            this.remove(wrap);
-        });
+        // 由缩略图触发的面板，鼠标移出时也关闭。
+        // 从查看器打开时不这样做：鼠标需要从按钮移动到面板上，中途会短暂离开面板区域
+        if (!this.fromImageViewer) {
+            wrap.addEventListener('mouseleave', () => {
+                this.remove(wrap);
+            });
+        }
         wrap.addEventListener('wheel', (ev) => {
-            if (this.show) {
+            // 只有预览作品时的滚轮才用于切换预览图；查看器里的面板只需要正常滚动
+            if (this.show && !this.fromImageViewer) {
                 ev.preventDefault();
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('wheelScrollSwitchPreviewImage', ev);
             }
         }, {
             passive: false,
         });
-        _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(wrap);
+        if (this.fromImageViewer) {
+            // 图片查看器总是暗色模式，所以它也总是使用暗色主题。
+            // 这里不使用 theme.register()，因为它会跟随下载器的主题设置
+            wrap.classList.add('theme-dark');
+        }
+        else {
+            _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(wrap);
+        }
         document.body.append(wrap);
-        // 获取宽高，以鼠标为中心显示
         const rect = wrap.getBoundingClientRect();
-        // 设置 left
-        let left = this.mouseX - rect.width / 2;
-        // 最小的 left 为 10，避免其紧贴左侧，看不到左边界。其他四边也同理
-        if (left < 10) {
-            left = 10;
+        if (this.fromImageViewer && this.viewerAnchor) {
+            this.positionAboveViewerAnchor(wrap, rect);
         }
-        // 如果面板右侧超出屏幕，则把面板向左移动
-        let right = left + rect.width;
-        if (right > window.innerWidth) {
-            left = left + (window.innerWidth - right) - 10;
+        else {
+            // 获取宽高，以鼠标为中心显示
+            // 设置 left
+            let left = this.mouseX - rect.width / 2;
+            // 最小的 left 为 10，避免其紧贴左侧，看不到左边界。其他四边也同理
+            if (left < 10) {
+                left = 10;
+            }
+            // 如果面板右侧超出屏幕，则把面板向左移动
+            let right = left + rect.width;
+            if (right > window.innerWidth) {
+                left = left + (window.innerWidth - right) - 10;
+            }
+            wrap.style.left = left + 'px';
+            // 设置 top
+            let top = this.mouseY - rect.height / 2;
+            if (top < 10) {
+                top = 10;
+            }
+            // 如果面板底部超出屏幕，则把面板向上移动
+            let bottom = top + rect.height;
+            if (bottom > window.innerHeight) {
+                top = top + (window.innerHeight - bottom) - 10;
+            }
+            wrap.style.top = top + 'px';
         }
-        wrap.style.left = left + 'px';
-        // 设置 top
-        let top = this.mouseY - rect.height / 2;
-        if (top < 10) {
-            top = 10;
-        }
-        // 如果面板底部超出屏幕，则把面板向上移动
-        let bottom = top + rect.height;
-        if (bottom > window.innerHeight) {
-            top = top + (window.innerHeight - bottom) - 10;
-        }
-        wrap.style.top = top + 'px';
         wrap.style.opacity = '1';
+    }
+    /** 把详情面板放在图片查看器按钮的上方，并与按钮水平居中对齐 */
+    positionAboveViewerAnchor(wrap, rect) {
+        const anchorRect = this.viewerAnchor.getBoundingClientRect();
+        // 水平居中，并且不超出屏幕左右两侧
+        const centered = anchorRect.left + anchorRect.width / 2 - rect.width / 2;
+        const left = Math.max(10, Math.min(centered, window.innerWidth - rect.width - 10));
+        wrap.style.left = left + 'px';
+        // 面板的底部位于按钮上方，留出一点间距。如果上方空间不足，就贴着屏幕顶部显示
+        const top = Math.max(10, anchorRect.top - rect.height - 10);
+        wrap.style.top = top + 'px';
     }
     remove(el) {
         el =
@@ -11801,6 +11956,8 @@ class PreviewWorkDetailInfo {
                 document.querySelector('.xz_PreviewWorkDetailPanel');
         el && el.parentNode && el.parentNode.removeChild(el);
         this.show = false;
+        this.fromImageViewer = false;
+        this.viewerAnchor = null;
         _store_States__WEBPACK_IMPORTED_MODULE_11__.states.previewWorkDetailInfoPanelIsShow = false;
         this.delayResetWorkId();
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('PreviewWorkDetailPanelClosed', {
@@ -49246,6 +49403,14 @@ Enter 키로 줄을 바꿀 수 있으며, 다운로더는 설정한 줄 바꿈 �
         `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
         `При копировании веб-страница должна находиться в состоянии фокуса.`,
     ],
+    _查看作品信息: [
+        `查看作品信息`,
+        `查看作品資訊`,
+        `View work info`,
+        `作品情報を表示`,
+        `작품 정보 보기`,
+        `Показать информацию о работе`,
+    ],
     _复制作品链接: [
         `复制作品链接`,
         `複製作品連結`,
@@ -56547,8 +56712,11 @@ class QuickBookmark {
         }
         // 用户已经确认收藏（没有启用面板时就是开始收藏）。在发送收藏请求之前通知调用方
         onConfirmed?.();
-        // 先模拟点击 Pixiv 原本的收藏按钮，这是为了显示推荐作品
+        // 先模拟点击 Pixiv 原本的收藏按钮，这是为了让页面显示「推荐作品」区域。
         // 这会发送一次 Pixiv 原生的收藏请求
+        // 在作品页面里，Pixiv 的收藏按钮在收藏成功之后会显示「推荐作品」。这个 UI 是收藏动作成功后的
+        //  一次性副作用，没有可以单独调用的函数，所以只能点击它来触发。
+        // 如果想要不发送原生收藏请求，又可以显示「推荐作品」区域，就需要借助注入脚本拦截原生请求并返回伪造的成功响应。我曾经让 AI 实现过，但是改动较大，所以没有采用。
         pixivBMKBtn?.click();
         // 取消监听心形收藏按钮的变化
         this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect();
@@ -60665,17 +60833,6 @@ class OptionConfigs {
             searchWords: [],
         },
         {
-            no: 54,
-            nameKey: '_点击收藏按钮时下载作品',
-            name: '',
-            categoryLevel1: 'download',
-            categoryLevel2: 'behavior',
-            pinned: false,
-            hideOnPixivision: true,
-            searchWordKeys: ['_书签'],
-            searchWords: [],
-        },
-        {
             no: 55,
             nameKey: '_点击点赞按钮时下载作品',
             name: '',
@@ -60684,6 +60841,17 @@ class OptionConfigs {
             pinned: false,
             hideOnPixivision: true,
             searchWordKeys: [],
+            searchWords: [],
+        },
+        {
+            no: 54,
+            nameKey: '_点击收藏按钮时下载作品',
+            name: '',
+            categoryLevel1: 'download',
+            categoryLevel2: 'behavior',
+            pinned: false,
+            hideOnPixivision: true,
+            searchWordKeys: ['_书签'],
             searchWords: [],
         },
         {

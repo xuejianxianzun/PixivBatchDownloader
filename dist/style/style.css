@@ -3660,11 +3660,14 @@ iframe[name='expandedFooter'] {
   width: 16px;
   height: 16px;
 }
-.viewer-backdrop .viewer-toolbar .bookmarked {
+.viewer-backdrop .viewer-toolbar .bookmarked,
+.viewer-backdrop .viewer-toolbar .liked {
   color: var(--beautify-blue);
 }
 .viewer-backdrop .viewer-toolbar #imageViewerCopyBtn,
-.viewer-backdrop .viewer-toolbar #imageViewerCopyWorkLinkBtn {
+.viewer-backdrop .viewer-toolbar #imageViewerCopyWorkLinkBtn,
+.viewer-backdrop .viewer-toolbar #imageViewerLikeBtn,
+.viewer-backdrop .viewer-toolbar #imageViewerDetailInfoBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;

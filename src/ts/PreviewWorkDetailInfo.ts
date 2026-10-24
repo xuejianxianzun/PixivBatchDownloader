@@ -34,6 +34,14 @@ class PreviewWorkDetailInfo {
   public show = false
   private delayShowTimer: number | undefined = undefined
 
+  /** 是否由图片查看器打开。这种模式下：面板总是显示（不受 PreviewWorkDetailInfo 设置限制）、
+   * 固定在图片查看器的按钮上方、总是使用暗色主题。
+   * 关闭方式与平时相同：点击面板（包括它上面的按钮）就会关闭；只是鼠标移出时不关闭，
+   * 因为鼠标需要从按钮移动到面板上 */
+  private fromImageViewer = false
+  /** 图片查看器里的「作品信息」按钮，面板显示在它的上方 */
+  private viewerAnchor: HTMLElement | null = null
+
   private bindEvents() {
     artworkThumbnail.onEnter((el: HTMLElement, id: string, ev: MouseEvent) => {
       window.clearTimeout(this.resetWorkIdTimer)
@@ -74,6 +82,26 @@ class PreviewWorkDetailInfo {
       this.remove()
     })
 
+    // 图片查看器里点击「作品信息」按钮：切换详情面板的显示 / 隐藏
+    window.addEventListener(
+      EVT.list.toggleImageViewerDetailInfo,
+      (ev: CustomEventInit) => {
+        const data = ev.detail?.data as {
+          anchor: HTMLElement
+          workData?: ArtworkData
+        }
+        if (!data?.anchor || !data.workData) {
+          return
+        }
+        this.toggleFromImageViewer(data.anchor, data.workData)
+      }
+    )
+
+    // 点击图片查看器里的其他按钮、关闭图片查看器：隐藏详情面板
+    window.addEventListener(EVT.list.hideImageViewerDetailInfo, () => {
+      this.hideFromImageViewer()
+    })
+
     window.addEventListener('mousemove', (ev) => {
       this.mouseX = ev.clientX
       this.mouseY = ev.clientY
@@ -82,7 +110,9 @@ class PreviewWorkDetailInfo {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (ev.key === 'Escape' && this.show) {
+        // 从图片查看器打开时，Esc 留给查看器（查看器会因此关闭，面板随之关闭）。
+        // 否则两个监听器都会响应同一次 Esc，导致面板和查看器一起关闭
+        if (ev.key === 'Escape' && this.show && !this.fromImageViewer) {
           ev.stopPropagation()
           ev.preventDefault()
           this.remove()
@@ -93,6 +123,37 @@ class PreviewWorkDetailInfo {
         passive: true,
       }
     )
+  }
+
+  /** 由图片查看器的「作品信息」按钮调用：显示或隐藏详情面板。
+   *
+   * 从查看器打开时总是显示，不检查 PreviewWorkDetailInfo 设置。
+   * @param anchor 图片查看器里的按钮，面板显示在它的上方
+   * @param workData 作品数据。查看器里已经有这个数据了，不需要再次请求 */
+  public async toggleFromImageViewer(
+    anchor: HTMLElement,
+    workData: ArtworkData
+  ) {
+    if (this.show) {
+      const openedFromViewer = this.fromImageViewer
+      this.remove()
+      // 这次点击是「隐藏」，不要再打开
+      if (openedFromViewer) {
+        return
+      }
+    }
+
+    this.fromImageViewer = true
+    this.viewerAnchor = anchor
+    await this.create(workData)
+  }
+
+  /** 隐藏由图片查看器打开的详情面板。
+   * 点击图片查看器里的其他按钮、关闭图片查看器时调用 */
+  public hideFromImageViewer() {
+    if (this.fromImageViewer) {
+      this.remove()
+    }
   }
 
   private readyShow() {
@@ -127,8 +188,9 @@ class PreviewWorkDetailInfo {
     }, 300)
   }
 
-  private async create() {
-    if (!settings.PreviewWorkDetailInfo || this.show) {
+  private async create(viewerWorkData?: ArtworkData) {
+    // 从图片查看器打开时总是显示，不检查 PreviewWorkDetailInfo 设置
+    if (this.show || (!viewerWorkData && !settings.PreviewWorkDetailInfo)) {
       return
     }
 
@@ -136,10 +198,15 @@ class PreviewWorkDetailInfo {
     states.previewWorkDetailInfoPanelIsShow = true
     window.clearTimeout(this.resetWorkIdTimer)
 
-    const workData = await cacheWorkData.getWorkDataAsync(
-      this.workId,
-      'artwork'
-    )
+    const workData =
+      viewerWorkData ||
+      (await cacheWorkData.getWorkDataAsync(this.workId, 'artwork'))
+
+    // 等待数据期间面板可能已经被关闭了（例如用户又点了一次按钮），此时不要再创建
+    if (!this.show) {
+      return
+    }
+
     const wrap = document.createElement('div')
 
     // 设置文字内容
@@ -282,18 +349,25 @@ class PreviewWorkDetailInfo {
     wrap.classList.add('xz_PreviewWorkDetailPanel', 'beautify_scrollbar')
     wrap.style.width = settings.PreviewDetailInfoWidth + 'px'
 
+    // 点击面板的任何位置（包括它上面的按钮）都关闭面板。
+    // 按钮自己的点击处理绑在按钮上，会先执行，所以复制之类的功能不受影响
     wrap.addEventListener('click', () => {
       this.remove(wrap)
     })
 
-    wrap.addEventListener('mouseleave', () => {
-      this.remove(wrap)
-    })
+    // 由缩略图触发的面板，鼠标移出时也关闭。
+    // 从查看器打开时不这样做：鼠标需要从按钮移动到面板上，中途会短暂离开面板区域
+    if (!this.fromImageViewer) {
+      wrap.addEventListener('mouseleave', () => {
+        this.remove(wrap)
+      })
+    }
 
     wrap.addEventListener(
       'wheel',
       (ev) => {
-        if (this.show) {
+        // 只有预览作品时的滚轮才用于切换预览图；查看器里的面板只需要正常滚动
+        if (this.show && !this.fromImageViewer) {
           ev.preventDefault()
           EVT.fire('wheelScrollSwitchPreviewImage', ev)
         }
@@ -303,42 +377,70 @@ class PreviewWorkDetailInfo {
       }
     )
 
-    theme.register(wrap)
+    if (this.fromImageViewer) {
+      // 图片查看器总是暗色模式，所以它也总是使用暗色主题。
+      // 这里不使用 theme.register()，因为它会跟随下载器的主题设置
+      wrap.classList.add('theme-dark')
+    } else {
+      theme.register(wrap)
+    }
 
     document.body.append(wrap)
 
-    // 获取宽高，以鼠标为中心显示
     const rect = wrap.getBoundingClientRect()
 
-    // 设置 left
-    let left = this.mouseX - rect.width / 2
-    // 最小的 left 为 10，避免其紧贴左侧，看不到左边界。其他四边也同理
-    if (left < 10) {
-      left = 10
+    if (this.fromImageViewer && this.viewerAnchor) {
+      this.positionAboveViewerAnchor(wrap, rect)
+    } else {
+      // 获取宽高，以鼠标为中心显示
+      // 设置 left
+      let left = this.mouseX - rect.width / 2
+      // 最小的 left 为 10，避免其紧贴左侧，看不到左边界。其他四边也同理
+      if (left < 10) {
+        left = 10
+      }
+
+      // 如果面板右侧超出屏幕，则把面板向左移动
+      let right = left + rect.width
+      if (right > window.innerWidth) {
+        left = left + (window.innerWidth - right) - 10
+      }
+
+      wrap.style.left = left + 'px'
+
+      // 设置 top
+      let top = this.mouseY - rect.height / 2
+      if (top < 10) {
+        top = 10
+      }
+
+      // 如果面板底部超出屏幕，则把面板向上移动
+      let bottom = top + rect.height
+      if (bottom > window.innerHeight) {
+        top = top + (window.innerHeight - bottom) - 10
+      }
+
+      wrap.style.top = top + 'px'
     }
 
-    // 如果面板右侧超出屏幕，则把面板向左移动
-    let right = left + rect.width
-    if (right > window.innerWidth) {
-      left = left + (window.innerWidth - right) - 10
-    }
+    wrap.style.opacity = '1'
+  }
 
+  /** 把详情面板放在图片查看器按钮的上方，并与按钮水平居中对齐 */
+  private positionAboveViewerAnchor(wrap: HTMLDivElement, rect: DOMRect) {
+    const anchorRect = this.viewerAnchor!.getBoundingClientRect()
+
+    // 水平居中，并且不超出屏幕左右两侧
+    const centered = anchorRect.left + anchorRect.width / 2 - rect.width / 2
+    const left = Math.max(
+      10,
+      Math.min(centered, window.innerWidth - rect.width - 10)
+    )
     wrap.style.left = left + 'px'
 
-    // 设置 top
-    let top = this.mouseY - rect.height / 2
-    if (top < 10) {
-      top = 10
-    }
-
-    // 如果面板底部超出屏幕，则把面板向上移动
-    let bottom = top + rect.height
-    if (bottom > window.innerHeight) {
-      top = top + (window.innerHeight - bottom) - 10
-    }
-
+    // 面板的底部位于按钮上方，留出一点间距。如果上方空间不足，就贴着屏幕顶部显示
+    const top = Math.max(10, anchorRect.top - rect.height - 10)
     wrap.style.top = top + 'px'
-    wrap.style.opacity = '1'
   }
 
   private remove(el?: HTMLDivElement) {
@@ -347,6 +449,8 @@ class PreviewWorkDetailInfo {
       (document.querySelector('.xz_PreviewWorkDetailPanel') as HTMLDivElement)
     el && el.parentNode && el.parentNode.removeChild(el)
     this.show = false
+    this.fromImageViewer = false
+    this.viewerAnchor = null
     states.previewWorkDetailInfoPanelIsShow = false
 
     this.delayResetWorkId()

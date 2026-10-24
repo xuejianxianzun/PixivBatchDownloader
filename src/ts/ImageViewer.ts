@@ -9,6 +9,7 @@ import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { bookmark } from './Bookmark'
 import { bookmarkPanel, BookmarkPanelOption } from './BookmarkPanel'
+import { likeWork } from './LikeWork'
 import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
@@ -89,6 +90,7 @@ class ImageViewer {
     // 旧的查看器被移除，它已不再显示，复位显示标记
     // （旧的实例不会触发 hide 事件，所以在这里主动复位，避免状态残留）
     states.imageViewerIsShow = false
+    EVT.fire('hideImageViewerDetailInfo')
 
     const wrap = await this.createImageList()
     if (wrap) {
@@ -283,9 +285,11 @@ class ImageViewer {
       states.imageViewerIsShow = true
       // 添加自定义的按钮
       this.addOneToOneBtn()
+      this.addDetailInfoBtn()
       this.addCopyWorkLinkBtn()
-      this.addBookmarkBtn()
       this.addCopyBtn()
+      this.addLikeBtn()
+      this.addBookmarkBtn()
       this.addDownloadCurrentImageBtn()
       this.addDownloadBtn()
 
@@ -301,6 +305,8 @@ class ImageViewer {
     this.viewerUl.addEventListener('hide', () => {
       this.show = false
       states.imageViewerIsShow = false
+      // 查看器关闭后，由它打开的详情面板也要一起关闭
+      EVT.fire('hideImageViewerDetailInfo')
     })
 
     // 查看每一张图片时，如果处于 1:1 模式，就把图片缩放到 100%
@@ -454,6 +460,41 @@ class ImageViewer {
     })
   }
 
+  // 添加查看作品信息的按钮。点击它会在按钮上方显示作品的详细信息
+  private addDetailInfoBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_查看作品信息'))
+    li.classList.add(this.addBtnClass)
+    li.id = 'imageViewerDetailInfoBtn'
+    li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#info"></use>
+</svg>`
+    this.addBtn(li)
+
+    li.addEventListener('click', () => {
+      // 查看器显示时一定有作品数据，这里只是让类型收窄
+      if (!this.workData) {
+        return
+      }
+      EVT.fire('toggleImageViewerDetailInfo', {
+        anchor: li,
+        workData: this.workData,
+      })
+    })
+
+    // 点击查看器里的其他按钮时（包括查看器自身的上一张、下一张、播放），隐藏详情面板。
+    // 工具栏是按钮的父元素，所以一个监听器就能覆盖全部按钮
+    li.parentElement?.addEventListener('click', (ev) => {
+      const target = ev.target as HTMLElement
+      if (target === li || li.contains(target)) {
+        return
+      }
+      EVT.fire('hideImageViewerDetailInfo')
+    })
+  }
+
   // 设置原始尺寸显示
   private setOriginalSize() {
     if (this.isOriginalSize) {
@@ -598,6 +639,34 @@ class ImageViewer {
       this.addBookmark(() => {
         downloadOnClickBookmark.send(this.workData!.body.illustId)
       })
+    })
+  }
+
+  // 添加点赞按钮
+  private addLikeBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_点赞'))
+    li.classList.add(this.addBtnClass)
+    li.id = 'imageViewerLikeBtn'
+    li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#like-line"></use>
+</svg>`
+
+    // 显示这个作品的点赞状态
+    if (this.workData!.body.likeData) {
+      li.classList.add('liked')
+    }
+
+    this.addBtn(li)
+
+    li.addEventListener('click', async () => {
+      const liked = await likeWork.like(this.cfg.workId, 'illusts')
+      if (liked) {
+        // 点赞成功后，把按钮设为高亮色
+        li.classList.add('liked')
+      }
     })
   }
 

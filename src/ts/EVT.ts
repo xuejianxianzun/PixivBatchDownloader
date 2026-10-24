@@ -3,6 +3,7 @@ import { IDData, IDTypeString, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
+import { ArtworkData } from './crawl/CrawlResult'
 
 type eventNames = keyof typeof EVT.list
 
@@ -179,6 +180,10 @@ class EVENT {
     sendBrowserDownload: 'sendBrowserDownload',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+    /**在图片查看器里点击「作品信息」按钮时触发，用于切换详情面板。数据是 { anchor, workData } */
+    toggleImageViewerDetailInfo: 'toggleImageViewerDetailInfo',
+    /**需要隐藏由图片查看器打开的详情面板时触发。点击查看器里的其他按钮、关闭查看器时都会触发 */
+    hideImageViewerDetailInfo: 'hideImageViewerDetailInfo',
     /**通过鼠标滚轮事件来切换预览图 */
     wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
     /**当关注的用户列表发生变化时触发 */
@@ -281,6 +286,7 @@ class EVENT {
       | 'clickBtnOnThumb'
       | 'showOriginSizeImage'
       | 'hideOriginSizeImage'
+      | 'hideImageViewerDetailInfo'
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'
@@ -336,6 +342,16 @@ class EVENT {
     data: {
       x: number
       y: number
+    }
+  ): void
+
+  public fire(
+    type: 'toggleImageViewerDetailInfo',
+    data: {
+      /** 图片查看器里的「作品信息」按钮 */
+      anchor: HTMLElement
+      /** 这个作品的数据 */
+      workData: ArtworkData
     }
   ): void
 

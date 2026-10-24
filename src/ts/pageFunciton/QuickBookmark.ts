@@ -303,7 +303,7 @@ class QuickBookmark {
     try {
       API.addLike(id, type, token.token)
       likeBtn.style.color = '#0096fa'
-    } catch (error: Error | any) { }
+    } catch (error: Error | any) {}
   }
 
   private setBtnStyle() {

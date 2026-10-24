@@ -11,7 +11,10 @@ class LikeWork {
    *
    * @param type 作品类型。默认为图像作品
    *
-   * 如果启用了“点击点赞按钮时下载作品”，会同时触发快速下载（不会等待点赞请求完成） */
+   * 如果启用了“点击点赞按钮时下载作品”，会同时触发快速下载（不会等待点赞请求完成）
+   *
+   * @returns 这个作品是否处于已点赞状态。刚刚点赞成功、或者之前已经赞过都返回 true；
+   * 请求失败时返回 false。调用方可以据此更新按钮的样式 */
   public async like(id: string, type: 'illusts' | 'novels' = 'illusts') {
     toast.show(lang.transl('_点赞'))
 
@@ -37,12 +40,16 @@ class LikeWork {
         } else {
           toast.success(lang.transl('_点赞成功'))
         }
+        // 这两种情况下作品都处于已点赞状态
+        return true
       } else {
         toast.error(lang.transl('_点赞失败'))
       }
     } catch {
       toast.error(lang.transl('_点赞失败'))
     }
+
+    return false
   }
 }
 
