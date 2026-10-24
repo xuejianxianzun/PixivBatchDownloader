@@ -171,6 +171,12 @@ function loadFileName(settings, rule = '{id}') {
     },
     './utils/DateFormat': { DateFormat: { format: (date) => String(date) } },
     './utils/Utils': { Utils },
+    './FileNameNormalize': {
+      fileNameNormalize: loadModule('src/ts/FileNameNormalize.ts', {
+        './setting/Settings': { settings },
+        './utils/Utils': { Utils },
+      }).fileNameNormalize,
+    },
     './Tools': {
       Tools: {
         checkAIFromTags: () => false,

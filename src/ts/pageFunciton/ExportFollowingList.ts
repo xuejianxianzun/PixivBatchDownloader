@@ -10,6 +10,7 @@ import { API } from '../API'
 import { msgBox } from '../MsgBox'
 import { Tools } from '../Tools'
 import { FollowingUserData } from '../crawl/CrawlResult'
+import { EVT } from '../EVT'
 
 interface UserData {
   userId: string
@@ -34,6 +35,10 @@ class ExportFollowingList {
   private requestTimes = 0 // 获取用户列表时，记录请求的次数
   private readonly limit = 100 // 每次请求多少个用户
   private totalNeed = Number.MAX_SAFE_INTEGER
+
+  private retryNumber = 0 // 请求用户列表失败时，已经重试了多少次
+  private readonly retryMax = 3 // 最多重试几次，超过之后终止任务
+  private readonly retryWait = 2000 // 每次重试之前等待的时间（毫秒）
 
   // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
   private format: 'csv' | 'json' = 'csv'
@@ -60,14 +65,28 @@ class ExportFollowingList {
     const log1 = lang.transl(
       format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON'
     )
+    toast.show(log1)
     log.success('🚀' + log1)
-    const log2 = lang.transl('_开始抓取用户列表')
-    log.log(log2)
-    toast.show(log2)
+    EVT.fire('closeSettingsPanel')
+    log.log(lang.transl('_开始抓取用户列表'))
+
     // 总是慢速抓取
     log.warning(lang.transl('_慢速抓取'))
 
-    this.readyGet()
+    try {
+      this.readyGet()
+    } catch (error) {
+      // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+      this.abort(error)
+    }
+  }
+
+  /** 任务因为异常而终止时的收尾：复位 busy，输出错误日志 */
+  private abort(error?: unknown) {
+    this.busy = false
+    log.error(lang.transl('_任务已中止'))
+    error !== undefined && console.error(error)
+    this.reset()
   }
 
   protected getWantPage() {
@@ -131,8 +150,20 @@ class ExportFollowingList {
 
   // 获取用户列表
   private async getUserList() {
+    try {
+      await this.requestUserList()
+    } catch (error) {
+      // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+      this.abort(error)
+    }
+  }
+
+  private async requestUserList() {
     // 账户被警告时终止遍历，不再请求后续的用户列表，也不会导出不完整的列表
+    // canRequestInBatch 已经输出了停止的原因，这里不再重复提示
     if (!canRequestInBatch('_导出关注列表')) {
+      this.busy = false
+      this.reset()
       return
     }
 
@@ -156,9 +187,20 @@ class ExportFollowingList {
           break
       }
     } catch {
+      // 请求失败时，等待一段时间再重试，避免短时间内重复请求
+      if (this.retryNumber >= this.retryMax) {
+        log.error(lang.transl('_获取关注列表失败'))
+        this.abort()
+        return
+      }
+      this.retryNumber++
+      await Utils.sleep(this.retryWait)
       this.getUserList()
       return
     }
+
+    // 请求成功之后，重置重试次数
+    this.retryNumber = 0
 
     const users = res.body.users
 
@@ -212,17 +254,23 @@ class ExportFollowingList {
       log.warning(msg)
       msgBox.warning(msg)
     } else {
-      let msg = ''
-      if (this.format === 'csv') {
-        await this.exportCSV()
-        msg = '✅' + lang.transl('_导出关注列表CSV')
-      } else {
-        await this.exportJSON()
-        msg = '✅' + lang.transl('_导出关注列表JSON')
-      }
+      try {
+        let msg = ''
+        if (this.format === 'csv') {
+          await this.exportCSV()
+          msg = lang.transl('_导出关注列表CSV')
+        } else {
+          await this.exportJSON()
+          msg = lang.transl('_导出关注列表JSON')
+        }
 
-      log.success(msg)
-      toast.success(msg)
+        log.success('✅' + msg)
+        toast.success(msg)
+      } catch (error) {
+        // 导出失败时要清理已经抓取到的数据，否则它们会混进下一次导出的文件里
+        this.abort(error)
+        return
+      }
     }
 
     this.reset()
@@ -283,6 +331,7 @@ class ExportFollowingList {
     this.JSONData = []
     this.CSVData = []
     this.requestTimes = 0
+    this.retryNumber = 0
   }
 }
 

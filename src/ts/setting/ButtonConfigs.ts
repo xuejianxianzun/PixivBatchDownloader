@@ -590,6 +590,18 @@ class ButtonConfigs {
       categoryLevel2: 'FollowingPage',
     },
     {
+      id: 'batchSaveUserAvatar',
+      nameKey: '_批量保存用户头像',
+      categoryLevel1: 'extraFeatures',
+      categoryLevel2: 'FollowingPage',
+    },
+    {
+      id: 'batchSaveUserAvatarIcon',
+      nameKey: '_批量保存用户头像为图标',
+      categoryLevel1: 'extraFeatures',
+      categoryLevel2: 'FollowingPage',
+    },
+    {
       id: 'findDeactivatedUsers',
       nameKey: '_查找已注销的用户',
       categoryLevel1: 'extraFeatures',

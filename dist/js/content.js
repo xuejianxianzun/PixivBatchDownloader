@@ -2822,7 +2822,7 @@ class Bookmark {
                         this.toastDebounce(msg);
                         return status;
                     case 404:
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${id} 404 Not Found`);
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(workLink + ' 404 Not Found');
                         return status;
                     default:
                         _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${workLink} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_状态码')}: ${status}`);
@@ -2845,7 +2845,7 @@ class Bookmark {
         if (failed > 0) {
             // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
             const msg = completeMsg +
-                ' ' +
+                '<br>' +
                 _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_有x个作品失败请再次执行重试', failed.toString());
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(msg);
             _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕但是有一些失败了'), {
@@ -5784,9 +5784,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _BookmarkTags__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./BookmarkTags */ "./src/ts/BookmarkTags.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _FileNameNormalize__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./FileNameNormalize */ "./src/ts/FileNameNormalize.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+
 
 
 
@@ -5859,7 +5861,7 @@ class FileName {
         const p = this.createPNum(data);
         // 判断是不是 AI 生成的作品。这里的判据必须和其他模块保持一致
         // （CopyWorkInfo、MergeNovelFileName 也使用 Tools.checkAIFromTags，它匹配所有语言的 AI 标签）
-        const isAI = data.aiType === 2 || _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.checkAIFromTags(data.tags);
+        const isAI = data.aiType === 2 || _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.checkAIFromTags(data.tags);
         Object.assign(schema, {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.title,
@@ -5978,11 +5980,11 @@ class FileName {
                 safe: true,
             },
             '{age}': {
-                value: _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getAgeLimit(data.xRestrict),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.getAgeLimit(data.xRestrict),
                 safe: true,
             },
             '{age_r}': {
-                value: _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getAgeLimit(data.xRestrict, false),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.getAgeLimit(data.xRestrict, false),
                 safe: true,
             },
             '{like}': {
@@ -6097,7 +6099,7 @@ class FileName {
             }
         }
         // 移除文件名开头的不可用的特殊字符
-        result = this.removeStartChar(result);
+        result = _FileNameNormalize__WEBPACK_IMPORTED_MODULE_10__.fileNameNormalize.removeStartChar(result);
         // 测试用例
         // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
         // console.log(this.removeStartChar(testStr))
@@ -6108,7 +6110,7 @@ class FileName {
         // 处理连续的 /
         result = result.replace(/\/{2,100}/g, '/');
         // 处理一些边界情况
-        result = this.handleEdgeCases(result);
+        result = _FileNameNormalize__WEBPACK_IMPORTED_MODULE_10__.fileNameNormalize.handleEdgeCases(result);
         return result;
     }
     /** 预处理命名标记的值，使后续步骤使用相同的最终值 */
@@ -6446,7 +6448,7 @@ class FileName {
             // 小说没有编号，返回空字符串
             return '';
         }
-        let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getResultIndex(data);
+        let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_11__.Tools.getResultIndex(data);
         // 处理第一张图不带序号的情况
         if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
             if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
@@ -6513,28 +6515,6 @@ class FileName {
         allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(folderName));
         return allPart.join('/');
     }
-    // 不能出现在文件名开头的一些特定字符
-    checkStartCharList = ['/', ' '];
-    // 检查文件名开头是否含有特定字符
-    checkStartChar(str) {
-        for (const check of this.checkStartCharList) {
-            if (str.startsWith(check)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /** 移除文件名开头的特定字符 */
-    removeStartChar(str) {
-        while (this.checkStartChar(str)) {
-            for (const check of this.checkStartCharList) {
-                if (str.startsWith(check)) {
-                    str = str.replace(check, '');
-                }
-            }
-        }
-        return str;
-    }
     atList = ['@', '＠'];
     /** 移除用户名里的 @ 和后续字符 */
     removeAtFromUsername(name) {
@@ -6561,25 +6541,6 @@ class FileName {
         }
         return rule;
     }
-    /** 如果任意一层路径或文件名是 Windows 保留文件名，则在其后添加这个字符串 */
-    addStr = '[WindowsReservedName]';
-    /** 处理一些边界情况 */
-    handleEdgeCases(string) {
-        // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-        string = string.replace(/\/{2,100}/g, '/');
-        // 对每一层路径和文件名进行处理
-        const parts = string.split('/');
-        for (let i = 0; i < parts.length; i++) {
-            // 去掉每层路径首尾的空格
-            // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-            parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
-            // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
-            parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.handleWindowsReservedName(parts[i], this.addStr);
-        }
-        // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
-        string = parts.filter((part) => part !== '').join('/');
-        return string;
-    }
     // 文件名超长的一种测试情况：
     // https://www.pixiv.net/search?q=%E3%83%AB%E3%82%B7%E3%82%A2%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%83%BC%28%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%29%20-Cyberpunk%20-Edgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF2077%20-%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%20-CyberpunkEdgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%82%A3%E3%83%BB%E3%83%8F%E3%83%BC%E3%83%88%E3%83%95%E3%82%A3%E3%83%AA%E3%82%A2%20-%E3%83%95%E3%82%A7%E3%82%A2%E3%83%AA%E3%83%BC%E3%83%86%E3%82%A4%E3%83%AB%20-FAIRYTAIL%20-Fairy_Tail%20-Lucy_Loud%20-LucyLoud%20-%E3%83%A9%E3%82%A6%E3%83%89%E3%83%8F%E3%82%A6%E3%82%B9%20-The_Loud_House%20-theloudhouse%20-ElfenLied%20-Elfen_Lied%20-%E3%82%A8%E3%83%AB%E3%83%95%E3%82%A7%E3%83%B3%E3%83%AA%E3%83%BC%E3%83%88%20-VirtualYoutuber&s_mode=tag&type=artwork&ai_type=1
     // 这是一个用户报告的问题，他搜索的标签列表非常长（因为排除了很多标签）：
@@ -6599,7 +6560,7 @@ class FileName {
         // 文件名超长
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimitSwitch) {
             // 如果用户未启用此设置，则显示提示
-            _Log__WEBPACK_IMPORTED_MODULE_11__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_12__.lang.transl('_文件名可能超长的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit.toString(), fullName), 'tipFullNameTooLong');
+            _Log__WEBPACK_IMPORTED_MODULE_12__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_13__.lang.transl('_文件名可能超长的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit.toString(), fullName), 'tipFullNameTooLong');
             return result;
         }
         // 开始截断
@@ -6653,13 +6614,115 @@ class FileName {
             result = allPart.join('/');
             excess = result.length + ext.length - _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_11__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_12__.lang.transl('_下载器截断了一些文件名的提示', fullName), 'tipTruncatedFullName');
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_13__.lang.transl('_下载器截断了一些文件名的提示', fullName), 'tipTruncatedFullName');
         // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
         // console.log(result.length)
         return result;
     }
 }
 const fileName = new FileName();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/FileNameNormalize.ts":
+/*!*************************************!*\
+  !*** ./src/ts/FileNameNormalize.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   fileNameNormalize: () => (/* binding */ fileNameNormalize)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+/**
+ * 文件名规范化。
+ *
+ * 这里的方法原本在 FileName 模块里，现在挪到这个独立的模块里，这样其他模块（例如
+ * SendDownload）可以不加载 FileName 就使用它们。
+ *
+ * ⚠️ 不要在 FileName 之外的地方为了「规范化文件名」而 import FileName：
+ * FileName 会加载 SetUserName，而 SetUserName 在模块加载时就需要设置面板里的 slot
+ * （setUserNameSlot），在设置面板创建之前加载它会抛出 "No such slot" 并导致内容脚本初始化失败。
+ * 本模块只依赖 Settings 和 Utils，所以可以在任何时候被加载。
+ */
+class FileNameNormalize {
+    // 不能出现在文件名开头的一些特定字符
+    checkStartCharList = ['/', ' '];
+    // 检查文件名开头是否含有特定字符
+    checkStartChar(str) {
+        for (const check of this.checkStartCharList) {
+            if (str.startsWith(check)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /** 移除文件名开头的特定字符 */
+    removeStartChar(str) {
+        while (this.checkStartChar(str)) {
+            for (const check of this.checkStartCharList) {
+                if (str.startsWith(check)) {
+                    str = str.replace(check, '');
+                }
+            }
+        }
+        return str;
+    }
+    /** 如果任意一层路径或文件名是 Windows 保留文件名，则在其后添加这个字符串 */
+    addStr = '[WindowsReservedName]';
+    /** 处理一些边界情况 */
+    handleEdgeCases(string) {
+        // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+        string = string.replace(/\/{2,100}/g, '/');
+        // 对每一层路径和文件名进行处理
+        const parts = string.split('/');
+        for (let i = 0; i < parts.length; i++) {
+            // 去掉每层路径首尾的空格
+            // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
+            parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
+            // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
+            parts[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.handleWindowsReservedName(parts[i], this.addStr);
+        }
+        // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
+        string = parts.filter((part) => part !== '').join('/');
+        return string;
+    }
+    /** 这是提供给其他模块使用的方法。如果其他模块自行拼接了一些内容作为文件名（而不是由 FileName 从命名规则里生成的），
+     * 可以调用这个方法对文件名进行一些基本的处理，以免因为文件名非法而导致文件下载失败。
+     *
+     * @param name 文件名，可以包含文件夹路径（路径分隔符会被保留）
+     */
+    handleNormalName(name) {
+        // 保留路径分隔符，否则 `pixiv users/xxx.jpg` 里的 / 会被替换成全角字符，导致文件夹失效
+        name = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(name, true);
+        // 移除 Emoji。这可能会导致一些标记的值变成空字符串，所以需要放在前面执行，以便后续处理空字符串的情况
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
+            name = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.removeEmojis(name);
+        }
+        // 移除文件名开头的不可用的特殊字符
+        name = this.removeStartChar(name);
+        // 如果文件名的尾部是 / 则去掉
+        if (name.endsWith('/')) {
+            name = name.substring(0, name.length - 1);
+        }
+        // 处理连续的 /
+        name = name.replace(/\/{2,100}/g, '/');
+        // 处理一些边界情况
+        name = this.handleEdgeCases(name);
+        if (!name) {
+            name = Date.now().toString();
+        }
+        return name;
+    }
+}
+const fileNameNormalize = new FileNameNormalize();
 
 
 
@@ -15637,7 +15700,9 @@ class Tools {
         console.log('Buttons HTML:', this.buttonsHtml);
     }, 200);
     /** 创建下载面板上的通用按钮 */
-    // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+    // 注意：
+    // 1. 如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+    // 2. 当其他模块里新增一个使用该方法添加的按钮之后，需要在 src/ts/setting/ButtonConfigs.ts 中添加对应的配置
     static addBtn(slot, text, title, id, emphasis, intent) {
         const btn = document.createElement('button');
         id && btn.setAttribute('id', id);
@@ -15968,6 +16033,25 @@ class Tools {
         const href = `https://www.pixiv.net/users/${idNum}`;
         // 如果传入了 userName，则使用 userName 作为链接文本，否则使用 id 作为链接文本
         return `<a href="${href}" target="_blank">${userName || idNum}</a>`;
+    }
+    /**
+     * 把头像图片的 URL 转换为头像原图的 URL，也就是去掉文件名末尾的 170 尺寸标记。
+     *
+     * `API.getUserProfile` 返回的 imageBig、以及用户列表里的 profileImageUrl 都不是头像原图，
+     * 而是裁剪成 170 px 的版本，URL 形如 `https://i.pximg.net/user-profile/img/xxxxx_170.png`。
+     *
+     * ⚠️ 必须从文件名的末尾替换 `_170`：因为用户 id 后面那段哈希值里也可能含有 `_170`，
+     * 例如：
+     * `https://i.pximg.net/user-profile/img/2018/02/11/16/01/14/13811157_1709415c82b690d3dbfdebc252abb223_170.png`
+     * 从前面替换（`String.replace` 的默认行为）会得到
+     * `.../138111579415c82b690d3dbfdebc252abb223_170.png`，这是错误的 URL。
+     *
+     * @param imageURL 头像图片的 URL。没有尺寸标记时原样返回。
+     */
+    static getFullSizeAvatarURL(imageURL) {
+        // 匹配文件名末尾的 `_170` 和它后面的扩展名（以及可能存在的查询字符串）
+        // 没有匹配到时原样返回，所以已经是原图的 URL 不会被改动
+        return imageURL.replace(/_170(\.[^./?]+)(\?[^/]*)?$/, '$1$2');
     }
     // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
     // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
@@ -24681,8 +24765,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 /* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
 /* harmony import */ var _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../pageFunciton/BatchFollowUser */ "./src/ts/pageFunciton/BatchFollowUser.ts");
-/* harmony import */ var _FindDeactivatedUsers__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../FindDeactivatedUsers */ "./src/ts/FindDeactivatedUsers.ts");
+/* harmony import */ var _pageFunciton_BatchSaveUserAvatar__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../pageFunciton/BatchSaveUserAvatar */ "./src/ts/pageFunciton/BatchSaveUserAvatar.ts");
+/* harmony import */ var _FindDeactivatedUsers__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../FindDeactivatedUsers */ "./src/ts/FindDeactivatedUsers.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
 
 
 
@@ -24747,7 +24833,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         //   filterInactiveUsers.start()
         // })
         this.addInitPageBtn('otherBtns', '_查找已注销的用户', '', 'findDeactivatedUsers', 'brand').addEventListener('click', async () => {
-            _FindDeactivatedUsers__WEBPACK_IMPORTED_MODULE_12__.findDeactivatedUsers.check();
+            _FindDeactivatedUsers__WEBPACK_IMPORTED_MODULE_13__.findDeactivatedUsers.check();
+        });
+        this.addInitPageBtn('otherBtns', '_批量保存用户头像', '', 'batchSaveUserAvatar', 'brand').addEventListener('click', async () => {
+            _pageFunciton_BatchSaveUserAvatar__WEBPACK_IMPORTED_MODULE_12__.batchSaveUserAvatar.start('image');
+        });
+        this.addInitPageBtn('otherBtns', '_批量保存用户头像为图标', '', 'batchSaveUserAvatarIcon', 'brand').addEventListener('click', async () => {
+            _pageFunciton_BatchSaveUserAvatar__WEBPACK_IMPORTED_MODULE_12__.batchSaveUserAvatar.start('icon');
         });
     }
     getWantPage() {
@@ -24827,7 +24919,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (users.length === 0) {
             // 用户列表抓取完毕
             if (this.userList.length < res.body.total) {
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示有些用户可能已经注销'));
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示有些用户可能已经注销'), 'tipUserMayDeactivated');
             }
             return this.getUserListComplete();
         }
@@ -35791,6 +35883,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _FileNameNormalize__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../FileNameNormalize */ "./src/ts/FileNameNormalize.ts");
+
 
 
 
@@ -35806,6 +35900,8 @@ class SendDownload {
      * @param conflictAction downloads API 遇到同名文件时的处理方式。如果未指定，后台脚本默认会使用 overwrite
      */
     static async noReply(blob, name, downloadMethod, conflictAction) {
+        // 对文件名进行规范化处理，以免因为文件名非法而导致下载失败
+        name = _FileNameNormalize__WEBPACK_IMPORTED_MODULE_3__.fileNameNormalize.handleNormalName(name);
         const blobURL = URL.createObjectURL(blob);
         // 如果需要使用 a.download 来下载文件
         if (downloadMethod === 'anchorDownload') {
@@ -43191,6 +43287,70 @@ Note: This clears the downloader's download record, not the browser's download h
         `ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。`,
         `유저 프로필 이미지를 ico 파일로 저장하면, 디렉토리 아이콘으로 수동 설정할 수 있습니다.`,
         `Сохранить аватар пользователя как иконку`,
+    ],
+    _批量保存用户头像: [
+        `批量保存用户头像`,
+        `批次儲存使用者頭貼`,
+        `Save user avatars in batches`,
+        `ユーザーのプロフィール画像を一括保存`,
+        `유저 프로필 이미지 일괄 저장`,
+        `Пакетное сохранение аватаров пользователей`,
+    ],
+    _批量保存用户头像为图标: [
+        `批量保存用户头像为图标`,
+        `批次將使用者頭貼另存為圖示`,
+        `Save user avatars as icons in batches`,
+        `ユーザーのプロフィール画像をアイコンとして一括保存`,
+        `유저 프로필 이미지를 아이콘으로 일괄 저장`,
+        `Пакетное сохранение аватаров пользователей как иконки`,
+    ],
+    _需要保存x个头像: [
+        `需要保存 {} 个头像`,
+        `需要儲存 {} 個頭貼`,
+        `{} avatars need to be saved`,
+        `{} 件のプロフィール画像を保存する必要があります`,
+        `프로필 이미지 {}개 저장 필요`,
+        `Нужно сохранить аватаров: {}`,
+    ],
+    _已保存x个头像: [
+        `已保存 {} 个头像`,
+        `已儲存 {} 個頭貼`,
+        `{} avatars saved`,
+        `{} 件のプロフィール画像を保存しました`,
+        `프로필 이미지 {}개 저장됨`,
+        `Сохранено аватаров: {}`,
+    ],
+    _已保存x个头像为图标: [
+        `已保存 {} 个头像为图标`,
+        `已將 {} 個頭貼另存為圖示`,
+        `{} avatars saved as icons`,
+        `{} 件のプロフィール画像をアイコンとして保存しました`,
+        `프로필 이미지 {}개를 아이콘으로 저장됨`,
+        `Сохранено аватаров как иконки: {}`,
+    ],
+    _保存这个用户的头像失败: [
+        `❌保存这个用户的头像失败：{}`,
+        `❌儲存這個使用者的頭貼失敗：{}`,
+        `❌Failed to save this user's avatar: {}`,
+        `❌このユーザーのプロフィール画像の保存に失敗しました：{}`,
+        `❌이 사용자의 프로필 이미지 저장 실패: {}`,
+        `❌Не удалось сохранить аватар этого пользователя: {}`,
+    ],
+    _有x个用户保存失败请再次执行重试: [
+        `有 {} 个用户保存失败。你可以在日志里点击保存失败的用户的链接，进入用户页面，然后使用“附加功能”区域里的按钮来保存他的头像。`,
+        `有 {} 個使用者儲存失敗。你可以在日誌裡點擊儲存失敗的使用者的連結，進入使用者頁面，然後使用「附加功能」區域裡的按鈕來儲存他的頭貼。`,
+        `Failed to save {} users. You can click the link of a failed user in the log to open their profile page, and then use the buttons in the "Extra features" area to save their avatar.`,
+        `{} 人のユーザーの保存に失敗しました。ログに表示されている保存に失敗したユーザーのリンクをクリックしてユーザーページを開き、「追加機能」エリアのボタンでプロフィール画像を保存できます。`,
+        `{}명의 사용자를 저장하지 못했습니다. 로그에서 저장에 실패한 사용자의 링크를 클릭해 사용자 페이지로 이동한 뒤, "부가 기능" 영역의 버튼으로 프로필 이미지를 저장할 수 있습니다.`,
+        `Не удалось сохранить {} пользователей. Можно нажать ссылку пользователя в журнале, чтобы открыть его страницу, а затем воспользоваться кнопками в разделе «Дополнительные функции», чтобы сохранить его аватар.`,
+    ],
+    _保存头像完毕但是有一些失败了: [
+        `保存头像完毕，但是有一些用户保存失败`,
+        `儲存頭貼完畢，但是有一些使用者儲存失敗`,
+        `Saving avatars finished, but some users failed`,
+        `プロフィール画像の保存が完了しましたが、一部のユーザーは失敗しました`,
+        `프로필 이미지 저장 완료, 하지만 일부 사용자는 실패했습니다`,
+        `Сохранение аватаров завершено, но для некоторых пользователей не удалось`,
     ],
     _正在保存抓取结果: [
         `正在保存抓取结果`,
@@ -50685,12 +50845,12 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
         `Не найдено ни одной победившей работы, возможно, потому что конкурс ещё не завершён.`,
     ],
     _提示有些用户可能已经注销: [
-        `💡有些用户可能已经注销，所以实际上的用户数量会少一些。`,
-        `💡有些用戶可能已經註銷，所以實際上的用戶數量會少一些。`,
-        `💡Some users may have already deactivated their accounts, so the actual number of users will be slightly lower.`,
-        `💡一部のユーザーが退会している可能性があるため、実際のユーザー数は少し少なくなります。`,
-        `💡일부 사용자가 이미 탈퇴했을 수 있으므로 실제 사용자 수는 조금 더 적을 수 있습니다.`,
-        `💡Некоторые пользователи могли уже деактивировать аккаунты, поэтому фактическое количество пользователей будет немного меньше.`,
+        `💡有些用户可能已经注销，所以实际获取到的用户数量会比 Pixiv 显示的用户总数少一些。`,
+        `💡有些使用者可能已經註銷，所以實際取得的使用者數量會比 Pixiv 顯示的使用者總數少一些。`,
+        `💡Some users may have deactivated their accounts, so the number of users actually retrieved will be lower than the total number of users shown by Pixiv.`,
+        `💡一部のユーザーが退会している可能性があるため、実際に取得できるユーザー数は Pixiv に表示されるユーザーの総数より少なくなります。`,
+        `💡일부 사용자가 이미 탈퇴했을 수 있으므로, 실제로 가져온 사용자 수는 Pixiv에 표시된 사용자 총수보다 적을 수 있습니다.`,
+        `💡Некоторые пользователи могли уже деактивировать аккаунты, поэтому фактически полученное количество пользователей будет меньше общего числа пользователей, которое показывает Pixiv.`,
     ],
     _查找已注销的用户: [
         `查找已注销的用户`,
@@ -54029,12 +54189,12 @@ One possible reason: Your Pixiv account has been banned.`,
         `Из-за сетевой ошибки выполнено много повторных попыток, но безуспешно; повтор для этой работы прекращён`,
     ],
     _有x个作品失败请再次执行重试: [
-        `其中有 {} 个作品添加收藏失败，你可以再次执行这个操作来重试它们。`,
-        `其中有 {} 個作品新增收藏失敗，你可以再次執行這個操作來重試它們。`,
-        `Bookmarking failed for {} works; you can run this operation again to retry them.`,
-        `そのうち {} 件の作品でブックマークの追加に失敗しました。この操作をもう一度実行すると再試行できます。`,
-        `그중 {}개 작품의 북마크 추가에 실패했습니다. 이 작업을 다시 실행하면 재시도할 수 있습니다.`,
-        `Не удалось добавить закладки для {} работ; можно выполнить эту операцию снова, чтобы повторить их.`,
+        `其中有 {} 个作品添加收藏失败，你可以再次执行这个操作来重试它们，也可以在日志里点击收藏失败的作品的链接，手动收藏它们。`,
+        `其中有 {} 個作品新增收藏失敗，你可以再次執行這個操作來重試它們，也可以在日誌裡點擊收藏失敗的作品的連結，手動收藏它們。`,
+        `Bookmarking failed for {} works. You can run this operation again to retry them, or click the links of the failed works in the log to bookmark them manually.`,
+        `そのうち {} 件の作品でブックマークの追加に失敗しました。この操作をもう一度実行して再試行するか、ログに表示されている失敗した作品のリンクをクリックして、手動でブックマークすることもできます。`,
+        `그중 {}개 작품의 북마크 추가에 실패했습니다. 이 작업을 다시 실행해 재시도하거나, 로그에서 실패한 작품의 링크를 클릭해 수동으로 북마크할 수 있습니다.`,
+        `Не удалось добавить закладки для {} работ. Можно выполнить эту операцию снова, чтобы повторить попытку, или нажать ссылки этих работ в журнале, чтобы добавить закладки вручную.`,
     ],
     _收藏作品完毕但是有一些失败了: [
         `收藏作品完毕，但是有一些作品收藏失败`,
@@ -55164,6 +55324,331 @@ const batchFollowUser = new BatchFollowUser();
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/BatchSaveUserAvatar.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/pageFunciton/BatchSaveUserAvatar.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   batchSaveUserAvatar: () => (/* binding */ batchSaveUserAvatar)
+/* harmony export */ });
+/* harmony import */ var _AccountWarning__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../AccountWarning */ "./src/ts/AccountWarning.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _SaveAvatarImage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SaveAvatarImage */ "./src/ts/pageFunciton/SaveAvatarImage.ts");
+/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./SaveAvatarIcon */ "./src/ts/pageFunciton/SaveAvatarIcon.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+
+
+
+
+
+
+
+
+
+
+/** 显示保存进度时使用的日志插槽 key */
+const progressKey = 'batchSaveUserAvatarProgress';
+// 批量保存用户头像：抓取用户列表，然后把列表里每个用户的头像保存为图片文件，或生成 ico 图标文件
+// 抓取用户列表的逻辑与 ExportFollowingList 一致
+class BatchSaveUserAvatar {
+    busy = false;
+    /** 保存类型：image 保存头像图片；icon 把头像保存为 ico 图标文件 */
+    // 保存头像时可以使用关注列表里的数据，不需要请求用户资料 API 获取用户名和头像 URL。
+    // 不过关注数据里没有用户的封面图片（cover image），要保存封面图片的话还是需要请求用户资料 API，获取封面图片的 URL，
+    // 这在批量保存时会花费较多时间，而且封面图片没有头像重要，所以现在我没有添加保存封面图片的功能。
+    type = 'image';
+    /** 当前任务的名称对应的 langText key，用于日志和提示 */
+    nameKey = '_批量保存用户头像';
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    crawlPageNumber = 1; // 需要抓取多少个页面
+    // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+    pageType = 'following';
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    retryNumber = 0; // 请求用户列表失败时，已经重试了多少次
+    retryMax = 10; // 最多重试几次，超过之后终止任务
+    retryWait = 2000; // 每次重试之前等待的时间（毫秒）
+    userNumber = 0; // 已经处理了多少个用户
+    /** 进度里的总数：一共需要保存多少个用户的头像。在第一次获取到列表数据时确定 */
+    totalToSave = 0;
+    savedNumber = 0; // 成功保存了多少个头像
+    failedNumber = 0; // 保存失败的数量
+    /** 每次保存文件之间的间隔时间，避免请求过于频繁 */
+    saveInterval = 500;
+    start(type) {
+        this.type = type;
+        this.nameKey =
+            type === 'icon' ? '_批量保存用户头像为图标' : '_批量保存用户头像';
+        // 注意：nameKey 必填
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)(this.nameKey)) {
+            return;
+        }
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        this.busy = true;
+        // 显示提示
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.nameKey);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(log1);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + log1);
+        _EVT__WEBPACK_IMPORTED_MODULE_12__.EVT.fire('closeSettingsPanel');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始抓取用户列表'));
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
+        try {
+            this.readyGet();
+        }
+        catch (error) {
+            // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+            this.abort(error);
+        }
+    }
+    /** 任务因为异常而终止时的收尾：复位 busy，输出错误日志 */
+    abort(error) {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务已中止'));
+        error !== undefined && console.error(error);
+        this.reset();
+    }
+    getWantPage() {
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type].value;
+        if (this.crawlPageNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_抓取所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_从本页开始抓取x页', this.crawlPageNumber.toString()));
+        }
+    }
+    getPageType() {
+        const pathname = window.location.pathname;
+        if (pathname.includes('/following')) {
+            this.pageType = 'following';
+        }
+        else if (pathname.includes('/mypixiv')) {
+            this.pageType = 'mypixiv';
+        }
+        else if (pathname.includes('/followers')) {
+            this.pageType = 'followers';
+        }
+    }
+    readyGet() {
+        this.getWantPage();
+        this.getPageType();
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'following');
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 要抓取多少个用户
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        if (this.crawlPageNumber !== -1) {
+            this.totalNeed = this.onceNumber * this.crawlPageNumber;
+        }
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log('');
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取用户列表
+    async getUserList() {
+        try {
+            await this.requestUserList();
+        }
+        catch (error) {
+            // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+            this.abort(error);
+        }
+    }
+    async requestUserList() {
+        // 账户被警告时终止遍历，不再请求后续的用户列表
+        // canRequestInBatch 已经输出了停止的原因，这里不再重复提示
+        if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)(this.nameKey)) {
+            this.busy = false;
+            this.reset();
+            return;
+        }
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            switch (this.pageType) {
+                case 'following':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    break;
+                case 'mypixiv':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getMyPixivList(this.currentUserId, offset);
+                    break;
+                case 'followers':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowersList(this.currentUserId, offset);
+                    break;
+            }
+        }
+        catch {
+            // 请求失败时，等待一段时间再重试，避免短时间内重复请求
+            if (this.retryNumber >= this.retryMax) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取关注列表失败'));
+                this.abort();
+                return;
+            }
+            this.retryNumber++;
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(this.retryWait);
+            this.getUserList();
+            return;
+        }
+        // 请求成功之后，重置重试次数
+        this.retryNumber = 0;
+        const users = res.body.users;
+        if (users.length === 0) {
+            // 用户列表抓取完毕
+            return this.getUserListComplete();
+        }
+        // 第一次获取到列表数据时，确定进度里显示的总数，即一共需要保存多少个用户的头像
+        // body.total 是这个列表里的用户总数
+        if (this.requestTimes === 0) {
+            // 从中间的页面开始抓取时，前面的用户不会被抓取，所以要从总数里减掉起始偏移量
+            const rest = Math.max(res.body.total - this.baseOffset, 0);
+            if (this.crawlPageNumber === -1) {
+                // 抓取所有页面时，需要保存剩余的全部用户
+                this.totalToSave = rest;
+            }
+            else {
+                // 抓取指定数量的页面时，按设置的页数计算，但不大于剩余的用户数量
+                this.totalToSave = Math.min(this.crawlPageNumber * this.onceNumber, rest);
+            }
+        }
+        for (const userData of users) {
+            this.userNumber++;
+            await this.saveOne(userData);
+            this.logProgress();
+            if (this.userNumber >= this.totalNeed) {
+                // 抓取到了指定数量的用户
+                return this.getUserListComplete();
+            }
+        }
+        this.requestTimes++;
+        // 获取下一批用户列表
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
+        this.getUserList();
+    }
+    /** 保存一个用户的头像 */
+    async saveOne(userData) {
+        const option = {
+            url: userData.profileImageUrl,
+            userId: userData.userId,
+            userName: userData.userName,
+            silent: true,
+        };
+        let saved;
+        try {
+            saved =
+                this.type === 'icon'
+                    ? await _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__.saveAvatarIcon.saveAvatarIcon(option)
+                    : await _SaveAvatarImage__WEBPACK_IMPORTED_MODULE_10__.saveAvatarImage.saveAvatarImage(option);
+        }
+        catch {
+            saved = false;
+        }
+        if (saved) {
+            this.savedNumber++;
+        }
+        else {
+            this.failedNumber++;
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_保存这个用户的头像失败', _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createUserLink(userData.userId, userData.userName)));
+        }
+        // 每次保存文件之间添加间隔，避免请求过于频繁
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(this.saveInterval);
+    }
+    logProgress() {
+        // 保存为图标时，提示里也要说明保存的是图标文件
+        const savedKey = this.type === 'icon' ? '_已保存x个头像为图标' : '_已保存x个头像';
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_需要保存x个头像', this.totalToSave.toString())}, ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(savedKey, this.savedNumber.toString())}`, progressKey);
+    }
+    async getUserListComplete() {
+        // 让进度日志固定下来，之后的日志不再覆盖它
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.persistentRefresh(progressKey);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个用户', this.userNumber.toString()));
+        // 实际处理的用户数量（包含保存失败的）比总数少时，说明有些用户可能已经注销了
+        if (this.userNumber < this.totalToSave) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示有些用户可能已经注销'), 'tipUserMayDeactivated');
+        }
+        this.busy = false;
+        if (this.userNumber === 0) {
+            const msg = '✅' +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_用户数量为0') +
+                ', ' +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.warning(msg);
+        }
+        else if (this.failedNumber > 0) {
+            // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
+            const msg = '✅' +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.nameKey) +
+                '<br>' +
+                _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_有x个用户保存失败请再次执行重试', this.failedNumber.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_保存头像完毕但是有一些失败了'), {
+                position: 'center',
+            });
+        }
+        else {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(this.nameKey);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg, { position: 'center' });
+        }
+        this.reset();
+    }
+    reset() {
+        this.requestTimes = 0;
+        this.retryNumber = 0;
+        this.userNumber = 0;
+        this.totalToSave = 0;
+        this.savedNumber = 0;
+        this.failedNumber = 0;
+    }
+}
+const batchSaveUserAvatar = new BatchSaveUserAvatar();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/pageFunciton/BookmarkAllWorks.ts":
 /*!*************************************************!*\
   !*** ./src/ts/pageFunciton/BookmarkAllWorks.ts ***!
@@ -56115,6 +56600,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
 
 
 
@@ -56139,6 +56626,9 @@ class ExportFollowingList {
     requestTimes = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
+    retryNumber = 0; // 请求用户列表失败时，已经重试了多少次
+    retryMax = 3; // 最多重试几次，超过之后终止任务
+    retryWait = 2000; // 每次重试之前等待的时间（毫秒）
     // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
     format = 'csv';
     CSVData = []; // 储存用户列表，包含 id 和用户名
@@ -56157,13 +56647,26 @@ class ExportFollowingList {
         this.format = format;
         // 显示提示
         const log1 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(log1);
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + log1);
-        const log2 = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始抓取用户列表');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(log2);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(log2);
+        _EVT__WEBPACK_IMPORTED_MODULE_11__.EVT.fire('closeSettingsPanel');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始抓取用户列表'));
         // 总是慢速抓取
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_慢速抓取'));
-        this.readyGet();
+        try {
+            this.readyGet();
+        }
+        catch (error) {
+            // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+            this.abort(error);
+        }
+    }
+    /** 任务因为异常而终止时的收尾：复位 busy，输出错误日志 */
+    abort(error) {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务已中止'));
+        error !== undefined && console.error(error);
+        this.reset();
     }
     getWantPage() {
         this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type].value;
@@ -56222,8 +56725,20 @@ class ExportFollowingList {
     }
     // 获取用户列表
     async getUserList() {
+        try {
+            await this.requestUserList();
+        }
+        catch (error) {
+            // 出现异常时要复位 busy，否则之后每次点击都只会提示「有同类任务正在执行」
+            this.abort(error);
+        }
+    }
+    async requestUserList() {
         // 账户被警告时终止遍历，不再请求后续的用户列表，也不会导出不完整的列表
+        // canRequestInBatch 已经输出了停止的原因，这里不再重复提示
         if (!(0,_AccountWarning__WEBPACK_IMPORTED_MODULE_0__.canRequestInBatch)('_导出关注列表')) {
+            this.busy = false;
+            this.reset();
             return;
         }
         const offset = this.baseOffset + this.requestTimes * this.limit;
@@ -56242,9 +56757,19 @@ class ExportFollowingList {
             }
         }
         catch {
+            // 请求失败时，等待一段时间再重试，避免短时间内重复请求
+            if (this.retryNumber >= this.retryMax) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取关注列表失败'));
+                this.abort();
+                return;
+            }
+            this.retryNumber++;
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(this.retryWait);
             this.getUserList();
             return;
         }
+        // 请求成功之后，重置重试次数
+        this.retryNumber = 0;
         const users = res.body.users;
         // console.log(users.length, offset)
         if (users.length === 0) {
@@ -56286,17 +56811,24 @@ class ExportFollowingList {
             _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.warning(msg);
         }
         else {
-            let msg = '';
-            if (this.format === 'csv') {
-                await this.exportCSV();
-                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表CSV');
+            try {
+                let msg = '';
+                if (this.format === 'csv') {
+                    await this.exportCSV();
+                    msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表CSV');
+                }
+                else {
+                    await this.exportJSON();
+                    msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表JSON');
+                }
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
             }
-            else {
-                await this.exportJSON();
-                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出关注列表JSON');
+            catch (error) {
+                // 导出失败时要清理已经抓取到的数据，否则它们会混进下一次导出的文件里
+                this.abort(error);
+                return;
             }
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
         }
         this.reset();
     }
@@ -56345,6 +56877,7 @@ class ExportFollowingList {
         this.JSONData = [];
         this.CSVData = [];
         this.requestTimes = 0;
+        this.retryNumber = 0;
     }
 }
 const exportFollowingList = new ExportFollowingList();
@@ -56944,6 +57477,9 @@ const removeWorksOfFollowedUsersOnSearchPage = new RemoveWorksOfFollowedUsersOnS
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   saveAvatarIcon: () => (/* binding */ saveAvatarIcon)
+/* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
@@ -56952,7 +57488,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/imageToIcon */ "./src/ts/utils/imageToIcon.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+/* harmony import */ var _download_SendDownload__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+
 
 
 
@@ -56973,15 +57511,31 @@ class SaveAvatarIcon {
             this.saveAvatarIcon();
         });
     }
-    async saveAvatarIcon() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
-        const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
-        const bigImg = userProfile.body.imageBig; // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
-        const fullSizeImg = bigImg.replace('_170', ''); // 去掉 170 标记，获取头像图片的原图
+    /** 保存用户头像为图标
+     *
+     * @param option 可选。传入 `url` 时直接使用它，不再使用 `API.getUserProfile` 返回的头像 URL；
+     * 传入用户 id 和用户名时，不再请求用户资料 API。
+     * @returns 保存成功时返回 true，失败时返回 false。
+     */
+    async saveAvatarIcon(option = {}) {
+        const userId = option.userId?.trim() || _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
+        const passedURL = typeof option.url === 'string' ? option.url.trim() : '';
+        let userName = option.userName?.trim() || '';
+        let bigImg = passedURL; // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
+        if (!bigImg || !userName) {
+            // 缺少头像 URL 或用户名时，请求用户资料 API 来获取它们
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
+            bigImg = bigImg || userProfile.body.imageBig;
+            userName = userName || userProfile.body.name;
+        }
+        // 去掉文件名末尾的 170 标记，获取头像图片的原图
+        // 如果 URL 里没有 `_170`，这个替换不会改变它，所以对传入的 URL 也可以执行
+        // 注意必须从文件名的末尾去掉这个标记，细节见 Tools.getFullSizeAvatarURL 的说明
+        const fullSizeImg = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getFullSizeAvatarURL(bigImg);
         // 加载图片
-        const imageBlob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_8__.getImg)(fullSizeImg);
+        const imageBlob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_9__.getImg)(fullSizeImg, !option.silent);
         if (!imageBlob) {
-            return;
+            return false;
         }
         const imageURL = URL.createObjectURL(imageBlob);
         // 生成 ico 文件
@@ -56992,16 +57546,19 @@ class SaveAvatarIcon {
             shape: 'fillet',
             bleed: true,
         });
-        // 直接保存到下载文件夹
-        const url = URL.createObjectURL(blob);
-        const name = `${userProfile.body.name}_${userId}_icon.ico`;
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.downloadFile(url, name);
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户头像为图标');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(msg);
+        // 使用 downloads API 保存文件
+        const name = `pixiv users/` + _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(`${userName}_${userId}_icon.ico`);
+        await _download_SendDownload__WEBPACK_IMPORTED_MODULE_8__.SendDownload.noReply(blob, name, 'downloadsAPI', 'overwrite');
+        if (!option.silent) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户头像为图标');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(msg);
+        }
+        return true;
     }
 }
-new SaveAvatarIcon();
+const saveAvatarIcon = new SaveAvatarIcon();
+
 
 
 /***/ }),
@@ -57014,6 +57571,9 @@ new SaveAvatarIcon();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   saveAvatarImage: () => (/* binding */ saveAvatarImage)
+/* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
@@ -57021,7 +57581,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+/* harmony import */ var _download_SendDownload__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+
 
 
 
@@ -57041,32 +57603,49 @@ class SaveAvatarImage {
             this.saveAvatarImage();
         });
     }
-    async saveAvatarImage() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
-        const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
-        const imageURL = userProfile.body.imageBig;
+    /** 保存用户头像
+     *
+     * @param option 可选。传入 `url` 时直接使用它，不再使用 `API.getUserProfile` 返回的头像 URL；
+     * 传入用户 id 和用户名时，不再请求用户资料 API。
+     * @returns 保存成功时返回 true，失败时返回 false。
+     */
+    async saveAvatarImage(option = {}) {
+        const userId = option.userId?.trim() || _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
+        const passedURL = typeof option.url === 'string' ? option.url.trim() : '';
+        let userName = option.userName?.trim() || '';
+        let imageURL = passedURL;
+        if (!imageURL || !userName) {
+            // 缺少头像 URL 或用户名时，请求用户资料 API 来获取它们
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
+            imageURL = imageURL || userProfile.body.imageBig;
+            userName = userName || userProfile.body.name;
+        }
         // 提取图片的后缀名
         const arr = imageURL.split('.');
         const ext = arr[arr.length - 1];
-        // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
-        // 如果是 gif 格式，则不生成其大图 url，因为生成的大图是静态图。不知道 gif 头像是否有大图，以及其 url 是什么样的
-        // 如果是其他格式，则去掉 170 标记，获取头像图片的原图
-        const fullSizeImgURL = ext === 'gif' ? imageURL : imageURL.replace('_170', '');
+        // imageBig 网址可能并不是头像原图，而是裁剪成 170 px 的尺寸，所以需要去掉 `_170` 标记，获取原图 URL。
+        // 有些头像图片是 gif 格式，也同样去掉 170 标记，以获取头像图片的原图
+        // 注意必须从文件名的末尾去掉这个标记，细节见 Tools.getFullSizeAvatarURL 的说明
+        const fullSizeImgURL = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getFullSizeAvatarURL(imageURL);
         // 加载图片
-        const blob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_7__.getImg)(fullSizeImgURL);
+        const blob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_8__.getImg)(fullSizeImgURL, !option.silent);
         if (!blob) {
-            return;
+            return false;
         }
-        // 直接保存到下载文件夹
-        const url = URL.createObjectURL(blob);
-        const name = `${userProfile.body.name}_${userId}_avatar.${ext}`;
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, name);
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户头像');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg);
+        // 使用 downloads API 保存文件
+        const name = `pixiv users/` +
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(`${userName}_${userId}_avatar.${ext}`);
+        await _download_SendDownload__WEBPACK_IMPORTED_MODULE_7__.SendDownload.noReply(blob, name, 'downloadsAPI', 'overwrite');
+        if (!option.silent) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户头像');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg);
+        }
+        return true;
     }
 }
-new SaveAvatarImage();
+const saveAvatarImage = new SaveAvatarImage();
+
 
 
 /***/ }),
@@ -57079,6 +57658,9 @@ new SaveAvatarImage();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   saveUserCover: () => (/* binding */ saveUserCover)
+/* harmony export */ });
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
@@ -57086,7 +57668,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+/* harmony import */ var _download_SendDownload__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/SendDownload */ "./src/ts/download/SendDownload.ts");
+/* harmony import */ var _utils_GetImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/GetImage */ "./src/ts/utils/GetImage.ts");
+
 
 
 
@@ -57106,35 +57690,51 @@ class SaveUserCover {
             this.saveUserCover();
         });
     }
-    async saveUserCover() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
-        const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
-        const bgData = userProfile.body.background;
-        if (bgData === null) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+    /** 保存用户封面图片
+     *
+     * @param option 可选。传入 `url` 时直接使用它，不再使用 `API.getUserProfile` 返回的封面 URL；
+     * 传入用户 id 和用户名时，不再请求用户资料 API。
+     * @returns 保存成功时返回 true，失败时返回 false。
+     */
+    async saveUserCover(option = {}) {
+        const userId = option.userId?.trim() || _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserId();
+        const passedURL = typeof option.url === 'string' ? option.url.trim() : '';
+        let userName = option.userName?.trim() || '';
+        let bgUrl = passedURL || undefined;
+        if (!bgUrl || !userName) {
+            // 缺少封面 URL 或用户名时，请求用户资料 API 来获取它们
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
+            bgUrl = bgUrl || userProfile.body.background?.url;
+            userName = userName || userProfile.body.name;
         }
-        const bgUrl = bgData.url;
         if (!bgUrl) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+            if (!option.silent) {
+                _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+            }
+            return false;
         }
         // 加载图片
-        const blob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_7__.getImg)(bgUrl);
+        const blob = await (0,_utils_GetImage__WEBPACK_IMPORTED_MODULE_8__.getImg)(bgUrl, !option.silent);
         if (!blob) {
-            return;
+            return false;
         }
         // 提取后缀名
         const arr = bgUrl.split('.');
         const ext = arr[arr.length - 1];
-        // 直接保存到下载文件夹
-        const url = URL.createObjectURL(blob);
-        const name = `${userProfile.body.name}_${userId}_cover.${ext}`;
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, name);
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户封面');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg);
+        // 使用 downloads API 保存文件
+        const name = `pixiv users/` +
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(`${userName}_${userId}_cover.${ext}`);
+        await _download_SendDownload__WEBPACK_IMPORTED_MODULE_7__.SendDownload.noReply(blob, name, 'downloadsAPI', 'overwrite');
+        if (!option.silent) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存用户封面');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('✅' + msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg);
+        }
+        return true;
     }
 }
-new SaveUserCover();
+const saveUserCover = new SaveUserCover();
+
 
 
 /***/ }),
@@ -57764,6 +58364,18 @@ class ButtonConfigs {
         {
             id: 'batchFollowUser',
             nameKey: '_批量关注用户JSON',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        {
+            id: 'batchSaveUserAvatar',
+            nameKey: '_批量保存用户头像',
+            categoryLevel1: 'extraFeatures',
+            categoryLevel2: 'FollowingPage',
+        },
+        {
+            id: 'batchSaveUserAvatarIcon',
+            nameKey: '_批量保存用户头像为图标',
             categoryLevel1: 'extraFeatures',
             categoryLevel2: 'FollowingPage',
         },
@@ -86936,8 +87548,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/** 使用 fetch 加载图片并返回 blob 对象 */
-async function getImg(url) {
+/**
+ * 使用 fetch 加载图片并返回 blob 对象
+ * @param url 图片的 URL
+ * @param showErrorMsg 加载失败时是否使用消息框显示错误信息。默认显示。
+ * 批量保存图片时应该传入 false，由调用方统一报告失败的数量，
+ * 否则每个失败的图片都会弹出一个消息框，这些消息框会堆叠在页面上。
+ */
+async function getImg(url, showErrorMsg = true) {
     let blob = null;
     try {
         const response = await fetch(url);
@@ -86945,13 +87563,14 @@ async function getImg(url) {
         return blob;
     }
     catch (error) {
-        // 在 Firefox 浏览器里，由于图片的域名不同，会产生 CORS 错误，无法获取图片数据
+        // 在 Firefox 浏览器里，由于图片的域名不同，有可能会因为严格的 CORS 限制导致无法获取图片数据
+        // 通常能够成功
         let msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取图片失败');
         if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.isFirefox) {
             msg += '<br>' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_Firefox的跨域策略导致了请求失败');
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(msg);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg, 'getImageFailed');
+        showErrorMsg && _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(msg);
         return null;
     }
 }

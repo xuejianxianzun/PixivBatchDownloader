@@ -7,11 +7,13 @@
 - 如果有下面提到的配置脚本，则需要严格遵守此文档的说明；有新的经验、踩坑的话也可以更新此文档。
 - 在其他人的电脑上，情况可能不同，也没有下面提到的配套脚本，此时该文档仅供参考。
 
-配套脚本在 `~/.workbuddy/skills/browser-layout-probe/`：
+配套脚本在 `~/.workbuddy/skills/browser-layout-probe/`（2026-10-24 已按本文重写，旧的 `cdp-daemon.mjs` / `cdp-cli.mjs` 已删除）：
 
-- `cdp-attach.mjs` —— 命令行入口（列标签页 / 执行表达式）
+- `cdp-attach.mjs` —— 命令行入口（列表 / 选页执行 / 新开标签 / 关闭标签 / 状态 / 停止会话）
 - `cdp-session.mjs` —— 常驻会话服务（复用一条已授权的连接）
 - `cdp-lib.mjs` —— 两者共用的 CDP 底层
+
+会话默认监听 `127.0.0.1:9339`（可用 `--listen` 改；CLI 用环境变量 `CDP_LISTEN=<端口>` 指定）。
 
 零依赖，只用 Node 22+ 内置的 `fetch` / `WebSocket`，不需要装 Playwright / Puppeteer。
 
@@ -38,7 +40,7 @@
 | 列标签页 | `/json/list` | `Target.getTargets`，字段名是 **`targetInfos`**（不是 `targets`） |
 | 在页面执行 | 各 target 自己的 ws | `Target.attachToTarget({flatten:true})` 拿 `sessionId`，之后每条命令都要带上它 |
 
-脚本会自动判断属于哪一种。
+⚠️ 本机脚本只实现**新式端点**（`chrome://inspect` 开关 + `ws://127.0.0.1:9222/devtools/browser`）；传统 `--remote-debugging-port` 的 `/json/list` 那套没有实现。
 
 > ⚠️ 最容易误判的一点：**`/json/version` 返回 404 不代表端口被别的程序占用** ——
 > 新式端点本来就不提供 HTTP 发现接口。要判断「是不是 Chrome 的端点」，只能去连那条
@@ -65,7 +67,8 @@ node cdp-attach.mjs expr.js --match=pixiv.net/artworks --pick=0
 node cdp-attach.mjs --stop-session
 ```
 
-`cdp-attach.mjs` 检测到会话不存在时也会**自动拉起**一个，所以多数情况直接跑命令就行。
+⚠️ `cdp-attach.mjs` **不会**自动拉起会话（本机实测：detached spawn 会随前台命令一起被回收，
+等于每次都重新授权）。没有会话时它会直接打印启动命令，照抄即可。
 
 > ⚠️ **启动方式很重要**：如果用「命令结束后即回收」的方式（例如某次临时 shell 里 detached
 > spawn）启动，前台命令一结束，守护进程就跟着没了 —— 下一次又会从零开始，白白再弹一次授权。
@@ -97,19 +100,27 @@ node cdp-attach.mjs --stop-session
 ## 三、命令速查
 
 ```bash
-node cdp-attach.mjs --list                              # 列标签页
-node cdp-attach.mjs expr.js --match=<子串> --pick=N     # 按 URL/title 选页执行
-node cdp-attach.mjs expr.js --new=<url>                 # 新开标签页（不打扰当前页面）
-  --ua=mobile --width=394 --height=854 --dsf=3          #   模拟 iPhone 环境
-  --wait-for=<选择器> --wait-timeout=25000              #   等元素出现（等脚本注入完）
-  --close                                               #   跑完关闭新标签页
-node cdp-attach.mjs --close-match=<子串>                # 批量关标签页（清理遗留）
-node cdp-attach.mjs --stop-session                      # 断开会话
+node cdp-attach.mjs --list [--match=<子串>] [--all] [--json]   # 列标签页（含 context / 窗口 / 屏幕坐标）
+node cdp-attach.mjs expr.js --match=<子串> [--pick=N]          # 按 URL/title 选页执行
+node cdp-attach.mjs expr.js --target=<id前缀>                  # 直接指定 target
+node cdp-attach.mjs --eval="<表达式>" --match=<子串>           # 不写文件，直接执行一小段表达式
+node cdp-attach.mjs expr.js --new=<url>                        # 新开标签页（不打扰当前页面）
+  --window=<windowId> | --context=<browserContextId>           #   开在指定窗口/ profile
+  --ua=mobile [--width=394 --height=854 --dsf=3]               #   模拟 iPhone（导航前设置；只写 --ua=mobile 时默认 394x854@3x）
+  --wait-for=<选择器> --wait-timeout=25000                     #   等元素出现（等脚本注入完）
+  --close                                                      #   跑完关闭新标签页
+node cdp-attach.mjs --close-match=<子串>                       # 批量关标签页（清理遗留）
+node cdp-attach.mjs --status                                   # 会话健康
+node cdp-attach.mjs --stop-session                             # 断开会话
 ```
 
-`expr.js` 必须是 async IIFE，以 `return JSON.stringify(...)` 结束。
+`expr.js` 必须是 async IIFE，以 `return JSON.stringify(...)` 结束；返回字符串时原样打印，其它类型打印 JSON。
 
-⚠️ **默认不导航**。`--navigate` 会改掉用户正在看的页面，只在明确需要时用。
+⚠️ **默认不导航**。`--navigate=<url>` 会改掉用户正在看的页面，只在明确需要时用。
+
+⚠️ `--new` 想开在**指定窗口**时要传 `--window=<windowId>`（或 `--context=<browserContextId>`）：
+脚本会找该窗口里的 `chrome://` 页面用 `window.open` 开标签；找不到时会退回 `Target.createTarget`
+（会落在主屏窗口）。
 
 ## 四、踩过的坑
 
@@ -125,7 +136,9 @@ node cdp-attach.mjs --stop-session                      # 断开会话
   —— 不是两个实例在互相同步；
 - **但 profile 之间仍可区分**：非主 profile 的页面在 `Target.getTargets` 里带有**独立的
   `browserContextId`**（主 profile 的页面是 default context）。据此可以精确筛选某个 profile
-  的页面；`Target.createTarget({url, browserContextId})` 还能让新标签**只开在该 profile 的窗口**里；
+  的页面；⚠️ 但 `Target.createTarget({url, browserContextId})` 对 profile 级 context **不可用**
+  （实测报 `Failed to find browser context with id`）；要开在指定窗口，用该窗口的 WebUI 页面
+  `window.open`（`cdp-attach.mjs --new --window=` 已封装）；
 - ⚠️ `Target.getBrowserContexts` **不会列出**这些 profile 级 context（返回空数组），
   别用它判断，直接读每个 target 的 `browserContextId` 字段。
 

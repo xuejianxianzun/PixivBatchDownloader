@@ -487,7 +487,9 @@ class Tools {
   }, 200)
 
   /** 创建下载面板上的通用按钮 */
-  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+  // 注意：
+  // 1. 如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+  // 2. 当其他模块里新增一个使用该方法添加的按钮之后，需要在 src/ts/setting/ButtonConfigs.ts 中添加对应的配置
   static addBtn(
     slot: string,
     text: string,
@@ -880,6 +882,26 @@ class Tools {
     const href = `https://www.pixiv.net/users/${idNum}`
     // 如果传入了 userName，则使用 userName 作为链接文本，否则使用 id 作为链接文本
     return `<a href="${href}" target="_blank">${userName || idNum}</a>`
+  }
+
+  /**
+   * 把头像图片的 URL 转换为头像原图的 URL，也就是去掉文件名末尾的 170 尺寸标记。
+   *
+   * `API.getUserProfile` 返回的 imageBig、以及用户列表里的 profileImageUrl 都不是头像原图，
+   * 而是裁剪成 170 px 的版本，URL 形如 `https://i.pximg.net/user-profile/img/xxxxx_170.png`。
+   *
+   * ⚠️ 必须从文件名的末尾替换 `_170`：因为用户 id 后面那段哈希值里也可能含有 `_170`，
+   * 例如：
+   * `https://i.pximg.net/user-profile/img/2018/02/11/16/01/14/13811157_1709415c82b690d3dbfdebc252abb223_170.png`
+   * 从前面替换（`String.replace` 的默认行为）会得到
+   * `.../138111579415c82b690d3dbfdebc252abb223_170.png`，这是错误的 URL。
+   *
+   * @param imageURL 头像图片的 URL。没有尺寸标记时原样返回。
+   */
+  static getFullSizeAvatarURL(imageURL: string) {
+    // 匹配文件名末尾的 `_170` 和它后面的扩展名（以及可能存在的查询字符串）
+    // 没有匹配到时原样返回，所以已经是原图的 URL 不会被改动
+    return imageURL.replace(/_170(\.[^./?]+)(\?[^/]*)?$/, '$1$2')
   }
 
   // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。

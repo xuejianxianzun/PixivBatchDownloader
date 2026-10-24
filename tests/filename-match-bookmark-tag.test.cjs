@@ -42,6 +42,12 @@ function loadFileName(settings, bookmarkTags) {
         handleWindowsReservedName: (str) => str,
       },
     },
+    './FileNameNormalize': {
+      fileNameNormalize: {
+        removeStartChar: (str) => str,
+        handleEdgeCases: (str) => str,
+      },
+    },
     './Tools': {
       Tools: {
         checkAIFromTags: () => false,

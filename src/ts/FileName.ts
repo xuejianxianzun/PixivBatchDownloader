@@ -9,6 +9,7 @@ import { Config } from './Config'
 import { bookmarkTags } from './BookmarkTags'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
+import { fileNameNormalize } from './FileNameNormalize'
 import { Tools } from './Tools'
 import { log } from './Log'
 import { lang } from './Language'
@@ -363,7 +364,7 @@ class FileName {
     }
 
     // 移除文件名开头的不可用的特殊字符
-    result = this.removeStartChar(result)
+    result = fileNameNormalize.removeStartChar(result)
     // 测试用例
     // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
     // console.log(this.removeStartChar(testStr))
@@ -377,7 +378,7 @@ class FileName {
     result = result.replace(/\/{2,100}/g, '/')
 
     // 处理一些边界情况
-    result = this.handleEdgeCases(result)
+    result = fileNameNormalize.handleEdgeCases(result)
 
     return result
   }
@@ -858,31 +859,6 @@ class FileName {
     return allPart.join('/')
   }
 
-  // 不能出现在文件名开头的一些特定字符
-  private readonly checkStartCharList = ['/', ' ']
-
-  // 检查文件名开头是否含有特定字符
-  private checkStartChar(str: string) {
-    for (const check of this.checkStartCharList) {
-      if (str.startsWith(check)) {
-        return true
-      }
-    }
-    return false
-  }
-
-  /** 移除文件名开头的特定字符 */
-  private removeStartChar(str: string) {
-    while (this.checkStartChar(str)) {
-      for (const check of this.checkStartCharList) {
-        if (str.startsWith(check)) {
-          str = str.replace(check, '')
-        }
-      }
-    }
-    return str
-  }
-
   private readonly atList = ['@', '＠']
   /** 移除用户名里的 @ 和后续字符 */
   public removeAtFromUsername(name: string) {
@@ -911,31 +887,6 @@ class FileName {
     }
 
     return rule
-  }
-
-  /** 如果任意一层路径或文件名是 Windows 保留文件名，则在其后添加这个字符串 */
-  private readonly addStr = '[WindowsReservedName]'
-
-  /** 处理一些边界情况 */
-  public handleEdgeCases(string: string) {
-    // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    string = string.replace(/\/{2,100}/g, '/')
-
-    // 对每一层路径和文件名进行处理
-    const parts = string.split('/')
-
-    for (let i = 0; i < parts.length; i++) {
-      // 去掉每层路径首尾的空格
-      // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-      parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
-
-      // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
-      parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
-    }
-
-    // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
-    string = parts.filter((part) => part !== '').join('/')
-    return string
   }
 
   // 文件名超长的一种测试情况：

@@ -328,7 +328,7 @@ class Bookmark {
             this.toastDebounce(msg)
             return status
           case 404:
-            log.error(`${id} 404 Not Found`)
+            log.error(workLink + ' 404 Not Found')
             return status
           default:
             log.error(
@@ -368,7 +368,7 @@ class Bookmark {
       // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
       const msg =
         completeMsg +
-        ' ' +
+        '<br>' +
         lang.transl('_有x个作品失败请再次执行重试', failed.toString())
       log.error(msg)
       toast.error(lang.transl('_收藏作品完毕但是有一些失败了'), {
