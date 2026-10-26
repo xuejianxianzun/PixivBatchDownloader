@@ -29,9 +29,13 @@ class ConvertOldSettings {
       '2': 'vertical',
       '3': 'userSet',
     },
+    // widthTag 的值改过两次：最早是 '1' / '-1'，之后是 'yes' / 'no'，现在是 'origin' / 'transl' / 'none'。
+    // 这里一次性把两种旧值都转换成现在的值：旧值 yes 对应“添加作品的原始标签”，no 对应“不添加”
     widthTag: {
-      '1': 'yes',
-      '-1': 'no',
+      '1': 'origin',
+      '-1': 'none',
+      yes: 'origin',
+      no: 'none',
     },
     restrict: {
       '1': 'yes',
@@ -89,6 +93,16 @@ class ConvertOldSettings {
 
   /** 传入设置名和旧的设置值，返回新的设置值 */
   public convertString(key: settingKey, value: oldValue): string {
+    // 「复制作品信息的格式」以前用 {n} 作为换行标记，
+    // 现在改为直接用回车换行，{n} 这个标记已经废弃了，
+    // 所以每次传入这个设置的值时都转换一次。
+    // 这样本地存储里的旧设置、导入的配置文件，以及用户手动输入的 {n} 都会变成换行符。
+    // 顺便把 CRLF、CR 统一成 LF：导入的配置文件可能是 Windows 换行，
+    // 如果不统一，复制为 html 格式时行尾会残留多余的 \r。
+    if (key === 'copyWorkInfoFormat') {
+      return value.replace(/\{n\}/g, '\n').replace(/\r\n?/g, '\n')
+    }
+
     const map = this.stringSettingsMap[key]
     // 如果这是一个可以转换的设置
     if (map) {

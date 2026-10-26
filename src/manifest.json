@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader HongYe",
-  "version": "19.5.0",
+  "version": "19.6.0",
   "manifest_version": 3,
   "description": "__MSG_extDescription__",
   "default_locale": "zh_CN",
@@ -71,6 +71,7 @@
   "permissions": [
     "downloads",
     "storage",
+    "unlimitedStorage",
     "declarativeNetRequestWithHostAccess",
     "webRequest"
   ],
@@ -100,6 +101,7 @@
         "lib/gif.worker.js",
         "lib/listen_history_change.js",
         "lib/api_interceptor.js",
+        "lib/bookmark_tags_observer.js",
         "lib/opencc-cn2t.js",
         "lib/opencc-t2cn.js",
         "lib/opencc.worker.js",

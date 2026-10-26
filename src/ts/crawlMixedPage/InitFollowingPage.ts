@@ -11,6 +11,7 @@ import { pageType } from '../PageType'
 import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
 import { exportFollowingList } from '../pageFunciton/ExportFollowingList'
 import { batchFollowUser } from '../pageFunciton/BatchFollowUser'
+import { batchSaveUserAvatar } from '../pageFunciton/BatchSaveUserAvatar'
 import { filterInactiveUsers } from '../pageFunciton/FilterInactiveUsers'
 import { IDData } from '../store/StoreType'
 import { findDeactivatedUsers } from '../FindDeactivatedUsers'
@@ -112,6 +113,26 @@ class InitFollowingPage extends InitPageBase {
     ).addEventListener('click', async () => {
       findDeactivatedUsers.check()
     })
+
+    this.addInitPageBtn(
+      'otherBtns',
+      '_批量保存用户头像',
+      '',
+      'batchSaveUserAvatar',
+      'brand'
+    ).addEventListener('click', async () => {
+      batchSaveUserAvatar.start('image')
+    })
+
+    this.addInitPageBtn(
+      'otherBtns',
+      '_批量保存用户头像为图标',
+      '',
+      'batchSaveUserAvatarIcon',
+      'brand'
+    ).addEventListener('click', async () => {
+      batchSaveUserAvatar.start('icon')
+    })
   }
 
   protected getWantPage() {
@@ -205,7 +226,10 @@ class InitFollowingPage extends InitPageBase {
     if (users.length === 0) {
       // 用户列表抓取完毕
       if (this.userList.length < res.body.total) {
-        log.warning(lang.transl('_提示有些用户可能已经注销'))
+        log.warning(
+          lang.transl('_提示有些用户可能已经注销'),
+          'tipUserMayDeactivated'
+        )
       }
       return this.getUserListComplete()
     }

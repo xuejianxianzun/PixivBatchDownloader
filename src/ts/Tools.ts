@@ -116,6 +116,8 @@ class Tools {
 
   /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
   static getIllustId(url?: string) {
+    // 在 Unlisted 页面里会忽略传入的 url，固定返回当前页面网址里的 id
+    // 这不会导致错误，因为在 Unlisted 页面里，只会有一个作品（就是网址里的 id 对应的作品），不会有其他作品。
     if (pageType.type === pageType.list.Unlisted) {
       return Utils.getURLPathField(window.location.pathname, 'unlisted')
     }
@@ -142,6 +144,8 @@ class Tools {
   /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
   // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
+    // 在 Unlisted 页面里会忽略传入的 url，固定返回当前页面网址里的 id
+    // 这不会导致错误，因为在 Unlisted 页面里，只会有一个作品（就是网址里的 id 对应的作品），不会有其他作品。
     if (pageType.type === pageType.list.Unlisted) {
       return Utils.getURLPathField(window.location.pathname, 'unlisted')
     }
@@ -254,21 +258,27 @@ class Tools {
   /** 传入一个小说或系列小说的 DOM 元素，重新对它进行检查，返回该元素现在的真实 IDData。
    *
    * 优先查找小说 ID，其次查找系列小说 ID，否则返回 null */
-  static getNovelOrSeriesIDData(el?: HTMLElement): IDData | null {
+  static getNovelOrSeriesIDData(el?: HTMLElement): {
+    type: 'novels' | 'novelSeries'
+    id: string
+  } | null {
     if (!el) {
       return null
     }
 
-    const novelLink = el.querySelector<HTMLAnchorElement>(
-      `a[href*="/novel/show.php?id="]`
-    )
+    // 缩略图元素本身可能就是链接（例如移动端的一些选择器）
+    const novelLink =
+      el.nodeName === 'A'
+        ? (el as HTMLAnchorElement)
+        : el.querySelector<HTMLAnchorElement>(`a[href*="/novel/show.php?id="]`)
+
     if (novelLink) {
-      const novelId = Tools.getNovelId(novelLink.href)
-      // 小说 id 仍然存在，返回小说 IDData
-      if (novelId) {
+      // 直接从链接里提取小说 id
+      const test = novelLink.href.match(/novel\/show\.php\?id=(\d+)/)
+      if (test && test[1]) {
         return {
           type: 'novels',
-          id: novelId,
+          id: test[1],
         }
       }
     }
@@ -477,7 +487,9 @@ class Tools {
   }, 200)
 
   /** 创建下载面板上的通用按钮 */
-  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+  // 注意：
+  // 1. 如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性，也就是以下划线 _ 开头，类型为 LangTextKey
+  // 2. 当其他模块里新增一个使用该方法添加的按钮之后，需要在 src/ts/setting/ButtonConfigs.ts 中添加对应的配置
   static addBtn(
     slot: string,
     text: string,
@@ -635,6 +647,9 @@ class Tools {
    *
    * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
    *
+   * 'both' 的排列方式默认是「全部原版 tag + 全部翻译后的 tag」。如果传入 interleave 为 true，
+   * 则改成「一个原版 tag 后面跟着它的翻译」，一一对应（需要成对展示时使用）。
+   *
    * 可选参数 purpose:
    *
    * 'save' 表示提取标签用于保存抓取结果（会在文件名里使用），'check' 表示提取标签用于检查、显示。
@@ -652,17 +667,22 @@ class Tools {
   static extractTags(
     data: ArtworkData | NovelData,
     type: 'origin' | 'transl' | 'both' = 'origin',
-    purpose: 'save' | 'check' = 'check'
+    purpose: 'save' | 'check' = 'check',
+    /** 'both' 时，是否让一个原标签和它的翻译标签相邻（=true）还是先返回全部原标签、再返回全部翻译标签（=false）。
+     *
+     * 默认 false。需要成对展示时（例如收藏面板里的标签列表）才传 true */
+    interleave = false
   ) {
     const tags: string[] = []
-    const tagsTransl: string[] = []
+    // 翻译后的 tag。它的下标与 tags 一一对应；某个 tag 没有翻译、或者不需要翻译时，这个位置是空的（稀疏数组）
+    const tagsTransl: (string | undefined)[] = []
 
     const tagArr: artworkDataTagsItem[] | novelDataTagsItem[] =
       data.body.tags.tags
 
     for (const tagData of tagArr) {
       // 添加原版 tag
-      tags.push(tagData.tag)
+      const index = tags.push(tagData.tag) - 1
 
       // 添加翻译的 tag
       // 备注：在小说的数据里，tag 都没有翻译
@@ -691,31 +711,51 @@ class Tools {
             }
           }
 
-          if (
-            originTagIsChineseAndTranslatedTagIsEnglish &&
-            purpose === 'save'
-          ) {
+          const useOriginTag =
+            originTagIsChineseAndTranslatedTagIsEnglish && purpose === 'save'
+
+          if (type === 'transl') {
             // 当原标签是中文，翻译后的标签是纯英文
             // 并且用途是保存抓取结果时，则使用原标签，而不是翻译后的标签
             // 这是为了缩短文件名，并优先使用中文作为文件名
-            tagsTransl.push(tagData.tag)
-          } else {
-            // 如果原标签不是中文或者翻译后的标签不是纯英文，直接使用翻译后的标签
-            tagsTransl.push(tagData.translation.en)
+            tagsTransl[index] = useOriginTag
+              ? tagData.tag
+              : tagData.translation.en
+          } else if (!useOriginTag) {
+            // 'both' 时，如果翻译后的标签和原标签相同，就不必再保存一次（原标签已经添加了）
+            tagsTransl[index] = tagData.translation.en
           }
-        } else {
-          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签
-          tagsTransl.push(tagData.tag)
+        } else if (type === 'transl') {
+          // 没有翻译的 tag（图像作品里没翻译的 tag、小说作品的 tag）时，使用原标签。
+          // 这样翻译列表里依然会有这个 tag，不会影响按翻译后的 tag 进行检查
+          tagsTransl[index] = tagData.tag
         }
+        // 'both' 时，没有翻译的 tag 不需要添加到 tagsTransl，因为原标签已经添加了
       }
     }
+
+    // 翻译后的标签。稀疏数组里的空位要先去掉
+    const translTags = tagsTransl.filter((tag) => tag !== undefined) as string[]
 
     if (type === 'origin') {
       return tags
     } else if (type === 'transl') {
-      return Array.from(new Set(tagsTransl))
+      return Array.from(new Set(translTags))
+    } else if (!interleave) {
+      // 'both'：全部原标签在前，全部翻译标签在后（这是以前的顺序，不能随意改变，
+      // 例如文件名里的 {tags_translate} 就依赖这个顺序）
+      return Array.from(new Set(tags.concat(translTags)))
     } else {
-      return Array.from(new Set(tags.concat(tagsTransl)))
+      // 'both'：依次添加原标签和它对应的翻译标签，这样两者是相邻的
+      const result: string[] = []
+      tags.forEach((tag, index) => {
+        result.push(tag)
+        const transl = tagsTransl[index]
+        if (transl !== undefined && transl !== tag) {
+          result.push(transl)
+        }
+      })
+      return Array.from(new Set(result))
     }
   }
 
@@ -842,6 +882,26 @@ class Tools {
     const href = `https://www.pixiv.net/users/${idNum}`
     // 如果传入了 userName，则使用 userName 作为链接文本，否则使用 id 作为链接文本
     return `<a href="${href}" target="_blank">${userName || idNum}</a>`
+  }
+
+  /**
+   * 把头像图片的 URL 转换为头像原图的 URL，也就是去掉文件名末尾的 170 尺寸标记。
+   *
+   * `API.getUserProfile` 返回的 imageBig、以及用户列表里的 profileImageUrl 都不是头像原图，
+   * 而是裁剪成 170 px 的版本，URL 形如 `https://i.pximg.net/user-profile/img/xxxxx_170.png`。
+   *
+   * ⚠️ 必须从文件名的末尾替换 `_170`：因为用户 id 后面那段哈希值里也可能含有 `_170`，
+   * 例如：
+   * `https://i.pximg.net/user-profile/img/2018/02/11/16/01/14/13811157_1709415c82b690d3dbfdebc252abb223_170.png`
+   * 从前面替换（`String.replace` 的默认行为）会得到
+   * `.../138111579415c82b690d3dbfdebc252abb223_170.png`，这是错误的 URL。
+   *
+   * @param imageURL 头像图片的 URL。没有尺寸标记时原样返回。
+   */
+  static getFullSizeAvatarURL(imageURL: string) {
+    // 匹配文件名末尾的 `_170` 和它后面的扩展名（以及可能存在的查询字符串）
+    // 没有匹配到时原样返回，所以已经是原图的 URL 不会被改动
+    return imageURL.replace(/_170(\.[^./?]+)(\?[^/]*)?$/, '$1$2')
   }
 
   // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
@@ -1158,7 +1218,7 @@ class Tools {
 
   /**根据作品类型字符串，返回对应的数字 */
   static getWorkTypeNumber(
-    workTypeString: WorkTypeString
+    workTypeString: WorkTypeString | IDTypeString
   ): 0 | 1 | 2 | 3 | undefined {
     switch (workTypeString) {
       case 'illusts':
@@ -1458,7 +1518,10 @@ class Tools {
     return null
   }
 
-  /**根据文本长度，动态设置 textarea 的高度 */
+  /**根据文本长度，动态设置 textarea 的高度。
+   *
+   * 这个方法适合处理不换行的长文本，根据内容长度调整行数。
+   */
   static setRows(el: HTMLTextAreaElement | null) {
     if (!el) {
       return

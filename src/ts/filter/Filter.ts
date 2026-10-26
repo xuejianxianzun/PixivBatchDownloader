@@ -14,6 +14,7 @@ import { Tools } from '../Tools'
 import { showEnabledFilter } from './ShowEnabledFilter'
 import { workSelection } from '../WorkSelection'
 import { isLangInList } from '../utils/LangCode'
+import { followingList } from '../FollowingList'
 
 /** 过滤选项，所有字段都是可选的 */
 export interface FilterOption {
@@ -21,7 +22,18 @@ export interface FilterOption {
   aiType?: 0 | 1 | 2
   id?: number | string
   workType?: WorkType
-  /** ID 类型。注意有可能是 novelSeries，一些过滤器不会检查这个类型 */
+  /** ID 类型。
+   * 注意： ID 类型可能是系列小说 novelSeries。
+   * 系列的一些属性与系列内部单篇小说的属性可能不同，例如 tags、createDate。
+   * 所以当 ID 类型是 novelSeries 时，只应该传递系列相关的必要数据，避免传递会和单篇小说混淆的数据。
+   *
+   * 大部分过滤方法都是为了过滤单个作品而设计的，不适合用来过滤系列小说。
+   * 所以一些过滤方法会对 novelSeries 早退；
+   * 有些过滤方法没有判断 novelSeries，可能会把它当做单个作品来处理，这是比较危险的。
+   *
+   * 可以安全传递的系列数据，可以参考：
+   * src/ts/crawlMixedPage/InitWatchListNovelPage.ts 里的 filterOpt。
+   */
   IDTypeString?: IDTypeString
   pageCount?: number
   tags?: string[]
@@ -57,6 +69,8 @@ export interface FilterOption {
    * 没有传递这个数据时（例如只知道系列 id），对应的过滤器会跳过检查。
    */
   language?: string
+  /** 文件的扩展名，例如 jpg、png 等。仅在需要检查文件类型时传递使用 */
+  ext?: string
 }
 
 /**作品类型的数字表示。
@@ -115,6 +129,18 @@ class Filter {
           ': ' +
           this.getWorkTypeText(option.workType),
         'excludeWorkByWorkType' + option.workType
+      )
+      return false
+    }
+
+    // 检查图片格式设置（只对插画和漫画生效）
+    if (
+      !this.checkImageFormat(option.workType, option.IDTypeString, option.ext)
+    ) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_你排除了图片格式x', option.ext!),
+        'excludeWorkByImageFormat' + option.ext
       )
       return false
     }
@@ -301,6 +327,11 @@ class Filter {
       return false
     }
 
+    // 检查作品是否来自被允许的用户（「来自用户」过滤器）
+    if (!this.checkFollowedUser(option.userId)) {
+      return false
+    }
+
     // 检查针对特定用户屏蔽的 tags
     if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
       log.warning(
@@ -398,6 +429,49 @@ class Filter {
       default:
         return true
     }
+  }
+
+  /** 检查图片的扩展名是否被用户排除了。只对插画和漫画进行检查。
+   *
+   * - 没有传递 ext 时跳过检查
+   * - 只检查 jpg 和 png 两种扩展名，其他扩展名跳过检查
+   * - 用户没有排除这个格式时跳过检查
+   * - 用户排除了这个格式，且作品是插画或漫画时返回 false */
+  public checkImageFormat(
+    workType?: FilterOption['workType'],
+    IDTypeString?: FilterOption['IDTypeString'],
+    ext?: string
+  ) {
+    // 没有传递扩展名时跳过检查
+    if (!ext) {
+      return true
+    }
+
+    // 设置值和对比时的值都不带点，所以先去掉扩展名里的点
+    ext = ext.replaceAll('.', '')
+
+    // 目前只检查 jpg 和 png 两种扩展名
+    if (ext !== 'jpg' && ext !== 'png') {
+      return true
+    }
+
+    // 用户没有排除这个格式
+    if (ext === 'jpg' && settings.downJPGImg) {
+      return true
+    }
+    if (ext === 'png' && settings.downPNGImg) {
+      return true
+    }
+
+    // 用户排除了这个格式。这个过滤器只对插画和漫画生效，其他类型的作品不受影响
+    if (workType === 0 || workType === 1) {
+      return false
+    }
+    if (IDTypeString === 'illusts' || IDTypeString === 'manga') {
+      return false
+    }
+
+    return true
   }
 
   private checkDownTypeByAge(xRestrict?: FilterOption['xRestrict']) {
@@ -1175,6 +1249,54 @@ class Filter {
     }
 
     return !result
+  }
+
+  /** 检查作品是否来自被允许的用户（「来自用户」过滤器）。
+   *
+   * 只检查用户未勾选的子选项：
+   * - 用户未勾选「已关注的用户」时，排除已关注用户的作品；
+   * - 用户未勾选「未关注的用户」时，排除未关注用户的作品。
+   *
+   * 注意：这个检查依赖关注用户列表。如果关注列表尚未加载（following 为空数组），
+   * 则无法判断用户是否已关注，此时把用户视为「未关注」。 */
+  private checkFollowedUser(userId: FilterOption['userId']) {
+    if (userId === undefined) {
+      return true
+    }
+
+    // 两个子选项都勾选时不会排除任何作品，此时不需要检查关注列表
+    if (settings.crawlFollowedUsers && settings.crawlNonFollowedUsers) {
+      return true
+    }
+
+    // 检查这个用户是否已被关注
+    const isFollowed = followingList.following.includes(userId)
+
+    // 用户未勾选「已关注的用户」，而这个作品来自已关注的用户，则排除它
+    if (!settings.crawlFollowedUsers && isFollowed) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_来自用户带高亮') +
+          ': ' +
+          lang.transl('_已关注的用户'),
+        'excludeWorkByFollowedUser'
+      )
+      return false
+    }
+
+    // 用户未勾选「未关注的用户」，而这个作品来自未关注的用户，则排除它
+    if (!settings.crawlNonFollowedUsers && !isFollowed) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_来自用户带高亮') +
+          ': ' +
+          lang.transl('_未关注的用户'),
+        'excludeWorkByFollowedUser'
+      )
+      return false
+    }
+
+    return true
   }
 
   // 检查文件体积

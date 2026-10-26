@@ -215,6 +215,7 @@ function createHarness() {
     both('Config', { Config: { retryTime: 200000, mobile: false } })
     both('store/States', { states })
     both('store/Store', { store })
+    both('BookmarkTags', { bookmarkTags: { add() {} } })
     both('Token', { token: tokenStub })
     both('Bookmark', { bookmark: extra.bookmark })
     both('PPDTask', { ppdTask: { register() {} } })

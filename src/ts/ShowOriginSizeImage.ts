@@ -12,7 +12,7 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { cacheWorkData } from './store/CacheWorkData'
 import { toast } from './Toast'
 import { states } from './store/States'
-import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
+import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
 
 interface Style {
   imgW: number
@@ -85,6 +85,9 @@ class ShowOriginSizeImage {
   }
 
   private set show(val: boolean) {
+    // 关闭时，要判断它之前是否处于显示状态。因为在显示另一个作品的原图之前，
+    // 也会先把 show 设为 false，此时不应该触发“已关闭”的事件
+    const wasShow = this._show
     this._show = val
     states.showOriginSizeImageIsShow = val
     if (val) {
@@ -115,6 +118,11 @@ class ShowOriginSizeImage {
       if (this.previewUgoira) {
         this.previewUgoira.destroy()
         this.previewUgoira = null as unknown as PreviewUgoira
+      }
+
+      // 之前是显示状态，现在关闭了
+      if (wasShow) {
+        EVT.fire('hideOriginSizeImage')
       }
     }
   }
@@ -228,6 +236,9 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
+        // ⚠️ 这里不要判断 bookmarkPanel.isOpen：原图显示时收藏面板只是被隐藏了，它依然处于打开状态，
+        // 如果因为这样就跳过按键处理，原图区域就无法用 Esc 关闭了。
+        // 面板可见时原图区域不会显示（this.show 为 false），所以这个判断也不需要。
         if (!this.workId || !this.show) {
           return
         }
@@ -258,7 +269,13 @@ class ShowOriginSizeImage {
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
+
+          // 启用了收藏面板时，先关闭原图区域，否则原图会挡住收藏面板
+          if (settings.showBookmarkPanel) {
+            this.show = false
+          }
+
+          addBookmarkFromWorkThumb.add(this.workData, this.workEL)
         }
 
         // 按 Esc 键时取消预览

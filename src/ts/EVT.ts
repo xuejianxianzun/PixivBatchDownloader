@@ -3,6 +3,7 @@ import { IDData, IDTypeString, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
+import { ArtworkData } from './crawl/CrawlResult'
 
 type eventNames = keyof typeof EVT.list
 
@@ -104,6 +105,8 @@ class EVENT {
     settingsPanelClosed: 'settingsPanelClosed',
     /** 当下载器在页面上创建的作品列表全部完成时触发 */
     worksUpdate: 'worksUpdate',
+    /** 当需要清空收藏面板的“常用的标签”列表时触发 */
+    clearBookmarkPanelCommonTags: 'clearBookmarkPanelCommonTags',
     /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
     clearDownloadRecord: 'clearDownloadRecord',
     /** 当需要导出下载记录时触发 */
@@ -122,6 +125,8 @@ class EVENT {
     exportResult: 'exportResult',
     /** 当需要导入抓取结果时触发 */
     importResult: 'importResult',
+    /** 抓取结果导入完成时触发（导入的数据已经保存到 store 之后） */
+    importResultComplete: 'importResultComplete',
     /** 当需要保存用户头像时触发 */
     saveAvatarImage: 'saveAvatarImage',
     /** 当需要保存用户头像为图标时触发 */
@@ -161,6 +166,8 @@ class EVENT {
     callShowOriginSizeImage: 'callShowOriginSizeImage',
     /** 显示原比例图片时触发 */
     showOriginSizeImage: 'showOriginSizeImage',
+    /** 关闭原比例图片时触发 */
+    hideOriginSizeImage: 'hideOriginSizeImage',
     /** 语言类型改变时触发 */
     langChange: 'langChange',
     /** 开始定时抓取时触发 */
@@ -173,6 +180,10 @@ class EVENT {
     sendBrowserDownload: 'sendBrowserDownload',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+    /**在图片查看器里点击「作品信息」按钮时触发，用于切换详情面板。数据是 { anchor, workData } */
+    toggleImageViewerDetailInfo: 'toggleImageViewerDetailInfo',
+    /**需要隐藏由图片查看器打开的详情面板时触发。点击查看器里的其他按钮、关闭查看器时都会触发 */
+    hideImageViewerDetailInfo: 'hideImageViewerDetailInfo',
     /**通过鼠标滚轮事件来切换预览图 */
     wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
     /**当关注的用户列表发生变化时触发 */
@@ -249,6 +260,7 @@ class EVENT {
       | 'settingsPanelOpened'
       | 'settingsPanelClosed'
       | 'worksUpdate'
+      | 'clearBookmarkPanelCommonTags'
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
       | 'importDownloadRecord'
@@ -258,6 +270,7 @@ class EVENT {
       | 'exportCSV'
       | 'exportResult'
       | 'importResult'
+      | 'importResultComplete'
       | 'saveAvatarImage'
       | 'saveAvatarIcon'
       | 'saveUserCover'
@@ -272,6 +285,8 @@ class EVENT {
       | 'clearBG'
       | 'clickBtnOnThumb'
       | 'showOriginSizeImage'
+      | 'hideOriginSizeImage'
+      | 'hideImageViewerDetailInfo'
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'
@@ -327,6 +342,16 @@ class EVENT {
     data: {
       x: number
       y: number
+    }
+  ): void
+
+  public fire(
+    type: 'toggleImageViewerDetailInfo',
+    data: {
+      /** 图片查看器里的「作品信息」按钮 */
+      anchor: HTMLElement
+      /** 这个作品的数据 */
+      workData: ArtworkData
     }
   ): void
 

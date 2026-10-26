@@ -51,6 +51,19 @@ abstract class WorkThumbnail {
   /**查找作品缩略图 */
   protected abstract findThumbnail(parent: HTMLElement): void
 
+  /**当鼠标进入缩略图时，重新检查它当前的作品 id 和类型。
+   *
+   * 小说缩略图的内容可能会变化（例如在追更列表里，一开始展示的是系列里最新的一篇小说，之后只剩下系列链接），
+   * 这会导致绑定事件时记录的 id 和类型过时。子类可以覆写这个方法返回最新的数据。
+   *
+   * 返回 null 表示不需要更新，此时继续使用绑定事件时记录的值。
+   */
+  protected refreshWorkData(
+    el: HTMLElement
+  ): { id: string; type: 'illusts' | 'novels' | 'novelSeries' } | null {
+    return null
+  }
+
   /**查找缩略图右下角的收藏按钮 */
   protected findBookmarkBtn(el: HTMLElement): HTMLElement | null {
     if (Config.mobile) {
@@ -79,15 +92,19 @@ abstract class WorkThumbnail {
 
   /**为作品缩略图绑定事件 */
   // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
-  // 注意：在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。所以在执行小说作品的回调时可以考虑重新获取 id 和 type
+  // 注意：在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致绑定事件时记录的 id 和类型不再准确
   // 这种情况的例子：在首页的小说分类-“追更列表中的作品”列表里：
   // https://www.pixiv.net/following/watchlist/novels
   // 每个列表项的元素在最开始同时有 2 种目标链接：
   // 1. 系列里最新一篇小说的链接
   // 2. 系列链接
   // 所以 novelThumbnail 会为它绑定小说的 id 和类型
-  // 但之后这个元素的内容可能会自动变化。如果看到它底部的按钮是“阅读后续（#1）”，那么它就只剩下系列链接了，这时其上绑定的小说 id 和类型就不符合实际情况了
-  // 所以在实际使用时应该从它里面获取正确的系列 id 和类型
+  // 但之后这个元素的内容可能会自动变化。
+  // 如果它底部的按钮是“阅读后续（#1）”，那么这个缩略图元素里就只剩下系列链接了，
+  // 这时其上绑定的小说 id 和类型就不符合实际情况了
+  // PS：如果它底部的按钮是“阅读最新话”，该按钮的链接是小说的链接，所以类型依然是小说。
+  // 为了应对这种情况，鼠标进入缩略图时会调用 refreshWorkData() 重新检查，并更新 dataset 和传给回调的数据
+  // （目前只有 NovelThumbnail 实现了它）。在移动端没有鼠标经过，所以回调里仍然需要自行重新获取 id 和类型
   protected bindEvents(
     el: HTMLElement,
     id: string | '',
@@ -141,13 +158,31 @@ abstract class WorkThumbnail {
     el.dataset.worktype = type
     el.classList.add(this.className)
 
+    // 绑定事件时记录的作品 id 和类型。缩略图的内容可能会变化，所以鼠标进入时会重新检查并更新它们，
+    // 这样 dataset 和回调函数里使用的值始终与缩略图当前的实际情况一致
+    let workId = id
+    let workType = type
+
     if (this.cacheFound) {
       this.foundElements.push({ el, id, type })
     }
     this.foundCallback.forEach((cb) => cb(el, id, type))
 
     el.addEventListener('mouseenter', (ev) => {
-      this.enterCallback.forEach((cb) => cb(el, id, ev, type))
+      const fresh = this.refreshWorkData(el)
+      if (fresh && fresh.id) {
+        workId = fresh.id
+        workType = fresh.type
+        // 只在值变化时才写入，避免无意义的属性变更
+        if (el.dataset.workid !== workId) {
+          el.dataset.workid = workId
+        }
+        if (el.dataset.worktype !== workType) {
+          el.dataset.worktype = workType
+        }
+      }
+
+      this.enterCallback.forEach((cb) => cb(el, workId, ev, workType))
     })
 
     el.addEventListener('mouseleave', (ev) => {
@@ -162,7 +197,7 @@ abstract class WorkThumbnail {
         if (Config.mobile && !tapDetector.isTap()) {
           return
         }
-        this.clickCallback.forEach((cb) => cb(el, id, ev, type))
+        this.clickCallback.forEach((cb) => cb(el, workId, ev, workType))
       },
       false
     )
@@ -175,7 +210,7 @@ abstract class WorkThumbnail {
         if (Config.mobile && !tapDetector.isTap()) {
           return
         }
-        this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
+        this.bookmarkBtnCallback.forEach((cb) => cb(el, workId, bmkBtn, ev))
       })
     }
   }
@@ -184,11 +219,19 @@ abstract class WorkThumbnail {
   protected createObserver(target: HTMLElement) {
     const observer = new MutationObserver((records) => {
       for (const record of records) {
-        if (record.addedNodes.length > 0) {
-          // 遍历被添加的元素
-          for (const newEl of record.addedNodes) {
-            this.findThumbnail(newEl as HTMLElement)
-          }
+        if (record.addedNodes.length === 0) {
+          continue
+        }
+
+        // 忽略设置面板内部的 DOM 变化：面板里的变化很频繁，且面板里不会有作品缩略图。
+        // childList 记录的 target 与 addedNodes 同属一棵子树，所以按 target 判断一次即可
+        if (Utils.isInSettingsPanel(record.target)) {
+          continue
+        }
+
+        // 遍历被添加的元素
+        for (const newEl of record.addedNodes) {
+          this.findThumbnail(newEl as HTMLElement)
         }
       }
     })
@@ -221,7 +264,7 @@ abstract class WorkThumbnail {
    *
    * @el 作品缩略图的元素
    *
-   * @id 作品 id
+   * @id 作品 id（鼠标进入时已经过 refreshWorkData() 重新检查，小说缩略图上拿到的是当前 id）
    *
    * @ev Event 对象
    *

@@ -37,6 +37,9 @@ class InitNovelSeriesPage extends InitPageBase {
       'brand'
     ).addEventListener('click', async () => {
       EVT.fire('closeSettingsPanel')
+      // 开始合并前重置停止状态：上一次抓取如果被停止过，states.stopCrawl 会保持为 true，
+      // 否则这个合并会被立即终止
+      states.stopCrawl = false
       const seriesId = Tools.getSeriesId()
       let seriseTitle = ''
       // 尝试获取系列标题

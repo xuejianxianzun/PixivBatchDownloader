@@ -129,6 +129,11 @@ class ButtonConfigs {
           order: 13,
           nameKey: '_小说书签列表页面',
         },
+        WatchList: {
+          id: 'WatchList',
+          order: 14,
+          nameKey: '_追更列表页面',
+        },
       },
     },
     downloadArea: {
@@ -248,19 +253,25 @@ class ButtonConfigs {
     // startCrawl - HomePage
     {
       id: 'crawlById',
-      nameKey: '_输入id进行抓取',
+      nameKey: '_抓取作品列表',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },
     {
       id: 'crawlIdRange',
-      nameKey: '_抓取id区间',
+      nameKey: '_抓取作品id区间',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },
     {
       id: 'importIDList',
-      nameKey: '_导入ID列表',
+      nameKey: '_导入作品ID列表',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'HomePage',
+    },
+    {
+      id: 'crawlUserList',
+      nameKey: '_抓取用户列表',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },
@@ -324,12 +335,6 @@ class ButtonConfigs {
     {
       id: 'clearUgoiraWork',
       nameKey: '_清除动图作品',
-      categoryLevel1: 'startCrawl',
-      categoryLevel2: 'SearchPage',
-    },
-    {
-      id: 'manuallyDeleteWork',
-      nameKey: '_手动删除作品',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'SearchPage',
     },
@@ -413,6 +418,13 @@ class ButtonConfigs {
       nameKey: '_开始抓取',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'NovelMarkerAll',
+    },
+    // startCrawl - WatchList
+    {
+      id: 'crawlWatchList',
+      nameKey: '_抓取追更列表',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'WatchList',
     },
     // downloadArea - CrawlResults
     {
@@ -574,6 +586,18 @@ class ButtonConfigs {
     {
       id: 'batchFollowUser',
       nameKey: '_批量关注用户JSON',
+      categoryLevel1: 'extraFeatures',
+      categoryLevel2: 'FollowingPage',
+    },
+    {
+      id: 'batchSaveUserAvatar',
+      nameKey: '_批量保存用户头像',
+      categoryLevel1: 'extraFeatures',
+      categoryLevel2: 'FollowingPage',
+    },
+    {
+      id: 'batchSaveUserAvatarIcon',
+      nameKey: '_批量保存用户头像为图标',
       categoryLevel1: 'extraFeatures',
       categoryLevel2: 'FollowingPage',
     },

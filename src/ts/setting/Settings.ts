@@ -86,6 +86,12 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
+/** “常用的标签”里的一项：一个标签及其使用次数 */
+export interface BookmarkPanelCommonTag {
+  tag: string
+  count: number
+}
+
 /** 一个快捷键组合。key 为 KeyboardEvent.code（如 'KeyX'、'Digit1'），未设置时为空字符串 */
 export interface HotkeyCombo {
   key: string
@@ -228,6 +234,10 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
+  /** 是否下载 JPG 格式的图片 */
+  downJPGImg: boolean
+  /** 是否下载 PNG 格式的图片 */
+  downPNGImg: boolean
   /** 非白色像素里，有颜色的像素的占比超过这个值时，就认为它是彩色图片。取值范围 1 - 100 */
   coloredRatio: number
   downNotBookmarked: boolean
@@ -302,7 +312,13 @@ interface XzSetting {
   sizeSwitch: boolean
   sizeMin: number
   sizeMax: number
+  /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的小说保存格式 */
+  // 如果删掉它，那么当用户恢复或导入旧设置时，不会继承这个旧设置里保存的格式。
+  // 顺序：它的顺序必须位于 novelSaveAsEPUB 和 novelSaveAsTXT 之前，
+  // 这样才不会产生错误的覆盖。
   novelSaveAs: 'txt' | 'epub'
+  novelSaveAsEPUB: boolean
+  novelSaveAsTXT: boolean
   saveNovelMeta: boolean
   /**
    * EPUB 排版方向。horizontal 横排（默认），vertical 竖排（适合日语等 CJK 小说），
@@ -345,14 +361,31 @@ interface XzSetting {
   bmkAfterDL: boolean
 
   // 选项在表单中的值
-  widthTag: 'yes' | 'no'
-  // 根据表单中的值转换为实际使用的值
+  // origin 添加作品的原始标签，transl 添加翻译后的标签，none 不添加标签
+  widthTag: 'origin' | 'transl' | 'none'
+  // 根据表单中的值转换为实际使用的值：只要不是 none 就表示要添加标签
   widthTagBoolean: boolean
 
   // 选项在表单中的值
   restrict: 'yes' | 'no'
   // 根据表单中的值转换为实际使用的值
   restrictBoolean: boolean
+
+  /** 手动收藏 1 个作品时，是否显示收藏面板，让用户设置收藏参数 */
+  showBookmarkPanel: boolean
+  /** 收藏面板最多显示多少个“常用的标签”。取值范围是 0 - 100 */
+  bookmarkPanelCommonTagsMax: number
+  /** 收藏面板里“添加到”这个单选组的值。public 公开收藏，private 匿名收藏。
+   *
+   * 记住用户上一次的选择，这样下次打开面板时会使用它。默认值是 public */
+  bookmarkPanelRestrict: 'public' | 'private'
+  /** 收藏面板里“标签策略”这个单选组的值。
+   *
+   * origin 使用作品的原标签，transl 使用作品翻译后的标签，none 不使用标签，custom 使用用户输入的标签。
+   * 默认值是 origin */
+  bookmarkPanelTagMode: 'origin' | 'transl' | 'none' | 'custom'
+  /** 收藏面板里“常用的标签”列表。它只在通过收藏面板发送收藏请求时更新，没有长度限制 */
+  bookmarkPanelCommonTags: BookmarkPanelCommonTag[]
 
   userBlockList: boolean
   blockList: string[]
@@ -374,6 +407,9 @@ interface XzSetting {
   createFolderByTag: boolean
   createFolderTagList: string[]
   createFolderTagList2: string[]
+  createFolderByBookmarkTag: boolean
+  createFolderBookmarkTagList: string[]
+  createFolderBookmarkTagList2: string[]
   downloadUgoiraFirst: boolean
   downAllAges: boolean
   downR18: boolean
@@ -479,6 +515,7 @@ interface XzSetting {
   downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
   tipAltXToShowControlPanel: boolean
   tipAltSToSelectWork: boolean
+  tipMarqueeToSelectWork: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
   exportIDList: boolean
@@ -503,6 +540,8 @@ interface XzSetting {
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
   showCopyBtnOnThumb: boolean
+  showLikeBtnOnThumb: boolean
+  showBookmarkBtnOnThumb: boolean
   copyFormatImage: boolean
   copyFormatText: boolean
   copyFormatHtml: boolean
@@ -532,6 +571,10 @@ interface XzSetting {
   crawlOriginalWork: boolean
   crawlNonOriginalWork: boolean
   looseMatchOriginal: boolean
+  /** 「来自用户」过滤器：保留已关注用户的作品 */
+  crawlFollowedUsers: boolean
+  /** 「来自用户」过滤器：保留未关注用户的作品 */
+  crawlNonFollowedUsers: boolean
   tipImageViewer: boolean
   removeEmoji: boolean
   serialNoStart: 0 | 1
@@ -560,9 +603,11 @@ interface XzSetting {
   autoExportSettingsInterval: number
   tipManuallyExcludeWorks: boolean
   tipAltEToExcludeWork: boolean
+  tipMarqueeToExcludeWork: boolean
   /** 用户自定义的一级快捷键。键为命令名，值为按键组合；未设置的命令不会出现在对象里 */
   hotkeys: HotkeyMap
   tipHowToCrawlUserWorks: boolean
+  tipButtonsOnThumbnail: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -824,6 +869,22 @@ class Settings {
         value: -1,
         tip: '_负1或者大于0',
       },
+      [PageName.WatchListNovel]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.WatchListManga]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
     },
     onlyCrawlFirstFewImagesSwitch: false,
     onlyCrawlFirstFewImagesCount: 1,
@@ -840,6 +901,8 @@ class Settings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
+    downJPGImg: true,
+    downPNGImg: true,
     coloredRatio: 25,
     downNotBookmarked: true,
     downBookmarked: true,
@@ -910,6 +973,8 @@ class Settings {
     sizeMin: 0,
     sizeMax: 100,
     novelSaveAs: 'epub',
+    novelSaveAsEPUB: true,
+    novelSaveAsTXT: false,
     saveNovelMeta: true,
     epubWritingMode: 'horizontal',
     epubVerticalLangList: ['ja', 'zh-tw'],
@@ -926,10 +991,15 @@ class Settings {
     dateFormat: 'YYYY-MM-DD',
     userSetLang: 'auto',
     bmkAfterDL: false,
-    widthTag: 'yes',
+    widthTag: 'origin',
     restrict: 'no',
     widthTagBoolean: true,
     restrictBoolean: false,
+    showBookmarkPanel: false,
+    bookmarkPanelCommonTagsMax: 30,
+    bookmarkPanelRestrict: 'public',
+    bookmarkPanelTagMode: 'origin',
+    bookmarkPanelCommonTags: [],
     userBlockList: false,
     removeBlockedUsersWork: true,
     quicklyBlockUsers: true,
@@ -950,6 +1020,9 @@ class Settings {
     createFolderByTag: false,
     createFolderTagList: [],
     createFolderTagList2: [],
+    createFolderByBookmarkTag: false,
+    createFolderBookmarkTagList: [],
+    createFolderBookmarkTagList2: [],
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
@@ -998,6 +1071,8 @@ class Settings {
       [PageName.UserRequest]: Config.defaultNameRuleForArtwork,
       [PageName.NovelGenre]: Config.defaultNameRuleForArtwork,
       [PageName.NovelMarkerAll]: Config.defaultNameRuleForArtwork,
+      [PageName.WatchListManga]: Config.defaultNameRuleForArtwork,
+      [PageName.WatchListNovel]: Config.defaultNameRuleForArtwork,
     },
     nameRuleForEachPageTypeForNovel: {
       [PageName.Unsupported]: Config.defaultNameRuleForNovel,
@@ -1031,6 +1106,8 @@ class Settings {
       [PageName.UserRequest]: Config.defaultNameRuleForNovel,
       [PageName.NovelGenre]: Config.defaultNameRuleForNovel,
       [PageName.NovelMarkerAll]: Config.defaultNameRuleForNovel,
+      [PageName.WatchListNovel]: Config.defaultNameRuleForNovel,
+      [PageName.WatchListManga]: Config.defaultNameRuleForNovel,
     },
     showNotificationAfterDownloadComplete: false,
     boldKeywords: true,
@@ -1101,6 +1178,7 @@ class Settings {
     downloadOrderSortBy: 'ID',
     tipAltXToShowControlPanel: true,
     tipAltSToSelectWork: true,
+    tipMarqueeToSelectWork: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
     exportIDList: false,
@@ -1121,8 +1199,14 @@ class Settings {
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
+    // 这个设置项的输入框是 textarea，里面的换行就是真正的换行符。
+    // 以前用 {n} 表示换行，它会在 ConvertOldSettings.convertString 里被转换成换行符
+    copyWorkInfoFormat: `Title={title}
+    Tag={tags}
+    {url}`,
     showCopyBtnOnThumb: true,
+    showLikeBtnOnThumb: false,
+    showBookmarkBtnOnThumb: false,
     copyFormatImage: false,
     copyFormatText: true,
     copyFormatHtml: true,
@@ -1150,6 +1234,8 @@ class Settings {
     crawlOriginalWork: true,
     crawlNonOriginalWork: true,
     looseMatchOriginal: true,
+    crawlFollowedUsers: true,
+    crawlNonFollowedUsers: true,
     tipImageViewer: true,
     removeEmoji: true,
     serialNoStart: 0,
@@ -1209,6 +1295,7 @@ class Settings {
         preview: true,
         thumbnail: false,
         thumbnailButtons: false,
+        bookmark: false,
         other: false,
         searchPage: false,
       },
@@ -1228,7 +1315,9 @@ class Settings {
     autoExportSettingsStrategy: 'timed',
     autoExportSettingsInterval: 24,
     tipManuallyExcludeWorks: true,
+    tipButtonsOnThumbnail: true,
     tipAltEToExcludeWork: true,
+    tipMarqueeToExcludeWork: true,
     hotkeys: defaultHotkeys,
     tipHowToCrawlUserWorks: true,
   }
@@ -1258,6 +1347,8 @@ class Settings {
     'notNeedTagPartial',
     'createFolderTagList',
     'createFolderTagList2',
+    'createFolderBookmarkTagList',
+    'createFolderBookmarkTagList2',
     'exportLogExclude',
     'novelLanguageList',
     'titleIncludeList',
@@ -1581,7 +1672,9 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipMarqueeToSelectWork', true)
     this.setSetting('tipAltEToExcludeWork', true)
+    this.setSetting('tipMarqueeToExcludeWork', true)
     this.setSetting('tipHowToCrawlUserWorks', true)
     this.setSetting('tipImageViewer', true)
     this.setSetting('tipBookmarkButton', true)
@@ -1591,6 +1684,7 @@ class Settings {
     this.setSetting('tipCloseAskFileSaveLocation', true)
     this.setSetting('tipPinOption', true)
     this.setSetting('tipCopyWorkInfoButton', true)
+    this.setSetting('tipButtonsOnThumbnail', true)
     this.setSetting('tipManuallyExcludeWorks', true)
 
     msgBox.show(lang.transl('_重新显示帮助的说明'), {
@@ -1608,7 +1702,7 @@ class Settings {
   }
 
   /** 更新设置项的值 */
-  // 其他模块应该通过这个方法更改设置，这样才能够：
+  // 注意：其他模块应该通过这个方法更改设置，这样才能够：
   // 1. 触发 settingChange 事件，让其他模块能够监听到该设置的变化
   // 2. 让下载器持久保存修改后的设置
   // 3. 进行类型转换，以及兼容一些旧设置
@@ -1619,6 +1713,15 @@ class Settings {
     // 把旧版本里已经废弃的设置名转换成新的设置名，这样旧设置的值会被迁移到新的设置项上，而不是被丢弃
     key = convertOldSettings.convertKey(key) as SettingKeys
 
+    // 如果当前版本的默认设置里不存在这个 key，就直接返回。
+    // 基于这一点，可以从默认设置里删除旧设置里 deprecated 的 key 的两种情况是：
+    // 1. 不需要从这个 key 里继承旧的设置；
+    // 2. 需要继承旧的设置，并且上面的 convertOldSettings.convertKey 会把它转换为新的 key，
+    // 所以旧 key 不需要一直留着。
+    //
+    // 不应该从默认设置里删除旧 key 的情况是：
+    // 需要从这个 key 里继承旧的设置，并且 convertOldSettings.convertKey 不会把它转换为新的 key。
+    // 如果此时删除了旧的 key，这里就会直接返回，不会继承旧的设置。
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -1639,6 +1742,12 @@ class Settings {
       this.settings.ugoiraSaveAsAPNG = value === 'apng'
       this.settings.ugoiraSaveAsZIP = value === 'zip'
       this.settings.ugoiraSaveAsUgoira = false
+    }
+
+    // 如果存在旧的 novelSaveAs 设置（单选），就使用它的值来设置新设置（多选）的状态
+    if (key === 'novelSaveAs') {
+      this.settings.novelSaveAsEPUB = value === 'epub'
+      this.settings.novelSaveAsTXT = value === 'txt'
     }
 
     // 将传入的值转换成选项对应的类型
@@ -1829,7 +1938,7 @@ class Settings {
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {
-      this.settings.widthTagBoolean = value === 'yes'
+      this.settings.widthTagBoolean = value !== 'none'
     }
     if (key === 'restrict') {
       this.settings.restrictBoolean = value === 'yes'

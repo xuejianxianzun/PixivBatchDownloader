@@ -123,10 +123,15 @@
 
 然后根据这些数据生成最终文件名 `this.novelName`。
 
-### 2.8 按格式进入分支
+### 2.8 按格式依次合并
 
-1. 如果 `settings.novelSaveAs === 'txt'`，执行 `mergeTXT`
-2. 否则执行 `mergeEPUB`
+用户可以同时选择多种保存格式，所以这里会遍历 `NovelSaveFormat.getFormats()`（epub / txt），对每种格式：
+
+1. 把 `this.novelName` 的扩展名替换为当前格式的扩展名（文件名模块生成的是默认格式的扩展名）
+2. 如果是 `txt`，执行 `mergeTXT`；否则执行 `mergeEPUB`
+3. 处理每种格式之前检查 `states.stopCrawl`，停止时不再处理后续格式
+
+全部完成后把 `this.novelName` 恢复为默认格式的文件名。
 
 ### 2.9 合并后的收尾工作
 

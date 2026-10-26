@@ -9,6 +9,42 @@ import { Result } from '../store/StoreType'
 import { DownloadRecordManager } from './DownloadRecordManager'
 import { log } from '../Log'
 import { lang } from '../Language'
+import { msgBox } from '../MsgBox'
+
+/** 建好下载记录的存储库
+ *
+ * 1 版本的数据库给每个存储库都建了一个 id 索引，而它和主键（keyPath 也是 id）完全重复，
+ * 从来没有被任何查询用到。但它会让每次写入和清除都多维护一份索引数据，导致导入和清除下载记录时的速度变慢。
+ * 所以新版本不再创建它，并在升级时把已有的删掉。
+ *
+ * @param db 升级事件里的数据库对象
+ * @param transaction 版本变更事务。修改已存在的存储库必须用它，
+ *                    不能在升级事件里另开 db.transaction()：那样新事务要等升级结束后才执行，
+ *                    那时已经不允许改结构了，deleteIndex 会失败
+ */
+function createRecordStores(
+  db: IDBDatabase,
+  transaction: IDBTransaction | undefined,
+  storeNameList: string[]
+) {
+  for (const name of storeNameList) {
+    if (!db.objectStoreNames.contains(name)) {
+      // 新建存储库。注意：不要再建 id 索引
+      db.createObjectStore(name, { keyPath: 'id' })
+    } else if (transaction) {
+      // 数据库已存在（从旧版本升级上来）：删掉冗余的索引。
+      // 用 try/catch 包住：删不掉只是回到以前的慢速度，不能让整个升级失败
+      try {
+        const store = transaction.objectStore(name)
+        if (store.indexNames.contains('id')) {
+          store.deleteIndex('id')
+        }
+      } catch (error) {
+        console.warn(`delete legacy index failed in ${name}`)
+      }
+    }
+  }
+}
 
 export interface DownloadRecordType {
   id: string
@@ -28,8 +64,15 @@ class DownloadRecord {
   private IDB: IndexedDB
   /** 等待数据库初始化完成的 Promise，用于防止在 DB 就绪前查询 */
   private dbReady: Promise<void>
+  /** 是否已经申请过持久化存储。每个页面只需要申请一次 */
+  private persistentStorageRequested = false
   private readonly DBName = 'DLRecord'
-  private readonly DBVer = 1
+  /** 数据库版本。
+   * 2 版本开始不再给每个存储库建那个和主键完全重复的 id 索引，并在升级时删掉已有的
+   * （它从来没有被用到，却会让写入和清除都多维护一份数据，是导入/清除慢的主要原因）。
+   * 2 版本那次升级用错了事务（在升级事件里另开 db.transaction()），索引实际没删成，
+   * 所以再升一次版本，用版本变更事务重新删 */
+  private readonly DBVer = 3
   private readonly storeNameList: string[] = [
     'record1',
     'record2',
@@ -41,8 +84,6 @@ class DownloadRecord {
     'record8',
     'record9',
   ]
-
-  private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
   // 从图片 url 里取出日期字符串的正则表达式
   private readonly dateRegExp = /img\/(.*)\//
@@ -57,25 +98,80 @@ class DownloadRecord {
     this.bindEvents()
   }
 
+  /** 申请持久化存储，避免下载记录所在的 IndexedDB 在磁盘空间紧张时被浏览器清除。
+   *
+   * 下载记录是用户辛苦攒下来的数据（用来去重），一旦被清除很难恢复，
+   * 而站点数据默认是 best-effort 的存储，可以被浏览器按 LRU 清掉。
+   *
+   * 只在第一次成功写入下载记录之后申请一次：Firefox 会为此弹出一个授权框，
+   * 不能在页面刚加载时就打断用户；而用户真正产生了下载记录，才说明这个功能对他有意义。
+   * 浏览器可能拒绝（Chrome 按站点参与度等信号自动决定，不会弹窗），这是正常的，不影响功能，所以只记录到控制台。
+   */
+  private async requestPersistentStorage() {
+    if (this.persistentStorageRequested) {
+      return
+    }
+    this.persistentStorageRequested = true
+
+    const persisted = await Utils.requestPersistentStorage()
+    if (!persisted) {
+      console.info('[PPD] persistent storage is not granted')
+    }
+  }
+
   // 初始化数据库，获取数据库对象
   private async initDB() {
-    // 在升级事件里创建表和索引
-    const onUpdate = (db: IDBDatabase) => {
-      for (const name of this.storeNameList) {
-        if (!db.objectStoreNames.contains(name)) {
-          const store = db.createObjectStore(name, { keyPath: 'id' })
-          store.createIndex('id', 'id', { unique: true })
+    // 在升级事件里创建存储库（并删掉旧版本冗余的索引）
+    const onUpdate = (
+      db: IDBDatabase,
+      transaction: IDBTransaction,
+      oldVersion: number
+    ) => {
+      // oldVersion 为 0 表示数据库不存在、这是全新安装：这时只是建库，用户没有数据受影响，
+      // 不需要提示。只有从旧版本升级上来时才提示（旧库里可能有很多记录，
+      // 删索引等操作会让数据库在一段时间内不可用）
+      if (oldVersion > 0) {
+        // 只有真的开始升级了才会走到这里。在这之前，open 请求可能只是被其他标签页
+        // 阻塞着（那样会走 onblocked，不会触发升级），所以提示要放在这里
+        this.showUpgradeStart()
+
+        // 升级事务提交之后才算升级完成（出错中止的话不会触发 complete，也就不会误报）
+        transaction.oncomplete = () => {
+          this.showUpgradeComplete()
         }
       }
+
+      createRecordStores(db, transaction, this.storeNameList)
     }
 
     try {
       await this.IDB.open(this.DBName, this.DBVer, onUpdate)
       return true
     } catch (ev) {
-      log.error(lang.transl('_IndexedDB打不开', IndexedDB.getErrorName(ev)))
+      const errorName = IndexedDB.getErrorName(ev)
+      if (errorName === 'BlockedError') {
+        // 升级被其他标签页阻塞（那些标签页还开着旧版本的连接）。
+        // 这时下载记录功能会暂停，直到用户刷新其他标签页，所以要说清楚该怎么办
+        log.error(lang.transl('_IndexedDB被其他标签页阻塞'))
+      } else {
+        log.error(lang.transl('_IndexedDB打不开', errorName))
+      }
       return false
     }
+  }
+
+  /** 数据库升级开始的提示。升级期间数据库不可用，所以要让用户知道并暂停下载 */
+  private showUpgradeStart() {
+    const msg = lang.transl('_IndexedDB需要升级')
+    log.warning('🚀' + msg)
+    msgBox.warning(msg)
+  }
+
+  /** 数据库升级完成的提示 */
+  private showUpgradeComplete() {
+    const msg = lang.transl('_IndexedDB升级完成')
+    log.success('✅' + msg)
+    msgBox.success(msg)
   }
 
   private bindEvents() {
@@ -92,11 +188,6 @@ class DownloadRecord {
       // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
       const result = store.findResult(successData.id)
       result && this.addRecordFromResult(result)
-    })
-
-    // 监听清空下载记录的事件
-    window.addEventListener(EVT.list.clearDownloadRecord, () => {
-      this.existedIdList = []
     })
   }
 
@@ -155,13 +246,19 @@ class DownloadRecord {
       return
     }
     const storeName = this.getStoreName(record.id)
-    if (this.existedIdList.includes(record.id)) {
-      this.IDB.put(storeName, record)
-    } else {
-      // 先查询有没有这个记录
-      const exists = await this.getRecord(record.id)
-      this.IDB[exists ? 'put' : 'add'](storeName, record)
+
+    // 直接 put：同一个作品的记录本来就应该以最近一次下载的为准。
+    // 以前要先查一次数据库才知道用 add 还是 put，每条记录都多付一次查询
+    // （还要在 existedIdList 这个数组里做线性查找），而现在一次写入就够了
+    try {
+      await this.IDB.put(storeName, record)
+    } catch (error) {
+      log.error(IndexedDB.getErrorName(error))
+      return
     }
+
+    // 写入成功说明用户确实在积累下载记录，这时才值得申请持久化存储（每个页面只申请一次）
+    this.requestPersistentStorage()
   }
 
   // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
@@ -177,9 +274,6 @@ class DownloadRecord {
       storeName,
       id
     )) as DownloadRecordType | null
-    if (record) {
-      this.existedIdList.push(record.id)
-    }
     // console.log('getRecord', id, record)
     return record
   }
@@ -228,4 +322,4 @@ class DownloadRecord {
 }
 
 const downloadRecord = new DownloadRecord()
-export { downloadRecord }
+export { createRecordStores, downloadRecord }

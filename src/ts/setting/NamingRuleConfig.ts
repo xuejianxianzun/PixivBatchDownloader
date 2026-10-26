@@ -23,6 +23,11 @@ class NamingRuleConfig {
       mayEmpty: false,
       help: '_命名标记tags_transl_only',
     },
+    {
+      name: '{bookmark_tags}',
+      mayEmpty: true,
+      help: '_命名标记bookmark_tags',
+    },
     { name: '{page_tag}', mayEmpty: true, help: '_文件夹标记page_tag' },
     { name: '{type}', mayEmpty: false, help: '_命名标记type' },
     { name: '{type_illust}', mayEmpty: true, help: '_命名标记type_illust' },
@@ -63,6 +68,16 @@ class NamingRuleConfig {
       name: '{match_tag_folder2}',
       mayEmpty: true,
       help: '_命名标记_match_tag_folder2',
+    },
+    {
+      name: '{match_bookmark_tag_folder1}',
+      mayEmpty: true,
+      help: '_命名标记_match_bookmark_tag_folder1',
+    },
+    {
+      name: '{match_bookmark_tag_folder2}',
+      mayEmpty: true,
+      help: '_命名标记_match_bookmark_tag_folder2',
     },
   ]
 

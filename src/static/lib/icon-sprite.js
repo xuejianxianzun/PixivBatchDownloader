@@ -334,6 +334,39 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
        d="M 657.73077,441.23016 843.06044,255.90049"
        id="path2"
        style="stroke-width:40;stroke-dasharray:none" />
+  </g></symbol><symbol id="category-bookmark-line" viewBox="0 0 1024 1024"><defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.8828125"
+     inkscape:cx="63.943712"
+     inkscape:cy="64"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="2551"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="72"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g1"
+     transform="matrix(0.97609186,0,0,0.97609186,12.240979,11.063752)"
+     style="stroke-width:45.89731954;stroke-dasharray:none">
+    <path
+       d="m 512,110 87.56,269.48 H 882.91 L 653.68,546.03 741.24,815.52 512,648.97 282.76,815.52 370.32,546.03 141.09,379.48 h 283.35 z"
+       id="path1"
+       style="stroke-width:45.89731954;stroke-dasharray:none" />
   </g></symbol><symbol id="category-download-record-line" viewBox="0 0 1024 1024"><defs
      id="defs1" />
   <sodipodi:namedview
@@ -1462,7 +1495,16 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
   <path
      id="path1"
      d="m 511.29075,124.32382 c -7.08756,0.15271 -13.93577,3.28849 -19.01485,8.17429 -14.03091,13.98777 -28.02205,28.01597 -42.03764,42.0193 -117.74607,117.75017 -235.49944,235.49315 -353.240923,353.24785 -5.033435,5.06958 -8.311811,11.97858 -8.523028,19.16445 -0.277997,6.99858 2.37713,13.95615 6.910175,19.24921 4.685276,5.57445 11.341266,9.6233 18.617976,10.56741 7.05701,0.98998 14.39446,-1.04992 20.10306,-5.26859 3.1243,-2.25014 5.64304,-5.19312 8.40258,-7.85113 17.83828,-17.83835 35.67817,-35.67509 53.51489,-53.51502 0.003,120.26012 -0.006,240.5203 0.005,360.78036 0.0403,7.95805 3.60511,15.77953 9.48858,21.12 5.38958,4.99182 12.72108,7.81132 20.06992,7.67727 59.72391,-0.004 119.44794,0.008 179.17177,-0.005 8.11252,-0.0334 16.0796,-3.74031 21.43082,-9.81909 4.8253,-5.37316 7.52434,-12.58872 7.37633,-19.81224 0,-85.73571 0,-171.47145 0,-257.20717 52.28967,0 104.57935,0 156.86901,0 0.003,86.01581 -0.007,172.03173 0.005,258.04749 0.0368,8.13013 3.76198,16.114 9.86761,21.46228 5.34835,4.7834 12.51294,7.46397 19.69024,7.335 59.7239,-0.004 119.44794,0.008 179.17177,-0.005 8.16441,-0.0341 16.18271,-3.78828 21.53322,-9.93762 4.78332,-5.37873 7.43667,-12.57987 7.27393,-19.77772 0,-119.95201 0,-239.90402 0,-359.85601 19.55236,19.54585 39.08859,39.1081 58.65476,58.64001 5.05857,4.88474 11.87692,8.04026 18.94921,8.22191 7.8196,0.27407 15.65203,-2.85232 21.20113,-8.35489 5.61894,-5.4615 8.89861,-13.25844 8.75659,-21.10392 -0.052,-7.12102 -3.12774,-14.04212 -7.99344,-19.18381 -6.9055,-6.97193 -13.87323,-13.88321 -20.80284,-20.83164 C 781.88127,382.64196 657.02815,257.77692 532.16275,132.92429 c -5.08061,-5.07483 -12.02413,-8.38591 -19.24842,-8.59293 -0.54097,-0.0199 -1.0824,-0.0186 -1.62358,-0.007 z m 5.46238,74.56587 c 84.31952,84.31843 168.63687,168.63905 252.95778,252.95611 0,129.85922 0,259.71843 0,389.57764 -40.33749,0 -80.67495,0 -121.01242,0 -0.003,-86.01582 0.007,-172.03174 -0.005,-258.04749 -0.0368,-8.13013 -3.76199,-16.114 -9.86759,-21.46228 -5.34835,-4.7834 -12.51295,-7.46397 -19.69023,-7.335 -71.67557,0.004 -143.35127,-0.008 -215.02676,0.005 -8.1125,0.0333 -16.07961,3.7403 -21.43085,9.81908 -4.82528,5.37318 -7.52433,12.58872 -7.37628,19.81223 0,85.73574 0,171.47145 0,257.20718 -40.33749,0 -80.67495,0 -121.01243,0 0,-129.85921 0,-259.71843 0,-389.57763 85.90536,-85.90194 171.80904,-171.80564 257.71137,-257.71068 1.58443,1.58499 3.16887,3.16997 4.75329,4.75495 z"
-     style="stroke-width:0.840364" /></symbol><symbol id="light-line" viewBox="0 0 1024 1024"><defs
+     style="stroke-width:0.840364" /></symbol><symbol id="info" viewBox="0 0 1024 1024"><g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="64"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    <circle cx="512" cy="512" r="376" />
+    <path d="M512 450 L512 700" />
+    <path d="M512 320 L512 332" />
+  </g></symbol><symbol id="light-line" viewBox="0 0 1024 1024"><defs
      id="defs1" />
   <sodipodi:namedview
      id="namedview1"
@@ -1487,7 +1529,15 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
      p-id="94145"
     
      id="path1"
-     style="stroke-width:0.933489" /></symbol><symbol id="link" viewBox="0 0 1024 1024"><defs
+     style="stroke-width:0.933489" /></symbol><symbol id="like-line" viewBox="0 0 1024 1024"><g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="72"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    <path d="M 328 509 H 178 A 68 68 0 0 0 110 577 V 805 A 68 68 0 0 0 178 873 H 328" />
+    <path d="M 328 873 V 621 C 328 505 345 389 396 231 C 413 178 454 145 495 152 C 542 158 570 208 572 274 C 574 338 561 389 555 436 L 841 436 A 73 73 0 0 1 914 509 L 914 800 A 73 73 0 0 1 841 873 Z" />
+  </g></symbol><symbol id="link" viewBox="0 0 1024 1024"><defs
      id="defs2" />
   <sodipodi:namedview
      id="namedview2"
@@ -2150,7 +2200,40 @@ const sprite = `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow-down-2
     
      id="path1"
      style="stroke-width:0.861289"
-     inkscape:label="path1" /></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
+     inkscape:label="path1" /></symbol><symbol id="star-line" viewBox="0 0 1024 1024"><defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.8828125"
+     inkscape:cx="63.943712"
+     inkscape:cy="64"
+     inkscape:window-width="2560"
+     inkscape:window-height="1351"
+     inkscape:window-x="2551"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     fill-opacity="0"
+     stroke="currentColor"
+     stroke-width="72"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="g1"
+     transform="matrix(1.1020255,0,0,1.1020255,-52.237043,-47.213413)"
+     style="stroke-width:59.1614;stroke-dasharray:none">
+    <path
+       d="m 512,110 87.56,269.48 H 882.91 L 653.68,546.03 741.24,815.52 512,648.97 282.76,815.52 370.32,546.03 141.09,379.48 h 283.35 z"
+       id="path1"
+       style="stroke-width:59.1614;stroke-dasharray:none" />
+  </g></symbol><symbol id="start" viewBox="0 0 1024 1024"><defs
      id="defs2" />
   <sodipodi:namedview
      id="namedview2"

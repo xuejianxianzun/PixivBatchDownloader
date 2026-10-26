@@ -5,6 +5,7 @@ import { lang } from '../Language'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 import { log } from '../Log'
+import { Config } from '../Config'
 
 class ExportResult {
   constructor() {
@@ -23,13 +24,18 @@ class ExportResult {
       return
     }
 
-    const resultList = await Utils.json2BlobSafe(store.result)
+    const resultList = await Utils.json2BlobSafe(
+      store.result,
+      Config.exportFileByteLengthLimit
+    )
     for (const result of resultList) {
       Utils.downloadFile(
         result.url,
         `result-total ${result.total}-${Utils.replaceUnsafeStr(
           Tools.getPageTitle()
-        )}-${Tools.formatDateTimeInFilename(store.crawlCompleteTime)}.json`
+        )}-${Tools.formatDateTimeInFilename(store.crawlCompleteTime)}.json`,
+        // 抓取结果可能达到上百 MB，给浏览器留出读取 blob 的时间
+        10000
       )
     }
 

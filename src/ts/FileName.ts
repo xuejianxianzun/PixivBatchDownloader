@@ -1,18 +1,40 @@
 import { settings } from './setting/Settings'
+import { novelSaveFormat } from './download/NovelSaveFormat'
 import { nameRuleManager } from './setting/NameRuleManager'
 import './setting/SetUserName'
 import { setTagAlias } from './setting/SetTagAlias'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './Config'
+import { bookmarkTags } from './BookmarkTags'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
+import { fileNameNormalize } from './FileNameNormalize'
 import { Tools } from './Tools'
 import { log } from './Log'
 import { lang } from './Language'
 
 interface NamingSchema {
   [key: string]: { value: string; safe: boolean }
+}
+
+/** 「使用第一个匹配的标签建立文件夹」系列标记的配置。
+ *
+ * 作品标签和收藏标签都可以用同一套逻辑来匹配，所以把差异部分抽成这个配置 */
+interface MatchTagFolderConfig {
+  /** 用于匹配的标签列表。可以是作品的标签，也可以是作品的收藏标签 */
+  tags: string[]
+  /** 收藏 id。如果提供了这个值，会优先使用 BookmarkTags 缓存里的最新标签，
+   * 缓存里没有这个作品时才使用 tags */
+  bookmarkId?: string
+  /** 这个功能是否已启用 */
+  enabled: boolean
+  /** 用户设置的标签列表所在的设置项 */
+  key:
+    | 'createFolderTagList'
+    | 'createFolderTagList2'
+    | 'createFolderBookmarkTagList'
+    | 'createFolderBookmarkTagList2'
 }
 
 // 生成文件名
@@ -42,7 +64,9 @@ class FileName {
     let ext = data.ext
     // 处理小说的扩展名
     if (data.type === 3) {
-      ext = settings.novelSaveAs
+      // 小说可能同时保存多种格式，文件名使用默认格式的扩展名。
+      // 保存其他格式时，会在下载环节替换扩展名（Download.getNovelFileURL）
+      ext = novelSaveFormat.getDefaultFormat()
     }
 
     const extResult = '.' + ext
@@ -194,6 +218,12 @@ class FileName {
           : this.handleTagsRule(data.tagsTranslOnly),
         safe: false,
       },
+      '{bookmark_tags}': {
+        value: !ruleWithExpandedSpecialTags.includes('{bookmark_tags}')
+          ? ''
+          : this.handleTagsRule(data.bookmarkTags),
+        safe: false,
+      },
       '{bmk}': {
         value: data.bmk.toString(),
         safe: true,
@@ -334,7 +364,7 @@ class FileName {
     }
 
     // 移除文件名开头的不可用的特殊字符
-    result = this.removeStartChar(result)
+    result = fileNameNormalize.removeStartChar(result)
     // 测试用例
     // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
     // console.log(this.removeStartChar(testStr))
@@ -348,7 +378,7 @@ class FileName {
     result = result.replace(/\/{2,100}/g, '/')
 
     // 处理一些边界情况
-    result = this.handleEdgeCases(result)
+    result = fileNameNormalize.handleEdgeCases(result)
 
     return result
   }
@@ -492,18 +522,51 @@ class FileName {
     {
       flag: '{match_tag_folder}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList',
+        }),
     },
     // {match_tag_folder} 和 {match_tag_folder1} 是相同的
     {
       flag: '{match_tag_folder1}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList',
+        }),
     },
     {
       flag: '{match_tag_folder2}',
       func: (rule: string, flag: string, data: Result) =>
-        this.getMatchTagFolder(rule, flag, data, 'createFolderTagList2'),
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.tagsWithTransl,
+          enabled: settings.createFolderByTag,
+          key: 'createFolderTagList2',
+        }),
+    },
+    // 使用收藏标签来建立文件夹。旧的任务数据里可能没有 bookmarkTags，所以要提供默认值
+    {
+      flag: '{match_bookmark_tag_folder1}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.bookmarkTags || [],
+          bookmarkId: data.bmkId,
+          enabled: settings.createFolderByBookmarkTag,
+          key: 'createFolderBookmarkTagList',
+        }),
+    },
+    {
+      flag: '{match_bookmark_tag_folder2}',
+      func: (rule: string, flag: string, data: Result) =>
+        this.getMatchTagFolder(rule, flag, {
+          tags: data.bookmarkTags || [],
+          bookmarkId: data.bmkId,
+          enabled: settings.createFolderByBookmarkTag,
+          key: 'createFolderBookmarkTagList2',
+        }),
     },
   ]
 
@@ -546,23 +609,31 @@ class FileName {
     return ''
   }
 
-  /** 获取 使用第一个匹配的标签建立文件夹 的返回值 */
+  /** 获取「使用第一个匹配的标签建立文件夹」系列标记的返回值。
+   *
+   * 作品本身的标签和收藏标签列表都使用这个方法进行匹配，差异由 config 决定 */
   private getMatchTagFolder(
     rule: string,
     flag: string,
-    data: Result,
-    key: 'createFolderTagList' | 'createFolderTagList2'
+    config: MatchTagFolderConfig
   ): string {
     if (
       !rule.includes(flag) ||
-      !settings.createFolderByTag ||
-      settings[key].length === 0
+      !config.enabled ||
+      settings[config.key].length === 0
     ) {
       return ''
     }
 
+    // 收藏标签可能在抓取之后发生变化（用户在当前页面添加或移除了标签），
+    // 而抓取结果里保存的是抓取时的旧数据。
+    // 所以这里优先使用 BookmarkTags 缓存里的最新数据，缓存里没有这个作品时才使用抓取结果里的数据
+    const tags = config.bookmarkId
+      ? bookmarkTags.getForMatch(config.bookmarkId, config.tags)
+      : config.tags
+
     let value = ''
-    const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+    const workTags = tags.map((val) => val.toLowerCase())
 
     // 首选遍历这个作品里所有的标签，查找它能匹配到的所有标签别名
     // 注意：标签别名是始终保持原本的大小写的，没有转换成小写
@@ -582,7 +653,7 @@ class FileName {
     // 例如 用户输入顺序：A,B
     // 作品 tag 里的顺序：B,A
     if (aliasList.size > 0) {
-      for (const userTag of settings[key]) {
+      for (const userTag of settings[config.key]) {
         if (aliasList.has(userTag)) {
           value = userTag
           // console.log('用户使用的别名：', userTag)
@@ -593,7 +664,7 @@ class FileName {
 
     // 如果这个标签没有匹配的别名，或者即使匹配到了，但用户没有使用这个别名，则从用户设置的标签列表里查找
     if (!value) {
-      for (const userTag of settings[key]) {
+      for (const userTag of settings[config.key]) {
         if (workTags.includes(userTag.toLowerCase())) {
           value = userTag
           break
@@ -649,8 +720,11 @@ class FileName {
     return rule
   }
 
-  /** 生成 {tags} 系列标记的值 */
-  private handleTagsRule(tags: string[]): string {
+  /** 生成 {tags} 系列标记的值。
+   *
+   * tags 可能为 undefined：恢复旧版本保存的任务时，旧数据里没有 bookmarkTags 这类新字段。
+   * 所以这里给一个默认值，避免读取 undefined 时抛出错误 */
+  private handleTagsRule(tags: string[] = []): string {
     return setTagAlias.handleTagsNamingRule(tags).join(settings.tagsSeparator)
   }
 
@@ -785,31 +859,6 @@ class FileName {
     return allPart.join('/')
   }
 
-  // 不能出现在文件名开头的一些特定字符
-  private readonly checkStartCharList = ['/', ' ']
-
-  // 检查文件名开头是否含有特定字符
-  private checkStartChar(str: string) {
-    for (const check of this.checkStartCharList) {
-      if (str.startsWith(check)) {
-        return true
-      }
-    }
-    return false
-  }
-
-  /** 移除文件名开头的特定字符 */
-  private removeStartChar(str: string) {
-    while (this.checkStartChar(str)) {
-      for (const check of this.checkStartCharList) {
-        if (str.startsWith(check)) {
-          str = str.replace(check, '')
-        }
-      }
-    }
-    return str
-  }
-
   private readonly atList = ['@', '＠']
   /** 移除用户名里的 @ 和后续字符 */
   public removeAtFromUsername(name: string) {
@@ -838,31 +887,6 @@ class FileName {
     }
 
     return rule
-  }
-
-  /** 如果任意一层路径或文件名是 Windows 保留文件名，则在其后添加这个字符串 */
-  private readonly addStr = '[WindowsReservedName]'
-
-  /** 处理一些边界情况 */
-  public handleEdgeCases(string: string) {
-    // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    string = string.replace(/\/{2,100}/g, '/')
-
-    // 对每一层路径和文件名进行处理
-    const parts = string.split('/')
-
-    for (let i = 0; i < parts.length; i++) {
-      // 去掉每层路径首尾的空格
-      // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-      parts[i] = parts[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
-
-      // 处理路径是 Windows 保留文件名的情况（不需要处理扩展名）
-      parts[i] = Utils.handleWindowsReservedName(parts[i], this.addStr)
-    }
-
-    // 经过上面的遍历处理后，数组里可能会有空字符串，需要在合并时去除
-    string = parts.filter((part) => part !== '').join('/')
-    return string
   }
 
   // 文件名超长的一种测试情况：

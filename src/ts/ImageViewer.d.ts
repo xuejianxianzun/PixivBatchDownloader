@@ -133,6 +133,8 @@ declare namespace Viewer {
 
 declare class Viewer {
   image: HTMLImageElement
+  /** 查看器当前使用的配置。修改它可以在运行时临时关闭某些功能（例如 keyboard） */
+  options: Viewer.Options
   constructor(element: Element, options?: Viewer.Options)
   destroy(): Viewer
   exit(): Viewer

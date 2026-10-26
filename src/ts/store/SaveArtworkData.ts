@@ -7,6 +7,7 @@ import { store } from './Store'
 import { Tools } from '../Tools'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import { bookmarkTags } from '../BookmarkTags'
 
 // 保存图片作品的数据
 class SaveArtworkData {
@@ -113,14 +114,28 @@ class SaveArtworkData {
 
       if (body.illustType === 0 || body.illustType === 1) {
         // 插画或漫画
-        const imgUrl = body.urls.original // 作品的原图 URL
-        if (imgUrl === null) {
+        const original = body.urls.original // 作品的原图 URL
+        if (original === null) {
           log.error(`${Tools.createWorkLink(body.id)} URLs are null`)
           return
         }
 
-        const tempExt = imgUrl.split('.')
-        const ext = tempExt[tempExt.length - 1]
+        // 检查图片的扩展名是否被用户排除了。这个检查只对插画和漫画生效。
+        // 对于多图作品，这里只会检查第一张图片的扩展名，并决定保留还是排除这个作品。
+        // 这是合理的，因为多图作品的每一张图片的扩展名都是相同的。我投稿了多图作品进行测试：
+        // - 原图是一张 jpg 和一张 png 时，Pixiv 会把所有图片都转换为 jpg 格式（原本是 jpg 的图片也会被转换）。
+        // - 原图都是 png 或原图都是 jpg 时，Pixiv 不会 进行转换（但可能会抹除部分元数据，所以体积会减小一点点），所以每张图片的扩展名依然是相同的。
+        // 因此，只检查第一张图片的扩展名就足够了。
+        // 当然，追求严谨的话，也许 Pixiv 早期的处理方式不同，会导致多图作品的每一张图片的扩展名不一致，我尚不清楚是否有这种情况。
+        const useUrl = body.urls[settings.imageSize] || original
+        const extForCheck = Utils.getExtension(useUrl)
+        const checkExt = await filter.check({
+          workType: body.illustType,
+          ext: extForCheck,
+        })
+        if (!checkExt) {
+          return
+        }
 
         store.addResult(
           {
@@ -134,7 +149,7 @@ class SaveArtworkData {
                 ? Tools.convertArtworkThumbURL(body.urls.thumb, 0)
                 : body.urls.thumb,
             pageCount: pageCount,
-            original: imgUrl,
+            original: original,
             regular: body.urls.regular,
             small: body.urls.small,
             title: title,
@@ -146,9 +161,10 @@ class SaveArtworkData {
             userId: userId,
             fullWidth: fullWidth,
             fullHeight: fullHeight,
-            ext: ext,
+            ext: Utils.getExtension(original),
             bmk: bmk,
             bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+            ...bookmarkTags.getForResult(body.bookmarkData),
             bookmarked: bookmarked,
             date: body.createDate,
             uploadDate: body.uploadDate,
@@ -208,6 +224,7 @@ class SaveArtworkData {
           ext: ext,
           bmk: bmk,
           bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+          ...bookmarkTags.getForResult(body.bookmarkData),
           bookmarked: bookmarked,
           date: body.createDate,
           uploadDate: body.uploadDate,

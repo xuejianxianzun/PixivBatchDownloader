@@ -11,7 +11,7 @@ import { BackgroundMsg, UserInfo, AllUserFollowingData } from './FollowingData'
 import { log } from './Log'
 import { pageType } from './PageType'
 
-// 更新关注列表
+// 保存关注的用户列表；获取关注的用户列表
 class FollowingList {
   constructor() {
     if (!Utils.isPixiv()) {
@@ -260,10 +260,13 @@ class FollowingList {
 
   /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
-    // 在搜索页面里移除已关注用户的作品 功能依赖关注用户列表，所以如果用户启用了该功能，也需要更新关注列表
+    // 以下功能依赖关注用户列表：「高亮关注的用户」、「在搜索页面里移除已关注用户的作品」、「来自用户」过滤器
+    // 「来自用户」过滤器在两个子选项都勾选时不会过滤任何作品，所以只有未全部勾选时才需要为了它更新关注列表
     if (
       !settings.highlightFollowingUsers &&
-      !settings.removeWorksOfFollowedUsersOnSearchPage
+      !settings.removeWorksOfFollowedUsersOnSearchPage &&
+      settings.crawlFollowedUsers &&
+      settings.crawlNonFollowedUsers
     ) {
       return
     }

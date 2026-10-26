@@ -145,72 +145,87 @@ class Utils {
 
   /** 使用选择文件对话框，让用户选择 JSON 文件
    *
-   * 如果内容是合法的 JSON，则返回解析后的对象。
+   * 如果内容是合法的 JSON，则返回解析后的对象。（如果用户选择了多个文件，只返回第一个文件的内容）
    *
    * 如果用户点击了取消按钮（没有选择任何文件），则返回 undefined。
    */
   static async loadJSONFile<T>(): Promise<T | undefined> {
-    return new Promise<T | undefined>((resolve, reject) => {
-      const i = document.createElement('input')
-      i.setAttribute('type', 'file')
-      i.setAttribute('accept', 'application/json')
+    const list = await Utils.loadJSONFiles<T>(false)
+    if (list === undefined) {
+      return undefined
+    }
+    return list[0]
+  }
 
-      const cleanup = () => {
-        i.onchange = null
-        i.removeEventListener('cancel', onCancel)
+  /** 使用选择文件对话框，让用户选择一个或多个 JSON 文件
+   *
+   * 导出数据较多时会被拆成多个 JSON 文件，所以导入时需要支持一次选择多个文件（multiple 默认为 true）。
+   *
+   * 返回每个文件解析后的内容（顺序与用户选择的顺序一致）；如果用户取消选择，则返回 undefined。
+   */
+  static async loadJSONFiles<T>(multiple = true): Promise<T[] | undefined> {
+    const loaded = await Utils.loadJSONFilesWithFiles<T>(multiple)
+    if (loaded === undefined) {
+      return undefined
+    }
+    return loaded.data
+  }
+
+  /** 使用选择文件对话框，让用户选择一个或多个 JSON 文件
+   *
+   * 除了每个文件解析后的内容，还返回用户选择的文件列表（文件名、体积等信息），
+   * 方便调用方在导入前给出提示（例如显示文件名、检查文件体积）
+   *
+   * 返回 { files, data }，data 的顺序与用户选择的顺序一致；如果用户取消选择，则返回 undefined。
+   */
+  static async loadJSONFilesWithFiles<T>(
+    multiple = true
+  ): Promise<{ files: File[]; data: T[] } | undefined> {
+    const fileList = await Utils.selectFile('application/json', multiple)
+    if (!fileList || fileList.length === 0) {
+      return undefined
+    }
+
+    const files = Array.from(fileList)
+
+    const data: T[] = []
+    for (const file of files) {
+      const str = await file.text()
+      let result: T
+      try {
+        result = JSON.parse(str)
+      } catch (error) {
+        throw new Error('JSON parse error!')
       }
-      const onCancel = () => {
-        cleanup()
-        resolve(undefined)
+      // 允许是对象 {} 或者数组 []
+      if (result === null || typeof result !== 'object') {
+        throw new Error('Data is not an object!')
       }
-
-      i.addEventListener('cancel', onCancel, { once: true })
-      i.onchange = () => {
-        const selectedFile = i.files?.[0]
-        if (!selectedFile) {
-          return onCancel()
-        }
-
-        cleanup()
-
-        // 读取文件内容
-        const file = new FileReader()
-        file.readAsText(selectedFile)
-        file.onload = () => {
-          const str = file.result as string
-          let result: T
-          try {
-            result = JSON.parse(str)
-            // if((result as any).constructor !== Object){
-            // 允许是对象 {} 或者数组 []
-            if (result === null || typeof result !== 'object') {
-              const msg = 'Data is not an object!'
-              return reject(new Error(msg))
-            }
-            return resolve(result)
-          } catch (error) {
-            const msg = 'JSON parse error!'
-            return reject(new Error(msg))
-          }
-        }
-      }
-
-      i.click()
-    })
+      data.push(result)
+    }
+    return { files, data }
   }
 
   /** 使用选择文件对话框，让用户选择文件
    *
    * accept: 可选，指定可选择的文件类型
    *
+   * multiple: 可选，是否允许选择多个文件
+   *
    * 返回用户选择的文件列表；如果用户取消选择，则返回 undefined
    */
-  static async selectFile(accept?: string): Promise<FileList | undefined> {
+  static async selectFile(
+    accept?: string,
+    multiple = false
+  ): Promise<FileList | undefined> {
     return new Promise<FileList | undefined>((resolve) => {
       const i = document.createElement('input')
       i.setAttribute('type', 'file')
       if (accept) {
         i.setAttribute('accept', accept)
+      }
+      if (multiple) {
+        i.setAttribute('multiple', 'multiple')
       }
 
       const cleanup = () => {
@@ -236,8 +251,13 @@ class Utils {
     })
   }
 
-  // 通过创建 a 标签来下载文件
-  static downloadFile(url: string, fileName: string) {
+  /** 通过创建 a 标签来下载文件
+   *
+   * revokeDelay: 下载之后多久回收 blob URL（毫秒）。
+   * 大文件（例如导出上百 MB 的下载记录）在手机上可能过一会儿才真正开始读取 blob，
+   * 过早回收会导致下载失败，所以导出这类大文件时应该传入更大的值。
+   */
+  static downloadFile(url: string, fileName: string, revokeDelay = 200) {
     const a = document.createElement('a')
     a.href = url
     a.download = fileName
@@ -246,13 +266,49 @@ class Utils {
     if (url.startsWith('blob')) {
       setTimeout(() => {
         URL.revokeObjectURL(url)
-      }, 200)
+      }, revokeDelay)
+    }
+  }
+
+  /** 申请持久化存储（best-effort → persistent）。
+   *
+   * 站点数据默认是「尽力而为」的存储，磁盘空间紧张时浏览器会按 LRU 把整个 origin 的数据清掉，
+   * 下载记录所在的 IndexedDB 也在其中。申请成功后浏览器不会再自动清除这些数据。
+   *
+   * 浏览器可能拒绝（Chrome 按站点参与度等信号自动决定，不会弹窗询问），
+   * 所以调用方必须把它当作「尽力而为」的处理，失败时不要影响正常功能。
+   */
+  static async requestPersistentStorage(): Promise<boolean> {
+    try {
+      if (!navigator.storage || !navigator.storage.persist) {
+        return false
+      }
+      if (await navigator.storage.persisted()) {
+        return true
+      }
+      return await navigator.storage.persist()
+    } catch (error) {
+      return false
     }
   }
 
   // 判断当前页面是否属于 pixiv.net
   static isPixiv() {
     return location.host.endsWith('.pixiv.net')
+  }
+
+  /** 设置面板的根元素。缓存它，用于忽略面板内部的 DOM 变化 */
+  private static settingsPanelEl: HTMLElement | null = null
+
+  /** 判断节点是否位于下载器设置面板内部。
+   * 以 body 为观察范围的 MutationObserver 用它忽略面板内部的 DOM 变化
+   * （面板里的变化很频繁，且面板里不会有作品缩略图） */
+  static isInSettingsPanel(node: Node) {
+    // 面板会随页面重建，所以检测 isConnected，必要时重新查询（惰性，平时只查一次）
+    if (!this.settingsPanelEl || !this.settingsPanelEl.isConnected) {
+      this.settingsPanelEl = document.querySelector('.centerWrap')
+    }
+    return !!this.settingsPanelEl && this.settingsPanelEl.contains(node)
   }
 
   /** 从 url 中获取指定的查询字段的值 */
@@ -382,72 +438,147 @@ class Utils {
     return blob
   }
 
-  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 500 MB */
-  static async json2BlobSafe(data: any[]): Promise<
+  /** 把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 fileByteLengthLimit
+   *
+   * 注意：这个方法会把所有数据汇总到一起，峰值内存约为数据量的 2~3 倍
+   * （原数据 + JSON 字符串 + Blob 各一份）。数据量很大时（例如导出几十万条下载记录）
+   * 应该改用 json2BlobChunks 流式生成，边读边生成文件。
+   */
+  static async json2BlobSafe(
+    data: any[],
+    fileByteLengthLimit = 524288000
+  ): Promise<
     {
       url: string
       total: number
     }[]
   > {
-    // 限制单个文件的体积上限为 500 MB
-    const fileByteLengthLimit = 524288000
-
     const result: {
       url: string
       total: number
     }[] = []
 
-    // 在这个数组里储存数组字面量
-    let JSONStringArray: string[] = []
-
-    const length = data.length
-    let index = 0
-    let total = 0
-    let bytelength = 0
-    let startNewFile = true
-    const textEncode = new TextEncoder()
-
-    while (index < length) {
-      // 添加数组的开始符号
-      if (startNewFile) {
-        startNewFile = false
-        JSONStringArray.push('[')
-        bytelength = bytelength + 1
+    // 整个数组作为一批处理：内部是普通的 for 循环，每条记录不会额外走一次异步迭代
+    await Utils.json2BlobChunksBatched(
+      [data],
+      fileByteLengthLimit,
+      (url, total) => {
+        result.push({ url, total })
       }
-
-      // 循环添加每一项数据
-      const string = JSON.stringify(data[index])
-      JSONStringArray.push(string)
-      JSONStringArray.push(',')
-      bytelength = bytelength + textEncode.encode(string).length + 1
-
-      index++
-      total++
-
-      // 分割文件
-      if (index === length || bytelength >= fileByteLengthLimit) {
-        // 删除最后一个分隔符，否则会导致格式错误
-        JSONStringArray.pop()
-        // 添加数组的结束符号
-        JSONStringArray.push(']')
-
-        // 生成文件数据
-        const blob = new Blob(JSONStringArray, { type: 'application/json' })
-        const url = URL.createObjectURL(blob)
-        result.push({
-          url,
-          total,
-        })
-
-        // 重置变量
-        startNewFile = true
-        bytelength = 0
-        total = 0
-        JSONStringArray = []
-      }
-    }
+    )
 
     return result
+  }
+
+  /** 流式生成 JSON 文件：每累积到 maxBytes 就生成一个文件，通过 onFile 回调交出去，然后清空已累积的数据
+   *
+   * 为什么需要它：如果先把所有数据汇总到一起再生成文件，峰值内存是数据量的 2~3 倍
+   * （原数据一份、JSON 字符串一份、Blob 一份）。几百万条下载记录就能把标签页的内存吃到十几 GB，
+   * 页面会卡住几十秒甚至被浏览器直接杀掉。流式处理之后，任意时刻只有「当前这一个文件」的数据在内存里。
+   *
+   * 注意：生产代码统一使用 json2BlobChunksBatched（按批提供数据），
+   * 这个「一条一条」的版本留给只能逐条产出数据的场景，目前只在测试里使用。
+   *
+   * @param items 要导出的数据。可以是数组，也可以是惰性读取的生成器
+   *               （例如从 IndexedDB 逐个存储库读取，每次只把一个库的数据放进内存）
+   * @param maxBytes 单个文件的体积上限
+   * @param onFile 生成一个文件时回调，参数是 blob URL 和这个文件里的记录数。
+   *               回调可以返回 Promise，这时会等它完成（例如等文件下载完成）再继续
+   * @returns 导出的记录总数
+   */
+  static async json2BlobChunks(
+    items: Iterable<any> | AsyncIterable<any>,
+    maxBytes: number,
+    onFile: (url: string, total: number) => void | Promise<void>
+  ): Promise<number> {
+    // 把每一项单独作为一批。注意：这样每条记录都会走一次异步迭代，
+    // 数据量很大时（几百万条）应该改用 json2BlobChunksBatched，分批提供数据
+    async function* toBatches() {
+      for await (const item of items) {
+        yield [item]
+      }
+    }
+    return Utils.json2BlobChunksBatched(toBatches(), maxBytes, onFile)
+  }
+
+  /** 和 json2BlobChunks 相同，但 batches 里每一项是一个数组（一批记录）
+   *
+   * 为什么要按批：一条一条地过异步生成器，等于给每条记录都增加几次微任务往返，
+   * 几百万条记录累积起来会很明显（实测 100 万条慢 8%）。按批处理时，
+   * 批内是普通的 for 循环，和以前同步写法的速度一样，同时保留了流式的内存优势。
+   *
+   * @param batches 一批一批的数据。可以是数组的数组，也可以是惰性读取的生成器
+   * @param maxBytes 单个文件的体积上限
+   * @param onFile 生成一个文件时回调，参数是 blob URL 和这个文件里的记录数
+   * @returns 导出的记录总数
+   */
+  static async json2BlobChunksBatched(
+    batches: Iterable<any[]> | AsyncIterable<any[]>,
+    maxBytes: number,
+    onFile: (url: string, total: number) => void | Promise<void>
+  ): Promise<number> {
+    /** 当前文件里的 JSON 片段（数组字面量） */
+    let JSONStringArray: string[] = []
+    /** 当前文件已累积的字节数 */
+    let bytelength = 0
+    /** 当前文件里的记录数 */
+    let total = 0
+    /** 已导出的记录总数 */
+    let count = 0
+
+    const textEncode = new TextEncoder()
+
+    /** 生成当前文件并回调，然后清空累积的数据 */
+    const flush = async () => {
+      if (JSONStringArray.length === 0) {
+        return
+      }
+      // 删除最后一个分隔符，否则会导致格式错误
+      JSONStringArray.pop()
+      // 添加数组的结束符号
+      JSONStringArray.push(']')
+
+      // 生成文件数据
+      const blob = new Blob(JSONStringArray, { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+
+      const fileTotal = total
+      JSONStringArray = []
+      bytelength = 0
+      total = 0
+
+      await onFile(url, fileTotal)
+    }
+
+    for await (const batch of batches) {
+      // 批内是普通的 for 循环：不走异步迭代，每条记录的开销和以前一样
+      for (const item of batch) {
+        // 添加数组的开始符号
+        if (JSONStringArray.length === 0) {
+          JSONStringArray.push('[')
+          bytelength = bytelength + 1
+        }
+
+        const string = JSON.stringify(item)
+        JSONStringArray.push(string)
+        JSONStringArray.push(',')
+        bytelength = bytelength + textEncode.encode(string).length + 1
+
+        total++
+        count++
+
+        // 达到体积上限就立刻生成一个文件，不等所有数据处理完
+        if (bytelength >= maxBytes) {
+          await flush()
+        }
+      }
+      // 一批处理完后，这批数据就可以被回收了（由提供数据的那一方负责释放）
+    }
+
+    // 收尾：把最后不满一个上限的文件也生成出来
+    await flush()
+
+    return count
   }
 
   /**防抖 */

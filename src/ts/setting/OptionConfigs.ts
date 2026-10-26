@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { settings, OptionCategoryLevel1 } from './Settings'
 import { lang } from '../Language'
 import { LangTextKey } from '../langText'
+import type { TipCardKey } from './SettingsPanelTipCard'
 
 type CategorySchema = {
   [key in OptionCategoryLevel1]: {
@@ -24,6 +25,8 @@ type CategorySchema = {
         nameKey: LangTextKey
         /** 二级分类的图标 */
         icon: string
+        /** 在这个二级分类的顶部显示的提示卡片。只有需要显示提示卡片时才设置这个属性 */
+        tipCardKey?: TipCardKey
       }
     }
   }
@@ -221,16 +224,23 @@ class OptionConfigs {
           order: 2,
           icon: 'category-thumbnail-buttons-line',
           nameKey: '_分组_缩略图上的按钮',
+          tipCardKey: 'tipButtonsOnThumbnail',
+        },
+        bookmark: {
+          id: 'bookmark',
+          order: 3,
+          icon: 'category-bookmark-line',
+          nameKey: '_分组_收藏',
         },
         other: {
           id: 'other',
-          order: 3,
+          order: 4,
           icon: 'category-other-line',
           nameKey: '_分组_其他',
         },
         searchPage: {
           id: 'searchPage',
-          order: 4,
+          order: 5,
           icon: 'category-search-page-line',
           nameKey: '_分组_搜索页面',
         },
@@ -368,6 +378,18 @@ class OptionConfigs {
       addedAt: 1774310400000,
     },
     {
+      no: 114,
+      nameKey: '_来自用户带高亮',
+      name: '',
+      categoryLevel1: 'filter',
+      categoryLevel2: 'workType',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_已关注的用户', '_未关注的用户'],
+      searchWords: [],
+      addedAt: 1792065628983,
+    },
+    {
       no: 8,
       nameKey: '_图片数量',
       name: '',
@@ -388,6 +410,18 @@ class OptionConfigs {
       hideOnPixivision: true,
       searchWordKeys: [],
       searchWords: [],
+    },
+    {
+      no: 112,
+      nameKey: '_图片格式',
+      name: '',
+      categoryLevel1: 'filter',
+      categoryLevel2: 'workType',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: [],
+      searchWords: ['jpg', 'png'],
+      addedAt: 1791902975000,
     },
     {
       no: 10,
@@ -800,6 +834,18 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 115,
+      nameKey: '_使用第一个匹配的收藏标签建立文件夹带高亮',
+      name: '',
+      categoryLevel1: 'naming',
+      categoryLevel2: 'adjustFolders',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_文件夹'],
+      searchWords: [],
+      addedAt: 1792265427161,
+    },
+    {
       no: 44,
       nameKey: '_标签别名',
       name: '',
@@ -903,18 +949,7 @@ class OptionConfigs {
     },
     {
       no: 53,
-      nameKey: '_下载之后收藏作品',
-      name: '',
-      categoryLevel1: 'download',
-      categoryLevel2: 'behavior',
-      pinned: false,
-      hideOnPixivision: true,
-      searchWordKeys: ['_书签'],
-      searchWords: [],
-    },
-    {
-      no: 54,
-      nameKey: '_点击收藏按钮时下载作品',
+      nameKey: '_下载之后自动收藏作品',
       name: '',
       categoryLevel1: 'download',
       categoryLevel2: 'behavior',
@@ -932,6 +967,17 @@ class OptionConfigs {
       pinned: false,
       hideOnPixivision: true,
       searchWordKeys: [],
+      searchWords: [],
+    },
+    {
+      no: 54,
+      nameKey: '_点击收藏按钮时下载作品',
+      name: '',
+      categoryLevel1: 'download',
+      categoryLevel2: 'behavior',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_书签'],
       searchWords: [],
     },
     {
@@ -1196,7 +1242,7 @@ class OptionConfigs {
     // 增强
     {
       no: 75,
-      nameKey: '_预览作品',
+      nameKey: '_当鼠标停留在作品缩略图上时预览作品',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1208,7 +1254,7 @@ class OptionConfigs {
     },
     {
       no: 76,
-      nameKey: '_长按右键显示大图',
+      nameKey: '_在缩略图上长按鼠标右键时查看大图',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1220,7 +1266,7 @@ class OptionConfigs {
     },
     {
       no: 77,
-      nameKey: '_预览作品的详细信息',
+      nameKey: '_当鼠标停留在作品缩略图上时显示详细信息',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'preview',
@@ -1278,7 +1324,7 @@ class OptionConfigs {
     },
     {
       no: 82,
-      nameKey: '_缩略图上按钮的位置',
+      nameKey: '_按钮在缩略图上的位置',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1290,19 +1336,19 @@ class OptionConfigs {
     },
     {
       no: 83,
-      nameKey: '_在作品缩略图上显示图片查看器按钮',
+      nameKey: '_显示图片查看器按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
       pinned: false,
       hideOnPixivision: true,
       hideOnMobile: true,
-      searchWordKeys: ['_放大镜', '_图片查看器', '_在作品缩略图上显示放大按钮'],
+      searchWordKeys: ['_放大镜', '_图片查看器'],
       searchWords: [],
     },
     {
       no: 84,
-      nameKey: '_在缩略图上显示复制按钮',
+      nameKey: '_显示复制按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1313,8 +1359,34 @@ class OptionConfigs {
       searchWords: [],
     },
     {
+      no: 113,
+      nameKey: '_显示点赞按钮',
+      name: '',
+      categoryLevel1: 'enhance',
+      categoryLevel2: 'thumbnailButtons',
+      pinned: false,
+      hideOnPixivision: true,
+      hideOnMobile: true,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1792003659342,
+    },
+    {
+      no: 116,
+      nameKey: '_显示收藏按钮',
+      name: '',
+      categoryLevel1: 'enhance',
+      categoryLevel2: 'thumbnailButtons',
+      pinned: false,
+      hideOnPixivision: true,
+      hideOnMobile: true,
+      searchWordKeys: [],
+      searchWords: [],
+      addedAt: 1792323483088,
+    },
+    {
       no: 85,
-      nameKey: '_在作品缩略图上显示下载按钮',
+      nameKey: '_显示下载按钮',
       name: '',
       categoryLevel1: 'enhance',
       categoryLevel2: 'thumbnailButtons',
@@ -1348,14 +1420,26 @@ class OptionConfigs {
     },
     {
       no: 88,
-      nameKey: '_下载器的收藏功能',
+      nameKey: '_下载器收藏作品时的默认行为',
       name: '',
       categoryLevel1: 'enhance',
-      categoryLevel2: 'other',
+      categoryLevel2: 'bookmark',
       pinned: false,
       hideOnPixivision: true,
       searchWordKeys: ['_书签'],
       searchWords: [],
+    },
+    {
+      no: 117,
+      nameKey: '_收藏面板',
+      name: '',
+      categoryLevel1: 'enhance',
+      categoryLevel2: 'bookmark',
+      pinned: false,
+      hideOnPixivision: true,
+      searchWordKeys: ['_书签'],
+      searchWords: [],
+      addedAt: 1792509904537,
     },
     {
       no: 89,
@@ -1425,12 +1509,12 @@ class OptionConfigs {
     },
     {
       no: 95,
-      nameKey: '_选项卡切换方式',
+      nameKey: '_如何切换下载器的标签页',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'operation',
       pinned: false,
-      searchWordKeys: [],
+      searchWordKeys: ['_导航分类', '_选项卡'],
       searchWords: [],
     },
     {
@@ -1500,12 +1584,12 @@ class OptionConfigs {
     },
     {
       no: 101,
-      nameKey: '_日志区域的默认可见性',
+      nameKey: '_日志区域默认',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'log',
       pinned: false,
-      searchWordKeys: [],
+      searchWordKeys: ['_显示', '_隐藏'],
       searchWords: [],
       addedAt: 1772287652821,
     },
@@ -1544,7 +1628,7 @@ class OptionConfigs {
     },
     {
       no: 103,
-      nameKey: '_管理设置',
+      nameKey: '_管理下载器的设置',
       name: '',
       categoryLevel1: 'general',
       categoryLevel2: 'manageSettings',

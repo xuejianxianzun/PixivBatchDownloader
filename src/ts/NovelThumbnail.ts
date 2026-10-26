@@ -38,6 +38,8 @@ class NovelThumbnail extends WorkThumbnail {
         'div._ranking-item',
         'div[size="496"]',
         'div[size="392"]',
+        // 首页“精选新作”里的小说作品
+        '[data-ga4-label="thumbnail"]',
         // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
         'div[style="width:184px"]>div:first-child',
         'div[style="width: 184px;"]>div:first-child',
@@ -70,6 +72,12 @@ class NovelThumbnail extends WorkThumbnail {
   }
 
   protected readonly selectors: string[] = []
+
+  /** 小说缩略图的内容可能会变化（例如在追更列表里，一开始展示的是系列里最新的一篇小说，
+   * 之后只剩下系列链接），所以在鼠标进入时重新检查元素当前对应的 id 和类型 */
+  protected refreshWorkData(el: HTMLElement) {
+    return Tools.getNovelOrSeriesIDData(el)
+  }
 
   protected findThumbnail(parent: HTMLElement) {
     if (!parent.querySelectorAll) {

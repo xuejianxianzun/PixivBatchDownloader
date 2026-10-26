@@ -22,7 +22,7 @@ class SettingsPanelHelp {
   private render() {
     const tipsWrap = document.createElement('div')
     tipsWrap.className = 'settingsPanel_helpTips'
-    const cards = ['tipPinOption', 'tipOpenWikiLink']
+    const cards = ['tipPinOption', 'tipOpenWikiLink'] as const
     cards.forEach((key) => {
       const tipCard = settingsPanelTipCard.use(key)
       if (tipCard) {

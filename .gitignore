@@ -25,6 +25,7 @@ yarn.lock
 package-lock.json
 
 # build file
+*.pem
 *.zip
 /dist/**
 /dist-offline/**

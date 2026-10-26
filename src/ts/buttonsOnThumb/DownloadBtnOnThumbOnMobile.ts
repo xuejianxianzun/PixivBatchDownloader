@@ -125,8 +125,7 @@ class DownloadBtnOnThumbOnMobile {
    *
    * 这里也不能设置 z-index: 1：那会让缩略图盖住 pixiv 原本的收藏按钮 ——
    * 收藏按钮是缩略图**外面**的元素（兄弟/叔侄关系），自身 z-index 为 auto，会被压在下面。
-   * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮的 z-index: 99999
-   * 限制在缩略图内部，避免按钮盖住页面上其他内容。
+   * 用 0 既不会遮挡它，又能创建一个层叠上下文，把下载按钮限制在缩略图内部，避免按钮盖住页面上其他内容。
    */
   private makePositioned(target: HTMLElement) {
     if (getComputedStyle(target).position !== 'static') {

@@ -1,0 +1,39 @@
+// 框选功能的样式（WorkSelectionMarquee）
+// 文档：notes/为选择作品的功能添加框选功能.md
+
+// 框选会话（按下 ~ 松开）期间加在 <html> 上。
+// 作为阻止默认行为的双保险：禁止选择文本、禁止 iOS 长按 callout
+html.ppdMarqueeActive {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+// 框选矩形
+.ppdMarqueeRect {
+  position: fixed;
+  z-index: 1001;
+  box-sizing: border-box;
+  pointer-events: none;
+  display: none;
+  border: 1px solid var(--beautify-blue);
+  background-color: rgba(29, 172, 245, 0.2);
+}
+
+// 排除模式下的框选矩形使用红色
+.ppdMarqueeRect.ppdMarqueeRectExclude {
+  border-color: #f33939;
+  background-color: rgba(243, 57, 57, 0.2);
+}
+
+// 拖动过程中，命中的缩略图的临时高亮（与正式标记无关）。
+// 使用 outline 绘制，不改变元素的布局和定位
+.ppdMarqueeHighlightSelect {
+  outline: 3px solid var(--beautify-blue);
+  outline-offset: -3px;
+}
+
+.ppdMarqueeHighlightExclude {
+  outline: 3px solid #f33939;
+  outline-offset: -3px;
+}

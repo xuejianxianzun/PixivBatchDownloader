@@ -1,5 +1,6 @@
 import { NovelSeriesData } from '../crawl/CrawlResult'
 import { settings } from '../setting/Settings'
+import { novelSaveFormat } from './NovelSaveFormat'
 import { Tools } from '../Tools'
 import { DateFormat } from '../utils/DateFormat'
 import { fileName } from '../FileName'
@@ -47,7 +48,9 @@ class MergeNovelFileName {
         safe: true,
       },
       '{ext}': {
-        value: settings.novelSaveAs,
+        // 小说可能同时保存多种格式，文件名使用默认格式的扩展名。
+        // 保存其他格式时，会在合并环节替换扩展名（MergeNovel.mergeByFormat）
+        value: novelSaveFormat.getDefaultFormat(),
         safe: true,
       },
       '{bmk}': {

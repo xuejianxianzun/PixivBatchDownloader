@@ -1,18 +1,21 @@
+// 注意：这些动画必须用 transform（而非 left/top）——left/top 动画每一帧都会触发
+// 样式重算和布局，会让进入手动选择/排除模式后的 CPU 持续高占用（实测约 +30%）。
+// steps() 把刷新频率降到约 30 步/秒，虚线漂移的视觉效果几乎不变。
 @keyframes moveRight {
   from {
-    left: -100vw;
+    transform: translateX(0);
   }
   to {
-    left: -98vw;
+    transform: translateX(2vw);
   }
 }
 
 @keyframes moveBottom {
   from {
-    top: -100vh;
+    transform: translateY(0);
   }
   to {
-    top: -98vh;
+    transform: translateY(2vh);
   }
 }
 
@@ -46,7 +49,7 @@
     );
     background-size: 8px 1px;
     background-repeat: repeat-x;
-    animation: moveRight 2s linear infinite;
+    animation: moveRight 2s steps(60) infinite;
   }
 
   // 手动选择按钮的竖线伪元素
@@ -66,7 +69,7 @@
     );
     background-size: 1px 8px;
     background-repeat: repeat-y;
-    animation: moveBottom 1s linear infinite;
+    animation: moveBottom 1s steps(30) infinite;
   }
 }
 

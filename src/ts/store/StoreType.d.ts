@@ -68,6 +68,16 @@ export interface ResultOptional {
   tagsWithTransl?: string[]
   /**这个作品的 tag 列表（仅翻译） */
   tagsTranslOnly?: string[]
+  /**这个作品的收藏标签列表。这是用户在收藏一个作品之后为它添加的收藏标签，不是该作品的原始标签。
+   * 目前，只有当用户在自己的收藏页面里抓取作品时，获取列表数据的 API 里才有作品的收藏标签，下载器也才能保存该数据。
+   * 在其他页面里抓取时，API 里不会包含作品的收藏标签，所以下载器也无法保存该数据。
+   *
+   * 如果它是空数组，原因可能是：
+   * - 用户没有为这个收藏的作品添加任何标签。此时这个作品属于未分类作品。
+   * - 抓取作品时，不是在收藏页面里抓取的，所以无法获取作品的收藏标签。
+   * - 下载器抓取这个作品时，没有保存它的收藏标签，所以值可能是空数组。
+   */
+  bookmarkTags?: string[]
   /**这个作品的用户名（画师名） */
   user?: string
   /**这个作品的用户 id */
@@ -127,6 +137,13 @@ export interface ResultOptional {
    * 注意，即使值为 6，也不一定是 R-18 作品
    */
   sl?: 0 | 2 | 4 | 6 | null
+  /**小说的分类，是 string 类型的数字，如 "0" | "1" | "2" | "3"
+   *
+   * 只有小说的作品里含有这个属性；其他类型的作品没有这个属性，会保存成 null。另外，导入以前版本的抓取结果时，由于旧版本里没有 genre 属性，所以也会被设置为 null。
+   *
+   * 对该字段的详细说明可以查看：src/ts/NovelGenreConfig.ts
+   */
+  genre?: string | null
 }
 
 /**保存每个要下载的作品的信息。这是下载器内部保存的抓取结果。
@@ -151,9 +168,18 @@ export interface NovelMeta {
   userName: string
   /** 小说的字数或单词数（取决于小说的语言） */
   charCount?: number
-  /**嵌入的图片 id 以及其原图 URL。例如：
+  /** 每条记录的格式例如：
    *
    * "12136542": "https://i.pximg.net/novel-cover-original/img/2022/07/20/00/09/34/tei441171884625_be457733c2b6806cee908f7a39498c9f.png"
+   *
+   * 注意：这个属性里只保存了上传到小说里的图片的数据，没有保存引用（自其他作品）的图片的数据。
+   *
+   * 这是因为在小说数据里，上传的图片是有现成的 url 的（data.body.textEmbeddedImages），可以直接保存到这个属性里；
+   * 但引用的图片只在小说正文里有 id 标记，没有可以直接获取的 url，
+   * 需要发送额外的请求（API.getNovelInsertIllustsData）才能获取其原图 URL。
+   *
+   * 目前下载器在保存抓取结果时，只保存了上传的图片的数据。
+   * 至于引用的图片，则在下载阶段获取（DownloadNovelEmbeddedImage.ts 里的 getImageList 方法）。
    */
   embeddedImages: null | {
     [key: string]: string

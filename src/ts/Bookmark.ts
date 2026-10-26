@@ -1,6 +1,11 @@
 import { canRequestInBatch } from './AccountWarning'
 import { API } from './API'
-import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
+import {
+  ArtworkCommonData,
+  ArtworkData,
+  BookmarkResult,
+  NovelData,
+} from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { lang } from './Language'
 import { log } from './Log'
@@ -34,6 +39,24 @@ class Bookmark {
     // 如果用户在离开页面时还有等待重试的收藏任务，就提示用户
     // 使用 window.onbeforeunload 事件
     // 但是这会导致 SelectWork 里的该事件出现问题，或者两个模块里都会出现问题，所以就不提示了
+  }
+
+  /**根据“是否添加标签”设置，获取添加收藏时要使用的标签列表
+   *
+   * - origin（添加作品的原始标签）：使用作品的原始标签
+   * - transl（添加翻译后的标签）：使用翻译后的标签，与保存作品数据时的方式一致
+   * - none（不添加标签）：返回空数组
+   */
+  public getTagsBySetting(data: ArtworkData | NovelData): string[] {
+    if (settings.widthTag === 'none') {
+      return []
+    }
+
+    if (settings.widthTag === 'transl') {
+      return Tools.extractTags(data, 'transl', 'save')
+    }
+
+    return Tools.extractTags(data)
   }
 
   private async getWorkData(type: 'illusts' | 'novels', id: string) {
@@ -84,7 +107,8 @@ class Bookmark {
         // 如果未传递 tags，则请求作品数据来获取 tags
         try {
           const data = await this.getWorkData(type, id)
-          tags = Tools.extractTags(data)
+          // 按照“是否添加标签”设置来决定使用原始标签还是翻译后的标签
+          tags = this.getTagsBySetting(data)
         } catch (error) {
           // 请求失败的话使用空 tags。这不是致命问题
           tags = []
@@ -304,7 +328,7 @@ class Bookmark {
             this.toastDebounce(msg)
             return status
           case 404:
-            log.error(`${id} 404 Not Found`)
+            log.error(workLink + ' 404 Not Found')
             return status
           default:
             log.error(
@@ -344,7 +368,7 @@ class Bookmark {
       // 有失败时如实说明失败数量，并提示用户可以再次执行来重试
       const msg =
         completeMsg +
-        ' ' +
+        '<br>' +
         lang.transl('_有x个作品失败请再次执行重试', failed.toString())
       log.error(msg)
       toast.error(lang.transl('_收藏作品完毕但是有一些失败了'), {

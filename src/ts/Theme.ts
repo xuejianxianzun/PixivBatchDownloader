@@ -143,7 +143,7 @@ class Theme {
   // 该方法会触发 'getPageTheme' 事件，传递的值是从网页端获取到的主题，而不是下载器面板里设置的主题
   // 也就是说，如果网页的主题是暗色的，那么即使下载器设置里设置了下载器主题为亮色，传递给 'getPageTheme' 事件的也会是暗色
   // 这样是为了让接收方在修改网页上一些元素的样式时可以适配网页主题，而不受下载器主题设置的影响
-  private getThemeFromHtml(): ThemeName {
+  public getThemeFromHtml(): ThemeName {
     const theme = this.getThemeFromBackgroundColor()
     if (theme) {
       EVT.fire('getPageTheme', theme)

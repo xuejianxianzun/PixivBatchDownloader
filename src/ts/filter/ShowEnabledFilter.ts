@@ -24,8 +24,10 @@ class ShowEnabledFilter {
     this.getDownTypeByAge()
     this.getAIWorkType()
     this.getOriginalType()
+    this.getFollowedUser()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
+    this.getImageFormat()
     this.getDownTypeByBmked()
     this.getDoNotCrawlDownloadedWorks()
     this.getMultiImageWorkImageLimit()
@@ -138,6 +140,26 @@ class ShowEnabledFilter {
     }
   }
 
+  /** 提示「来自用户」设置 */
+  private getFollowedUser() {
+    // 如果两个子选项都未勾选则取消任务
+    if (!settings.crawlFollowedUsers && !settings.crawlNonFollowedUsers) {
+      return this.error(
+        lang.transl('_排除了所有作品类型') +
+          ': <br>' +
+          lang.transl('_来自用户带高亮')
+      )
+    }
+
+    const tips = []
+    !settings.crawlFollowedUsers && tips.push(lang.transl('_已关注的用户'))
+    !settings.crawlNonFollowedUsers && tips.push(lang.transl('_未关注的用户'))
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除了来自这些用户的作品') + tips.join(', '))
+    }
+  }
+
   private getDownTypeByImgCount() {
     // 如果全部排除则取消任务
     if (!settings.downSingleImg && !settings.downMultiImg) {
@@ -171,6 +193,17 @@ class ShowEnabledFilter {
     if (tips.length > 0) {
       log.warning(lang.transl('_排除作品类型') + tips.join(', '))
       log.warning(lang.transl('_提示检查图片色彩会增加抓取所需时间'))
+    }
+  }
+
+  /** 提示图片格式设置 */
+  private getImageFormat() {
+    const tips = []
+    !settings.downJPGImg && tips.push('.jpg')
+    !settings.downPNGImg && tips.push('.png')
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除图片格式') + tips.join(', '))
     }
   }
 

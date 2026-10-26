@@ -2,8 +2,10 @@ import { filter, FilterOption } from '../filter/Filter'
 import { NovelData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { settings } from '../setting/Settings'
+import { novelSaveFormat } from '../download/NovelSaveFormat'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { bookmarkTags } from '../BookmarkTags'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -81,10 +83,13 @@ class SaveNovelData {
         tagsTranslOnly: tags,
         user: user,
         userId: userId,
-        // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
-        ext: settings.novelSaveAs,
+        // 这里的 ext 并不重要，下载时会根据保存格式设置自动生成对应的数据。
+        // 用户可能同时选择多种保存格式，这里保存默认格式
+        ext: novelSaveFormat.getDefaultFormat(),
         bmk: bmk,
-        bmkId: body.bookmarkData ? body.bookmarkData.id : '',
+        // 小说详情 API 返回的收藏 id 是数字，转换成字符串，保持抓取结果里的类型一致
+        bmkId: body.bookmarkData ? String(body.bookmarkData.id) : '',
+        ...bookmarkTags.getForResult(body.bookmarkData),
         bookmarked: bookmarked,
         date: body.createDate,
         uploadDate: body.uploadDate,
@@ -112,6 +117,7 @@ class SaveNovelData {
           language: body.language,
         },
         xRestrict: body.xRestrict,
+        genre: body.genre || null,
       })
     }
   }

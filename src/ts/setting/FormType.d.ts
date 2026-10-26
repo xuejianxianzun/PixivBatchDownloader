@@ -11,6 +11,8 @@ export interface FormType extends HTMLFormElement {
   multiImageWorkImageLimit: HTMLInputElement
   downColorImg: HTMLInputElement
   downBlackWhiteImg: HTMLInputElement
+  downJPGImg: HTMLInputElement
+  downPNGImg: HTMLInputElement
   coloredRatio: HTMLInputElement
   ugoiraSaveAsWebM: HTMLInputElement
   ugoiraSaveAsWebP: HTMLInputElement
@@ -72,7 +74,8 @@ export interface FormType extends HTMLFormElement {
   sizeSwitch: HTMLInputElement
   sizeMin: HTMLInputElement
   sizeMax: HTMLInputElement
-  novelSaveAs: RadioNodeList
+  novelSaveAsEPUB: HTMLInputElement
+  novelSaveAsTXT: HTMLInputElement
   saveNovelMeta: HTMLInputElement
   epubWritingMode: RadioNodeList
   epubVerticalLangList: HTMLInputElement
@@ -88,6 +91,8 @@ export interface FormType extends HTMLFormElement {
   bmkAfterDL: HTMLInputElement
   widthTag: RadioNodeList
   restrict: RadioNodeList
+  showBookmarkPanel: HTMLInputElement
+  bookmarkPanelCommonTagsMax: HTMLInputElement
   userBlockList: HTMLInputElement
   quicklyBlockUsers: HTMLInputElement
   blockList: HTMLInputElement
@@ -106,6 +111,9 @@ export interface FormType extends HTMLFormElement {
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
   createFolderTagList2: HTMLTextAreaElement
+  createFolderByBookmarkTag: HTMLInputElement
+  createFolderBookmarkTagList: HTMLTextAreaElement
+  createFolderBookmarkTagList2: HTMLTextAreaElement
   downAllAges: HTMLInputElement
   downR18: HTMLInputElement
   downR18G: HTMLInputElement
@@ -134,6 +142,8 @@ export interface FormType extends HTMLFormElement {
   copyFormatImage: HTMLInputElement
   copyImageSize: HTMLInputElement
   showCopyBtnOnThumb: HTMLInputElement
+  showLikeBtnOnThumb: HTMLInputElement
+  showBookmarkBtnOnThumb: HTMLInputElement
   prevWorkSize: HTMLInputElement
   allowPreviewCoverThumbnail: HTMLInputElement
   previewWorkWait: HTMLInputElement
@@ -216,6 +226,8 @@ export interface FormType extends HTMLFormElement {
   crawlOriginalWork: HTMLInputElement
   crawlNonOriginalWork: HTMLInputElement
   looseMatchOriginal: HTMLInputElement
+  crawlFollowedUsers: HTMLInputElement
+  crawlNonFollowedUsers: HTMLInputElement
   removeEmoji: HTMLInputElement
   serialNoStart: HTMLInputElement
   DonotCrawlAlreadyDownloadedWorks: HTMLInputElement

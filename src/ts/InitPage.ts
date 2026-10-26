@@ -26,10 +26,11 @@ import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
 import { InitUnsupportedPage } from './crawl/InitUnsupportedPage'
 import { InitUnlistedPage } from './crawlMixedPage/InitUnlistedPage'
-import { InitRequestPage } from './crawl/InitRequestPage'
 import { InitDashboardPage } from './crawlMixedPage/InitDashboardPage'
 import { InitContestPage } from './crawlMixedPage/InitContestPage'
 import { InitUserRequestPage } from './crawlMixedPage/InitUserRequestPage'
+import { InitWatchListNovelPage } from './crawlMixedPage/InitWatchListNovelPage'
+import { InitWatchListMangaPage } from './crawlMixedPage/InitWatchListMangaPage'
 import { Config } from './Config'
 
 class InitPage {
@@ -97,8 +98,6 @@ class InitPage {
         return new InitFollowingPage()
       case pageType.list.Unlisted:
         return new InitUnlistedPage()
-      case pageType.list.Request:
-        return new InitRequestPage()
       case pageType.list.DiscoverUsers:
         return new InitUnsupportedPage()
       case pageType.list.Dashboard:
@@ -107,6 +106,10 @@ class InitPage {
         return new InitContestPage()
       case pageType.list.UserRequest:
         return new InitUserRequestPage()
+      case pageType.list.WatchListNovel:
+        return new InitWatchListNovelPage()
+      case pageType.list.WatchListManga:
+        return new InitWatchListMangaPage()
       default:
         return new InitUnsupportedPage()
     }

@@ -27,7 +27,8 @@ class AutoMergeNovel {
   private idTitleMap: { [key: string]: string } = {}
   /** 指示是否可以工作。如果为 true 则不进行合并；为 false 时允许合并。
    *
-   * 当抓取完毕、抓取停止时，不再处理等待队列里的任务，但当前进行中的这个合并任务会正常执行完。 */
+   * 当抓取完毕、抓取停止时，不再处理等待队列里的任务。当前进行中的合并任务也会尽快终止：
+   * 用户在合并过程中点击停止后，MergeNovel 里的检查点会终止这个合并。 */
   private stop = true
 
   /** 在本次抓取任务里，自动合并的系列里一共包含多少篇小说 */
@@ -45,9 +46,16 @@ class AutoMergeNovel {
     return true
   }
 
-  /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它 */
+  /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它。
+   *
+   * 返回空字符串表示等待期间被停止（此时等待队列已被清空），调用方应停止处理 */
   private async next(): Promise<string> {
     while (true) {
+      if (this.stop) {
+        // 停止后不再等待，返回空字符串。否则如果等待队列已被清空（抓取完毕、停止时 reset 会清空它），
+        // 下面的条件永远不会满足，这个循环会永远等待下去
+        return ''
+      }
       if (
         this.pendingQueue.length > 0 &&
         this.pendingQueue[0] !== this.workingId
@@ -109,6 +117,12 @@ class AutoMergeNovel {
     this.showTip()
 
     this.workingId = await this.next()
+    // 等待期间被停止时 next 会返回空字符串（见 next 方法），此时不再进行合并。
+    // 这时 reset 已经清空了等待队列和 workingId，所以不需要再清理
+    if (!this.workingId) {
+      return
+    }
+
     const seriesTitleLog = this.idTitleMap[this.workingId]
     const novelTotal = await new MergeNovel().merge(
       this.workingId,
@@ -131,7 +145,8 @@ class AutoMergeNovel {
   private enableTip = true
   private bindEvents() {
     // 抓取完毕、抓取停止时，重置一些状态
-    // 当抓取停止时，如果当前正在合并一个系列，那么它会正常完成，不会被取消。剩余的合并任务会取消（因为等待队列会被清空）
+    // 当抓取停止时，当前正在合并的系列也会被终止（由 MergeNovel 里的检查点处理），
+    // 剩余的合并任务会取消（因为等待队列会被清空）
     const stopEvents = [EVT.list.crawlComplete, EVT.list.stopCrawl]
     stopEvents.forEach((evt) => {
       window.addEventListener(evt, () => {

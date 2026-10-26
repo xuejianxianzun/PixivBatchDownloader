@@ -147,7 +147,7 @@ class DownloadControl {
             store.remainingDownload = store.result.length
             this.setDownloadThread()
           } else if (this.pause) {
-            // 暂停时抓取结果可能被重建（如在结果中筛选、手动删除作品），已下载数量会随之变化。
+            // 暂停时抓取结果可能被重建（如在结果中筛选），已下载数量会随之变化。
             // 但状态列表里还保存着可以继续的进度，所以只同步数字，不重画进度条。
             // 只同步数字，不做「是否下载完毕」的判定，避免像 setDownloaded 那样把暂停状态清掉
             this.syncDownloadedCount()

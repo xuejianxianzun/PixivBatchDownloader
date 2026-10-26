@@ -34,13 +34,8 @@ class InitSearchArtworkPage extends InitPageBase {
     this.init()
   }
 
-  /** 管理搜索页上的批量清除和手动删除操作 */
-  private deleteWorks?: DeleteWorks
-
   /** 管理搜索页面上的抓取结果预览和二次筛选 */
-  private readonly searchResultPreview = new SearchResultPreview(() => {
-    this.deleteWorks?.exitDeleteMode()
-  })
+  private readonly searchResultPreview = new SearchResultPreview()
 
   protected getIdListLogKey = 'crawlArtworkSearchPageListPage'
 
@@ -150,7 +145,7 @@ class InitSearchArtworkPage extends InitPageBase {
     crawlTagList.init()
 
     this.addInitPageBtn(
-      'crawlBtns',
+      'filterCrawlResultBtns',
       '_在结果中筛选',
       '_在结果中筛选说明',
       'filterResults',
@@ -162,12 +157,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   /** 添加搜索页结果的批量操作控件 */
   protected addAnyElement() {
-    // DeleteWorks 直接持有预览模块：它只负责按钮和删除模式的界面部分，
+    // DeleteWorks 直接持有预览模块：它只负责按钮的界面部分，
     // 抓取结果的修改和页面重绘都交给预览模块
-    const deleteWorks = new DeleteWorks(this.searchResultPreview)
-    this.deleteWorks = deleteWorks
-
-    deleteWorks.addBtns()
+    new DeleteWorks(this.searchResultPreview).addBtns()
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = this.addInitPageBtn(
@@ -236,6 +228,7 @@ class InitSearchArtworkPage extends InitPageBase {
   /**销毁页面切换后不再适用的元素、定时器和全局事件 */
   protected destroy() {
     Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('filterCrawlResultBtns')
     Tools.clearSlot('otherBtns')
 
     window.removeEventListener(
@@ -249,7 +242,6 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
 
-    this.deleteWorks?.destroy()
     this.searchResultPreview.destroy()
     window.clearInterval(this.removeBlockIntervalId)
   }

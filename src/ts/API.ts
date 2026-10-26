@@ -31,6 +31,10 @@ import {
   UserRequestSentPageInfo,
   RequestWorksData,
   NovelMarkerAllData,
+  WatchListNovelData,
+  WatchListMangaData,
+  TouchWatchListNovelData,
+  TouchWatchListMangaData,
 } from './crawl/CrawlResult'
 
 import {
@@ -47,6 +51,7 @@ import { Config } from './Config'
 import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
 import { Utils } from './utils/Utils'
+import { bookmarkTags } from './BookmarkTags'
 
 /** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
@@ -55,6 +60,9 @@ interface LikeResponse {
   body:
     | []
     | {
+        // 你是否已经给这个作品点赞过了
+        // 如果未点赞则是 false；如果已点赞则是 true
+        // 只有未点赞时才能使点赞数 +1。所以不能重复刷赞
         is_liked: boolean
       }
 }
@@ -145,8 +153,8 @@ class API {
     return attemptRequest()
   }
 
-  /** 获取收藏数据
-   * 这个 api 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
+  /** 在书签页面里，获取作品列表数据的 API。里面含有这一页里每个作品的收藏标签信息。
+   * 这个 API 返回的作品列表顺序遵从 order 参数。默认的 desc 是按照收藏时间从新到旧排序的 */
   static async getBookmarkData(
     userId: string,
     type: 'illusts' | 'novels' = 'illusts',
@@ -162,7 +170,12 @@ class API {
       hide ? 'hide' : 'show'
     }&order=${order}&mode=${mode}&work_tag=${work_tag}&bm=${bm}&rdm=${Math.random()}`
 
-    return this.fetch(url)
+    const data = await this.fetch<BookmarkData>(url)
+
+    // 保存这一页里的收藏标签，供之后生成抓取结果时使用（见 BookmarkTags）
+    bookmarkTags.add(data.body?.bookmarkTags)
+
+    return data
   }
 
   /** 添加收藏 */
@@ -278,8 +291,12 @@ class API {
     return this.fetch(url)
   }
 
-  /** 获取某个用户特定类型下的作品 id 列表
-   * 这个 API 里只包含了作品的部分数据，不是完整的数据 */
+  /** 获取某个用户特定类型下的作品 id 列表。
+   *
+   * 如果不传递第二个参数，就会返回所有类型的作品。
+   * 如果你只需要获取部分类型的作品，可以通过第二个参数来指定。
+   *
+   * 备注：这个 API 里只包含了每个作品的部分数据，不是完整的数据 */
   static async getUserWorksByType(
     id: string,
     type: userWorksType[] = ['illusts', 'manga', 'novels']
@@ -763,6 +780,34 @@ class API {
     p: number
   ): Promise<NovelMarkerAllData> {
     const url = `https://www.pixiv.net/touch/ajax_api/novel_api.php?endpoint=novel&mode=marker_all&id=${userId}&p=${p}`
+    return this.fetch(url)
+  }
+
+  static async getWatchListNovelData(p: number): Promise<WatchListNovelData> {
+    // 备注：网址里的 new=1 是固定的。不带 new=1 也可以获取到数据，但数据格式不同。
+    // 所以我推测 new=1 是该 URL 对应的新版 API 的标志。
+    const url = `https://www.pixiv.net/ajax/watch_list/novel?p=${p}&new=1&lang=zh`
+    return this.fetch(url)
+  }
+
+  static async getWatchListMangaData(p: number): Promise<WatchListMangaData> {
+    const url = `https://www.pixiv.net/ajax/watch_list/manga?p=${p}&lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 移动端的小说追更列表页面使用的 API。每页最多 10 个系列小说 */
+  static async getTouchWatchListNovelData(
+    p: number
+  ): Promise<TouchWatchListNovelData> {
+    const url = `https://www.pixiv.net/touch/ajax/watch_list/novel?p=${p}&limit=10&new=1&lang=zh`
+    return this.fetch(url)
+  }
+
+  /** 移动端的漫画追更列表页面使用的 API。每页最多 10 个系列漫画 */
+  static async getTouchWatchListMangaData(
+    p: number
+  ): Promise<TouchWatchListMangaData> {
+    const url = `https://www.pixiv.net/touch/ajax/watch_list/manga?p=${p}&limit=10&lang=zh`
     return this.fetch(url)
   }
 }

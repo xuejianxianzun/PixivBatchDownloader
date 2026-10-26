@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill'
 import { Config } from '../Config'
 import { Utils } from '../utils/Utils'
 import { SendToBackEndData } from './DownloadType'
+import { fileNameNormalize } from '../FileNameNormalize'
 
 // 由于现在有两种下载方式：1. 调用浏览器的 downloads API；2. 使用 A 标签下载。所以在这里统一处理
 class SendDownload {
@@ -20,6 +21,9 @@ class SendDownload {
     downloadMethod: 'downloadsAPI' | 'anchorDownload',
     conflictAction?: 'uniquify' | 'overwrite' | 'prompt'
   ) {
+    // 对文件名进行规范化处理，以免因为文件名非法而导致下载失败
+    name = fileNameNormalize.handleNormalName(name)
+
     const blobURL = URL.createObjectURL(blob)
 
     // 如果需要使用 a.download 来下载文件

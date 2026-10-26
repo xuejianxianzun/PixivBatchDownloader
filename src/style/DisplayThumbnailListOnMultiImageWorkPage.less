@@ -1,5 +1,5 @@
 :root {
-  --thumbnailListSelectorEl-color: #0096fa;
+  --thumbnailListSelectorEl-color: #00faa7;
 }
 
 #viewerWarpper {
@@ -171,7 +171,7 @@
     );
     background-size: 8px 1px;
     background-repeat: repeat-x;
-    animation: moveRight 2s linear infinite;
+    animation: moveRight 2s steps(60) infinite;
   }
 
   // 手动选择标记的竖线伪元素
@@ -191,6 +191,6 @@
     );
     background-size: 1px 8px;
     background-repeat: repeat-y;
-    animation: moveBottom 1s linear infinite;
+    animation: moveBottom 1s steps(30) infinite;
   }
 }

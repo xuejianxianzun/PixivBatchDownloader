@@ -41,6 +41,8 @@ class FormSettings {
       'downMultiImg',
       'downColorImg',
       'downBlackWhiteImg',
+      'downJPGImg',
+      'downPNGImg',
       'downNotBookmarked',
       'downBookmarked',
       'onlyCrawlFirstFewImagesSwitch',
@@ -60,6 +62,7 @@ class FormSettings {
       'magnifier',
       'noSerialNo',
       'createFolderByTag',
+      'createFolderByBookmarkTag',
       'folderForMultiImageWorksSwitch',
       'r18Folder',
       'sizeSwitch',
@@ -138,6 +141,8 @@ class FormSettings {
       'copyFormatText',
       'copyFormatHtml',
       'showCopyBtnOnThumb',
+      'showLikeBtnOnThumb',
+      'showBookmarkBtnOnThumb',
       'crawlLatestFewWorks',
       'rememberTheLastSaveLocation',
       'autoMergeNovel',
@@ -150,6 +155,8 @@ class FormSettings {
       'crawlOriginalWork',
       'crawlNonOriginalWork',
       'looseMatchOriginal',
+      'crawlFollowedUsers',
+      'crawlNonFollowedUsers',
       'DonotCrawlAlreadyDownloadedWorks',
       'showBorderOnDownloadedWorks',
       'removeEmoji',
@@ -172,9 +179,11 @@ class FormSettings {
       'autoExportSettings',
       'allowPreviewCoverThumbnail',
       'novelLanguageSwitch',
+      'novelSaveAsEPUB',
+      'novelSaveAsTXT',
+      'showBookmarkPanel',
     ],
     radio: [
-      'novelSaveAs',
       'widthComparison',
       'heightComparison',
       'userRatioLimit',
@@ -259,6 +268,7 @@ class FormSettings {
       'autoExportSettingsInterval',
       'epubCustomLang',
       'epubVerticalLangList',
+      'bookmarkPanelCommonTagsMax',
     ],
     textarea: [
       'notNeedTagWhole',
@@ -266,6 +276,8 @@ class FormSettings {
       'blockList',
       'createFolderTagList',
       'createFolderTagList2',
+      'createFolderBookmarkTagList',
+      'createFolderBookmarkTagList2',
       'seriesNovelNameRule',
       'novelLanguageList',
       'titleIncludeList',
@@ -323,7 +335,11 @@ class FormSettings {
 
     for (const name of this.inputFileds.textarea) {
       this.restoreString(name)
-      Tools.setRows(this.form[name] as HTMLTextAreaElement)
+      // 不对“复制作品信息”的文本格式输入框设置行数
+      // 因为这个输入框允许用户使用回车输入换行，以设置换行格式，所以不应该根据字符长度调整行数
+      if (name !== 'copyWorkInfoFormat') {
+        Tools.setRows(this.form[name] as HTMLTextAreaElement)
+      }
     }
 
     for (const name of this.inputFileds.checkbox) {
@@ -342,7 +358,10 @@ class FormSettings {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       setSetting(name, el.value)
-      if (this.inputFileds.textarea.includes(name)) {
+      if (
+        this.inputFileds.textarea.includes(name) &&
+        name !== 'copyWorkInfoFormat'
+      ) {
         Tools.setRows(this.form[name] as HTMLTextAreaElement)
       }
     })

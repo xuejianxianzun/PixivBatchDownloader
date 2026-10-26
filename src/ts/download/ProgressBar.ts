@@ -88,7 +88,7 @@ class ProgressBar {
       this.hide()
     })
 
-    // 抓取结果被筛选、手动删除等操作改变后，立即更新总进度条上显示的作品总数
+    // 抓取结果被筛选、手动排除等操作改变后，立即更新总进度条上显示的作品总数
     window.addEventListener(EVT.list.resultChange, this.setTotalNumber)
   }
 

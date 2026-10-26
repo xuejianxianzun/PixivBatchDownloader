@@ -123,11 +123,18 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   protected createObserver(target: HTMLElement) {
     const observer = new MutationObserver((records) => {
       for (const record of records) {
-        if (record.addedNodes.length > 0) {
-          // 遍历被添加的元素，检查其中的作品元素
-          for (const newEl of record.addedNodes) {
-            this.findWorks(newEl as Element)
-          }
+        if (record.addedNodes.length === 0) {
+          continue
+        }
+
+        // 忽略设置面板内部的 DOM 变化（原因见 WorkThumbnail.createObserver）
+        if (Utils.isInSettingsPanel(record.target)) {
+          continue
+        }
+
+        // 遍历被添加的元素，检查其中的作品元素
+        for (const newEl of record.addedNodes) {
+          this.findWorks(newEl as Element)
         }
       }
     })

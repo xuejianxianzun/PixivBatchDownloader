@@ -1,4 +1,5 @@
 import { API } from './API'
+import { bookmarkTags } from './BookmarkTags'
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { fileName } from './FileName'
@@ -202,7 +203,7 @@ class CopyWorkInfo {
   // - 不需要处理不能作为文件名的特殊字符
   // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
   // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
-  // - 额外添加了 {n} 和 {url} 标记
+  // - 额外添加了 {url} 标记
   // - 在每个标签前面加上 # 符号
   private convertTextFormat(
     data: ArtworkData | NovelData,
@@ -217,6 +218,11 @@ class CopyWorkInfo {
     const tags = Tools.extractTags(data)
     const tagsWithTransl = Tools.extractTags(data, 'both', 'check')
     const tagsTranslOnly = Tools.extractTags(data, 'transl', 'check')
+
+    let _bookmarkTags: string[] = []
+    const _bookmarkTagsArray =
+      bookmarkTags.get(data.body.bookmarkData?.id) || []
+    _bookmarkTags = _bookmarkTagsArray.map((str) => '#' + str)
 
     // 判断是不是 AI 生成的作品
     const tagsWithTransl2 = Tools.extractTags(data, 'both', 'check')
@@ -285,7 +291,6 @@ class CopyWorkInfo {
     }
 
     const cfg = {
-      '{n}': lf,
       '{url}': url,
       '{p_title}': page_title,
       '{page_title}': page_title,
@@ -305,6 +310,7 @@ class CopyWorkInfo {
       '{tags}': tags.join(settings.tagsSeparator),
       '{tags_translate}': tagsWithTransl.join(settings.tagsSeparator),
       '{tags_transl_only}': tagsTranslOnly.join(settings.tagsSeparator),
+      '{bookmark_tags}': _bookmarkTags.join(settings.tagsSeparator),
       '{bmk}': body.bookmarkCount,
       '{bmk_id}': body.bookmarkData ? body.bookmarkData.id : '',
       '{bmk_1000}': fileName.getBKM1000(body.bookmarkCount),
@@ -323,14 +329,16 @@ class CopyWorkInfo {
     }
 
     // 替换标记
-    let str = settings.copyWorkInfoFormat
+    // 格式里的换行符需要先转换成当前格式使用的换行标记：
+    // 复制为文本时使用 \n，复制为 html 时使用 <br>
+    let str = settings.copyWorkInfoFormat.replace(/\r\n?|\n/g, lf)
     Object.entries(cfg).forEach(([key, val]) => {
       // console.log(`${key}\t${val}`)
       str = str.replace(new RegExp(key, 'g'), val as string)
     })
     // 以换行符分割，如果某一行的内容是空字符串，则移除这一行
     // 这是为了防止某个标记为空时，产生连续的换行
-    // 例如 {AI} 标记的结果为空时，{AI}{n} 就会产生一个空白的换行
+    // 例如 {AI} 标记的结果为空时，{AI}\n 就会产生一个空白的换行
     str = str
       .split(lf)
       .filter((str) => str !== '')

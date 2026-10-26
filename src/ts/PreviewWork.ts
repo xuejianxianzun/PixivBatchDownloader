@@ -16,7 +16,8 @@ import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { logErrorStatus } from './crawl/LogErrorStatus'
 import { filter } from './filter/Filter'
-import { addBookmarkWhenPreviewWorks } from './AddBookmarkWhenPreviewWorks'
+import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
+import { bookmarkPanel } from './BookmarkPanel'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -148,7 +149,7 @@ class PreviewWork {
           showOneTimeMsg.show(
             'tipPreviewWork',
             lang.transl('_预览作品的快捷键说明'),
-            lang.transl('_预览作品')
+            lang.transl('_当鼠标停留在作品缩略图上时预览作品')
           )
         }
       }
@@ -252,6 +253,10 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
+        // 收藏操作面板显示时，不响应本模块的快捷键，避免再次弹出面板、或者按 Esc 时连带关闭预览
+        if (bookmarkPanel.isOpen) {
+          return
+        }
         if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
           return
         }
@@ -327,7 +332,7 @@ class PreviewWork {
         if (ev.code === 'KeyB') {
           ev.preventDefault()
           ev.stopPropagation()
-          addBookmarkWhenPreviewWorks.add(this.workData, this.workEL, true)
+          addBookmarkFromWorkThumb.add(this.workData, this.workEL)
         }
 
         // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片

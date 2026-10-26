@@ -4,6 +4,7 @@ import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
 import { log } from '../Log'
+import { Config } from '../Config'
 
 // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
 // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
@@ -36,7 +37,8 @@ class WorkPublishTime {
     const length = type === 'illusts' ? this.illustsLength : this.novelsLength
     const index = Math.floor(id / this.gap)
 
-    // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+    // 如果传入的 id 大于等于最后一条记录的 id，也就是说传入的 id 可能比数据源里最后一个作品的发表时间更晚，
+    // 则把开始时间设置为最后一条记录的时间，结束时间设置为现在。
     if (index >= length - 1) {
       return [data[length - 1][1], Date.now()]
     }
@@ -125,7 +127,10 @@ class WorkPublishTime {
       return result
     }
 
-    const resultList = await Utils.json2BlobSafe(result)
+    const resultList = await Utils.json2BlobSafe(
+      result,
+      Config.exportFileByteLengthLimit
+    )
     for (const result of resultList) {
       Utils.downloadFile(
         result.url,

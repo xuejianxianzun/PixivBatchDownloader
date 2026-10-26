@@ -446,7 +446,7 @@ export const langText = {
   ],
   _设置收藏数量的提示: [
     `最小值和最大值：<br>
-    你可以设置作品的收藏数量范围，以排除不需要的作品。<br>
+    它用来检查作品的收藏总数。你可以设置收藏数量范围，以排除不需要的作品。<br>
     <br>
     日均收藏数量：<br>
     这是一个补充设置，目的是筛选<strong>近期新发布的</strong>高质量作品，你可以根据需要启用它。<br>
@@ -462,7 +462,7 @@ export const langText = {
     收藏数量范围和日均收藏数量是两个独立、互相补充的筛选条件。只要作品满足这两个条件中的任意一种，就会被抓取。<br>
     日均收藏数量适合作为补充手段来筛选近期发布的作品。它不适合用来筛选发布很久的作品，因为作品发布越久，日均收藏数量就越低。`,
     `最小值和最大值：<br>
-    你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
+    它用來檢查作品的收藏總數。你可以設定作品的收藏數量範圍，以排除不需要的作品。<br>
     <br>
     日均收藏數量：<br>
     這是一個補充設定，目的是篩選<strong>近期新發布的</strong>高品質作品，你可以根據需要啟用它。<br>
@@ -478,7 +478,7 @@ export const langText = {
     收藏數量範圍和日均收藏數量是兩個獨立、互相補充的篩選條件。只要作品滿足這兩個條件中的任意一種，就會被擷取。<br>
     日均收藏數量適合作為補充手段來篩選近期發布的作品。它不適合用來篩選發布很久的作品，因為作品發布越久，日均收藏數量就越低。`,
     `Minimum and maximum:<br>
-    You can set a bookmark count range for works, to exclude the ones you do not need.<br>
+    It checks the total bookmark count of a work. You can set a bookmark count range for works, to exclude the ones you do not need.<br>
     <br>
     Average number of daily bookmarks:<br>
     This is a supplementary setting, aimed at filtering <strong>recently published</strong> high-quality works. You can enable it as needed.<br>
@@ -494,7 +494,7 @@ export const langText = {
     The bookmark count range and the average number of daily bookmarks are two independent filter conditions that complement each other. A work will be crawled as long as it meets either one of them.<br>
     The average number of daily bookmarks is suitable as a supplementary way to filter recently published works. It is not suitable for filtering works published long ago, because the longer a work has been published, the lower its average number of daily bookmarks becomes.`,
     `最小値と最大値：<br>
-    作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
+    これは作品のブックマーク数の合計をチェックするためのものです。作品のブックマーク数の範囲を設定して、不要な作品を除外できます。<br>
     <br>
     1 日の平均ブックマーク数：<br>
     これは補助的な設定で、<strong>最近公開された</strong>高品質な作品を絞り込むことが目的です。必要に応じて有効にしてください。<br>
@@ -510,7 +510,7 @@ export const langText = {
     ブックマーク数の範囲と 1 日の平均ブックマーク数は、互いに補完し合う独立した 2 つの絞り込み条件です。作品はどちらか一方を満たせばクロールされます。<br>
     1 日の平均ブックマーク数は、最近公開された作品を絞り込む補助手段として適しています。公開されてから時間が経つほど 1 日の平均ブックマーク数は低くなるため、ずっと前に公開された作品の絞り込みには適していません。`,
     `최솟값과 최댓값:<br>
-    작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
+    이 설정은 작품의 북마크 수 총합을 확인하는 데 사용됩니다. 작품의 북마크 수 범위를 설정하여 원하지 않는 작품을 제외할 수 있습니다.<br>
     <br>
     일일 평균 북마크 수:<br>
     이것은 <strong>최근에 게시된</strong> 고품질 작품을 선별하기 위한 보조 설정입니다. 필요에 따라 사용할 수 있습니다.<br>
@@ -526,7 +526,7 @@ export const langText = {
     북마크 수 범위와 일일 평균 북마크 수는 서로 독립적이면서 상호 보완적인 두 개의 선별 조건입니다. 작품은 둘 중 하나만 만족해도 크롤링됩니다.<br>
     일일 평균 북마크 수는 최근에 게시된 작품을 선별하는 보조 수단으로 적합합니다. 게시된 지 오래된 작품을 선별하는 데는 적합하지 않습니다. 게시된 지 오래될수록 일일 평균 북마크 수가 낮아지기 때문입니다.`,
     `Минимум и максимум:<br>
-    Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
+    Она используется для проверки общего количества закладок у работ. Вы можете задать диапазон количества закладок у работ, чтобы исключить ненужные.<br>
     <br>
     Среднее количество ежедневных закладок:<br>
     Это дополнительная настройка, предназначенная для отбора <strong>недавно опубликованных</strong> высококачественных работ. Вы можете включить её при необходимости.<br>
@@ -1017,6 +1017,14 @@ And so on.
     `🛸これらのタイプの作品を除外：`,
     `🛸제외된 작품 유형: `,
     `🛸Исключает эти виды работ: `,
+  ],
+  _排除图片格式: [
+    `🛸排除图片格式：`,
+    `🛸排除圖片格式：`,
+    `🛸Excludes these image formats: `,
+    `🛸これらの画像形式を除外：`,
+    `🛸제외된 이미지 형식: `,
+    `🛸Исключает эти форматы изображений: `,
   ],
   _多图作品: [
     `多图作品`,
@@ -1942,19 +1950,35 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
   ],
   _命名标记_match_tag_folder1: [
     `它是"使用第一个匹配的标签建立文件夹"里第一个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
-    `它是「使用第一個匹配的標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
-    `This is the match result of the first tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
-    `これは「最初にマッチしたタグを使ってフォルダーを作成する」の最初のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
-    `이것은 "처음 매칭된 태그로 폴더 만들기"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
-    `Это результат совпадения первого списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+    `它是「使用第一個符合的標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the first tag list in "Create a folder with the first matched tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初の一致するタグにフォルダを作成」の最初のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 태그로 디렉토리 생성"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения первого списка тегов в настройке "Создать папку с первым совпавшим тегом". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
   ],
   _命名标记_match_tag_folder2: [
     `它是"使用第一个匹配的标签建立文件夹"里第二个标签列表的匹配结果。如果你启用了这个设置，并且匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
-    `它是「使用第一個匹配的標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
-    `This is the match result of the second tag list in "Create folder using the first matching tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
-    `これは「最初にマッチしたタグを使ってフォルダーを作成する」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
-    `이것은 "처음 매칭된 태그로 폴더 만들기"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
-    `Это результат совпадения второго списка тегов в настройке "Создать папку по первому совпавшему тегу". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+    `它是「使用第一個符合的標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the second tag list in "Create a folder with the first matched tag". If you have enabled this setting and a matching tag is found, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初の一致するタグにフォルダを作成」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、設定したタグがマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 태그로 디렉토리 생성"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 설정한 태그가 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения второго списка тегов в настройке "Создать папку с первым совпавшим тегом". Если вы включили эту настройку и найдено совпадение с заданным тегом, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+  ],
+  _命名标记_match_bookmark_tag_folder1: [
+    `它是"使用第一个匹配的收藏标签建立文件夹"里第一个标签列表的匹配结果。如果你启用了这个设置，并且作品的收藏标签匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+    `它是「使用第一個符合的收藏標籤建立資料夾」裡第一個標籤列表的匹配結果。如果你啟用了這個設定，並且作品的收藏標籤匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the first tag list in "Create a folder with the first matched bookmark tag". If you have enabled this setting and the work's bookmark tags contain a tag you set, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初に一致するブックマークタグにフォルダを作成」の最初のタグリストのマッチ結果です。この設定を有効にしていて、作品のブックマークタグが設定したタグとマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 북마크 태그로 디렉토리 생성"에서 첫 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 작품의 북마크 태그가 설정한 태그와 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения первого списка тегов в настройке «Создать папку с первым совпавшим тегом закладки». Если вы включили эту настройку и теги закладок работы содержат заданный вами тег, токен выведет этот тег; в противном случае он будет проигнорирован.`,
+  ],
+  _命名标记_match_bookmark_tag_folder2: [
+    `它是"使用第一个匹配的收藏标签建立文件夹"里第二个标签列表的匹配结果。如果你启用了这个设置，并且作品的收藏标签匹配到了你设置的标签，它就会输出这个标签；否则会被忽略。`,
+    `它是「使用第一個符合的收藏標籤建立資料夾」裡第二個標籤列表的匹配結果。如果你啟用了這個設定，並且作品的收藏標籤匹配到了你設定的標籤，它就會輸出這個標籤；否則會被忽略。`,
+    `This is the match result of the second tag list in "Create a folder with the first matched bookmark tag". If you have enabled this setting and the work's bookmark tags contain a tag you set, it will output that tag; otherwise it will be ignored.`,
+    `これは「最初に一致するブックマークタグにフォルダを作成」の2番目のタグリストのマッチ結果です。この設定を有効にしていて、作品のブックマークタグが設定したタグとマッチした場合はそのタグを出力します。マッチしなかった場合は無視されます。`,
+    `이것은 "첫 번째 일치하는 북마크 태그로 디렉토리 생성"에서 두 번째 태그 목록의 매칭 결과입니다. 이 설정을 활성화하고 작품의 북마크 태그가 설정한 태그와 매칭되면 해당 태그를 출력합니다. 그렇지 않으면 무시됩니다.`,
+    `Это результат совпадения второго списка тегов в настройке «Создать папку с первым совпавшим тегом закладки». Если вы включили эту настройку и теги закладок работы содержат заданный вами тег, токен выведет этот тег; в противном случае он будет проигнорирован.`,
   ],
   _命名标记tags_trans: [
     `作品的标签列表，并且附带翻译后的标签`,
@@ -1971,6 +1995,14 @@ This part only applies to Windows. With a few settings, you can view thumbnails 
     `翻訳后のタグリスト`,
     `번역된 태그`,
     `Теги перевода`,
+  ],
+  _命名标记bookmark_tags: [
+    `作品的收藏标签列表。当你收藏一个作品之后，可以为它添加自定义的收藏标签；这个标记用来输出作品的收藏标签。注意：1. 只有当你在收藏页面里抓取作品时，这个标记才是有效的；在其他页面里抓取时无效（通常不会输出内容）。2. 如果你没有为作品添加收藏标签，那么这个标记也不会输出内容。`,
+    `作品的收藏標籤清單。當你收藏一個作品之後，可以為它新增自訂的收藏標籤；這個標記用來輸出作品的收藏標籤。注意：1. 只有當你在收藏頁面裡擷取作品時，這個標記才是有效的；在其他頁面裡擷取時無效（通常不會輸出內容）。2. 如果你沒有為作品新增收藏標籤，那麼這個標記也不會輸出內容。`,
+    `The list of bookmark tags of the work. After you bookmark a work, you can add custom bookmark tags to it; this token outputs the work's bookmark tags. Note: 1. This token is only valid when you crawl works on the bookmarks page; it is invalid when crawling on other pages (usually outputs nothing). 2. If you haven't added any bookmark tags to the work, this token will also output nothing.`,
+    `作品のブックマークタグのリスト。作品をブックマークした後、その作品に独自のブックマークタグを追加できます。このトークンは作品のブックマークタグを出力します。注意：1. このトークンはブックマークページで作品をクロールする場合にのみ有効です。他のページでクロールする場合は無効です（通常は何も出力されません）。2. 作品にブックマークタグを追加していない場合、このトークンも何も出力しません。`,
+    `작품의 북마크 태그 목록. 작품을 북마크한 후 해당 작품에 사용자 지정 북마크 태그를 추가할 수 있습니다. 이 토큰은 작품의 북마크 태그를 출력합니다. 참고: 1. 이 토큰은 북마크 페이지에서 작품을 긁어올 때만 유효합니다. 다른 페이지에서 긁어올 때는 유효하지 않습니다(보통 아무것도 출력되지 않음). 2. 작품에 북마크 태그를 추가하지 않았다면 이 토큰도 아무것도 출력하지 않습니다.`,
+    `Список тегов закладок работы. После добавления работы в закладки вы можете добавить к ней собственные теги закладок; этот токен выводит теги закладок работы. Примечание: 1. Этот токен действует только при сканировании работ на странице ваших закладок; на других страницах он не действует (обычно ничего не выводит). 2. Если вы не добавили к работе теги закладок, этот токен также ничего не выведет.`,
   ],
   _命名标记date: [
     `作品的创建时间。如 <span class="blue">2019-08-29</span>。`,
@@ -2669,30 +2701,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `움직이는 일러스트 작품 지우기`,
     `Убрать Ugoira(gif) работы`,
   ],
-  _手动删除作品: [
-    `手动删除作品`,
-    `手動刪除作品`,
-    `Manually delete works`,
-    `作品を手動で削除する`,
-    `수동 지우기`,
-    `Ручное удаление`,
-  ],
-  _手动删除作品Title: [
-    `可以在下载前手动删除不需要的作品`,
-    `可以在下載前手動刪除不需要的作品，點擊作品刪除。`,
-    `You can manually delete unwanted work before downloading`,
-    `ダウンロードする前に不要な作品を手動で削除することができます`,
-    `다운로드를 원하지 않는 작품을 수동으로 지울 수 있습니다.`,
-    `Вы можете вручную удалить нежелательные работы перед загрузкой`,
-  ],
-  _退出手动删除: [
-    `退出手动删除`,
-    `結束手動刪除`,
-    `Exit manual delete mode`,
-    `削除モードを終了する`,
-    `수동 지우기 종료`,
-    `Выйти из ручного удаления`,
-  ],
   _抓取本页作品: [
     `抓取本页作品`,
     `擷取本頁作品`,
@@ -2790,19 +2798,19 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `Настройки блокировки`,
   ],
   _举报: [`举报`, `檢舉`, `Report`, `報告`, `신고`, `Пожаловаться`],
-  _输入id进行抓取: [
-    `输入 ID 进行抓取`,
-    `輸入 ID 進行擷取`,
-    `Enter ID to crawl`,
-    `IDを入力してクロールする`,
-    `ID를 입력하여 긁어오기`,
-    `Введите ID для сканирования`,
+  _抓取作品列表: [
+    `抓取作品列表`,
+    `擷取作品列表`,
+    `Crawl work list`,
+    `作品リストをクロール`,
+    `작품 목록 긁어오기`,
+    `Сканировать список работ`,
   ],
-  _输入id进行抓取的提示文字: [
-    `请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。`,
-    `請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。`,
+  _抓取作品列表的提示文字: [
+    `请输入作品 ID。如果有多个 ID，则以换行分割（即每行一个ID）。`,
+    `請輸入作品 ID。如果有多個 ID，則以換行分隔（即每行一個 ID）。`,
     `Enter work IDs. For multiple IDs, separate them with newlines (one ID per line).`,
-    `作品IDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。`,
+    `作品IDを入力してください。 複数の ID がある場合は、1 行に 1 つの ID を付けます。`,
     `작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).`,
     `Пожалуйста, введите идентификатор работы. Если идентификаторов несколько, то по одному идентификатору на строку.`,
   ],
@@ -2907,7 +2915,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `你可以设置是否自动开始下载。<br>
 <br>
 下载任务分为两种：<br>
-- 普通下载任务：下载器的“开始抓取”区域里有多个抓取按钮，点击第一排的抓取按钮通常会建立普通下载任务，只有两个按钮例外：“定时抓取”和“抓取标签列表”。<br>
+- 普通下载任务：下载器的“开始抓取”区域里有多个抓取按钮，点击第一排的抓取按钮通常会建立普通下载任务，只有三个按钮例外：“定时抓取”、“抓取标签列表”和“抓取用户列表”。<br>
 - 快速下载任务：直接点击下载按钮，或者抓取手动选择的作品。这些行为有更强烈的“立即下载”或“自动下载”的需求，所以以前下载器总是会自动下载它们。现在你也可以把它们设置为不自动开始下载。<br>
 <br>
 快速下载任务会由这些行为触发：<br>
@@ -2919,11 +2927,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 点击收藏按钮或点赞按钮建立的下载任务<br>
 - 定时抓取<br>
 - 抓取标签列表<br>
-- 在首页里输入 ID 进行抓取、抓取 ID 区间`,
+- 在首页里抓取作品列表、抓取作品 ID 区间<br>
+- 抓取用户列表`,
     `你可以設定是否自動開始下載。<br>
 <br>
 下載任務分為兩種：<br>
-- 普通下載任務：下載器的「開始擷取」區域裡有多個擷取按鈕，點擊第一排的擷取按鈕通常會建立普通下載任務，只有兩個按鈕例外：「定時擷取」和「擷取標籤列表」。<br>
+- 普通下載任務：下載器的「開始擷取」區域裡有多個擷取按鈕，點擊第一排的擷取按鈕通常會建立普通下載任務，只有三個按鈕例外：「定時擷取」、「擷取標籤列表」和「擷取用戶列表」。<br>
 - 快速下載任務：直接點擊下載按鈕，或者擷取手動選擇的作品。這些行為有更強烈的「立即下載」或「自動下載」的需求，所以以前下載器總是會自動下載它們。現在你也可以把它們設定為不自動開始下載。<br>
 <br>
 快速下載任務會由這些行為觸發：<br>
@@ -2935,11 +2944,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 - 點擊收藏按鈕或點讚按鈕建立的下載任務<br>
 - 定時擷取<br>
 - 擷取標籤列表<br>
-- 在首頁裡輸入 ID 進行擷取、擷取 ID 區間`,
+- 在首頁裡擷取作品列表、擷取作品 ID 區間<br>
+- 擷取用戶列表`,
     `You can set whether to start downloading automatically.<br>
 <br>
 There are two types of download tasks:<br>
-- Normal download task: there are multiple crawl buttons in the "Start crawling" area of the downloader. Clicking the crawl buttons in the first row usually creates a normal download task, with only two exceptions: "Timed crawl" and "Crawl tag list".<br>
+- Normal download task: there are multiple crawl buttons in the "Start crawling" area of the downloader. Clicking the crawl buttons in the first row usually creates a normal download task, with only three exceptions: "Timed crawl", "Crawl tag list" and "Crawl user list".<br>
 - Quick download task: directly clicking the download button, or crawling manually selected works. These actions have a stronger need for "download immediately" or "auto-download", so the downloader always used to download them automatically. Now you can also set them not to start downloading automatically.<br>
 <br>
 Quick download tasks are triggered by these actions:<br>
@@ -2951,11 +2961,12 @@ Quick download tasks are triggered by these actions:<br>
 - Download tasks created by clicking the bookmark button or the like button<br>
 - Timed crawl<br>
 - Crawl tag list<br>
-- Entering an ID to crawl or crawling an ID range on the HomePage`,
+- Crawling a work list or a work ID range on the HomePage<br>
+- Crawl user list`,
     `自動でダウンロードを開始するかどうかを設定できます。<br>
 <br>
 ダウンロードタスクは2種類あります：<br>
-- 通常ダウンロードタスク：ダウンローダーの「クロールを開始する」エリアには複数のクロールボタンがあります。1列目のクロールボタンをクリックすると、通常は通常ダウンロードタスクが作成されます。例外は「時限クロール」と「タグのリストをクロール」の2つのボタンだけです。<br>
+- 通常ダウンロードタスク：ダウンローダーの「クロールを開始する」エリアには複数のクロールボタンがあります。1列目のクロールボタンをクリックすると、通常は通常ダウンロードタスクが作成されます。例外は「時限クロール」、「タグのリストをクロール」、「ユーザーリストをクロール」の3つのボタンだけです。<br>
 - クイックダウンロードタスク：ダウンロードボタンを直接クリックするか、手動で選択した作品をクロールします。これらの操作には「すぐにダウンロード」または「自動ダウンロード」という強いニーズがあるため、以前はダウンローダーは常に自動的にダウンロードしていました。現在は、自動的にダウンロードを開始しないように設定することもできます。<br>
 <br>
 クイックダウンロードタスクは次の操作でトリガーされます：<br>
@@ -2967,11 +2978,12 @@ Quick download tasks are triggered by these actions:<br>
 - ブックマークボタンまたはいいねボタンをクリックして作成されたダウンロードタスク<br>
 - 時限クロール<br>
 - タグのリストをクロール<br>
-- ホームで ID を入力してクロールする、または ID 範囲をクロールする`,
+- ホームで作品リストをクロールする、または作品 ID 範囲をクロールする<br>
+- ユーザーリストをクロール`,
     `다운로드를 자동으로 시작할지 여부를 설정할 수 있습니다.<br>
 <br>
 다운로드 작업에는 두 가지 유형이 있습니다:<br>
-- 일반 다운로드 작업: 다운로더의 "긁어오기 시작" 영역에는 여러 크롤링 버튼이 있습니다. 첫 번째 줄의 크롤링 버튼을 클릭하면 일반적으로 일반 다운로드 작업이 생성됩니다. 예외는 "시간 제한 크롤링"과 "태그 긁어오기" 두 버튼뿐입니다.<br>
+- 일반 다운로드 작업: 다운로더의 "긁어오기 시작" 영역에는 여러 크롤링 버튼이 있습니다. 첫 번째 줄의 크롤링 버튼을 클릭하면 일반적으로 일반 다운로드 작업이 생성됩니다. 예외는 "시간 제한 크롤링", "태그 긁어오기", "사용자 목록 긁어오기" 세 버튼뿐입니다.<br>
 - 빠른 다운로드 작업: 다운로드 버튼을 직접 클릭하거나 수동으로 선택한 작품을 크롤링합니다. 이러한 동작은 "즉시 다운로드" 또는 "자동 다운로드"에 대한 요구가 더 강하므로 이전에는 다운로더가 항상 자동으로 다운로드했습니다. 이제 자동으로 다운로드를 시작하지 않도록 설정할 수도 있습니다.<br>
 <br>
 빠른 다운로드 작업은 다음 동작으로 트리거됩니다:<br>
@@ -2983,11 +2995,12 @@ Quick download tasks are triggered by these actions:<br>
 - 북마크 버튼 또는 좋아요 버튼을 클릭하여 생성된 다운로드 작업<br>
 - 시간 제한 크롤링<br>
 - 태그 긁어오기<br>
-- 홈에서 ID를 입력하여 긁어오기 또는 ID 범위 긁어오기`,
+- 홈에서 작품 목록 긁어오기 또는 작품 ID 범위 긁어오기<br>
+- 사용자 목록 긁어오기`,
     `Вы можете настроить, начинать ли загрузку автоматически.<br>
 <br>
 Задачи загрузки бывают двух типов:<br>
-- Обычная загрузка: в области «Начать сканирование» загрузчика есть несколько кнопок сканирования. Нажатие кнопок сканирования в первом ряду обычно создает обычную задачу загрузки, за исключением двух кнопок: «Сканирование по таймеру» и «Сканировать список тегов».<br>
+- Обычная загрузка: в области «Начать сканирование» загрузчика есть несколько кнопок сканирования. Нажатие кнопок сканирования в первом ряду обычно создает обычную задачу загрузки, за исключением трёх кнопок: «Сканирование по таймеру», «Сканировать список тегов» и «Сканировать список пользователей».<br>
 - Быстрая загрузка: нажатие кнопки загрузки напрямую или сканирование вручную выбранных работ. Эти действия имеют более сильную потребность в «немедленной загрузке» или «автоматической загрузке», поэтому раньше загрузчик всегда загружал их автоматически. Теперь вы также можете настроить их так, чтобы они не начинали загружаться автоматически.<br>
 <br>
 Быстрая загрузка запускается следующими действиями:<br>
@@ -2999,7 +3012,8 @@ Quick download tasks are triggered by these actions:<br>
 - Задачи загрузки, созданные нажатием кнопки закладки или кнопки «Нравится»<br>
 - Сканирование по таймеру<br>
 - Сканирование списка тегов<br>
-- Ввод ID для сканирования или сканирование диапазона идентификаторов на главной`,
+- Сканирование списка работ или диапазона идентификаторов работ на главной<br>
+- Сканировать список пользователей`,
   ],
   _转换任务提示: [
     `正在转换 {} 个文件`,
@@ -3372,7 +3386,7 @@ Quick download tasks are triggered by these actions:<br>
     启用预览功能时，下载器不会自动开始下载，这是为了让用户可以对抓取结果再次进行筛选。<br>
     在这些页面上，你可以使用设置面板里的这些按钮调整抓取结果：<br>
     - 修改筛选条件后点击在结果中筛选；<br>
-    - 清除多图作品、清除动图作品、手动删除作品、手动排除作品。<br>
+    - 清除多图作品、清除动图作品、手动排除作品。<br>
     <br>
     另外，当抓取结果较多时，下载器会分页显示，以降低性能压力。你可以设置每页显示的作品数量。`,
     `當你在搜尋頁面（/tags 和 /search）裡擷取插畫、漫畫作品時，下載器可以把擷取到的作品顯示在頁面上，並且按照收藏數量從高到低排序。<br>
@@ -3380,7 +3394,7 @@ Quick download tasks are triggered by these actions:<br>
     啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對擷取結果再次進行篩選。<br>
     在這些頁面上，你可以使用設定面板裡的這些按鈕調整擷取結果：<br>
     - 修改篩選條件後點擊在結果中篩選；<br>
-    - 清除多圖作品、清除動圖作品、手動刪除作品、手動排除作品。<br>
+    - 清除多圖作品、清除動圖作品、手動排除作品。<br>
     <br>
     另外，當擷取結果較多時，下載器會分頁顯示，以降低效能壓力。你可以設定每頁顯示的作品數量。`,
     `When you crawl illustrations and manga on search pages (/tags and /search), the downloader can display the crawled works on the page, sorted by bookmark count from highest to lowest.<br>
@@ -3388,7 +3402,7 @@ Quick download tasks are triggered by these actions:<br>
     When the preview feature is enabled, the downloader will not start downloading automatically, so that you can filter the crawl results again.<br>
     On these pages, you can use these buttons in the settings panel to adjust the crawl results:<br>
     - After changing the filter conditions, click "Screen in results";<br>
-    - Remove multi-image works, remove ugoira works, manually delete works, manually exclude works.<br>
+    - Remove multi-image works, remove ugoira works, manually exclude works.<br>
     <br>
     In addition, when there are many crawl results, the downloader will display them in pages to reduce performance pressure. You can set the number of works shown per page.`,
     `検索ページ（/tags と /search）でイラストやマンガ作品をクロールするとき、ダウンローダーはクロールした作品をページ上に表示し、ブックマークの数が多い順に並べ替えることができます。<br>
@@ -3396,7 +3410,7 @@ Quick download tasks are triggered by these actions:<br>
     プレビュー機能を有効にしているとき、ダウンローダーは自動的にダウンロードを開始しません。これはユーザーがクロール結果を再度スクリーニングできるようにするためです。<br>
     これらのページでは、設定パネルにある以下のボタンでクロール結果を調整できます：<br>
     - フィルター条件を変更したあとに「結果の中からスクリーニング」をクリックする；<br>
-    - 複数画像をクリア、うごイラ作品を削除する、作品を手動で削除する、手動で作品を除外。<br>
+    - 複数画像をクリア、うごイラ作品を削除する、手動で作品を除外。<br>
     <br>
     また、クロール結果が多い場合、ダウンローダーはパフォーマンスへの負荷を下げるためにページ分割して表示します。1 ページに表示する作品数を設定できます。`,
     `검색 페이지(/tags 및 /search)에서 일러스트와 만화 작품을 크롤링할 때, 다운로더는 크롤링한 작품을 페이지에 표시하고 북마크 수가 높은 순서대로 정렬할 수 있습니다.<br>
@@ -3404,7 +3418,7 @@ Quick download tasks are triggered by these actions:<br>
     미리보기 기능을 사용하면 다운로더가 자동으로 다운로드를 시작하지 않습니다. 사용자가 크롤링 결과를 다시 선별할 수 있도록 하기 위함입니다.<br>
     이 페이지에서는 설정 패널의 다음 버튼으로 크롤링 결과를 조정할 수 있습니다:<br>
     - 필터 조건을 수정한 뒤 "결과 중에서 선별"을 클릭합니다;<br>
-    - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 지우기, 수동 제외.<br>
+    - 여러 이미지 작품 지우기, 움직이는 일러스트 작품 지우기, 수동 제외.<br>
     <br>
     또한 크롤링 결과가 많을 때 다운로더는 성능 부담을 줄이기 위해 페이지로 나누어 표시합니다. 페이지당 표시할 작품 수를 설정할 수 있습니다.`,
     `При сканировании иллюстраций и манги на страницах поиска (/tags и /search) загрузчик может отображать найденные работы на странице, отсортированные по количеству закладок от большего к меньшему.<br>
@@ -3412,7 +3426,7 @@ Quick download tasks are triggered by these actions:<br>
     Когда функция предварительного просмотра включена, загрузчик не начинает загрузку автоматически — это сделано для того, чтобы вы могли снова отфильтровать результаты сканирования.<br>
     На этих страницах вы можете изменить результаты сканирования с помощью этих кнопок на панели настроек:<br>
     - Изменив условия фильтрации, нажмите «Экран результатов»;<br>
-    - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное удаление, ручное исключение.<br>
+    - Удалить работы с несколькими изображениями, убрать Ugoira(gif) работы, ручное исключение.<br>
     <br>
     Кроме того, когда результатов сканирования много, загрузчик отображает их постранично, чтобы снизить нагрузку на производительность. Вы можете настроить количество работ на странице.`,
   ],
@@ -3656,6 +3670,14 @@ Quick download tasks are triggered by these actions:<br>
     `Fanbox 다운로더`,
     `Fanbox загрузчик`,
   ],
+  _不保存图片因为你排除了这种格式: [
+    `{} 没有被保存，因为你排除了这种格式：{}`,
+    `{} 並未儲存，因為你排除了這種格式：{}`,
+    `{} was not saved because you excluded this format: {}`,
+    `{} はあなたがこの形式を除外したため、保存されていません：{}`,
+    `이 형식을 제외했기 때문에 {} 파일이 저장되지 않았습니다: {}`,
+    `{} не был(и) сохранен(ы), потому что вы исключили этот формат: {}`,
+  ],
   _不保存图片因为体积: [
     `{} 没有被保存，因为它的体积不符合设定。`,
     `{} 並未儲存，因為它的大小不符合設定。`,
@@ -3696,6 +3718,14 @@ Quick download tasks are triggered by these actions:<br>
     `시리즈 소설 긁어오기`,
     `Просканировать серию новелл`,
   ],
+  _抓取追更列表: [
+    `抓取追更列表`,
+    `擷取追更列表`,
+    `Crawl watch list`,
+    `ウォッチリストをクロール`,
+    `구독 목록 긁어오기`,
+    `Просканировать список отслеживаемых`,
+  ],
   _合并系列小说: [
     `合并系列小说`,
     `合併系列小說`,
@@ -3719,6 +3749,14 @@ Quick download tasks are triggered by these actions:<br>
     `シリーズ小説のマージをスキップ`,
     `시리즈 소설 병합 건너뛰기`,
     `Пропустить объединение серий романов`,
+  ],
+  _已停止合并系列小说: [
+    `已停止合并系列小说`,
+    `已停止合併系列小說`,
+    `Stopped merging the novel series`,
+    `シリーズ小説のマージを停止しました`,
+    `시리즈 소설 병합 중지됨`,
+    `Объединение серий романов остановлено`,
   ],
   _获取小说列表: [
     `获取小说列表`,
@@ -3866,7 +3904,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - 它是纯文本文件。<br>
     - 虽然它也能用小说阅读器打开，但是对于章节的识别往往不准确。<br>
-    - 由于 TXT 文件里无法保存图片，因此当你选择 TXT 格式时，小说里的图片会单独保存。`,
+    - 由于 TXT 文件里无法保存图片，因此当你选择 TXT 格式时，小说里的图片会单独保存。<br>
+    <br>
+    备注：<br>
+    你可以只选择一种格式，也可以同时选择两种格式。<br>
+    如果你没有选择任何格式，下载器会使用 EPUB 格式。`,
     `EPUB：<br>
     - 它是電子書格式，需要使用小說閱讀器開啟（例如 Koodo Reader、Thorium Reader、calibre 等，也有一些網站可以在瀏覽器裡開啟 EPUB 檔案進行閱讀）。<br>
     - 當小說分為多個章節時，閱讀器可以準確識別章節目錄。<br>
@@ -3875,7 +3917,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - 它是純文字檔案。<br>
     - 雖然它也能用小說閱讀器開啟，但是對於章節的識別往往不準確。<br>
-    - 由於 TXT 檔案裡無法儲存圖片，因此當你選擇 TXT 格式時，小說裡的圖片會單獨儲存。`,
+    - 由於 TXT 檔案裡無法儲存圖片，因此當你選擇 TXT 格式時，小說裡的圖片會單獨儲存。<br>
+    <br>
+    備註：<br>
+    你可以只選擇一種格式，也可以同時選擇兩種格式。<br>
+    如果你沒有選擇任何格式，下載器會使用 EPUB 格式。`,
     `EPUB:<br>
     - It is an e-book format, so it needs to be opened with a novel reader (for example, Koodo Reader, Thorium Reader, calibre, etc. There are also some websites that can open EPUB files for reading in the browser).<br>
     - When the novel is divided into multiple chapters, the reader can accurately recognize the chapter list.<br>
@@ -3884,7 +3930,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - It is a plain text file.<br>
     - Although it can also be opened with a novel reader, chapters are often not recognized accurately.<br>
-    - Since pictures cannot be saved in a TXT file, when you select the TXT format, the pictures in the novel will be saved separately.`,
+    - Since pictures cannot be saved in a TXT file, when you select the TXT format, the pictures in the novel will be saved separately.<br>
+    <br>
+    Note:<br>
+    You can select only one format, or select both formats at the same time.<br>
+    If you don't select any format, the downloader will use the EPUB format.`,
     `EPUB：<br>
     - 電子書籍形式です。小説リーダーで開く必要があります（例：Koodo Reader、Thorium Reader、calibre など。ブラウザで EPUB ファイルを開いて読めるウェブサイトもあります）。<br>
     - 小説が複数の章に分かれている場合、リーダーは章の目次を正確に認識できます。<br>
@@ -3893,7 +3943,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT：<br>
     - プレーンテキストファイルです。<br>
     - 小説リーダーで開くこともできますが、章の認識はしばしば不正確です。<br>
-    - TXT ファイルには画像を保存できないため、TXT 形式を選択した場合、小説内の画像は別途保存されます。`,
+    - TXT ファイルには画像を保存できないため、TXT 形式を選択した場合、小説内の画像は別途保存されます。<br>
+    <br>
+    備考：<br>
+    1 つの形式だけを選択することも、2 つの形式を同時に選択することもできます。<br>
+    何も選択しない場合、ダウンローダーは EPUB 形式を使用します。`,
     `EPUB:<br>
     - 전자책 형식이므로 소설 리더로 열어야 합니다(예: Koodo Reader, Thorium Reader, calibre 등. 브라우저에서 EPUB 파일을 열어 읽을 수 있는 웹사이트도 있습니다).<br>
     - 소설이 여러 장으로 나뉘어 있을 때 리더는 장 목록을 정확하게 인식할 수 있습니다.<br>
@@ -3902,7 +3956,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - 일반 텍스트 파일입니다.<br>
     - 소설 리더로 열 수도 있지만, 장을 정확하게 인식하지 못하는 경우가 많습니다.<br>
-    - TXT 파일에는 그림을 저장할 수 없으므로 TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다.`,
+    - TXT 파일에는 그림을 저장할 수 없으므로 TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다.<br>
+    <br>
+    참고:<br>
+    한 가지 형식만 선택할 수도 있고, 두 가지 형식을 동시에 선택할 수도 있습니다.<br>
+    아무 형식도 선택하지 않으면 다운로더는 EPUB 형식을 사용합니다.`,
     `EPUB:<br>
     - Это формат электронной книги, для открытия нужна программа для чтения (например, Koodo Reader, Thorium Reader, calibre и др.; есть также сайты, которые открывают файлы EPUB для чтения в браузере).<br>
     - Если роман разделён на несколько глав, программа для чтения может точно распознать список глав.<br>
@@ -3911,7 +3969,11 @@ Quick download tasks are triggered by these actions:<br>
     TXT:<br>
     - Это простой текстовый файл.<br>
     - Его тоже можно открыть программой для чтения, но главы часто распознаются неточно.<br>
-    - Поскольку в файле TXT невозможно сохранить изображения, при выборе формата TXT изображения в романе будут сохранены отдельно.`,
+    - Поскольку в файле TXT невозможно сохранить изображения, при выборе формата TXT изображения в романе будут сохранены отдельно.<br>
+    <br>
+    Примечание:<br>
+    Можно выбрать только один формат или оба формата одновременно.<br>
+    Если вы не выбрали ни одного формата, загрузчик будет использовать формат EPUB.`,
   ],
   _在小说里保存元数据: [
     `在小说里保存<span class="key">元数据</span>`,
@@ -4064,6 +4126,14 @@ Quick download tasks are triggered by these actions:<br>
     `다운로드 기록 지우기`,
     `Очистить запись загрузки`,
   ],
+  _开始清除下载记录: [
+    `开始清除下载记录`,
+    `開始清除下載紀錄`,
+    `Start clearing download record`,
+    `ダウンロード記録のクリアを開始`,
+    `다운로드 기록 지우기 시작`,
+    `Начало очистки записи загрузки`,
+  ],
   _确定要清除下载记录吗: [
     `确定要清除下载器的下载记录吗？\n
 注意：该功能清除的是下载器的下载记录，而非浏览器的下载记录。`,
@@ -4085,6 +4155,14 @@ Note: This clears the downloader's download record, not the browser's download h
     `ダウンロード履歴がクリアされました`,
     `다운로드 기록이 비워졌습니다`,
     `Запись загрузок была очищена`,
+  ],
+  _部分下载记录清除失败: [
+    `有 {} 个存储库清除失败（共 {} 个），请重试`,
+    `有 {} 個儲存庫清除失敗（共 {} 個），請重試`,
+    `Failed to clear {} of {} stores. Please try again.`,
+    `{} 個のストア（全 {} 個）のクリアに失敗しました。もう一度お試しください。`,
+    `{}개의 저장소(전체 {}개)를 비우지 못했습니다. 다시 시도하십시오.`,
+    `Не удалось очистить {} хранилищ из {}. Попробуйте снова.`,
   ],
   _跳过下载因为重复文件: [
     `检测到文件 {} 已经下载过，跳过此次下载`,
@@ -4109,6 +4187,70 @@ Note: This clears the downloader's download record, not the browser's download h
     `ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。`,
     `유저 프로필 이미지를 ico 파일로 저장하면, 디렉토리 아이콘으로 수동 설정할 수 있습니다.`,
     `Сохранить аватар пользователя как иконку`,
+  ],
+  _批量保存用户头像: [
+    `批量保存用户头像`,
+    `批次儲存使用者頭貼`,
+    `Save user avatars in batches`,
+    `ユーザーのプロフィール画像を一括保存`,
+    `유저 프로필 이미지 일괄 저장`,
+    `Пакетное сохранение аватаров пользователей`,
+  ],
+  _批量保存用户头像为图标: [
+    `批量保存用户头像为图标`,
+    `批次將使用者頭貼另存為圖示`,
+    `Save user avatars as icons in batches`,
+    `ユーザーのプロフィール画像をアイコンとして一括保存`,
+    `유저 프로필 이미지를 아이콘으로 일괄 저장`,
+    `Пакетное сохранение аватаров пользователей как иконки`,
+  ],
+  _需要保存x个头像: [
+    `需要保存 {} 个头像`,
+    `需要儲存 {} 個頭貼`,
+    `{} avatars need to be saved`,
+    `{} 件のプロフィール画像を保存する必要があります`,
+    `프로필 이미지 {}개 저장 필요`,
+    `Нужно сохранить аватаров: {}`,
+  ],
+  _已保存x个头像: [
+    `已保存 {} 个头像`,
+    `已儲存 {} 個頭貼`,
+    `{} avatars saved`,
+    `{} 件のプロフィール画像を保存しました`,
+    `프로필 이미지 {}개 저장됨`,
+    `Сохранено аватаров: {}`,
+  ],
+  _已保存x个头像为图标: [
+    `已保存 {} 个头像为图标`,
+    `已將 {} 個頭貼另存為圖示`,
+    `{} avatars saved as icons`,
+    `{} 件のプロフィール画像をアイコンとして保存しました`,
+    `프로필 이미지 {}개를 아이콘으로 저장됨`,
+    `Сохранено аватаров как иконки: {}`,
+  ],
+  _保存这个用户的头像失败: [
+    `❌保存这个用户的头像失败：{}`,
+    `❌儲存這個使用者的頭貼失敗：{}`,
+    `❌Failed to save this user's avatar: {}`,
+    `❌このユーザーのプロフィール画像の保存に失敗しました：{}`,
+    `❌이 사용자의 프로필 이미지 저장 실패: {}`,
+    `❌Не удалось сохранить аватар этого пользователя: {}`,
+  ],
+  _有x个用户保存失败请再次执行重试: [
+    `有 {} 个用户保存失败。你可以在日志里点击保存失败的用户的链接，进入用户页面，然后使用“附加功能”区域里的按钮来保存他的头像。`,
+    `有 {} 個使用者儲存失敗。你可以在日誌裡點擊儲存失敗的使用者的連結，進入使用者頁面，然後使用「附加功能」區域裡的按鈕來儲存他的頭貼。`,
+    `Failed to save {} users. You can click the link of a failed user in the log to open their profile page, and then use the buttons in the "Extra features" area to save their avatar.`,
+    `{} 人のユーザーの保存に失敗しました。ログに表示されている保存に失敗したユーザーのリンクをクリックしてユーザーページを開き、「追加機能」エリアのボタンでプロフィール画像を保存できます。`,
+    `{}명의 사용자를 저장하지 못했습니다. 로그에서 저장에 실패한 사용자의 링크를 클릭해 사용자 페이지로 이동한 뒤, "부가 기능" 영역의 버튼으로 프로필 이미지를 저장할 수 있습니다.`,
+    `Не удалось сохранить {} пользователей. Можно нажать ссылку пользователя в журнале, чтобы открыть его страницу, а затем воспользоваться кнопками в разделе «Дополнительные функции», чтобы сохранить его аватар.`,
+  ],
+  _保存头像完毕但是有一些失败了: [
+    `保存头像完毕，但是有一些用户保存失败`,
+    `儲存頭貼完畢，但是有一些使用者儲存失敗`,
+    `Saving avatars finished, but some users failed`,
+    `プロフィール画像の保存が完了しましたが、一部のユーザーは失敗しました`,
+    `프로필 이미지 저장 완료, 하지만 일부 사용자는 실패했습니다`,
+    `Сохранение аватаров завершено, но для некоторых пользователей не удалось`,
   ],
   _正在保存抓取结果: [
     `正在保存抓取结果`,
@@ -4292,12 +4434,12 @@ Note: This clears the downloader's download record, not the browser's download h
     `Тег <span class="key">символ разделения</span>`,
   ],
   _标签分隔符号提示: [
-    `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
-    `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
-    `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
-    `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
-    `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
-    `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
+    `只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>`,
+    `只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>`,
+    `Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>`,
+    `次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。`,
+    `이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>권장 기호 <span class="blue"> , # ^ & _</span>`,
+    `Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>`,
   ],
   _导出csv: [
     `导出 CSV 文件`,
@@ -4504,6 +4646,14 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `다운로드 기록 불러오기`,
     `Импорт записи загрузки`,
   ],
+  _开始导入下载记录: [
+    `开始导入下载记录`,
+    `開始匯入下載紀錄`,
+    `Start importing download record`,
+    `ダウンロード記録のインポートを開始`,
+    `다운로드 기록 불러오기 시작`,
+    `Начало импорта записи загрузки`,
+  ],
   _导出下载记录: [
     `导出下载记录`,
     `匯出下載紀錄`,
@@ -4511,6 +4661,62 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `ダウンロード記録のエクスポート`,
     `다운로드 기록 내보내기`,
     `Экспорт записи загрузки`,
+  ],
+  _开始导出下载记录: [
+    `开始导出下载记录`,
+    `開始匯出下載紀錄`,
+    `Start exporting download record`,
+    `ダウンロード記録のエクスポートを開始`,
+    `다운로드 기록 내보내기 시작`,
+    `Начало экспорта записи загрузки`,
+  ],
+  _下载记录数据库不可用: [
+    `下载记录的数据库不可用，请刷新页面后再试`,
+    `下載紀錄的資料庫不可用，請重新整理頁面後再試`,
+    `The download record database is unavailable. Please refresh the page and try again.`,
+    `ダウンロード記録のデータベースが利用できません。ページを再読み込みしてからもう一度お試しください。`,
+    `다운로드 기록 데이터베이스를 사용할 수 없습니다. 페이지를 새로 고친 후 다시 시도하십시오.`,
+    `База данных записи загрузки недоступна. Обновите страницу и попробуйте снова.`,
+  ],
+  _部分下载记录导出失败: [
+    `有 {} 个存储库的下载记录读取失败，导出的文件会缺少这部分数据`,
+    `有 {} 個儲存庫的下載紀錄讀取失敗，匯出的檔案會缺少這部分資料`,
+    `Failed to read the download records of {} stores. The exported files will be missing this data.`,
+    `{} 個のストアのダウンロード記録を読み込めませんでした。エクスポートしたファイルにはこのデータが含まれません。`,
+    `{}개의 저장소에서 다운로드 기록을 읽지 못했습니다. 내보낸 파일에는 이 데이터가 빠집니다.`,
+    `Не удалось прочитать записи загрузки в {} хранилищах. Экспортированные файлы будут без этих данных.`,
+  ],
+  _下载记录分片导出进度: [
+    `已导出 {} 条记录（第 {} 个文件）`,
+    `已匯出 {} 筆紀錄（第 {} 個檔案）`,
+    `Exported {} records (file {})`,
+    `{} 件の記録をエクスポートしました（{} 番目のファイル）`,
+    `{}건의 기록을 내보냈습니다({}번째 파일)`,
+    `Экспортировано {} записей (файл {})`,
+  ],
+  _下载记录可能已被浏览器清除: [
+    `下载记录已经丢失。上次导出时有 {} 条记录，而现在一条也找不到。浏览器可能因为空间不足或数据损坏清除了这些数据，建议定期导出备份。`,
+    `下載紀錄已經遺失。上次匯出時有 {} 筆紀錄，而現在一條也找不到。瀏覽器可能因為空間不足或資料損毀清除了這些資料，建議定期匯出備份。`,
+    `The download records are gone. There were {} records at the last export, but now none can be found. The browser may have cleared them due to low disk space or data corruption. Export a backup regularly.`,
+    `ダウンロード記録が失われました。前回のエクスポート時には {} 件ありましたが、現在は 1 件も見つかりません。ディスク容量不足やデータの破損によりブラウザが削除した可能性があります。定期的にエクスポートしてバックアップしてください。`,
+    `다운로드 기록이 사라졌습니다. 지난 내보내기 때는 {}건이었지만 지금은 하나도 찾을 수 없습니다. 디스크 공간 부족이나 데이터 손상으로 브라우저가 삭제했을 수 있습니다. 정기적으로 내보내어 백업하십시오.`,
+    `Записи загрузки исчезли. При последнем экспорте их было {}, а сейчас не найдено ни одной. Возможно, браузер удалил их из-за нехватки места на диске или повреждения данных. Регулярно экспортируйте резервную копию.`,
+  ],
+  _本次导入的文件: [
+    `本次导入的文件：<br>{}`,
+    `本次匯入的檔案：<br>{}`,
+    `Files imported this time:<br>{}`,
+    `今回インポートするファイル：<br>{}`,
+    `이번에 가져올 파일:<br>{}`,
+    `Файлы, импортируемые на этот раз:<br>{}`,
+  ],
+  _移动端导入体积提示: [
+    `提示：在移动端导入下载记录时，建议每次导入的 JSON 文件合计体积不超过 100 MB。这是因为移动端浏览器可用的内存比较小，如果文件体积太大，导入可能会失败。`,
+    `提示：在行動裝置匯入下載紀錄時，建議每次匯入的 JSON 檔案合計體積不超過 100 MB。這是因為行動裝置瀏覽器可用的記憶體比較小，如果檔案體積太大，匯入可能會失敗。`,
+    `Tip: When importing download records on a mobile device, it is recommended that the JSON files imported at one time do not exceed 100 MB in total size. This is because mobile browsers have less available memory; if the files are too large, the import may fail.`,
+    `ヒント：モバイルでダウンロード記録をインポートする際は、1 回にインポートする JSON ファイルの合計サイズが 100 MB を超えないようにすることをお勧めします。モバイルブラウザで使用できるメモリが少ないため、ファイルが大きすぎるとインポートに失敗する可能性があります。`,
+    `팁: 모바일에서 다운로드 기록을 가져올 때는 한 번에 가져오는 JSON 파일의 총 크기가 100 MB를 넘지 않도록 권장합니다. 모바일 브라우저에서 사용할 수 있는 메모리가 적기 때문에 파일이 너무 크면 가져오기에 실패할 수 있습니다.`,
+    `Подсказка: при импорте записей загрузки на мобильном устройстве рекомендуется, чтобы общий размер JSON-файлов за один импорт не превышал 100 МБ. Это связано с тем, что у мобильных браузеров меньше доступной памяти; если файлы слишком большие, импорт может завершиться ошибкой.`,
   ],
   _数据较多需要花费一些时间: [
     `数据较多，需要花费一些时间`,
@@ -4596,123 +4802,121 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `북마크 작품`,
     `Закладки работ`,
   ],
-  _下载之后收藏作品: [
-    `下载之后<span class="key">收藏</span>作品`,
-    `下載之後<span class="key">收藏</span>作品`,
-    `<span class="key">Bookmark</span> works after downloading`,
-    `ダウンロードした作品を<span class="key">ブックマーク</span>する`,
-    `다운로드 후 작품 <span class="key">북마크</span>`,
-    `<span class="key">Закладка</span> работ после загрузки`,
+  _下载之后自动收藏作品: [
+    `下载之后自动<span class="key">收藏</span>作品`,
+    `下載之後自動<span class="key">收藏</span>作品`,
+    `Automatically <span class="key">bookmark</span> works after downloading`,
+    `ダウンロードした作品を自動的に<span class="key">ブックマーク</span>する`,
+    `다운로드 후 작품을 자동으로 <span class="key">북마크</span>`,
+    `Автоматически <span class="key">добавлять работы в закладки</span> после загрузки`,
   ],
-  _下载之后收藏作品的提示: [
-    `下载文件之后，自动收藏这个作品。`,
-    `下載檔案之後，自動收藏這個作品。`,
-    `After you download a file, the downloader will automatically bookmark the work.`,
-    `ダウンロード後、作品は自動的にブックマークされます。`,
-    `파일을 다운로드하면, 자동으로 작품을 북마크합니다.`,
-    `После загрузки файла загрузчик автоматически делает закладку`,
+  _下载器收藏作品时的默认行为: [
+    `下载器<span class="key">收藏</span>作品时的默认行为 (✩)`,
+    `下載器<span class="key">收藏</span>作品時的預設行為 (✩)`,
+    `Default behavior when the downloader <span class="key">bookmarks</span> a work (✩)`,
+    `ダウンローダーが作品を<span class="key">ブックマーク</span>するときの既定の動作 (✩)`,
+    `다운로더가 작품을 <span class="key">북마크</span>할 때의 기본 동작 (✩)`,
+    `Поведение загрузчика по умолчанию при добавлении работ в <span class="key">закладки</span> (✩)`,
   ],
-  _下载器的收藏功能: [
-    `下载器的<span class="key">收藏</span>功能 (✩)`,
-    `下載器的<span class="key">收藏</span>功能 (✩)`,
-    `Downloader's <span class="key">bookmark</span> feature (✩)`,
-    `ダウンロードツールの<span class="key">ブックマーク</span>機能 (✩)`,
-    `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
-    `Функция <span class="key">закладок</span> загрузчика (✩)`,
-  ],
-  _下载器的收藏功能的说明: [
-    `你可以通过这个设置控制下载器收藏作品时的行为。<br>
+  _下载器收藏作品时的默认行为的说明: [
+    `你可以通过这个设置控制下载器收藏作品时的默认行为。<br>
     <br>
-    下载器的收藏功能指的是：<br>
-    - 下载器显示的五角星（✩）收藏按钮。<br>
-    - 在预览作品时、使用图片查看器时，使用快捷键（B）让下载器收藏这个作品。<br>
-    - 使用“下载之后收藏作品”功能、在一些页面里使用“附加功能”的按钮管理收藏。<br>
-    <br>
-    是否添加标签：<br>
-    是否添加作品本身的标签。<br>
+    下载器的收藏功能可以通过这些方式触发：<br>
+    - 点击下载器显示的五角星（✩）收藏按钮。该按钮可能会出现在多个界面里。<br>
+    - 在预览作品时、使用图片查看器时，使用快捷键（B）收藏这个作品。<br>
+    - 使用“下载之后自动收藏作品”功能批量添加收藏。<br>
+    - 在一些页面里，使用“附加功能”区域里的按钮批量管理收藏。<br>
     <br>
     是否公开：<br>
     添加为公开收藏或者非公开收藏。<br>
     <br>
+    是否添加标签：<br>
+    你可以选择添加作品的原始标签，或者翻译后的标签，或者不添加标签。<br>
+    <br>
     备注：<br>
     - Pixiv 原本的收藏按钮（心形）不受此设置影响。<br>
     - 你可以对一个作品重复添加收藏，最后一次的状态（是否添加标签、是否公开）会覆盖之前的状态。`,
-    `你可以透過這個設定控制下載器收藏作品時的行為。<br>
+    `你可以透過這個設定控制下載器收藏作品時的預設行為。<br>
     <br>
-    下載器的收藏功能指的是：<br>
-    - 下載器顯示的五角星（✩）收藏按鈕。<br>
-    - 在預覽作品時、使用圖片查看器時，使用快捷鍵（B）讓下載器收藏這個作品。<br>
-    - 使用「下載之後收藏作品」功能、在一些頁面裡使用「附加功能」的按鈕管理收藏。<br>
-    <br>
-    是否添加標籤：<br>
-    是否添加作品本身的標籤。<br>
+    下載器的收藏功能可以透過這些方式觸發：<br>
+    - 點擊下載器顯示的五角星（✩）收藏按鈕。該按鈕可能會出現在多個頁面裡。<br>
+    - 在預覽作品時、使用圖片查看器時，使用快捷鍵（B）收藏這個作品。<br>
+    - 使用「下載之後自動收藏作品」功能批量添加收藏。<br>
+    - 在一些頁面裡，使用「附加功能」區域裡的按鈕批量管理收藏。<br>
     <br>
     是否公開：<br>
     添加為公開收藏或者非公開收藏。<br>
     <br>
+    是否添加標籤：<br>
+    你可以選擇添加作品的原始標籤，或者翻譯後的標籤，或者不添加標籤。<br>
+    <br>
     備註：<br>
     - Pixiv 原本的收藏按鈕（心形）不受此設定影響。<br>
     - 你可以對一個作品重複添加收藏，最後一次的狀態（是否添加標籤、是否公開）會覆蓋之前的狀態。`,
-    `You can use this setting to control the downloader's behavior when bookmarking works.<br>
+    `You can use this setting to control the downloader's default behavior when bookmarking works.<br>
     <br>
-    The downloader's bookmark feature refers to:<br>
-    - The star (✩) bookmark button shown by the downloader.<br>
-    - Bookmarking a work with the downloader by using the shortcut key (B) while previewing a work or using the image viewer.<br>
-    - Managing bookmarks with the "Bookmark works after downloading" feature, or with the buttons in "Extra features" on some pages.<br>
-    <br>
-    Whether to add tags:<br>
-    Whether to add the tags of the work itself.<br>
+    The downloader's bookmark feature can be triggered in these ways:<br>
+    - Click the star (✩) bookmark button shown by the downloader. This button may appear on several pages.<br>
+    - Bookmark the work with the shortcut key (B) while previewing a work or using the image viewer.<br>
+    - Add bookmarks in bulk with the "Automatically bookmark works after downloading" feature.<br>
+    - Manage bookmarks in bulk with the buttons in the "Extra features" area on some pages.<br>
     <br>
     Public:<br>
     Add the bookmark as a public bookmark or a private bookmark.<br>
     <br>
+    Whether to add tags:<br>
+    You can choose to add the work's original tags, the translated tags, or no tags.<br>
+    <br>
     Note:<br>
     - Pixiv's own bookmark button (heart) is not affected by this setting.<br>
     - You can bookmark a work repeatedly; the last state (whether tags are added, whether it is public) overwrites the previous state.`,
-    `この設定で、作品をブックマークするときのダウンローダーの動作を制御できます。<br>
+    `この設定で、作品をブックマークするときのダウンローダーの既定の動作を制御できます。<br>
     <br>
-    ダウンローダーのブックマーク機能とは：<br>
-    - ダウンローダーが表示する星（✩）のブックマークボタン。<br>
+    ダウンローダーのブックマーク機能は、次の方法で実行できます：<br>
+    - ダウンローダーが表示する星（✩）のブックマークボタンをクリックする。このボタンは複数のページに表示されることがあります。<br>
     - 作品をプレビューするときや画像ビューアを使うときに、ショートカットキー（B）でこの作品をブックマークする。<br>
-    - 「ダウンロードした作品をブックマークする」機能や、一部のページの「追加機能」のボタンでブックマークを管理する。<br>
-    <br>
-    タグを追加するかどうか：<br>
-    作品自体のタグを追加するかどうか。<br>
+    - 「ダウンロードした作品を自動的にブックマークする」機能でまとめてブックマークを追加する。<br>
+    - 一部のページで「追加機能」エリアのボタンを使ってまとめてブックマークを管理する。<br>
     <br>
     公開するか：<br>
     公開ブックマークまたは非公開ブックマークとして追加します。<br>
     <br>
+    タグを追加するかどうか：<br>
+    作品の元のタグを追加するか、翻訳後のタグを追加するか、タグを追加しないかを選べます。<br>
+    <br>
     備考：<br>
     - Pixiv 本来のブックマークボタン（ハート）はこの設定の影響を受けません。<br>
     - 1 つの作品に繰り返しブックマークを追加できます。最後の状態（タグを追加するか、公開するか）が以前の状態を上書きします。`,
-    `이 설정으로 작품을 북마크할 때 다운로더의 동작을 제어할 수 있습니다.<br>
+    `이 설정으로 작품을 북마크할 때 다운로더의 기본 동작을 제어할 수 있습니다.<br>
     <br>
-    다운로더의 북마크 기능이란:<br>
-    - 다운로더가 표시하는 별(✩) 북마크 버튼.<br>
-    - 작품을 미리 볼 때나 이미지 뷰어를 사용할 때 단축키(B)로 이 작품을 북마크하는 것.<br>
-    - "다운로드 후 작품 북마크" 기능이나 일부 페이지의 "부가 기능" 버튼으로 북마크를 관리하는 것.<br>
-    <br>
-    태그 추가 여부:<br>
-    작품 자체의 태그를 추가할지 여부.<br>
+    다운로더의 북마크 기능은 다음과 같은 방법으로 실행할 수 있습니다:<br>
+    - 다운로더가 표시하는 별(✩) 북마크 버튼을 클릭합니다. 이 버튼은 여러 페이지에 표시될 수 있습니다.<br>
+    - 작품을 미리 볼 때나 이미지 뷰어를 사용할 때 단축키(B)로 이 작품을 북마크합니다.<br>
+    - "다운로드 후 작품을 자동으로 북마크" 기능으로 북마크를 한꺼번에 추가합니다.<br>
+    - 일부 페이지의 "부가 기능" 영역에 있는 버튼으로 북마크를 한꺼번에 관리합니다.<br>
     <br>
     공개 여부:<br>
     공개 북마크 또는 비공개 북마크로 추가합니다.<br>
     <br>
+    태그 추가 여부:<br>
+    작품의 원본 태그를 추가하거나, 번역된 태그를 추가하거나, 태그를 추가하지 않을 수 있습니다.<br>
+    <br>
     참고:<br>
     - Pixiv 자체의 북마크 버튼(하트)은 이 설정의 영향을 받지 않습니다.<br>
     - 한 작품에 북마크를 반복해서 추가할 수 있으며, 마지막 상태(태그 추가 여부, 공개 여부)가 이전 상태를 덮어씁니다.`,
-    `С помощью этой настройки можно управлять поведением загрузчика при добавлении работ в закладки.<br>
+    `С помощью этой настройки можно управлять поведением загрузчика по умолчанию при добавлении работ в закладки.<br>
     <br>
-    Функция закладок загрузчика — это:<br>
-    - Кнопка закладки в виде звезды (✩), которую показывает загрузчик.<br>
-    - Добавление работы в закладки загрузчика с помощью горячей клавиши (B) при предпросмотре работы или в просмотрщике изображений.<br>
-    - Управление закладками с помощью функции «Закладка работ после загрузки» или кнопок «Дополнительные функции» на некоторых страницах.<br>
+    Функцию закладок загрузчика можно вызвать следующими способами:<br>
+    - Нажать кнопку закладки в виде звезды (✩), которую показывает загрузчик. Эта кнопка может отображаться на разных страницах.<br>
+    - Добавить работу в закладки с помощью горячей клавиши (B) при предпросмотре работы или в просмотрщике изображений.<br>
+    - Добавлять закладки пакетно с помощью функции «Автоматически добавлять работы в закладки после загрузки».<br>
+    - Управлять закладками пакетно с помощью кнопок в области «Дополнительные функции» на некоторых страницах.<br>
     <br>
-    Добавлять теги или нет:<br>
-    Добавлять ли теги самой работы.<br>
-    <br>
-    Публичный:<br>
+    Публичная:<br>
     Добавить закладку как публичную или приватную.<br>
+    <br>
+    Добавлять теги:<br>
+    Можно добавить исходные теги работы, переведённые теги или не добавлять теги.<br>
     <br>
     Примечание:<br>
     - Собственная кнопка закладок Pixiv (сердечко) на эту настройку не влияет.<br>
@@ -4735,6 +4939,162 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `Добавлять теги или нет`,
   ],
   _添加: [`添加`, `添加`, `Add`, `追加`, `추가`, `Добавить`],
+  _添加作品的原始标签: [
+    `添加作品的原始标签`,
+    `添加作品的原始標籤`,
+    `Add the work's original tags`,
+    `作品の元のタグを追加`,
+    `작품의 원본 태그 추가`,
+    `Добавить исходные теги работы`,
+  ],
+  _添加翻译后的标签: [
+    `添加翻译后的标签`,
+    `添加翻譯後的標籤`,
+    `Add the translated tags`,
+    `翻訳後のタグを追加`,
+    `번역된 태그 추가`,
+    `Добавить переведённые теги`,
+  ],
+  _收藏面板: [
+    `收藏<span class="key">面板</span>`,
+    `收藏<span class="key">面板</span>`,
+    `Bookmark <span class="key">panel</span>`,
+    `ブックマーク<span class="key">パネル</span>`,
+    `북마크 <span class="key">패널</span>`,
+    `<span class="key">Панель</span> закладки`,
+  ],
+  _手动收藏作品时显示收藏面板: [
+    `手动收藏作品时显示收藏面板`,
+    `手動收藏作品時顯示收藏面板`,
+    `Show the bookmark panel when bookmarking a work manually`,
+    `手動でブックマークするときにブックマークパネルを表示する`,
+    `수동으로 북마크할 때 북마크 패널 표시`,
+    `Показывать панель закладки при добавлении работы в закладки вручную`,
+  ],
+  _显示多少个常用标签: [
+    `显示多少个常用标签`,
+    `顯示多少個常用標籤`,
+    `How many frequently used tags to show`,
+    `よく使うタグを表示する数`,
+    `자주 사용하는 태그를 표시할 개수`,
+    `Сколько часто используемых тегов показывать`,
+  ],
+  _清空常用的标签: [
+    `清空常用的标签`,
+    `清空常用的標籤`,
+    `Clear frequently used tags`,
+    `よく使うタグをクリア`,
+    `자주 사용하는 태그 지우기`,
+    `Очистить часто используемые теги`,
+  ],
+  _确认清空常用的标签: [
+    `确认要清空常用的标签吗？\n清空之后，当你使用收藏面板添加收藏时，下载器会重新收集常用的标签。`,
+    `確定要清空常用的標籤嗎？\n清空之後，當你使用收藏面板新增收藏時，下載器會重新收集常用的標籤。`,
+    `Clear the frequently used tags?\nAfter clearing, the downloader will collect them again when you add a bookmark with the bookmark panel.`,
+    `よく使うタグをクリアしますか？\nクリアした後、ブックマークパネルでブックマークを追加するときに、ダウンローダーがよく使うタグを再び収集します。`,
+    `자주 사용하는 태그를 지우시겠습니까?\n지운 후에는 북마크 패널로 북마크를 추가할 때 다운로더가 자주 사용하는 태그를 다시 수집합니다.`,
+    `Очистить часто используемые теги?\nПосле очистки загрузчик снова будет собирать их, когда вы будете добавлять закладки через панель закладки.`,
+  ],
+  _已清空常用的标签: [
+    `已清空常用的标签`,
+    `已清空常用的標籤`,
+    `Frequently used tags cleared`,
+    `よく使うタグをクリアしました`,
+    `자주 사용하는 태그를 지웠습니다`,
+    `Часто используемые теги очищены`,
+  ],
+  _收藏面板的帮助: [
+    `当你使用下载器的手动收藏作品功能时，下载器可以显示收藏面板。<br>
+你可以在收藏面板里设置是否公开收藏、使用哪些标签（可以使用作品的标签、自定义标签、常用的标签），然后再添加收藏。<br>
+<br>
+显示多少个常用标签：<br>
+当你通过收藏面板添加收藏时，下载器会保存你使用的收藏标签，并根据使用频率显示到收藏面板里，以后你点击一个标签就可以使用它。这个功能对于经常使用自定义标签的用户很有用。<br>
+你可以设置最多显示多少个常用标签。最小值是 0，此时下载器不会显示常用标签区域。<br>
+<br>
+可以显示收藏面板的情况：<br>
+- 点击下载器的收藏按钮(✩)；<br>
+- 在预览作品时、使用图片查看器时，使用快捷键（B）收藏这个作品。<br>
+这些操作都只会添加一个收藏。<br>
+<br>
+备注：<br>
+- 只有当你经常需要手动设置收藏标签，或者经常使用不同的公开选项时，才需要启用这个功能。<br>
+- 在批量收藏作品时，下载器不会显示收藏面板。例如使用“下载之后自动收藏作品”功能、使用“附加功能”区域里的收藏按钮时。这是因为批量收藏时可能需要添加几十、几百个收藏，不适合让用户逐一操作。在批量收藏时，你可以在“下载器收藏作品时的默认行为 (✩)”里设置默认的收藏行为。`,
+    `當你使用下載器的手動收藏作品功能時，下載器可以顯示收藏面板。<br>
+    你可以在收藏面板裡設定是否公開收藏、使用哪些標籤（可以使用作品的標籤、自訂標籤、常用的標籤），然後再新增收藏。<br>
+    <br>
+    顯示多少個常用標籤：<br>
+    當你透過收藏面板新增收藏時，下載器會保存你使用的收藏標籤，並根據使用頻率顯示到收藏面板裡，以後你點擊一個標籤就可以使用它。這個功能對於經常使用自訂標籤的使用者很有用。<br>
+    你可以設定最多顯示多少個常用標籤。最小值是 0，此時下載器不會顯示常用標籤區域。<br>
+    <br>
+    可以顯示收藏面板的情況：<br>
+    - 點擊下載器的收藏按鈕(✩)；<br>
+    - 在預覽作品時、使用圖片查看器時，使用快捷鍵（B）收藏這個作品。<br>
+    這些操作都只會新增 1 個收藏。<br>
+    <br>
+    備註：<br>
+    - 只有當你經常需要手動設定收藏標籤，或者經常使用不同的公開選項時，才需要啟用這個功能。<br>
+    - 在批量收藏作品時，下載器不會顯示收藏面板。例如使用「下載之後自動收藏作品」功能、使用「附加功能」區域裡的收藏按鈕時。這是因為批量收藏時可能需要新增幾十、幾百個收藏，不適合讓使用者逐一操作。在批量收藏時，你可以在「下載器收藏作品時的預設行為 (✩)」裡設定預設的收藏行為。`,
+    `When you bookmark a work manually with the downloader, the downloader can show the bookmark panel.<br>
+    In the bookmark panel you can set whether the bookmark is public and which tags to use (the tags of the work, custom tags, frequently used tags), and then add the bookmark.<br>
+    <br>
+    How many frequently used tags to show:<br>
+    When you add a bookmark with the bookmark panel, the downloader saves the tags you used and shows them in the panel by how often they are used, so later you can use a tag just by clicking it. This is useful if you often set bookmark tags by hand.<br>
+    You can set how many frequently used tags are shown at most. The minimum is 0: then the downloader does not show the frequently used tags area.<br>
+    <br>
+    The bookmark panel can be shown in these cases:<br>
+    - You click the downloader's bookmark button (✩);<br>
+    - You bookmark the work with the shortcut key (B) while previewing a work or using the image viewer.<br>
+    All of these actions add only 1 bookmark.<br>
+    <br>
+    Note:<br>
+    - You only need this feature if you often set bookmark tags by hand, or often use different public options.<br>
+    - The bookmark panel is not shown when bookmarking works in bulk, for example with the "Automatically bookmark works after downloading" feature or the bookmark buttons in the "Extra features" area. That is because a bulk bookmark may add dozens or hundreds of bookmarks, which is not suitable for handling one by one. When bookmarking in bulk, you can set the default behavior in "Default behavior when the downloader bookmarks a work (✩)".`,
+    `ダウンローダーの手動ブックマーク機能を使うとき、ダウンローダーはブックマークパネルを表示できます。<br>
+    ブックマークパネルでは、公開ブックマークにするか、どのタグを使うか（作品のタグ、カスタムタグ、よく使うタグ）を設定してからブックマークを追加できます。<br>
+    <br>
+    よく使うタグを表示する数：<br>
+    ブックマークパネルでブックマークを追加すると、ダウンローダーは使ったタグを保存し、使用頻度の高い順にパネルへ表示します。以降はタグをクリックするだけで使えます。これは自分でタグを設定することが多い場合に役立ちます。<br>
+    表示するよく使うタグの最大数を設定できます。最小値は 0 で、その場合ダウンローダーはよく使うタグのエリアを表示しません。<br>
+    <br>
+    ブックマークパネルが表示されるケース：<br>
+    - ダウンローダーのブックマークボタン(✩)をクリックしたとき;<br>
+    - 作品のプレビュー時や画像ビューアーの使用時に、ショートカットキー（B）でこの作品をブックマークしたとき。<br>
+    これらの操作はどれも 1 つのブックマークだけを追加します。<br>
+    <br>
+    備考：<br>
+    - この機能が必要なのは、ブックマークのタグを手動で設定することが多い場合、または公開設定を頻繁に切り替える場合だけです。<br>
+    - 作品をまとめてブックマークするとき、ダウンローダーはブックマークパネルを表示しません。例えば「ダウンロードした作品を自動的にブックマークする」機能や、「追加機能」エリアのブックマークボタンを使う場合です。まとめてブックマークするときは数十〜数百のブックマークを追加する可能性があり、1 つずつ操作させるのは適さないためです。まとめてブックマークするときの既定の動作は「ダウンローダーが作品をブックマークするときの既定の動作 (✩)」で設定できます。`,
+    `다운로더의 수동 북마크 기능을 사용할 때 다운로더는 북마크 패널을 표시할 수 있습니다.<br>
+    북마크 패널에서 공개 북마크로 할지, 어떤 태그를 사용할지(작품의 태그, 직접 입력한 태그, 자주 사용하는 태그) 설정한 뒤 북마크를 추가할 수 있습니다.<br>
+    <br>
+    자주 사용하는 태그를 표시할 개수:<br>
+    북마크 패널로 북마크를 추가하면 다운로더는 사용한 태그를 저장하고, 사용 빈도에 따라 패널에 표시합니다. 이후에는 태그를 클릭하기만 하면 사용할 수 있습니다. 이 기능은 북마크 태그를 자주 직접 설정하는 경우에 유용합니다.<br>
+    표시할 자주 사용하는 태그의 최대 개수를 설정할 수 있습니다. 최솟값은 0이며, 이 경우 다운로더는 자주 사용하는 태그 영역을 표시하지 않습니다.<br>
+    <br>
+    북마크 패널이 표시되는 경우:<br>
+    - 다운로더의 북마크 버튼(✩)을 클릭한 경우;<br>
+    - 작품을 미리 볼 때나 이미지 뷰어를 사용할 때 단축키(B)로 이 작품을 북마크한 경우.<br>
+    이 작업들은 모두 북마크 1개만 추가합니다.<br>
+    <br>
+    참고:<br>
+    - 이 기능이 필요한 경우는 북마크 태그를 자주 직접 설정하거나, 공개 설정을 자주 바꾸는 경우뿐입니다.<br>
+    - 작품을 한꺼번에 북마크할 때는 다운로더가 북마크 패널을 표시하지 않습니다. 예를 들어 "다운로드 후 작품을 자동으로 북마크" 기능이나 "부가 기능" 영역의 북마크 버튼을 사용할 때입니다. 한꺼번에 북마크할 때는 수십~수백 개의 북마크를 추가해야 할 수 있어 하나씩 조작하기에 적합하지 않기 때문입니다. 한꺼번에 북마크할 때의 기본 동작은 "다운로더가 작품을 북마크할 때의 기본 동작 (✩)"에서 설정할 수 있습니다.`,
+    `Когда вы добавляете работу в закладки вручную, загрузчик может показать панель закладки.<br>
+    В панели закладки можно задать, будет ли закладка публичной и какие теги использовать (теги самой работы, свои теги, часто используемые теги), и только затем добавить закладку.<br>
+    <br>
+    Сколько часто используемых тегов показывать:<br>
+    Когда вы добавляете закладку через панель закладки, загрузчик сохраняет использованные теги и показывает их в панели по частоте использования, чтобы потом вы могли использовать тег, просто кликнув по нему. Это полезно, если вы часто задаёте теги закладки вручную.<br>
+    Можно задать, сколько часто используемых тегов показывать максимум. Минимальное значение — 0: в этом случае загрузчик не показывает область часто используемых тегов.<br>
+    <br>
+    Панель закладки может быть показана в этих случаях:<br>
+    - Вы нажимаете кнопку закладки загрузчика (✩);<br>
+    - Вы добавляете работу в закладки горячей клавишей (B) при предпросмотре работы или в просмотрщике изображений.<br>
+    Во всех этих случаях добавляется только 1 закладка.<br>
+    <br>
+    Примечание:<br>
+    - Эта функция нужна только если вы часто задаёте теги закладки вручную или часто используете разные варианты публичности.<br>
+    - При пакетном добавлении закладок загрузчик не показывает панель закладки, например при использовании функции «Автоматически добавлять работы в закладки после загрузки» или кнопок закладок в области «Дополнительные функции». При пакетном добавлении может потребоваться добавить десятки или сотни закладок, и обрабатывать их по одной неудобно. Поведение по умолчанию при пакетном добавлении можно задать в настройке «Поведение загрузчика по умолчанию при добавлении работ в закладки (✩)».`,
+  ],
   _不添加: [
     `不添加`,
     `不添加`,
@@ -4809,21 +5169,13 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `다크 모드`,
     `Темный режим`,
   ],
-  _管理设置: [
-    `管理<span class="key">设置</span>`,
-    `管理<span class="key">設定</span>`,
-    `Manage <span class="key">settings</span>`,
-    `<span class="key">設定</span>の管理`,
-    `<span class="key">설정</span> 관리`,
-    `Изменение <span class="key">настроек</span>`,
-  ],
-  _管理设置的说明: [
-    `你可以管理下载器的设置，比如导出以备份设置、分享给别人、重置设置。`,
-    `你可以管理下載器的設定，比如匯出以備份設定、分享給別人、重置設定。`,
-    `You can manage the Downloader settings, such as exporting to back up your settings, sharing with others, and resetting your settings.`,
-    `設定をバックアップするためのエクスポート、他のユーザーとの共有、設定のリセットなど、ダウンローダーの設定を管理できます。`,
-    `다운로더 설정을 관리할 수 있습니다. 예를 들어, 설정을 백업하기 위한 내보내기, 다른 사람과 공유하기, 설정을 재설정할 수 있습니다.`,
-    `Вы можете управлять настройками Downloader, такими как экспорт для резервного копирования ваших настроек, предоставление общего доступа другим лицам и сброс ваших настроек.`,
+  _管理下载器的设置: [
+    `<span class="key">管理</span>下载器的设置`,
+    `<span class="key">管理</span>下載器的設定`,
+    `<span class="key">Manage</span> Downloader settings`,
+    `ダウンローダーの設定を<span class="key">管理</span>`,
+    `다운로더 설정 <span class="key">관리</span>`,
+    `<span class="key">Управление</span> настройками загрузчика`,
   ],
   _导出设置: [
     `导出设置`,
@@ -4929,6 +5281,244 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `사용자 목록 크롤링 시작`,
     `Начать сканирование списка пользователей`,
   ],
+  _抓取用户列表: [
+    `抓取用户列表`,
+    `擷取用戶列表`,
+    `Crawl user list`,
+    `ユーザーリストをクロール`,
+    `사용자 목록 긁어오기`,
+    `Сканировать список пользователей`,
+  ],
+  _抓取用户列表的输入框提示: [
+    `请输入用户 ID 列表，每个 ID 之间以换行分隔（即每行一个 ID）。<br>
+<br>
+提示：<br>
+- 这个功能是为一次性抓取多个用户而设计的。如果你只需要下载一个用户的作品，可以进入他的主页并开始抓取。<br>
+- 如果你需要设置一些筛选条件（如作品类型、收藏数量、时间范围、标签），请先进行设置，然后再开始抓取。<br>
+- 请确认在“抓取完成后，自动开始下载”设置里勾选了“快速下载任务”，否则下载器不会自动开始下载。<br>
+- 在执行过程中，不要在这个标签页里执行其他抓取任务。如果有需要，你可以打开新的 Pixiv 标签页进行浏览和下载。<br>
+- 在执行过程中，如果你不小心关闭了这个网页，可以重新进入该页面，并点击“抓取用户列表”按钮来恢复进度。<br>
+- 在执行过程中，如果你想放弃（终止）该任务，可以点击“停止抓取”按钮。该任务会立即终止，并且不能从中断处恢复。`,
+    `請輸入用戶 ID 列表，每個 ID 之間以換行分隔（即每行一個 ID）。<br>
+<br>
+提示：<br>
+- 這個功能是為一次性擷取多個用戶而設計的。如果你只需要下載一個用戶的作品，可以進入他的主頁並開始擷取。<br>
+- 如果你需要設定一些篩選條件（如作品類型、收藏數量、時間範圍、標籤），請先進行設定，然後再開始擷取。<br>
+- 請確認在「擷取完成後，自動開始下載」設定裡勾選了「快速下載任務」，否則下載器不會自動開始下載。<br>
+- 在執行過程中，請不要在這個標籤頁裡執行其他擷取任務。如果有需要，你可以開啟新的 Pixiv 標籤頁進行瀏覽和下載。<br>
+- 在執行過程中，如果你不小心關閉了這個網頁，可以重新進入該頁面，並點擊「擷取用戶列表」按鈕來恢復進度。<br>
+- 在執行過程中，如果你想放棄（終止）該任務，可以點擊「停止擷取」按鈕。該任務會立即終止，並且不能從中斷處恢復。`,
+    `Please enter a list of user IDs, with each ID separated by a line break (one ID per line).<br>
+<br>
+Notes:<br>
+- This feature is designed for crawling multiple users at once. If you only need to download one user's works, you can go to their profile page and start crawling there.<br>
+- If you need to set some filter conditions (such as work type, bookmark count, time range, tags), set them first, then start crawling.<br>
+- Please make sure that "Quick download task" is ticked in the "Start downloading automatically after crawling is complete" setting, otherwise the downloader will not start downloading automatically.<br>
+- While the task is running, do not start other crawl tasks in this tab. If needed, you can open a new Pixiv tab for browsing and downloading.<br>
+- If you accidentally close this page while the task is running, you can open this page again and click the "Crawl user list" button to resume your progress.<br>
+- If you want to give up on (terminate) the task while it is running, click the "Stop crawling" button. The task will be terminated immediately, and you will not be able to resume from where it stopped.`,
+    `ユーザー ID のリストを入力してください。各 ID は改行で区切ります（1 行に 1 つの ID）。<br>
+<br>
+ヒント：<br>
+- この機能は複数のユーザーを一度にクロールするために設計されています。1 人のユーザーの作品をダウンロードしたいだけなら、そのユーザーのプロフィールページを開いてクロールを開始してください。<br>
+- 作品の種類・ブックマーク数・期間・タグなどのフィルター条件を設定したい場合は、先に設定してからクロールを開始してください。<br>
+- 「クロール完了後、自動的にダウンロードを開始」の設定で「クイックダウンロードタスク」にチェックが入っていることを確認してください。そうしないとダウンローダーは自動でダウンロードを開始しません。<br>
+- 実行中は、このタブで他のクロールタスクを実行しないでください。必要な場合は、新しい Pixiv タブを開いて閲覧やダウンロードを行えます。<br>
+- 実行中に誤ってこのページを閉じてしまった場合は、このページを開き直し、「ユーザーリストをクロール」ボタンをクリックすると続きから再開できます。<br>
+- 実行中にこのタスクを放棄（終了）したい場合は、「クロールをやめる」ボタンをクリックしてください。タスクはすぐに終了し、中断した位置から再開することはできません。`,
+    `사용자 ID 목록을 입력해주세요. 각 ID는 줄바꿈으로 구분합니다 (한 줄에 하나의 ID).<br>
+<br>
+안내:<br>
+- 이 기능은 여러 사용자를 한 번에 크롤링하기 위해 설계되었습니다. 한 사용자의 작품만 다운로드하려면 해당 사용자의 프로필 페이지에서 크롤링을 시작하세요.<br>
+- 작품 유형, 북마크 수, 기간, 태그 등 필터 조건을 설정해야 한다면 먼저 설정한 후에 크롤링을 시작하세요.<br>
+- "크롤링 완료 후 자동으로 다운로드 시작" 설정에서 "빠른 다운로드 작업"이 체크되어 있는지 확인하세요. 그렇지 않으면 다운로더가 자동으로 다운로드를 시작하지 않습니다.<br>
+- 작업 실행 중에는 이 탭에서 다른 크롤링 작업을 실행하지 마세요. 필요하다면 새 Pixiv 탭을 열어 브라우징과 다운로드를 할 수 있습니다.<br>
+- 작업 실행 중에 실수로 이 페이지를 닫았다면, 이 페이지로 다시 들어가서 "사용자 목록 크롤링" 버튼을 클릭하여 이어서 진행할 수 있습니다.<br>
+- 작업 실행 중에 이 작업을 포기(종료)하고 싶다면 "크롤링 중지" 버튼을 클릭하세요. 작업은 즉시 종료되며, 중단된 지점에서 재개할 수 없습니다.`,
+    `Пожалуйста, введите список идентификаторов пользователей, разделяя каждый идентификатор переводом строки (один идентификатор на строку).<br>
+<br>
+Примечания:<br>
+- Эта функция предназначена для разового сканирования нескольких пользователей. Если вам нужно скачать работы только одного пользователя, откройте его страницу профиля и начните сканирование там.<br>
+- Если вам нужно задать условия фильтрации (например, тип работ, количество закладок, диапазон дат, теги), сначала настройте их, а затем начинайте сканирование.<br>
+- Убедитесь, что в настройке «Начать загрузку автоматически после завершения сканирования» отмечено «Быстрая загрузка», иначе загрузчик не начнёт загрузку автоматически.<br>
+- Во время выполнения задачи не запускайте другие задачи сканирования в этой вкладке. При необходимости откройте новую вкладку Pixiv для просмотра и загрузки.<br>
+- Если вы случайно закроете эту страницу во время выполнения задачи, вы можете снова открыть её и нажать кнопку «Сканировать список пользователей», чтобы продолжить.<br>
+- Если во время выполнения вы захотите отказаться от задачи (прервать её), нажмите кнопку «Остановить сканирование». Задача будет немедленно прекращена, и вы не сможете продолжить с того места, где она остановилась.`,
+  ],
+  _用户ID必须全部是数字: [
+    `用户 ID 必须全部是数字`,
+    `用戶 ID 必須全部是數字`,
+    `User IDs must all be numbers`,
+    `ユーザー ID はすべて数字である必要があります`,
+    `사용자 ID는 모두 숫자여야 합니다`,
+    `Идентификаторы пользователей должны состоять только из цифр`,
+  ],
+  _抓取作品数量的输入框提示: [
+    `你想从每个用户那里抓取多少个作品？<br>
+<br>
+提示：<br>
+- 下载器会从最新的作品开始抓取，即按作品发布时间从最新到最旧排序。<br>
+- 如果你只想抓取部分作品，可以输入具体的数字；<br>
+- 如果你想抓取所有作品，可以输入 <span class="blue">-1</span> 或者一个很大的数字。`,
+    `你想從每個用戶那裡擷取多少個作品？<br>
+<br>
+提示：<br>
+- 下載器會從最新的作品開始擷取，即按作品發佈時間從最新到最舊排序。<br>
+- 如果你只想擷取部分作品，可以輸入具體的數字；<br>
+- 如果你想擷取所有作品，可以輸入 <span class="blue">-1</span> 或者一個很大的數字。`,
+    `How many works do you want to crawl from each user?<br>
+<br>
+Notes:<br>
+- The downloader starts crawling from the newest works, that is, by work publish time from newest to oldest.<br>
+- If you only want to crawl some of the works, you can enter a specific number;<br>
+- If you want to crawl all works, you can enter <span class="blue">-1</span> or a very large number.`,
+    `各ユーザーから何件の作品をクロールしますか？<br>
+<br>
+ヒント：<br>
+- ダウンローダーは最新の作品からクロールを開始します。つまり、作品の投稿日が新しい順に並べ替えます。<br>
+- 一部の作品だけをクロールしたい場合は、具体的な数字を入力してください。<br>
+- すべての作品をクロールしたい場合は、<span class="blue">-1</span> または非常に大きな数字を入力してください。`,
+    `각 사용자로부터 몇 개의 작품을 크롤링하시겠습니까?<br>
+<br>
+안내:<br>
+- 다운로더는 최신 작품부터 크롤링을 시작합니다. 즉, 작품 게시 시간을 기준으로 최신순으로 정렬합니다.<br>
+- 일부 작품만 크롤링하려면 구체적인 숫자를 입력하세요.<br>
+- 모든 작품을 크롤링하려면 <span class="blue">-1</span> 또는 아주 큰 숫자를 입력하세요.`,
+    `Сколько работ вы хотите сканировать у каждого пользователя?<br>
+<br>
+Примечания:<br>
+- Загрузчик начинает сканирование с самых новых работ, то есть по времени публикации работ от новых к старым.<br>
+- Если вы хотите отсканировать только часть работ, введите конкретное число;<br>
+- Если вы хотите отсканировать все работы, введите <span class="blue">-1</span> или очень большое число.`,
+  ],
+  _数字必须设置为负1或者大于0: [
+    `数字必须设置为 -1 或者大于 0`,
+    `數字必須設定為 -1 或者大於 0`,
+    `The number must be set to -1 or greater than 0`,
+    `数値は -1 または 0 より大きい値に設定してください`,
+    `숫자는 -1 또는 0보다 큰 값으로 설정해야 합니다`,
+    `Число должно быть установлено в -1 или больше 0`,
+  ],
+  _检测到有未完成的抓取用户列表任务要恢复该任务吗: [
+    `检测到有未完成的“抓取用户列表”任务，要恢复该任务吗？`,
+    `偵測到有未完成的「擷取用戶列表」任務，要恢復該任務嗎？`,
+    `An unfinished "Crawl user list" task was detected. Do you want to resume it?`,
+    `未完了の「ユーザーリストをクロール」タスクが検出されました。このタスクを再開しますか？`,
+    `완료되지 않은 "사용자 목록 크롤링" 작업이 있습니다. 이 작업을 복구하시겠습니까?`,
+    `Обнаружена незавершённая задача «Сканировать список пользователей». Возобновить её?`,
+  ],
+  _无法恢复抓取用户列表任务因为下载器正忙: [
+    `下载器正忙，可能正在抓取或下载，所以无法恢复未完成的“抓取用户列表”任务。<br>你可以停止当前进行中的任务，或者等任务完成后重试该操作。`,
+    `下載器忙碌中，可能正在擷取或下載，因此無法恢復未完成的「擷取用戶列表」任務。<br>你可以停止目前進行中的任務，或者等任務完成後重試該操作。`,
+    `The downloader is busy; it may be crawling or downloading, so the unfinished "Crawl user list" task cannot be resumed.<br>You can stop the current task, or wait until it finishes and try again.`,
+    `ダウンローダーがビジー状態です（クロールまたはダウンロード中）。そのため、未完了の「ユーザーリストをクロール」タスクを再開できません。<br>現在のタスクを停止するか、タスクの完了後に再度お試しください。`,
+    `다운로더가 사용 중입니다(크롤링 또는 다운로드 중). 완료되지 않은 "사용자 목록 크롤링" 작업을 복구할 수 없습니다.<br>현재 진행 중인 작업을 중지하거나, 작업이 완료된 후에 다시 시도하세요.`,
+    `Загрузчик занят: возможно, он сканирует или скачивает, поэтому незавершённую задачу «Сканировать список пользователей» нельзя возобновить.<br>Вы можете остановить текущую задачу или дождаться её завершения и повторить попытку.`,
+  ],
+  _已恢复抓取用户列表任务: [
+    `已恢复之前的任务。<br>下载器会从之前正在处理的那个用户开始，重新进入抓取和下载流程。<br>如果你之前已经下载了他的一些文件，可以启用“不下载重复文件”功能，以避免下载重复的文件。`,
+    `已恢復之前的任務。<br>下載器會從之前正在處理的那個用戶開始，重新進入擷取和下載流程。<br>如果你之前已經下載了他的一些檔案，可以啟用「不下載重複檔案」功能，以避免下載重複的檔案。`,
+    `The previous task has been resumed.<br>The downloader will start the crawl and download process again, from the user it was processing before.<br>If you have already downloaded some of their files, you can enable "Don't download duplicate files" to avoid downloading duplicate files.`,
+    `以前のタスクを再開しました。<br>ダウンローダーは前回処理していたユーザーから、クロールとダウンロードの処理をやり直します。<br>すでにそのユーザーのファイルをいくつかダウンロードしている場合は、「重複ファイルをダウンロードしない」機能を有効にすると、重複したファイルのダウンロードを避けられます。`,
+    `이전 작업을 복구했습니다.<br>다운로더는 이전에 처리하던 사용자부터 크롤링과 다운로드 과정을 다시 시작합니다.<br>이미 그의 파일을 일부 다운로드했다면 "중복 파일 다운로드하지 않기" 기능을 활성화하여 중복 파일 다운로드를 피할 수 있습니다.`,
+    `Предыдущая задача возобновлена.<br>Загрузчик начнёт процесс сканирования и скачивания заново с того пользователя, которого он обрабатывал ранее.<br>Если вы уже скачали некоторые его файлы, включите функцию «Не загружать дубликаты файлов», чтобы избежать повторной загрузки файлов.`,
+  ],
+  _抓取用户列表任务尚未完成的提示: [
+    `抓取用户列表的任务尚未完成。如果你确实想放弃任务，请点击下载器设置面板里的“停止抓取”按钮。`,
+    `擷取用戶列表的任務尚未完成。如果你確實想放棄任務，請點擊下載器設定面板裡的「停止擷取」按鈕。`,
+    `The crawl user list task is not finished yet. If you really want to abandon the task, click the "Stop crawling" button in the downloader's settings panel.`,
+    `ユーザーリストをクロールするタスクがまだ完了していません。本当にタスクを放棄したい場合は、ダウンローダーの設定パネルにある「クロールをやめる」ボタンをクリックしてください。`,
+    `사용자 목록 크롤링 작업이 아직 완료되지 않았습니다. 정말로 작업을 포기하려면 다운로더 설정 패널의 "크롤링 중지" 버튼을 클릭하세요.`,
+    `Задача сканирования списка пользователей ещё не завершена. Если вы действительно хотите отказаться от неё, нажмите кнопку «Остановить сканирование» на панели настроек загрузчика.`,
+  ],
+  _停止抓取用户列表的提示: [
+    `下载器正在抓取用户列表，停止抓取会终止该任务，确定要终止吗？`,
+    `下載器正在擷取用戶列表，停止擷取會終止該任務，確定要終止嗎？`,
+    `The downloader is crawling the user list. Stopping the crawl will terminate this task. Are you sure you want to stop it?`,
+    `ダウンローダーはユーザーリストをクロールしています。クロールを停止するとこのタスクは終了します。停止してもよろしいですか？`,
+    `다운로더가 사용자 목록을 크롤링하는 중입니다. 크롤링을 중지하면 이 작업이 종료됩니다. 정말 중지하시겠습니까?`,
+    `Загрузчик сканирует список пользователей. Остановка сканирования завершит эту задачу. Вы уверены, что хотите остановить?`,
+  ],
+  _抓取用户列表时放弃下载的提示: [
+    `💡提示：在抓取用户列表时，放弃下载只会跳过当前这个用户，不会终止整个抓取任务。下载器会继续抓取下一个用户。如果你想彻底终止抓取用户列表，可以点击“停止抓取”按钮。`,
+    `💡提示：在擷取用戶列表時，放棄下載只會跳過目前這個用戶，不會終止整個擷取任務。下載器會繼續擷取下一個用戶。如果你想徹底終止擷取用戶列表，可以點擊「停止擷取」按鈕。`,
+    `💡 Tip: While crawling the user list, abandoning the download will only skip the current user. It will not terminate the entire crawl task. The downloader will continue with the next user. If you want to stop the crawl user list task completely, click the "Stop crawling" button.`,
+    `💡 ヒント：ユーザーリストをクロール中にダウンロードを放棄しても、現在のユーザーをスキップするだけで、クロールタスク全体は終了しません。ダウンローダーは次のユーザーの処理を続行します。ユーザーリストのクロールを完全に終了したい場合は、「クロールをやめる」ボタンをクリックしてください。`,
+    `💡 팁: 사용자 목록을 크롤링하는 중에 다운로드를 포기하면 현재 이 사용자만 건너뛰고, 전체 크롤링 작업은 종료되지 않습니다. 다운로더는 다음 사용자를 계속 크롤링합니다. 사용자 목록 크롤링을 완전히 종료하려면 "크롤링 중지" 버튼을 클릭하세요.`,
+    `💡 Подсказка: во время сканирования списка пользователей отказ от загрузки пропустит только текущего пользователя и не завершит всю задачу сканирования. Загрузчик продолжит со следующим пользователем. Если вы хотите полностью остановить сканирование списка пользователей, нажмите кнопку «Остановить сканирование».`,
+  ],
+  _一共有x个用户ID: [
+    `一共有 {} 个用户 ID`,
+    `一共有 {} 個用戶 ID`,
+    `There are {} user IDs in total`,
+    `ユーザー ID は合計 {} 個です`,
+    `총 {}개의 사용자 ID가 있습니다`,
+    `Всего {} идентификаторов пользователей`,
+  ],
+  _从每个用户那里抓取所有作品: [
+    `从每个用户那里抓取所有作品`,
+    `從每個用戶那裡擷取所有作品`,
+    `Crawl all works from each user`,
+    `各ユーザーからすべての作品をクロールします`,
+    `각 사용자로부터 모든 작품을 크롤링합니다`,
+    `Сканировать все работы каждого пользователя`,
+  ],
+  _从每个用户那里抓取x个作品: [
+    `从每个用户那里抓取 {} 个作品`,
+    `從每個用戶那裡擷取 {} 個作品`,
+    `Crawl {} works from each user`,
+    `各ユーザーから {} 件の作品をクロールします`,
+    `각 사용자로부터 {}개의 작품을 크롤링합니다`,
+    `Сканировать {} работ у каждого пользователя`,
+  ],
+  _开始抓取用户的作品: [
+    `开始抓取 {} 的作品，用户 ID 为 {}`,
+    `開始擷取 {} 的作品，用戶 ID 為 {}`,
+    `Start crawling the works of {}, user ID: {}`,
+    `{} の作品のクロールを開始します。ユーザー ID: {}`,
+    `{}의 작품 크롤링을 시작합니다. 사용자 ID: {}`,
+    `Начато сканирование работ {}, идентификатор пользователя: {}`,
+  ],
+  _他在队列中的位置是x: [
+    `他在队列中的位置是 {}`,
+    `他在隊列中的位置是 {}`,
+    `Their position in the queue is {}`,
+    `待機キュー内の彼の位置は {} です`,
+    `대기 큐에서의 그의 위치는 {}입니다`,
+    `Его позиция в очереди: {}`,
+  ],
+  _开始获取作品列表: [
+    `开始获取作品列表`,
+    `開始取得作品列表`,
+    `Start getting the works list`,
+    `作品リストの取得を開始します`,
+    `작품 목록 가져오기 시작`,
+    `Начато получение списка работ`,
+  ],
+  _抓取用户列表完毕: [
+    `抓取用户列表完毕`,
+    `擷取用戶列表完畢`,
+    `Crawl user list complete`,
+    `ユーザーリストのクロールが完了しました`,
+    `사용자 목록 크롤링 완료`,
+    `Сканирование списка пользователей завершено`,
+  ],
+  _已停止抓取用户列表: [
+    `已停止抓取用户列表`,
+    `已停止擷取用戶列表`,
+    `Stopped crawling user list`,
+    `ユーザーリストのクロールを停止しました`,
+    `사용자 목록 크롤링을 중지했습니다`,
+    `Сканирование списка пользователей остановлено`,
+  ],
+  _获取用户资料失败跳过该用户: [
+    `获取用户资料失败，跳过该用户：{}`,
+    `取得用戶資料失敗，跳過該用戶：{}`,
+    `Failed to get the user's profile, skipping this user: {}`,
+    `ユーザー情報の取得に失敗したため、このユーザーをスキップします：{}`,
+    `사용자 정보를 가져오지 못해 이 사용자를 건너뜁니다: {}`,
+    `Не удалось получить профиль пользователя, пропуск этого пользователя: {}`,
+  ],
   _用户数量为0: [
     `用户数量为 0`,
     `用戶數量為 0`,
@@ -4978,24 +5568,26 @@ In addition, there are some function buttons at the bottom of the image viewer, 
     `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
   ],
   _快捷键ALTS手动选择作品: [
-    `使用这个功能，你可以从网页上选择你喜欢的作品。点击一个作品即可选择它；可以多选。<br>
-    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。<br>
-    该功能的默认快捷键是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以启动或暂停手动选择模式。`,
-    `使用這個功能，你可以從網頁上選擇你喜歡的作品。點擊一個作品即可選擇它；可以多選。<br>
-    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。<br>
-    該功能的預設快捷鍵是 <span class="blue">Alt</span> + <span class="blue">S</span>，可以啟動或暫停手動選擇模式。`,
-    `With this feature, you can select the works you like directly on the webpage. Click a work to select it; multiple selection is supported.<br>
-    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.<br>
-    The default hotkey for this feature is <span class="blue">Alt</span> + <span class="blue">S</span>, which starts or pauses manual selection mode.`,
-    `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品をクリックすると選択でき、複数選択も可能です。<br>
-    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。<br>
-    この機能の既定のショートカットキーは <span class="blue">Alt</span> + <span class="blue">S</span> で、手動選択モードを開始または一時停止できます。`,
-    `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
-    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.<br>
-    이 기능의 기본 단축키는 <span class="blue">Alt</span> + <span class="blue">S</span>이며, 수동 선택 모드를 시작하거나 일시 중지할 수 있습니다.`,
-    `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на работу, чтобы выбрать её; можно выбирать несколько.<br>
-    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.<br>
-    Горячая клавиша по умолчанию для этой функции — <span class="blue">Alt</span> + <span class="blue">S</span>, она запускает или приостанавливает режим ручного выбора.`,
+    `你可以使用快捷键开始或暂停手动选择作品，默认是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+    `你可以使用快捷鍵開始或暫停手動選擇作品，預設是 <span class="blue">Alt</span> + <span class="blue">S</span>。`,
+    `You can use a hotkey to start or pause manually selecting works. The default is <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+    `ショートカットキーで作品の手動選択を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">S</span> です。`,
+    `단축키로 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">S</span>입니다.`,
+    `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручной выбор работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">S</span>.`,
+  ],
+  _点击手动选择作品的说明: [
+    `使用这个功能，你可以从网页上选择你喜欢的作品。在作品的缩略图上点击就可以选择它；可以多选。<br>
+    选择完毕之后，点击下载器面板里的“抓取选择的作品”按钮即可下载这些作品。`,
+    `使用這個功能，你可以從網頁上選擇你喜歡的作品。在作品的縮圖上點擊就可以選擇它；可以多選。<br>
+    選擇完畢之後，點擊下載器面板裡的「擷取選擇的作品」按鈕即可下載這些作品。`,
+    `With this feature, you can select the works you like directly on the webpage. Click a work's thumbnail to select it; multiple selection is supported.<br>
+    After you finish selecting, click the "Crawl selected works" button in the downloader panel to download these works.`,
+    `この機能を使うと、ウェブページ上で好きな作品を選択できます。作品のサムネイルをクリックすると選択でき、複数選択も可能です。<br>
+    選択が終わったら、ダウンローダーパネルの「選ばれた作品をクロール」ボタンをクリックすると、それらの作品をダウンロードできます。`,
+    `이 기능을 사용하면 웹페이지에서 원하는 작품을 선택할 수 있습니다. 작품의 썸네일을 클릭하면 선택되며, 여러 개를 선택할 수 있습니다.<br>
+    선택을 마친 후 다운로더 패널의 "선택된 작품 긁어오기" 버튼을 클릭하면 해당 작품들을 다운로드할 수 있습니다.`,
+    `С помощью этой функции вы можете выбирать понравившиеся работы прямо на веб-странице. Нажмите на миниатюру работы, чтобы выбрать её; можно выбирать несколько.<br>
+    После завершения выбора нажмите кнопку «Сканировать выбранные работы» на панели загрузчика, чтобы скачать эти работы.`,
   ],
   _抓取选择的作品: [
     `抓取选择的作品`,
@@ -5566,30 +6158,22 @@ Note: This setting will add the same folder name for both R-18 and R-18G works. 
     `업데이트에 성공하였습니다.`,
     `обновление завершено`,
   ],
-  _在作品缩略图上显示图片查看器按钮: [
-    `在作品缩略图上显示<span class="key">图片查看器</span>按钮`,
-    `在作品縮圖上顯示<span class="key">圖片查看器</span>按鈕`,
-    `Show <span class="key">Image viewer</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">画像ビューア</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">이미지 뷰어</span> 버튼 표시`,
-    `Показать кнопку <span class="key">Просмотрщик изображений</span> на миниатюре`,
-  ],
-  _在作品缩略图上显示放大按钮: [
-    `在作品缩略图上显示<span class="key">放大</span>按钮`,
-    `在作品縮圖上顯示<span class="key">放大</span>按鈕`,
-    `Show <span class="key">zoom</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">拡大</span>ボタンを表示`,
-    `썸네일에 <span class="key">확대</span> 버튼 표시`,
-    `Показать кнопку <span class="key">увеличить</span> на миниатюре`,
+  _显示图片查看器按钮: [
+    `显示<span class="key">图片查看器</span>按钮`,
+    `顯示<span class="key">圖片查看器</span>按鈕`,
+    `Show <span class="key">image viewer</span> button`,
+    `<span class="key">画像ビューア</span>ボタンを表示`,
+    `<span class="key">이미지 뷰어</span> 버튼 표시`,
+    `Показать кнопку <span class="key">просмотрщика изображений</span>`,
   ],
   _放大镜: [`放大镜`, `放大鏡`, `Magnifying glass`, `拡大鏡`, `돋보기`, `Лупа`],
-  _在作品缩略图上显示下载按钮: [
-    `在作品缩略图上显示<span class="key">下载</span>按钮`,
-    `在作品縮圖上顯示<span class="key">下載</span>按鈕`,
-    `Show <span class="key">download</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示`,
-    `썸네일에 <span class="key">다운로드</span> 버튼 표시`,
-    `Показать кнопку <span class="key">загрузить</span> на миниатюре`,
+  _显示下载按钮: [
+    `显示<span class="key">下载</span>按钮`,
+    `顯示<span class="key">下載</span>按鈕`,
+    `Show <span class="key">download</span> button`,
+    `<span class="key">ダウンロード</span>ボタンを表示`,
+    `<span class="key">다운로드</span> 버튼 표시`,
+    `Показать кнопку <span class="key">загрузки</span>`,
   ],
   _已发送下载请求: [
     `已发送下载请求`,
@@ -5865,6 +6449,94 @@ If none of your set tags are matched, the downloader will ignore the correspondi
 Для каждого заданного списка тегов загрузчик ищет по порядку: сначала первый тег, если не найден — второй, и так далее. Как только найдено первое совпадение, поиск останавливается, и соответствующий токен в правиле именования (<span class="blue">{match_tag_folder1}</span> или <span class="blue">{match_tag_folder2}</span>) заменяется найденным тегом.<br>
 Если ни один из заданных тегов не совпал, загрузчик игнорирует соответствующий токен.<br>`,
   ],
+  _使用第一个匹配的收藏标签建立文件夹带高亮: [
+    `使用第一个匹配的<span class="key">收藏</span>标签建立文件夹`,
+    `使用第一個符合的<span class="key">收藏</span>標籤建立資料夾`,
+    `Create a folder with the first matched <span class="key">bookmark</span> tag`,
+    `最初に一致する<span class="key">ブックマーク</span>タグにフォルダを作成`,
+    `첫 번째 일치하는 <span class="key">북마크</span> 태그로 디렉토리 생성`,
+    `Создать папку с первым совпавшим тегом <span class="key">закладки</span>`,
+  ],
+  _使用第一个匹配的收藏标签建立文件夹的说明: [
+    `当你在你的收藏页面里抓取作品时，如果想使用某些收藏标签（而不是作品本身的标签）来建立文件夹，就可以使用这个设置。<br>
+    <br>
+先填写你想设置为文件夹名字的标签，然后修改命名规则，添加特殊标记来建立文件夹。例如：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+原理：<br>
+这个设置会检查你为已收藏的作品添加的标签（可能是你设置的自定义标签）。如果作品的收藏标签与你在这里设置的某个标签相同，下载器就可以输出这个标签，用于文件夹或文件名里。<br>
+<br>
+使用方法：<br>
+可以参考“使用第一个匹配的标签建立文件夹”设置的帮助内容，两者的使用方法非常相似。区别在于：<br>
+- 这个设置使用 <span class="blue">{match_bookmark_tag_folder1}</span> 和 <span class="blue">{match_bookmark_tag_folder2}</span> 标记输出匹配结果。<br>
+- 这个设置在匹配标签时，使用的是你为已收藏的作品添加的自定义标签（<span class="blue">{bookmark_tags}</span>），而不是作品本身的标签（<span class="blue">{tags_translate}</span>）。<br>
+- 只有当你在自己的收藏页面里抓取时，这个设置才会生效。这是因为在收藏页面里，下载器可以获取到你为作品添加的收藏标签；但是在其他页面里，下载器获取不到你设置的收藏标签，所以这个设置无效（不会建立文件夹）。<br>`,
+    `當你在你的收藏頁面裡擷取作品時，如果想使用某些收藏標籤（而不是作品本身的標籤）來建立資料夾，就可以使用這個設定。<br>
+<br>
+先填寫你想設定為資料夾名字的標籤，然後修改命名規則，新增特殊標記來建立資料夾。例如：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+原理：<br>
+這個設定會檢查你為已收藏的作品新增的標籤（可能是你設定的自訂標籤）。如果作品的收藏標籤與你在這裡設定的某個標籤相同，下載器就可以輸出這個標籤，用於資料夾或檔案名稱裡。<br>
+<br>
+使用方法：<br>
+可以參考「使用第一個符合的標籤建立資料夾」設定的幫助內容，兩者的使用方法非常相似。區別在於：<br>
+- 這個設定使用 <span class="blue">{match_bookmark_tag_folder1}</span> 和 <span class="blue">{match_bookmark_tag_folder2}</span> 標記輸出匹配結果。<br>
+- 這個設定在匹配標籤時，使用的是你為已收藏的作品新增的自訂標籤（<span class="blue">{bookmark_tags}</span>），而不是作品本身的標籤（<span class="blue">{tags_translate}</span>）。<br>
+- 只有當你在自己的收藏頁面裡擷取時，這個設定才會生效。這是因為在收藏頁面裡，下載器可以取得你為作品新增的收藏標籤；但是在其他頁面裡，下載器取得不到你設定的收藏標籤，所以這個設定無效（不會建立資料夾）。<br>`,
+    `When you crawl works on your bookmarks page, you can use this setting if you want to create folders by certain bookmark tags (instead of the tags of the works themselves).<br>
+<br>
+First, enter the tags you want to use as folder names, then modify your naming rule to add special tokens that create the folders. For example:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+How it works:<br>
+This setting checks the tags you added to your bookmarked works (which may be custom tags you set). If a work's bookmark tags contain one of the tags you set here, the downloader can output that tag and use it in folder or file names.<br>
+<br>
+How to use:<br>
+You can refer to the help content of the "Create a folder with the first matched tag" setting; the usage is very similar. The differences are:<br>
+- This setting outputs the match result with the <span class="blue">{match_bookmark_tag_folder1}</span> and <span class="blue">{match_bookmark_tag_folder2}</span> tokens.<br>
+- When matching tags, this setting uses the custom tags you added to your bookmarked works (<span class="blue">{bookmark_tags}</span>) instead of the work's own tags (<span class="blue">{tags_translate}</span>).<br>
+- This setting only works when you crawl on your own bookmarks page. This is because the downloader can get the bookmark tags you added to works on the bookmarks page, but cannot get them on other pages, so the setting has no effect there (no folders will be created).<br>`,
+    `ブックマークページで作品をクロールするとき、作品自体のタグではなく、特定のブックマークタグでフォルダーを作成したい場合にこの設定を使用できます。<br>
+<br>
+まずフォルダー名にしたいタグを入力し、次に命名規則を変更して、フォルダーを作成する特殊トークンを追加します。例：<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+仕組み：<br>
+この設定は、ブックマークした作品に追加したタグ（あなたが設定したカスタムタグの場合もあります）をチェックします。作品のブックマークタグに、ここで設定したタグと同じものがあれば、ダウンローダーはそのタグを出力し、フォルダー名やファイル名に使用できます。<br>
+<br>
+使い方：<br>
+「最初の一致するタグにフォルダを作成」設定のヘルプ内容を参考にしてください。使い方は非常に似ています。違いは次のとおりです：<br>
+- この設定は <span class="blue">{match_bookmark_tag_folder1}</span> と <span class="blue">{match_bookmark_tag_folder2}</span> トークンで一致結果を出力します。<br>
+- タグを照合するとき、この設定は作品自体のタグ（<span class="blue">{tags_translate}</span>）ではなく、ブックマークした作品に追加したカスタムタグ（<span class="blue">{bookmark_tags}</span>）を使用します。<br>
+- この設定は、自分のブックマークページでクロールする場合にのみ有効です。ブックマークページではダウンローダーが作品に追加したブックマークタグを取得できますが、他のページでは取得できないため、この設定は無効です（フォルダーは作成されません）。<br>`,
+    `북마크 페이지에서 작품을 긁어올 때, 작품 자체의 태그가 아닌 특정 북마크 태그로 폴더를 만들고 싶다면 이 설정을 사용할 수 있습니다.<br>
+<br>
+먼저 폴더 이름으로 사용할 태그를 입력한 다음, 명명 규칙을 수정하여 폴더를 만드는 특수 토큰을 추가하세요. 예:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+원리:<br>
+이 설정은 북마크한 작품에 추가한 태그(직접 설정한 사용자 지정 태그일 수 있음)를 확인합니다. 작품의 북마크 태그에 여기에서 설정한 태그와 같은 것이 있으면, 다운로더가 해당 태그를 출력하여 폴더나 파일 이름에 사용할 수 있습니다.<br>
+<br>
+사용 방법:<br>
+"첫 번째 일치하는 태그로 디렉토리 생성" 설정의 도움말 내용을 참고하세요. 사용 방법은 매우 비슷합니다. 차이점은 다음과 같습니다:<br>
+- 이 설정은 <span class="blue">{match_bookmark_tag_folder1}</span> 및 <span class="blue">{match_bookmark_tag_folder2}</span> 토큰으로 일치 결과를 출력합니다.<br>
+- 태그를 일치시킬 때 이 설정은 작품 자체의 태그(<span class="blue">{tags_translate}</span>)가 아니라 북마크한 작품에 추가한 사용자 지정 태그(<span class="blue">{bookmark_tags}</span>)를 사용합니다.<br>
+- 이 설정은 자신의 북마크 페이지에서 긁어올 때만 유효합니다. 북마크 페이지에서는 다운로더가 작품에 추가한 북마크 태그를 가져올 수 있지만, 다른 페이지에서는 가져올 수 없기 때문에 이 설정은 효과가 없습니다(폴더가 생성되지 않음).<br>`,
+    `Когда вы сканируете работы на странице своих закладок, вы можете использовать эту настройку, если хотите создавать папки по определённым тегам закладок (а не по тегам самих работ).<br>
+<br>
+Сначала введите теги, которые хотите использовать как имена папок, затем измените правило именования, добавив специальные токены для создания папок. Например:<br>
+<span class="blue">pixiv/{match_bookmark_tag_folder1}/{match_bookmark_tag_folder2}/{id}</span><br>
+<br>
+Принцип:<br>
+Эта настройка проверяет теги, которые вы добавили к работам в закладках (это могут быть ваши собственные теги). Если теги закладок работы совпадают с одним из заданных здесь тегов, загрузчик может вывести этот тег и использовать его в именах папок или файлов.<br>
+<br>
+Как использовать:<br>
+Вы можете обратиться к справке настройки «Создать папку с первым совпавшим тегом»; способ использования очень похож. Отличия:<br>
+- Эта настройка выводит результат совпадения с помощью токенов <span class="blue">{match_bookmark_tag_folder1}</span> и <span class="blue">{match_bookmark_tag_folder2}</span>.<br>
+- При сопоставлении тегов эта настройка использует собственные теги, добавленные вами к работам в закладках (<span class="blue">{bookmark_tags}</span>), а не теги самой работы (<span class="blue">{tags_translate}</span>).<br>
+- Эта настройка действует только при сканировании на вашей собственной странице закладок. Это связано с тем, что на странице закладок загрузчик может получить добавленные вами теги закладок, а на других страницах — не может, поэтому там настройка не действует (папки не создаются).<br>`,
+  ],
   _全年龄: [
     `全年龄`,
     `全年齡`,
@@ -5898,15 +6570,15 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     `전체 화면 보기`,
     `Просмотр на весь экран`,
   ],
-  _抓取id区间: [
-    `抓取 ID 区间`,
-    `擷取 ID 區間`,
-    `Crawl ID range`,
-    `ID 範囲をクロール`,
-    `ID 범위 긁어오기`,
-    `Сканировать диапазон идентификаторов`,
+  _抓取作品id区间: [
+    `抓取作品 ID 区间`,
+    `擷取作品 ID 區間`,
+    `Crawl work ID range`,
+    `作品 ID 範囲をクロール`,
+    `작품 ID 범위 긁어오기`,
+    `Сканировать диапазон идентификаторов работ`,
   ],
-  _抓取id区间说明: [
+  _抓取作品id区间说明: [
     `你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。`,
     `你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要擷取很多 ID，請考慮拆分成多個任務。我建議每批擷取的 ID 數量不要超過 100,000 個。`,
     `You can set a range of work IDs and crawl all works in this range (including the beginning and end IDs). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.`,
@@ -5914,7 +6586,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     `작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.`,
     `Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов сканирования, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.`,
   ],
-  _抓取id区间起点: [
+  _抓取作品id区间起点: [
     `请输入开始的 ID: `,
     `請輸入開始的 ID: `,
     `Please type in the beginning ID: `,
@@ -5922,7 +6594,7 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     `시작 ID를 입력해주세요: `,
     `Пожалуйста, введите начальный идентификатор: `,
   ],
-  _抓取id区间终点: [
+  _抓取作品id区间终点: [
     `请输入结束的 ID: `,
     `請輸入結束的 ID: `,
     `Please type in the ending ID: `,
@@ -5930,22 +6602,23 @@ If none of your set tags are matched, the downloader will ignore the correspondi
     `끝 ID를 입력해주세요: `,
     `Пожалуйста, введите конечный идентификатор: `,
   ],
-  _选项卡切换方式: [
-    `<span class="key">选项卡</span>切换方式`,
-    `<span class="key">頁籤</span>切換方式`,
-    `How to switch <span class="key">tabs</span>`,
-    `<span class="key">タブ</span>切り替え方式`,
-    `<span class="key">탭</span> 전환 방식`,
-    `Как переключать <span class="key">вкладки</span>`,
+  _如何切换下载器的标签页: [
+    `如何<span class="key">切换</span>下载器的标签页`,
+    `如何<span class="key">切換</span>下載器的頁籤`,
+    `How to <span class="key">switch</span> Downloader tabs`,
+    `ダウンローダーのタブを<span class="key">切り替える</span>方法`,
+    `다운로더 탭을 <span class="key">전환</span>하는 방법`,
+    `Как <span class="key">переключать</span> вкладки загрузчика`,
   ],
-  _选项卡切换方式的说明: [
-    `设置如何切换下载器的一级分类导航。`,
-    `設定如何切換下載器的頂部分類導航。`,
-    `Sets how to switch the primary category navigation of the Downloader.`,
-    `ダウンローダーの主要カテゴリナビゲーションを切り替える方法を設定します。`,
-    `다운로더의 주요 카테고리 내비게이션을 전환하는 방법을 설정합니다.`,
-    `Устанавливает способ переключения основной навигации по категориям в Загрузчике.`,
+  _导航分类: [
+    `导航分类`,
+    `導航分類`,
+    `Navigation category`,
+    `ナビゲーションカテゴリ`,
+    `탐색 카테고리`,
+    `Навигационная категория`,
   ],
+  _选项卡: [`选项卡`, `選項卡`, `Tab`, `タブ`, `탭`, `Вкладка`],
   _鼠标经过: [
     `鼠标经过`,
     `滑鼠經過`,
@@ -6348,21 +7021,13 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `Формат файла: `,
   ],
   _格式: [`格式`, `格式`, `Format`, `形式`, `형식`, `Формат`],
-  _预览作品: [
-    `<span class="key">预览</span>作品`,
-    `<span class="key">預覽</span>作品`,
-    `<span class="key">Preview</span> works`,
-    `作品の<span class="key">プレビュー</span>`,
-    `작품 <span class="key">미리보기</span>`,
-    `<span class="key">Превью</span> работ`,
-  ],
-  _预览作品的说明: [
-    `当鼠标放在图片的缩略图上时，下载器可以显示更大的图片。`,
-    `當滑鼠放在圖片的縮圖上時，下載器可以顯示更大的圖片。`,
-    `When you hover the mouse over the image thumbnail, the downloader can display a larger image.`,
-    `画像のサムネイルの上にマウスを置くと、ダウンローダーはより大きな画像を表示できます。`,
-    `이미지 섬네일 위에 마우스를 올려 놓으면 다운로더가 더 큰 이미지를 표시합니다.`,
-    `При наведении указателя мыши на миниатюру изображения загрузчик может отобразить увеличенное изображение.`,
+  _当鼠标停留在作品缩略图上时预览作品: [
+    `当鼠标停留在作品缩略图上时，<span class="key">预览</span>作品`,
+    `當滑鼠停留在作品縮圖上時，<span class="key">預覽</span>作品`,
+    `<span class="key">Preview</span> works when hovering over work thumbnails`,
+    `作品のサムネイルにマウスを乗せたときに作品を<span class="key">プレビュー</span>`,
+    `작품 썸네일에 마우스를 올리면 작품 <span class="key">미리보기</span>`,
+    `<span class="key">Предпросмотр</span> работы при наведении курсора на миниатюру`,
   ],
   _点击鼠标左键可以关闭预览图: [
     `点击鼠标左键可以关闭预览图`,
@@ -6406,13 +7071,21 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `Оригинальный размер`,
   ],
   _增强: [`增强`, `增強`, `Enhance`, `強化機能`, `향상`, `Улучшение`],
-  _长按右键显示大图: [
-    `在缩略图上长按鼠标右键时显示<span class="key">大图</span>`,
-    `在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>`,
-    `Long press the right mouse button on a thumbnail to display the <span class="key">large image</span>`,
-    `サムネイル上でマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>が表示されます`,
-    `썸네일에서 마우스 오른쪽 버튼을 길게 누르면 <span class="key">큰 이미지</span>가 표시됩니다`,
-    `При длительном нажатии правой кнопки мыши на миниатюре отображается <span class="key">крупное изображение</span>`,
+  _在缩略图上长按鼠标右键时查看大图: [
+    `在缩略图上长按鼠标右键时，查看<span class="key">大图</span>`,
+    `在縮圖上長按滑鼠右鍵時，查看<span class="key">大圖</span>`,
+    `Long press the right mouse button on a thumbnail to view the <span class="key">large image</span>`,
+    `サムネイル上でマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>を表示`,
+    `썸네일에서 마우스 오른쪽 버튼을 길게 누르면 <span class="key">큰 이미지</span> 보기`,
+    `При длительном нажатии правой кнопки мыши на миниатюре открывается <span class="key">крупное изображение</span>`,
+  ],
+  _在缩略图上长按鼠标右键时查看大图的说明: [
+    `在预览作品时，按 <span class="blue">V</span> 也可以触发此功能`,
+    `在預覽作品時，按 <span class="blue">V</span> 也可以觸發此功能`,
+    `You can also trigger this feature by pressing <span class="blue">V</span> while previewing a work`,
+    `作品をプレビューしているときに <span class="blue">V</span> を押しても、この機能を実行できます`,
+    `작품을 미리보기할 때 <span class="blue">V</span> 키를 눌러도 이 기능을 실행할 수 있습니다`,
+    `Эту функцию также можно вызвать, нажав <span class="blue">V</span> во время предпросмотра работы`,
   ],
   _鼠标滚轮切换图片: [
     `预览多图作品时，可以使用鼠标滚轮切换图片。`,
@@ -6503,12 +7176,12 @@ Note: After enabling this setting, the downloader will overwrite your current na
     `,
   ],
   _替换方形缩略图以显示图片比例: [
-    `替换方形<span class="key">缩略图</span>以显示图片比例`,
-    `替換方形<span class="key">縮圖</span>以顯示圖片比例`,
-    `Replace square <span class="key">thumbnails</span> to show image ratio`,
-    `正方形の<span class="key">サムネイル</span>を置き換えて、画像のスケールを表示`,
-    `이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체`,
-    `Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения`,
+    `替换方形缩略图以显示图片<span class="key">比例</span>`,
+    `替換方形縮圖以顯示圖片<span class="key">比例</span>`,
+    `Replace square thumbnails to show image <span class="key">ratio</span>`,
+    `正方形のサムネイルを置き換えて、画像の<span class="key">比率</span>を表示`,
+    `이미지 <span class="key">종횡비</span>를 표시하기 위해 정사각형 썸네일 교체`,
+    `Замените квадратные миниатюры, чтобы показать <span class="key">соотношение</span> сторон изображения`,
   ],
   _替换方形缩略图以显示图片比例的说明: [
     `Pixiv 默认的缩略图是正方形的，看不到图片的全貌，也看不出是横图还是竖图。<br>
@@ -7180,6 +7853,48 @@ During downloading, the downloader checks the color again after the image is dow
 При сканировании загрузчик загружает миниатюру изображения для проверки; если изображение не соответствует условиям, оно не будет сохранено.<br>
 При загрузке загрузчик ещё раз проверяет цвет после того, как изображение загружено; если оно не соответствует условиям, файл не будет сохранён на диск.`,
   ],
+  _图片格式: [
+    `图片<span class="key">格式</span>`,
+    `圖片<span class="key">格式</span>`,
+    `Image <span class="key">format</span>`,
+    `画像の<span class="key">形式</span>`,
+    `이미지 <span class="key">형식</span>`,
+    `<span class="key">Формат</span> изображения`,
+  ],
+  _你排除了图片格式x: [
+    `你排除了图片格式 {}`,
+    `你排除了圖片格式 {}`,
+    `You have excluded the {} image format`,
+    `画像形式 {} を除外しました`,
+    `이미지 형식 {}을(를) 제외했습니다`,
+    `Вы исключили формат изображения {}`,
+  ],
+  _图片格式的说明: [
+    `你可以根据需要，决定是否下载 <span class="blue">.jpg</span> 和 <span class="blue">.png</span> 格式的图片。<br>
+    <br>
+    备注：<br>
+    该设置只会检查插画和漫画里的图片，不会检查动图和小说里的图片。`,
+    `你可以根據需要，決定是否下載 <span class="blue">.jpg</span> 和 <span class="blue">.png</span> 格式的圖片。<br>
+    <br>
+    備註：<br>
+    該設定只會檢查插畫和漫畫裡的圖片，不會檢查動圖和小說裡的圖片。`,
+    `You can decide whether to download images in <span class="blue">.jpg</span> and <span class="blue">.png</span> format as needed.<br>
+    <br>
+    Note:<br>
+    This setting only checks the images in illustrations and manga. It does not check the images in ugoira or novels.`,
+    `必要に応じて、<span class="blue">.jpg</span> と <span class="blue">.png</span> 形式の画像をダウンロードするかどうかを決められます。<br>
+    <br>
+    備考：<br>
+    この設定はイラストとマンガの画像のみをチェックし、うごイラと小説の画像はチェックしません。`,
+    `필요에 따라 <span class="blue">.jpg</span> 및 <span class="blue">.png</span> 형식의 이미지를 다운로드할지 결정할 수 있습니다.<br>
+    <br>
+    참고:<br>
+    이 설정은 일러스트와 만화의 이미지만 확인하며, 움직이는 일러스트와 소설의 이미지는 확인하지 않습니다.`,
+    `При необходимости вы можете решить, загружать ли изображения в форматах <span class="blue">.jpg</span> и <span class="blue">.png</span>.<br>
+    <br>
+    Примечание:<br>
+    Эта настройка проверяет только изображения в иллюстрациях и манге. Изображения в Ugoira и новеллах не проверяются.`,
+  ],
   _图片数量: [
     `图片<span class="key">数量</span>`,
     `圖片<span class="key">數量</span>`,
@@ -7587,7 +8302,7 @@ Mouse wheel: zoom in or out of the image<br>
   ],
   _点击点赞按钮时下载作品: [
     `点击<span class="key">点赞</span>按钮时下载作品`,
-    `點選<span class="key">點贊</span>按鈕時下載作品`,
+    `點選<span class="key">點讚</span>按鈕時下載作品`,
     `Download a work when you click the <span class="key">like</span> button`,
     `<span class="key">いいね</span>ボタンをクリックすると作品がダウンロードされます`,
     `<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드`,
@@ -7769,6 +8484,15 @@ Mouse wheel: zoom in or out of the image<br>
     `북마크 추가 실패`,
     `Не удалось добавить закладку`,
   ],
+  _点赞: [`点赞`, `點讚`, `Like`, `いいね`, `좋아요`, `Лайк`],
+  _点赞成功: [
+    `点赞成功`,
+    `點讚成功`,
+    `Like successful`,
+    `いいね成功`,
+    `좋아요 성공`,
+    `Лайк поставлен`,
+  ],
   _点赞失败: [
     `点赞失败`,
     `點讚失敗`,
@@ -7776,6 +8500,14 @@ Mouse wheel: zoom in or out of the image<br>
     `いいね失敗`,
     `좋아요 실패`,
     `Лайк не удался`,
+  ],
+  _你已经赞过这个作品: [
+    `你已经赞过这个作品`,
+    `你已經點讚過這個作品`,
+    `You have already liked this work`,
+    `この作品にはすでにいいねしています`,
+    `이미 이 작품에 좋아요를 눌렀습니다`,
+    `Вы уже поставили лайк этой работе`,
   ],
   _下载器会在几分钟后重试: [
     `下载器会在几分钟后重试。`,
@@ -8244,12 +8976,18 @@ There is also a button at the bottom of the log area for manually exporting logs
     `Сканирование остановлено`,
   ],
   _账户被警告时停止操作的提示: [
-    `你的账户可能被 Pixiv 警告了，因此下载器已停止{}的操作。如果有需要，你可以在以后刷新该页面并再次执行该操作。`,
-    `你的帳號可能被 Pixiv 警告了，因此下載器已停止{}的操作。如果有需要，你可以在之後重新整理該頁面並再次執行該操作。`,
-    `Your account may have been warned by Pixiv, so the downloader has stopped this operation: {}. If necessary, you can reload this page later and perform the operation again.`,
-    `あなたのアカウントは Pixiv から警告を受けた可能性があるため、ダウンローダーは{}の操作を停止しました。必要であれば、後でこのページを再読み込みしてから、もう一度実行してください。`,
-    `계정이 Pixiv로부터 경고를 받았을 가능성이 있으므로 다운로더가 {} 작업을 중지했습니다. 필요하다면 나중에 이 페이지를 새로 고친 뒤 다시 실행할 수 있습니다.`,
-    `Возможно, ваш аккаунт получил предупреждение от Pixiv, поэтому загрузчик остановил операцию: {}. При необходимости вы можете позже перезагрузить эту страницу и выполнить её снова.`,
+    `⚠️下载器检测到你的账户可能被 Pixiv 警告了，这通常是因为你使用下载器大量抓取/下载导致的。为避免进一步的限制，下载器已停止执行当前任务：{}。<br>
+    如果有需要，你可以在一段时间后刷新页面，并重新执行该任务。`,
+    `⚠️下載器檢測到你的帳號可能被 Pixiv 警告了，這通常是因為你使用下載器大量擷取/下載導致的。為避免進一步的限制，下載器已停止執行目前任務：{}。<br>
+    如果有需要，你可以在一段時間後重新整理頁面，並重新執行該任務。`,
+    `⚠️The downloader has detected that your account may have been warned by Pixiv. This is usually caused by large-scale crawling/downloading using the downloader. To avoid further restrictions, the downloader has stopped executing the current task: {}.<br>
+    If necessary, you can reload the page after a while and execute the task again.`,
+    `⚠️ダウンローダーは、あなたのアカウントが Pixiv から警告を受けた可能性を検出しました。これは通常、ダウンローダーを使って大量にクロール/ダウンロードしたことが原因です。これ以上の制限を避けるため、ダウンローダーは現在のタスクの実行を停止しました：{}。<br>
+    必要であれば、しばらくしてからページを再読み込みし、タスクをもう一度実行してください。`,
+    `⚠️다운로더가 계정이 Pixiv로부터 경고를 받았을 가능성을 감지했습니다. 이는 보통 다운로더를 사용한 대량의 크롤링/다운로드로 인한 것입니다. 추가 제한을 피하기 위해 다운로더가 현재 작업 실행을 중지했습니다: {}.<br>
+    필요하다면 잠시 후에 페이지를 새로 고친 뒤, 작업을 다시 실행할 수 있습니다.`,
+    `⚠️Загрузчик обнаружил, что ваш аккаунт, возможно, получил предупреждение от Pixiv. Обычно это вызвано массовым сканированием/скачиванием с помощью загрузчика. Чтобы избежать дальнейших ограничений, загрузчик остановил выполнение текущей задачи: {}.<br>
+    При необходимости вы можете через некоторое время перезагрузить страницу и снова выполнить эту задачу.`,
   ],
   _添加收藏: [
     `添加收藏`,
@@ -8275,6 +9013,178 @@ There is also a button at the bottom of the log area for manually exporting logs
     `북마크 태그 제거`,
     `Удаление тегов из закладок`,
   ],
+  _点击标签添加到收藏标签列表: [
+    `点击一个标签即可把它添加到使用的收藏标签里。`,
+    `點擊一個標籤即可把它添加到使用的收藏標籤裡。`,
+    `Click a tag to add it to the bookmark tags in use.`,
+    `タグをクリックすると、使用するブックマークタグに追加されます。`,
+    `태그를 클릭하면 사용할 북마크 태그에 추가됩니다.`,
+    `Нажмите на тег, чтобы добавить его в используемые теги закладки.`,
+  ],
+  _添加到: [
+    `添加到`,
+    `添加到`,
+    `Add to`,
+    `追加先`,
+    `추가할 위치`,
+    `Добавить в`,
+  ],
+  _公开收藏: [
+    `公开收藏`,
+    `公開收藏`,
+    `Public bookmark`,
+    `公開ブックマーク`,
+    `공개 북마크`,
+    `Публичная закладка`,
+  ],
+  _匿名收藏: [
+    `匿名收藏`,
+    `匿名收藏`,
+    `Private bookmark`,
+    `非公開ブックマーク`,
+    `비공개 북마크`,
+    `Приватная закладка`,
+  ],
+  _标签策略: [
+    `标签策略`,
+    `標籤策略`,
+    `Tag strategy`,
+    `タグの扱い方`,
+    `태그 전략`,
+    `Стратегия тегов`,
+  ],
+  _使用作品的原始标签: [
+    `使用作品的原始标签`,
+    `使用作品的原始標籤`,
+    `Use the work's original tags`,
+    `作品の元のタグを使う`,
+    `작품의 원본 태그 사용`,
+    `Использовать исходные теги работы`,
+  ],
+  _使用作品翻译后的标签: [
+    `使用作品翻译后的标签`,
+    `使用作品翻譯後的標籤`,
+    `Use the work's translated tags`,
+    `作品の翻訳されたタグを使う`,
+    `작품의 번역된 태그 사용`,
+    `Использовать переведённые теги работы`,
+  ],
+  _不使用标签: [
+    `不使用标签`,
+    `不使用標籤`,
+    `Do not use tags`,
+    `タグを使わない`,
+    `태그 사용하지 않음`,
+    `Не использовать теги`,
+  ],
+  _自定义标签: [
+    `自定义标签`,
+    `自訂標籤`,
+    `Custom tags`,
+    `カスタムタグ`,
+    `사용자 지정 태그`,
+    `Свои теги`,
+  ],
+  _请输入标签: [
+    `请输入标签`,
+    `請輸入標籤`,
+    `Enter tags`,
+    `タグを入力`,
+    `태그를 입력하세요`,
+    `Введите теги`,
+  ],
+  _输入收藏标签的提示: [
+    `你可以输入一个或多个标签，并添加到使用的收藏标签里。<br>
+    标签前面不需要添加<span class="blue">#</span>；多个标签之间使用英语逗号 <span class="blue">,</span> 分隔。`,
+    `你可以輸入一個或多個標籤，並添加到使用的收藏標籤裡。<br>
+    標籤前面不需要添加<span class="blue">#</span>；多個標籤之間使用英語逗號 <span class="blue">,</span> 分隔。`,
+    `You can enter one or more tags and add them to the bookmark tags in use.<br>
+    You do not need to add <span class="blue">#</span> before a tag; separate multiple tags with an English comma <span class="blue">,</span>.`,
+    `1 つまたは複数のタグを入力して、使用するブックマークタグに追加できます。<br>
+    タグの前に <span class="blue">#</span> を付ける必要はありません。複数のタグは英語のカンマ <span class="blue">,</span> で区切ります。`,
+    `하나 이상의 태그를 입력하여 사용할 북마크 태그에 추가할 수 있습니다.<br>
+    태그 앞에 <span class="blue">#</span> 를 붙일 필요는 없습니다. 여러 태그는 영어 쉼표 <span class="blue">,</span> 로 구분합니다.`,
+    `Вы можете ввести один или несколько тегов и добавить их в используемые теги закладки.<br>
+    Перед тегом не нужно ставить <span class="blue">#</span>; несколько тегов разделяйте английской запятой <span class="blue">,</span>.`,
+  ],
+  _手动添加标签: [
+    `手动添加标签`,
+    `手動添加標籤`,
+    `Add tags manually`,
+    `手動でタグを追加`,
+    `직접 태그 추가`,
+    `Добавить теги вручную`,
+  ],
+  _使用的收藏标签: [
+    `使用的收藏标签`,
+    `使用的收藏標籤`,
+    `Bookmark tags in use`,
+    `使用するブックマークタグ`,
+    `사용할 북마크 태그`,
+    `Используемые теги закладки`,
+  ],
+  _点击标签可以移除它: [
+    `点击一个标签可以移除它。`,
+    `點擊一個標籤可以移除它。`,
+    `Click a tag to remove it.`,
+    `タグをクリックすると削除できます。`,
+    `태그를 클릭하면 삭제할 수 있습니다.`,
+    `Нажмите на тег, чтобы удалить его.`,
+  ],
+  _标签数量: [
+    `标签数量：{}（最多 10 个）`,
+    `標籤數量：{}（最多 10 個）`,
+    `Tag count: {} (maximum 10)`,
+    `タグ数：{}（最大 10 個）`,
+    `태그 수: {} (최대 10개)`,
+    `Количество тегов: {} (не более 10)`,
+  ],
+  _标签数量已达到最大值: [
+    `标签数量已达到最大值`,
+    `標籤數量已達到最大值`,
+    `Maximum number of tags reached`,
+    `タグ数が最大値に達しました`,
+    `태그 수가 최대치에 도달했습니다`,
+    `Достигнуто максимальное количество тегов`,
+  ],
+  _收藏标签数量达到上限: [
+    `一个作品最多可以添加 10 个收藏标签。<br>
+    现在标签数量已经达到最大值，如果你想继续添加标签，请先移除一些标签。`,
+    `一個作品最多可以添加 10 個收藏標籤。<br>
+    現在標籤數量已經達到最大值，如果你想繼續添加標籤，請先移除一些標籤。`,
+    `A work can have at most 10 bookmark tags.<br>
+    The tag count has reached the maximum. If you want to add more tags, please remove some tags first.`,
+    `1 つの作品に追加できるブックマークタグは最大 10 個です。<br>
+    タグ数が最大値に達しています。さらにタグを追加する場合は、先にいくつかのタグを削除してください。`,
+    `작품 하나에 최대 10개의 북마크 태그를 추가할 수 있습니다.<br>
+    태그 수가 최대치에 도달했습니다. 태그를 더 추가하려면 먼저 일부 태그를 삭제하세요.`,
+    `К одной работе можно добавить не более 10 тегов закладки.<br>
+    Количество тегов достигло максимума. Если вы хотите добавить ещё теги, сначала удалите несколько тегов.`,
+  ],
+  _在新标签页打开封面图片: [
+    `在新标签页打开封面图片`,
+    `在新頁籤開啟封面圖片`,
+    `Open the cover image in a new tab`,
+    `表紙画像を新しいタブで開く`,
+    `새 탭에서 표지 이미지 열기`,
+    `Открыть обложку в новой вкладке`,
+  ],
+  _B或者CtrlEnter: [
+    `B 或者 Ctrl + Enter`,
+    `B 或者 Ctrl + Enter`,
+    `B or Ctrl + Enter`,
+    `B または Ctrl + Enter`,
+    `B 또는 Ctrl + Enter`,
+    `B или Ctrl + Enter`,
+  ],
+  _常用的标签: [
+    `常用的标签`,
+    `常用的標籤`,
+    `Frequently used tags`,
+    `よく使うタグ`,
+    `자주 사용하는 태그`,
+    `Часто используемые теги`,
+  ],
   _导出关注列表: [
     `导出关注列表`,
     `匯出關注列表`,
@@ -8299,16 +9209,32 @@ There is also a button at the bottom of the log area for manually exporting logs
     `팔로우 목록 가져오기`,
     `Получение списка подписок`,
   ],
-  _导入ID列表: [
-    `导入 ID 列表`,
-    `匯入 ID 列表`,
-    `Import ID list`,
-    `インポートIDリスト`,
-    `ID 목록 가져오기`,
-    `Список идентификаторов импорта`,
+  _下载文件: [
+    `下载文件`,
+    `下載檔案`,
+    `Downloading files`,
+    `ファイルのダウンロード`,
+    `파일 다운로드`,
+    `Скачивание файлов`,
   ],
-  _导入ID列表的说明: [
-    `请选择一个 JSON 文件。它的代码格式如下：
+  _抓取作品: [
+    `抓取作品`,
+    `擷取作品`,
+    `Crawling works`,
+    `作品のクロール`,
+    `작품 긁어오기`,
+    `Сканирование работ`,
+  ],
+  _导入作品ID列表: [
+    `导入作品 ID 列表`,
+    `匯入作品 ID 列表`,
+    `Import work ID list`,
+    `作品 ID リストをインポート`,
+    `작품 ID 목록 가져오기`,
+    `Импорт списка идентификаторов работ`,
+  ],
+  _导入作品ID列表的说明: [
+    `请选择一个包含了作品 ID 列表的 JSON 文件。它的代码格式如下：
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -8317,7 +9243,7 @@ There is also a button at the bottom of the log area for manually exporting logs
 ]
 </pre>
 type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
-    `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+    `請選擇一個包含了作品 ID 列表的 JSON 檔案。它的程式碼格式如下：<pre>
 [
   { "id": "142565679", "type": "illusts" },
   { "id": "24769308", "type": "novels" },
@@ -8325,7 +9251,7 @@ type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
 ]
 </pre>
 type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
-    `Please select a JSON file. Its code format is as follows:
+    `Please select a JSON file that contains a list of work IDs. Its code format is as follows:
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -8334,7 +9260,7 @@ type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
 ]
 </pre>
 type can be "illusts", "novels" or "novelSeries".`,
-    `JSONファイルを選択してください。コード形式は次のとおりです。
+    `作品 ID リストを含む JSON ファイルを選択してください。コード形式は次のとおりです。
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -8343,7 +9269,7 @@ type can be "illusts", "novels" or "novelSeries".`,
 ]
 </pre>
 type は "illusts"、"novels" または "novelSeries" です。`,
-    `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+    `작품 ID 목록이 포함된 JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -8352,7 +9278,7 @@ type は "illusts"、"novels" または "novelSeries" です。`,
 ]
 </pre>
 type 은 "illusts", "novels" 또는 "novelSeries"가 될 수 있습니다.`,
-    `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+    `Пожалуйста, выберите файл JSON, содержащий список идентификаторов работ. Формат его кода следующий:
 <pre>
 [
   { "id": "142565679", "type": "illusts" },
@@ -8380,7 +9306,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 获取每个页面里的作品 ID 列表<br>
     - 汇总到一起（将所有作品 ID 放在同一个 JSON 文件中）<br>
     - 关闭此设置<br>
-    - 使用首页的“导入 ID 列表”功能开始抓取<br>`,
+    - 使用首页的“导入作品 ID 列表”功能开始抓取<br>`,
     `如果你啟用了這個設定，那麼下載器在擷取階段的早期，獲取到作品 ID 列表之後就會立刻停止擷取，並匯出作品 ID 列表。<br>
     此時下載器不會執行完整的擷取流程，也不會開始下載，並且會忽略大多數篩選條件（因為此時沒有作品的詳細資料）。<br>
     <br>
@@ -8390,7 +9316,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 獲取每個頁面裡的作品 ID 列表<br>
     - 彙總到一起（將所有作品 ID 放在同一個 JSON 檔案中）<br>
     - 關閉此設定<br>
-    - 使用首頁的「匯入 ID 列表」功能開始擷取<br>`,
+    - 使用首頁的「匯入作品 ID 列表」功能開始擷取<br>`,
     `If you enable this setting, the downloader will stop crawling as soon as it obtains the work ID list early in the crawl phase, and export the work ID list.<br>
     In this case the downloader will not run the complete crawl process, will not start downloading, and will ignore most filter conditions (because there is no detailed data about the works at that point).<br>
     <br>
@@ -8400,7 +9326,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - Get the work ID list from each page<br>
     - Combine them together (put all the work IDs in the same JSON file)<br>
     - Disable this setting<br>
-    - Use the "Import ID list" feature on the home page to start crawling<br>`,
+    - Use the "Import work ID list" feature on the home page to start crawling<br>`,
     `この設定を有効にすると、ダウンローダーはクロール段階の早い時点で作品 ID リストを取得した直後にクロールを停止し、作品 ID リストをエクスポートします。<br>
     このときダウンローダーは完全なクロール処理を実行せず、ダウンロードも開始せず、ほとんどのフィルター条件を無視します（この時点では作品の詳細データがないためです）。<br>
     <br>
@@ -8410,7 +9336,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 各ページの作品 ID リストを取得する<br>
     - 1 つにまとめる（すべての作品 ID を同じ JSON ファイルに入れる）<br>
     - この設定を無効にする<br>
-    - ホームの「インポートIDリスト」機能を使ってクロールを開始する<br>`,
+    - ホームの「作品 ID リストをインポート」機能を使ってクロールを開始する<br>`,
     `이 설정을 활성화하면 다운로더는 크롤링 단계 초반에 작품 ID 목록을 가져온 직후 크롤링을 중지하고, 작품 ID 목록을 내보냅니다.<br>
     이때 다운로더는 전체 크롤링 과정을 실행하지 않고 다운로드도 시작하지 않으며, 대부분의 필터 조건을 무시합니다(이 시점에는 작품의 상세 데이터가 없기 때문입니다).<br>
     <br>
@@ -8420,7 +9346,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - 각 페이지의 작품 ID 목록 가져오기<br>
     - 하나로 모으기(모든 작품 ID를 같은 JSON 파일에 넣기)<br>
     - 이 설정 비활성화<br>
-    - 홈의 "ID 목록 가져오기" 기능으로 크롤링 시작<br>`,
+    - 홈의 "작품 ID 목록 가져오기" 기능으로 크롤링 시작<br>`,
     `Если вы включите эту настройку, загрузчик остановит сканирование сразу после получения списка ID работ на раннем этапе сканирования и экспортирует список ID работ.<br>
     В этом случае загрузчик не выполнит полный процесс сканирования, не начнёт загрузку и проигнорирует большинство условий фильтрации (поскольку на этом этапе нет подробных данных о работах).<br>
     <br>
@@ -8430,7 +9356,7 @@ type может быть "illusts", "novels" или "novelSeries".`,
     - Получите список ID работ с каждой страницы<br>
     - Объедините их вместе (поместите все ID работ в один файл JSON)<br>
     - Отключите эту настройку<br>
-    - Используйте функцию «Список идентификаторов импорта» на главной странице, чтобы начать сканирование<br>`,
+    - Используйте функцию «Импорт списка идентификаторов работ» на главной странице, чтобы начать сканирование<br>`,
   ],
   _导入的用户ID数量: [
     `导入的用户 ID 数量：`,
@@ -8645,12 +9571,12 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
 8. Очистите историю загрузок браузера, затем перезапустите браузер. Этот метод может не сработать, но очистка ненужной истории загрузок полезна. Совет: Если история загрузок браузера велика, это может привести к зависанию браузера при запуске или открытии страницы управления загрузками на некоторое время и вызвать другие потенциальные проблемы.`,
   ],
   _在多图作品页面里显示缩略图列表: [
-    `在多图作品页面里显示<span class="key">缩略图</span>列表`,
-    `在多圖作品頁面裡顯示<span class="key">縮圖</span>列表`,
-    `Show <span class="key">thumbnail</span> list on multi-image work pages`,
-    `複数画像作品ページで<span class="key">サムネイル</span>一覧を表示`,
-    `멀티 이미지 작품 페이지에서 <span class="key">썸네일</span> 목록을 표시`,
-    `На странице работы с несколькими изображениями отображайте список <span class="key">миниатюр</span>`,
+    `在多图作品页面里显示缩略图<span class="key">列表</span>`,
+    `在多圖作品頁面裡顯示縮圖<span class="key">列表</span>`,
+    `Show thumbnail <span class="key">list</span> on multi-image work pages`,
+    `複数画像作品ページでサムネイル<span class="key">一覧</span>を表示`,
+    `멀티 이미지 작품 페이지에서 썸네일 <span class="key">목록</span>을 표시`,
+    `На странице работы с несколькими изображениями отображайте <span class="key">список</span> миниатюр`,
   ],
   _在多图作品页面里显示缩略图列表的说明: [
     `在多图作品页面里，下载器会在作品大图区域下方添加缩略图列表。你不仅可以查看每一张图片的预览图，还可以快速下载单张图片，或者选择一部分图片然后下载。`,
@@ -8677,21 +9603,13 @@ I haven't encountered this issue (in fact, most users probably won't encounter i
     `북마크 페이지에서 다운로더의 "홈 / 추가 기능" 영역에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.`,
     `На странице закладок в разделе «Главная / Дополнительные функции» загрузчика есть некоторые функции, которые помогут вам управлять своими закладками.`,
   ],
-  _预览作品的详细信息: [
-    `预览作品的<span class="key">详细</span>信息`,
+  _当鼠标停留在作品缩略图上时显示详细信息: [
+    `当鼠标停留在作品缩略图上时，显示<span class="key">详细</span>信息`,
     `預覽作品時的<span class="key">詳細</span>資料`,
     `Preview the <span class="key">details</span> of the work`,
     `作品の<span class="key">詳細</span>をプレビュー`,
     `작품의 <span class="key">상세한 정보</span>를 미리보다`,
     `Предпросмотр <span class="key">подробностей</span> работы`,
-  ],
-  _预览作品的详细信息的说明: [
-    `鼠标放在作品缩略图上即可查看作品数据`,
-    `滑鼠放在作品縮圖上即可檢視作品資料`,
-    `Mouse over the thumbnail of the work to view the work data`,
-    `作品のサムネイルにマウスをかざすだけで作品データを見ることができます`,
-    `마우스를 작품 썸네일 위에 놓으면 작품 데이터를 볼 수 있다`,
-    `Наведите мышь на миниатюру работы, чтобы увидеть данные о ней.`,
   ],
   _显示区域宽度: [
     `显示区域宽度`,
@@ -9268,13 +10186,29 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `로그 내보내기`,
     `Экспорт журнала`,
   ],
-  _查看日志附带快捷键L: [
-    `查看日志（L）`,
-    `檢視日誌（L）`,
-    `View log (L)`,
-    `ログを表示（L）`,
-    `로그 보기 (L)`,
-    `Показать журнал (L)`,
+  _复制日志: [
+    `复制日志`,
+    `複製日誌`,
+    `Copy log`,
+    `ログをコピー`,
+    `로그 복사`,
+    `Копировать журнал`,
+  ],
+  _清空日志: [
+    `清空日志`,
+    `清空日誌`,
+    `Clear log`,
+    `ログをクリア`,
+    `로그 지우기`,
+    `Очистить журнал`,
+  ],
+  _日志已清空: [
+    `日志已清空`,
+    `日誌已清空`,
+    `The log has been cleared`,
+    `ログをクリアしました`,
+    `로그를 지웠습니다`,
+    `Журнал очищен`,
   ],
   _没有日志: [
     `没有日志`,
@@ -9356,13 +10290,161 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     `<span class="key">복사</span> 작품 정보`,
     `<span class="key">Копировать</span> информацию о работе`,
   ],
-  _在缩略图上显示复制按钮: [
-    `在作品缩略图上显示<span class="key">复制</span>按钮`,
-    `在作品縮略圖上顯示<span class="key">複製</span>按鈕`,
-    `Display <span class="key">copy</span> button on thumbnail`,
-    `作品のサムネイルに<span class="key">コピー</span>ボタンを表示`,
-    `작품 썸네일에 <span class="key">복사</span> 버튼 표시`,
-    `Отображать кнопку <span class="key">копирования</span> на миниатюре работы`,
+  _显示复制按钮: [
+    `显示<span class="key">复制</span>按钮`,
+    `顯示<span class="key">複製</span>按鈕`,
+    `Display <span class="key">copy</span> button`,
+    `<span class="key">コピー</span>ボタンを表示`,
+    `<span class="key">복사</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">копирования</span>`,
+  ],
+  _显示点赞按钮: [
+    `显示<span class="key">点赞</span>按钮`,
+    `顯示<span class="key">點讚</span>按鈕`,
+    `Display <span class="key">like</span> button`,
+    `<span class="key">いいね</span>ボタンを表示`,
+    `<span class="key">좋아요</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">лайка</span>`,
+  ],
+  _显示收藏按钮: [
+    `显示<span class="key">收藏</span>按钮`,
+    `顯示<span class="key">收藏</span>按鈕`,
+    `Display <span class="key">bookmark</span> button`,
+    `<span class="key">ブックマーク</span>ボタンを表示`,
+    `<span class="key">북마크</span> 버튼 표시`,
+    `Отображать кнопку <span class="key">закладки</span>`,
+  ],
+  _点击复制按钮的说明: [
+    `点击复制按钮可以复制作品的图片和一些数据。<br>具体说明可以查看“增强”-“其他”里的“复制作品信息”设置。<br>
+    <br>
+    备注：<br>
+    这个按钮不会在小说的缩略图上显示。`,
+    `點擊複製按鈕可以複製作品的圖片和一些資料。<br>具體說明可以查看「增強」-「其他」裡的「複製作品資訊」設定。<br>
+    <br>
+    備註：<br>
+    這個按鈕不會在小說的縮圖上顯示。`,
+    `Clicking the copy button copies the work's image and some data.<br>For details, see the "Copy work info" setting in "Enhance" - "Others".<br>
+    <br>
+    Note:<br>
+    This button is not shown on the thumbnails of novels.`,
+    `コピーボタンをクリックすると、作品の画像とデータをコピーできます。<br>詳しい説明は「強化機能」-「その他」の「コピー作品情報」設定をご覧ください。<br>
+    <br>
+    備考：<br>
+    このボタンは小説のサムネイルには表示されません。`,
+    `복사 버튼을 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.<br>자세한 설명은 "향상"-"그 외"의 "복사 작품 정보" 설정을 참고하세요.<br>
+    <br>
+    참고:<br>
+    이 버튼은 소설 썸네일에 표시되지 않습니다.`,
+    `Нажатие кнопки копирования позволяет скопировать изображение работы и некоторые данные.<br>Подробности см. в настройке «Копировать информацию о работе» в разделе «Улучшение» - «Другие настройки».<br>
+    <br>
+    Примечание:<br>
+    Эта кнопка не отображается на миниатюрах романов.`,
+  ],
+  _点击点赞按钮的说明: [
+    `点击点赞按钮可以给这个作品点赞。<br>
+    <br>
+    另外，如果你在“下载”-“下载行为”里启用了“点击点赞按钮时下载作品”功能，那么下载器在点赞的同时还会下载这个作品。<br>
+    在这种情况下，你可以用缩略图上的点赞按钮代替下载按钮，也就是可以关闭“显示下载按钮”，这样就不会显示不需要的按钮。<br>
+    不过这个技巧只能在 PC 端浏览器里使用；在移动端浏览器里，下载器不会显示点赞按钮，因此它无法替代下载按钮。<br>
+    <br>
+    备注：<br>
+    这个按钮不会在系列小说的缩略图上显示（在单篇小说的缩略图上可以显示）。`,
+    `點擊點讚按鈕可以給這個作品點讚。<br>
+    <br>
+    另外，如果你在「下載」-「下載行為」裡啟用了「點選點讚按鈕時下載作品」功能，那麼下載器在點讚的同時還會下載這個作品。<br>
+    在這種情況下，你可以用縮圖上的點讚按鈕代替下載按鈕，也就是可以關閉「顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
+    不過這個技巧只能在 PC 端瀏覽器裡使用；在移動端瀏覽器裡，下載器不會顯示點讚按鈕，因此它無法替代下載按鈕。<br>
+    <br>
+    備註：<br>
+    這個按鈕不會在系列小說的縮圖上顯示（在單篇小說的縮圖上可以顯示）。`,
+    `Clicking the like button gives this work a like.<br>
+    <br>
+    Also, if you have enabled the "Download a work when you click the like button" feature in "Download" - "Download behavior", the downloader will also download the work at the same time.<br>
+    In this case, you can use the like button on the thumbnail instead of the download button, which means you can turn off "Show download button" so that unnecessary buttons are not displayed.<br>
+    However, this tip only works in PC browsers; in mobile browsers, the downloader does not show the like button, so it cannot replace the download button.<br>
+    <br>
+    Note:<br>
+    This button is not shown on the thumbnails of novel series (it is shown on the thumbnails of individual novels).`,
+    `いいねボタンをクリックすると、この作品にいいねできます。<br>
+    <br>
+    また、「ダウンロード」-「ダウンロード動作」で「いいねボタンをクリックすると作品がダウンロードされます」機能を有効にしている場合、ダウンローダーはいいねと同時にこの作品をダウンロードします。<br>
+    この場合、サムネイル上のいいねボタンをダウンロードボタンの代わりに使えます。つまり、「ダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
+    ただし、この方法は PC のブラウザでのみ使用できます。モバイルブラウザでは、ダウンローダーはいいねボタンを表示しないため、ダウンロードボタンの代わりにはなりません。<br>
+    <br>
+    備考：<br>
+    このボタンはシリーズ小説のサムネイルには表示されません（単体の小説のサムネイルには表示されます）。`,
+    `좋아요 버튼을 클릭하면 이 작품에 좋아요를 표시할 수 있습니다.<br>
+    <br>
+    또한 "다운로드"-"다운로드 동작"에서 "좋아요 버튼 클릭 시 작품 다운로드" 기능을 활성화한 경우, 다운로더는 좋아요와 동시에 이 작품을 다운로드합니다.<br>
+    이 경우 썸네일의 좋아요 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
+    다만 이 팁은 PC 브라우저에서만 사용할 수 있습니다. 모바일 브라우저에서는 다운로더가 좋아요 버튼을 표시하지 않으므로 다운로드 버튼을 대체할 수 없습니다.<br>
+    <br>
+    참고:<br>
+    이 버튼은 시리즈 소설의 썸네일에는 표시되지 않습니다(단편 소설의 썸네일에는 표시됩니다).`,
+    `Нажатие кнопки лайка позволяет поставить лайк этой работе.<br>
+    <br>
+    Кроме того, если вы включили функцию «Загрузка произведения при нажатии на кнопку лайк» в разделе «Скачивание» - «Поведение загрузки», загрузчик также скачает эту работу одновременно с лайком.<br>
+    В этом случае вы можете использовать кнопку лайка на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузки», и тогда ненужные кнопки не будут отображаться.<br>
+    Однако этот приём работает только в браузерах на ПК; в мобильных браузерах загрузчик не показывает кнопку лайка, поэтому она не может заменить кнопку загрузки.<br>
+    <br>
+    Примечание:<br>
+    Эта кнопка не отображается на миниатюрах серий романов (на миниатюрах отдельных романов отображается).`,
+  ],
+  _点击收藏按钮的说明: [
+    `点击收藏按钮可以把这个作品添加到你的 Pixiv 收藏里。<br>
+    如果你想设置点击该按钮时的行为，请查看“增强”-“收藏”里的“下载器收藏作品时的默认行为（✩）”设置。<br>
+    <br>
+    另外，如果你在“下载”-“下载行为”里启用了“点击收藏按钮时下载作品”功能，那么下载器在收藏的同时还会下载这个作品。<br>
+    在这种情况下，你可以用缩略图上的收藏按钮代替下载按钮，也就是可以关闭“显示下载按钮”，这样就不会显示不需要的按钮。<br>
+    不过这个技巧只能在 PC 端浏览器里使用；在移动端浏览器里，下载器不会显示收藏按钮，因此它无法替代下载按钮。<br>
+    <br>
+    备注：<br>
+    这个按钮不会在系列小说的缩略图上显示（在单篇小说的缩略图上可以显示）。`,
+    `點擊收藏按鈕可以把這個作品加入你的 Pixiv 收藏裡。<br>
+    如果你想設定點擊該按鈕時的行為，請查看「增強」-「收藏」裡的「下載器收藏作品時的預設行為（✩）」設定。<br>
+    <br>
+    另外，如果你在「下載」-「下載行為」裡啟用了「點選收藏按鈕時下載作品」功能，那麼下載器在收藏的同時還會下載這個作品。<br>
+    在這種情況下，你可以用縮圖上的收藏按鈕代替下載按鈕，也就是可以關閉「顯示下載按鈕」，這樣就不會顯示不需要的按鈕。<br>
+    不過這個技巧只能在 PC 端瀏覽器裡使用；在移動端瀏覽器裡，下載器不會顯示收藏按鈕，因此它無法替代下載按鈕。<br>
+    <br>
+    備註：<br>
+    這個按鈕不會在系列小說的縮圖上顯示（在單篇小說的縮圖上可以顯示）。`,
+    `Clicking the bookmark button adds this work to your Pixiv bookmarks.<br>
+    To configure what happens when you click this button, see the "Default behavior when the downloader bookmarks a work (✩)" setting in "Enhance" - "Bookmark".<br>
+    <br>
+    Also, if you have enabled the "Download a work when you click the bookmark button" feature in "Download" - "Download behavior", the downloader will also download the work at the same time.<br>
+    In this case, you can use the bookmark button on the thumbnail instead of the download button, which means you can turn off "Show download button" so that unnecessary buttons are not displayed.<br>
+    However, this tip only works in PC browsers; in mobile browsers, the downloader does not show the bookmark button, so it cannot replace the download button.<br>
+    <br>
+    Note:<br>
+    This button is not shown on the thumbnails of novel series (it is shown on the thumbnails of individual novels).`,
+    `ブックマークボタンをクリックすると、この作品を Pixiv のブックマークに追加できます。<br>
+    このボタンをクリックしたときの動作を設定するには、「強化機能」-「ブックマーク」の「ダウンローダーが作品をブックマークするときの既定の動作 (✩)」設定をご覧ください。<br>
+    <br>
+    また、「ダウンロード」-「ダウンロード動作」で「ブックマークボタンをクリックすると作品をダウンロード」機能を有効にしている場合、ダウンローダーはブックマークと同時にこの作品をダウンロードします。<br>
+    この場合、サムネイル上のブックマークボタンをダウンロードボタンの代わりに使えます。つまり、「ダウンロードボタンを表示」をオフにできます。そうすれば、不要なボタンが表示されなくなります。<br>
+    ただし、この方法は PC のブラウザでのみ使用できます。モバイルブラウザでは、ダウンローダーはブックマークボタンを表示しないため、ダウンロードボタンの代わりにはなりません。<br>
+    <br>
+    備考：<br>
+    このボタンはシリーズ小説のサムネイルには表示されません（単体の小説のサムネイルには表示されます）。`,
+    `북마크 버튼을 클릭하면 이 작품을 Pixiv 북마크에 추가할 수 있습니다.<br>
+    이 버튼을 클릭했을 때의 동작을 설정하려면 "향상"-"북마크"의 "다운로더가 작품을 북마크할 때의 기본 동작 (✩)" 설정을 참고하세요.<br>
+    <br>
+    또한 "다운로드"-"다운로드 동작"에서 "북마크 버튼 클릭 시 작품 다운로드" 기능을 활성화한 경우, 다운로더는 북마크와 동시에 이 작품을 다운로드합니다.<br>
+    이 경우 썸네일의 북마크 버튼을 다운로드 버튼 대신 사용할 수 있습니다. 즉, "다운로드 버튼 표시"를 끌 수 있습니다. 그러면 불필요한 버튼이 표시되지 않습니다.<br>
+    다만 이 팁은 PC 브라우저에서만 사용할 수 있습니다. 모바일 브라우저에서는 다운로더가 북마크 버튼을 표시하지 않으므로 다운로드 버튼을 대체할 수 없습니다.<br>
+    <br>
+    참고:<br>
+    이 버튼은 시리즈 소설의 썸네일에는 표시되지 않습니다(단편 소설의 썸네일에는 표시됩니다).`,
+    `Нажатие кнопки закладки добавляет эту работу в ваши закладки Pixiv.<br>
+    Чтобы настроить поведение при нажатии этой кнопки, см. настройку «Поведение загрузчика по умолчанию при добавлении работ в закладки (✩)» в разделе «Улучшение» - «Закладка».<br>
+    <br>
+    Кроме того, если вы включили функцию «Загрузка произведения при нажатии кнопки закладка» в разделе «Скачивание» - «Поведение загрузки», загрузчик также скачает эту работу одновременно с добавлением в закладки.<br>
+    В этом случае вы можете использовать кнопку закладки на миниатюре вместо кнопки загрузки, то есть можно отключить «Показать кнопку загрузки», и тогда ненужные кнопки не будут отображаться.<br>
+    Однако этот приём работает только в браузерах на ПК; в мобильных браузерах загрузчик не показывает кнопку закладки, поэтому она не может заменить кнопку загрузки.<br>
+    <br>
+    Примечание:<br>
+    Эта кнопка не отображается на миниатюрах серий романов (на миниатюрах отдельных романов отображается).`,
   ],
   _显示复制按钮的提示: [
     `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。<br>
@@ -9413,42 +10495,34 @@ You can view this hotkey list anytime in the "Preview works" settings`,
   _复制内容的格式的提示: [
     `你可以设置文字内容的格式，这会影响 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式复制的内容。
 <br>
-你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线、每个标签的名称。
-<br>
+你可以使用命名规则里的所有标签，也可以输入自定义字符，例如输入空格、下划线、说明文字。<br>
+你可以使用回车换行，下载器会保持你设置的换行格式。<br>
 另外，你还可以使用这些标签：`,
     `你可以設定文字內容的格式，這會影響 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式複製的內容。
 <br>
-你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如空格、下劃線、每個標籤的名稱。
-<br>
+你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如輸入空格、下劃線、說明文字。<br>
+你可以使用 Enter 鍵換行，下載器會保持你設定的換行格式。<br>
 另外，你還可以使用這些標籤：`,
     `You can set the format of the text content, which will affect the content copied in <span class="blue">text/plain</span> and <span class="blue">text/html</span> formats.
 <br>
-You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, the name of each tag.
-<br>
+You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, or descriptive text.<br>
+You can press Enter to insert line breaks, and the downloader will keep the line breaks as you set them.<br>
 Additionally, you can use these tags:`,
     `テキスト内容の形式を設定できます。これにより、<span class="blue">text/plain</span> および <span class="blue">text/html</span> 形式でコピーされる内容に影響します。
 <br>
-命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、各タグの名前です。
-<br>
+命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、説明文などです。<br>
+Enter キーで改行できます。ダウンローダーは設定した改行の形式をそのまま保持します。<br>
 さらに、これらのタグを使用できます：`,
     `텍스트 내용의 형식을 설정할 수 있으며, 이는 <span class="blue">text/plain</span> 및 <span class="blue">text/html</span> 형식으로 복사되는 내용에 영향을 미칩니다.
 <br>
-명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 각 태그의 이름.
-<br>
+명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 설명 문구 등입니다.<br>
+Enter 키로 줄을 바꿀 수 있으며, 다운로더는 설정한 줄 바꿈 형식을 그대로 유지합니다.<br>
 또한, 이러한 태그를 사용할 수 있습니다:`,
     `Вы можете установить формат текстового содержимого, что повлияет на содержимое, копируемое в форматах <span class="blue">text/plain</span> и <span class="blue">text/html</span>.
 <br>
-Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания, имя каждого тега.
-<br>
+Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, например пробелы, подчеркивания, поясняющий текст.<br>
+Вы можете нажимать Enter для переноса строки — загрузчик сохранит заданные вами переносы строк.<br>
 Кроме того, вы можете использовать эти теги:`,
-  ],
-  _换行标记的说明: [
-    `换行`,
-    `換行`,
-    `Line break`,
-    `改行`,
-    `줄 바꿈`,
-    `Перенос строки`,
   ],
   _url标记的说明: [
     `这个作品的网址`,
@@ -9481,6 +10555,14 @@ Additionally, you can use these tags:`,
     `コピーする際は、ウェブページがフォーカス状態である必要があります。`,
     `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
     `При копировании веб-страница должна находиться в состоянии фокуса.`,
+  ],
+  _查看作品信息: [
+    `查看作品信息`,
+    `查看作品資訊`,
+    `View work info`,
+    `作品情報を表示`,
+    `작품 정보 보기`,
+    `Показать информацию о работе`,
   ],
   _复制作品链接: [
     `复制作品链接`,
@@ -10368,12 +11450,12 @@ If you want to use this feature, please note:
     `Из-за большого размера изображений в этой серии романов, она была разделена на {} файлов`,
   ],
   _提示有一个系列正在合并中: [
-    `注意：有一个系列正在合并中，它会继续工作直到完成合并。如果你不需要它了，可以刷新这个页面`,
-    `注意：有一個系列正在合併中，它會繼續工作直到完成合併。如果你不需要它了，可以刷新這個頁面`,
-    `Note: There is a series currently being merged, and it will continue working until the merge is complete. If you no longer need it, you can refresh this page`,
-    `注意：シリーズが1つマージ中です。マージが完了するまで作業を続けます。それが必要なくなったら、このページを更新できます`,
-    `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
-    `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если она вам больше не нужна, вы можете обновить эту страницу`,
+    `注意：有一个系列正在合并中，它会在当前操作结束后停止合并`,
+    `注意：有一個系列正在合併中，它會在目前操作結束後停止合併`,
+    `Note: A series is currently being merged. It will stop merging after the current operation finishes`,
+    `注意：シリーズが1つマージ中です。現在の操作が終わり次第、マージを停止します`,
+    `주의: 시리즈 하나가 병합 중입니다. 현재 작업이 끝나면 병합을 중지합니다`,
+    `Примечание: одна серия в процессе объединения. Она остановит объединение после завершения текущей операции`,
   ],
   _合并系列小说时的命名规则: [
     `合并系列小说时的<span class="key">命名</span>规则`,
@@ -10756,12 +11838,12 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `Не найдено ни одной победившей работы, возможно, потому что конкурс ещё не завершён.`,
   ],
   _提示有些用户可能已经注销: [
-    `💡有些用户可能已经注销，所以实际上的用户数量会少一些。`,
-    `💡有些用戶可能已經註銷，所以實際上的用戶數量會少一些。`,
-    `💡Some users may have already deactivated their accounts, so the actual number of users will be slightly lower.`,
-    `💡一部のユーザーが退会している可能性があるため、実際のユーザー数は少し少なくなります。`,
-    `💡일부 사용자가 이미 탈퇴했을 수 있으므로 실제 사용자 수는 조금 더 적을 수 있습니다.`,
-    `💡Некоторые пользователи могли уже деактивировать аккаунты, поэтому фактическое количество пользователей будет немного меньше.`,
+    `💡有些用户可能已经注销，所以实际获取到的用户数量会比 Pixiv 显示的用户总数少一些。`,
+    `💡有些使用者可能已經註銷，所以實際取得的使用者數量會比 Pixiv 顯示的使用者總數少一些。`,
+    `💡Some users may have deactivated their accounts, so the number of users actually retrieved will be lower than the total number of users shown by Pixiv.`,
+    `💡一部のユーザーが退会している可能性があるため、実際に取得できるユーザー数は Pixiv に表示されるユーザーの総数より少なくなります。`,
+    `💡일부 사용자가 이미 탈퇴했을 수 있으므로, 실제로 가져온 사용자 수는 Pixiv에 표시된 사용자 총수보다 적을 수 있습니다.`,
+    `💡Некоторые пользователи могли уже деактивировать аккаунты, поэтому фактически полученное количество пользователей будет меньше общего числа пользователей, которое показывает Pixiv.`,
   ],
   _查找已注销的用户: [
     `查找已注销的用户`,
@@ -10837,21 +11919,13 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `탈퇴한 사용자를 찾을 수 없습니다`,
     `Не найдено удалённых/деактивированных пользователей`,
   ],
-  _日志区域的默认可见性: [
-    `日志区域的默认<span class="key">可见性</span>`,
-    `日誌區域的預設<span class="key">可見性</span>`,
-    `Default <span class="key">visibility</span> of the log area`,
-    `ログ領域のデフォルト<span class="key">可視性</span>`,
-    `로그 영역의 기본 <span class="key">가시성</span>`,
-    `Область журнала по умолчанию <span class="key">видимость</span>`,
-  ],
-  _日志区域的默认可见性的说明: [
-    `当下载器在页面顶部输出日志时，你可以控制日志区域默认显示还是隐藏。`,
-    `當下載器在頁面頂部輸出日誌時，你可以控制日誌區域預設顯示還是隱藏。`,
-    `When the downloader outputs logs at the top of the page, you can control whether the log area is shown or hidden by default.`,
-    `ダウンロードツールがページ上部にログを出力する際、ログ領域のデフォルト表示（表示／非表示）を制御できます。`,
-    `다운로더가 페이지 상단에 로그를 출력할 때, 로그 영역의 기본 표시 또는 숨김을 제어할 수 있습니다。`,
-    `Когда загрузчик выводит логи в верхней части страницы, вы можете управлять, будет ли область журнала отображаться или скрываться по умолчанию.`,
+  _日志区域默认: [
+    `日志区域<span class="key">默认</span>`,
+    `日誌區域<span class="key">預設</span>`,
+    `Log area by <span class="key">default</span>`,
+    `ログ領域の<span class="key">デフォルト</span>`,
+    `로그 영역 <span class="key">기본값</span>`,
+    `Область журнала по <span class="key">умолчанию</span>`,
   ],
   _显示: [`显示`, `顯示`, `Show`, `表示`, `표시`, `Показать`],
   _隐藏: [`隐藏`, `隱藏`, `Hide`, `非表示`, `숨기기`, `Скрыть`],
@@ -11202,6 +12276,38 @@ After crawling is complete, you can start the normal download to save the standa
     `느슨한 매칭`,
     `Слабое совпадение`,
   ],
+  _来自用户带高亮: [
+    `来自<span class="key">用户</span>`,
+    `來自<span class="key">使用者</span>`,
+    `From <span class="key">users</span>`,
+    `<span class="key">ユーザー</span>から`,
+    `<span class="key">사용자</span>로부터`,
+    `От <span class="key">пользователей</span>`,
+  ],
+  _已关注的用户: [
+    `已关注的用户`,
+    `已關注的使用者`,
+    `Followed users`,
+    `フォローしているユーザー`,
+    `팔로우한 사용자`,
+    `Пользователи, на которых вы подписаны`,
+  ],
+  _未关注的用户: [
+    `未关注的用户`,
+    `未關注的使用者`,
+    `Users you don't follow`,
+    `フォローしていないユーザー`,
+    `팔로우하지 않은 사용자`,
+    `Пользователи, на которых вы не подписаны`,
+  ],
+  _排除了来自这些用户的作品: [
+    `排除了来自这些用户的作品：`,
+    `排除了來自這些使用者的作品：`,
+    `Excluded works from these users: `,
+    `これらのユーザーからの作品を除外しました：`,
+    `이 사용자들의 작품을 제외했습니다: `,
+    `Исключены работы этих пользователей: `,
+  ],
   _原创作品的说明: [
     `艺术家在投稿作品时可以设置它是否是原创作品。<br>
 如果你没有启用“宽松匹配”，这个筛选条件会严格遵守艺术家设置的原创属性。<br>
@@ -11397,14 +12503,6 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `<span class="key">이미 다운로드한</span> 작품 크롤링 안 함`,
     `Не сканировать <span class="key">уже скачанные</span> работы`,
   ],
-  _不抓取下载过的作品的说明: [
-    `如果下载器里有这个作品的下载记录，就不会抓取它。`,
-    `如果下載器裡有這個作品的下載記錄，就不會擷取它。`,
-    `If the downloader has a download record for this work, it will not be crawled.`,
-    `ダウンロードツールにこの作品のダウンロード記録がある場合、クロールしません。`,
-    `다운로더에 이 작품의 다운로드 기록이 있으면 크롤링하지 않습니다.`,
-    `Если в загрузчике есть запись о скачивании этой работы, она не будет сканирована.`,
-  ],
   _不抓取下载过的作品的帮助信息: [
     `该功能依赖下载器自己保存的下载记录。<br>如果你启用了该功能，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。这样可以减少不必要的抓取，节约时间。<br>这个功能也有助于增量更新，因为你可以只抓取没有下载过的作品。<br><br>另外，在合并系列小说时，启用该设置可以跳过有下载记录的小说，只合并系列里新增的小说。不过需要注意的是，以前下载器在合并系列小说时不会保存每篇小说的下载记录，所以它们可能依然会被下载一次，之后就可以不再重复下载了。`,
     `該功能依賴下載器自己保存的下載記錄。<br>如果你啟用了該功能，那麼下載器在擷取每個作品前會先檢查它是否有下載記錄，如果有就不擷取它。這樣可以減少不必要的擷取，節約時間。<br>這個功能也有助於增量更新，因為你可以只擷取沒有下載過的作品。<br><br>另外，在合併系列小說時，啟用該設定可以跳過有下載記錄的小說，只合併系列裡新增的小說。不過需要注意的是，以前下載器在合併系列小說時不會保存每篇小說的下載記錄，所以它們可能依然會被下載一次，之後就可以不再重複下載了。`,
@@ -11470,21 +12568,21 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
     `여기서의 다운로드 기록은 다운로더가 저장한 자체 다운로드 기록을 의미하며, 브라우저의 다운로드 기록이 아닙니다. 다운로더를 사용하여 작품을 성공적으로 다운로드할 때마다 다운로드 기록이 생성됩니다. 각 기록에는 해당 작품의 ID, 업로드 날짜, 파일명이 저장됩니다.<br>다운로더의 일부 기능은 다운로드 기록에 의존합니다. 예: 다운로드된 작품을 크롤링하지 않음, 중복 파일 다운로드하지 않음, 다운로드된 작품에 테두리 표시.<br><br>버튼:<br>- 내보내기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 내보낼 수 있습니다. 이렇게 하면 기록을 백업하거나 다른 브라우저에서 가져와 다운로드 기록을 동기화할 수 있습니다.<br>- 가져오기: 이 버튼을 클릭하면 이전에 내보낸 다운로드 기록 파일을 선택하여 기존 다운로드 기록에 병합할 수 있습니다. 필요하다면 하드 디스크에 이미 다운로드된 파일에 대한 다운로드 기록을 만들어 가져올 수도 있습니다. 구체적인 방법은 이 설정 이름을 클릭하여 Wiki에서 자세한 설명을 확인하세요.<br>- 지우기: 이 버튼을 클릭하면 다운로더의 다운로드 기록을 지울 수 있습니다.<br><br>추가 설명:<br>- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록을 지워도 다운로더의 다운로드 기록에는 영향을 주지 않으므로 브라우저 다운로드 기록을 안심하고 지울 수 있습니다.<br>- <strong>주의:</strong> 브라우저 데이터를 지울 때 "쿠키 및 기타 사이트 데이터"를 지우면 다운로더의 다운로드 기록이 지워집니다! 필요하다면 데이터를 정리하기 전에 다운로더의 다운로드 기록을 내보내고 나중에 가져오세요.<br>- 이는 신뢰할 수 있는 기능이 아닙니다. 다운로더는 하드 디스크의 파일을 읽을 권한이 없으며, 자신이 저장한 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 이를 알지 못하고 여전히 파일이 다운로드된 것으로 간주합니다. 이 경우 다운로드 기록에 의존하는 기능이 오판할 수 있으므로, 필요에 따라 이러한 기능을 끌 수 있습니다.`,
     `Здесь под записями загрузки подразумеваются собственные записи загрузки, сохранённые загрузчиком, а не история загрузок браузера. Каждый раз, когда вы успешно загружаете произведение с помощью загрузчика, создаётся одна запись загрузки. Каждая запись сохраняет ID произведения, дату загрузки и имя файла.<br>Некоторые функции загрузчика зависят от записей загрузки, например: не сканировать загруженные работы, не загружать повторяющиеся файлы, показывать рамку на загруженных работах.<br><br>Кнопки:<br>- Экспорт: нажатие этой кнопки позволяет экспортировать записи загрузки загрузчика, что позволяет создавать резервную копию записей или импортировать их в другом браузере для синхронизации записей загрузки.<br>- Импорт: нажатие этой кнопки позволяет выбрать ранее экспортированный файл записей загрузки и объединить его с существующими записями. При необходимости вы также можете создать запись загрузки для уже загруженных на жёсткий диск файлов и импортировать её. Подробный способ можно узнать, нажав на название этой настройки и проверив подробные инструкции в Wiki.<br>- Очистить: нажатие этой кнопки позволяет очистить записи загрузки загрузчика.<br><br>Дополнительные пояснения:<br>- Записи загрузки загрузчика хранятся в IndexedDB браузера. Очистка истории загрузок браузера не влияет на записи загрузки загрузчика, поэтому вы можете спокойно очищать историю загрузок браузера.<br>- <strong>Внимание:</strong> При очистке данных браузера очистка «Cookies и другие данные сайтов» приведёт к удалению записей загрузки загрузчика! При необходимости вы можете экспортировать записи загрузки загрузчика перед очисткой данных, а затем импортировать их обратно.<br>- Это не надёжная функция. Загрузчик не имеет разрешения на чтение файлов на жёстком диске и может полагаться только на свои собственные сохранённые записи загрузки. Если вы удалите загруженные файлы, загрузчик об этом не узнает и по-прежнему будет считать, что файлы загружены. В таком случае функции, зависящие от записей загрузки, могут давать ложные срабатывания, поэтому вы можете отключить эти функции по мере необходимости.`,
   ],
-  _缩略图上按钮的位置: [
-    `缩略图上按钮的<span class="key">位置</span>`,
-    `縮略圖上按鈕的<span class="key">位置</span>`,
+  _按钮在缩略图上的位置: [
+    `按钮在缩略图上的<span class="key">位置</span>`,
+    `按鈕在縮圖上的<span class="key">位置</span>`,
     `Button <span class="key">position</span> on thumbnails`,
     `サムネイル上のボタンの<span class="key">位置</span>`,
     `썸네일에 있는 버튼의 <span class="key">위치</span>`,
     `Позиция <span class="key">кнопок</span> на миниатюрах`,
   ],
-  _缩略图上按钮的位置的说明: [
-    `下载器会在作品缩略图上显示一些按钮，你可以设置它们显示在缩略图的左侧还是右侧。`,
-    `下載器會在作品縮略圖上顯示一些按鈕，你可以設定它們顯示在縮略圖的左側還是右側。`,
-    `The downloader will display some buttons on the work thumbnails. You can set whether they appear on the left or right side of the thumbnail.`,
-    `ダウンローダーは作品のサムネイル上にいくつかのボタンを表示します。サムネイルの左側または右側に表示するかを設定できます。`,
-    `다운로더는 작품 썸네일에 일부 버튼을 표시하며, 썸네일의 왼쪽 또는 오른쪽에 표시되도록 설정할 수 있습니다.`,
-    `Загрузчик будет отображать некоторые кнопки на миниатюрах произведений. Вы можете настроить, будут ли они отображаться слева или справа от миниатюры.`,
+  _提示下载器会在缩略图上显示一些按钮: [
+    `当鼠标经过作品缩略图时，下载器会显示一些功能按钮。你可以设置按钮的位置，以及是否启用某些按钮。`,
+    `當滑鼠經過作品縮圖時，下載器會顯示一些功能按鈕。你可以設定按鈕的位置，以及是否啟用某些按鈕。`,
+    `When you move the mouse over a work thumbnail, the downloader displays some function buttons. You can set the button position and whether to enable certain buttons.`,
+    `作品のサムネイルにマウスを乗せると、ダウンローダーはいくつかの機能ボタンを表示します。ボタンの位置や、どのボタンを有効にするかを設定できます。`,
+    `작품 썸네일에 마우스를 올리면 다운로더가 몇 가지 기능 버튼을 표시합니다. 버튼의 위치와 일부 버튼의 사용 여부를 설정할 수 있습니다.`,
+    `При наведении курсора на миниатюру работы загрузчик отображает несколько функциональных кнопок. Вы можете настроить расположение кнопок и то, какие из них включены.`,
   ],
   _左侧: [`左侧`, `左側`, `Left`, `左側`, `왼쪽`, `Левая сторона`],
   _右侧: [`右侧`, `右側`, `Right`, `右側`, `오른쪽`, `Правая сторона`],
@@ -11847,51 +12945,63 @@ Tip: Click a token name to copy it.<br>`,
     `如果一个标签有多种变体，你可以为它们设置一个通用的别名。例如 <span class="blue">GenshinImpact</span> 有多个变体：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 如果你想把这些变体都作为 <span class="blue">GenshinImpact</span> 处理，可以点击"添加"按钮来添加一条规则：把别名设置为 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把标签列表设置为变体列表。<br>
 <br>
-子选项：<br>
-- 应用到文件名里的 {tags} 系列标记：如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
-对于上面的例子，下载器在生成文件名时，会把作品标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。<br>
+你可以在这些设置里使用别名来代替原始标签：<br>
+- 使用第一个匹配的标签建立文件夹<br>
+- 使用第一个匹配的收藏标签建立文件夹<br>
 <br>
-另外，如果你启用了"使用第一个匹配的标签建立文件夹"，可以使用你在这里设置的别名。这样隶属于该别名的标签都会使用别名来建立文件夹，可以用来统一文件夹名字。`,
+应用到文件名里的 {tags} 系列标记：<br>
+如果你启用了这个选项，那么当你在命名规则里使用这些标签时会受到影响：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+对于上面的例子，下载器在生成文件名时，会把标签里的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替换为别名 <span class="blue">GenshinImpact</span>（或者你设置的其他名字）。`,
     `如果一個標籤有多種變體，你可以為它們設定一個通用的別名。例如 <span class="blue">GenshinImpact</span> 有多個變體：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 如果你想把這些變體都作為 <span class="blue">GenshinImpact</span> 處理，可以點擊「添加」按鈕來添加一條規則：把別名設定為 <span class="blue">GenshinImpact</span> 或者你想使用的其他名字，把標籤列表設定為變體列表。<br>
 <br>
-子選項：<br>
-- 應用到檔名裡的 {tags} 系列標記：如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
-對於上面的例子，下載器在生成檔名時，會把作品標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。<br>
+你可以在這些設定裡使用別名來代替原始標籤：<br>
+- 使用第一個符合的標籤建立資料夾<br>
+- 使用第一個符合的收藏標籤建立資料夾<br>
 <br>
-另外，如果你啟用了「使用第一個匹配的標籤建立資料夾」，可以使用你在這裡設定的別名。這樣隸屬於該別名的標籤都會使用別名來建立資料夾，可以用來統一資料夾名字。`,
+應用到檔名裡的 {tags} 系列標記：<br>
+如果你啟用了這個選項，那麼當你在命名規則裡使用這些標籤時會受到影響：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+對於上面的例子，下載器在生成檔名時，會把標籤裡的 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 都替換為別名 <span class="blue">GenshinImpact</span>（或者你設定的其他名字）。`,
     `If a tag has multiple variants, you can set a common alias for them. For example, <span class="blue">GenshinImpact</span> has multiple variants: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 If you want to treat all these variants as <span class="blue">GenshinImpact</span>, click the "Add" button to add a rule: set the alias to <span class="blue">GenshinImpact</span> or any other name you prefer, and set the tag list to the list of variants.<br>
 <br>
-Sub-options:<br>
-- {tags} series tokens applied to the file name: If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
-Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the work's tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).<br>
+You can use aliases in place of the original tags in these settings:<br>
+- Create a folder with the first matched tag<br>
+- Create a folder with the first matched bookmark tag<br>
 <br>
-Additionally, if you have enabled "Create folder using the first matching tag", you can use the aliases set here. Tags belonging to that alias will use the alias to create folders, which helps keep folder names consistent.`,
+{tags} series tokens applied to the file name:<br>
+If you enable this option, the following tokens in your naming rule will be affected: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+Using the example above, when generating file names, the downloader will replace <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> in the tags with the alias <span class="blue">GenshinImpact</span> (or whatever name you set).`,
     `タグに複数の表記ゆれがある場合、それらに共通の別名を設定できます。例えば <span class="blue">GenshinImpact</span> には複数の表記ゆれがあります：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>。<br>
 これらをすべて <span class="blue">GenshinImpact</span> として処理したい場合は、「追加」ボタンをクリックしてルールを追加してください。別名を <span class="blue">GenshinImpact</span> または任意の名前に設定し、タグリストに表記ゆれの一覧を設定します。<br>
 <br>
-サブオプション：<br>
-- ファイル名に適用される {tags} 系のトークン：このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>。<br>
-上の例の場合、ダウンローダーはファイル名を生成する際、作品のタグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。<br>
+これらの設定では、元のタグの代わりに別名を使用できます：<br>
+- 最初の一致するタグにフォルダを作成<br>
+- 最初に一致するブックマークタグにフォルダを作成<br>
 <br>
-また、「最初にマッチしたタグを使ってフォルダーを作成する」を有効にしている場合、ここで設定した別名を使用できます。その別名に属するタグはすべて別名を使ってフォルダーを作成するため、フォルダー名を統一するのに役立ちます。`,
+ファイル名に適用される {tags} 系のトークン：<br>
+このオプションを有効にすると、命名ルールでこれらのタグを使用する際に影響を受けます：<span class="blue">{page_title}</span>、<span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{tags_transl_only}</span>、<span class="blue">{bookmark_tags}</span>。<br>
+上の例の場合、ダウンローダーはファイル名を生成する際、タグにある <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> をすべて別名 <span class="blue">GenshinImpact</span>（または設定した名前）に置き換えます。`,
     `태그에 여러 변형이 있는 경우 공통 별칭을 설정할 수 있습니다. 예를 들어 <span class="blue">GenshinImpact</span> 에는 여러 변형이 있습니다：<span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 이 변형들을 모두 <span class="blue">GenshinImpact</span> 로 처리하고 싶다면 "추가" 버튼을 클릭해 규칙을 추가하세요. 별칭을 <span class="blue">GenshinImpact</span> 또는 원하는 다른 이름으로 설정하고, 태그 목록에 변형 목록을 입력합니다.<br>
 <br>
-하위 옵션：<br>
-- 파일 이름에 적용되는 {tags} 계열 토큰：이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
-위 예시의 경우, 다운로더가 파일 이름을 생성할 때 작품 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.<br>
+이 설정들에서는 원래 태그 대신 별칭을 사용할 수 있습니다：<br>
+- 첫 번째 일치하는 태그로 디렉토리 생성<br>
+- 첫 번째 일치하는 북마크 태그로 디렉토리 생성<br>
 <br>
-또한 "처음 매칭된 태그로 폴더 만들기"를 활성화한 경우 여기서 설정한 별칭을 사용할 수 있습니다. 해당 별칭에 속하는 태그는 모두 별칭을 사용해 폴더를 만들기 때문에 폴더 이름을 통일하는 데 유용합니다.`,
+파일 이름에 적용되는 {tags} 계열 토큰：<br>
+이 옵션을 활성화하면 명명 규칙에서 다음 토큰을 사용할 때 영향을 받습니다：<span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+위 예시의 경우, 다운로더가 파일 이름을 생성할 때 태그의 <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> 를 모두 별칭 <span class="blue">GenshinImpact</span>（또는 설정한 다른 이름）로 교체합니다.`,
     `Если тег имеет несколько вариантов написания, вы можете задать для них общий псевдоним. Например, у <span class="blue">GenshinImpact</span> есть несколько вариантов: <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span>.<br>
 Если вы хотите обрабатывать все эти варианты как <span class="blue">GenshinImpact</span>, нажмите кнопку "Добавить" и добавьте правило: задайте псевдоним <span class="blue">GenshinImpact</span> или любое другое имя, и укажите список вариантов в качестве списка тегов.<br>
 <br>
-Вложенные параметры:<br>
-- Токены серии {tags}, применяемые в имени файла: если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>.<br>
-Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах работы на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).<br>
+В этих настройках можно использовать псевдонимы вместо исходных тегов:<br>
+- Создать папку с первым совпавшим тегом<br>
+- Создать папку с первым совпавшим тегом закладки<br>
 <br>
-Кроме того, если вы включили "Создать папку по первому совпавшему тегу", можно использовать псевдонимы, заданные здесь. Теги, относящиеся к этому псевдониму, будут использовать псевдоним для создания папок, что помогает сохранять единообразие имён папок.`,
+Токены серии {tags}, применяемые в имени файла:<br>
+Если вы включите этот параметр, при использовании следующих токенов в правиле именования они будут затронуты: <span class="blue">{page_title}</span>, <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>, <span class="blue">{bookmark_tags}</span>.<br>
+Для приведённого примера при генерации имён файлов загрузчик заменит <span class="blue">GenshinImpact,Genshin Impact,Genshin,impact,原神,原神インパクト,アリス(原神)</span> в тегах на псевдоним <span class="blue">GenshinImpact</span> (или другое заданное вами имя).`,
   ],
   _别名: [`别名`, `別名`, `Alias`, `別名`, `별칭`, `Псевдоним`],
   _标签列表: [
@@ -12261,6 +13371,14 @@ Additionally, if you have enabled "Create folder using the first matching tag", 
     `プレビューと閲覧`,
     `미리보기 및 보기`,
     `Предпросмотр и просмотр`,
+  ],
+  _分组_收藏: [
+    `收藏`,
+    `收藏`,
+    `Bookmark`,
+    `ブックマーク`,
+    `북마크`,
+    `Закладки`,
   ],
   _分组_其他: [`其他`, `其他`, `Other`, `その他`, `기타`, `Другое`],
   _分组_按钮与操作: [
@@ -12860,6 +13978,14 @@ If you enable this setting, the downloader will merge all novels.`,
     `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
     `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
   ],
+  _提示还需要添加特定命名规则才能创建文件夹_match_bookmark_tag_folder: [
+    `你还需要在“文件夹和文件的名字”-“命名规则”里添加 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 才能实现这个效果。你可以点击“帮助”按钮查看详细说明。`,
+    `你還需要在「資料夾和檔案的名稱」-「命名規則」裡添加 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 才能實現這個效果。你可以點擊「幫助」按鈕查看詳細說明。`,
+    `You also need to add <span class="blue name">/{match_bookmark_tag_folder1}/</span> in "Folder and file names" - "Naming rules" to achieve this effect. You can click the "Help" button to see detailed instructions.`,
+    `この効果を実現するには、「フォルダーとファイルの名前」-「命名規則」に <span class="blue name">/{match_bookmark_tag_folder1}/</span> を追加する必要があります。詳細な説明を見るには、「ヘルプ」ボタンをクリックしてください。`,
+    `이 효과를 구현하려면 "폴더 및 파일 이름" - "명명 규칙"에 <span class="blue name">/{match_bookmark_tag_folder1}/</span> 를 추가해야 합니다. 자세한 지침을 보려면 "도움말" 버튼을 클릭할 수 있습니다.`,
+    `Чтобы достичь этого эффекта, вам также нужно добавить <span class="blue name">/{match_bookmark_tag_folder1}/</span> в "Имена папок и файлов" - "Правила именования". Вы можете нажать кнопку "Помощь", чтобы увидеть подробные инструкции.`,
+  ],
   _小技巧_可选片段: [
     `小技巧：可选片段`,
     `小技巧：可選片段`,
@@ -13164,252 +14290,318 @@ You can choose between two export strategies:<br>
     `Экспортировать сразу после каждого изменения настроек`,
   ],
   _版本更新说明: [
-    `<strong>🏷️新增命名标记：{human}</strong><br>
-<span class="blue">{human}</span>：当作品不是 AI 生成的作品时，输出 <span class="blue">Human</span>，否则忽略这个标记。它与 <span class="blue">{AI}</span> 相反，用来把人类创作的作品和 AI 生成的作品分开保存。<br>
-<strong>📚新增设置：只下载这些语言的小说</strong><br>
-该设置位于“筛选”-“作品数据”分类里。<br>
-你可以要求小说的语言必须是特定的语言，这样下载器才会抓取它。<br>
-<strong>📚新增设置：EPUB 文件的语言标签</strong><br>
-该设置位于“下载”-“小说”分类里。<br>
-现在下载器默认会使用小说的语言作为 EPUB 文件的语言标签。<br>
-<strong>📚新增设置：EPUB 文件的排版方向</strong><br>
-你可以设置小说内容使用横排还是竖排，也可以只为特定语言的小说（如日语、繁体中文）使用竖排。<br>
-<strong>📚新增设置：简繁转换</strong><br>
-下载器在下载小说时，会根据这个设置决定是否转换简体中文和繁体中文小说。默认不转换。<br>
-<strong>✨支持在小说书签列表页面里抓取</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小说书签列表页面</a><br>
-<strong>✨支持在小说分类页面里抓取</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小说分类页面</a><br>
-<strong>🛸优化检查标签的过滤器：在检查小说标签时，会同时检查分类标记</strong><br>
-原创小说通常有分类，如“恋爱”、“异世界奇幻”，会显示在标签列表前面。<br>
-现在下载器会把分类名字添加到标签列表里，可以检查和保存它们。<br>
-<strong>✨优化了检测图片色彩的流程和设置项</strong><br>
-- 优化了判断图片色彩的算法，更加准确。<br>
-- 新增了“彩色占比阈值”的设置，用户可以调节对图片进行颜色检查时的宽松程度。<br>
-- 在抓取多图作品时，下载器会检查每一张图片的颜色，不必再等到下载时检查。<br>
-<strong>✨在“标签不能含有”里，你可以同时使用“全字匹配”和“部分匹配”了</strong><br>
-之前你只能在“全字匹配”和“部分匹配”里选择一种匹配模式，现在可以同时使用两种了。两种匹配模式有各自的开关和输入框，你可以根据自己的需要使用它们。<br>
-提示：你的旧设置会被继承，所以你不需要重新设置此项。<br>
-<strong>✨新增设置：在“ID 范围”设置里新增了“书签 ID”分类</strong><br>
-在你的收藏页面里，你可以使用书签 ID 来筛选新增的收藏。具体用法可以查看该设置的帮助信息。<br>
-<strong>⚙️调整“预览搜索页面的抓取结果”设置</strong><br>
-- 预览抓取结果时，作品会分页显示，以降低性能压力。<br>
-- 增加一个子选项：每页显示的作品数量。<br>
-- 移除了不再需要的“预览数量上限”设置。<br>
-- 把这个设置移动到“筛选”-“执行策略”里。<br>
-<strong>✏️一些名称变化（功能无变化）</strong><br>
-- 把导航区域里的“抓取”分类改名为“筛选”，使其更准确。<br>
-- 修改了一些设置的名字。<br>
-- “停止下载”按钮改名为“放弃下载”，使其更符合行为。<br>
-<strong>🐞修复多个已知问题</strong><br>
-由于数量较多，这里不再一一列出。<br>
-<strong>✨优化一些功能的细节，提高用户体验</strong><br>
-<strong>💡优化了一些帮助、日志、提示的文本</strong>`,
-    `<strong>🏷️新增命名標記：{human}</strong><br>
-<span class="blue">{human}</span>：當作品不是 AI 生成的作品時，會輸出 <span class="blue">Human</span>，否則忽略這個標記。它與 <span class="blue">{AI}</span> 相反，用來把人類創作的作品和 AI 生成的作品分開保存。<br>
-<strong>📚新增設定：只下載這些語言的小說</strong><br>
-該設定位於「篩選」-「作品數據」分類裡。<br>
-你可以要求小說的語言必須是特定的語言，這樣下載器才會擷取它。<br>
-<strong>📚新增設定：EPUB 檔案的語言標籤</strong><br>
-該設定位於「下載」-「小說」分類裡。<br>
-現在下載器預設會使用小說的語言作為 EPUB 檔案的語言標籤。<br>
-<strong>📚新增設定：EPUB 檔案的排版方向</strong><br>
-你可以設定小說內容使用橫排還是直排，也可以只為特定語言的小說（如日語、繁體中文）使用直排。<br>
-<strong>📚新增設定：簡繁轉換</strong><br>
-下載器在下載小說時，會根據這個設定決定是否轉換簡體中文和繁體中文小說。預設不轉換。<br>
-<strong>✨支援在小說書籤列表頁面裡擷取</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小說書籤列表頁面</a><br>
-<strong>✨支援在小說分類頁面裡擷取</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小說分類頁面</a><br>
-<strong>🛸優化檢查標籤的篩選器：在檢查小說標籤時，會同時檢查分類標記</strong><br>
-原創小說通常有分類，如「戀愛」、「異世界奇幻」，會顯示在標籤列表前面。<br>
-現在下載器會把分類名字添加到標籤列表裡，可以檢查和保存它們。<br>
-<strong>✨優化了偵測圖片色彩的流程和設定項</strong><br>
-- 優化了判斷圖片色彩的演算法，更加準確。<br>
-- 新增了「彩色佔比閾值」的設定，使用者可以調整對圖片進行顏色檢查時的寬鬆程度。<br>
-- 在擷取多圖作品時，下載器會檢查每一張圖片的顏色，不必再等到下載時檢查。<br>
-<strong>✨在「標籤不能含有」裡，你可以同時使用「全字匹配」和「部分匹配」了</strong><br>
-之前你只能在「全字匹配」和「部分匹配」裡選擇一種匹配模式，現在可以同時使用兩種了。兩種匹配模式有各自的開關和輸入框，你可以根據自己的需要使用它們。<br>
-提示：你的舊設定會被繼承，所以你不需要重新設定此項。<br>
-<strong>✨新增設定：在「ID 範圍」設定裡新增了「書籤 ID」分類</strong><br>
-在你的收藏頁面裡，你可以使用書籤 ID 來篩選新增的收藏。具體用法可以查看該設定的說明資訊。<br>
-<strong>⚙️調整「預覽搜尋頁面的擷取結果」設定</strong><br>
-- 預覽擷取結果時，作品會分頁顯示，以降低效能壓力。<br>
-- 增加一個子選項：每頁顯示的作品數量。<br>
-- 移除了不再需要的「預覽數量上限」設定。<br>
-- 把這個設定移動到「篩選」-「執行策略」裡。<br>
-<strong>✏️一些名稱變化（功能無變化）</strong><br>
-- 把導航區域裡的「擷取」分類改名為「篩選」，使其更準確。<br>
-- 修改了一些設定的名字。<br>
-- 「停止下載」按鈕改名為「放棄下載」，使其更符合行為。<br>
-<strong>🐞修復多個已知問題</strong><br>
-由於數量較多，這裡不再一一列出。<br>
-<strong>✨優化一些功能的細節，提高使用者體驗</strong><br>
-<strong>💡優化了一些說明、日誌、提示的文字</strong>`,
-    `<strong>🏷️New naming marker: {human}</strong><br>
-<span class="blue">{human}</span>: when the work is not AI-generated, it outputs <span class="blue">Human</span>; otherwise this marker is ignored. It is the opposite of <span class="blue">{AI}</span>, and is used to save works created by humans separately from AI-generated works.<br>
-<strong>📚New setting: Only download novels in these languages</strong><br>
-This setting is in the "Filter" - "Work data" category.<br>
-You can require the language of a novel to be a specific language, and only then will the downloader crawl it.<br>
-<strong>📚New setting: The language tag of the EPUB file</strong><br>
-This setting is in the "Download" - "Novels" category.<br>
-Now the downloader uses the language of the novel as the language tag of the EPUB file by default.<br>
-<strong>📚New setting: Text layout direction of the EPUB file</strong><br>
-You can set the content of the novel to use horizontal or vertical layout, and you can also use vertical layout only for novels in specific languages (such as Japanese and Traditional Chinese).<br>
-<strong>📚New setting: Simplified-Traditional conversion</strong><br>
-When downloading novels, the downloader decides whether to convert Simplified Chinese and Traditional Chinese novels according to this setting. By default, no conversion is performed.<br>
-<strong>✨Support crawling on the novel markers page</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Novel markers page</a><br>
-<strong>✨Support crawling on the novel genre page</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">Novel genre page</a><br>
-<strong>🛸Improved the tag filter: when checking novel tags, genre markers are also checked</strong><br>
-Original novels usually have a genre, such as "Romance" or "Isekai Fantasy", which is displayed in front of the tag list.<br>
-Now the downloader adds the genre name to the tag list, so you can check and save them.<br>
-<strong>✨Improved the process and settings for detecting image colors</strong><br>
-- Improved the algorithm for judging image colors, making it more accurate.<br>
-- Added the "Color ratio threshold" setting, so you can adjust how lenient the color check is.<br>
-- When crawling multi-image works, the downloader checks the color of every image, instead of waiting until download time.<br>
-<strong>✨In "Tags must not contain", you can now use "Exact match" and "Partial match" at the same time</strong><br>
-Previously you could only choose one match mode between "Exact match" and "Partial match"; now you can use both at the same time. Each match mode has its own switch and input box, so you can use them as needed.<br>
-Tip: your old settings will be inherited, so you do not need to set this option again.<br>
-<strong>✨New setting: added the "Bookmark ID" category to the "ID range" setting</strong><br>
-On your bookmarks page, you can use the bookmark ID to filter newly added bookmarks. See the help information of this setting for details.<br>
-<strong>⚙️Adjusted the "Preview crawl results on search page" setting</strong><br>
-- When previewing crawl results, works are displayed page by page to reduce performance pressure.<br>
-- Added a sub-option: the number of works displayed per page.<br>
-- Removed the no longer needed "Preview count limit" setting.<br>
-- Moved this setting to "Filter" - "Execution strategy".<br>
-<strong>✏️Some name changes (no functional changes)</strong><br>
-- Renamed the "Crawl" category in the navigation area to "Filter", which is more accurate.<br>
-- Changed the names of some settings.<br>
-- Renamed the "Stop download" button to "Abandon download", which better matches its behavior.<br>
-<strong>🐞Fixed multiple known issues</strong><br>
-There are too many of them, so they are not listed one by one here.<br>
-<strong>✨Improved details of some features to enhance the user experience</strong><br>
-<strong>💡Improved some help, log and tip texts</strong>`,
-    `<strong>🏷️命名マーカーを追加：{human}</strong><br>
-<span class="blue">{human}</span>：作品が AI 生成作品ではない場合、<span class="blue">Human</span> を出力し、それ以外の場合はこのマーカーを無視します。<span class="blue">{AI}</span> とは反対に、人間が制作した作品と AI が生成した作品を分けて保存するために使います。<br>
-<strong>📚設定を追加：これらの言語の小説のみをダウンロード</strong><br>
-この設定は「フィルター」-「作品データ」カテゴリにあります。<br>
-小説の言語が特定の言語であることを要求できます。条件を満たさない小説はダウンローダーがクロールしません。<br>
-<strong>📚設定を追加：EPUB ファイルの言語タグ</strong><br>
-この設定は「ダウンロード」-「小説」カテゴリにあります。<br>
-現在、ダウンローダーは既定で小説の言語を EPUB ファイルの言語タグとして使用します。<br>
-<strong>📚設定を追加：EPUB ファイルの組版方向</strong><br>
-小説の本文を横書きにするか縦書きにするかを設定できます。また、特定の言語の小説（日本語、繁体字中国語など）にのみ縦書きを使用することもできます。<br>
-<strong>📚設定を追加：簡体字・繁体字の変換</strong><br>
-ダウンローダーは小説をダウンロードするとき、この設定に従って簡体字中国語と繁体字中国語の小説を変換するかどうかを決定します。既定では変換しません。<br>
-<strong>✨小説のしおり一覧ページでのクロールに対応しました</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小説のしおり一覧ページ</a><br>
-<strong>✨小説ジャンルページでのクロールに対応しました</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小説ジャンルページ</a><br>
-<strong>🛸タグをチェックするフィルターを改善：小説のタグをチェックするとき、ジャンルマーカーも同時にチェックします</strong><br>
-オリジナル小説には通常ジャンルがあり、「恋愛」「異世界ファンタジー」のようにタグリストの前に表示されます。<br>
-現在、ダウンローダーはジャンル名をタグリストに追加するので、それらをチェックして保存できます。<br>
-<strong>✨画像の色を検出する処理と設定項目を改善しました</strong><br>
-- 画像の色を判定するアルゴリズムを改善し、より正確になりました。<br>
-- 「カラー割合の閾値」の設定を追加しました。画像の色チェックの寛容さを調整できます。<br>
-- 複数画像作品をクロールするとき、ダウンローダーはすべての画像の色をチェックします。ダウンロード時まで待つ必要はありません。<br>
-<strong>✨「タグに含めない」で、「完全一致」と「部分一致」を同時に使えるようになりました</strong><br>
-以前は「完全一致」と「部分一致」のどちらか 1 つしか選べませんでしたが、今は両方を同時に使えます。それぞれの一致モードに専用のスイッチと入力欄があるので、必要に応じて使い分けられます。<br>
-ヒント：以前の設定は引き継がれるので、この項目を再設定する必要はありません。<br>
-<strong>✨設定を追加：「ID 範囲」設定に「ブックマーク ID」カテゴリを追加しました</strong><br>
-ブックマークページで、ブックマーク ID を使って新しく追加されたブックマークを絞り込めます。詳しい使い方はこの設定のヘルプ情報をご覧ください。<br>
-<strong>⚙️「検索ページのクロール結果をプレビュー」設定を調整しました</strong><br>
-- クロール結果をプレビューするとき、作品はページごとに表示され、パフォーマンスへの負荷を抑えます。<br>
-- サブオプションを追加しました：1 ページに表示する作品数。<br>
-- 不要になった「プレビュー数の上限」設定を削除しました。<br>
-- この設定を「フィルター」-「実行戦略」に移動しました。<br>
-<strong>✏️いくつかの名称変更（機能に変更はありません）</strong><br>
-- ナビゲーション領域の「クロール」カテゴリを、より正確な「フィルター」に改名しました。<br>
-- 一部の設定の名前を変更しました。<br>
-- 「ダウンロード停止」ボタンを、動作により合った「ダウンロードの放棄」に改名しました。<br>
-<strong>🐞複数の既知の問題を修正しました</strong><br>
-数が多いため、ここでは個別には記載しません。<br>
-<strong>✨一部の機能の細部を改善し、ユーザー体験を向上させました</strong><br>
-<strong>💡一部のヘルプ、ログ、ヒントのテキストを改善しました</strong>`,
-    `<strong>🏷️새 이름 마커: {human}</strong><br>
-<span class="blue">{human}</span>: 작품이 AI 생성 작품이 아닐 때 <span class="blue">Human</span>을 출력하고, 그렇지 않으면 이 마커를 무시합니다. <span class="blue">{AI}</span>와 반대로, 사람이 만든 작품과 AI가 생성한 작품을 따로 저장하는 데 사용됩니다.<br>
-<strong>📚새 설정: 이러한 언어의 소설만 다운로드</strong><br>
-이 설정은 "필터" - "작품 데이터" 분류에 있습니다.<br>
-소설의 언어가 특정 언어여야만 다운로더가 크롤링하도록 요구할 수 있습니다.<br>
-<strong>📚새 설정: EPUB 파일의 언어 태그</strong><br>
-이 설정은 "다운로드" - "소설" 분류에 있습니다.<br>
-이제 다운로더는 기본적으로 소설의 언어를 EPUB 파일의 언어 태그로 사용합니다.<br>
-<strong>📚새 설정: EPUB 파일의 조판 방향</strong><br>
-소설 본문을 가로쓰기로 할지 세로쓰기로 할지 설정할 수 있고, 특정 언어의 소설(예: 일본어, 번체 중국어)에만 세로쓰기를 사용할 수도 있습니다.<br>
-<strong>📚새 설정: 간체-번체 변환</strong><br>
-다운로더는 소설을 다운로드할 때 이 설정에 따라 간체 중국어와 번체 중국어 소설을 변환할지 결정합니다. 기본적으로 변환하지 않습니다.<br>
-<strong>✨소설 책갈피 목록 페이지에서 크롤링을 지원합니다</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">소설 책갈피 목록 페이지</a><br>
-<strong>✨소설 장르 페이지에서 크롤링을 지원합니다</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">소설 장르 페이지</a><br>
-<strong>🛸태그 확인 필터 개선: 소설 태그를 확인할 때 장르 마커도 함께 확인합니다</strong><br>
-오리지널 소설에는 보통 장르가 있으며, "연애", "이세계 판타지"처럼 태그 목록 앞에 표시됩니다.<br>
-이제 다운로더는 장르 이름을 태그 목록에 추가하므로, 그것들을 확인하고 저장할 수 있습니다.<br>
-<strong>✨이미지 색상 감지 흐름과 설정 항목을 개선했습니다</strong><br>
-- 이미지 색상을 판단하는 알고리즘을 개선하여 더 정확해졌습니다.<br>
-- "컬러 비율 임계값" 설정을 추가했습니다. 이미지 색상 검사의 관대한 정도를 조절할 수 있습니다.<br>
-- 다중 이미지 작품을 크롤링할 때 다운로더는 모든 이미지의 색상을 검사합니다. 다운로드할 때까지 기다릴 필요가 없습니다.<br>
-<strong>✨"태그에 포함하면 안 됨"에서 "전체 일치"와 "부분 일치"를 동시에 사용할 수 있습니다</strong><br>
-이전에는 "전체 일치"와 "부분 일치" 중 하나의 일치 모드만 선택할 수 있었지만, 이제는 두 가지를 동시에 사용할 수 있습니다. 각 일치 모드에는 별도의 스위치와 입력란이 있으므로 필요에 따라 사용하면 됩니다.<br>
-안내: 이전 설정은 그대로 이어지므로 이 항목을 다시 설정할 필요가 없습니다.<br>
-<strong>✨새 설정: "ID 범위" 설정에 "북마크 ID" 분류를 추가했습니다</strong><br>
-북마크 페이지에서 북마크 ID를 사용해 새로 추가된 북마크를 걸러낼 수 있습니다. 자세한 사용법은 이 설정의 도움말을 참고하세요.<br>
-<strong>⚙️"검색 페이지 크롤링 결과 미리보기" 설정을 조정했습니다</strong><br>
-- 크롤링 결과를 미리 볼 때 작품이 페이지별로 표시되어 성능 부담을 줄입니다.<br>
-- 하위 옵션을 추가했습니다: 페이지당 표시할 작품 수.<br>
-- 더 이상 필요하지 않은 "미리보기 수량 상한" 설정을 제거했습니다.<br>
-- 이 설정을 "필터" - "실행 전략"으로 이동했습니다.<br>
-<strong>✏️일부 이름 변경 (기능 변경 없음)</strong><br>
-- 탐색 영역의 "크롤링" 분류를 더 정확한 "필터"로 이름을 변경했습니다.<br>
-- 일부 설정의 이름을 변경했습니다.<br>
-- "다운로드 중지" 버튼을 동작에 더 잘 맞는 "다운로드 포기"로 이름을 변경했습니다.<br>
-<strong>🐞알려진 여러 문제를 수정했습니다</strong><br>
-수량이 많아 여기서는 하나씩 나열하지 않습니다.<br>
-<strong>✨일부 기능의 세부 사항을 개선하여 사용자 경험을 높였습니다</strong><br>
-<strong>💡일부 도움말, 로그, 안내 텍스트를 개선했습니다</strong>`,
-    `<strong>🏷️Новый маркер имени: {human}</strong><br>
-<span class="blue">{human}</span>: если работа не создана ИИ, выводится <span class="blue">Human</span>, иначе этот маркер игнорируется. Он противоположен <span class="blue">{AI}</span> и нужен, чтобы сохранять работы, созданные людьми, отдельно от работ, сгенерированных ИИ.<br>
-<strong>📚Новая настройка: загружать только новеллы на этих языках</strong><br>
-Эта настройка находится в категории «Фильтр» - «Данные работы».<br>
-Вы можете потребовать, чтобы язык новеллы был одним из определённых языков — только тогда загрузчик просканирует её.<br>
-<strong>📚Новая настройка: языковой тег файла EPUB</strong><br>
-Эта настройка находится в категории «Скачивание» - «Новеллы».<br>
-Теперь загрузчик по умолчанию использует язык новеллы как языковой тег файла EPUB.<br>
-<strong>📚Новая настройка: направление вёрстки файла EPUB</strong><br>
-Вы можете задать горизонтальное или вертикальное направление текста новеллы, а также использовать вертикальное направление только для новелл на определённых языках (например, японском и традиционном китайском).<br>
-<strong>📚Новая настройка: преобразование между упрощённым и традиционным китайским</strong><br>
-При скачивании новелл загрузчик решает, преобразовывать ли новеллы на упрощённом и традиционном китайском, в соответствии с этой настройкой. По умолчанию преобразование не выполняется.<br>
-<strong>✨Добавлена поддержка сканирования на странице списка закладок новелл</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Страница списка закладок новелл</a><br>
-<strong>✨Добавлена поддержка сканирования на странице жанров новелл</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">Страница жанров новелл</a><br>
-<strong>🛸Улучшен фильтр проверки тегов: при проверке тегов новелл также проверяются маркеры жанра</strong><br>
-У оригинальных новелл обычно есть жанр, например «Романтика» или «Исекай-фэнтези», который отображается перед списком тегов.<br>
-Теперь загрузчик добавляет название жанра в список тегов, поэтому их можно проверять и сохранять.<br>
-<strong>✨Улучшены процесс и настройки определения цвета изображений</strong><br>
-- Улучшен алгоритм определения цвета изображений, он стал точнее.<br>
-- Добавлена настройка «Порог доли цвета», позволяющая регулировать, насколько мягкой будет проверка цвета изображений.<br>
-- При сканировании многоизображных работ загрузчик проверяет цвет каждого изображения, не дожидаясь момента скачивания.<br>
-<strong>✨В настройке «Теги не должны содержать» теперь можно одновременно использовать «Полное совпадение» и «Частичное совпадение»</strong><br>
-Раньше можно было выбрать только один режим совпадения — «Полное совпадение» или «Частичное совпадение», — теперь можно использовать оба одновременно. У каждого режима совпадения есть свой переключатель и поле ввода, поэтому вы можете использовать их по своему усмотрению.<br>
-Подсказка: ваши прежние настройки будут унаследованы, поэтому вам не нужно настраивать этот пункт заново.<br>
-<strong>✨Новая настройка: в настройке «Диапазон ID» добавлена категория «ID закладки»</strong><br>
-На странице ваших закладок вы можете использовать ID закладки, чтобы отфильтровать недавно добавленные закладки. Подробности см. в справочной информации этой настройки.<br>
-<strong>⚙️Изменена настройка «Предварительный просмотр результатов сканирования на странице поиска»</strong><br>
-- При предварительном просмотре результатов сканирования работы отображаются постранично, чтобы снизить нагрузку на производительность.<br>
-- Добавлен дополнительный параметр: количество работ, отображаемых на одной странице.<br>
-- Удалена ставшая ненужной настройка «Ограничение количества предварительного просмотра».<br>
-- Эта настройка перенесена в «Фильтр» - «Стратегия выполнения».<br>
-<strong>✏️Некоторые изменения названий (функции не изменились)</strong><br>
-- Категория «Сканирование» в области навигации переименована в «Фильтр» — это более точно.<br>
-- Изменены названия некоторых настроек.<br>
-- Кнопка «Остановить загрузку» переименована в «Отказаться от загрузки» — это больше соответствует её поведению.<br>
-<strong>🐞Исправлены несколько известных проблем</strong><br>
-Их слишком много, поэтому здесь они не перечисляются по отдельности.<br>
-<strong>✨Улучшены детали некоторых функций для повышения удобства использования</strong><br>
-<strong>💡Улучшены тексты некоторых справок, журнала и подсказок</strong>`,
+    `<strong>⚡优化了导出、导入下载记录的性能</strong><br>
+这次优化需要升级数据库版本。如果你现在打开了多个 Pixiv 标签页，建议全部刷新一遍，或者重启浏览器来完成这次升级。如果只打开了这一个 Pixiv 标签页则无需手动处理。<br>
+- 加快了导入下载记录的速度<br>
+- 减少了导出下载记录时的内存使用量<br>
+- 加快了清空下载记录的速度<br>
+- 修复问题：在移动设备上，如果下载记录很多，可能会在导出时卡住，无法导出<br>
+<strong>✨新功能：在关注页面里，可以批量保存用户头像了</strong><br>
+在关注页面的“附加功能”区域里，下载器添加了 2 个按钮：<br>
+- 批量保存用户头像<br>
+- 批量保存用户头像为图标<br>
+点击这些按钮，下载器会按照你设置的页面范围，批量保存里面的用户的头像。文件会保存到下载目录里的 <span class="blue">pixiv users</span> 文件夹里。<br>
+<strong>✨新增设置：收藏面板</strong><br>
+当你使用下载器的手动收藏作品功能时，下载器可以显示一个收藏面板。<br>
+你可以在收藏面板里设置是否公开收藏、使用哪些标签（可以使用作品的标签、自定义标签、常用的标签），然后再添加收藏。<br>
+这个设置在“增强”-“收藏”分类里。<br>
+<strong>✨下载器收藏作品时，可以使用翻译后的标签了</strong><br>
+在“下载器收藏作品时的默认行为 (✩)”里，你可以选择“添加翻译后的标签”了。<br>
+<strong>✨新增设置：使用第一个匹配的收藏标签建立文件夹</strong><br>
+当你在你的收藏页面里抓取作品时，如果想使用某些收藏标签（而不是作品本身的标签）来建立文件夹，就可以使用这个设置。<br>
+该设置只在收藏页面里抓取时有效；它位于“命名”-“调整文件夹”分类里。<br>
+<strong>✨新增命名标记：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品的收藏标签列表。当你收藏一个作品之后，可以为它添加自定义的收藏标签；这个标记用来输出作品的收藏标签。<br>
+注意：<br>
+1. 只有当你在收藏页面里抓取作品时，这个标记才是有效的；在其他页面里抓取时无效（通常不会输出内容）。<br>
+2. 如果你没有为作品添加收藏标签，那么这个标记也不会输出内容。<br>
+<strong>✨新增支持的页面类型：可以在追更列表里抓取作品了</strong><br>
+追更列表页面：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+追更页面里都是系列作品。现在下载器可以批量抓取你追更的小说、漫画了。<br>
+<strong>✨新增功能：抓取用户列表</strong><br>
+在首页的“开始抓取”区域里新增了“抓取用户列表”按钮。你可以输入多个用户 ID，下载器会逐个抓取、下载这些用户的作品。<br>
+<strong>✨新增筛选设置：来自用户</strong><br>
+使用这个设置，你可以只抓取已关注/未关注用户的作品。默认全部抓取。<br>
+该设置位于“筛选”-“作品类型”里。<br>
+<strong>✨新增筛选设置：图片格式</strong><br>
+如果有需要，你可以使用它来排除 .jpg 或 .png 图片。<br>
+该设置位于“筛选”-“作品类型”里。<br>
+<strong>✨新增设置：在作品缩略图上显示收藏按钮</strong><br>
+点击收藏按钮可以让下载器收藏这个作品。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时收藏 + 下载。<br>
+该设置位于“增强”-“缩略图上的按钮”分类。<br>
+<strong>✨新增设置：在作品缩略图上显示点赞按钮</strong><br>
+点击点赞按钮可以给这个作品点赞。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时点赞 + 下载。<br>
+该设置位于“增强”-“缩略图上的按钮”分类。<br>
+<strong>📚小说可以同时保存为 EPUB 和 TXT 格式了</strong><br>
+以前用户只能在 EPUB 和 TXT 格式里选择一种，现在可以多选了。<br>
+<strong>✨在手动选择/排除模式里，可以框选作品了</strong><br>
+进入手动选择/手动排除模式之后，按下鼠标左键并移动（PC 端），或者在页面上长按 0.5 秒之后拖动（移动端），即可框选作品。<br>
+<strong>✨在日志区域底部添加了“复制日志”和“清空日志”按钮</strong><br>
+<strong>✨在图片查看器里添加了作品信息和点赞的按钮</strong><br>
+<strong>✏️修改了一些设置的名字，使其更准确和易于理解</strong><br>
+<strong>🐞修复问题：在 Firefox 浏览器上，合并系列小说时会报错，无法合并</strong><br>
+<strong>☺️优化其他一些功能和设置的使用体验</strong><br>
+<strong>💡优化了一些帮助内容</strong>`,
+    `<strong>⚡優化了匯出、匯入下載紀錄的效能</strong><br>
+這次最佳化需要升級資料庫版本。如果你現在開啟了多個 Pixiv 標籤頁，建議全部重新整理一遍，或者重新啟動瀏覽器來完成這次升級。如果只開啟了這一個 Pixiv 標籤頁則無需手動處理。<br>
+- 加快了匯入下載紀錄的速度<br>
+- 減少了匯出下載紀錄時的記憶體使用量<br>
+- 加快了清空下載紀錄的速度<br>
+- 修復問題：在行動裝置上，如果下載紀錄很多，可能會在匯出時卡住，無法匯出<br>
+<strong>✨新功能：在關注頁面裡，可以批次儲存使用者頭貼了</strong><br>
+在關注頁面的「附加功能」區域裡，下載器新增了 2 個按鈕：<br>
+- 批次儲存使用者頭貼<br>
+- 批次將使用者頭貼另存為圖示<br>
+點擊這些按鈕，下載器會按照你設定的頁面範圍，批次儲存裡面的使用者的頭貼。檔案會儲存到下載目錄裡的 <span class="blue">pixiv users</span> 資料夾裡。<br>
+<strong>✨新增設定：收藏面板</strong><br>
+當你使用下載器的手動收藏作品功能時，下載器可以顯示一個收藏面板。<br>
+你可以在收藏面板裡設定是否公開收藏、使用哪些標籤（可以使用作品的標籤、自訂標籤、常用的標籤），然後再新增收藏。<br>
+這個設定在「增強」-「收藏」分類裡。<br>
+<strong>✨下載器收藏作品時，可以使用翻譯後的標籤了</strong><br>
+在「下載器收藏作品時的預設行為 (✩)」裡，你可以選擇「新增翻譯後的標籤」了。<br>
+<strong>✨新增設定：使用第一個符合的收藏標籤建立資料夾</strong><br>
+當你在你的收藏頁面裡擷取作品時，如果想使用某些收藏標籤（而不是作品本身的標籤）來建立資料夾，就可以使用這個設定。<br>
+該設定只在收藏頁面裡擷取時有效；它位於「命名」-「調整資料夾」分類裡。<br>
+<strong>✨新增命名標記：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品的收藏標籤清單。當你收藏一個作品之後，可以為它新增自訂的收藏標籤；這個標記用來輸出作品的收藏標籤。<br>
+注意：<br>
+1. 只有當你在收藏頁面裡擷取作品時，這個標記才是有效的；在其他頁面裡擷取時無效（通常不會輸出內容）。<br>
+2. 如果你沒有為作品新增收藏標籤，那麼這個標記也不會輸出內容。<br>
+<strong>✨新增支援的頁面類型：可以在追更列表裡擷取作品了</strong><br>
+追更列表頁面：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+追更頁面裡都是系列作品。現在下載器可以批次擷取你追更的小說、漫畫了。<br>
+<strong>✨新增功能：擷取使用者列表</strong><br>
+在首頁的「開始擷取」區域裡新增了「擷取使用者列表」按鈕。你可以輸入多個使用者 ID，下載器會逐個擷取、下載這些使用者的作品。<br>
+<strong>✨新增篩選設定：來自使用者</strong><br>
+使用這個設定，你可以只擷取已關注/未關注使用者的作品。預設全部擷取。<br>
+該設定位於「篩選」-「作品類型」裡。<br>
+<strong>✨新增篩選設定：圖片格式</strong><br>
+如果有需要，你可以使用它來排除 .jpg 或 .png 圖片。<br>
+該設定位於「篩選」-「作品類型」裡。<br>
+<strong>✨新增設定：在作品縮圖上顯示收藏按鈕</strong><br>
+點擊收藏按鈕可以讓下載器收藏這個作品。另外，它還可以配合「點擊點讚按鈕時下載作品」功能使用，同時收藏 + 下載。<br>
+該設定位於「增強」-「縮圖上的按鈕」分類。<br>
+<strong>✨新增設定：在作品縮圖上顯示點讚按鈕</strong><br>
+點擊點讚按鈕可以給這個作品點讚。另外，它還可以配合「點擊點讚按鈕時下載作品」功能使用，同時點讚 + 下載。<br>
+該設定位於「增強」-「縮圖上的按鈕」分類。<br>
+<strong>📚小說可以同時儲存為 EPUB 和 TXT 格式了</strong><br>
+以前使用者只能在 EPUB 和 TXT 格式裡選擇一種，現在可以多選了。<br>
+<strong>✨在手動選擇/排除模式裡，可以框選作品了</strong><br>
+進入手動選擇/手動排除模式之後，按下滑鼠左鍵並移動（PC 端），或者在頁面上長按 0.5 秒之後拖曳（行動裝置），即可框選作品。<br>
+<strong>✨在日誌區域底部新增了「複製日誌」和「清空日誌」按鈕</strong><br>
+<strong>✨在圖片查看器裡新增了作品資訊和點讚的按鈕</strong><br>
+<strong>✏️修改了一些設定的名字，使其更準確和易於理解</strong><br>
+<strong>🐞修復問題：在 Firefox 瀏覽器上，合併系列小說時會報錯，無法合併</strong><br>
+<strong>☺️優化其他一些功能和設定的使用體驗</strong><br>
+<strong>💡優化了一些幫助內容</strong>`,
+    `<strong>⚡Improved the performance of exporting and importing download records</strong><br>
+This optimization requires upgrading the database version. If you have multiple Pixiv tabs open, it is recommended to refresh all of them, or restart the browser, to complete the upgrade. If only this Pixiv tab is open, you do not need to do anything.<br>
+- Made importing download records faster<br>
+- Reduced the memory usage when exporting download records<br>
+- Made clearing download records faster<br>
+- Fixed an issue: on mobile devices, if there were a lot of download records, exporting could get stuck and fail<br>
+<strong>✨New feature: save user avatars in batches on the following page</strong><br>
+In the "Extra features" area of the following page, the downloader has added 2 buttons:<br>
+- Save user avatars in batches<br>
+- Save user avatars as icons in batches<br>
+Clicking these buttons makes the downloader save the avatars of the users in the page range you set, in batches. The files are saved in the <span class="blue">pixiv users</span> folder in the download directory.<br>
+<strong>✨New setting: bookmark panel</strong><br>
+When you use the downloader to bookmark works manually, the downloader can display a bookmark panel.<br>
+In the bookmark panel you can set whether the bookmark is public and which tags to use (work tags, custom tags, frequently used tags), and then add the bookmark.<br>
+This setting is in "Enhance" - "Bookmark".<br>
+<strong>✨The downloader can use translated tags when bookmarking works</strong><br>
+In "Default behavior when the downloader bookmarks a work (✩)", you can now select "Add the translated tags".<br>
+<strong>✨New setting: create a folder with the first matched bookmark tag</strong><br>
+When you crawl works on your bookmarks page, you can use this setting if you want to create folders by certain bookmark tags (instead of the tags of the works themselves).<br>
+This setting only works when crawling on the bookmarks page; it is in "Naming" - "Adjust folders".<br>
+<strong>✨New naming token: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: the list of bookmark tags of the work. After you bookmark a work, you can add custom bookmark tags to it; this token outputs the work's bookmark tags.<br>
+Note:<br>
+1. This token is only valid when you crawl works on the bookmarks page; it is invalid when crawling on other pages (usually it outputs nothing).<br>
+2. If you have not added any bookmark tags to the work, this token will output nothing either.<br>
+<strong>✨New supported page type: crawl works on the watch list</strong><br>
+Watch list page: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+The watch list contains only series works. The downloader can now crawl the novels and manga you follow, in batches.<br>
+<strong>✨New feature: crawl user list</strong><br>
+A "Crawl user list" button has been added in the "Start crawling" area on the homepage. You can enter multiple user IDs, and the downloader will crawl and download the works of these users one by one.<br>
+<strong>✨New filter setting: from users</strong><br>
+With this setting, you can crawl only the works of users you follow or do not follow. All works are crawled by default.<br>
+This setting is in "Filter" - "Work type".<br>
+<strong>✨New filter setting: image format</strong><br>
+If needed, you can use it to exclude .jpg or .png images.<br>
+This setting is in "Filter" - "Work type".<br>
+<strong>✨New setting: show a bookmark button on work thumbnails</strong><br>
+Clicking the bookmark button lets the downloader bookmark the work. It can also be used together with the "Download the work when clicking the like button" feature to bookmark and download at the same time.<br>
+This setting is in "Enhance" - "Thumbnail buttons".<br>
+<strong>✨New setting: show a like button on work thumbnails</strong><br>
+Clicking the like button likes the work. It can also be used together with the "Download the work when clicking the like button" feature to like and download at the same time.<br>
+This setting is in "Enhance" - "Thumbnail buttons".<br>
+<strong>📚Novels can be saved in both EPUB and TXT format</strong><br>
+Previously you could choose only one of EPUB and TXT; now you can select both.<br>
+<strong>✨Box selection is available in manual select / exclude mode</strong><br>
+After entering manual select / manual exclude mode, hold down the left mouse button and drag (PC), or long press on the page for 0.5 seconds and then drag (mobile), to box-select works.<br>
+<strong>✨Added "Copy log" and "Clear log" buttons at the bottom of the log area</strong><br>
+<strong>✨Added work info and like buttons to the image viewer</strong><br>
+<strong>✏️Renamed some settings to make them more accurate and easier to understand</strong><br>
+<strong>🐞Fixed an issue: in Firefox, merging a series of novels failed with an error</strong><br>
+<strong>☺️Improved the experience of some other functions and settings</strong><br>
+<strong>💡Improved some help content</strong>`,
+    `<strong>⚡ダウンロード記録のエクスポートとインポートの性能を改善しました</strong><br>
+この最適化にはデータベースのバージョンアップが必要です。複数の Pixiv タブを開いている場合は、すべて再読み込みするか、ブラウザを再起動してアップグレードを完了することをおすすめします。この Pixiv タブだけを開いている場合は、何もする必要はありません。<br>
+- ダウンロード記録のインポートが速くなりました<br>
+- ダウンロード記録のエクスポート時のメモリ使用量を減らしました<br>
+- ダウンロード記録のクリアが速くなりました<br>
+- 問題を修正：モバイル端末でダウンロード記録が多いと、エクスポート時に固まってエクスポートできなくなることがありました<br>
+<strong>✨新機能：フォロー中ページでユーザーのプロフィール画像を一括保存できるようになりました</strong><br>
+フォロー中ページの「追加機能」エリアに、ダウンローダーが 2 つのボタンを追加しました：<br>
+- ユーザーのプロフィール画像を一括保存<br>
+- ユーザーのプロフィール画像をアイコンとして一括保存<br>
+これらのボタンをクリックすると、設定したページ範囲内のユーザーのプロフィール画像を一括で保存します。ファイルはダウンロードフォルダー内の <span class="blue">pixiv users</span> フォルダーに保存されます。<br>
+<strong>✨新しい設定：ブックマークパネル</strong><br>
+ダウンローダーの手動ブックマーク機能を使うときに、ブックマークパネルを表示できます。<br>
+ブックマークパネルでは、ブックマークを公開するかどうか、使用するタグ（作品のタグ、カスタムタグ、よく使うタグ）を設定してから、ブックマークを追加できます。<br>
+この設定は「強化機能」-「ブックマーク」にあります。<br>
+<strong>✨ダウンローダーでブックマークするときに翻訳後のタグを使えるようになりました</strong><br>
+「ダウンローダーが作品をブックマークするときの既定の動作 (✩)」で「翻訳後のタグを追加」を選べるようになりました。<br>
+<strong>✨新しい設定：最初に一致するブックマークタグでフォルダーを作成</strong><br>
+ブックマークページで作品をクロールするとき、作品自体のタグではなく、特定のブックマークタグでフォルダーを作成したい場合にこの設定を使用できます。<br>
+この設定はブックマークページでクロールする場合にのみ有効です。「命名」-「フォルダー調整」にあります。<br>
+<strong>✨新しい命名トークン：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品のブックマークタグのリスト。作品をブックマークした後、その作品に独自のブックマークタグを追加できます。このトークンは作品のブックマークタグを出力します。<br>
+注意：<br>
+1. このトークンはブックマークページで作品をクロールする場合にのみ有効です。他のページでクロールする場合は無効です（通常は何も出力されません）。<br>
+2. 作品にブックマークタグを追加していない場合、このトークンも何も出力しません。<br>
+<strong>✨新しく対応したページタイプ：ウォッチリストで作品をクロールできるようになりました</strong><br>
+ウォッチリストページ：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+ウォッチリストページにはシリーズ作品だけがあります。ダウンローダーは、フォロー中の小説や漫画を一括でクロールできるようになりました。<br>
+<strong>✨新機能：ユーザーリストをクロール</strong><br>
+ホームの「クロールを開始する」エリアに「ユーザーリストをクロール」ボタンを追加しました。複数のユーザー ID を入力すると、ダウンローダーがそれらのユーザーの作品を 1 人ずつクロールしてダウンロードします。<br>
+<strong>✨新しいフィルター設定：ユーザーから</strong><br>
+この設定を使うと、フォローしているユーザー／フォローしていないユーザーの作品だけをクロールできます。既定ではすべてをクロールします。<br>
+この設定は「フィルター」-「作品タイプ」にあります。<br>
+<strong>✨新しいフィルター設定：画像の形式</strong><br>
+必要であれば、これを使って .jpg や .png 画像を除外できます。<br>
+この設定は「フィルター」-「作品タイプ」にあります。<br>
+<strong>✨新しい設定：作品のサムネイルにブックマークボタンを表示する</strong><br>
+ブックマークボタンをクリックすると、ダウンローダーがその作品をブックマークします。「いいねボタンをクリックしたときに作品をダウンロード」機能と組み合わせると、ブックマークとダウンロードを同時に行えます。<br>
+この設定は「強化機能」-「サムネイル上のボタン」にあります。<br>
+<strong>✨新しい設定：作品のサムネイルにいいねボタンを表示する</strong><br>
+いいねボタンをクリックすると、その作品にいいねできます。「いいねボタンをクリックしたときに作品をダウンロード」機能と組み合わせると、いいねとダウンロードを同時に行えます。<br>
+この設定は「強化機能」-「サムネイル上のボタン」にあります。<br>
+<strong>📚小説を EPUB と TXT の両方の形式で保存できるようになりました</strong><br>
+以前は EPUB と TXT のどちらか一方しか選べませんでしたが、両方を選べるようになりました。<br>
+<strong>✨手動選択／手動除外モードで作品を範囲選択できるようになりました</strong><br>
+手動選択／手動除外モードに入った後、マウスの左ボタンを押したままドラッグする（PC）か、ページ上で 0.5 秒間長押ししてからドラッグする（モバイル）と、作品を範囲選択できます。<br>
+<strong>✨ログエリアの下部に「ログをコピー」と「ログをクリア」ボタンを追加しました</strong><br>
+<strong>✨画像ビューアに作品情報といいねのボタンを追加しました</strong><br>
+<strong>✏️いくつかの設定の名前を、より正確で分かりやすいものに変更しました</strong><br>
+<strong>🐞問題を修正：Firefox ではシリーズ小説を統合するときにエラーが発生し、統合できませんでした</strong><br>
+<strong>☺️その他のいくつかの機能と設定の使い勝手を改善しました</strong><br>
+<strong>💡いくつかのヘルプ内容を改善しました</strong>`,
+    `<strong>⚡다운로드 기록 내보내기 및 가져오기 성능을 최적화했습니다</strong><br>
+이번 최적화에는 데이터베이스 버전 업그레이드가 필요합니다. Pixiv 탭을 여러 개 열어 두었다면 모두 새로 고치거나 브라우저를 다시 시작하여 업그레이드를 완료하시기 바랍니다. 이 Pixiv 탭만 열려 있다면 따로 할 일은 없습니다.<br>
+- 다운로드 기록 가져오기 속도가 빨라졌습니다<br>
+- 다운로드 기록을 내보낼 때의 메모리 사용량이 줄었습니다<br>
+- 다운로드 기록 지우기 속도가 빨라졌습니다<br>
+- 문제 수정: 모바일 기기에서 다운로드 기록이 많으면 내보낼 때 멈춰서 내보내지 못할 수 있었습니다<br>
+<strong>✨새 기능: 팔로잉 페이지에서 유저 프로필 이미지를 일괄 저장할 수 있습니다</strong><br>
+팔로잉 페이지의 "부가 기능" 영역에 다운로더가 버튼 2개를 추가했습니다:<br>
+- 유저 프로필 이미지 일괄 저장<br>
+- 유저 프로필 이미지를 아이콘으로 일괄 저장<br>
+이 버튼을 클릭하면 설정한 페이지 범위 안의 유저 프로필 이미지를 일괄 저장합니다. 파일은 다운로드 폴더 안의 <span class="blue">pixiv users</span> 폴더에 저장됩니다.<br>
+<strong>✨새 설정: 북마크 패널</strong><br>
+다운로더의 수동 북마크 기능을 사용할 때 북마크 패널을 표시할 수 있습니다.<br>
+북마크 패널에서 북마크 공개 여부와 사용할 태그(작품 태그, 사용자 지정 태그, 자주 쓰는 태그)를 설정한 다음 북마크를 추가할 수 있습니다.<br>
+이 설정은 "향상"-"북마크"에 있습니다.<br>
+<strong>✨다운로더로 북마크할 때 번역된 태그를 사용할 수 있습니다</strong><br>
+"다운로더가 작품을 북마크할 때의 기본 동작 (✩)"에서 "번역된 태그 추가"를 선택할 수 있습니다.<br>
+<strong>✨새 설정: 첫 번째 일치하는 북마크 태그로 디렉토리 생성</strong><br>
+북마크 페이지에서 작품을 긁어올 때, 작품 자체의 태그가 아닌 특정 북마크 태그로 폴더를 만들고 싶다면 이 설정을 사용할 수 있습니다.<br>
+이 설정은 북마크 페이지에서 긁어올 때만 유효하며, "이름"-"폴더 조정"에 있습니다.<br>
+<strong>✨새 이름 토큰: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: 작품의 북마크 태그 목록. 작품을 북마크한 후 해당 작품에 사용자 지정 북마크 태그를 추가할 수 있습니다. 이 토큰은 작품의 북마크 태그를 출력합니다.<br>
+참고:<br>
+1. 이 토큰은 북마크 페이지에서 작품을 긁어올 때만 유효합니다. 다른 페이지에서 긁어올 때는 유효하지 않습니다(보통 아무것도 출력되지 않음).<br>
+2. 작품에 북마크 태그를 추가하지 않았다면 이 토큰도 아무것도 출력하지 않습니다.<br>
+<strong>✨새로 지원하는 페이지 유형: 구독 목록에서 작품을 긁어올 수 있습니다</strong><br>
+구독 목록 페이지: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+구독 목록 페이지에는 시리즈 작품만 있습니다. 이제 다운로더가 구독 중인 소설과 만화를 일괄로 긁어올 수 있습니다.<br>
+<strong>✨새 기능: 사용자 목록 긁어오기</strong><br>
+홈의 "긁어오기 시작" 영역에 "사용자 목록 긁어오기" 버튼이 추가되었습니다. 사용자 ID를 여러 개 입력하면 다운로더가 해당 사용자의 작품을 하나씩 긁어오고 다운로드합니다.<br>
+<strong>✨새 필터 설정: 사용자로부터</strong><br>
+이 설정을 사용하면 팔로우한/팔로우하지 않은 사용자의 작품만 긁어올 수 있습니다. 기본값은 모두 긁어오기입니다.<br>
+이 설정은 "필터"-"작품 유형"에 있습니다.<br>
+<strong>✨새 필터 설정: 이미지 형식</strong><br>
+필요하다면 이것으로 .jpg 또는 .png 이미지를 제외할 수 있습니다.<br>
+이 설정은 "필터"-"작품 유형"에 있습니다.<br>
+<strong>✨새 설정: 작품 썸네일에 북마크 버튼 표시</strong><br>
+북마크 버튼을 클릭하면 다운로더가 해당 작품을 북마크합니다. "좋아요 버튼을 클릭할 때 작품 다운로드" 기능과 함께 사용하면 북마크와 다운로드를 동시에 할 수 있습니다.<br>
+이 설정은 "향상"-"썸네일 위 버튼"에 있습니다.<br>
+<strong>✨새 설정: 작품 썸네일에 좋아요 버튼 표시</strong><br>
+좋아요 버튼을 클릭하면 해당 작품에 좋아요를 누를 수 있습니다. "좋아요 버튼을 클릭할 때 작품 다운로드" 기능과 함께 사용하면 좋아요와 다운로드를 동시에 할 수 있습니다.<br>
+이 설정은 "향상"-"썸네일 위 버튼"에 있습니다.<br>
+<strong>📚소설을 EPUB와 TXT 형식으로 동시에 저장할 수 있습니다</strong><br>
+이전에는 EPUB와 TXT 중 하나만 선택할 수 있었지만 이제 둘 다 선택할 수 있습니다.<br>
+<strong>✨수동 선택/제외 모드에서 작품을 범위 선택할 수 있습니다</strong><br>
+수동 선택/수동 제외 모드에 들어간 후, 마우스 왼쪽 버튼을 누른 채 드래그하거나(PC), 페이지에서 0.5초 동안 길게 누른 다음 드래그하면(모바일) 작품을 범위 선택할 수 있습니다.<br>
+<strong>✨로그 영역 하단에 "로그 복사"와 "로그 지우기" 버튼을 추가했습니다</strong><br>
+<strong>✨이미지 뷰어에 작품 정보와 좋아요 버튼을 추가했습니다</strong><br>
+<strong>✏️일부 설정의 이름을 더 정확하고 이해하기 쉽게 수정했습니다</strong><br>
+<strong>🐞문제 수정: Firefox에서 시리즈 소설을 합칠 때 오류가 발생하여 합칠 수 없었습니다</strong><br>
+<strong>☺️그 밖의 몇 가지 기능과 설정의 사용 경험을 개선했습니다</strong><br>
+<strong>💡일부 도움말 내용을 개선했습니다</strong>`,
+    `<strong>⚡Улучшена производительность экспорта и импорта записей загрузок</strong><br>
+Для этого улучшения требуется обновить версию базы данных. Если у вас открыто несколько вкладок Pixiv, рекомендуется обновить их все или перезапустить браузер, чтобы завершить обновление. Если открыта только эта вкладка Pixiv, ничего делать не нужно.<br>
+- Ускорен импорт записей загрузок<br>
+- Уменьшено потребление памяти при экспорте записей загрузок<br>
+- Ускорена очистка записей загрузок<br>
+- Исправлена проблема: на мобильных устройствах при большом количестве записей загрузок экспорт мог зависнуть и не выполниться<br>
+<strong>✨Новая функция: пакетное сохранение аватаров пользователей на странице подписок</strong><br>
+В области «Дополнительные функции» на странице подписок загрузчик добавляет 2 кнопки:<br>
+- Пакетное сохранение аватаров пользователей<br>
+- Пакетное сохранение аватаров пользователей как иконки<br>
+При нажатии на эти кнопки загрузчик пакетно сохраняет аватары пользователей в заданном вами диапазоне страниц. Файлы сохраняются в папку <span class="blue">pixiv users</span> в папке загрузок.<br>
+<strong>✨Новая настройка: панель закладки</strong><br>
+Когда вы добавляете работы в закладки вручную, загрузчик может показать панель закладки.<br>
+В панели закладки можно задать, будет ли закладка публичной, и какие теги использовать (теги работы, собственные теги, часто используемые теги), а затем добавить закладку.<br>
+Эта настройка находится в «Улучшение» - «Закладки».<br>
+<strong>✨Загрузчик может использовать переведённые теги при добавлении работ в закладки</strong><br>
+В «Поведение загрузчика по умолчанию при добавлении работ в закладки (✩)» теперь можно выбрать «Добавить переведённые теги».<br>
+<strong>✨Новая настройка: создавать папку по первому совпавшему тегу закладки</strong><br>
+Когда вы сканируете работы на странице своих закладок, вы можете использовать эту настройку, если хотите создавать папки по определённым тегам закладок (а не по тегам самих работ).<br>
+Эта настройка действует только при сканировании на странице закладок; она находится в «Имя» - «Настройка папок».<br>
+<strong>✨Новый токен именования: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: список тегов закладок работы. После добавления работы в закладки вы можете добавить к ней собственные теги закладок; этот токен выводит теги закладок работы.<br>
+Примечание:<br>
+1. Этот токен действует только при сканировании работ на странице ваших закладок; на других страницах он не действует (обычно ничего не выводит).<br>
+2. Если вы не добавили к работе теги закладок, этот токен также ничего не выведет.<br>
+<strong>✨Новый поддерживаемый тип страницы: сканирование работ в списке отслеживаемых</strong><br>
+Страница списка отслеживаемых: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+В списке отслеживаемых только серии работ. Теперь загрузчик может пакетно сканировать отслеживаемые вами новеллы и мангу.<br>
+<strong>✨Новая функция: сканирование списка пользователей</strong><br>
+В области «Начать сканирование» на главной странице добавлена кнопка «Сканировать список пользователей». Вы можете ввести несколько ID пользователей, и загрузчик по очереди просканирует и загрузит работы этих пользователей.<br>
+<strong>✨Новая настройка фильтра: от пользователей</strong><br>
+С помощью этой настройки можно сканировать только работы пользователей, на которых вы подписаны или не подписаны. По умолчанию сканируются все.<br>
+Эта настройка находится в «Фильтр» - «Тип работы».<br>
+<strong>✨Новая настройка фильтра: формат изображения</strong><br>
+При необходимости её можно использовать, чтобы исключить изображения .jpg или .png.<br>
+Эта настройка находится в «Фильтр» - «Тип работы».<br>
+<strong>✨Новая настройка: показывать кнопку закладки на миниатюрах работ</strong><br>
+Нажатие на кнопку закладки позволяет загрузчику добавить работу в закладки. Её также можно использовать вместе с функцией «Загружать работу при нажатии на кнопку лайка», чтобы добавить работу в закладки и загрузить её одновременно.<br>
+Эта настройка находится в «Улучшение» - «Кнопки на миниатюре».<br>
+<strong>✨Новая настройка: показывать кнопку лайка на миниатюрах работ</strong><br>
+Нажатие на кнопку лайка ставит лайк работе. Её также можно использовать вместе с функцией «Загружать работу при нажатии на кнопку лайка», чтобы поставить лайк и загрузить работу одновременно.<br>
+Эта настройка находится в «Улучшение» - «Кнопки на миниатюре».<br>
+<strong>📚Новеллы можно сохранять одновременно в форматах EPUB и TXT</strong><br>
+Раньше можно было выбрать только один из форматов EPUB и TXT, теперь можно выбрать оба.<br>
+<strong>✨В режиме ручного выбора / ручного исключения доступно выделение работ рамкой</strong><br>
+После входа в режим ручного выбора / ручного исключения зажмите левую кнопку мыши и двигайте курсор (ПК) или нажмите и удерживайте страницу 0,5 секунды, затем перетащите (мобильное устройство), чтобы выделить работы рамкой.<br>
+<strong>✨Внизу области журнала добавлены кнопки «Копировать журнал» и «Очистить журнал»</strong><br>
+<strong>✨В просмотрщик изображений добавлены кнопки информации о работе и лайка</strong><br>
+<strong>✏️Изменены названия некоторых настроек, чтобы они были точнее и понятнее</strong><br>
+<strong>🐞Исправлена проблема: в Firefox при объединении серии новелл возникала ошибка и объединение не выполнялось</strong><br>
+<strong>☺️Улучшено удобство использования некоторых других функций и настроек</strong><br>
+<strong>💡Улучшены некоторые справочные материалы</strong>`,
   ],
   _用户的约稿页面: [
     `用户的约稿页面`,
@@ -13482,6 +14674,48 @@ There are too many of them, so they are not listed one by one here.<br>
     `ショートカットキーで作品の手動除外を開始または一時停止できます。デフォルトは <span class="blue">Alt</span> + <span class="blue">E</span> です。`,
     `단축키로 작품 수동 제외를 시작하거나 일시 중지할 수 있습니다. 기본값은 <span class="blue">Alt</span> + <span class="blue">E</span>입니다.`,
     `Вы можете использовать горячую клавишу, чтобы начать или приостановить ручное исключение работ. По умолчанию <span class="blue">Alt</span> + <span class="blue">E</span>.`,
+  ],
+  _点击手动排除作品的说明: [
+    `如果你要抓取的作品里有一些不喜欢的作品，你可以点击它来排除它。可以多选。<br>
+    下载器不会抓取被排除的作品。如果它已经被抓取了，下载器会把它从抓取结果里删除。`,
+    `如果你要擷取的作品裡有一些不喜歡的作品，你可以點擊它來排除它。可以多選。<br>
+    下載器不會擷取被排除的作品。如果它已經被擷取了，下載器會把它從擷取結果裡刪除。`,
+    `If there are some works you don't like among the works you want to crawl, you can click on them to exclude them. Multiple selection is supported.<br>
+    The downloader will not crawl excluded works. If they have already been crawled, it will remove them from the crawl results.`,
+    `クロールしたい作品の中に気に入らない作品がある場合、それをクリックすると除外できます。複数選択も可能です。<br>
+    ダウンローダーは除外された作品をクロールしません。すでにクロールされている場合は、クロール結果から削除します。`,
+    `크롤링하려는 작품 중에 마음에 들지 않는 작품이 있으면 클릭하여 제외할 수 있습니다. 여러 개를 선택할 수 있습니다.<br>
+    다운로더는 제외된 작품을 크롤링하지 않습니다. 이미 크롤링된 경우 크롤링 결과에서 제거합니다.`,
+    `Если среди работ, которые вы хотите сканировать, есть те, что вам не нравятся, вы можете нажать на них, чтобы исключить. Можно выбирать несколько.<br>
+    Загрузчик не сканирует исключённые работы. Если они уже просканированы, он удаляет их из результатов сканирования.`,
+  ],
+  _按住并拖动可以框选作品: [
+    `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，按下鼠标左键并移动，即可框选作品。`,
+    `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，按下滑鼠左鍵並移動，即可框選作品。`,
+    `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, hold down the left mouse button and drag to box-select works.`,
+    `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、マウスの左ボタンを押したままドラッグすると、作品を範囲選択できます。`,
+    `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 마우스 왼쪽 버튼을 누른 채 드래그하면 작품을 범위 선택할 수 있습니다.`,
+    `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения зажмите левую кнопку мыши и двигайте курсор, чтобы выделить работы рамкой.`,
+  ],
+  _长按后拖动可以框选作品: [
+    `框选（范围选择）：<br>
+    进入手动选择/手动排除模式之后，在页面上长按 0.5 秒之后拖动，即可框选作品。`,
+    `框選（範圍選擇）：<br>
+    進入手動選擇/手動排除模式之後，在頁面上長按 0.5 秒之後拖曳，即可框選作品。`,
+    `Box selection (range selection):<br>
+    After entering manual select / manual exclude mode, long press on the page for 0.5 seconds, then drag to box-select works.`,
+    `範囲選択（ボックス選択）：<br>
+    手動選択／手動除外モードに入った後、ページ上で 0.5 秒間長押ししてからドラッグすると、作品を範囲選択できます。`,
+    `범위 선택(박스 선택):<br>
+    수동 선택/수동 제외 모드에 들어간 후, 페이지에서 0.5초 동안 길게 누른 다음 드래그하면 작품을 범위 선택할 수 있습니다.`,
+    `Выделение рамкой (выделение области):<br>
+    После входа в режим ручного выбора / ручного исключения нажмите и удерживайте страницу 0,5 секунды, затем перетащите, чтобы выделить работы рамкой.`,
   ],
   _快捷键: [
     `快捷键`,
@@ -13927,38 +15161,6 @@ One possible reason: Your Pixiv account has been banned.`,
     `Ожидался формат данных JSON, но полученные данные не являются JSON. Сканирование отменено.<br>
 Одна из возможных причин: ваша учетная запись заблокирована Pixiv.`,
   ],
-  _提示当前页面上没有可以用于手动删除的元素: [
-    `当你启用“预览搜索页面的抓取结果”功能之后，下载器会把抓取到的作品显示在页面上，供用户查看。<br>
-    现在页面上没有下载器添加的作品，所以无法使用手动删除作品功能。<br>
-    这可能是因为你没有启用“预览搜索页面的抓取结果”功能，或者目前没有任何抓取结果。<br>
-    <br>
-    作为替代方案，你可以使用“手动排除作品”按钮来排除不需要的作品。`,
-    `啟用「預覽搜尋頁面的擷取結果」功能後，下載器會將擷取到的作品顯示在頁面上，供你查看。<br>
-    目前頁面上沒有下載器添加的作品，因此無法使用「手動刪除作品」功能。<br>
-    這可能是因為你沒有啟用「預覽搜尋頁面的擷取結果」功能，或目前沒有任何擷取結果。<br>
-    <br>
-    你也可以改用「手動排除作品」按鈕，排除不需要的作品。`,
-    `When you enable "Preview crawl results on search page", the downloader displays crawled works on the page so you can review them.<br>
-    There are currently no works added by the downloader on the page, so you can't use "Manually delete works".<br>
-    This may be because "Preview crawl results on search page" is disabled or there are no crawl results yet.<br>
-    <br>
-    Alternatively, you can use the "Manually exclude" button to exclude works you don't want.`,
-    `「検索ページのクロール結果をプレビュー」機能を有効にすると、ダウンローダーがクロールした作品がページ上に表示され、確認できます。<br>
-    現在、ページ上にダウンローダーが追加した作品がないため、「作品を手動で削除する」機能は使えません。<br>
-    「検索ページのクロール結果をプレビュー」機能が有効になっていないか、クロール結果がまだない可能性があります。<br>
-    <br>
-    代わりに、「手動で作品を除外」ボタンを使って、不要な作品を除外できます。`,
-    `"검색 페이지 크롤링 결과 미리보기" 기능을 활성화하면 다운로더가 긁어온 작품을 페이지에 표시하여 확인할 수 있습니다.<br>
-    현재 페이지에 다운로더가 추가한 작품이 없어 "수동으로 작품 지우기" 기능을 사용할 수 없습니다.<br>
-    "검색 페이지 크롤링 결과 미리보기" 기능이 활성화되어 있지 않거나 아직 긁어온 결과가 없기 때문일 수 있습니다.<br>
-    <br>
-    대신 "수동 제외" 버튼을 사용해 원하지 않는 작품을 제외할 수 있습니다.`,
-    `Когда вы включаете функцию «Предварительный просмотр результатов сканирования на странице поиска», загрузчик показывает просканированные работы на странице, чтобы вы могли их просмотреть.<br>
-    Сейчас на странице нет работ, добавленных загрузчиком, поэтому функцию «Вручную удалить работу» использовать нельзя.<br>
-    Возможно, функция «Предварительный просмотр результатов сканирования на странице поиска» не включена или результатов сканирования пока нет.<br>
-    <br>
-    Вместо этого можно нажать кнопку «Ручное исключение», чтобы исключить ненужные работы.`,
-  ],
   _提示检查图片色彩会增加抓取所需时间: [
     `注意：当你只选择了一种图片色彩时，下载器会加载每张图片的缩略图进行检查，所以会增加抓取所需的时间。`,
     `注意：當你只選擇了一種圖片色彩時，下載器會載入每張圖片的縮圖進行檢查，所以會增加擷取所需的時間。`,
@@ -13966,6 +15168,14 @@ One possible reason: Your Pixiv account has been banned.`,
     `注意：どちらか一方の色だけを選んだ場合、ダウンローダーはすべての画像のサムネイルを読み込んでチェックするため、クロールにかかる時間が長くなります。`,
     `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
     `Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.`,
+  ],
+  _IndexedDB被其他标签页阻塞: [
+    `打不开 IndexedDB 数据库：其他标签页正在使用它。请刷新本页和所有打开的 pixiv 标签页，或者重启浏览器，这样下载器才能完成所需的数据库操作。`,
+    `打不開 IndexedDB 資料庫：其他標籤頁正在使用它。請重新整理本頁和所有開啟的 pixiv 標籤頁，或者重新啟動瀏覽器，這樣下載器才能完成所需的資料庫操作。`,
+    `Could not open the IndexedDB database: it is in use by another tab. Please refresh this page and all open pixiv tabs, or restart the browser, so that the downloader can complete the required database operation.`,
+    `IndexedDB データベースを開けません：他のタブが使用中です。このページと開いているすべての pixiv のタブを再読み込みするか、ブラウザを再起動してください。ダウンローダーが必要なデータベース操作を完了できます。`,
+    `IndexedDB 데이터베이스를 열 수 없습니다: 다른 탭에서 사용 중입니다. 이 페이지와 열려 있는 모든 pixiv 탭을 새로 고치거나 브라우저를 다시 시작하십시오. 그래야 다운로더가 필요한 데이터베이스 작업을 완료할 수 있습니다.`,
+    `Не удалось открыть базу данных IndexedDB: она используется другой вкладкой. Обновите эту страницу и все открытые вкладки pixiv или перезапустите браузер, чтобы загрузчик мог выполнить необходимую операцию с базой данных.`,
   ],
   _IndexedDB打不开: [
     `下载器打不开 IndexedDB 数据库：{}`,
@@ -13990,6 +15200,22 @@ One possible reason: Your Pixiv account has been banned.`,
     `IndexedDB データベースにダウンローダーが必要とするデータストアがありません：{}`,
     `IndexedDB 데이터베이스에 다운로더에 필요한 데이터 저장소가 없습니다: {}`,
     `В базе данных IndexedDB отсутствуют хранилища, необходимые загрузчику: {}`,
+  ],
+  _IndexedDB需要升级: [
+    `下载器的数据库需要升级版本，请等待升级完成。在升级期间，建议你暂停所有下载任务。`,
+    `下載器的資料庫需要升級版本，請等待升級完成。在升級期間，建議你暫停所有下載任務。`,
+    `The downloader's database needs to be upgraded. Please wait for the upgrade to finish. During the upgrade, you are advised to pause all download tasks.`,
+    `ダウンローダーのデータベースをアップグレードする必要があります。アップグレードが完了するまでお待ちください。アップグレード中は、すべてのダウンロードタスクを一時停止することをお勧めします。`,
+    `다운로더의 데이터베이스를 업그레이드해야 합니다. 업그레이드가 완료될 때까지 기다려 주십시오. 업그레이드 중에는 모든 다운로드 작업을 일시 중지하는 것이 좋습니다.`,
+    `Базу данных загрузчика необходимо обновить. Дождитесь завершения обновления. Во время обновления рекомендуется приостановить все задачи загрузки.`,
+  ],
+  _IndexedDB升级完成: [
+    `下载器的数据库已经完成升级，你可以继续使用下载器了。`,
+    `下載器的資料庫已經完成升級，你可以繼續使用下載器了。`,
+    `The downloader's database has been upgraded. You can continue using the downloader.`,
+    `ダウンローダーのデータベースのアップグレードが完了しました。ダウンローダーを引き続き使用できます。`,
+    `다운로더의 데이터베이스 업그레이드가 완료되었습니다. 다운로더를 계속 사용할 수 있습니다.`,
+    `Обновление базы данных загрузчика завершено. Вы можете продолжать пользоваться загрузчиком.`,
   ],
   _保存抓取结果失败: [
     `保存抓取结果失败：{}`,
@@ -14046,12 +15272,12 @@ One possible reason: Your Pixiv account has been banned.`,
     `Из-за сетевой ошибки выполнено много повторных попыток, но безуспешно; повтор для этой работы прекращён`,
   ],
   _有x个作品失败请再次执行重试: [
-    `其中有 {} 个作品添加收藏失败，你可以再次执行这个操作来重试它们。`,
-    `其中有 {} 個作品新增收藏失敗，你可以再次執行這個操作來重試它們。`,
-    `Bookmarking failed for {} works; you can run this operation again to retry them.`,
-    `そのうち {} 件の作品でブックマークの追加に失敗しました。この操作をもう一度実行すると再試行できます。`,
-    `그중 {}개 작품의 북마크 추가에 실패했습니다. 이 작업을 다시 실행하면 재시도할 수 있습니다.`,
-    `Не удалось добавить закладки для {} работ; можно выполнить эту операцию снова, чтобы повторить их.`,
+    `其中有 {} 个作品添加收藏失败，你可以再次执行这个操作来重试它们，也可以在日志里点击收藏失败的作品的链接，手动收藏它们。`,
+    `其中有 {} 個作品新增收藏失敗，你可以再次執行這個操作來重試它們，也可以在日誌裡點擊收藏失敗的作品的連結，手動收藏它們。`,
+    `Bookmarking failed for {} works. You can run this operation again to retry them, or click the links of the failed works in the log to bookmark them manually.`,
+    `そのうち {} 件の作品でブックマークの追加に失敗しました。この操作をもう一度実行して再試行するか、ログに表示されている失敗した作品のリンクをクリックして、手動でブックマークすることもできます。`,
+    `그중 {}개 작품의 북마크 추가에 실패했습니다. 이 작업을 다시 실행해 재시도하거나, 로그에서 실패한 작품의 링크를 클릭해 수동으로 북마크할 수 있습니다.`,
+    `Не удалось добавить закладки для {} работ. Можно выполнить эту операцию снова, чтобы повторить попытку, или нажать ссылки этих работ в журнале, чтобы добавить закладки вручную.`,
   ],
   _收藏作品完毕但是有一些失败了: [
     `收藏作品完毕，但是有一些作品收藏失败`,
@@ -14385,6 +15611,14 @@ One possible reason: Your Pixiv account has been banned.`,
     `소설 책갈피 목록 페이지`,
     `Страница списка закладок новеллы`,
   ],
+  _追更列表页面: [
+    `追更列表页面`,
+    `追更列表頁面`,
+    `Watch list page`,
+    `ウォッチリストページ`,
+    `구독 목록 페이지`,
+    `Страница списка отслеживаемых`,
+  ],
   _未登录用户无法抓取: [
     `未登录用户无法抓取`,
     `未登入使用者無法擷取`,
@@ -14416,5 +15650,33 @@ One possible reason: Your Pixiv account has been banned.`,
     `⏭️このシリーズ小説の言語は {} です。「これらの言語の小説のみをダウンロード」の条件を満たさないため、ダウンローダーはこのシリーズの残りの小説をスキップします。`,
     `⏭️이 시리즈 소설의 언어는 {}이며, "이러한 언어의 소설만 다운로드" 요구 사항을 충족하지 않으므로 다운로더는 이 시리즈의 남은 소설을 건너뜁니다.`,
     `⏭️Язык этой серии новелл — {}, что не соответствует требованию «Загружать только новеллы на этих языках», поэтому загрузчик пропустит остальные новеллы этой серии.`,
+  ],
+  _当前正在抓取用户列表所以不接受新的抓取任务: [
+    `该操作已被阻止，原因是：<br>
+    这个标签页里正在执行抓取用户列表的任务，为了避免干扰，期间不会接受新的抓取任务。<br>
+    你可以打开一个新的标签页（里面没有执行抓取用户列表的任务），这样你就可以正常抓取其他作品了。`,
+    `該操作已被阻止，原因是：<br>
+    這個標籤頁裡正在執行擷取用戶列表的任務，為了避免干擾，期間不會接受新的擷取任務。<br>
+    你可以開啟一個新的標籤頁（裡面沒有執行擷取用戶列表的任務），這樣你就可以正常擷取其他作品了。`,
+    `This operation has been blocked because:<br>
+    A crawl user list task is running in this tab. To avoid interference, new crawl tasks will not be accepted while it is running.<br>
+    You can open a new tab (which is not running a crawl user list task), and then you can crawl other works normally.`,
+    `この操作はブロックされました。理由：<br>
+    このタブではユーザーリストをクロールするタスクが実行中です。干渉を避けるため、その間は新しいクロールタスクを受け付けません。<br>
+    新しいタブ（ユーザーリストをクロールするタスクが実行されていないタブ）を開けば、他の作品を通常どおりクロールできます。`,
+    `이 작업은 차단되었습니다. 이유:<br>
+    이 탭에서는 사용자 목록 크롤링 작업이 실행 중입니다. 간섭을 피하기 위해 그동안 새로운 크롤링 작업을 받지 않습니다.<br>
+    새 탭(사용자 목록 크롤링 작업이 실행되지 않는 탭)을 열면 다른 작품을 정상적으로 크롤링할 수 있습니다.`,
+    `Это действие заблокировано, потому что:<br>
+    В этой вкладке выполняется задача сканирования списка пользователей. Чтобы избежать помех, новые задачи сканирования не принимаются, пока она выполняется.<br>
+    Вы можете открыть новую вкладку (в которой не выполняется задача сканирования списка пользователей), и тогда вы сможете нормально сканировать другие работы.`,
+  ],
+  _耗时毫秒: [
+    `耗时: {} ms`,
+    `耗時: {} ms`,
+    `Time taken: {} ms`,
+    `所要時間：{} ms`,
+    `소요 시간: {} ms`,
+    `Затраченное время: {} мс`,
   ],
 }

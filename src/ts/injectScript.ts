@@ -4,7 +4,12 @@ import browser from 'webextension-polyfill'
 // 主要是为了注入拦截 API 请求的脚本
 // 这个脚本的执行时机是 document_start，可以让注入的脚本尽早生效。如果注入的晚了，就会拦截不到早期发起的请求
 
-const scriptList = ['lib/api_interceptor.js']
+const scriptList: string[] = [
+  // 监听书签列表 API 的响应，提取作品的收藏标签
+  'lib/bookmark_tags_observer.js',
+  // 这是定制版本的功能，在公开版本里不注入这个脚本
+  // 'lib/api_interceptor.js',
+]
 
 function injectScript() {
   scriptList.forEach((path) => {

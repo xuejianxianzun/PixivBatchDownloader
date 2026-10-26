@@ -1314,7 +1314,12 @@ __webpack_require__.r(__webpack_exports__);
 // 注入脚本到页面的上下文中
 // 主要是为了注入拦截 API 请求的脚本
 // 这个脚本的执行时机是 document_start，可以让注入的脚本尽早生效。如果注入的晚了，就会拦截不到早期发起的请求
-const scriptList = ['lib/api_interceptor.js'];
+const scriptList = [
+    // 监听书签列表 API 的响应，提取作品的收藏标签
+    'lib/bookmark_tags_observer.js',
+    // 这是定制版本的功能，在公开版本里不注入这个脚本
+    // 'lib/api_interceptor.js',
+];
 function injectScript() {
     scriptList.forEach((path) => {
         const url = webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.getURL(path);

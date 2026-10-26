@@ -4,6 +4,7 @@ import { lang } from '../Language'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 interface GlossaryResult {
   id: string
@@ -27,8 +28,22 @@ class GetNovelGlossarys {
     // 先获取设定资料的分类、每条设定资料的简略数据
     // 注意：此时每条设定资料缺少 detail 数据（此时为 null），之后会在下面获取并进行填充
     await Utils.sleep(interval)
+    // 用户在合并过程中停止了抓取：不再请求设定资料（返回空数据，调用方会终止合并）
+    if (states.stopCrawl) {
+      return { result: [], replaceeItemIds: [] }
+    }
     const glossaryData = await API.getNovelSeriesGlossary(seriesId)
-    const result = glossaryData.body.categories as unknown as GlossaryResult[]
+
+    // ⚠️ 复制一份再填充 detail（见下面 item.detail 的赋值）：
+    // Firefox 的 MV3 内容脚本里 fetch 的响应对象属于页面 compartment（XrayWrapper），
+    // 虽然当前写入的也是页面对象（所以能成功），但修改响应数据很脆弱：
+    // 一旦以后改成写入自己创建的对象，就会抛 “Not allowed to define cross-origin object…”
+    const result = ((glossaryData.body.categories || []) as any[]).map(
+      (categorie) => ({
+        ...categorie,
+        items: ((categorie.items || []) as any[]).map((item) => ({ ...item })),
+      })
+    ) as unknown as GlossaryResult[]
     const replaceeItemIds = glossaryData.body.replaceeItemIds || []
 
     if (result.length === 0) {
@@ -44,6 +59,10 @@ class GetNovelGlossarys {
     for (const categorie of result) {
       for (const item of categorie.items) {
         await Utils.sleep(interval)
+        // 用户在等待期间停止了抓取：不再请求后续的设定资料（返回已获取的部分数据，调用方会终止合并）
+        if (states.stopCrawl) {
+          return { result, replaceeItemIds }
+        }
         const data = await API.getNovelSeriesGlossaryItem(
           item.seriesId,
           item.id

@@ -2,7 +2,12 @@ import { settings } from '../setting/Settings'
 import { LangTextKey } from '../langText'
 
 type BtnConfig = {
-  name: 'zoomBtnOnThumb' | 'downloadBtnOnThumb' | 'copyBtnOnThumb'
+  name:
+    | 'zoomBtnOnThumb'
+    | 'downloadBtnOnThumb'
+    | 'copyBtnOnThumb'
+    | 'likeBtnOnThumb'
+    | 'bookmarkBtnOnThumb'
   order: number
   icon: string
   btn: HTMLButtonElement
@@ -29,8 +34,24 @@ class ButtonsOnThumbConfig {
       show: () => settings.showCopyBtnOnThumb,
     },
     {
-      name: 'downloadBtnOnThumb',
+      name: 'likeBtnOnThumb',
+      order: 4,
+      icon: 'like-line',
+      btn: document.createElement('button'),
+      title: '_点赞',
+      show: () => settings.showLikeBtnOnThumb,
+    },
+    {
+      name: 'bookmarkBtnOnThumb',
       order: 3,
+      icon: 'star-line',
+      btn: document.createElement('button'),
+      title: '_收藏',
+      show: () => settings.showBookmarkBtnOnThumb,
+    },
+    {
+      name: 'downloadBtnOnThumb',
+      order: 5,
       icon: 'download',
       btn: document.createElement('button'),
       title: '_下载',

@@ -10,6 +10,7 @@ import { Utils } from '../../utils/Utils'
 import { BookmarkPageBatchActionBase } from './BookmarkPageBatchActionBase'
 import { pageType } from '../../PageType'
 import { settings } from '../../setting/Settings'
+import { Config } from '../../Config'
 
 // 导出收藏的作品列表。会包含已被删除的作品
 class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResult> {
@@ -96,7 +97,10 @@ class ExportBookmarkListAction extends BookmarkPageBatchActionBase<BookmarkResul
           return
         }
 
-        const resultList = await Utils.json2BlobSafe(bookmarkDataList)
+        const resultList = await Utils.json2BlobSafe(
+          bookmarkDataList,
+          Config.exportFileByteLengthLimit
+        )
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,

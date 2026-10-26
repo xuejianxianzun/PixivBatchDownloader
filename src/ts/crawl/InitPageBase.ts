@@ -3,6 +3,7 @@ import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { API } from '../API'
+import { Config } from '../Config'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { EVT } from '../EVT'
@@ -16,6 +17,7 @@ import './StopCrawl'
 import '../SelectWork'
 import '../SelectWorkRightButtons'
 import '../ExcludeWork'
+import '../WorkSelectionMarquee'
 import { destroyManager } from '../pageFunciton/DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
@@ -184,6 +186,7 @@ abstract class InitPageBase {
   /**
    * 初始化任意内容。如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里。
    * 通常用来初始化特有的组件、功能、事件、状态等。
+   * 默认是空方法，子类可以根据需要覆写。
    */
   protected initAny() {}
 
@@ -288,6 +291,11 @@ abstract class InitPageBase {
    * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
    */
   protected async crawlIdList(idList: IDData[]) {
+    if (states.crawlUserList) {
+      msgBox.warning(lang.transl('_当前正在抓取用户列表所以不接受新的抓取任务'))
+      return
+    }
+
     // 对 idList 进行去重
     // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
     const _idList: IDData[] = []
@@ -421,7 +429,10 @@ abstract class InitPageBase {
       EVT.fire('stopCrawl')
 
       if (settings.exportIDList) {
-        const resultList = await Utils.json2BlobSafe(store.idList)
+        const resultList = await Utils.json2BlobSafe(
+          store.idList,
+          Config.exportFileByteLengthLimit
+        )
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,
@@ -497,6 +508,9 @@ abstract class InitPageBase {
   protected resetGetIdListStatus() {}
 
   /** 获取作品的数据 */
+  // 在抓取作品数据时，如果账户被警告，
+  // src/ts/download/CheckWarningMessage.ts 的 handleWarning 方法会触发 stopCrawl 事件，
+  // 所以这里会停止抓取。
   protected async getWorksData(idData?: IDData): Promise<void> {
     if (states.stopCrawl) {
       return this.crawlFinished()

@@ -1,20 +1,21 @@
 @beautify-red: #f5222d;
 
+// 与 selectWork.less 同理：必须用 transform + steps()，避免每帧布局
 @keyframes moveRightExclude {
   from {
-    left: -100vw;
+    transform: translateX(0);
   }
   to {
-    left: -98vw;
+    transform: translateX(2vw);
   }
 }
 
 @keyframes moveBottomExclude {
   from {
-    top: -100vh;
+    transform: translateY(0);
   }
   to {
-    top: -98vh;
+    transform: translateY(2vh);
   }
 }
 
@@ -48,7 +49,7 @@
     );
     background-size: 8px 1px;
     background-repeat: repeat-x;
-    animation: moveRightExclude 2s linear infinite;
+    animation: moveRightExclude 2s steps(60) infinite;
   }
 
   // 排除按钮的竖线伪元素
@@ -68,7 +69,7 @@
     );
     background-size: 1px 8px;
     background-repeat: repeat-y;
-    animation: moveBottomExclude 1s linear infinite;
+    animation: moveBottomExclude 1s steps(30) infinite;
   }
 }
 

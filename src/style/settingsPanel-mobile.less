@@ -3,7 +3,9 @@
   max-width: 720px;
   min-height: 0;
   max-height: calc(90vh);
-  left: 50%;
+  // 和 .centerWrap 一样，不能用 left: 50%（页面横向溢出时会偏到可视区域右侧之外）。
+  // 说明见 rightButtons.less 与 settingsPanel.less。
+  left: calc(50% - max(0px, calc(100% - 100vw)) / 2);
   top: 5vh;
   transform: translateX(-50%);
   font-size: 15px;

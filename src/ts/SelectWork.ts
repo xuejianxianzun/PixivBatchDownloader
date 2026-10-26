@@ -10,6 +10,7 @@ import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showOneTimeMsg } from './ShowOneTimeMsg'
+import { SettingKeys } from './setting/Settings'
 import { Config } from './Config'
 import { tapDetector } from './utils/TapDetector'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
@@ -309,13 +310,7 @@ class SelectWork {
 
         this.startSelect()
         this.clearBtn.style.display = 'flex'
-        if (!Config.mobile) {
-          showOneTimeMsg.show(
-            'tipAltSToSelectWork',
-            lang.transl('_快捷键ALTS手动选择作品'),
-            lang.transl('_手动选择作品')
-          )
-        }
+        this.showEnterModeTips()
       }
     } else {
       if (!this.pause) {
@@ -405,6 +400,45 @@ class SelectWork {
       toast.success(lang.transl('_已全选'))
     } else {
       toast.warning(lang.transl('_没有找到任何作品'))
+    }
+  }
+
+  /** 对一组作品缩略图元素执行“切换选择状态”操作（与单击作品时一致）。
+   * 用于框选提交：已选择的作品会被取消选择，未选择的作品会被选中。
+   * 同一个作品有多个缩略图时只处理一次 */
+  public toggleElements(elements: HTMLElement[]) {
+    const seen = new Set<string>()
+    for (const el of elements) {
+      // 跳过多图作品的页面缩略图（这些是作品里的单张图片，而非作品本身）
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
+        continue
+      }
+
+      let id = el.dataset.workid
+      let type = el.dataset.worktype as IDTypeString
+      if (!id || !type) {
+        continue
+      }
+
+      // 对于小说或系列小说，尝试从元素里获取 id 和类型。因为在极少数情况下，一个小说或系列的缩略图里的内容可能会变化，导致传入的数据不再准确。
+      if (type === 'novels' || type === 'novelSeries') {
+        const idData = Tools.getNovelOrSeriesIDData(el)
+        if (idData) {
+          id = idData.id
+          type = idData.type
+        } else {
+          continue
+        }
+      }
+
+      // 同一个 id 可能命中多个缩略图，去重，避免它们互相抵消
+      const key = id + '::' + type
+      if (seen.has(key)) {
+        continue
+      }
+      seen.add(key)
+
+      this.addId(el, id, type)
     }
   }
 
@@ -552,6 +586,27 @@ class SelectWork {
     }
   }
 
+  /** 显示进入选择模式时的一次性提示（快捷键、框选）。
+   * 多条提示会合并到一个弹窗里显示，各自只显示一次 */
+  private showEnterModeTips() {
+    const items: { key: SettingKeys; msg: string }[] = []
+    if (!Config.mobile) {
+      items.push({
+        key: 'tipAltSToSelectWork',
+        msg: lang.transl('_快捷键ALTS手动选择作品'),
+      })
+    }
+    const tip1 = lang.transl('_点击手动选择作品的说明')
+    const tip2 = Config.mobile
+      ? lang.transl('_长按后拖动可以框选作品')
+      : lang.transl('_按住并拖动可以框选作品')
+    items.push({
+      key: 'tipMarqueeToSelectWork',
+      msg: tip1 + '<br><br>' + tip2,
+    })
+    showOneTimeMsg.showList(items, lang.transl('_手动选择作品'))
+  }
+
   // 开始或继续选择
   private startSelect() {
     this.start = true
@@ -572,7 +627,7 @@ class SelectWork {
       window.removeEventListener('keydown', this.bindEscEvent)
   }
 
-  private canSelect() {
+  public canSelect() {
     return this.start && !this.pause
   }
 
