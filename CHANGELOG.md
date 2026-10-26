@@ -1,13 +1,15 @@
 # CHANGLOG
 
-## next
+## 19.6.0 2026-10-26
 
 ### ⚡优化了导出、导入下载记录的性能
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/699
 
 **重要：**这次优化需要升级数据库版本。如果你现在打开了多个 Pixiv 标签页，建议全部刷新一遍，或者重启浏览器来完成这次升级。如果只打开了这一个 Pixiv 标签页则无需手动处理。
 
 - 加快了导入下载记录的速度
-- 减小了导出下载记录时的内存使用量
+- 减少了导出下载记录时的内存使用量
 - 加快了清空下载记录的速度
 - 修复问题：在移动设备上，如果下载记录很多，可能会在导出时卡住，无法导出
 
@@ -88,7 +90,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/427
 
 追更列表页面：https://www.pixiv.net/following/watchlist/novels
 
-现在下载器可以批量抓取你追更的小说、漫画了。
+追更页面里都是系列作品。现在下载器可以批量抓取你追更的小说、漫画了。
 
 ### ✨新增功能：抓取用户列表
 
@@ -127,7 +129,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/414
 
 ### ✨新增设置：在作品缩略图上显示收藏按钮
 
-这样便于用户使用下载器的收藏功能来收藏作品。
+点击收藏按钮可以让下载器收藏这个作品。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时收藏 + 下载。
 
 该设置位于“增强”-“缩略图上的按钮”分类。
 
@@ -135,11 +137,11 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/414
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
-点击点赞按钮可以给这个作品点赞。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，起到点赞 + 下载的双重作用。
+点击点赞按钮可以给这个作品点赞。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时点赞 + 下载。
 
 该设置位于“增强”-“缩略图上的按钮”分类。
 
-### 📚小说保存格式可以多选了
+### 📚小说可以同时保存为 EPUB 和 TXT 格式了
 
 以前用户只能在 EPUB 和 TXT 格式里选择一种，现在可以多选了。
 
@@ -197,8 +199,6 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
 ### ✏️修改了一些设置的名字，使其更准确和易于理解
 
-这次优化的主要场景是：
-
 有些设置之前的名字很简短，以至于含义不清楚，用户需要查看帮助才能知道准确的含义。现在我把它们的名字改的更加准确了。
 
 ### 🐞修复问题：在 Firefox 浏览器上，合并系列小说时会报错，无法合并
@@ -209,7 +209,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/698
 
 Fireox 的 XrayWrapper 机制导致合并系列小说时的一处代码报错，进而导致合并系列小说失败。
 
-这是只在 Firefox 等 Gecko 内核的浏览器上才会出现的问题，现在修复。
+这是只在 Firefox 等 Gecko 内核的浏览器上才会出现的问题，而且是最近才开始出现的，以前我测试时没遇到过这个问题。现在修复。
 
 ### ✅添加了一些模块级单元测试脚本
 
@@ -222,6 +222,8 @@ Fireox 的 XrayWrapper 机制导致合并系列小说时的一处代码报错，
 - 有些模块依赖实际环境里的执行顺序和实际结果（如下载文件的流程），靠单元测试测不出问题
 
 ### 💡优化了一些帮助内容
+
+### 🕑更新了作品发布时间数据
 
 ## 19.5.0 2026-10-10
 

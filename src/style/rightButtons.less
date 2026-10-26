@@ -4,7 +4,14 @@
   align-items: flex-end;
   position: fixed;
   top: 15%;
-  right: 0;
+  // 不能用 right: 0：fixed 元素的包含块是「布局视口」，当页面横向溢出时（例如移动端页面里
+  // pixiv 会把某些内容放大到超过屏幕宽度）布局视口会跟着变宽（= window.innerWidth），
+  // right: 0 就会把这些按钮放到可视区域之外，完全看不到。
+  // 100% 是布局视口的宽度，100vw 是可视区域（client）的宽度，
+  // 所以 calc(100% - 100vw) 正好等于「多出来的那部分宽度」，把它当作 right 就能贴住可视区域右边缘。
+  // 没有横向溢出时为 0，行为与 right: 0 相同。
+  // max(0px, ...) 是为了兼容桌面端：桌面端 100vw 包含竖直滚动条的宽度，减出来是负数，取 0 即可。
+  right: max(0px, calc(100% - 100vw));
   z-index: 1000;
   row-gap: max(10px, calc(5vh - 32px));
   pointer-events: none;

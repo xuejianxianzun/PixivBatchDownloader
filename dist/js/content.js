@@ -18001,7 +18001,7 @@ class WorkToolBar {
     }
     async getElementsOnMobile() {
         // 获取工具栏
-        const toolbar = document.querySelector('.work-interactions');
+        const toolbar = document.querySelector('div[class*="work-interactions"]');
         if (!toolbar) {
             return;
         }
@@ -53856,252 +53856,318 @@ You can choose between two export strategies:<br>
         `Экспортировать сразу после каждого изменения настроек`,
     ],
     _版本更新说明: [
-        `<strong>🏷️新增命名标记：{human}</strong><br>
-<span class="blue">{human}</span>：当作品不是 AI 生成的作品时，输出 <span class="blue">Human</span>，否则忽略这个标记。它与 <span class="blue">{AI}</span> 相反，用来把人类创作的作品和 AI 生成的作品分开保存。<br>
-<strong>📚新增设置：只下载这些语言的小说</strong><br>
-该设置位于“筛选”-“作品数据”分类里。<br>
-你可以要求小说的语言必须是特定的语言，这样下载器才会抓取它。<br>
-<strong>📚新增设置：EPUB 文件的语言标签</strong><br>
-该设置位于“下载”-“小说”分类里。<br>
-现在下载器默认会使用小说的语言作为 EPUB 文件的语言标签。<br>
-<strong>📚新增设置：EPUB 文件的排版方向</strong><br>
-你可以设置小说内容使用横排还是竖排，也可以只为特定语言的小说（如日语、繁体中文）使用竖排。<br>
-<strong>📚新增设置：简繁转换</strong><br>
-下载器在下载小说时，会根据这个设置决定是否转换简体中文和繁体中文小说。默认不转换。<br>
-<strong>✨支持在小说书签列表页面里抓取</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小说书签列表页面</a><br>
-<strong>✨支持在小说分类页面里抓取</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小说分类页面</a><br>
-<strong>🛸优化检查标签的过滤器：在检查小说标签时，会同时检查分类标记</strong><br>
-原创小说通常有分类，如“恋爱”、“异世界奇幻”，会显示在标签列表前面。<br>
-现在下载器会把分类名字添加到标签列表里，可以检查和保存它们。<br>
-<strong>✨优化了检测图片色彩的流程和设置项</strong><br>
-- 优化了判断图片色彩的算法，更加准确。<br>
-- 新增了“彩色占比阈值”的设置，用户可以调节对图片进行颜色检查时的宽松程度。<br>
-- 在抓取多图作品时，下载器会检查每一张图片的颜色，不必再等到下载时检查。<br>
-<strong>✨在“标签不能含有”里，你可以同时使用“全字匹配”和“部分匹配”了</strong><br>
-之前你只能在“全字匹配”和“部分匹配”里选择一种匹配模式，现在可以同时使用两种了。两种匹配模式有各自的开关和输入框，你可以根据自己的需要使用它们。<br>
-提示：你的旧设置会被继承，所以你不需要重新设置此项。<br>
-<strong>✨新增设置：在“ID 范围”设置里新增了“书签 ID”分类</strong><br>
-在你的收藏页面里，你可以使用书签 ID 来筛选新增的收藏。具体用法可以查看该设置的帮助信息。<br>
-<strong>⚙️调整“预览搜索页面的抓取结果”设置</strong><br>
-- 预览抓取结果时，作品会分页显示，以降低性能压力。<br>
-- 增加一个子选项：每页显示的作品数量。<br>
-- 移除了不再需要的“预览数量上限”设置。<br>
-- 把这个设置移动到“筛选”-“执行策略”里。<br>
-<strong>✏️一些名称变化（功能无变化）</strong><br>
-- 把导航区域里的“抓取”分类改名为“筛选”，使其更准确。<br>
-- 修改了一些设置的名字。<br>
-- “停止下载”按钮改名为“放弃下载”，使其更符合行为。<br>
-<strong>🐞修复多个已知问题</strong><br>
-由于数量较多，这里不再一一列出。<br>
-<strong>✨优化一些功能的细节，提高用户体验</strong><br>
-<strong>💡优化了一些帮助、日志、提示的文本</strong>`,
-        `<strong>🏷️新增命名標記：{human}</strong><br>
-<span class="blue">{human}</span>：當作品不是 AI 生成的作品時，會輸出 <span class="blue">Human</span>，否則忽略這個標記。它與 <span class="blue">{AI}</span> 相反，用來把人類創作的作品和 AI 生成的作品分開保存。<br>
-<strong>📚新增設定：只下載這些語言的小說</strong><br>
-該設定位於「篩選」-「作品數據」分類裡。<br>
-你可以要求小說的語言必須是特定的語言，這樣下載器才會擷取它。<br>
-<strong>📚新增設定：EPUB 檔案的語言標籤</strong><br>
-該設定位於「下載」-「小說」分類裡。<br>
-現在下載器預設會使用小說的語言作為 EPUB 檔案的語言標籤。<br>
-<strong>📚新增設定：EPUB 檔案的排版方向</strong><br>
-你可以設定小說內容使用橫排還是直排，也可以只為特定語言的小說（如日語、繁體中文）使用直排。<br>
-<strong>📚新增設定：簡繁轉換</strong><br>
-下載器在下載小說時，會根據這個設定決定是否轉換簡體中文和繁體中文小說。預設不轉換。<br>
-<strong>✨支援在小說書籤列表頁面裡擷取</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小說書籤列表頁面</a><br>
-<strong>✨支援在小說分類頁面裡擷取</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小說分類頁面</a><br>
-<strong>🛸優化檢查標籤的篩選器：在檢查小說標籤時，會同時檢查分類標記</strong><br>
-原創小說通常有分類，如「戀愛」、「異世界奇幻」，會顯示在標籤列表前面。<br>
-現在下載器會把分類名字添加到標籤列表裡，可以檢查和保存它們。<br>
-<strong>✨優化了偵測圖片色彩的流程和設定項</strong><br>
-- 優化了判斷圖片色彩的演算法，更加準確。<br>
-- 新增了「彩色佔比閾值」的設定，使用者可以調整對圖片進行顏色檢查時的寬鬆程度。<br>
-- 在擷取多圖作品時，下載器會檢查每一張圖片的顏色，不必再等到下載時檢查。<br>
-<strong>✨在「標籤不能含有」裡，你可以同時使用「全字匹配」和「部分匹配」了</strong><br>
-之前你只能在「全字匹配」和「部分匹配」裡選擇一種匹配模式，現在可以同時使用兩種了。兩種匹配模式有各自的開關和輸入框，你可以根據自己的需要使用它們。<br>
-提示：你的舊設定會被繼承，所以你不需要重新設定此項。<br>
-<strong>✨新增設定：在「ID 範圍」設定裡新增了「書籤 ID」分類</strong><br>
-在你的收藏頁面裡，你可以使用書籤 ID 來篩選新增的收藏。具體用法可以查看該設定的說明資訊。<br>
-<strong>⚙️調整「預覽搜尋頁面的擷取結果」設定</strong><br>
-- 預覽擷取結果時，作品會分頁顯示，以降低效能壓力。<br>
-- 增加一個子選項：每頁顯示的作品數量。<br>
-- 移除了不再需要的「預覽數量上限」設定。<br>
-- 把這個設定移動到「篩選」-「執行策略」裡。<br>
-<strong>✏️一些名稱變化（功能無變化）</strong><br>
-- 把導航區域裡的「擷取」分類改名為「篩選」，使其更準確。<br>
-- 修改了一些設定的名字。<br>
-- 「停止下載」按鈕改名為「放棄下載」，使其更符合行為。<br>
-<strong>🐞修復多個已知問題</strong><br>
-由於數量較多，這裡不再一一列出。<br>
-<strong>✨優化一些功能的細節，提高使用者體驗</strong><br>
-<strong>💡優化了一些說明、日誌、提示的文字</strong>`,
-        `<strong>🏷️New naming marker: {human}</strong><br>
-<span class="blue">{human}</span>: when the work is not AI-generated, it outputs <span class="blue">Human</span>; otherwise this marker is ignored. It is the opposite of <span class="blue">{AI}</span>, and is used to save works created by humans separately from AI-generated works.<br>
-<strong>📚New setting: Only download novels in these languages</strong><br>
-This setting is in the "Filter" - "Work data" category.<br>
-You can require the language of a novel to be a specific language, and only then will the downloader crawl it.<br>
-<strong>📚New setting: The language tag of the EPUB file</strong><br>
-This setting is in the "Download" - "Novels" category.<br>
-Now the downloader uses the language of the novel as the language tag of the EPUB file by default.<br>
-<strong>📚New setting: Text layout direction of the EPUB file</strong><br>
-You can set the content of the novel to use horizontal or vertical layout, and you can also use vertical layout only for novels in specific languages (such as Japanese and Traditional Chinese).<br>
-<strong>📚New setting: Simplified-Traditional conversion</strong><br>
-When downloading novels, the downloader decides whether to convert Simplified Chinese and Traditional Chinese novels according to this setting. By default, no conversion is performed.<br>
-<strong>✨Support crawling on the novel markers page</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Novel markers page</a><br>
-<strong>✨Support crawling on the novel genre page</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">Novel genre page</a><br>
-<strong>🛸Improved the tag filter: when checking novel tags, genre markers are also checked</strong><br>
-Original novels usually have a genre, such as "Romance" or "Isekai Fantasy", which is displayed in front of the tag list.<br>
-Now the downloader adds the genre name to the tag list, so you can check and save them.<br>
-<strong>✨Improved the process and settings for detecting image colors</strong><br>
-- Improved the algorithm for judging image colors, making it more accurate.<br>
-- Added the "Color ratio threshold" setting, so you can adjust how lenient the color check is.<br>
-- When crawling multi-image works, the downloader checks the color of every image, instead of waiting until download time.<br>
-<strong>✨In "Tags must not contain", you can now use "Exact match" and "Partial match" at the same time</strong><br>
-Previously you could only choose one match mode between "Exact match" and "Partial match"; now you can use both at the same time. Each match mode has its own switch and input box, so you can use them as needed.<br>
-Tip: your old settings will be inherited, so you do not need to set this option again.<br>
-<strong>✨New setting: added the "Bookmark ID" category to the "ID range" setting</strong><br>
-On your bookmarks page, you can use the bookmark ID to filter newly added bookmarks. See the help information of this setting for details.<br>
-<strong>⚙️Adjusted the "Preview crawl results on search page" setting</strong><br>
-- When previewing crawl results, works are displayed page by page to reduce performance pressure.<br>
-- Added a sub-option: the number of works displayed per page.<br>
-- Removed the no longer needed "Preview count limit" setting.<br>
-- Moved this setting to "Filter" - "Execution strategy".<br>
-<strong>✏️Some name changes (no functional changes)</strong><br>
-- Renamed the "Crawl" category in the navigation area to "Filter", which is more accurate.<br>
-- Changed the names of some settings.<br>
-- Renamed the "Stop download" button to "Abandon download", which better matches its behavior.<br>
-<strong>🐞Fixed multiple known issues</strong><br>
-There are too many of them, so they are not listed one by one here.<br>
-<strong>✨Improved details of some features to enhance the user experience</strong><br>
-<strong>💡Improved some help, log and tip texts</strong>`,
-        `<strong>🏷️命名マーカーを追加：{human}</strong><br>
-<span class="blue">{human}</span>：作品が AI 生成作品ではない場合、<span class="blue">Human</span> を出力し、それ以外の場合はこのマーカーを無視します。<span class="blue">{AI}</span> とは反対に、人間が制作した作品と AI が生成した作品を分けて保存するために使います。<br>
-<strong>📚設定を追加：これらの言語の小説のみをダウンロード</strong><br>
-この設定は「フィルター」-「作品データ」カテゴリにあります。<br>
-小説の言語が特定の言語であることを要求できます。条件を満たさない小説はダウンローダーがクロールしません。<br>
-<strong>📚設定を追加：EPUB ファイルの言語タグ</strong><br>
-この設定は「ダウンロード」-「小説」カテゴリにあります。<br>
-現在、ダウンローダーは既定で小説の言語を EPUB ファイルの言語タグとして使用します。<br>
-<strong>📚設定を追加：EPUB ファイルの組版方向</strong><br>
-小説の本文を横書きにするか縦書きにするかを設定できます。また、特定の言語の小説（日本語、繁体字中国語など）にのみ縦書きを使用することもできます。<br>
-<strong>📚設定を追加：簡体字・繁体字の変換</strong><br>
-ダウンローダーは小説をダウンロードするとき、この設定に従って簡体字中国語と繁体字中国語の小説を変換するかどうかを決定します。既定では変換しません。<br>
-<strong>✨小説のしおり一覧ページでのクロールに対応しました</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">小説のしおり一覧ページ</a><br>
-<strong>✨小説ジャンルページでのクロールに対応しました</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">小説ジャンルページ</a><br>
-<strong>🛸タグをチェックするフィルターを改善：小説のタグをチェックするとき、ジャンルマーカーも同時にチェックします</strong><br>
-オリジナル小説には通常ジャンルがあり、「恋愛」「異世界ファンタジー」のようにタグリストの前に表示されます。<br>
-現在、ダウンローダーはジャンル名をタグリストに追加するので、それらをチェックして保存できます。<br>
-<strong>✨画像の色を検出する処理と設定項目を改善しました</strong><br>
-- 画像の色を判定するアルゴリズムを改善し、より正確になりました。<br>
-- 「カラー割合の閾値」の設定を追加しました。画像の色チェックの寛容さを調整できます。<br>
-- 複数画像作品をクロールするとき、ダウンローダーはすべての画像の色をチェックします。ダウンロード時まで待つ必要はありません。<br>
-<strong>✨「タグに含めない」で、「完全一致」と「部分一致」を同時に使えるようになりました</strong><br>
-以前は「完全一致」と「部分一致」のどちらか 1 つしか選べませんでしたが、今は両方を同時に使えます。それぞれの一致モードに専用のスイッチと入力欄があるので、必要に応じて使い分けられます。<br>
-ヒント：以前の設定は引き継がれるので、この項目を再設定する必要はありません。<br>
-<strong>✨設定を追加：「ID 範囲」設定に「ブックマーク ID」カテゴリを追加しました</strong><br>
-ブックマークページで、ブックマーク ID を使って新しく追加されたブックマークを絞り込めます。詳しい使い方はこの設定のヘルプ情報をご覧ください。<br>
-<strong>⚙️「検索ページのクロール結果をプレビュー」設定を調整しました</strong><br>
-- クロール結果をプレビューするとき、作品はページごとに表示され、パフォーマンスへの負荷を抑えます。<br>
-- サブオプションを追加しました：1 ページに表示する作品数。<br>
-- 不要になった「プレビュー数の上限」設定を削除しました。<br>
-- この設定を「フィルター」-「実行戦略」に移動しました。<br>
-<strong>✏️いくつかの名称変更（機能に変更はありません）</strong><br>
-- ナビゲーション領域の「クロール」カテゴリを、より正確な「フィルター」に改名しました。<br>
-- 一部の設定の名前を変更しました。<br>
-- 「ダウンロード停止」ボタンを、動作により合った「ダウンロードの放棄」に改名しました。<br>
-<strong>🐞複数の既知の問題を修正しました</strong><br>
-数が多いため、ここでは個別には記載しません。<br>
-<strong>✨一部の機能の細部を改善し、ユーザー体験を向上させました</strong><br>
-<strong>💡一部のヘルプ、ログ、ヒントのテキストを改善しました</strong>`,
-        `<strong>🏷️새 이름 마커: {human}</strong><br>
-<span class="blue">{human}</span>: 작품이 AI 생성 작품이 아닐 때 <span class="blue">Human</span>을 출력하고, 그렇지 않으면 이 마커를 무시합니다. <span class="blue">{AI}</span>와 반대로, 사람이 만든 작품과 AI가 생성한 작품을 따로 저장하는 데 사용됩니다.<br>
-<strong>📚새 설정: 이러한 언어의 소설만 다운로드</strong><br>
-이 설정은 "필터" - "작품 데이터" 분류에 있습니다.<br>
-소설의 언어가 특정 언어여야만 다운로더가 크롤링하도록 요구할 수 있습니다.<br>
-<strong>📚새 설정: EPUB 파일의 언어 태그</strong><br>
-이 설정은 "다운로드" - "소설" 분류에 있습니다.<br>
-이제 다운로더는 기본적으로 소설의 언어를 EPUB 파일의 언어 태그로 사용합니다.<br>
-<strong>📚새 설정: EPUB 파일의 조판 방향</strong><br>
-소설 본문을 가로쓰기로 할지 세로쓰기로 할지 설정할 수 있고, 특정 언어의 소설(예: 일본어, 번체 중국어)에만 세로쓰기를 사용할 수도 있습니다.<br>
-<strong>📚새 설정: 간체-번체 변환</strong><br>
-다운로더는 소설을 다운로드할 때 이 설정에 따라 간체 중국어와 번체 중국어 소설을 변환할지 결정합니다. 기본적으로 변환하지 않습니다.<br>
-<strong>✨소설 책갈피 목록 페이지에서 크롤링을 지원합니다</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">소설 책갈피 목록 페이지</a><br>
-<strong>✨소설 장르 페이지에서 크롤링을 지원합니다</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">소설 장르 페이지</a><br>
-<strong>🛸태그 확인 필터 개선: 소설 태그를 확인할 때 장르 마커도 함께 확인합니다</strong><br>
-오리지널 소설에는 보통 장르가 있으며, "연애", "이세계 판타지"처럼 태그 목록 앞에 표시됩니다.<br>
-이제 다운로더는 장르 이름을 태그 목록에 추가하므로, 그것들을 확인하고 저장할 수 있습니다.<br>
-<strong>✨이미지 색상 감지 흐름과 설정 항목을 개선했습니다</strong><br>
-- 이미지 색상을 판단하는 알고리즘을 개선하여 더 정확해졌습니다.<br>
-- "컬러 비율 임계값" 설정을 추가했습니다. 이미지 색상 검사의 관대한 정도를 조절할 수 있습니다.<br>
-- 다중 이미지 작품을 크롤링할 때 다운로더는 모든 이미지의 색상을 검사합니다. 다운로드할 때까지 기다릴 필요가 없습니다.<br>
-<strong>✨"태그에 포함하면 안 됨"에서 "전체 일치"와 "부분 일치"를 동시에 사용할 수 있습니다</strong><br>
-이전에는 "전체 일치"와 "부분 일치" 중 하나의 일치 모드만 선택할 수 있었지만, 이제는 두 가지를 동시에 사용할 수 있습니다. 각 일치 모드에는 별도의 스위치와 입력란이 있으므로 필요에 따라 사용하면 됩니다.<br>
-안내: 이전 설정은 그대로 이어지므로 이 항목을 다시 설정할 필요가 없습니다.<br>
-<strong>✨새 설정: "ID 범위" 설정에 "북마크 ID" 분류를 추가했습니다</strong><br>
-북마크 페이지에서 북마크 ID를 사용해 새로 추가된 북마크를 걸러낼 수 있습니다. 자세한 사용법은 이 설정의 도움말을 참고하세요.<br>
-<strong>⚙️"검색 페이지 크롤링 결과 미리보기" 설정을 조정했습니다</strong><br>
-- 크롤링 결과를 미리 볼 때 작품이 페이지별로 표시되어 성능 부담을 줄입니다.<br>
-- 하위 옵션을 추가했습니다: 페이지당 표시할 작품 수.<br>
-- 더 이상 필요하지 않은 "미리보기 수량 상한" 설정을 제거했습니다.<br>
-- 이 설정을 "필터" - "실행 전략"으로 이동했습니다.<br>
-<strong>✏️일부 이름 변경 (기능 변경 없음)</strong><br>
-- 탐색 영역의 "크롤링" 분류를 더 정확한 "필터"로 이름을 변경했습니다.<br>
-- 일부 설정의 이름을 변경했습니다.<br>
-- "다운로드 중지" 버튼을 동작에 더 잘 맞는 "다운로드 포기"로 이름을 변경했습니다.<br>
-<strong>🐞알려진 여러 문제를 수정했습니다</strong><br>
-수량이 많아 여기서는 하나씩 나열하지 않습니다.<br>
-<strong>✨일부 기능의 세부 사항을 개선하여 사용자 경험을 높였습니다</strong><br>
-<strong>💡일부 도움말, 로그, 안내 텍스트를 개선했습니다</strong>`,
-        `<strong>🏷️Новый маркер имени: {human}</strong><br>
-<span class="blue">{human}</span>: если работа не создана ИИ, выводится <span class="blue">Human</span>, иначе этот маркер игнорируется. Он противоположен <span class="blue">{AI}</span> и нужен, чтобы сохранять работы, созданные людьми, отдельно от работ, сгенерированных ИИ.<br>
-<strong>📚Новая настройка: загружать только новеллы на этих языках</strong><br>
-Эта настройка находится в категории «Фильтр» - «Данные работы».<br>
-Вы можете потребовать, чтобы язык новеллы был одним из определённых языков — только тогда загрузчик просканирует её.<br>
-<strong>📚Новая настройка: языковой тег файла EPUB</strong><br>
-Эта настройка находится в категории «Скачивание» - «Новеллы».<br>
-Теперь загрузчик по умолчанию использует язык новеллы как языковой тег файла EPUB.<br>
-<strong>📚Новая настройка: направление вёрстки файла EPUB</strong><br>
-Вы можете задать горизонтальное или вертикальное направление текста новеллы, а также использовать вертикальное направление только для новелл на определённых языках (например, японском и традиционном китайском).<br>
-<strong>📚Новая настройка: преобразование между упрощённым и традиционным китайским</strong><br>
-При скачивании новелл загрузчик решает, преобразовывать ли новеллы на упрощённом и традиционном китайском, в соответствии с этой настройкой. По умолчанию преобразование не выполняется.<br>
-<strong>✨Добавлена поддержка сканирования на странице списка закладок новелл</strong><br>
-<a href="https://www.pixiv.net/novel/marker_all.php" target="_blank">Страница списка закладок новелл</a><br>
-<strong>✨Добавлена поддержка сканирования на странице жанров новелл</strong><br>
-<a href="https://www.pixiv.net/genre/novel" target="_blank">Страница жанров новелл</a><br>
-<strong>🛸Улучшен фильтр проверки тегов: при проверке тегов новелл также проверяются маркеры жанра</strong><br>
-У оригинальных новелл обычно есть жанр, например «Романтика» или «Исекай-фэнтези», который отображается перед списком тегов.<br>
-Теперь загрузчик добавляет название жанра в список тегов, поэтому их можно проверять и сохранять.<br>
-<strong>✨Улучшены процесс и настройки определения цвета изображений</strong><br>
-- Улучшен алгоритм определения цвета изображений, он стал точнее.<br>
-- Добавлена настройка «Порог доли цвета», позволяющая регулировать, насколько мягкой будет проверка цвета изображений.<br>
-- При сканировании многоизображных работ загрузчик проверяет цвет каждого изображения, не дожидаясь момента скачивания.<br>
-<strong>✨В настройке «Теги не должны содержать» теперь можно одновременно использовать «Полное совпадение» и «Частичное совпадение»</strong><br>
-Раньше можно было выбрать только один режим совпадения — «Полное совпадение» или «Частичное совпадение», — теперь можно использовать оба одновременно. У каждого режима совпадения есть свой переключатель и поле ввода, поэтому вы можете использовать их по своему усмотрению.<br>
-Подсказка: ваши прежние настройки будут унаследованы, поэтому вам не нужно настраивать этот пункт заново.<br>
-<strong>✨Новая настройка: в настройке «Диапазон ID» добавлена категория «ID закладки»</strong><br>
-На странице ваших закладок вы можете использовать ID закладки, чтобы отфильтровать недавно добавленные закладки. Подробности см. в справочной информации этой настройки.<br>
-<strong>⚙️Изменена настройка «Предварительный просмотр результатов сканирования на странице поиска»</strong><br>
-- При предварительном просмотре результатов сканирования работы отображаются постранично, чтобы снизить нагрузку на производительность.<br>
-- Добавлен дополнительный параметр: количество работ, отображаемых на одной странице.<br>
-- Удалена ставшая ненужной настройка «Ограничение количества предварительного просмотра».<br>
-- Эта настройка перенесена в «Фильтр» - «Стратегия выполнения».<br>
-<strong>✏️Некоторые изменения названий (функции не изменились)</strong><br>
-- Категория «Сканирование» в области навигации переименована в «Фильтр» — это более точно.<br>
-- Изменены названия некоторых настроек.<br>
-- Кнопка «Остановить загрузку» переименована в «Отказаться от загрузки» — это больше соответствует её поведению.<br>
-<strong>🐞Исправлены несколько известных проблем</strong><br>
-Их слишком много, поэтому здесь они не перечисляются по отдельности.<br>
-<strong>✨Улучшены детали некоторых функций для повышения удобства использования</strong><br>
-<strong>💡Улучшены тексты некоторых справок, журнала и подсказок</strong>`,
+        `<strong>⚡优化了导出、导入下载记录的性能</strong><br>
+这次优化需要升级数据库版本。如果你现在打开了多个 Pixiv 标签页，建议全部刷新一遍，或者重启浏览器来完成这次升级。如果只打开了这一个 Pixiv 标签页则无需手动处理。<br>
+- 加快了导入下载记录的速度<br>
+- 减少了导出下载记录时的内存使用量<br>
+- 加快了清空下载记录的速度<br>
+- 修复问题：在移动设备上，如果下载记录很多，可能会在导出时卡住，无法导出<br>
+<strong>✨新功能：在关注页面里，可以批量保存用户头像了</strong><br>
+在关注页面的“附加功能”区域里，下载器添加了 2 个按钮：<br>
+- 批量保存用户头像<br>
+- 批量保存用户头像为图标<br>
+点击这些按钮，下载器会按照你设置的页面范围，批量保存里面的用户的头像。文件会保存到下载目录里的 <span class="blue">pixiv users</span> 文件夹里。<br>
+<strong>✨新增设置：收藏面板</strong><br>
+当你使用下载器的手动收藏作品功能时，下载器可以显示一个收藏面板。<br>
+你可以在收藏面板里设置是否公开收藏、使用哪些标签（可以使用作品的标签、自定义标签、常用的标签），然后再添加收藏。<br>
+这个设置在“增强”-“收藏”分类里。<br>
+<strong>✨下载器收藏作品时，可以使用翻译后的标签了</strong><br>
+在“下载器收藏作品时的默认行为 (✩)”里，你可以选择“添加翻译后的标签”了。<br>
+<strong>✨新增设置：使用第一个匹配的收藏标签建立文件夹</strong><br>
+当你在你的收藏页面里抓取作品时，如果想使用某些收藏标签（而不是作品本身的标签）来建立文件夹，就可以使用这个设置。<br>
+该设置只在收藏页面里抓取时有效；它位于“命名”-“调整文件夹”分类里。<br>
+<strong>✨新增命名标记：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品的收藏标签列表。当你收藏一个作品之后，可以为它添加自定义的收藏标签；这个标记用来输出作品的收藏标签。<br>
+注意：<br>
+1. 只有当你在收藏页面里抓取作品时，这个标记才是有效的；在其他页面里抓取时无效（通常不会输出内容）。<br>
+2. 如果你没有为作品添加收藏标签，那么这个标记也不会输出内容。<br>
+<strong>✨新增支持的页面类型：可以在追更列表里抓取作品了</strong><br>
+追更列表页面：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+追更页面里都是系列作品。现在下载器可以批量抓取你追更的小说、漫画了。<br>
+<strong>✨新增功能：抓取用户列表</strong><br>
+在首页的“开始抓取”区域里新增了“抓取用户列表”按钮。你可以输入多个用户 ID，下载器会逐个抓取、下载这些用户的作品。<br>
+<strong>✨新增筛选设置：来自用户</strong><br>
+使用这个设置，你可以只抓取已关注/未关注用户的作品。默认全部抓取。<br>
+该设置位于“筛选”-“作品类型”里。<br>
+<strong>✨新增筛选设置：图片格式</strong><br>
+如果有需要，你可以使用它来排除 .jpg 或 .png 图片。<br>
+该设置位于“筛选”-“作品类型”里。<br>
+<strong>✨新增设置：在作品缩略图上显示收藏按钮</strong><br>
+点击收藏按钮可以让下载器收藏这个作品。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时收藏 + 下载。<br>
+该设置位于“增强”-“缩略图上的按钮”分类。<br>
+<strong>✨新增设置：在作品缩略图上显示点赞按钮</strong><br>
+点击点赞按钮可以给这个作品点赞。另外，它还可以配合“点击点赞按钮时下载作品”功能使用，同时点赞 + 下载。<br>
+该设置位于“增强”-“缩略图上的按钮”分类。<br>
+<strong>📚小说可以同时保存为 EPUB 和 TXT 格式了</strong><br>
+以前用户只能在 EPUB 和 TXT 格式里选择一种，现在可以多选了。<br>
+<strong>✨在手动选择/排除模式里，可以框选作品了</strong><br>
+进入手动选择/手动排除模式之后，按下鼠标左键并移动（PC 端），或者在页面上长按 0.5 秒之后拖动（移动端），即可框选作品。<br>
+<strong>✨在日志区域底部添加了“复制日志”和“清空日志”按钮</strong><br>
+<strong>✨在图片查看器里添加了作品信息和点赞的按钮</strong><br>
+<strong>✏️修改了一些设置的名字，使其更准确和易于理解</strong><br>
+<strong>🐞修复问题：在 Firefox 浏览器上，合并系列小说时会报错，无法合并</strong><br>
+<strong>☺️优化其他一些功能和设置的使用体验</strong><br>
+<strong>💡优化了一些帮助内容</strong>`,
+        `<strong>⚡優化了匯出、匯入下載紀錄的效能</strong><br>
+這次最佳化需要升級資料庫版本。如果你現在開啟了多個 Pixiv 標籤頁，建議全部重新整理一遍，或者重新啟動瀏覽器來完成這次升級。如果只開啟了這一個 Pixiv 標籤頁則無需手動處理。<br>
+- 加快了匯入下載紀錄的速度<br>
+- 減少了匯出下載紀錄時的記憶體使用量<br>
+- 加快了清空下載紀錄的速度<br>
+- 修復問題：在行動裝置上，如果下載紀錄很多，可能會在匯出時卡住，無法匯出<br>
+<strong>✨新功能：在關注頁面裡，可以批次儲存使用者頭貼了</strong><br>
+在關注頁面的「附加功能」區域裡，下載器新增了 2 個按鈕：<br>
+- 批次儲存使用者頭貼<br>
+- 批次將使用者頭貼另存為圖示<br>
+點擊這些按鈕，下載器會按照你設定的頁面範圍，批次儲存裡面的使用者的頭貼。檔案會儲存到下載目錄裡的 <span class="blue">pixiv users</span> 資料夾裡。<br>
+<strong>✨新增設定：收藏面板</strong><br>
+當你使用下載器的手動收藏作品功能時，下載器可以顯示一個收藏面板。<br>
+你可以在收藏面板裡設定是否公開收藏、使用哪些標籤（可以使用作品的標籤、自訂標籤、常用的標籤），然後再新增收藏。<br>
+這個設定在「增強」-「收藏」分類裡。<br>
+<strong>✨下載器收藏作品時，可以使用翻譯後的標籤了</strong><br>
+在「下載器收藏作品時的預設行為 (✩)」裡，你可以選擇「新增翻譯後的標籤」了。<br>
+<strong>✨新增設定：使用第一個符合的收藏標籤建立資料夾</strong><br>
+當你在你的收藏頁面裡擷取作品時，如果想使用某些收藏標籤（而不是作品本身的標籤）來建立資料夾，就可以使用這個設定。<br>
+該設定只在收藏頁面裡擷取時有效；它位於「命名」-「調整資料夾」分類裡。<br>
+<strong>✨新增命名標記：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品的收藏標籤清單。當你收藏一個作品之後，可以為它新增自訂的收藏標籤；這個標記用來輸出作品的收藏標籤。<br>
+注意：<br>
+1. 只有當你在收藏頁面裡擷取作品時，這個標記才是有效的；在其他頁面裡擷取時無效（通常不會輸出內容）。<br>
+2. 如果你沒有為作品新增收藏標籤，那麼這個標記也不會輸出內容。<br>
+<strong>✨新增支援的頁面類型：可以在追更列表裡擷取作品了</strong><br>
+追更列表頁面：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+追更頁面裡都是系列作品。現在下載器可以批次擷取你追更的小說、漫畫了。<br>
+<strong>✨新增功能：擷取使用者列表</strong><br>
+在首頁的「開始擷取」區域裡新增了「擷取使用者列表」按鈕。你可以輸入多個使用者 ID，下載器會逐個擷取、下載這些使用者的作品。<br>
+<strong>✨新增篩選設定：來自使用者</strong><br>
+使用這個設定，你可以只擷取已關注/未關注使用者的作品。預設全部擷取。<br>
+該設定位於「篩選」-「作品類型」裡。<br>
+<strong>✨新增篩選設定：圖片格式</strong><br>
+如果有需要，你可以使用它來排除 .jpg 或 .png 圖片。<br>
+該設定位於「篩選」-「作品類型」裡。<br>
+<strong>✨新增設定：在作品縮圖上顯示收藏按鈕</strong><br>
+點擊收藏按鈕可以讓下載器收藏這個作品。另外，它還可以配合「點擊點讚按鈕時下載作品」功能使用，同時收藏 + 下載。<br>
+該設定位於「增強」-「縮圖上的按鈕」分類。<br>
+<strong>✨新增設定：在作品縮圖上顯示點讚按鈕</strong><br>
+點擊點讚按鈕可以給這個作品點讚。另外，它還可以配合「點擊點讚按鈕時下載作品」功能使用，同時點讚 + 下載。<br>
+該設定位於「增強」-「縮圖上的按鈕」分類。<br>
+<strong>📚小說可以同時儲存為 EPUB 和 TXT 格式了</strong><br>
+以前使用者只能在 EPUB 和 TXT 格式裡選擇一種，現在可以多選了。<br>
+<strong>✨在手動選擇/排除模式裡，可以框選作品了</strong><br>
+進入手動選擇/手動排除模式之後，按下滑鼠左鍵並移動（PC 端），或者在頁面上長按 0.5 秒之後拖曳（行動裝置），即可框選作品。<br>
+<strong>✨在日誌區域底部新增了「複製日誌」和「清空日誌」按鈕</strong><br>
+<strong>✨在圖片查看器裡新增了作品資訊和點讚的按鈕</strong><br>
+<strong>✏️修改了一些設定的名字，使其更準確和易於理解</strong><br>
+<strong>🐞修復問題：在 Firefox 瀏覽器上，合併系列小說時會報錯，無法合併</strong><br>
+<strong>☺️優化其他一些功能和設定的使用體驗</strong><br>
+<strong>💡優化了一些幫助內容</strong>`,
+        `<strong>⚡Improved the performance of exporting and importing download records</strong><br>
+This optimization requires upgrading the database version. If you have multiple Pixiv tabs open, it is recommended to refresh all of them, or restart the browser, to complete the upgrade. If only this Pixiv tab is open, you do not need to do anything.<br>
+- Made importing download records faster<br>
+- Reduced the memory usage when exporting download records<br>
+- Made clearing download records faster<br>
+- Fixed an issue: on mobile devices, if there were a lot of download records, exporting could get stuck and fail<br>
+<strong>✨New feature: save user avatars in batches on the following page</strong><br>
+In the "Extra features" area of the following page, the downloader has added 2 buttons:<br>
+- Save user avatars in batches<br>
+- Save user avatars as icons in batches<br>
+Clicking these buttons makes the downloader save the avatars of the users in the page range you set, in batches. The files are saved in the <span class="blue">pixiv users</span> folder in the download directory.<br>
+<strong>✨New setting: bookmark panel</strong><br>
+When you use the downloader to bookmark works manually, the downloader can display a bookmark panel.<br>
+In the bookmark panel you can set whether the bookmark is public and which tags to use (work tags, custom tags, frequently used tags), and then add the bookmark.<br>
+This setting is in "Enhance" - "Bookmark".<br>
+<strong>✨The downloader can use translated tags when bookmarking works</strong><br>
+In "Default behavior when the downloader bookmarks a work (✩)", you can now select "Add the translated tags".<br>
+<strong>✨New setting: create a folder with the first matched bookmark tag</strong><br>
+When you crawl works on your bookmarks page, you can use this setting if you want to create folders by certain bookmark tags (instead of the tags of the works themselves).<br>
+This setting only works when crawling on the bookmarks page; it is in "Naming" - "Adjust folders".<br>
+<strong>✨New naming token: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: the list of bookmark tags of the work. After you bookmark a work, you can add custom bookmark tags to it; this token outputs the work's bookmark tags.<br>
+Note:<br>
+1. This token is only valid when you crawl works on the bookmarks page; it is invalid when crawling on other pages (usually it outputs nothing).<br>
+2. If you have not added any bookmark tags to the work, this token will output nothing either.<br>
+<strong>✨New supported page type: crawl works on the watch list</strong><br>
+Watch list page: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+The watch list contains only series works. The downloader can now crawl the novels and manga you follow, in batches.<br>
+<strong>✨New feature: crawl user list</strong><br>
+A "Crawl user list" button has been added in the "Start crawling" area on the homepage. You can enter multiple user IDs, and the downloader will crawl and download the works of these users one by one.<br>
+<strong>✨New filter setting: from users</strong><br>
+With this setting, you can crawl only the works of users you follow or do not follow. All works are crawled by default.<br>
+This setting is in "Filter" - "Work type".<br>
+<strong>✨New filter setting: image format</strong><br>
+If needed, you can use it to exclude .jpg or .png images.<br>
+This setting is in "Filter" - "Work type".<br>
+<strong>✨New setting: show a bookmark button on work thumbnails</strong><br>
+Clicking the bookmark button lets the downloader bookmark the work. It can also be used together with the "Download the work when clicking the like button" feature to bookmark and download at the same time.<br>
+This setting is in "Enhance" - "Thumbnail buttons".<br>
+<strong>✨New setting: show a like button on work thumbnails</strong><br>
+Clicking the like button likes the work. It can also be used together with the "Download the work when clicking the like button" feature to like and download at the same time.<br>
+This setting is in "Enhance" - "Thumbnail buttons".<br>
+<strong>📚Novels can be saved in both EPUB and TXT format</strong><br>
+Previously you could choose only one of EPUB and TXT; now you can select both.<br>
+<strong>✨Box selection is available in manual select / exclude mode</strong><br>
+After entering manual select / manual exclude mode, hold down the left mouse button and drag (PC), or long press on the page for 0.5 seconds and then drag (mobile), to box-select works.<br>
+<strong>✨Added "Copy log" and "Clear log" buttons at the bottom of the log area</strong><br>
+<strong>✨Added work info and like buttons to the image viewer</strong><br>
+<strong>✏️Renamed some settings to make them more accurate and easier to understand</strong><br>
+<strong>🐞Fixed an issue: in Firefox, merging a series of novels failed with an error</strong><br>
+<strong>☺️Improved the experience of some other functions and settings</strong><br>
+<strong>💡Improved some help content</strong>`,
+        `<strong>⚡ダウンロード記録のエクスポートとインポートの性能を改善しました</strong><br>
+この最適化にはデータベースのバージョンアップが必要です。複数の Pixiv タブを開いている場合は、すべて再読み込みするか、ブラウザを再起動してアップグレードを完了することをおすすめします。この Pixiv タブだけを開いている場合は、何もする必要はありません。<br>
+- ダウンロード記録のインポートが速くなりました<br>
+- ダウンロード記録のエクスポート時のメモリ使用量を減らしました<br>
+- ダウンロード記録のクリアが速くなりました<br>
+- 問題を修正：モバイル端末でダウンロード記録が多いと、エクスポート時に固まってエクスポートできなくなることがありました<br>
+<strong>✨新機能：フォロー中ページでユーザーのプロフィール画像を一括保存できるようになりました</strong><br>
+フォロー中ページの「追加機能」エリアに、ダウンローダーが 2 つのボタンを追加しました：<br>
+- ユーザーのプロフィール画像を一括保存<br>
+- ユーザーのプロフィール画像をアイコンとして一括保存<br>
+これらのボタンをクリックすると、設定したページ範囲内のユーザーのプロフィール画像を一括で保存します。ファイルはダウンロードフォルダー内の <span class="blue">pixiv users</span> フォルダーに保存されます。<br>
+<strong>✨新しい設定：ブックマークパネル</strong><br>
+ダウンローダーの手動ブックマーク機能を使うときに、ブックマークパネルを表示できます。<br>
+ブックマークパネルでは、ブックマークを公開するかどうか、使用するタグ（作品のタグ、カスタムタグ、よく使うタグ）を設定してから、ブックマークを追加できます。<br>
+この設定は「強化機能」-「ブックマーク」にあります。<br>
+<strong>✨ダウンローダーでブックマークするときに翻訳後のタグを使えるようになりました</strong><br>
+「ダウンローダーが作品をブックマークするときの既定の動作 (✩)」で「翻訳後のタグを追加」を選べるようになりました。<br>
+<strong>✨新しい設定：最初に一致するブックマークタグでフォルダーを作成</strong><br>
+ブックマークページで作品をクロールするとき、作品自体のタグではなく、特定のブックマークタグでフォルダーを作成したい場合にこの設定を使用できます。<br>
+この設定はブックマークページでクロールする場合にのみ有効です。「命名」-「フォルダー調整」にあります。<br>
+<strong>✨新しい命名トークン：{bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>：作品のブックマークタグのリスト。作品をブックマークした後、その作品に独自のブックマークタグを追加できます。このトークンは作品のブックマークタグを出力します。<br>
+注意：<br>
+1. このトークンはブックマークページで作品をクロールする場合にのみ有効です。他のページでクロールする場合は無効です（通常は何も出力されません）。<br>
+2. 作品にブックマークタグを追加していない場合、このトークンも何も出力しません。<br>
+<strong>✨新しく対応したページタイプ：ウォッチリストで作品をクロールできるようになりました</strong><br>
+ウォッチリストページ：<a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+ウォッチリストページにはシリーズ作品だけがあります。ダウンローダーは、フォロー中の小説や漫画を一括でクロールできるようになりました。<br>
+<strong>✨新機能：ユーザーリストをクロール</strong><br>
+ホームの「クロールを開始する」エリアに「ユーザーリストをクロール」ボタンを追加しました。複数のユーザー ID を入力すると、ダウンローダーがそれらのユーザーの作品を 1 人ずつクロールしてダウンロードします。<br>
+<strong>✨新しいフィルター設定：ユーザーから</strong><br>
+この設定を使うと、フォローしているユーザー／フォローしていないユーザーの作品だけをクロールできます。既定ではすべてをクロールします。<br>
+この設定は「フィルター」-「作品タイプ」にあります。<br>
+<strong>✨新しいフィルター設定：画像の形式</strong><br>
+必要であれば、これを使って .jpg や .png 画像を除外できます。<br>
+この設定は「フィルター」-「作品タイプ」にあります。<br>
+<strong>✨新しい設定：作品のサムネイルにブックマークボタンを表示する</strong><br>
+ブックマークボタンをクリックすると、ダウンローダーがその作品をブックマークします。「いいねボタンをクリックしたときに作品をダウンロード」機能と組み合わせると、ブックマークとダウンロードを同時に行えます。<br>
+この設定は「強化機能」-「サムネイル上のボタン」にあります。<br>
+<strong>✨新しい設定：作品のサムネイルにいいねボタンを表示する</strong><br>
+いいねボタンをクリックすると、その作品にいいねできます。「いいねボタンをクリックしたときに作品をダウンロード」機能と組み合わせると、いいねとダウンロードを同時に行えます。<br>
+この設定は「強化機能」-「サムネイル上のボタン」にあります。<br>
+<strong>📚小説を EPUB と TXT の両方の形式で保存できるようになりました</strong><br>
+以前は EPUB と TXT のどちらか一方しか選べませんでしたが、両方を選べるようになりました。<br>
+<strong>✨手動選択／手動除外モードで作品を範囲選択できるようになりました</strong><br>
+手動選択／手動除外モードに入った後、マウスの左ボタンを押したままドラッグする（PC）か、ページ上で 0.5 秒間長押ししてからドラッグする（モバイル）と、作品を範囲選択できます。<br>
+<strong>✨ログエリアの下部に「ログをコピー」と「ログをクリア」ボタンを追加しました</strong><br>
+<strong>✨画像ビューアに作品情報といいねのボタンを追加しました</strong><br>
+<strong>✏️いくつかの設定の名前を、より正確で分かりやすいものに変更しました</strong><br>
+<strong>🐞問題を修正：Firefox ではシリーズ小説を統合するときにエラーが発生し、統合できませんでした</strong><br>
+<strong>☺️その他のいくつかの機能と設定の使い勝手を改善しました</strong><br>
+<strong>💡いくつかのヘルプ内容を改善しました</strong>`,
+        `<strong>⚡다운로드 기록 내보내기 및 가져오기 성능을 최적화했습니다</strong><br>
+이번 최적화에는 데이터베이스 버전 업그레이드가 필요합니다. Pixiv 탭을 여러 개 열어 두었다면 모두 새로 고치거나 브라우저를 다시 시작하여 업그레이드를 완료하시기 바랍니다. 이 Pixiv 탭만 열려 있다면 따로 할 일은 없습니다.<br>
+- 다운로드 기록 가져오기 속도가 빨라졌습니다<br>
+- 다운로드 기록을 내보낼 때의 메모리 사용량이 줄었습니다<br>
+- 다운로드 기록 지우기 속도가 빨라졌습니다<br>
+- 문제 수정: 모바일 기기에서 다운로드 기록이 많으면 내보낼 때 멈춰서 내보내지 못할 수 있었습니다<br>
+<strong>✨새 기능: 팔로잉 페이지에서 유저 프로필 이미지를 일괄 저장할 수 있습니다</strong><br>
+팔로잉 페이지의 "부가 기능" 영역에 다운로더가 버튼 2개를 추가했습니다:<br>
+- 유저 프로필 이미지 일괄 저장<br>
+- 유저 프로필 이미지를 아이콘으로 일괄 저장<br>
+이 버튼을 클릭하면 설정한 페이지 범위 안의 유저 프로필 이미지를 일괄 저장합니다. 파일은 다운로드 폴더 안의 <span class="blue">pixiv users</span> 폴더에 저장됩니다.<br>
+<strong>✨새 설정: 북마크 패널</strong><br>
+다운로더의 수동 북마크 기능을 사용할 때 북마크 패널을 표시할 수 있습니다.<br>
+북마크 패널에서 북마크 공개 여부와 사용할 태그(작품 태그, 사용자 지정 태그, 자주 쓰는 태그)를 설정한 다음 북마크를 추가할 수 있습니다.<br>
+이 설정은 "향상"-"북마크"에 있습니다.<br>
+<strong>✨다운로더로 북마크할 때 번역된 태그를 사용할 수 있습니다</strong><br>
+"다운로더가 작품을 북마크할 때의 기본 동작 (✩)"에서 "번역된 태그 추가"를 선택할 수 있습니다.<br>
+<strong>✨새 설정: 첫 번째 일치하는 북마크 태그로 디렉토리 생성</strong><br>
+북마크 페이지에서 작품을 긁어올 때, 작품 자체의 태그가 아닌 특정 북마크 태그로 폴더를 만들고 싶다면 이 설정을 사용할 수 있습니다.<br>
+이 설정은 북마크 페이지에서 긁어올 때만 유효하며, "이름"-"폴더 조정"에 있습니다.<br>
+<strong>✨새 이름 토큰: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: 작품의 북마크 태그 목록. 작품을 북마크한 후 해당 작품에 사용자 지정 북마크 태그를 추가할 수 있습니다. 이 토큰은 작품의 북마크 태그를 출력합니다.<br>
+참고:<br>
+1. 이 토큰은 북마크 페이지에서 작품을 긁어올 때만 유효합니다. 다른 페이지에서 긁어올 때는 유효하지 않습니다(보통 아무것도 출력되지 않음).<br>
+2. 작품에 북마크 태그를 추가하지 않았다면 이 토큰도 아무것도 출력하지 않습니다.<br>
+<strong>✨새로 지원하는 페이지 유형: 구독 목록에서 작품을 긁어올 수 있습니다</strong><br>
+구독 목록 페이지: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+구독 목록 페이지에는 시리즈 작품만 있습니다. 이제 다운로더가 구독 중인 소설과 만화를 일괄로 긁어올 수 있습니다.<br>
+<strong>✨새 기능: 사용자 목록 긁어오기</strong><br>
+홈의 "긁어오기 시작" 영역에 "사용자 목록 긁어오기" 버튼이 추가되었습니다. 사용자 ID를 여러 개 입력하면 다운로더가 해당 사용자의 작품을 하나씩 긁어오고 다운로드합니다.<br>
+<strong>✨새 필터 설정: 사용자로부터</strong><br>
+이 설정을 사용하면 팔로우한/팔로우하지 않은 사용자의 작품만 긁어올 수 있습니다. 기본값은 모두 긁어오기입니다.<br>
+이 설정은 "필터"-"작품 유형"에 있습니다.<br>
+<strong>✨새 필터 설정: 이미지 형식</strong><br>
+필요하다면 이것으로 .jpg 또는 .png 이미지를 제외할 수 있습니다.<br>
+이 설정은 "필터"-"작품 유형"에 있습니다.<br>
+<strong>✨새 설정: 작품 썸네일에 북마크 버튼 표시</strong><br>
+북마크 버튼을 클릭하면 다운로더가 해당 작품을 북마크합니다. "좋아요 버튼을 클릭할 때 작품 다운로드" 기능과 함께 사용하면 북마크와 다운로드를 동시에 할 수 있습니다.<br>
+이 설정은 "향상"-"썸네일 위 버튼"에 있습니다.<br>
+<strong>✨새 설정: 작품 썸네일에 좋아요 버튼 표시</strong><br>
+좋아요 버튼을 클릭하면 해당 작품에 좋아요를 누를 수 있습니다. "좋아요 버튼을 클릭할 때 작품 다운로드" 기능과 함께 사용하면 좋아요와 다운로드를 동시에 할 수 있습니다.<br>
+이 설정은 "향상"-"썸네일 위 버튼"에 있습니다.<br>
+<strong>📚소설을 EPUB와 TXT 형식으로 동시에 저장할 수 있습니다</strong><br>
+이전에는 EPUB와 TXT 중 하나만 선택할 수 있었지만 이제 둘 다 선택할 수 있습니다.<br>
+<strong>✨수동 선택/제외 모드에서 작품을 범위 선택할 수 있습니다</strong><br>
+수동 선택/수동 제외 모드에 들어간 후, 마우스 왼쪽 버튼을 누른 채 드래그하거나(PC), 페이지에서 0.5초 동안 길게 누른 다음 드래그하면(모바일) 작품을 범위 선택할 수 있습니다.<br>
+<strong>✨로그 영역 하단에 "로그 복사"와 "로그 지우기" 버튼을 추가했습니다</strong><br>
+<strong>✨이미지 뷰어에 작품 정보와 좋아요 버튼을 추가했습니다</strong><br>
+<strong>✏️일부 설정의 이름을 더 정확하고 이해하기 쉽게 수정했습니다</strong><br>
+<strong>🐞문제 수정: Firefox에서 시리즈 소설을 합칠 때 오류가 발생하여 합칠 수 없었습니다</strong><br>
+<strong>☺️그 밖의 몇 가지 기능과 설정의 사용 경험을 개선했습니다</strong><br>
+<strong>💡일부 도움말 내용을 개선했습니다</strong>`,
+        `<strong>⚡Улучшена производительность экспорта и импорта записей загрузок</strong><br>
+Для этого улучшения требуется обновить версию базы данных. Если у вас открыто несколько вкладок Pixiv, рекомендуется обновить их все или перезапустить браузер, чтобы завершить обновление. Если открыта только эта вкладка Pixiv, ничего делать не нужно.<br>
+- Ускорен импорт записей загрузок<br>
+- Уменьшено потребление памяти при экспорте записей загрузок<br>
+- Ускорена очистка записей загрузок<br>
+- Исправлена проблема: на мобильных устройствах при большом количестве записей загрузок экспорт мог зависнуть и не выполниться<br>
+<strong>✨Новая функция: пакетное сохранение аватаров пользователей на странице подписок</strong><br>
+В области «Дополнительные функции» на странице подписок загрузчик добавляет 2 кнопки:<br>
+- Пакетное сохранение аватаров пользователей<br>
+- Пакетное сохранение аватаров пользователей как иконки<br>
+При нажатии на эти кнопки загрузчик пакетно сохраняет аватары пользователей в заданном вами диапазоне страниц. Файлы сохраняются в папку <span class="blue">pixiv users</span> в папке загрузок.<br>
+<strong>✨Новая настройка: панель закладки</strong><br>
+Когда вы добавляете работы в закладки вручную, загрузчик может показать панель закладки.<br>
+В панели закладки можно задать, будет ли закладка публичной, и какие теги использовать (теги работы, собственные теги, часто используемые теги), а затем добавить закладку.<br>
+Эта настройка находится в «Улучшение» - «Закладки».<br>
+<strong>✨Загрузчик может использовать переведённые теги при добавлении работ в закладки</strong><br>
+В «Поведение загрузчика по умолчанию при добавлении работ в закладки (✩)» теперь можно выбрать «Добавить переведённые теги».<br>
+<strong>✨Новая настройка: создавать папку по первому совпавшему тегу закладки</strong><br>
+Когда вы сканируете работы на странице своих закладок, вы можете использовать эту настройку, если хотите создавать папки по определённым тегам закладок (а не по тегам самих работ).<br>
+Эта настройка действует только при сканировании на странице закладок; она находится в «Имя» - «Настройка папок».<br>
+<strong>✨Новый токен именования: {bookmark_tags}</strong><br>
+<span class="blue">{bookmark_tags}</span>: список тегов закладок работы. После добавления работы в закладки вы можете добавить к ней собственные теги закладок; этот токен выводит теги закладок работы.<br>
+Примечание:<br>
+1. Этот токен действует только при сканировании работ на странице ваших закладок; на других страницах он не действует (обычно ничего не выводит).<br>
+2. Если вы не добавили к работе теги закладок, этот токен также ничего не выведет.<br>
+<strong>✨Новый поддерживаемый тип страницы: сканирование работ в списке отслеживаемых</strong><br>
+Страница списка отслеживаемых: <a href="https://www.pixiv.net/following/watchlist/novels" target="_blank">https://www.pixiv.net/following/watchlist/novels</a><br>
+В списке отслеживаемых только серии работ. Теперь загрузчик может пакетно сканировать отслеживаемые вами новеллы и мангу.<br>
+<strong>✨Новая функция: сканирование списка пользователей</strong><br>
+В области «Начать сканирование» на главной странице добавлена кнопка «Сканировать список пользователей». Вы можете ввести несколько ID пользователей, и загрузчик по очереди просканирует и загрузит работы этих пользователей.<br>
+<strong>✨Новая настройка фильтра: от пользователей</strong><br>
+С помощью этой настройки можно сканировать только работы пользователей, на которых вы подписаны или не подписаны. По умолчанию сканируются все.<br>
+Эта настройка находится в «Фильтр» - «Тип работы».<br>
+<strong>✨Новая настройка фильтра: формат изображения</strong><br>
+При необходимости её можно использовать, чтобы исключить изображения .jpg или .png.<br>
+Эта настройка находится в «Фильтр» - «Тип работы».<br>
+<strong>✨Новая настройка: показывать кнопку закладки на миниатюрах работ</strong><br>
+Нажатие на кнопку закладки позволяет загрузчику добавить работу в закладки. Её также можно использовать вместе с функцией «Загружать работу при нажатии на кнопку лайка», чтобы добавить работу в закладки и загрузить её одновременно.<br>
+Эта настройка находится в «Улучшение» - «Кнопки на миниатюре».<br>
+<strong>✨Новая настройка: показывать кнопку лайка на миниатюрах работ</strong><br>
+Нажатие на кнопку лайка ставит лайк работе. Её также можно использовать вместе с функцией «Загружать работу при нажатии на кнопку лайка», чтобы поставить лайк и загрузить работу одновременно.<br>
+Эта настройка находится в «Улучшение» - «Кнопки на миниатюре».<br>
+<strong>📚Новеллы можно сохранять одновременно в форматах EPUB и TXT</strong><br>
+Раньше можно было выбрать только один из форматов EPUB и TXT, теперь можно выбрать оба.<br>
+<strong>✨В режиме ручного выбора / ручного исключения доступно выделение работ рамкой</strong><br>
+После входа в режим ручного выбора / ручного исключения зажмите левую кнопку мыши и двигайте курсор (ПК) или нажмите и удерживайте страницу 0,5 секунды, затем перетащите (мобильное устройство), чтобы выделить работы рамкой.<br>
+<strong>✨Внизу области журнала добавлены кнопки «Копировать журнал» и «Очистить журнал»</strong><br>
+<strong>✨В просмотрщик изображений добавлены кнопки информации о работе и лайка</strong><br>
+<strong>✏️Изменены названия некоторых настроек, чтобы они были точнее и понятнее</strong><br>
+<strong>🐞Исправлена проблема: в Firefox при объединении серии новелл возникала ошибка и объединение не выполнялось</strong><br>
+<strong>☺️Улучшено удобство использования некоторых других функций и настроек</strong><br>
+<strong>💡Улучшены некоторые справочные материалы</strong>`,
     ],
     _用户的约稿页面: [
         `用户的约稿页面`,
@@ -84835,7 +84901,70 @@ const illustsData = [
     [150650000, 1791553800000],
     [150660001, 1791570960000],
     [150670000, 1791601200000],
-    [150680000, 1791622440000], [150690000, 1791635580000], [150700001, 1791647760000], [150710000, 1791677640000], [150720000, 1791700200000], [150730000, 1791716400000], [150740000, 1791728220000], [150750000, 1791748980000], [150760001, 1791777060000], [150770000, 1791797520000], [150780000, 1791810240000], [150790000, 1791824640000], [150800000, 1791862140000], [150810000, 1791887220000], [150820000, 1791900780000], [150830000, 1791925200000], [150840000, 1791958800000], [150850000, 1791978540000], [150860000, 1791991500000], [150870000, 1792026000000], [150880000, 1792055460000], [150890000, 1792070400000], [150900001, 1792088640000], [150910000, 1792126380000], [150920000, 1792148700000], [150930000, 1792162140000], [150940001, 1792189320000], [150950001, 1792215720000], [150960000, 1792234680000], [150970000, 1792247280000], [150980000, 1792270140000], [150990000, 1792296900000], [151000000, 1792315500000], [151010000, 1792328280000], [151020000, 1792341060000], [151030000, 1792376280000], [151040000, 1792402980000], [151050000, 1792416660000], [151060001, 1792435560000], [151070000, 1792471980000], [151080000, 1792494720000], [151090000, 1792508160000], [151100000, 1792536600000], [151110000, 1792569600000], [151120000, 1792599420000], [151130000, 1792631340000], [151140000, 1792659600000], [151150000, 1792673280000], [151160000, 1792686540000], [151170000, 1792723620000], [151180000, 1792749480000], [151190001, 1792762320000], [151200000, 1792778700000], [151210000, 1792810500000], [151220000, 1792831200000], [151230000, 1792845000000], [151240000, 1792857180000], [151250000, 1792886460000], [151260000, 1792908720000], [151270000, 1792924620000], [151280001, 1792936140000], [151290000, 1792953240000], [151300000, 1792988400000], [151310000, 1793011260000],
+    [150680000, 1791622440000],
+    [150690000, 1791635580000],
+    [150700001, 1791647760000],
+    [150710000, 1791677640000],
+    [150720000, 1791700200000],
+    [150730000, 1791716400000],
+    [150740000, 1791728220000],
+    [150750000, 1791748980000],
+    [150760001, 1791777060000],
+    [150770000, 1791797520000],
+    [150780000, 1791810240000],
+    [150790000, 1791824640000],
+    [150800000, 1791862140000],
+    [150810000, 1791887220000],
+    [150820000, 1791900780000],
+    [150830000, 1791925200000],
+    [150840000, 1791958800000],
+    [150850000, 1791978540000],
+    [150860000, 1791991500000],
+    [150870000, 1792026000000],
+    [150880000, 1792055460000],
+    [150890000, 1792070400000],
+    [150900001, 1792088640000],
+    [150910000, 1792126380000],
+    [150920000, 1792148700000],
+    [150930000, 1792162140000],
+    [150940001, 1792189320000],
+    [150950001, 1792215720000],
+    [150960000, 1792234680000],
+    [150970000, 1792247280000],
+    [150980000, 1792270140000],
+    [150990000, 1792296900000],
+    [151000000, 1792315500000],
+    [151010000, 1792328280000],
+    [151020000, 1792341060000],
+    [151030000, 1792376280000],
+    [151040000, 1792402980000],
+    [151050000, 1792416660000],
+    [151060001, 1792435560000],
+    [151070000, 1792471980000],
+    [151080000, 1792494720000],
+    [151090000, 1792508160000],
+    [151100000, 1792536600000],
+    [151110000, 1792569600000],
+    [151120000, 1792599420000],
+    [151130000, 1792631340000],
+    [151140000, 1792659600000],
+    [151150000, 1792673280000],
+    [151160000, 1792686540000],
+    [151170000, 1792723620000],
+    [151180000, 1792749480000],
+    [151190001, 1792762320000],
+    [151200000, 1792778700000],
+    [151210000, 1792810500000],
+    [151220000, 1792831200000],
+    [151230000, 1792845000000],
+    [151240000, 1792857180000],
+    [151250000, 1792886460000],
+    [151260000, 1792908720000],
+    [151270000, 1792924620000],
+    [151280001, 1792936140000],
+    [151290000, 1792953240000],
+    [151300000, 1792988400000],
+    [151310000, 1793011260000],
 ];
 
 
@@ -87788,7 +87917,19 @@ const novelsData = [
     [29320002, 1791340525000],
     [29330000, 1791459533000],
     [29340000, 1791561600000],
-    [29350000, 1791653928000], [29360000, 1791757381000], [29370000, 1791858888000], [29380000, 1791975617000], [29390002, 1792076783000], [29400001, 1792189301000], [29410001, 1792287886000], [29420001, 1792379638000], [29430000, 1792496369000], [29440000, 1792634976000], [29450000, 1792748057000], [29460000, 1792839231000], [29470001, 1792926524000],
+    [29350000, 1791653928000],
+    [29360000, 1791757381000],
+    [29370000, 1791858888000],
+    [29380000, 1791975617000],
+    [29390002, 1792076783000],
+    [29400001, 1792189301000],
+    [29410001, 1792287886000],
+    [29420001, 1792379638000],
+    [29430000, 1792496369000],
+    [29440000, 1792634976000],
+    [29450000, 1792748057000],
+    [29460000, 1792839231000],
+    [29470001, 1792926524000],
 ];
 
 

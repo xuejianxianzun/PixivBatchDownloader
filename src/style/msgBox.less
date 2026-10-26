@@ -8,7 +8,12 @@
   padding: 30px;
   border-radius: 12px;
   top: 15%;
-  left: 50%;
+  // 不能用 left: 50%：fixed 元素的包含块是「布局视口」，页面横向溢出时它会变宽
+  // （移动端 pixiv 的广告横幅会放大到超过屏幕宽度），50% 就会落到可视区域右侧之外。
+  // 100% 是布局视口宽度、100vw 是可视宽度，减去差值的一半即可对准可视区域的中心。
+  // max(0px,…) 用于桌面端：那里 100vw 包含竖直滚动条的宽度，减出来是负数，取 0。
+  // 完整说明见 rightButtons.less。
+  left: calc(50% - max(0px, calc(100% - 100vw)) / 2);
   transform: translate(-50%);
   text-align: center;
   font-family: var(--pixiv-font-family);

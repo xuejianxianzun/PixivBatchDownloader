@@ -635,7 +635,7 @@ html[data-xzpagetheme='dark'] .searchResultPreviewHeader .searchResultPreviewCou
   align-items: flex-end;
   position: fixed;
   top: 15%;
-  right: 0;
+  right: max(0px, calc(100% - 100vw));
   z-index: 1000;
   row-gap: max(10px, calc(5vh - 32px));
   pointer-events: none;
@@ -1059,7 +1059,7 @@ body.mobile #rightButtonContainer {
   max-width: 720px;
   min-height: 0;
   max-height: calc(90vh);
-  left: 50%;
+  left: calc(50% - max(0px, calc(100% - 100vw)) / 2);
   top: 5vh;
   transform: translateX(-50%);
   font-size: 15px;
@@ -1445,7 +1445,7 @@ body.mobile #rightButtonContainer {
   max-width: calc(100vw - 24px);
   max-height: 84vh;
   min-height: 60vh;
-  left: 50%;
+  left: calc(50% - max(0px, calc(100% - 100vw)) / 2);
   top: 10vh;
   margin-left: 0;
   transform: translateX(-54%);
@@ -3459,7 +3459,7 @@ body.mobile #rightButtonContainer {
   padding: 30px;
   border-radius: 12px;
   top: 15%;
-  left: 50%;
+  left: calc(50% - max(0px, calc(100% - 100vw)) / 2);
   transform: translate(-50%);
   text-align: center;
   font-family: var(--pixiv-font-family);

@@ -90,7 +90,7 @@ class WorkToolBar {
   private async getElementsOnMobile() {
     // 获取工具栏
     const toolbar = document.querySelector(
-      '.work-interactions'
+      'div[class*="work-interactions"]'
     ) as HTMLDivElement
     if (!toolbar) {
       return
