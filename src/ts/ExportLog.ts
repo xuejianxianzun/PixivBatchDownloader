@@ -73,6 +73,38 @@ class ExportLog {
     }
   }
 
+  /** 清除所有记录（用户清空日志区域时调用） */
+  public clear() {
+    this.record = []
+  }
+
+  /** 所有日志的纯文本。一条日志占一行，日志内部的 <br> 也是一个换行
+   *
+   * 复制日志时使用它。和导出日志不同，这里不做日志等级的筛选，也不检查排除的关键字：
+   * 用户要复制的是他看到的这些日志。
+   */
+  public getText() {
+    const lines: string[] = []
+    for (const record of this.record) {
+      // 每条日志的 html 末尾都有一个 <br>（Log.add 添加的），它只表示「这条日志结束」，
+      // 换成换行之后会变成多余的空白行，所以去掉
+      lines.push(ExportLog.htmlToText(record.html).replace(/\n$/, ''))
+    }
+    return lines.join('\n')
+  }
+
+  /** 把一条日志的 HTML 还原成纯文本：去掉标签，<br> 换成换行
+   *
+   * 这里只需要还原 &amp;：日志写入时只转义了裸的 &（见 Log.add），
+   * 其他实体是日志文本里本来就有的，原样保留即可。
+   */
+  private static htmlToText(html: string) {
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&amp;/g, '&')
+  }
+
   /**导出日志。手动导出时忽略自动导出的筛选设置 */
   private export(force = false) {
     const logs: string[] = []

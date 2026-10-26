@@ -5718,6 +5718,35 @@ class ExportLog {
             this.record[index].key = '';
         }
     }
+    /** 清除所有记录（用户清空日志区域时调用） */
+    clear() {
+        this.record = [];
+    }
+    /** 所有日志的纯文本。一条日志占一行，日志内部的 <br> 也是一个换行
+     *
+     * 复制日志时使用它。和导出日志不同，这里不做日志等级的筛选，也不检查排除的关键字：
+     * 用户要复制的是他看到的这些日志。
+     */
+    getText() {
+        const lines = [];
+        for (const record of this.record) {
+            // 每条日志的 html 末尾都有一个 <br>（Log.add 添加的），它只表示「这条日志结束」，
+            // 换成换行之后会变成多余的空白行，所以去掉
+            lines.push(ExportLog.htmlToText(record.html).replace(/\n$/, ''));
+        }
+        return lines.join('\n');
+    }
+    /** 把一条日志的 HTML 还原成纯文本：去掉标签，<br> 换成换行
+     *
+     * 这里只需要还原 &amp;：日志写入时只转义了裸的 &（见 Log.add），
+     * 其他实体是日志文本里本来就有的，原样保留即可。
+     */
+    static htmlToText(html) {
+        return html
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]*>/g, '')
+            .replace(/&amp;/g, '&');
+    }
     /**导出日志。手动导出时忽略自动导出的筛选设置 */
     export(force = false) {
         const logs = [];
@@ -9035,6 +9064,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
 /* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -9295,25 +9326,74 @@ class Log {
         const logButtons = document.createElement('div');
         logButtons.id = this.logButtonsID;
         logButtons.classList.add('logButtons');
-        const exportLogBtn = document.createElement('button');
-        exportLogBtn.type = 'button';
-        exportLogBtn.id = 'exportLogBtn';
-        exportLogBtn.classList.add('logActionBtn');
-        exportLogBtn.dataset.xztext = '_导出日志2';
-        const hideLogBtn = document.createElement('button');
-        hideLogBtn.type = 'button';
-        hideLogBtn.id = 'hideLogBtn';
-        hideLogBtn.classList.add('logActionBtn');
-        hideLogBtn.dataset.xztext = '_隐藏日志区域';
-        logButtons.append(exportLogBtn, hideLogBtn);
+        /** 创建一个日志操作按钮 */
+        const createBtn = (id, text) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = id;
+            btn.classList.add('logActionBtn');
+            btn.dataset.xztext = text;
+            return btn;
+        };
+        const exportLogBtn = createBtn('exportLogBtn', '_导出日志2');
+        const copyLogBtn = createBtn('copyLogBtn', '_复制日志');
+        const clearLogBtn = createBtn('clearLogBtn', '_清空日志');
+        const hideLogBtn = createBtn('hideLogBtn', '_隐藏日志区域');
+        logButtons.append(exportLogBtn, copyLogBtn, clearLogBtn, hideLogBtn);
         _Language__WEBPACK_IMPORTED_MODULE_10__.lang.register(logButtons);
         exportLogBtn.addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('forceExportLogs');
+        });
+        copyLogBtn.addEventListener('click', () => {
+            this.copyLog();
+        });
+        clearLogBtn.addEventListener('click', () => {
+            this.clear();
         });
         hideLogBtn.addEventListener('click', () => {
             this.hideAll();
         });
         return logButtons;
+    }
+    /** 复制所有日志的纯文本（不带颜色，按原来的换行格式） */
+    async copyLog() {
+        const text = _ExportLog__WEBPACK_IMPORTED_MODULE_6__.exportLog.getText();
+        if (!text) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_没有日志'));
+        }
+        // 剪贴板写入需要用户手势，这里是点击按钮触发的，所以可以成功
+        const ok = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.writeClipboardText(text);
+        if (ok) {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_已复制到剪贴板'), { position: 'center' });
+        }
+        else {
+            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_复制失败'));
+        }
+    }
+    /** 清空日志内容。
+     *
+     * 日志区域本身和操作按钮都会保留（用户可能还要继续使用），只删除日志容器和记录。
+     */
+    clear() {
+        const logArea = document.getElementById(this.logAreaID);
+        if (!logArea) {
+            return;
+        }
+        // 日志条数多时会有多个日志容器，全部删除
+        logArea
+            .querySelectorAll(`.${this.logWrapFlag}`)
+            .forEach((wrap) => wrap.remove());
+        this.count = 0;
+        this.toBottom = false;
+        // 刷新用的插槽都指向被删掉的元素，必须重建。
+        // 否则之后用相同的 key 输出日志时，内容会被写进已经脱离文档的元素里，界面上一行都看不到
+        this.slots = { default: document.createElement('span') };
+        // 当前活跃的日志容器已经不存在了，下次输出日志时会重新创建
+        this.logWrap = document.createElement('div');
+        this.logContent = document.createElement('div');
+        // 导出日志里保存的记录也要清掉，否则之后导出的文件里会包含已被清空的日志
+        _ExportLog__WEBPACK_IMPORTED_MODULE_6__.exportLog.clear();
+        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_日志已清空'));
     }
     scrollToBottom(el) {
         if (this.show && this.toBottom && !this.mouseover) {
@@ -9811,6 +9891,8 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 'div._ranking-item',
                 'div[size="496"]',
                 'div[size="392"]',
+                // 首页“精选新作”里的小说作品
+                '[data-ga4-label="thumbnail"]',
                 // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
                 'div[style="width:184px"]>div:first-child',
                 'div[style="width: 184px;"]>div:first-child',
@@ -32382,9 +32464,9 @@ class DownloadRecordManager {
     /** 惰性读取所有存储库的下载记录，一批一批地交出去
      *
      * 三个目的：
-     * 1. 不把 9 个存储库的数据汇总成一个数组（那样光是记录数组就要占几 GB 内存）；
+     * 1. 不把 9 个存储库的数据汇总成一个数组（那样光是记录数组就可能会占几 GB 内存）；
      * 2. 按页读取：内存里只有当前这一页，而不是「一个存储库的全部记录」
-     *    （一个存储库的记录可能远大于单个导出文件的体积上限，一次 getAll 全读进来会在手机上把内存吃光）；
+     *    （一个存储库的记录可能远大于单个导出文件的体积上限，一次 getAll 全读进来会占据太多内存）；
      * 3. 一批一批地交出去，消费方就不必对每条记录做一次异步迭代
      *    （几百万条记录时，每条都走一次 await 会明显拖慢导出）。
      *
@@ -49669,6 +49751,30 @@ You can view this hotkey list anytime in the "Preview works" settings`,
         `ログのエクスポート`,
         `로그 내보내기`,
         `Экспорт журнала`,
+    ],
+    _复制日志: [
+        `复制日志`,
+        `複製日誌`,
+        `Copy log`,
+        `ログをコピー`,
+        `로그 복사`,
+        `Копировать журнал`,
+    ],
+    _清空日志: [
+        `清空日志`,
+        `清空日誌`,
+        `Clear log`,
+        `ログをクリア`,
+        `로그 지우기`,
+        `Очистить журнал`,
+    ],
+    _日志已清空: [
+        `日志已清空`,
+        `日誌已清空`,
+        `The log has been cleared`,
+        `ログをクリアしました`,
+        `로그를 지웠습니다`,
+        `Журнал очищен`,
     ],
     _没有日志: [
         `没有日志`,

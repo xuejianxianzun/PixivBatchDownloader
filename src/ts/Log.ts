@@ -9,6 +9,7 @@ import { showLogButton } from './ShowLogButton'
 import { ppdTask } from './PPDTask'
 import { bg } from './BG'
 import { lang } from './Language'
+import { toast } from './Toast'
 
 /** 日志系统。它会在网页顶部添加日志区域，并在其中输出日志。
  *
@@ -300,27 +301,84 @@ class Log {
     const logButtons = document.createElement('div')
     logButtons.id = this.logButtonsID
     logButtons.classList.add('logButtons')
-    const exportLogBtn = document.createElement('button')
-    exportLogBtn.type = 'button'
-    exportLogBtn.id = 'exportLogBtn'
-    exportLogBtn.classList.add('logActionBtn')
-    exportLogBtn.dataset.xztext = '_导出日志2'
-    const hideLogBtn = document.createElement('button')
-    hideLogBtn.type = 'button'
-    hideLogBtn.id = 'hideLogBtn'
-    hideLogBtn.classList.add('logActionBtn')
-    hideLogBtn.dataset.xztext = '_隐藏日志区域'
-    logButtons.append(exportLogBtn, hideLogBtn)
+
+    /** 创建一个日志操作按钮 */
+    const createBtn = (id: string, text: string) => {
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.id = id
+      btn.classList.add('logActionBtn')
+      btn.dataset.xztext = text
+      return btn
+    }
+
+    const exportLogBtn = createBtn('exportLogBtn', '_导出日志2')
+    const copyLogBtn = createBtn('copyLogBtn', '_复制日志')
+    const clearLogBtn = createBtn('clearLogBtn', '_清空日志')
+    const hideLogBtn = createBtn('hideLogBtn', '_隐藏日志区域')
+    logButtons.append(exportLogBtn, copyLogBtn, clearLogBtn, hideLogBtn)
     lang.register(logButtons)
 
     exportLogBtn.addEventListener('click', () => {
       EVT.fire('forceExportLogs')
+    })
+    copyLogBtn.addEventListener('click', () => {
+      this.copyLog()
+    })
+    clearLogBtn.addEventListener('click', () => {
+      this.clear()
     })
     hideLogBtn.addEventListener('click', () => {
       this.hideAll()
     })
 
     return logButtons
+  }
+
+  /** 复制所有日志的纯文本（不带颜色，按原来的换行格式） */
+  private async copyLog() {
+    const text = exportLog.getText()
+    if (!text) {
+      return toast.warning(lang.transl('_没有日志'))
+    }
+
+    // 剪贴板写入需要用户手势，这里是点击按钮触发的，所以可以成功
+    const ok = await Utils.writeClipboardText(text)
+    if (ok) {
+      toast.success(lang.transl('_已复制到剪贴板'), { position: 'center' })
+    } else {
+      toast.error(lang.transl('_复制失败'))
+    }
+  }
+
+  /** 清空日志内容。
+   *
+   * 日志区域本身和操作按钮都会保留（用户可能还要继续使用），只删除日志容器和记录。
+   */
+  private clear() {
+    const logArea = document.getElementById(this.logAreaID)
+    if (!logArea) {
+      return
+    }
+
+    // 日志条数多时会有多个日志容器，全部删除
+    logArea
+      .querySelectorAll(`.${this.logWrapFlag}`)
+      .forEach((wrap) => wrap.remove())
+
+    this.count = 0
+    this.toBottom = false
+    // 刷新用的插槽都指向被删掉的元素，必须重建。
+    // 否则之后用相同的 key 输出日志时，内容会被写进已经脱离文档的元素里，界面上一行都看不到
+    this.slots = { default: document.createElement('span') }
+    // 当前活跃的日志容器已经不存在了，下次输出日志时会重新创建
+    this.logWrap = document.createElement('div')
+    this.logContent = document.createElement('div')
+
+    // 导出日志里保存的记录也要清掉，否则之后导出的文件里会包含已被清空的日志
+    exportLog.clear()
+
+    toast.success(lang.transl('_日志已清空'))
   }
 
   private scrollToBottom(el: HTMLElement) {

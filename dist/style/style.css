@@ -3395,6 +3395,7 @@ body.mobile #rightButtonContainer {
   width: 96vw;
   max-width: 950px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   gap: 8px;
   margin: 0 auto 12px;

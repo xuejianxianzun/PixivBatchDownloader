@@ -38,6 +38,8 @@ class NovelThumbnail extends WorkThumbnail {
         'div._ranking-item',
         'div[size="496"]',
         'div[size="392"]',
+        // 首页“精选新作”里的小说作品
+        '[data-ga4-label="thumbnail"]',
         // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
         'div[style="width:184px"]>div:first-child',
         'div[style="width: 184px;"]>div:first-child',
