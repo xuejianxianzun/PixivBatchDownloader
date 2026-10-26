@@ -201,7 +201,7 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/535
 
 有些设置之前的名字很简短，以至于含义不清楚，用户需要查看帮助才能知道准确的含义。现在我把它们的名字改的更加准确了。
 
-### 🐞修复问题：在 Firefox 浏览器上，合并系列小说时出错
+### 🐞修复问题：在 Firefox 浏览器上，合并系列小说时会报错，无法合并
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/695
 

@@ -345,7 +345,7 @@ class Log {
     // 剪贴板写入需要用户手势，这里是点击按钮触发的，所以可以成功
     const ok = await Utils.writeClipboardText(text)
     if (ok) {
-      toast.success(lang.transl('_已复制到剪贴板'), { position: 'center' })
+      toast.success(lang.transl('_已复制到剪贴板'))
     } else {
       toast.error(lang.transl('_复制失败'))
     }
