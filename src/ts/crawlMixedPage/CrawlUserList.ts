@@ -467,7 +467,10 @@ class CrawlUserList {
     // 注意：不要在导出后触发 stopCrawl 事件，否则会停掉整个抓取用户列表的任务
     if ((settings.exportIDList || states.exportIDList) && Utils.isPixiv()) {
       if (settings.exportIDList) {
-        const resultList = await Utils.json2BlobSafe(store.idList)
+        const resultList = await Utils.json2BlobSafe(
+          store.idList,
+          Config.exportFileByteLengthLimit
+        )
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,

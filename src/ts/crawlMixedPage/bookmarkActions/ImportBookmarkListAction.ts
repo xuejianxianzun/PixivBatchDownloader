@@ -16,15 +16,24 @@ class ImportBookmarkListAction {
   }
 
   private async importBookmarkIDList() {
-    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
+    const loaded = (await Utils.loadJSONFilesWithFiles<
+      BookmarkResult[]
+    >().catch((err) => {
       return msgBox.error(err)
-    })) as BookmarkResult[]
-    if (!loadedJSON) {
+    })) as { files: File[]; data: BookmarkResult[][] } | undefined
+    if (!loaded) {
       return
     }
 
-    if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-      return toast.error(lang.transl('_格式错误'))
+    // 收藏较多时导出会被拆成多个文件，这里把它们合并到一起导入
+    const loadedJSON: BookmarkResult[] = []
+    for (const data of loaded.data) {
+      if (!Array.isArray(data) || !data.length || !data[0]) {
+        return toast.error(lang.transl('_格式错误'))
+      }
+      for (const item of data) {
+        loadedJSON.push(item)
+      }
     }
 
     const keys = Object.keys(loadedJSON[0])
@@ -38,6 +47,10 @@ class ImportBookmarkListAction {
     const tip = lang.transl('_导入收藏列表')
     toast.success(tip)
     log.success('🚀' + tip)
+    // 数据较多时会分成多个文件，所以显示一下本次导入的文件名，便于用户确认
+    log.log(
+      lang.transl('_本次导入的文件', loaded.files.map((f) => f.name).join(', '))
+    )
     log.log(lang.transl('_作品数量') + ` ${loadedJSON.length}`)
 
     EVT.fire('closeSettingsPanel')

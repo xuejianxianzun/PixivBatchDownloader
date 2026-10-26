@@ -36,6 +36,23 @@ class Config {
   static readonly isWin = /Win/.test(navigator.platform)
   /**浏览器是否处于移动端模式 */
   static readonly mobile = navigator.userAgent.includes('Mobile')
+  /** 导出 JSON 文件时，单个文件的体积上限（字节）
+   *
+   * 桌面端多年来验证 500 MB 可用，不过为了减少峰值内存占用，我现在改为了 300 MB。
+   * 手机上（尤其 Android 的 Chrome / Edge）渲染进程的内存上限低得多：
+   * 生成文件时，抓取结果的数组、JSON 字符串、Blob 会同时存在于内存里，峰值接近文件体积的 2~3 倍，
+   * 单个文件太大时页面会卡住几十秒甚至被系统直接杀掉（进程被杀还可能导致下载记录所在的 IndexedDB 损坏）。
+   * 所以移动端使用更小的上限，导出时会拆成多个文件。
+   *
+   * 上限只能靠固定值，无法去「探测」：网页对 blob 下载的成败没有任何可观测的反馈
+   * （没有事件、没有回调，内容脚本里也拿不到 downloads API），失败形态是卡死或进程被杀，
+   * 而且可用的体积取决于当时的空闲内存和磁盘，探测出来的值不能代表下一次导出。
+   */
+  static get exportFileByteLengthLimit() {
+    // 移动端 64 MB（用户实测手机上导出 128 MB 的文件可以成功，但那只是当时内存足够，
+    // 再往上就很容易卡死，所以留出余量）；桌面端 300 MB
+    return this.mobile ? 67108864 : 314572800
+  }
   /**检测 Firefox 浏览器 */
   static readonly isFirefox = navigator.userAgent.includes('Firefox')
   /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */

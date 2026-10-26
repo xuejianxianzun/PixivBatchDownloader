@@ -11,6 +11,7 @@ import { msgBox } from '../MsgBox'
 import { Tools } from '../Tools'
 import { FollowingUserData } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
+import { Config } from '../Config'
 
 interface UserData {
   userId: string
@@ -297,14 +298,18 @@ class ExportFollowingList {
     // 在一次测试里我导出了 4514 个用户，JSON 文件的体积是 25.45 MiB（已格式化），平均每个用户的数据为 5912 B
     // 当用户数量超过 80000 时，体积才会接近 500 MiB。保守估计这里限制为 50000
     // 如果超出限制，会产生多个 json 文件，需要全部下载
-    const limit = this.JSONData.length > 50000
+    // 手机上一律走分片逻辑：格式化后的 JSON 体积是紧凑格式的 1.x 倍，几百个用户就可能超出内存承受范围
+    const limit = Config.mobile || this.JSONData.length > 50000
     let urls: string[] = []
     if (!limit) {
       const blob = Utils.json2Blob(this.JSONData)
       const url = URL.createObjectURL(blob)
       urls.push(url)
     } else {
-      const data = await Utils.json2BlobSafe(this.JSONData)
+      const data = await Utils.json2BlobSafe(
+        this.JSONData,
+        Config.exportFileByteLengthLimit
+      )
       urls = data.map((item) => item.url)
     }
 
@@ -321,8 +326,9 @@ class ExportFollowingList {
         window.location.pathname,
         'users'
       )}-${partString}${Tools.formatDateTimeInFilename()}.json`
-      Utils.downloadFile(url, fileName)
-      URL.revokeObjectURL(url)
+      // 不要在这里直接 revokeObjectURL：大文件在手机上可能还没开始读取 blob 就被回收了，
+      // 导致下载失败。交给 downloadFile 延迟回收
+      Utils.downloadFile(url, fileName, 10000)
       part++
     }
   }

@@ -3845,6 +3845,23 @@ class Config {
     static isWin = /Win/.test(navigator.platform);
     /**浏览器是否处于移动端模式 */
     static mobile = navigator.userAgent.includes('Mobile');
+    /** 导出 JSON 文件时，单个文件的体积上限（字节）
+     *
+     * 桌面端多年来验证 500 MB 可用，不过为了减少峰值内存占用，我现在改为了 300 MB。
+     * 手机上（尤其 Android 的 Chrome / Edge）渲染进程的内存上限低得多：
+     * 生成文件时，抓取结果的数组、JSON 字符串、Blob 会同时存在于内存里，峰值接近文件体积的 2~3 倍，
+     * 单个文件太大时页面会卡住几十秒甚至被系统直接杀掉（进程被杀还可能导致下载记录所在的 IndexedDB 损坏）。
+     * 所以移动端使用更小的上限，导出时会拆成多个文件。
+     *
+     * 上限只能靠固定值，无法去「探测」：网页对 blob 下载的成败没有任何可观测的反馈
+     * （没有事件、没有回调，内容脚本里也拿不到 downloads API），失败形态是卡死或进程被杀，
+     * 而且可用的体积取决于当时的空闲内存和磁盘，探测出来的值不能代表下一次导出。
+     */
+    static get exportFileByteLengthLimit() {
+        // 移动端 64 MB（用户实测手机上导出 128 MB 的文件可以成功，但那只是当时内存足够，
+        // 再往上就很容易卡死，所以留出余量）；桌面端 300 MB
+        return this.mobile ? 67108864 : 314572800;
+    }
     /**检测 Firefox 浏览器 */
     static isFirefox = navigator.userAgent.includes('Firefox');
     /** Firefox Android 上不支持 downloads API（调用 downloads.download 等方法会抛出 "Not implemented" 错误），此时需要使用 a 标签来下载文件 */
@@ -6644,8 +6661,7 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * 文件名规范化。
  *
- * 这里的方法原本在 FileName 模块里，现在挪到这个独立的模块里，这样其他模块（例如
- * SendDownload）可以不加载 FileName 就使用它们。
+ * 这里的方法原本在 FileName 模块里，现在挪到这个独立的模块里，这样其他模块可以不加载 FileName 就使用它们。
  *
  * ⚠️ 不要在 FileName 之外的地方为了「规范化文件名」而 import FileName：
  * FileName 会加载 SetUserName，而 SetUserName 在模块加载时就需要设置面板里的 slot
@@ -18795,36 +18811,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
-/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
-/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../filter/Mute */ "./src/ts/filter/Mute.ts");
-/* harmony import */ var _StopCrawl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
-/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../SelectWork */ "./src/ts/SelectWork.ts");
-/* harmony import */ var _ExcludeWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ExcludeWork */ "./src/ts/ExcludeWork.ts");
-/* harmony import */ var _WorkSelectionMarquee__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../WorkSelectionMarquee */ "./src/ts/WorkSelectionMarquee.ts");
-/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
-/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
-/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
-/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
-/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
+/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
+/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../filter/Mute */ "./src/ts/filter/Mute.ts");
+/* harmony import */ var _StopCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
+/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../SelectWork */ "./src/ts/SelectWork.ts");
+/* harmony import */ var _ExcludeWork__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../ExcludeWork */ "./src/ts/ExcludeWork.ts");
+/* harmony import */ var _WorkSelectionMarquee__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../WorkSelectionMarquee */ "./src/ts/WorkSelectionMarquee.ts");
+/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
+/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
+/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
+/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -18906,37 +18924,37 @@ class InitPageBase {
         this.initAny();
         // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
-        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_16__.destroyManager.register(this.destroy.bind(this));
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('setSlowCrawlMode', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.settingChange, (ev) => {
+        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_17__.destroyManager.register(this.destroy.bind(this));
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('setSlowCrawlMode', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'slowCrawl' && data.value) {
-                if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlOnWorksNumber) {
+                if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlOnWorksNumber) {
                     // 当用户打开慢速抓取开关时，设置慢速抓取的标记
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-                    _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+                    _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
                     this.ajaxThread = 1;
                 }
             }
         });
         // 页面切换后，如果任务已经完成，则移除日志区域
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.pageSwitch, () => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+                _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('clearLog');
             }
         });
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlCompleteTime = Date.now();
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.crawlComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime = Date.now();
         });
         // 抓取结果为 0 时，把抓取完成的时间重置为 0，表示没有需要下载的文件。
         // 这里依赖触发顺序：crawlEmpty 总是在 crawlComplete 之后触发，所以重置不会被 crawlComplete 覆盖
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteButNoResult', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlEmpty, () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlCompleteTime = 0;
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('crawlCompleteButNoResult', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.crawlEmpty, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime = 0;
         });
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.downloadComplete, () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.downloadCompleteTime = Date.now();
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.downloadComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime = Date.now();
         });
         // 监听下载 id 列表的事件
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlIdList', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlIdList, (ev) => {
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.bindOnce('crawlIdList', _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.crawlIdList, (ev) => {
             const idList = ev.detail.data;
             if (idList) {
                 this.crawlIdList(idList);
@@ -18948,13 +18966,13 @@ class InitPageBase {
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
         });
         // 设置用于调试的 flag
-        _PPDTask__WEBPACK_IMPORTED_MODULE_32__.ppdTask.register(1, 'Only crawl IdList', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_33__.ppdTask.register(1, 'Only crawl IdList', () => {
             this.onlyCrawlIdList = !this.onlyCrawlIdList;
             if (this.onlyCrawlIdList) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On');
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning('onlyCrawlIdList: On');
             }
             else {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('onlyCrawlIdList: Off');
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('onlyCrawlIdList: Off');
             }
         });
     };
@@ -18990,24 +19008,24 @@ class InitPageBase {
     getWantPage() { }
     /**在日志上显示一些提示 */
     showLogTip() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.removeWorksOfFollowedUsersOnSearchPage &&
-            (_PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.ArtworkSearch ||
-                _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.NovelSearch)) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            (_PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.list.NovelSearch)) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_自动合并系列小说'));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoMergeNovel) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_自动合并系列小说'));
         }
     }
     setSlowCrawl() {
-        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
         }
     }
     confirmRecrawl() {
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.hasUndownloadedCrawlResult) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length > 0) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.hasUndownloadedCrawlResult) {
                 const _confirm = window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已有抓取结果时进行提醒'));
                 return _confirm;
             }
@@ -19018,8 +19036,8 @@ class InitPageBase {
     async readyCrawl() {
         // 检查是否可以开始抓取
         // states.busy 表示下载器正在抓取或正在下载
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_19__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
             return;
         }
         // 下载器空闲，此时检查是否有已存在的抓取结果
@@ -19028,24 +19046,24 @@ class InitPageBase {
         }
         // 清空日志
         // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-        const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.showTip();
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('clearLog');
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+        _Toast__WEBPACK_IMPORTED_MODULE_19__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+        const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.showTip();
         if (wrongSetting) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('');
             return;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-        await _filter_Mute__WEBPACK_IMPORTED_MODULE_11__.mute.getMuteSettings();
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('crawlStart');
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         this.getWantPage();
-        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
         this.showLogTip();
         this.finishedRequest = 0;
         this.crawlFinishBecauseStopCrawl = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
         // 进入第一个抓取流程
         this.nextStep();
     }
@@ -19054,8 +19072,8 @@ class InitPageBase {
      * 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
      */
     async crawlIdList(idList) {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.crawlUserList) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前正在抓取用户列表所以不接受新的抓取任务'));
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlUserList) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前正在抓取用户列表所以不接受新的抓取任务'));
             return;
         }
         // 对 idList 进行去重
@@ -19078,9 +19096,9 @@ class InitPageBase {
             }
         }
         // 如果下载器正忙则把 id 列表添加到等待队列中
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(..._idList);
-            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.waitingIdList.push(..._idList);
+            _Toast__WEBPACK_IMPORTED_MODULE_19__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
         }
@@ -19088,25 +19106,25 @@ class InitPageBase {
             if (!this.confirmRecrawl()) {
                 return;
             }
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-            _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'), _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+            _Toast__WEBPACK_IMPORTED_MODULE_19__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
-            const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.showTip();
+            const wrongSetting = _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.showTip();
             if (wrongSetting) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消抓取因为某些筛选条件不正确'));
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('');
                 return;
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-            await _filter_Mute__WEBPACK_IMPORTED_MODULE_11__.mute.getMuteSettings();
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('crawlStart');
+            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
             this.finishedRequest = 0;
             this.crawlFinishBecauseStopCrawl = false;
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
             // 传递 id 列表下载时，不显示下载面板
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.quickCrawl = true;
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _idList;
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl = true;
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList = _idList;
             this.getIdListFinished();
         }
     }
@@ -19118,14 +19136,14 @@ class InitPageBase {
     getIdList() { }
     /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
     async checkUserId(userId) {
-        return await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
+        return await _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.check({
             userId,
         });
     }
     /** id 列表获取完毕，开始抓取作品内容页 */
     async getIdListFinished() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh(this.getIdListLogKey);
-        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.persistentRefresh(this.getIdListLogKey);
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
         // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
         // 现在这里能够检查这些过滤条件：
@@ -19135,9 +19153,9 @@ class InitPageBase {
         // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         // 4. 检查是否已经下载过
         const filteredIDList = [];
-        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
+        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList) {
             let check = true;
-            check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
+            check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.check({
                 id: idData.id,
                 IDTypeString: idData.type,
                 workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
@@ -19146,41 +19164,41 @@ class InitPageBase {
                 filteredIDList.push(idData);
             }
         }
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = filteredIDList;
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.bookmarkMode) {
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList = filteredIDList;
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('getIdListFinished');
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
             return;
         }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length === 0) {
             return this.noResult();
         }
         // 如果要抓取的作品数量超过指定数量（目前为 100 页），则显示使用小号抓取的提示
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 6000) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示使用小号下载'));
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > 6000) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示使用小号下载'));
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_8__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.isPixiv()) {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList) {
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.isPixiv()) {
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('stopCrawl');
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList, _Config__WEBPACK_IMPORTED_MODULE_4__.Config.exportFileByteLengthLimit);
                 for (const result of resultList) {
-                    _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.formatDateTimeInFilename()}.json`);
+                    _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.formatDateTimeInFilename()}.json`);
                 }
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表');
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.success(msg);
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✅' + msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_19__.toast.success(msg);
             }
             return;
         }
         // 如果启用了这个标记，则重置任务状态，不继续抓取作品的详情了
         if (this.onlyCrawlIdList) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On，停止抓取');
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning('onlyCrawlIdList: On，停止抓取');
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('stopCrawl');
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
-        this.idListLength = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
+        this.idListLength = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length;
         this.mergedNovelCount = 0;
         this.setCrawlThread();
         // 进入抓取流程
@@ -19189,32 +19207,32 @@ class InitPageBase {
     /**根据待抓取作品数量和慢速抓取设置，配置抓取线程数 */
     setCrawlThread(canUseSlowCrawl = true) {
         if (canUseSlowCrawl &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlOnWorksNumber) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlOnWorksNumber) {
             // 慢速抓取时限制为 1
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
             this.ajaxThread = 1;
         }
         else {
             // 全速抓取
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
-            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length);
         }
     }
     /** 并发调用 getWorksData 方法 */
     startGetWorksData() {
         // 如果 idList 里有系列小说，就把抓取线程设置为 1, 避免同时合并多个系列小说
         // 这是因为合并每个系列小说时都需要发送多个请求，如果同时合并多个，容易触发 429 限制
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.some((idData) => idData.type === 'novelSeries')) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.some((idData) => idData.type === 'novelSeries')) {
             this.ajaxThread = 1;
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_由于有系列小说所以抓取线程被限制为1'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_由于有系列小说所以抓取线程被限制为1'));
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取线程为x', this.ajaxThread.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取线程为x', this.ajaxThread.toString()));
         // 开始并发抓取
         for (let i = 0; i < this.ajaxThread; i++) {
             window.setTimeout(() => {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
             }, 0);
         }
     }
@@ -19225,21 +19243,21 @@ class InitPageBase {
     // src/ts/download/CheckWarningMessage.ts 的 handleWarning 方法会触发 stopCrawl 事件，
     // 所以这里会停止抓取。
     async getWorksData(idData) {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.crawlFinished();
         }
-        idData = idData ?? _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+        idData = idData ?? _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.shift();
         if (!idData) {
             return this.afterGetWorksData();
         }
         const id = idData.id;
         if (!id) {
             const msg = 'Error: work id is invalid!';
-            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.error(msg);
             throw new Error(msg);
         }
         // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它
-        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
+        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.check({
             id,
             IDTypeString: idData.type,
             workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
@@ -19248,37 +19266,37 @@ class InitPageBase {
             return this.afterGetWorksData();
         }
         try {
-            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.Unlisted;
+            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.list.Unlisted;
             if (idData.type === 'novels') {
                 // 小说数据尝试从缓存中获取，这是因为“自动合并系列小说”里也需要获取小说数据。
                 // 如果不使用缓存，则必定会导致一个小说发送两次请求
                 // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
                 // 但通常问题不大
-                const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.getWorkDataAsync(id, 'novel', unlisted);
+                const data = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.getWorkDataAsync(id, 'novel', unlisted);
                 // 自动合并系列小说
                 const seriesId = data.body.seriesNavData?.seriesId;
-                const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel;
+                const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoMergeNovel;
                 if (canMerge) {
                     const seriseTitle = data.body.seriesNavData?.title;
                     this.mergedNovelCount++;
-                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__.autoMergeNovel.merge(seriesId, seriseTitle);
                 }
                 // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
-                if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
-                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_10__.saveNovelData.save(data);
+                if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.skipNovelsInSeriesWhenAutoMerge) {
+                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
                 }
                 this.afterGetWorksData(data);
             }
             else if (idData.type === 'novelSeries') {
                 // 合并系列小说
                 this.mergedNovelCount++;
-                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__.MergeNovel().merge(id, idData.title, true);
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__.MergeNovel().merge(id, idData.title, true);
                 this.afterGetWorksData();
             }
             else {
                 // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_9__.saveArtworkData.save(data, idData.downloadIndexes);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data, idData.downloadIndexes);
                 this.afterGetWorksData(data);
             }
         }
@@ -19287,7 +19305,7 @@ class InitPageBase {
                 // 请求成功，但状态码不正常
                 // 不重试
                 const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLinkByIDData(idData);
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_因为网络错误跳过这个作品', link));
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_因为网络错误跳过这个作品', link));
                 this.afterGetWorksData();
             }
             else {
@@ -19298,7 +19316,7 @@ class InitPageBase {
                 // 注意：这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(2000);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.sleep(2000);
                 this.getWorksData(idData);
             }
         }
@@ -19307,45 +19325,45 @@ class InitPageBase {
     async afterGetWorksData(data) {
         this.logResultNumber();
         // 抓取可能中途停止，此时保留抓取结果
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.crawlFinished();
         }
         // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__.vipSearchOptimize.checkBookmarkCount(data))) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__.vipSearchOptimize.checkBookmarkCount(data))) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
             // 指示抓取已停止
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
             return this.crawlFinished();
         }
         // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
         // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
         // 这样可以加快抓取速度
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_22__.filter.check({
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > 0) {
+            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList[0];
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_23__.filter.check({
                 id: nextIDData.id,
                 IDTypeString: nextIDData.type,
                 workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
             });
             if (!check) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.shift();
                 return this.getWorksData();
             }
         }
         // 如果存在下一个作品，则继续抓取
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length > 0) {
             // 如果下一个作品是小说，先检查缓存里是否有它的数据
             // 如果有缓存数据就不需要添加间隔时间，因为小说会使用缓存的数据，不必发送请求
-            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList[0];
             if (nextIDData && nextIDData.type === 'novels') {
-                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(nextIDData.id, 'novel');
+                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(nextIDData.id, 'novel');
                 if (cache) {
                     return this.getWorksData();
                 }
             }
             // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
             }
             this.getWorksData();
         }
@@ -19360,87 +19378,87 @@ class InitPageBase {
     }
     /** 抓取完毕 */
     crawlFinished() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('getWorksProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.persistentRefresh('getWorksProgress');
         // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
         // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
         // 所以我设置了个一次性的标记，防止重复执行这里的代码
         if (this.crawlFinishBecauseStopCrawl) {
             return;
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             this.crawlFinishBecauseStopCrawl = true;
         }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length === 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length === 0) {
             return this.noResult();
         }
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime = new Date();
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.crawlCompleteTime = new Date();
         // 对文件进行排序
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.setFileDownloadOrder) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setFileDownloadOrder) {
             // 按照用户设置的规则进行排序
             const scheme = new Map([
                 ['ID', 'id'],
                 ['bookmarkCount', 'bmk'],
                 ['bookmarkID', 'bmkId'],
             ]);
-            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrderSortBy);
+            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy);
             // 在搜索页面预览抓取结果时，始终按收藏数量排序
-            if (_PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_21__.pageType.list.ArtworkSearch &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.previewResult) {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.list.ArtworkSearch &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
                 key = 'bmk';
             }
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_20__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
         }
         else {
             // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
             this.sortResult();
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品产生了n个抓取结果', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString(), _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length.toString()));
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品产生了n个抓取结果', _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.length.toString(), _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('');
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('crawlComplete');
         // 自动导出抓取结果
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoExportResult &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoExportResultNumber) {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoExportResultCSV) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportCSV');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResult &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultNumber) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultCSV) {
+                _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('exportCSV');
             }
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoExportResultJSON) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportResult');
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultJSON) {
+                _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('exportResult');
             }
         }
     }
     /** 每当抓取了一个作品之后，输出提示 */
     logResultNumber() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 'getWorksProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.length.toString())}`, 'getWorksProgress');
     }
     /** 抓取结果为 0 时显示提示 */
     noResult() {
         // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他模块处理 crawlEmpty 这个例外情况
         // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlEmpty');
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('crawlComplete');
+        _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('crawlEmpty');
         // 如果所有 id 都产生了合并的小说，抓取结果就会是 0。此时显示抓取完毕的提示
         // 注意：这个条件需要判断 mergedNovelCount > 0，否则因为作品不符合过滤条件导致抓取结果为 0 时也符合这个判断条件
         if (this.mergedNovelCount > 0 &&
             this.mergedNovelCount === this.idListLength) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且所有作品都产生了合并系列小说时的提示'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且所有作品都产生了合并系列小说时的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('');
             // 在这里触发导出日志属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来允许自动导出日志
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportLogTiming === 'downloadComplete') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogTiming === 'downloadComplete') {
                 setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportLogsTiming');
+                    _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('exportLogsTiming');
                 }, 0);
             }
             return;
         }
         const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零的提示');
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
-        if (!_store_States__WEBPACK_IMPORTED_MODULE_8__.states.timedCrawlMode) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.error(msg);
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('');
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.timedCrawlMode) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.error(msg);
         }
     }
     /** 抓取完成后，对结果进行排序 */
@@ -19448,7 +19466,7 @@ class InitPageBase {
     /**定时抓取的按钮 */
     addStartTimedCrawlBtn(cb) {
         this.addInitPageBtn('crawlBtns', '_定时抓取', '_定时抓取说明', 'scheduleCrawling', 'brand').addEventListener('click', () => {
-            _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__.timedCrawl.start(cb);
+            _TimedCrawl__WEBPACK_IMPORTED_MODULE_24__.timedCrawl.start(cb);
         });
     }
     /**取消定时抓取的按钮 */
@@ -19457,11 +19475,11 @@ class InitPageBase {
         const btn = this.addInitPageBtn('crawlBtns', '_取消定时抓取', '', id, 'warning');
         btn.style.display = 'none';
         btn.addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('cancelTimedCrawl');
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('cancelTimedCrawl');
             btn.style.display = 'none';
         });
         // 启动定时抓取之后，显示取消定时抓取的按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.startTimedCrawl, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.list.startTimedCrawl, () => {
             const btn = document.getElementById(id);
             if (btn) {
                 btn.style.display = 'flex';
@@ -23635,7 +23653,7 @@ class CrawlUserList {
         // 注意：不要在导出后触发 stopCrawl 事件，否则会停掉整个抓取用户列表的任务
         if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_17__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.isPixiv()) {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_18__.store.idList);
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_18__.store.idList, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.exportFileByteLengthLimit);
                 for (const result of resultList) {
                     _utils_Utils__WEBPACK_IMPORTED_MODULE_21__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_20__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_20__.Tools.formatDateTimeInFilename()}.json`);
                 }
@@ -25224,15 +25242,22 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前任务尚未完成'));
             return;
         }
-        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFile().catch((err) => {
+        const loaded = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFilesWithFiles().catch((err) => {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.error(err);
         }));
-        if (!loadedJSON) {
+        if (!loaded) {
             return;
         }
-        // 要求是数组并且要有内容
-        if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+        // 导出时如果数据较多会被拆成多个文件，这里把它们合并到一起导入
+        const loadedJSON = [];
+        for (const data of loaded.data) {
+            // 要求是数组并且要有内容
+            if (!Array.isArray(data) || !data.length || !data[0]) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+            }
+            for (const item of data) {
+                loadedJSON.push(item);
+            }
         }
         // 检查是否含有必须的字段（只检查了一部分）
         const keys = Object.keys(loadedJSON[0]);
@@ -25242,6 +25267,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
             }
         }
+        // 数据较多时会分成多个文件，所以显示一下本次导入的文件名，便于用户确认
+        _Log__WEBPACK_IMPORTED_MODULE_10__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次导入的文件', loaded.files.map((f) => f.name).join(', ')));
         _Log__WEBPACK_IMPORTED_MODULE_10__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入作品ID列表'));
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlStart');
         _store_States__WEBPACK_IMPORTED_MODULE_11__.states.stopCrawl = false;
@@ -26642,6 +26669,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _BookmarkPageBatchActionBase__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./BookmarkPageBatchActionBase */ "./src/ts/crawlMixedPage/bookmarkActions/BookmarkPageBatchActionBase.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -26723,7 +26752,7 @@ class ExportBookmarkListAction extends _BookmarkPageBatchActionBase__WEBPACK_IMP
                 if (bookmarkDataList.length === 0) {
                     return;
                 }
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(bookmarkDataList);
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(bookmarkDataList, _Config__WEBPACK_IMPORTED_MODULE_11__.Config.exportFileByteLengthLimit);
                 for (const result of resultList) {
                     _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(result.url, `Bookmark list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle()}-${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.formatDateTimeInFilename()}.json`);
                 }
@@ -26823,14 +26852,21 @@ class ImportBookmarkListAction {
         });
     }
     async importBookmarkIDList() {
-        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFile().catch((err) => {
+        const loaded = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFilesWithFiles().catch((err) => {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(err);
         }));
-        if (!loadedJSON) {
+        if (!loaded) {
             return;
         }
-        if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+        // 收藏较多时导出会被拆成多个文件，这里把它们合并到一起导入
+        const loadedJSON = [];
+        for (const data of loaded.data) {
+            if (!Array.isArray(data) || !data.length || !data[0]) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+            }
+            for (const item of data) {
+                loadedJSON.push(item);
+            }
         }
         const keys = Object.keys(loadedJSON[0]);
         const need = ['id', 'type', 'tags'];
@@ -26842,6 +26878,8 @@ class ImportBookmarkListAction {
         const tip = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入收藏列表');
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(tip);
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success('🚀' + tip);
+        // 数据较多时会分成多个文件，所以显示一下本次导入的文件名，便于用户确认
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次导入的文件', loaded.files.map((f) => f.name).join(', ')));
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品数量') + ` ${loadedJSON.length}`);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('closeSettingsPanel');
         let oldList = [];
@@ -31877,6 +31915,7 @@ new DownloadOnClickLike();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   createRecordStores: () => (/* binding */ createRecordStores),
 /* harmony export */   downloadRecord: () => (/* binding */ downloadRecord)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
@@ -31888,6 +31927,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadRecordManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadRecordManager */ "./src/ts/download/DownloadRecordManager.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 
 
 
@@ -31897,6 +31937,39 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+/** 建好下载记录的存储库
+ *
+ * 1 版本的数据库给每个存储库都建了一个 id 索引，而它和主键（keyPath 也是 id）完全重复，
+ * 从来没有被任何查询用到。但它会让每次写入和清除都多维护一份索引数据，导致导入和清除下载记录时的速度变慢。
+ * 所以新版本不再创建它，并在升级时把已有的删掉。
+ *
+ * @param db 升级事件里的数据库对象
+ * @param transaction 版本变更事务。修改已存在的存储库必须用它，
+ *                    不能在升级事件里另开 db.transaction()：那样新事务要等升级结束后才执行，
+ *                    那时已经不允许改结构了，deleteIndex 会失败
+ */
+function createRecordStores(db, transaction, storeNameList) {
+    for (const name of storeNameList) {
+        if (!db.objectStoreNames.contains(name)) {
+            // 新建存储库。注意：不要再建 id 索引
+            db.createObjectStore(name, { keyPath: 'id' });
+        }
+        else if (transaction) {
+            // 数据库已存在（从旧版本升级上来）：删掉冗余的索引。
+            // 用 try/catch 包住：删不掉只是回到以前的慢速度，不能让整个升级失败
+            try {
+                const store = transaction.objectStore(name);
+                if (store.indexNames.contains('id')) {
+                    store.deleteIndex('id');
+                }
+            }
+            catch (error) {
+                console.warn(`delete legacy index failed in ${name}`);
+            }
+        }
+    }
+}
 /** 添加和查询下载记录 */
 class DownloadRecord {
     constructor() {
@@ -31907,8 +31980,15 @@ class DownloadRecord {
     IDB;
     /** 等待数据库初始化完成的 Promise，用于防止在 DB 就绪前查询 */
     dbReady;
+    /** 是否已经申请过持久化存储。每个页面只需要申请一次 */
+    persistentStorageRequested = false;
     DBName = 'DLRecord';
-    DBVer = 1;
+    /** 数据库版本。
+     * 2 版本开始不再给每个存储库建那个和主键完全重复的 id 索引，并在升级时删掉已有的
+     * （它从来没有被用到，却会让写入和清除都多维护一份数据，是导入/清除慢的主要原因）。
+     * 2 版本那次升级用错了事务（在升级事件里另开 db.transaction()），索引实际没删成，
+     * 所以再升一次版本，用版本变更事务重新删 */
+    DBVer = 3;
     storeNameList = [
         'record1',
         'record2',
@@ -31920,7 +32000,6 @@ class DownloadRecord {
         'record8',
         'record9',
     ];
-    existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
     // 从图片 url 里取出日期字符串的正则表达式
     dateRegExp = /img\/(.*)\//;
     async init() {
@@ -31931,25 +32010,71 @@ class DownloadRecord {
         }
         this.bindEvents();
     }
+    /** 申请持久化存储，避免下载记录所在的 IndexedDB 在磁盘空间紧张时被浏览器清除。
+     *
+     * 下载记录是用户辛苦攒下来的数据（用来去重），一旦被清除很难恢复，
+     * 而站点数据默认是 best-effort 的存储，可以被浏览器按 LRU 清掉。
+     *
+     * 只在第一次成功写入下载记录之后申请一次：Firefox 会为此弹出一个授权框，
+     * 不能在页面刚加载时就打断用户；而用户真正产生了下载记录，才说明这个功能对他有意义。
+     * 浏览器可能拒绝（Chrome 按站点参与度等信号自动决定，不会弹窗），这是正常的，不影响功能，所以只记录到控制台。
+     */
+    async requestPersistentStorage() {
+        if (this.persistentStorageRequested) {
+            return;
+        }
+        this.persistentStorageRequested = true;
+        const persisted = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.requestPersistentStorage();
+        if (!persisted) {
+            console.info('[PPD] persistent storage is not granted');
+        }
+    }
     // 初始化数据库，获取数据库对象
     async initDB() {
-        // 在升级事件里创建表和索引
-        const onUpdate = (db) => {
-            for (const name of this.storeNameList) {
-                if (!db.objectStoreNames.contains(name)) {
-                    const store = db.createObjectStore(name, { keyPath: 'id' });
-                    store.createIndex('id', 'id', { unique: true });
-                }
+        // 在升级事件里创建存储库（并删掉旧版本冗余的索引）
+        const onUpdate = (db, transaction, oldVersion) => {
+            // oldVersion 为 0 表示数据库不存在、这是全新安装：这时只是建库，用户没有数据受影响，
+            // 不需要提示。只有从旧版本升级上来时才提示（旧库里可能有很多记录，
+            // 删索引等操作会让数据库在一段时间内不可用）
+            if (oldVersion > 0) {
+                // 只有真的开始升级了才会走到这里。在这之前，open 请求可能只是被其他标签页
+                // 阻塞着（那样会走 onblocked，不会触发升级），所以提示要放在这里
+                this.showUpgradeStart();
+                // 升级事务提交之后才算升级完成（出错中止的话不会触发 complete，也就不会误报）
+                transaction.oncomplete = () => {
+                    this.showUpgradeComplete();
+                };
             }
+            createRecordStores(db, transaction, this.storeNameList);
         };
         try {
             await this.IDB.open(this.DBName, this.DBVer, onUpdate);
             return true;
         }
         catch (ev) {
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB打不开', _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB.getErrorName(ev)));
+            const errorName = _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB.getErrorName(ev);
+            if (errorName === 'BlockedError') {
+                // 升级被其他标签页阻塞（那些标签页还开着旧版本的连接）。
+                // 这时下载记录功能会暂停，直到用户刷新其他标签页，所以要说清楚该怎么办
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB被其他标签页阻塞'));
+            }
+            else {
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB打不开', errorName));
+            }
             return false;
         }
+    }
+    /** 数据库升级开始的提示。升级期间数据库不可用，所以要让用户知道并暂停下载 */
+    showUpgradeStart() {
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB需要升级');
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('🚀' + msg);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.warning(msg);
+    }
+    /** 数据库升级完成的提示 */
+    showUpgradeComplete() {
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_IndexedDB升级完成');
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.success('✅' + msg);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.success(msg);
     }
     bindEvents() {
         // 当有文件下载完成时，存储这个任务的记录
@@ -31964,10 +32089,6 @@ class DownloadRecord {
             // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.findResult(successData.id);
             result && this.addRecordFromResult(result);
-        });
-        // 监听清空下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearDownloadRecord, () => {
-            this.existedIdList = [];
         });
     }
     // 当要查找或存储一个 id 时，返回它所对应的 storeName
@@ -32022,14 +32143,18 @@ class DownloadRecord {
             return;
         }
         const storeName = this.getStoreName(record.id);
-        if (this.existedIdList.includes(record.id)) {
-            this.IDB.put(storeName, record);
+        // 直接 put：同一个作品的记录本来就应该以最近一次下载的为准。
+        // 以前要先查一次数据库才知道用 add 还是 put，每条记录都多付一次查询
+        // （还要在 existedIdList 这个数组里做线性查找），而现在一次写入就够了
+        try {
+            await this.IDB.put(storeName, record);
         }
-        else {
-            // 先查询有没有这个记录
-            const exists = await this.getRecord(record.id);
-            this.IDB[exists ? 'put' : 'add'](storeName, record);
+        catch (error) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB.getErrorName(error));
+            return;
         }
+        // 写入成功说明用户确实在积累下载记录，这时才值得申请持久化存储（每个页面只申请一次）
+        this.requestPersistentStorage();
     }
     // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
     // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
@@ -32041,9 +32166,6 @@ class DownloadRecord {
         }
         const storeName = this.getStoreName(id);
         const record = (await this.IDB.get(storeName, id));
-        if (record) {
-            this.existedIdList.push(record.id);
-        }
         // console.log('getRecord', id, record)
         return record;
     }
@@ -32103,13 +32225,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   DownloadRecordManager: () => (/* binding */ DownloadRecordManager)
 /* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_9__);
+
+
+
 
 
 
@@ -32118,6 +32247,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /** 导入、导出、清空下载记录 */
+// 简单的测试记录文档：notes/导入下载记录时的效率-花费的时间.md
 class DownloadRecordManager {
     constructor(IDB, storeNameList) {
         this.IDB = IDB;
@@ -32126,144 +32256,373 @@ class DownloadRecordManager {
     }
     IDB;
     storeNameList;
+    /** 移动端建议的单次导入体积上限（100 MB）
+     *
+     * 移动端浏览器可用的内存比桌面端小得多，而导入时要把所有文件的 JSON
+     * 文本和解析出的记录都放进内存，一次性导入太大的文件可能会失败。
+     * 超过这个体积时只是给出提示，不会阻止导入 */
+    mobileImportSizeLimit = 104857600;
+    /** 在扩展的 storage.local 里记录「上一次导出时，下载记录共有多少条」。
+     *
+     * 为什么需要它：下载记录保存在 pixiv.net 这个 origin 的 IndexedDB 里，
+     * 而浏览器在磁盘空间紧张时会按 LRU 清掉整个 origin 的数据，
+     * IndexedDB 检测到损坏时也会「删掉整个库再新建一个空库」（这是 Chromium 的既定行为）。
+     * 这两种情况下记录都会凭空消失，而我们只能看到「数据库是空的」，
+     * 无法区分「本来就没记录」和「记录被浏览器清掉了」。
+     *
+     * 扩展自己的 storage.local 属于扩展的 origin，不会被 pixiv 站点的数据清理影响，
+     * 所以用它存一个「上次已知的记录数」，就能在发现数据库为空时提醒用户，而不是谎报「没有可用数据」。
+     */
+    lastCountStoreName = 'downloadRecordLastCount';
+    /** 导出大文件时，下载之后延迟回收 blob URL 的时间（毫秒）。
+     * 手机上上百 MB 的 blob 可能过几秒才真正开始被读取，200 毫秒就回收会导致下载失败 */
+    exportRevokeDelay = 10000;
     bindEvents() {
         // 监听导出下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.exportDownloadRecord, () => {
-            this.exportRecord();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.list.exportDownloadRecord, () => {
+            // 兜底：这些流程里如果还有没被捕获的异常，也不能让它变成静默的未处理拒绝，
+            // 否则用户什么都看不到，只会觉得「卡住了」
+            this.exportRecord().catch((error) => {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+            });
         });
         // 监听导入下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.importDownloadRecord, () => {
-            this.importRecordFromJSON();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.list.importDownloadRecord, () => {
+            this.importRecordFromJSON().catch((error) => {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+            });
         });
         // 导入含有 id 列表的 TXT 文件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.importDownloadRecordTXT, () => {
-            this.importRecordFromTxt();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.list.importDownloadRecordTXT, () => {
+            this.importRecordFromTxt().catch((error) => {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+            });
         });
         // 监听清空下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.clearDownloadRecord, () => {
-            this.clearRecords();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.list.clearDownloadRecord, () => {
+            this.clearRecords().catch((error) => {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+            });
         });
+    }
+    /** 记录「上一次已知的记录数」。失败时静默忽略：这只是辅助信息，不能影响正常功能 */
+    async setLastKnownCount(count) {
+        try {
+            await webextension_polyfill__WEBPACK_IMPORTED_MODULE_9___default().storage.local.set({ [this.lastCountStoreName]: count });
+        }
+        catch (error) {
+            // 扩展被更新/卸载时可能写不进去，忽略即可
+        }
+    }
+    /** 读取「上一次已知的记录数」，读不到时返回 0 */
+    async getLastKnownCount() {
+        try {
+            const data = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_9___default().storage.local.get(this.lastCountStoreName);
+            const count = data[this.lastCountStoreName];
+            return typeof count === 'number' ? count : 0;
+        }
+        catch (error) {
+            return 0;
+        }
+    }
+    /** 数据库不可用时的提示。
+     *
+     * 这些流程（导出、导入、清空）都要先确认数据库可用：否则底层的操作会失败，
+     * 用户要么什么都看不到（看起来像卡住），要么看到「9 个存储库清除失败」这种误导性的信息
+     */
+    showDatabaseUnavailable() {
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录数据库不可用');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(msg);
     }
     // 清空下载记录
     async clearRecords() {
-        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_确定要清除下载记录吗')) === false) {
+        if (!this.IDB.db) {
+            return this.showDatabaseUnavailable();
+        }
+        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_确定要清除下载记录吗')) === false) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_清除下载记录'));
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_清除下载记录'));
-        let total = this.storeNameList.length;
-        let num = 0;
-        for (const name of this.storeNameList) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
-            num++;
-            await this.IDB.clear(name);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_清除下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始清除下载记录'));
+        _EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.fire('closeSettingsPanel');
+        const startTime = Date.now();
+        const total = this.storeNameList.length;
+        /** 已经清除完成的存储库数量 */
+        let finished = 0;
+        // 9 个存储库互不相干，可以并行清除（IndexedDB 允许不同存储库的事务并发执行）。
+        // 记录多的时候每个库可能要几秒到几十秒，串行等 9 次太久了
+        const results = await Promise.all(this.storeNameList.map(async (name) => {
+            try {
+                await this.IDB.clear(name);
+            }
+            catch (error) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+                return false;
+            }
+            // 每清完一个存储库就报告一次进度，别让用户干等着
+            finished++;
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${finished}/${total}`);
+            return true;
+        }));
+        const failed = results.filter((ok) => ok === false).length;
+        // 用户主动清空的，所以标记也归零，之后导出时不会误报「记录被清除」
+        await this.setLastKnownCount(0);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_耗时毫秒', (Date.now() - startTime).toString()));
+        // 有存储库没清掉时不能说「已清除」
+        if (failed > 0) {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_部分下载记录清除失败', failed.toString(), total.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
+            return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载记录已清除'));
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载记录已清除'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录已清除'));
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录已清除'));
+    }
+    /** 惰性读取所有存储库的下载记录，一批一批地交出去
+     *
+     * 三个目的：
+     * 1. 不把 9 个存储库的数据汇总成一个数组（那样光是记录数组就要占几 GB 内存）；
+     * 2. 按页读取：内存里只有当前这一页，而不是「一个存储库的全部记录」
+     *    （一个存储库的记录可能远大于单个导出文件的体积上限，一次 getAll 全读进来会在手机上把内存吃光）；
+     * 3. 一批一批地交出去，消费方就不必对每条记录做一次异步迭代
+     *    （几百万条记录时，每条都走一次 await 会明显拖慢导出）。
+     *
+     * @param onStoreError 某个存储库读取失败时回调（由调用方统计失败数量）
+     */
+    async *iterateRecords(onStoreError) {
+        const total = this.storeNameList.length;
+        let num = 0;
+        /** 每页（也是每批）的记录数 */
+        const pageSize = 20000;
+        for (const name of this.storeNameList) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
+            num++;
+            try {
+                // 上一页最后一条记录的 id，作为下一页的起点（主键就是记录的 id）
+                let lastKey = undefined;
+                while (true) {
+                    const page = await this.IDB.getAllByPage(name, lastKey, pageSize);
+                    // 读到 null 说明这个存储库读完了
+                    if (!page) {
+                        break;
+                    }
+                    lastKey = page[page.length - 1].id;
+                    yield page;
+                }
+            }
+            catch (error) {
+                // 一个存储库读取失败时，继续导出其他存储库的数据，最后如实报告
+                onStoreError(error);
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
     }
     // 导出下载记录
     async exportRecord() {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出下载记录'));
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出下载记录'));
-        let total = this.storeNameList.length;
-        let num = 0;
-        let record = [];
-        for (const name of this.storeNameList) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
-            num++;
-            const r = (await this.IDB.getAll(name));
-            record = record.concat(r);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始导出下载记录'));
+        _EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.fire('closeSettingsPanel');
+        // 数据库不可用时，getAll 会直接失败。这里给出明确的提示，
+        // 否则异常会变成异步监听器里的未处理拒绝，界面上什么都不会显示，看起来就像「卡住了」
+        if (!this.IDB.db) {
+            return this.showDatabaseUnavailable();
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
-        if (record.length === 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
-            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+        const startTime = Date.now();
+        /** 读取失败的存储库数量 */
+        let failed = 0;
+        /** 已生成的记录数 */
+        let exported = 0;
+        /** 已生成的文件数量 */
+        let fileIndex = 0;
+        // 逐个存储库惰性读取，按批交给 json2BlobChunksBatched 往当前文件里放；
+        // 放满一个文件就立刻下载并清空，然后继续。
+        // 不能先把所有记录汇总成一个数组再生成文件：那样光是记录数组就要占几 GB 内存，
+        // 加上 JSON 字符串和 Blob 各一份，实测能把标签页吃到 12 GB
+        try {
+            exported = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2BlobChunksBatched(this.iterateRecords((error) => {
+                failed++;
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error));
+            }), _Config__WEBPACK_IMPORTED_MODULE_7__.Config.exportFileByteLengthLimit, async (url, total) => {
+                fileIndex++;
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `record-total ${total}-${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.formatDateTimeInFilename()}.json`, this.exportRevokeDelay);
+                // 每生成一个文件就下载一个，所以这里能看到导出进度
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录分片导出进度', (exported + total).toString(), fileIndex.toString()));
+                exported += total;
+            });
+        }
+        catch (error) {
+            const tip = error?.message || error;
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(tip);
             return;
         }
-        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(record);
-        for (const result of resultList) {
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `record-total ${result.total}-${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.formatDateTimeInFilename()}.json`);
+        // 有存储库读取失败时，导出的文件会缺少这部分记录，所以不能报「导出成功」
+        const showFailedMessage = () => {
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_部分下载记录导出失败', failed.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
+        };
+        if (exported === 0) {
+            if (failed > 0) {
+                return showFailedMessage();
+            }
+            // 数据库是空的。如果上次导出时明明有记录，就说明记录是被浏览器清除的，
+            // 这时必须明确告诉用户，而不是简单的「没有可用数据」
+            const lastCount = await this.getLastKnownCount();
+            if (lastCount > 0) {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录可能已被浏览器清除', lastCount.toString());
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
+                // 已经提醒过用户了，把标记归零，避免之后每次导出都重复这条提示。
+                // 下次成功导出时会重新写入真实的记录数
+                await this.setLastKnownCount(0);
+                return;
+            }
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用');
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(msg);
+            return;
         }
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出成功');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(msg);
+        // 有存储库读取失败时，导出的记录比实际少，所以不能把这个偏小的值当作「上次已知的记录数」写进去：
+        // 那样之后记录真的被浏览器清掉时，就判断不出来了
+        if (failed > 0) {
+            return showFailedMessage();
+        }
+        // 更新「上次已知的记录数」，供下次判断记录是否被清除
+        await this.setLastKnownCount(exported);
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_耗时毫秒', (Date.now() - startTime).toString()));
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(msg);
     }
     // 导入下载记录
     async importRecord(record) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入下载记录'));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始导入下载记录'));
+        _EVT__WEBPACK_IMPORTED_MODULE_8__.EVT.fire('closeSettingsPanel');
         // 显示导入进度
         let stored = 0;
         let total = record.length;
         if (total > 10000) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_数据较多需要花费一些时间'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_数据较多需要花费一些时间'));
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
-        console.time('importRecord');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
+        const startTime = Date.now();
+        // 一趟遍历就把记录按 id 的首位分到各个存储库对应的桶里。
+        // 老代码对每个存储库都完整扫一遍 record，9 个存储库就是 9 × 500 万次判断
+        const buckets = this.storeNameList.map(() => []);
+        for (const r of record) {
+            const index = parseInt(r.id[0]) - 1;
+            const bucket = buckets[index];
+            // id 的首位是 0 或者不是数字时，不属于任何存储库，跳过（和数据去重一样按首位分库）
+            if (bucket) {
+                bucket.push(r);
+            }
+        }
+        // 分完桶就不再需要原数组了。几百万条记录占用的内存不小，尽早释放
+        record.length = 0;
         // 依次处理每个存储库
         for (let index = 0; index < this.storeNameList.length; index++) {
-            // 提取出要存入这个存储库的数据
-            const data = [];
-            for (const r of record) {
-                if (parseInt(r.id[0]) - 1 === index) {
-                    data.push(r);
-                }
-            }
+            const data = buckets[index];
+            buckets[index] = [];
             if (data.length === 0) {
                 continue;
             }
             // 添加数据
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${data.length}`);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_待处理')} ${data.length}`);
             try {
                 // console.time('restoreRecord' + (index + 1))
-                await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
+                await this.IDB.batchAddData(this.storeNameList[index], data);
                 // console.timeEnd('restoreRecord' + (index + 1))
                 stored += data.length;
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
             }
             catch (error) {
-                const errorMsg = error?.target?.error;
-                const tip = errorMsg ? errorMsg : error;
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(tip);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(tip);
+                const tip = _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_0__.IndexedDB.getErrorName(error);
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(tip);
             }
         }
-        console.timeEnd('importRecord');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_耗时毫秒', (Date.now() - startTime).toString()));
         if (stored < total) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'));
-        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'));
-        _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'), {
-            title: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入下载记录'),
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'));
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入下载记录'),
         });
+        // 更新「上次已知的记录数」。数据库里可能还有本次没有覆盖到的记录，
+        // 所以取「原有标记」和「本次导入数量」中较大的那个
+        const lastCount = await this.getLastKnownCount();
+        await this.setLastKnownCount(Math.max(lastCount, stored));
         // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+    }
+    /** 导入文件之前给出提示
+     *
+     * 1. 在日志里显示本次导入的文件名（数据较多时会分成多个文件，需要全部导入）
+     * 2. 如果在移动端，检查文件体积是否过大：移动端浏览器可用的内存比较小，
+     *    一次性导入体积太大的文件可能会失败。多个文件的数据会被汇总到一起导入，
+     *    所以检查的是总体积。这只是提示，不会阻止导入
+     *
+     * @param files 本次导入的文件
+     */
+    showImportHints(files) {
+        // 用户可能有多个文件需要导入，因此在每次导入时显示当前文件名，以便用户区分、确认
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次导入的文件', files.map((f) => f.name).join(', ')));
+        // 移动端浏览器可用的内存比较小，一次性导入体积太大的文件可能会失败，先提醒一下。
+        // 多个文件的数据会被汇总到一起导入，所以检查的是总体积
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
+            const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+            if (totalBytes > this.mobileImportSizeLimit) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning('💡' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移动端导入体积提示'));
+            }
+        }
     }
     // 从 json 文件导入
     async importRecordFromJSON() {
-        const record = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(err);
+        if (!this.IDB.db) {
+            return this.showDatabaseUnavailable();
+        }
+        const loaded = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.loadJSONFilesWithFiles().catch((err) => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(err);
             return;
         }));
-        if (!record) {
+        if (!loaded) {
             return;
         }
-        // 判断格式是否符合要求
-        if (Array.isArray(record) === false ||
-            record[0].id === undefined ||
-            record[0].n === undefined) {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
+        this.showImportHints(loaded.files);
+        // 记录较多时导出会产生多个文件，这里把它们合并起来一起导入
+        const record = [];
+        for (const data of loaded.data) {
+            // 判断格式是否符合要求
+            if (Array.isArray(data) === false ||
+                data.length === 0 ||
+                data[0] === undefined ||
+                data[0].id === undefined ||
+                data[0].n === undefined) {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+            }
+            for (const item of data) {
+                record.push(item);
+            }
         }
-        this.importRecord(record);
+        // 返回这个 Promise：不然它内部的异常不会被 bindEvents 里的 catch 接住
+        return this.importRecord(record);
     }
     // 从 txt 文件导入
     // 每行一个文件 id（带序号），以换行分割
     async importRecordFromTxt() {
-        const files = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.selectFile('.txt');
+        if (!this.IDB.db) {
+            return this.showDatabaseUnavailable();
+        }
+        const files = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.selectFile('.txt');
         if (!files) {
             return;
         }
         const file = files[0];
+        this.showImportHints([file]);
         const text = await file.text();
         // 以换行分割
         let split = '\r\n';
@@ -32281,7 +32640,8 @@ class DownloadRecordManager {
                 });
             }
         }
-        this.importRecord(record);
+        // 同上：把 Promise 交回给调用方，异常才不会变成未处理拒绝
+        return this.importRecord(record);
     }
 }
 
@@ -32577,6 +32937,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -32598,9 +32960,11 @@ class ExportResult {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有可用的抓取结果'));
             return;
         }
-        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result, _Config__WEBPACK_IMPORTED_MODULE_7__.Config.exportFileByteLengthLimit);
         for (const result of resultList) {
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `result-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.formatDateTimeInFilename(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime)}.json`);
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `result-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.formatDateTimeInFilename(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime)}.json`, 
+            // 抓取结果可能达到上百 MB，给浏览器留出读取 blob 的时间
+            10000);
         }
         const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出成功');
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
@@ -32853,15 +33217,22 @@ class ImportResult {
         });
     }
     async import() {
-        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.loadJSONFile().catch((err) => {
+        const fileList = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.loadJSONFiles().catch((err) => {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
         }));
-        if (!loadedJSON) {
+        if (!fileList) {
             return;
         }
-        // 要求是数组并且要有内容
-        if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+        // 抓取结果较多时，导出会被拆成多个文件，这里把它们合并到一起导入
+        const loadedJSON = [];
+        for (const data of fileList) {
+            // 要求是数组并且要有内容
+            if (!Array.isArray(data) || !data.length || !data[0]) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+            }
+            for (const item of data) {
+                loadedJSON.push(item);
+            }
         }
         // 检查是否含有必须的字段（只检查了一部分）
         const keys = Object.keys(loadedJSON[0]);
@@ -38973,6 +39344,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/WorkPublishTimeIllusts */ "./src/ts/store/WorkPublishTimeIllusts.ts");
 /* harmony import */ var _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/WorkPublishTimeNovels */ "./src/ts/store/WorkPublishTimeNovels.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -39082,7 +39455,7 @@ class WorkPublishTime {
         if (result.length === 0) {
             return result;
         }
-        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result, _Config__WEBPACK_IMPORTED_MODULE_6__.Config.exportFileByteLengthLimit);
         for (const result of resultList) {
             _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(result.url, `workPublishTime-${type}-${start}-${end}.json`);
         }
@@ -43242,6 +43615,14 @@ Quick download tasks are triggered by these actions:<br>
         `다운로드 기록 지우기`,
         `Очистить запись загрузки`,
     ],
+    _开始清除下载记录: [
+        `开始清除下载记录`,
+        `開始清除下載紀錄`,
+        `Start clearing download record`,
+        `ダウンロード記録のクリアを開始`,
+        `다운로드 기록 지우기 시작`,
+        `Начало очистки записи загрузки`,
+    ],
     _确定要清除下载记录吗: [
         `确定要清除下载器的下载记录吗？\n
 注意：该功能清除的是下载器的下载记录，而非浏览器的下载记录。`,
@@ -43263,6 +43644,14 @@ Note: This clears the downloader's download record, not the browser's download h
         `ダウンロード履歴がクリアされました`,
         `다운로드 기록이 비워졌습니다`,
         `Запись загрузок была очищена`,
+    ],
+    _部分下载记录清除失败: [
+        `有 {} 个存储库清除失败（共 {} 个），请重试`,
+        `有 {} 個儲存庫清除失敗（共 {} 個），請重試`,
+        `Failed to clear {} of {} stores. Please try again.`,
+        `{} 個のストア（全 {} 個）のクリアに失敗しました。もう一度お試しください。`,
+        `{}개의 저장소(전체 {}개)를 비우지 못했습니다. 다시 시도하십시오.`,
+        `Не удалось очистить {} хранилищ из {}. Попробуйте снова.`,
     ],
     _跳过下载因为重复文件: [
         `检测到文件 {} 已经下载过，跳过此次下载`,
@@ -43746,6 +44135,14 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `다운로드 기록 불러오기`,
         `Импорт записи загрузки`,
     ],
+    _开始导入下载记录: [
+        `开始导入下载记录`,
+        `開始匯入下載紀錄`,
+        `Start importing download record`,
+        `ダウンロード記録のインポートを開始`,
+        `다운로드 기록 불러오기 시작`,
+        `Начало импорта записи загрузки`,
+    ],
     _导出下载记录: [
         `导出下载记录`,
         `匯出下載紀錄`,
@@ -43753,6 +44150,62 @@ In addition, there are some function buttons at the bottom of the image viewer, 
         `ダウンロード記録のエクスポート`,
         `다운로드 기록 내보내기`,
         `Экспорт записи загрузки`,
+    ],
+    _开始导出下载记录: [
+        `开始导出下载记录`,
+        `開始匯出下載紀錄`,
+        `Start exporting download record`,
+        `ダウンロード記録のエクスポートを開始`,
+        `다운로드 기록 내보내기 시작`,
+        `Начало экспорта записи загрузки`,
+    ],
+    _下载记录数据库不可用: [
+        `下载记录的数据库不可用，请刷新页面后再试`,
+        `下載紀錄的資料庫不可用，請重新整理頁面後再試`,
+        `The download record database is unavailable. Please refresh the page and try again.`,
+        `ダウンロード記録のデータベースが利用できません。ページを再読み込みしてからもう一度お試しください。`,
+        `다운로드 기록 데이터베이스를 사용할 수 없습니다. 페이지를 새로 고친 후 다시 시도하십시오.`,
+        `База данных записи загрузки недоступна. Обновите страницу и попробуйте снова.`,
+    ],
+    _部分下载记录导出失败: [
+        `有 {} 个存储库的下载记录读取失败，导出的文件会缺少这部分数据`,
+        `有 {} 個儲存庫的下載紀錄讀取失敗，匯出的檔案會缺少這部分資料`,
+        `Failed to read the download records of {} stores. The exported files will be missing this data.`,
+        `{} 個のストアのダウンロード記録を読み込めませんでした。エクスポートしたファイルにはこのデータが含まれません。`,
+        `{}개의 저장소에서 다운로드 기록을 읽지 못했습니다. 내보낸 파일에는 이 데이터가 빠집니다.`,
+        `Не удалось прочитать записи загрузки в {} хранилищах. Экспортированные файлы будут без этих данных.`,
+    ],
+    _下载记录分片导出进度: [
+        `已导出 {} 条记录（第 {} 个文件）`,
+        `已匯出 {} 筆紀錄（第 {} 個檔案）`,
+        `Exported {} records (file {})`,
+        `{} 件の記録をエクスポートしました（{} 番目のファイル）`,
+        `{}건의 기록을 내보냈습니다({}번째 파일)`,
+        `Экспортировано {} записей (файл {})`,
+    ],
+    _下载记录可能已被浏览器清除: [
+        `下载记录已经丢失。上次导出时有 {} 条记录，而现在一条也找不到。浏览器可能因为空间不足或数据损坏清除了这些数据，建议定期导出备份。`,
+        `下載紀錄已經遺失。上次匯出時有 {} 筆紀錄，而現在一條也找不到。瀏覽器可能因為空間不足或資料損毀清除了這些資料，建議定期匯出備份。`,
+        `The download records are gone. There were {} records at the last export, but now none can be found. The browser may have cleared them due to low disk space or data corruption. Export a backup regularly.`,
+        `ダウンロード記録が失われました。前回のエクスポート時には {} 件ありましたが、現在は 1 件も見つかりません。ディスク容量不足やデータの破損によりブラウザが削除した可能性があります。定期的にエクスポートしてバックアップしてください。`,
+        `다운로드 기록이 사라졌습니다. 지난 내보내기 때는 {}건이었지만 지금은 하나도 찾을 수 없습니다. 디스크 공간 부족이나 데이터 손상으로 브라우저가 삭제했을 수 있습니다. 정기적으로 내보내어 백업하십시오.`,
+        `Записи загрузки исчезли. При последнем экспорте их было {}, а сейчас не найдено ни одной. Возможно, браузер удалил их из-за нехватки места на диске или повреждения данных. Регулярно экспортируйте резервную копию.`,
+    ],
+    _本次导入的文件: [
+        `本次导入的文件：<br>{}`,
+        `本次匯入的檔案：<br>{}`,
+        `Files imported this time:<br>{}`,
+        `今回インポートするファイル：<br>{}`,
+        `이번에 가져올 파일:<br>{}`,
+        `Файлы, импортируемые на этот раз:<br>{}`,
+    ],
+    _移动端导入体积提示: [
+        `提示：在移动端导入下载记录时，建议每次导入的 JSON 文件合计体积不超过 100 MB。这是因为移动端浏览器可用的内存比较小，如果文件体积太大，导入可能会失败。`,
+        `提示：在行動裝置匯入下載紀錄時，建議每次匯入的 JSON 檔案合計體積不超過 100 MB。這是因為行動裝置瀏覽器可用的記憶體比較小，如果檔案體積太大，匯入可能會失敗。`,
+        `Tip: When importing download records on a mobile device, it is recommended that the JSON files imported at one time do not exceed 100 MB in total size. This is because mobile browsers have less available memory; if the files are too large, the import may fail.`,
+        `ヒント：モバイルでダウンロード記録をインポートする際は、1 回にインポートする JSON ファイルの合計サイズが 100 MB を超えないようにすることをお勧めします。モバイルブラウザで使用できるメモリが少ないため、ファイルが大きすぎるとインポートに失敗する可能性があります。`,
+        `팁: 모바일에서 다운로드 기록을 가져올 때는 한 번에 가져오는 JSON 파일의 총 크기가 100 MB를 넘지 않도록 권장합니다. 모바일 브라우저에서 사용할 수 있는 메모리가 적기 때문에 파일이 너무 크면 가져오기에 실패할 수 있습니다.`,
+        `Подсказка: при импорте записей загрузки на мобильном устройстве рекомендуется, чтобы общий размер JSON-файлов за один импорт не превышал 100 МБ. Это связано с тем, что у мобильных браузеров меньше доступной памяти; если файлы слишком большие, импорт может завершиться ошибкой.`,
     ],
     _数据较多需要花费一些时间: [
         `数据较多，需要花费一些时间`,
@@ -54110,6 +54563,14 @@ One possible reason: Your Pixiv account has been banned.`,
         `주의: 이미지 색상을 한 가지만 선택하면 다운로더가 모든 이미지의 썸네일을 불러와 확인하므로 크롤링에 걸리는 시간이 늘어납니다.`,
         `Обратите внимание: если выбрать только один цвет изображений, загрузчик будет загружать миниатюру каждого изображения для проверки, поэтому сканирование займёт больше времени.`,
     ],
+    _IndexedDB被其他标签页阻塞: [
+        `打不开 IndexedDB 数据库：其他标签页正在使用它。请刷新本页和所有打开的 pixiv 标签页，或者重启浏览器，这样下载器才能完成所需的数据库操作。`,
+        `打不開 IndexedDB 資料庫：其他標籤頁正在使用它。請重新整理本頁和所有開啟的 pixiv 標籤頁，或者重新啟動瀏覽器，這樣下載器才能完成所需的資料庫操作。`,
+        `Could not open the IndexedDB database: it is in use by another tab. Please refresh this page and all open pixiv tabs, or restart the browser, so that the downloader can complete the required database operation.`,
+        `IndexedDB データベースを開けません：他のタブが使用中です。このページと開いているすべての pixiv のタブを再読み込みするか、ブラウザを再起動してください。ダウンローダーが必要なデータベース操作を完了できます。`,
+        `IndexedDB 데이터베이스를 열 수 없습니다: 다른 탭에서 사용 중입니다. 이 페이지와 열려 있는 모든 pixiv 탭을 새로 고치거나 브라우저를 다시 시작하십시오. 그래야 다운로더가 필요한 데이터베이스 작업을 완료할 수 있습니다.`,
+        `Не удалось открыть базу данных IndexedDB: она используется другой вкладкой. Обновите эту страницу и все открытые вкладки pixiv или перезапустите браузер, чтобы загрузчик мог выполнить необходимую операцию с базой данных.`,
+    ],
     _IndexedDB打不开: [
         `下载器打不开 IndexedDB 数据库：{}`,
         `下載器打不開 IndexedDB 資料庫：{}`,
@@ -54133,6 +54594,22 @@ One possible reason: Your Pixiv account has been banned.`,
         `IndexedDB データベースにダウンローダーが必要とするデータストアがありません：{}`,
         `IndexedDB 데이터베이스에 다운로더에 필요한 데이터 저장소가 없습니다: {}`,
         `В базе данных IndexedDB отсутствуют хранилища, необходимые загрузчику: {}`,
+    ],
+    _IndexedDB需要升级: [
+        `下载器的数据库需要升级版本，请等待升级完成。在升级期间，建议你暂停所有下载任务。`,
+        `下載器的資料庫需要升級版本，請等待升級完成。在升級期間，建議你暫停所有下載任務。`,
+        `The downloader's database needs to be upgraded. Please wait for the upgrade to finish. During the upgrade, you are advised to pause all download tasks.`,
+        `ダウンローダーのデータベースをアップグレードする必要があります。アップグレードが完了するまでお待ちください。アップグレード中は、すべてのダウンロードタスクを一時停止することをお勧めします。`,
+        `다운로더의 데이터베이스를 업그레이드해야 합니다. 업그레이드가 완료될 때까지 기다려 주십시오. 업그레이드 중에는 모든 다운로드 작업을 일시 중지하는 것이 좋습니다.`,
+        `Базу данных загрузчика необходимо обновить. Дождитесь завершения обновления. Во время обновления рекомендуется приостановить все задачи загрузки.`,
+    ],
+    _IndexedDB升级完成: [
+        `下载器的数据库已经完成升级，你可以继续使用下载器了。`,
+        `下載器的資料庫已經完成升級，你可以繼續使用下載器了。`,
+        `The downloader's database has been upgraded. You can continue using the downloader.`,
+        `ダウンローダーのデータベースのアップグレードが完了しました。ダウンローダーを引き続き使用できます。`,
+        `다운로더의 데이터베이스 업그레이드가 완료되었습니다. 다운로더를 계속 사용할 수 있습니다.`,
+        `Обновление базы данных загрузчика завершено. Вы можете продолжать пользоваться загрузчиком.`,
     ],
     _保存抓取结果失败: [
         `保存抓取结果失败：{}`,
@@ -54587,6 +55064,14 @@ One possible reason: Your Pixiv account has been banned.`,
         `Это действие заблокировано, потому что:<br>
     В этой вкладке выполняется задача сканирования списка пользователей. Чтобы избежать помех, новые задачи сканирования не принимаются, пока она выполняется.<br>
     Вы можете открыть новую вкладку (в которой не выполняется задача сканирования списка пользователей), и тогда вы сможете нормально сканировать другие работы.`,
+    ],
+    _耗时毫秒: [
+        `耗时: {} ms`,
+        `耗時: {} ms`,
+        `Time taken: {} ms`,
+        `所要時間：{} ms`,
+        `소요 시간: {} ms`,
+        `Затраченное время: {} мс`,
     ],
 };
 
@@ -56601,6 +57086,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -56848,7 +57335,8 @@ class ExportFollowingList {
         // 在一次测试里我导出了 4514 个用户，JSON 文件的体积是 25.45 MiB（已格式化），平均每个用户的数据为 5912 B
         // 当用户数量超过 80000 时，体积才会接近 500 MiB。保守估计这里限制为 50000
         // 如果超出限制，会产生多个 json 文件，需要全部下载
-        const limit = this.JSONData.length > 50000;
+        // 手机上一律走分片逻辑：格式化后的 JSON 体积是紧凑格式的 1.x 倍，几百个用户就可能超出内存承受范围
+        const limit = _Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile || this.JSONData.length > 50000;
         let urls = [];
         if (!limit) {
             const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.json2Blob(this.JSONData);
@@ -56856,7 +57344,7 @@ class ExportFollowingList {
             urls.push(url);
         }
         else {
-            const data = await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.json2BlobSafe(this.JSONData);
+            const data = await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.json2BlobSafe(this.JSONData, _Config__WEBPACK_IMPORTED_MODULE_12__.Config.exportFileByteLengthLimit);
             urls = data.map((item) => item.url);
         }
         let part = 1;
@@ -56868,8 +57356,9 @@ class ExportFollowingList {
             // 文件名示例：
             // following list-total 4514-from user 9460149-part 1-2026-08-07 08-01-00.json
             const fileName = `following list-total ${this.JSONData.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLPathField(window.location.pathname, 'users')}-${partString}${_Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.formatDateTimeInFilename()}.json`;
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.downloadFile(url, fileName);
-            URL.revokeObjectURL(url);
+            // 不要在这里直接 revokeObjectURL：大文件在手机上可能还没开始读取 blob 就被回收了，
+            // 导致下载失败。交给 downloadFile 延迟回收
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.downloadFile(url, fileName, 10000);
             part++;
         }
     }
@@ -87614,7 +88103,11 @@ class IndexedDB {
             const request = indexedDB.open(DBName, DBVer);
             request.onupgradeneeded = (ev) => {
                 if (onUpgrade) {
-                    onUpgrade(request.result);
+                    // request.transaction 就是版本变更事务本身。
+                    // 要修改已存在的存储库（例如删索引）必须用它，不能在升级事件里另开 db.transaction()：
+                    // 那样新事务要等升级结束后才执行，那时已经不允许改结构了
+                    // oldVersion 为 0 表示这是新建数据库（全新安装），调用方可以据此区分「建库」和「升级」
+                    onUpgrade(request.result, request.transaction, ev.oldVersion);
                 }
             };
             request.onsuccess = (ev) => {
@@ -87678,45 +88171,68 @@ class IndexedDB {
             };
         });
     }
-    // 向一个存储库中批量添加数据
-    async batchAddData(storeName, dataList, key) {
-        return new Promise(async (resolve, reject) => {
-            if (dataList.length === 0) {
-                resolve();
+    /** 向一个存储库中批量写入数据（同一个 key 的记录会被覆盖）
+     *
+     * 这里有三个刻意的选择：
+     *
+     * 1. 一律使用 put。导入的语义就是「恢复、合并」，同一个 id 用导入的数据覆盖即可。
+     *    老代码为了决定用 add 还是 put，会把库里所有 key 读成数组，再用 includes 逐条查找——
+     *    那是 O(n) 的线性扫描：库里已经有 55 万条时，再导入 55 万条要比较上万亿次
+     *    （导入第一个文件还算能忍，导入第二个文件就会慢两个数量级）。
+     *    而且 add 一旦碰到重复主键，整个事务会 abort，那个存储库的数据会一条都写不进去。
+     *
+     * 2. 分块写入（默认 2 万条一个事务）。一个事务塞进几十万条请求会长时间占用内存和锁，
+     *    出错时还会整块回滚；分块之后，一块失败也只影响这一块。
+     *
+     * 3. 每一块里的请求一次性全部发起，只在事务的 complete 上等一次。
+     *    每条都 await 会为每条记录多付一次「微任务 + 事件循环」的往返，
+     *    而 IndexedDB 的请求本来就会在事务里排队。
+     */
+    async batchAddData(storeName, dataList, chunkSize = 20000) {
+        if (dataList.length === 0) {
+            return;
+        }
+        if (!this.db) {
+            throw new Error('Database is not defined');
+        }
+        for (let start = 0; start < dataList.length; start += chunkSize) {
+            await this.putChunk(storeName, dataList.slice(start, start + chunkSize));
+        }
+    }
+    /** 在一个事务里写入一批数据，等这个事务结束后才返回 */
+    putChunk(storeName, dataList) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject(new Error('Database is not defined'));
+                return;
             }
-            // 获取已存在的 key
-            let existedKeys = (await this.getAllKeys(storeName));
-            // 使用事务
-            const tr = this.db?.transaction(storeName, 'readwrite');
-            if (!tr) {
-                throw new Error(`transaction ${storeName} is undefined`);
+            let tr;
+            try {
+                tr = this.db.transaction(storeName, 'readwrite');
             }
-            const store = tr.objectStore(storeName);
+            catch (error) {
+                // 数据库正在关闭等情况下，transaction() 会同步抛出异常
+                reject(error);
+                return;
+            }
             tr.oncomplete = () => {
                 resolve();
             };
-            tr.onerror = (err) => {
-                console.error(err);
-                console.trace();
-                reject(err);
+            // 只要有一个请求失败，事务就会 abort，所以错误只在事务级别处理
+            tr.onerror = () => {
+                reject(tr.error || new Error(`transaction ${storeName} failed`));
             };
-            for (const data of dataList) {
-                await insert(data);
+            tr.onabort = () => {
+                reject(tr.error || new Error(`transaction ${storeName} aborted`));
+            };
+            const store = tr.objectStore(storeName);
+            try {
+                for (const data of dataList) {
+                    store.put(data);
+                }
             }
-            async function insert(data) {
-                return new Promise((resolve, reject) => {
-                    // 如果 key 已存在，则使用 put
-                    const type = existedKeys.includes(data[key])
-                        ? 'put'
-                        : 'add';
-                    const request = store[type](data);
-                    request.onsuccess = () => {
-                        resolve();
-                    };
-                    request.onerror = (err) => {
-                        reject(err);
-                    };
-                });
+            catch (error) {
+                reject(error);
             }
         });
     }
@@ -87755,8 +88271,10 @@ class IndexedDB {
                 reject('Database is not defined');
                 return;
             }
+            // 只读操作必须使用 readonly 事务：readwrite 事务对同一个存储库是排他的，
+            // 会和其他标签页里的写入互相排队（手机上后台标签页被冻结时，可能一直等不到锁）
             const r = this.db
-                .transaction(storeNames, 'readwrite')
+                .transaction(storeNames, 'readonly')
                 .objectStore(storeNames)
                 .getAll();
             r.onsuccess = (ev) => {
@@ -87768,6 +88286,49 @@ class IndexedDB {
             };
             r.onerror = (ev) => {
                 console.error('getAll failed');
+                console.trace();
+                reject(ev);
+            };
+        });
+    }
+    /** 分页读取一个存储库里的记录（按主键升序），一页最多 count 条；读完了返回 null
+     *
+     * 为什么用它代替「一次 getAll 整个存储库」：一个存储库的记录要一次全部放进内存，
+     * 记录多的时候（手机上尤其明显）峰值内存会远大于单个导出文件的体积上限。
+     * 分页之后内存里只有当前这一页，导出就能真正保持「任意时刻只有一页 + 一个文件」。
+     *
+     * 为什么不用游标：游标每读一条都要等一次 onsuccess（每条记录一次事件循环往返），
+     * 几十万条累积起来很慢。而这里一个请求就返回一整页，几十万条只需要几十个请求，
+     * 速度和一次 getAll 基本相同（都是把记录反序列化成对象，主要开销在这里）。
+     *
+     * @param storeName 存储库名称
+     * @param lastKey 上一页最后一条记录的主键，读下一页时传入；不传表示从第一页开始
+     * @param count 一页最多读取多少条
+     */
+    async getAllByPage(storeName, lastKey, count) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            // 主键是字符串。lowerBound(lastKey, true) 表示「大于 lastKey」，
+            // 这样下一页不会重复上一页的最后一条
+            const range = lastKey === undefined
+                ? undefined
+                : IDBKeyRange.lowerBound(lastKey, true);
+            const store = this.db
+                .transaction(storeName, 'readonly')
+                .objectStore(storeName);
+            // 只读操作仍然使用 readonly 事务（见 getAll 里的说明）
+            const r = range
+                ? store.getAll(range, count)
+                : store.getAll(undefined, count);
+            r.onsuccess = () => {
+                const data = r.result;
+                resolve(data && data.length > 0 ? data : null);
+            };
+            r.onerror = (ev) => {
+                console.error('getAllByPage failed');
                 console.trace();
                 reject(ev);
             };
@@ -88320,67 +88881,78 @@ class Utils {
     }
     /** 使用选择文件对话框，让用户选择 JSON 文件
      *
-     * 如果内容是合法的 JSON，则返回解析后的对象。
+     * 如果内容是合法的 JSON，则返回解析后的对象。（如果用户选择了多个文件，只返回第一个文件的内容）
      *
      * 如果用户点击了取消按钮（没有选择任何文件），则返回 undefined。
      */
     static async loadJSONFile() {
-        return new Promise((resolve, reject) => {
-            const i = document.createElement('input');
-            i.setAttribute('type', 'file');
-            i.setAttribute('accept', 'application/json');
-            const cleanup = () => {
-                i.onchange = null;
-                i.removeEventListener('cancel', onCancel);
-            };
-            const onCancel = () => {
-                cleanup();
-                resolve(undefined);
-            };
-            i.addEventListener('cancel', onCancel, { once: true });
-            i.onchange = () => {
-                const selectedFile = i.files?.[0];
-                if (!selectedFile) {
-                    return onCancel();
-                }
-                cleanup();
-                // 读取文件内容
-                const file = new FileReader();
-                file.readAsText(selectedFile);
-                file.onload = () => {
-                    const str = file.result;
-                    let result;
-                    try {
-                        result = JSON.parse(str);
-                        // if((result as any).constructor !== Object){
-                        // 允许是对象 {} 或者数组 []
-                        if (result === null || typeof result !== 'object') {
-                            const msg = 'Data is not an object!';
-                            return reject(new Error(msg));
-                        }
-                        return resolve(result);
-                    }
-                    catch (error) {
-                        const msg = 'JSON parse error!';
-                        return reject(new Error(msg));
-                    }
-                };
-            };
-            i.click();
-        });
+        const list = await Utils.loadJSONFiles(false);
+        if (list === undefined) {
+            return undefined;
+        }
+        return list[0];
+    }
+    /** 使用选择文件对话框，让用户选择一个或多个 JSON 文件
+     *
+     * 导出数据较多时会被拆成多个 JSON 文件，所以导入时需要支持一次选择多个文件（multiple 默认为 true）。
+     *
+     * 返回每个文件解析后的内容（顺序与用户选择的顺序一致）；如果用户取消选择，则返回 undefined。
+     */
+    static async loadJSONFiles(multiple = true) {
+        const loaded = await Utils.loadJSONFilesWithFiles(multiple);
+        if (loaded === undefined) {
+            return undefined;
+        }
+        return loaded.data;
+    }
+    /** 使用选择文件对话框，让用户选择一个或多个 JSON 文件
+     *
+     * 除了每个文件解析后的内容，还返回用户选择的文件列表（文件名、体积等信息），
+     * 方便调用方在导入前给出提示（例如显示文件名、检查文件体积）
+     *
+     * 返回 { files, data }，data 的顺序与用户选择的顺序一致；如果用户取消选择，则返回 undefined。
+     */
+    static async loadJSONFilesWithFiles(multiple = true) {
+        const fileList = await Utils.selectFile('application/json', multiple);
+        if (!fileList || fileList.length === 0) {
+            return undefined;
+        }
+        const files = Array.from(fileList);
+        const data = [];
+        for (const file of files) {
+            const str = await file.text();
+            let result;
+            try {
+                result = JSON.parse(str);
+            }
+            catch (error) {
+                throw new Error('JSON parse error!');
+            }
+            // 允许是对象 {} 或者数组 []
+            if (result === null || typeof result !== 'object') {
+                throw new Error('Data is not an object!');
+            }
+            data.push(result);
+        }
+        return { files, data };
     }
     /** 使用选择文件对话框，让用户选择文件
      *
      * accept: 可选，指定可选择的文件类型
      *
+     * multiple: 可选，是否允许选择多个文件
+     *
      * 返回用户选择的文件列表；如果用户取消选择，则返回 undefined
      */
-    static async selectFile(accept) {
+    static async selectFile(accept, multiple = false) {
         return new Promise((resolve) => {
             const i = document.createElement('input');
             i.setAttribute('type', 'file');
             if (accept) {
                 i.setAttribute('accept', accept);
+            }
+            if (multiple) {
+                i.setAttribute('multiple', 'multiple');
             }
             const cleanup = () => {
                 i.onchange = null;
@@ -88401,8 +88973,13 @@ class Utils {
             i.click();
         });
     }
-    // 通过创建 a 标签来下载文件
-    static downloadFile(url, fileName) {
+    /** 通过创建 a 标签来下载文件
+     *
+     * revokeDelay: 下载之后多久回收 blob URL（毫秒）。
+     * 大文件（例如导出上百 MB 的下载记录）在手机上可能过一会儿才真正开始读取 blob，
+     * 过早回收会导致下载失败，所以导出这类大文件时应该传入更大的值。
+     */
+    static downloadFile(url, fileName, revokeDelay = 200) {
         const a = document.createElement('a');
         a.href = url;
         a.download = fileName;
@@ -88410,7 +88987,29 @@ class Utils {
         if (url.startsWith('blob')) {
             setTimeout(() => {
                 URL.revokeObjectURL(url);
-            }, 200);
+            }, revokeDelay);
+        }
+    }
+    /** 申请持久化存储（best-effort → persistent）。
+     *
+     * 站点数据默认是「尽力而为」的存储，磁盘空间紧张时浏览器会按 LRU 把整个 origin 的数据清掉，
+     * 下载记录所在的 IndexedDB 也在其中。申请成功后浏览器不会再自动清除这些数据。
+     *
+     * 浏览器可能拒绝（Chrome 按站点参与度等信号自动决定，不会弹窗询问），
+     * 所以调用方必须把它当作「尽力而为」的处理，失败时不要影响正常功能。
+     */
+    static async requestPersistentStorage() {
+        try {
+            if (!navigator.storage || !navigator.storage.persist) {
+                return false;
+            }
+            if (await navigator.storage.persisted()) {
+                return true;
+            }
+            return await navigator.storage.persist();
+        }
+        catch (error) {
+            return false;
         }
     }
     // 判断当前页面是否属于 pixiv.net
@@ -88545,54 +89144,109 @@ class Utils {
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
     }
-    /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 500 MB */
-    static async json2BlobSafe(data) {
-        // 限制单个文件的体积上限为 500 MB
-        const fileByteLengthLimit = 524288000;
+    /** 把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 fileByteLengthLimit
+     *
+     * 注意：这个方法会把所有数据汇总到一起，峰值内存约为数据量的 2~3 倍
+     * （原数据 + JSON 字符串 + Blob 各一份）。数据量很大时（例如导出几十万条下载记录）
+     * 应该改用 json2BlobChunks 流式生成，边读边生成文件。
+     */
+    static async json2BlobSafe(data, fileByteLengthLimit = 524288000) {
         const result = [];
-        // 在这个数组里储存数组字面量
-        let JSONStringArray = [];
-        const length = data.length;
-        let index = 0;
-        let total = 0;
-        let bytelength = 0;
-        let startNewFile = true;
-        const textEncode = new TextEncoder();
-        while (index < length) {
-            // 添加数组的开始符号
-            if (startNewFile) {
-                startNewFile = false;
-                JSONStringArray.push('[');
-                bytelength = bytelength + 1;
-            }
-            // 循环添加每一项数据
-            const string = JSON.stringify(data[index]);
-            JSONStringArray.push(string);
-            JSONStringArray.push(',');
-            bytelength = bytelength + textEncode.encode(string).length + 1;
-            index++;
-            total++;
-            // 分割文件
-            if (index === length || bytelength >= fileByteLengthLimit) {
-                // 删除最后一个分隔符，否则会导致格式错误
-                JSONStringArray.pop();
-                // 添加数组的结束符号
-                JSONStringArray.push(']');
-                // 生成文件数据
-                const blob = new Blob(JSONStringArray, { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                result.push({
-                    url,
-                    total,
-                });
-                // 重置变量
-                startNewFile = true;
-                bytelength = 0;
-                total = 0;
-                JSONStringArray = [];
+        // 整个数组作为一批处理：内部是普通的 for 循环，每条记录不会额外走一次异步迭代
+        await Utils.json2BlobChunksBatched([data], fileByteLengthLimit, (url, total) => {
+            result.push({ url, total });
+        });
+        return result;
+    }
+    /** 流式生成 JSON 文件：每累积到 maxBytes 就生成一个文件，通过 onFile 回调交出去，然后清空已累积的数据
+     *
+     * 为什么需要它：如果先把所有数据汇总到一起再生成文件，峰值内存是数据量的 2~3 倍
+     * （原数据一份、JSON 字符串一份、Blob 一份）。几百万条下载记录就能把标签页的内存吃到十几 GB，
+     * 页面会卡住几十秒甚至被浏览器直接杀掉。流式处理之后，任意时刻只有「当前这一个文件」的数据在内存里。
+     *
+     * 注意：生产代码统一使用 json2BlobChunksBatched（按批提供数据），
+     * 这个「一条一条」的版本留给只能逐条产出数据的场景，目前只在测试里使用。
+     *
+     * @param items 要导出的数据。可以是数组，也可以是惰性读取的生成器
+     *               （例如从 IndexedDB 逐个存储库读取，每次只把一个库的数据放进内存）
+     * @param maxBytes 单个文件的体积上限
+     * @param onFile 生成一个文件时回调，参数是 blob URL 和这个文件里的记录数。
+     *               回调可以返回 Promise，这时会等它完成（例如等文件下载完成）再继续
+     * @returns 导出的记录总数
+     */
+    static async json2BlobChunks(items, maxBytes, onFile) {
+        // 把每一项单独作为一批。注意：这样每条记录都会走一次异步迭代，
+        // 数据量很大时（几百万条）应该改用 json2BlobChunksBatched，分批提供数据
+        async function* toBatches() {
+            for await (const item of items) {
+                yield [item];
             }
         }
-        return result;
+        return Utils.json2BlobChunksBatched(toBatches(), maxBytes, onFile);
+    }
+    /** 和 json2BlobChunks 相同，但 batches 里每一项是一个数组（一批记录）
+     *
+     * 为什么要按批：一条一条地过异步生成器，等于给每条记录都增加几次微任务往返，
+     * 几百万条记录累积起来会很明显（实测 100 万条慢 8%）。按批处理时，
+     * 批内是普通的 for 循环，和以前同步写法的速度一样，同时保留了流式的内存优势。
+     *
+     * @param batches 一批一批的数据。可以是数组的数组，也可以是惰性读取的生成器
+     * @param maxBytes 单个文件的体积上限
+     * @param onFile 生成一个文件时回调，参数是 blob URL 和这个文件里的记录数
+     * @returns 导出的记录总数
+     */
+    static async json2BlobChunksBatched(batches, maxBytes, onFile) {
+        /** 当前文件里的 JSON 片段（数组字面量） */
+        let JSONStringArray = [];
+        /** 当前文件已累积的字节数 */
+        let bytelength = 0;
+        /** 当前文件里的记录数 */
+        let total = 0;
+        /** 已导出的记录总数 */
+        let count = 0;
+        const textEncode = new TextEncoder();
+        /** 生成当前文件并回调，然后清空累积的数据 */
+        const flush = async () => {
+            if (JSONStringArray.length === 0) {
+                return;
+            }
+            // 删除最后一个分隔符，否则会导致格式错误
+            JSONStringArray.pop();
+            // 添加数组的结束符号
+            JSONStringArray.push(']');
+            // 生成文件数据
+            const blob = new Blob(JSONStringArray, { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const fileTotal = total;
+            JSONStringArray = [];
+            bytelength = 0;
+            total = 0;
+            await onFile(url, fileTotal);
+        };
+        for await (const batch of batches) {
+            // 批内是普通的 for 循环：不走异步迭代，每条记录的开销和以前一样
+            for (const item of batch) {
+                // 添加数组的开始符号
+                if (JSONStringArray.length === 0) {
+                    JSONStringArray.push('[');
+                    bytelength = bytelength + 1;
+                }
+                const string = JSON.stringify(item);
+                JSONStringArray.push(string);
+                JSONStringArray.push(',');
+                bytelength = bytelength + textEncode.encode(string).length + 1;
+                total++;
+                count++;
+                // 达到体积上限就立刻生成一个文件，不等所有数据处理完
+                if (bytelength >= maxBytes) {
+                    await flush();
+                }
+            }
+            // 一批处理完后，这批数据就可以被回收了（由提供数据的那一方负责释放）
+        }
+        // 收尾：把最后不满一个上限的文件也生成出来
+        await flush();
+        return count;
     }
     /**防抖 */
     static debounce(func, wait) {

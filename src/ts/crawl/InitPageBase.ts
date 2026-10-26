@@ -3,6 +3,7 @@ import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { API } from '../API'
+import { Config } from '../Config'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { EVT } from '../EVT'
@@ -428,7 +429,10 @@ abstract class InitPageBase {
       EVT.fire('stopCrawl')
 
       if (settings.exportIDList) {
-        const resultList = await Utils.json2BlobSafe(store.idList)
+        const resultList = await Utils.json2BlobSafe(
+          store.idList,
+          Config.exportFileByteLengthLimit
+        )
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,

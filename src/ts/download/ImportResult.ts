@@ -27,16 +27,23 @@ class ImportResult {
   }
 
   private async import() {
-    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
+    const fileList = (await Utils.loadJSONFiles<Result[]>().catch((err) => {
       return msgBox.error(err)
-    })) as Result[]
-    if (!loadedJSON) {
+    })) as Result[][] | undefined
+    if (!fileList) {
       return
     }
 
-    // 要求是数组并且要有内容
-    if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-      return toast.error(lang.transl('_格式错误'))
+    // 抓取结果较多时，导出会被拆成多个文件，这里把它们合并到一起导入
+    const loadedJSON: Result[] = []
+    for (const data of fileList) {
+      // 要求是数组并且要有内容
+      if (!Array.isArray(data) || !data.length || !data[0]) {
+        return toast.error(lang.transl('_格式错误'))
+      }
+      for (const item of data) {
+        loadedJSON.push(item)
+      }
     }
 
     // 检查是否含有必须的字段（只检查了一部分）

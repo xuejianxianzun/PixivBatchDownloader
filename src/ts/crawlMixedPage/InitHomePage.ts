@@ -282,16 +282,25 @@ class InitHomePage extends InitPageBase {
       return
     }
 
-    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
-      return msgBox.error(err)
-    })) as IDData[]
-    if (!loadedJSON) {
+    const loaded = (await Utils.loadJSONFilesWithFiles<IDData[]>().catch(
+      (err) => {
+        return msgBox.error(err)
+      }
+    )) as { files: File[]; data: IDData[][] } | undefined
+    if (!loaded) {
       return
     }
 
-    // 要求是数组并且要有内容
-    if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-      return toast.error(lang.transl('_格式错误'))
+    // 导出时如果数据较多会被拆成多个文件，这里把它们合并到一起导入
+    const loadedJSON: IDData[] = []
+    for (const data of loaded.data) {
+      // 要求是数组并且要有内容
+      if (!Array.isArray(data) || !data.length || !data[0]) {
+        return toast.error(lang.transl('_格式错误'))
+      }
+      for (const item of data) {
+        loadedJSON.push(item)
+      }
     }
 
     // 检查是否含有必须的字段（只检查了一部分）
@@ -302,6 +311,11 @@ class InitHomePage extends InitPageBase {
         return toast.error(lang.transl('_格式错误'))
       }
     }
+
+    // 数据较多时会分成多个文件，所以显示一下本次导入的文件名，便于用户确认
+    log.log(
+      lang.transl('_本次导入的文件', loaded.files.map((f) => f.name).join(', '))
+    )
 
     log.success('🚀' + lang.transl('_导入作品ID列表'))
 

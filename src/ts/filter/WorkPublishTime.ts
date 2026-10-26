@@ -4,6 +4,7 @@ import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
 import { log } from '../Log'
+import { Config } from '../Config'
 
 // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
 // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
@@ -126,7 +127,10 @@ class WorkPublishTime {
       return result
     }
 
-    const resultList = await Utils.json2BlobSafe(result)
+    const resultList = await Utils.json2BlobSafe(
+      result,
+      Config.exportFileByteLengthLimit
+    )
     for (const result of resultList) {
       Utils.downloadFile(
         result.url,
