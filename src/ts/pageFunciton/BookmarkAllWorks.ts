@@ -181,13 +181,13 @@ class BookmarkAllWorks {
       }
       try {
         // 如果下载器的收藏按钮设置为“不添加标签”，就不需要请求作品的数据
-        if (!settings.widthTagBoolean) {
+        if (!settings.withTagBoolean) {
           this.bookmarKData.push(noTagData)
           continue
         }
 
         // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
-        const delay = this.idList.length >= 120 ? settings.slowCrawlDealy : 0
+        const delay = this.idList.length >= 120 ? settings.slowCrawlDelay : 0
         await Utils.sleep(delay)
         let data
         if (id.type === 'novels') {

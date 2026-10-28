@@ -524,7 +524,7 @@ class CrawlUserList {
         const useCache =
           idData.type === 'novels' && !!cacheWorkData.get(idData.id, 'novel')
         if (!useCache) {
-          await Utils.sleep(settings.slowCrawlDealy)
+          await Utils.sleep(settings.slowCrawlDelay)
           if (this.isInterrupted(epoch)) {
             return
           }

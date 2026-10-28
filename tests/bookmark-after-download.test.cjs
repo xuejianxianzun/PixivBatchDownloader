@@ -93,9 +93,9 @@ function environment({ realBookmark = false } = {}) {
   const store = { result: [result()], resultMeta: [] }
   const settings = {
     bmkAfterDL: true,
-    widthTagBoolean: true,
+    withTagBoolean: true,
     restrictBoolean: false,
-    slowCrawlDealy: 0,
+    slowCrawlDelay: 0,
   }
   const log = Object.fromEntries(
     ['success', 'error', 'warning', 'log'].map((type) => [
@@ -353,7 +353,7 @@ test('queue captures tags, privacy, type and slow policy before mutable inputs c
   e.store.result[0].tags.push('later_tag')
   e.store.result[0].type = 0
   e.store.result.length = 1
-  e.settings.widthTagBoolean = false
+  e.settings.withTagBoolean = false
   e.settings.restrictBoolean = true
   await e.advance(200)
   assert.deepEqual(JSON.parse(JSON.stringify(e.writes[0].args)), [

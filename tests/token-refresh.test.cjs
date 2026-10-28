@@ -535,9 +535,9 @@ function callers(options = {}) {
     ])
   )
   const settings = {
-    widthTagBoolean: true,
+    withTagBoolean: true,
     restrictBoolean: true,
-    slowCrawlDealy: 0,
+    slowCrawlDelay: 0,
   }
   const imports = {
     './API': { API },

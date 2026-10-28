@@ -155,8 +155,8 @@ class BookmarksAddTag {
     try {
       // 如果用户希望使用翻译后的标签，就需要在这里获取
       // 备注：小说作品没有翻译后的标签；只有图像作品有翻译后的标签，所以这里只需要处理图像作品
-      if (settings.widthTag === 'transl' && item.type === 'illusts') {
-        await Utils.sleep(settings.slowCrawlDealy)
+      if (settings.withTag === 'transl' && item.type === 'illusts') {
+        await Utils.sleep(settings.slowCrawlDelay)
         const artwork = await cacheWorkData.getWorkDataAsync(item.id, 'artwork')
         item.tags = bookmark.getTagsBySetting(artwork)
       }

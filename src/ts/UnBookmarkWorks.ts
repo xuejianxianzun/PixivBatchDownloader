@@ -69,7 +69,7 @@ class UnBookmarkWorks {
 
   private async waitSlowMode(slowMode: boolean) {
     if (slowMode) {
-      return Utils.sleep(settings.slowCrawlDealy)
+      return Utils.sleep(settings.slowCrawlDelay)
     }
   }
 }

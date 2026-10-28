@@ -197,7 +197,7 @@ class FollowingList {
         break
       }
 
-      await Utils.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDelay)
     }
 
     return {

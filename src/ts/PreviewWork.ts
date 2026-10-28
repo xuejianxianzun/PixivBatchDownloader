@@ -343,7 +343,7 @@ class PreviewWork {
           ev.code === 'ArrowDown' ||
           ev.code === 'Space'
         ) {
-          if (settings.swicthImageByKeyboard) {
+          if (settings.switchImageByKeyboard) {
             // 阻止事件冒泡和默认事件
             // 阻止事件冒泡用来阻止 Pixiv 使用左右键来切换作品的功能
             // 阻止默认事件用来阻止上下键和空格键滚动页面的功能

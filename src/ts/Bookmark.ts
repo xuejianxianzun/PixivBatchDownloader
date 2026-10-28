@@ -48,11 +48,11 @@ class Bookmark {
    * - none（不添加标签）：返回空数组
    */
   public getTagsBySetting(data: ArtworkData | NovelData): string[] {
-    if (settings.widthTag === 'none') {
+    if (settings.withTag === 'none') {
       return []
     }
 
-    if (settings.widthTag === 'transl') {
+    if (settings.withTag === 'transl') {
       return Tools.extractTags(data, 'transl', 'save')
     }
 
@@ -85,7 +85,7 @@ class Bookmark {
    *
    * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
    *
-   * @param needAddTag 控制是否添加 tag。缺省时使用 settings.widthTagBoolean
+   * @param needAddTag 控制是否添加 tag。缺省时使用 settings.withTagBoolean
    *
    * @param restrict 指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
    *
@@ -100,7 +100,7 @@ class Bookmark {
     slowly?: boolean
   ) {
     const _needAddTag =
-      needAddTag === undefined ? settings.widthTagBoolean : !!needAddTag
+      needAddTag === undefined ? settings.withTagBoolean : !!needAddTag
     if (_needAddTag) {
       // 需要添加 tags
       if (tags === undefined) {
@@ -137,7 +137,7 @@ class Bookmark {
     const NO = ++this.taskID
     await this.waitCallMe(NO)
     try {
-      await Utils.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDelay)
       return await this.sendRequest(id, type, tags!, _restrict)
     } finally {
       // 请求或 token 刷新拒绝时也叫下一个号码，避免后续收藏一直等待。
@@ -190,7 +190,7 @@ class Bookmark {
         break
       }
 
-      await Utils.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDelay)
     }
 
     log.persistentRefresh('resutlCountWhenCrawlingBookmark')

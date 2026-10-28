@@ -76,7 +76,7 @@ class RemoveBookmarkTags {
       log.log(`${number} / ${total}`, 'removeWorksTagsProgress')
 
       if (slowMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
     }
 

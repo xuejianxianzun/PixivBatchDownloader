@@ -90,10 +90,10 @@ function createHarness() {
   const fetchPlan = []
   const states = { apiRequestCount: 0, accountWarning: false, busy: false }
   const settings = {
-    slowCrawlDealy: 0,
+    slowCrawlDelay: 0,
     // 默认使用原始标签。设为 'transl' 时 BookmarksAddTag 会去获取作品数据
-    widthTag: 'origin',
-    widthTagBoolean: true,
+    withTag: 'origin',
+    withTagBoolean: true,
     restrictBoolean: false,
     bmkAfterDL: true,
   }
@@ -517,7 +517,7 @@ test('BookmarksAddTag restores its button even when add throws', async () => {
 
 test('BookmarksAddTag fetches work data and uses translated tags in transl mode', async () => {
   const harness = createHarness()
-  harness.settings.widthTag = 'transl'
+  harness.settings.withTag = 'transl'
 
   // 记录「取作品数据」的额外请求
   const fetched = []
@@ -565,7 +565,7 @@ test('BookmarksAddTag fetches work data and uses translated tags in transl mode'
 
 test('BookmarksAddTag keeps original tags for novels in transl mode', async () => {
   const harness = createHarness()
-  harness.settings.widthTag = 'transl'
+  harness.settings.withTag = 'transl'
 
   const fetched = []
   harness.cacheWorkData.getWorkDataAsync = async (id) => {

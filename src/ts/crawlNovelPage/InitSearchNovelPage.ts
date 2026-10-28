@@ -457,7 +457,7 @@ class InitSearchNovelPage extends InitPageBase {
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
       if (states.slowCrawlMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
       this.getIdList()
     } else {

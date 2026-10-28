@@ -158,7 +158,7 @@ class InitNewArtworkFromAllUsersPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      await Utils.sleep(settings.slowCrawlDealy)
+      await Utils.sleep(settings.slowCrawlDelay)
     }
     this.getIdList()
   }

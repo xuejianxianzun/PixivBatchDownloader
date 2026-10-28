@@ -4,6 +4,7 @@
 // 2. 来自配置文件的 CRLF / CR 会统一成 LF
 // 3. 不属于换行标记的花括号内容（如 {name}）不会被误替换
 // 4. 其它设置项的转换不受影响
+// 5. 旧设置名 widthTag（with 的拼写错误）会迁移到 withTag，且旧值仍然能转换
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -69,15 +70,46 @@ test('其它设置项的转换不受影响', () => {
   assert.equal(convertOldSettings.convertString('tagsSeparator', ','), ',')
 })
 
-test('widthTag 的旧值转换成新的语义值', () => {
+test('withTag 的旧值转换成新的语义值', () => {
   // 最早的值：1 / -1
-  assert.equal(convertOldSettings.convertString('widthTag', '1'), 'origin')
-  assert.equal(convertOldSettings.convertString('widthTag', '-1'), 'none')
+  assert.equal(convertOldSettings.convertString('withTag', '1'), 'origin')
+  assert.equal(convertOldSettings.convertString('withTag', '-1'), 'none')
   // 上一版的值：yes 对应“添加作品的原始标签”，no 对应“不添加”
-  assert.equal(convertOldSettings.convertString('widthTag', 'yes'), 'origin')
-  assert.equal(convertOldSettings.convertString('widthTag', 'no'), 'none')
+  assert.equal(convertOldSettings.convertString('withTag', 'yes'), 'origin')
+  assert.equal(convertOldSettings.convertString('withTag', 'no'), 'none')
   // 已经是新值的不被改动
-  assert.equal(convertOldSettings.convertString('widthTag', 'origin'), 'origin')
-  assert.equal(convertOldSettings.convertString('widthTag', 'transl'), 'transl')
-  assert.equal(convertOldSettings.convertString('widthTag', 'none'), 'none')
+  assert.equal(convertOldSettings.convertString('withTag', 'origin'), 'origin')
+  assert.equal(convertOldSettings.convertString('withTag', 'transl'), 'transl')
+  assert.equal(convertOldSettings.convertString('withTag', 'none'), 'none')
+})
+
+test('旧的设置名 widthTag 迁移到 withTag（with 曾经被拼错）', () => {
+  // 改名后，老用户本地存储 / 导入的配置文件里的 widthTag 要写到新设置项上
+  assert.equal(convertOldSettings.convertKey('widthTag'), 'withTag')
+  // 已经是新名字的原样返回
+  assert.equal(convertOldSettings.convertKey('withTag'), 'withTag')
+  // 无关的设置名不受影响
+  assert.equal(convertOldSettings.convertKey('restrict'), 'restrict')
+
+  // 按 setSetting 的实际顺序：先改键名，再用新的键名转换旧值
+  // （所以 stringSettingsMap 里必须写成 withTag，写成 widthTag 就转换不到）
+  const key = convertOldSettings.convertKey('widthTag')
+  assert.equal(convertOldSettings.convertString(key, '1'), 'origin')
+  assert.equal(convertOldSettings.convertString(key, 'yes'), 'origin')
+})
+
+test('其它拼错的设置名也迁移到正确的键名', () => {
+  // swicth（switch）、Dealy（Delay）
+  assert.equal(
+    convertOldSettings.convertKey('swicthImageByKeyboard'),
+    'switchImageByKeyboard'
+  )
+  assert.equal(convertOldSettings.convertKey('slowCrawlDealy'), 'slowCrawlDelay')
+
+  // convertKey 可能被重复调用（setSetting 里还会再转一次），所以必须是幂等的
+  assert.equal(
+    convertOldSettings.convertKey('switchImageByKeyboard'),
+    'switchImageByKeyboard'
+  )
+  assert.equal(convertOldSettings.convertKey('slowCrawlDelay'), 'slowCrawlDelay')
 })

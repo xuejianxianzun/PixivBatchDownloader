@@ -194,11 +194,11 @@ class BookmarkAfterDL {
         type: data.type === 3 ? 'novels' : 'illusts',
         // 设置里选择了“添加翻译后的标签”时，使用抓取结果里的翻译后的标签
         tags: [
-          ...(settings.widthTag === 'transl' && data.tagsTranslOnly
+          ...(settings.withTag === 'transl' && data.tagsTranslOnly
             ? data.tagsTranslOnly
             : data.tags),
         ],
-        needAddTag: settings.widthTagBoolean,
+        needAddTag: settings.withTagBoolean,
         restrict: settings.restrictBoolean,
         slowly: store.result.length > 30,
         networkRetry: 0,

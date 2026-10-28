@@ -1308,7 +1308,7 @@ class SearchResultPreview {
       if (r.idNum === data.id) {
         // 设置里选择了“添加翻译后的标签”时，使用抓取结果里的翻译后的标签
         let tags =
-          settings.widthTag === 'transl' && r.tagsTranslOnly
+          settings.withTag === 'transl' && r.tagsTranslOnly
             ? r.tagsTranslOnly
             : data.tags
         let restrict: boolean | undefined = undefined

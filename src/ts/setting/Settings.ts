@@ -312,7 +312,7 @@ interface XzSetting {
   sizeSwitch: boolean
   sizeMin: number
   sizeMax: number
-  /** 该设置仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的小说保存格式 */
+  /** novelSaveAs 仅为保留兼容性而存在。新设置会从它里面继承用户以前保存的小说保存格式 */
   // 如果删掉它，那么当用户恢复或导入旧设置时，不会继承这个旧设置里保存的格式。
   // 顺序：它的顺序必须位于 novelSaveAsEPUB 和 novelSaveAsTXT 之前，
   // 这样才不会产生错误的覆盖。
@@ -362,9 +362,10 @@ interface XzSetting {
 
   // 选项在表单中的值
   // origin 添加作品的原始标签，transl 添加翻译后的标签，none 不添加标签
-  widthTag: 'origin' | 'transl' | 'none'
+  // 备注：这个设置项以前叫 widthTag（把 with 拼错了），旧数据的迁移见 ConvertOldSettings.renamedKeys
+  withTag: 'origin' | 'transl' | 'none'
   // 根据表单中的值转换为实际使用的值：只要不是 none 就表示要添加标签
-  widthTagBoolean: boolean
+  withTagBoolean: boolean
 
   // 选项在表单中的值
   restrict: 'yes' | 'no'
@@ -470,8 +471,8 @@ interface XzSetting {
   showLargerThumbnails: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
   checkBlockTagsForPreviewWork: boolean
-  // 这里存在拼写错误，但为了保持兼容性不做修改
-  swicthImageByKeyboard: boolean
+  /** 预览作品时，是否可以用键盘切换图片。备注：这个设置项以前叫 swicthImageByKeyboard（switch 拼错了） */
+  switchImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotCrawlLastImagesSwitch: boolean
   doNotCrawlLastImagesCount: number
@@ -532,8 +533,8 @@ interface XzSetting {
   saveDescriptionType3: boolean
   saveEachDescription: boolean
   summarizeDescription: boolean
-  // delay 的拼写错误，但为了维持兼容性，不做修改
-  slowCrawlDealy: number
+  /** 慢速抓取时，相邻两次请求之间等待的毫秒数。最小 1000。备注：以前叫 slowCrawlDealy（Delay 拼错了） */
+  slowCrawlDelay: number
   /**设置下载一个文件后，需要等待多久才能开始下一次下载。值为 0 - 3600 秒，允许小数 */
   downloadInterval: number
   downloadIntervalOnWorksNumber: number
@@ -991,9 +992,9 @@ class Settings {
     dateFormat: 'YYYY-MM-DD',
     userSetLang: 'auto',
     bmkAfterDL: false,
-    widthTag: 'origin',
+    withTag: 'origin',
     restrict: 'no',
-    widthTagBoolean: true,
+    withTagBoolean: true,
     restrictBoolean: false,
     showBookmarkPanel: false,
     bookmarkPanelCommonTagsMax: 30,
@@ -1144,7 +1145,7 @@ class Settings {
     showLargerThumbnails: false,
     wheelScrollSwitchImageOnPreviewWork: true,
     checkBlockTagsForPreviewWork: false,
-    swicthImageByKeyboard: true,
+    switchImageByKeyboard: true,
     doNotCrawlLastImagesSwitch: false,
     doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
@@ -1195,7 +1196,7 @@ class Settings {
     saveDescriptionType3: false,
     saveEachDescription: true,
     summarizeDescription: false,
-    slowCrawlDealy: 1800,
+    slowCrawlDelay: 1800,
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
@@ -1834,7 +1835,7 @@ url: {url}`,
       }
     }
 
-    if (key === 'slowCrawlDealy' && (value as number) < 1000) {
+    if (key === 'slowCrawlDelay' && (value as number) < 1000) {
       value = 1000
     }
 
@@ -1939,8 +1940,8 @@ url: {url}`,
     ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
-    if (key === 'widthTag') {
-      this.settings.widthTagBoolean = value !== 'none'
+    if (key === 'withTag') {
+      this.settings.withTagBoolean = value !== 'none'
     }
     if (key === 'restrict') {
       this.settings.restrictBoolean = value === 'yes'
