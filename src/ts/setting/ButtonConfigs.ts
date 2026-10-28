@@ -252,6 +252,12 @@ class ButtonConfigs {
     },
     // startCrawl - HomePage
     {
+      id: 'crawlUserList',
+      nameKey: '_抓取用户列表',
+      categoryLevel1: 'startCrawl',
+      categoryLevel2: 'HomePage',
+    },
+    {
       id: 'crawlById',
       nameKey: '_抓取作品列表',
       categoryLevel1: 'startCrawl',
@@ -266,12 +272,6 @@ class ButtonConfigs {
     {
       id: 'importIDList',
       nameKey: '_导入作品ID列表',
-      categoryLevel1: 'startCrawl',
-      categoryLevel2: 'HomePage',
-    },
-    {
-      id: 'crawlUserList',
-      nameKey: '_抓取用户列表',
       categoryLevel1: 'startCrawl',
       categoryLevel2: 'HomePage',
     },

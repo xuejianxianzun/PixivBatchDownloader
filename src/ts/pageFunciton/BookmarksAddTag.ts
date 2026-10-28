@@ -1,17 +1,12 @@
 import { canRequestInBatch } from '../AccountWarning'
 import { API } from '../API'
 import { Tools } from '../Tools'
-import {
-  BookmarkData,
-  NovelCommonData,
-  BookmarkResult,
-  ArtworkCommonData,
-} from '../crawl/CrawlResult'
-import { toast } from '../Toast'
+import { BookmarkData, BookmarkResult } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
-import { lang } from '../Language'
-import { log } from '../Log'
 import { msgBox } from '../MsgBox'
+import { settings } from '../setting/Settings'
+import { cacheWorkData } from '../store/CacheWorkData'
+import { Utils } from '../utils/Utils'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -109,17 +104,19 @@ class BookmarksAddTag {
       const works = data.body.works
       // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
       if (works.length > 0 && works[0].bookmarkData) {
-        works.forEach((work: ArtworkCommonData | NovelCommonData) => {
+        for (const work of works) {
           // 如果该作品没有标签，则不添加它
           // 这个作品也许确实没有标签，但绝大多数情况下，这表示这个作品已经被删除而不存在了（404）
           if (work.tags.length > 0) {
             this.addTagList.push({
               id: work.id,
+              type: 'illustType' in work ? 'illusts' : 'novels',
+              // 注意：work.tags 是作品的原始标签列表，并且 data 里没有包含翻译后的标签
               tags: work.tags,
               restrict: work.bookmarkData!.private,
             })
           }
-        })
+        }
       }
     }
 
@@ -156,9 +153,17 @@ class BookmarksAddTag {
 
     let status = 0
     try {
+      // 如果用户希望使用翻译后的标签，就需要在这里获取
+      // 备注：小说作品没有翻译后的标签；只有图像作品有翻译后的标签，所以这里只需要处理图像作品
+      if (settings.widthTag === 'transl' && item.type === 'illusts') {
+        await Utils.sleep(settings.slowCrawlDealy)
+        const artwork = await cacheWorkData.getWorkDataAsync(item.id, 'artwork')
+        item.tags = bookmark.getTagsBySetting(artwork)
+      }
+
       status = await bookmark.add(
         item.id,
-        this.type,
+        item.type,
         item.tags,
         true,
         item.restrict,

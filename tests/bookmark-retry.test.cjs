@@ -91,6 +91,8 @@ function createHarness() {
   const states = { apiRequestCount: 0, accountWarning: false, busy: false }
   const settings = {
     slowCrawlDealy: 0,
+    // 默认使用原始标签。设为 'transl' 时 BookmarksAddTag 会去获取作品数据
+    widthTag: 'origin',
     widthTagBoolean: true,
     restrictBoolean: false,
     bmkAfterDL: true,
@@ -152,6 +154,12 @@ function createHarness() {
     createWorkLinkByIDData: (data) => `link/${data.id}`,
     addBookmark403Error: () => '403 error',
     extractTags: () => [],
+  }
+  /** 假的 cacheWorkData。BookmarksAddTag 在「添加翻译后的标签」模式下会用它获取作品数据，
+   *  这里只要返回一份能走的通的数据即可，标签最终由假的 Tools.extractTags 给出 */
+  const cacheWorkData = {
+    get: () => undefined,
+    getWorkDataAsync: async (id) => ({ body: { id, tags: { tags: [] } } }),
   }
   const stubAPI = {
     getBookmarkData: async () => ({ body: { works: [], total: 0 } }),
@@ -215,6 +223,7 @@ function createHarness() {
     both('Config', { Config: { retryTime: 200000, mobile: false } })
     both('store/States', { states })
     both('store/Store', { store })
+    both('store/CacheWorkData', { cacheWorkData })
     both('BookmarkTags', { bookmarkTags: { add() {} } })
     both('Token', { token: tokenStub })
     both('Bookmark', { bookmark: extra.bookmark })
@@ -232,6 +241,8 @@ function createHarness() {
     settings,
     store,
     EVT,
+    // 暴露出来，测试可以替换 getWorkDataAsync 来观察 / 控制取数据的请求
+    cacheWorkData,
     load: (file, extra) => loadSource(file, buildImports(extra), globals),
     get now() {
       return now
@@ -502,6 +513,90 @@ test('BookmarksAddTag restores its button even when add throws', async () => {
 
   assert.equal(button.disabled, false, '抛异常时按钮也能恢复')
   assert.equal(task.failedCount, 1, '抛异常也算一次失败')
+})
+
+test('BookmarksAddTag fetches work data and uses translated tags in transl mode', async () => {
+  const harness = createHarness()
+  harness.settings.widthTag = 'transl'
+
+  // 记录「取作品数据」的额外请求
+  const fetched = []
+  harness.cacheWorkData.getWorkDataAsync = async (id, type) => {
+    fetched.push({ id, type })
+    return { body: { id, tags: { tags: [] } } }
+  }
+
+  // 记录真正提交给收藏请求的标签
+  const added = []
+  const bookmark = {
+    ...harness.makeBookmark(async (id, type, tags, needAddTag, restrict) => {
+      added.push({ id, type, tags, needAddTag, restrict })
+      return 200
+    }),
+    getTagsBySetting: (data) => [`translated-${data.body.id}`],
+  }
+
+  const { BookmarksAddTag } = harness.load('pageFunciton/BookmarksAddTag.ts', {
+    bookmark,
+  })
+  const button = makeElement()
+  const task = new BookmarksAddTag(button)
+  task.addTagList = [
+    { id: '1', type: 'illusts', tags: ['original'], restrict: false },
+  ]
+  task.type = 'illusts'
+
+  await runAdd(harness, task.addTag())
+
+  assert.deepEqual(
+    fetched,
+    [{ id: '1', type: 'artwork' }],
+    '图像作品会为翻译后的标签获取一次数据'
+  )
+  assert.equal(added.length, 1)
+  assert.deepEqual(
+    added[0].tags,
+    ['translated-1'],
+    '使用翻译后的标签，覆盖从收藏列表里拿到的原始标签'
+  )
+  assert.equal(button.textContent, '✓ Complete')
+  assert.equal(task.failedCount, 0)
+})
+
+test('BookmarksAddTag keeps original tags for novels in transl mode', async () => {
+  const harness = createHarness()
+  harness.settings.widthTag = 'transl'
+
+  const fetched = []
+  harness.cacheWorkData.getWorkDataAsync = async (id) => {
+    fetched.push(id)
+    return { body: { id, tags: { tags: [] } } }
+  }
+
+  const added = []
+  const bookmark = {
+    ...harness.makeBookmark(async (id, type, tags) => {
+      added.push({ id, type, tags })
+      return 200
+    }),
+    getTagsBySetting: () => ['should-not-be-used'],
+  }
+
+  const { BookmarksAddTag } = harness.load('pageFunciton/BookmarksAddTag.ts', {
+    bookmark,
+  })
+  const button = makeElement()
+  const task = new BookmarksAddTag(button)
+  task.addTagList = [
+    { id: '2', type: 'novels', tags: ['novel-tag'], restrict: false },
+  ]
+  task.type = 'novels'
+
+  await runAdd(harness, task.addTag())
+
+  assert.deepEqual(fetched, [], '小说没有翻译后的标签，不需要获取数据')
+  assert.deepEqual(added[0].tags, ['novel-tag'], '保留原来的标签')
+  assert.equal(task.failedCount, 0)
 })
 
 test('RemoveBookmarkTags counts failures and resets busy', async () => {

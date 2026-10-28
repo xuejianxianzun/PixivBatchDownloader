@@ -56558,6 +56558,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
 
 
 
@@ -56630,17 +56636,19 @@ class BookmarksAddTag {
             const works = data.body.works;
             // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
             if (works.length > 0 && works[0].bookmarkData) {
-                works.forEach((work) => {
+                for (const work of works) {
                     // 如果该作品没有标签，则不添加它
                     // 这个作品也许确实没有标签，但绝大多数情况下，这表示这个作品已经被删除而不存在了（404）
                     if (work.tags.length > 0) {
                         this.addTagList.push({
                             id: work.id,
+                            type: 'illustType' in work ? 'illusts' : 'novels',
+                            // 注意：work.tags 是作品的原始标签列表，并且 data 里没有包含翻译后的标签
                             tags: work.tags,
                             restrict: work.bookmarkData.private,
                         });
                     }
-                });
+                }
             }
         }
         // 已删除或无法访问的作品不会出现在请求结果里。本来一次请求 100 个，但返回的结果有可能会比 100 个少，甚至极端情况下是 0。所以实际获取到的作品可能比  total 数量少，这是正常的。
@@ -56674,7 +56682,14 @@ class BookmarksAddTag {
         const item = this.addTagList[this.addIndex];
         let status = 0;
         try {
-            status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+            // 如果用户希望使用翻译后的标签，就需要在这里获取
+            // 备注：小说作品没有翻译后的标签；只有图像作品有翻译后的标签，所以这里只需要处理图像作品
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.widthTag === 'transl' && item.type === 'illusts') {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
+                const artwork = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__.cacheWorkData.getWorkDataAsync(item.id, 'artwork');
+                item.tags = _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.getTagsBySetting(artwork);
+            }
+            status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, item.type, item.tags, true, item.restrict, true);
         }
         catch (error) {
             // add 一般不会抛异常（它把错误转成了返回值），这里兜底：
@@ -58691,6 +58706,12 @@ class ButtonConfigs {
         },
         // startCrawl - HomePage
         {
+            id: 'crawlUserList',
+            nameKey: '_抓取用户列表',
+            categoryLevel1: 'startCrawl',
+            categoryLevel2: 'HomePage',
+        },
+        {
             id: 'crawlById',
             nameKey: '_抓取作品列表',
             categoryLevel1: 'startCrawl',
@@ -58705,12 +58726,6 @@ class ButtonConfigs {
         {
             id: 'importIDList',
             nameKey: '_导入作品ID列表',
-            categoryLevel1: 'startCrawl',
-            categoryLevel2: 'HomePage',
-        },
-        {
-            id: 'crawlUserList',
-            nameKey: '_抓取用户列表',
             categoryLevel1: 'startCrawl',
             categoryLevel2: 'HomePage',
         },

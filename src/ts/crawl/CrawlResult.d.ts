@@ -319,6 +319,7 @@ export interface ArtworkCommonData {
   sl: 0 | 2 | 4 | 6
   url: string
   description: string
+  /** 作品的原始标签列表 */
   tags: string[]
   userId: string
   userName: string
@@ -478,7 +479,8 @@ export interface UgoiraInfo {
 /** 从书签作品中保存一些需要的数据 */
 export interface BookmarkResult {
   id: string
-  /** 作品本身的 tags */
+  type: 'illusts' | 'novels'
+  /** 作品的 tags。有可能是作品的原始标签，也有可能是翻译后的标签，这取决于设置该属性时使用的标签来源 */
   tags: string[]
   /** 用户为该收藏作品添加的标签，可能为：
    * - 空数组，这表示用户没有为它添加收藏标签；或者是导出的其他用户的收藏列表，此时无法获取其他用户设置的收藏标签，所以是空数组。
@@ -486,7 +488,6 @@ export interface BookmarkResult {
    * - 不同于作品本身的 tags：用户添加了自定义的 tags */
   bookmarkTags?: string[]
   restrict: boolean
-  type?: 'illusts' | 'novels'
 }
 
 /** 动图元数据 */
