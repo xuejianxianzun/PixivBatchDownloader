@@ -238,7 +238,7 @@ class ExportFollowingList {
 
     this.requestTimes++
     // 获取下一批用户列表
-    await Utils.sleep(settings.slowCrawlDealy)
+    await Utils.sleep(settings.slowCrawlDelay)
     this.getUserList()
   }
 

@@ -118,7 +118,7 @@ class InitWatchListNovelPage extends InitPageBase {
       )
 
       if (states.slowCrawlMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
 
       this.getIdList()

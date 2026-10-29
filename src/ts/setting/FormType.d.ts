@@ -89,7 +89,7 @@ export interface FormType extends HTMLFormElement {
   dateFormat: HTMLInputElement
   userSetLang: RadioNodeList
   bmkAfterDL: HTMLInputElement
-  widthTag: RadioNodeList
+  withTag: RadioNodeList
   restrict: RadioNodeList
   showBookmarkPanel: HTMLInputElement
   bookmarkPanelCommonTagsMax: HTMLInputElement
@@ -163,7 +163,7 @@ export interface FormType extends HTMLFormElement {
   showLargerThumbnails: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
   checkBlockTagsForPreviewWork: HTMLInputElement
-  swicthImageByKeyboard: HTMLInputElement
+  switchImageByKeyboard: HTMLInputElement
   doNotCrawlLastImagesSwitch: HTMLInputElement
   doNotCrawlLastImagesCount: HTMLInputElement
   downloadNovelCoverImage: HTMLInputElement
@@ -203,7 +203,7 @@ export interface FormType extends HTMLFormElement {
   saveDescriptionType3: HTMLInputElement
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
-  slowCrawlDealy: HTMLInputElement
+  slowCrawlDelay: HTMLInputElement
   downloadInterval: HTMLInputElement
   downloadIntervalOnWorksNumber: HTMLInputElement
   crawlLatestFewWorks: HTMLInputElement

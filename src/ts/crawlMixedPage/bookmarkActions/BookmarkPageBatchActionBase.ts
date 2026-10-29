@@ -236,7 +236,7 @@ abstract class BookmarkPageBatchActionBase<T> {
       offset += 100
 
       if (states.slowCrawlMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
     }
 

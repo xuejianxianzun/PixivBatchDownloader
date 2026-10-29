@@ -17,6 +17,9 @@ class NovelThumbnail extends WorkThumbnail {
         '.works-item-novel-editor-recommend',
         // 首页底部用大尺寸展示的作品
         '[data-ga4-label="work_content"]',
+        // 用户主页顶部的精选小说/系列小说（最多 3 篇）
+        // https://www.pixiv.net/users/54472536
+        'a[class*="style_carousel-item"]',
         // 小说搜索页面
         '[data-ga4-label="works_content"] .col-span-full',
         // 小说的发现页面、排行榜页面
@@ -220,8 +223,9 @@ class NovelThumbnail extends WorkThumbnail {
         }
       }
 
-      let elements: HTMLElement[] | NodeListOf<HTMLElement> =
-        parent.querySelectorAll<HTMLElement>(selector)
+      // 注意：如果新增的节点自身就是缩略图（例如移动端的精选小说轮播项），
+      // 也需要把它找出来，所以要用 queryThumbnails 而不是直接 querySelectorAll
+      let elements = this.queryThumbnails(parent, selector)
       // 处理特殊的动态添加的元素
       // 有些动态添加的元素不能被选择器选中
 

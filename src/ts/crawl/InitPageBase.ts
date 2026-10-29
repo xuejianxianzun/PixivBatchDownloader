@@ -641,7 +641,7 @@ abstract class InitPageBase {
 
       // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
       if (states.slowCrawlMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
       this.getWorksData()
     } else {

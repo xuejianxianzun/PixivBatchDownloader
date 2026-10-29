@@ -203,7 +203,7 @@ class InitNewWorksFromFollowingPage extends InitPageBase {
     } else {
       // 继续抓取
       if (states.slowCrawlMode) {
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
       this.getIdList()
     }

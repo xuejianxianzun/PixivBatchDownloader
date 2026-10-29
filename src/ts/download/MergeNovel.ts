@@ -128,7 +128,7 @@ class MergeNovel {
   /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
   // 我尝试过更低的延迟时间，例如 2000, 没有触发 429 错误，但依然被警告了，所以增加到 2400
   private get crawlInterval() {
-    return Math.max(2400, settings.slowCrawlDealy)
+    return Math.max(2400, settings.slowCrawlDelay)
   }
   /** 下载文件时的间隔时间，最低为 2000 ms */
   private get downloadInterval() {

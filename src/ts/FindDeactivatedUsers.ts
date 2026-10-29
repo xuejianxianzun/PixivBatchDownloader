@@ -96,7 +96,7 @@ class FindDeactivatedUsers {
           log.log(lang.transl('_该用户已注销'))
         }
 
-        await Utils.sleep(settings.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDelay)
       }
     }
 

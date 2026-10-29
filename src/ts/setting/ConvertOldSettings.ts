@@ -29,9 +29,11 @@ class ConvertOldSettings {
       '2': 'vertical',
       '3': 'userSet',
     },
-    // widthTag 的值改过两次：最早是 '1' / '-1'，之后是 'yes' / 'no'，现在是 'origin' / 'transl' / 'none'。
+    // 这个设置项以前叫 widthTag（把 with 拼错了），后来改名为 withTag。
+    // 值也改过两次：最早是 '1' / '-1'，之后是 'yes' / 'no'，现在是 'origin' / 'transl' / 'none'。
     // 这里一次性把两种旧值都转换成现在的值：旧值 yes 对应“添加作品的原始标签”，no 对应“不添加”
-    widthTag: {
+    // 注意：转换值时用的已经是改名后的 key（setSetting 会先调用 convertKey），所以这里必须写 withTag
+    withTag: {
       '1': 'origin',
       '-1': 'none',
       yes: 'origin',
@@ -58,6 +60,15 @@ class ConvertOldSettings {
    * convertExcludeTag 迁移，它会按照 tagMatchMode 分配到正确的输入框。这个映射只是兜底。 */
   private readonly renamedKeys: RenamedSettingsMap = {
     notNeedTag: 'notNeedTagWhole',
+    // 旧版本的设置名把 with 拼成了 width。改名后旧数据里的值要迁移到新设置项，
+    // 否则老用户升级后这项设置会被丢弃、回落到默认值（总是添加原始标签）。
+    // 注意：派生的 withTagBoolean 不需要迁移——它由 withTag 的值算出来，
+    // 旧的 widthTagBoolean 会被当作未知设置项忽略。
+    widthTag: 'withTag',
+    // 这两个设置项的键名也拼错了，一并改名。它们分别是布尔值和数字，没有旧值需要转换，
+    // 只需要把旧键名里的值搬到新键名上，否则升级后会被丢弃、回落到默认值。
+    swicthImageByKeyboard: 'switchImageByKeyboard',
+    slowCrawlDealy: 'slowCrawlDelay',
   }
 
   /** 传入设置名，如果它是已经废弃的旧设置名，返回它对应的新设置名；否则返回原设置名。
