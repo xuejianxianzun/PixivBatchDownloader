@@ -289,7 +289,9 @@ class ArtworkThumbnail extends WorkThumbnail {
         }
       }
 
-      const elements = parent.querySelectorAll<HTMLElement>(selector)
+      // 注意：如果新增的节点自身就是缩略图，也需要把它找出来，
+      // 所以要用 queryThumbnails 而不是直接 querySelectorAll
+      const elements = this.queryThumbnails(parent, selector)
       for (const el of elements) {
         const id = Tools.findWorkIdFromElement(el, 'illusts')
 

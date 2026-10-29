@@ -51,6 +51,25 @@ abstract class WorkThumbnail {
   /**查找作品缩略图 */
   protected abstract findThumbnail(parent: HTMLElement): void
 
+  /**用选择器查找缩略图元素。如果 parent 自身也符合选择器，会把它一起返回。
+   *
+   * ⚠️ `querySelectorAll` 只查找后代、不包含元素自身。而 Pixiv 有些缩略图是「被直接添加的那个节点」：
+   * 例如移动端用户主页顶部的精选小说轮播项 `a[class*="style_carousel-item"]`，
+   * 它的父容器（`div.style_v-carousel-container__xxx`）更早就插入了，之后只 append 这一个 `<a>`。
+   * 此时在 MutationObserver 里对新增节点调用 querySelectorAll 永远找不到它，
+   * 必须额外判断这个节点自身是否匹配。
+   */
+  protected queryThumbnails(
+    parent: HTMLElement,
+    selector: string
+  ): HTMLElement[] {
+    const result = Array.from(parent.querySelectorAll<HTMLElement>(selector))
+    if (parent.matches(selector)) {
+      result.unshift(parent)
+    }
+    return result
+  }
+
   /**当鼠标进入缩略图时，重新检查它当前的作品 id 和类型。
    *
    * 小说缩略图的内容可能会变化（例如在追更列表里，一开始展示的是系列里最新的一篇小说，之后只剩下系列链接），
