@@ -11105,6 +11105,9 @@ class PreviewWork {
     async setShow(val) {
         const version = ++this.previewVersion;
         if (val) {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork || this.dontShowAfterPageSwitch) {
+                return;
+            }
             const workId = this.workId;
             const workData = await _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_3__.cacheWorkData.getWorkDataAsync(workId, 'artwork');
             // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
@@ -11118,9 +11121,6 @@ class PreviewWork {
             }
             else {
                 // 准备显示预览
-                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWork || this.dontShowAfterPageSwitch) {
-                    return;
-                }
                 // 检查这个作品是否符合预览的作品类型
                 const checkType = this.checkPreviewType(this.workData);
                 if (!checkType) {

@@ -99,6 +99,10 @@ class PreviewWork {
     const version = ++this.previewVersion
 
     if (val) {
+      if (!settings.PreviewWork || this.dontShowAfterPageSwitch) {
+        return
+      }
+
       const workId = this.workId
       const workData = await cacheWorkData.getWorkDataAsync(workId, 'artwork')
       // 用户可能在等待请求期间把鼠标移动了到另一个没有获取过数据的作品上
@@ -111,10 +115,6 @@ class PreviewWork {
         this.readyShow()
       } else {
         // 准备显示预览
-        if (!settings.PreviewWork || this.dontShowAfterPageSwitch) {
-          return
-        }
-
         // 检查这个作品是否符合预览的作品类型
         const checkType = this.checkPreviewType(this.workData)
         if (!checkType) {
