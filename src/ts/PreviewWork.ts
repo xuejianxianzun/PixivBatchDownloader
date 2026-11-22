@@ -330,6 +330,12 @@ class PreviewWork {
 
         // 预览作品时，可以使用快捷键 B 收藏这个作品
         if (ev.code === 'KeyB') {
+          // 详细信息面板也显示时，B 键交给那个面板处理。
+          // 否则两个模块都会响应同一次按键，弹出两次收藏面板
+          if (states.previewWorkDetailInfoPanelIsShow) {
+            return
+          }
+
           ev.preventDefault()
           ev.stopPropagation()
           addBookmarkFromWorkThumb.add(this.workData, this.workEL)
@@ -387,6 +393,8 @@ class PreviewWork {
       EVT.list.pageSwitch,
       EVT.list.settingsPanelOpened,
       EVT.list.showOriginSizeImage,
+      // 收藏面板的层级比预览区域低，不隐藏预览区域会挡住收藏面板
+      EVT.list.bookmarkPanelOpened,
     ]
     hiddenEvtList.forEach((evt) => {
       window.addEventListener(evt, () => {

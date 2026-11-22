@@ -107,6 +107,8 @@ class EVENT {
     worksUpdate: 'worksUpdate',
     /** 当需要清空收藏面板的“常用的标签”列表时触发 */
     clearBookmarkPanelCommonTags: 'clearBookmarkPanelCommonTags',
+    /** 收藏面板显示之后触发。其他模块收到后应该隐藏自己的面板，避免挡住收藏面板 */
+    bookmarkPanelOpened: 'bookmarkPanelOpened',
     /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
     clearDownloadRecord: 'clearDownloadRecord',
     /** 当需要导出下载记录时触发 */
@@ -263,6 +265,7 @@ class EVENT {
       | 'settingsPanelClosed'
       | 'worksUpdate'
       | 'clearBookmarkPanelCommonTags'
+      | 'bookmarkPanelOpened'
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
       | 'importDownloadRecord'

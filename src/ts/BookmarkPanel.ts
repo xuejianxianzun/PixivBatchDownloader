@@ -133,6 +133,9 @@ class BookmarkPanel {
 
     this.create(data)
 
+    // 通知其他模块：收藏面板已显示。它们会隐藏自己的面板，避免挡住收藏面板
+    EVT.fire('bookmarkPanelOpened')
+
     return new Promise<BookmarkPanelOption | undefined>((resolve) => {
       this.resolveFn = resolve
     })

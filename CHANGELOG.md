@@ -28,6 +28,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/706
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/701
 
+### ✨在详细信息面板里添加了收藏按钮
+
+点击详细信息面板里的收藏按钮，或者按快捷键 B 即可收藏作品。当用户启用了收藏面板时，会显示收藏面板。
+
 ## 19.6.1 2026-10-28
 
 ### 🐞修复问题：给未分类的作品添加标签时，总是使用原始标签

@@ -203,7 +203,7 @@ html.ppdMarqueeActive {
 html {
   --text-color: #1f1f1f;
 }
-html[data-xzpagetheme="dark"] {
+html[data-xzpagetheme='dark'] {
   --text-color: #f5f5f5;
 }
 .fastScreenArea {
@@ -4531,10 +4531,12 @@ iframe[name='expandedFooter'] {
 .xz_PreviewWorkDetailPanel .content .textButton:hover {
   color: #0ea8ef;
 }
-.xz_PreviewWorkDetailPanel .content .textButton#copyBtn {
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn,
+.xz_PreviewWorkDetailPanel .content .textButton#bookmarkBtn {
   padding: 0 4px;
 }
-.xz_PreviewWorkDetailPanel .content .textButton#copyBtn svg {
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn svg,
+.xz_PreviewWorkDetailPanel .content .textButton#bookmarkBtn svg {
   width: 1.4em;
   height: 1.4em;
 }

@@ -3001,6 +3001,8 @@ class BookmarkPanel {
         this.restrict = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.bookmarkPanelRestrict === 'private';
         this.resetBookmarkTags();
         this.create(data);
+        // 通知其他模块：收藏面板已显示。它们会隐藏自己的面板，避免挡住收藏面板
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('bookmarkPanelOpened');
         return new Promise((resolve) => {
             this.resolveFn = resolve;
         });
@@ -4996,6 +4998,8 @@ class EVENT {
         worksUpdate: 'worksUpdate',
         /** 当需要清空收藏面板的“常用的标签”列表时触发 */
         clearBookmarkPanelCommonTags: 'clearBookmarkPanelCommonTags',
+        /** 收藏面板显示之后触发。其他模块收到后应该隐藏自己的面板，避免挡住收藏面板 */
+        bookmarkPanelOpened: 'bookmarkPanelOpened',
         /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
         clearDownloadRecord: 'clearDownloadRecord',
         /** 当需要导出下载记录时触发 */
@@ -11312,6 +11316,11 @@ class PreviewWork {
             }
             // 预览作品时，可以使用快捷键 B 收藏这个作品
             if (ev.code === 'KeyB') {
+                // 详细信息面板也显示时，B 键交给那个面板处理。
+                // 否则两个模块都会响应同一次按键，弹出两次收藏面板
+                if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.previewWorkDetailInfoPanelIsShow) {
+                    return;
+                }
                 ev.preventDefault();
                 ev.stopPropagation();
                 _AddBookmarkFromWorkThumb__WEBPACK_IMPORTED_MODULE_17__.addBookmarkFromWorkThumb.add(this.workData, this.workEL);
@@ -11359,6 +11368,8 @@ class PreviewWork {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch,
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingsPanelOpened,
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.showOriginSizeImage,
+            // 收藏面板的层级比预览区域低，不隐藏预览区域会挡住收藏面板
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.bookmarkPanelOpened,
         ];
         hiddenEvtList.forEach((evt) => {
             window.addEventListener(evt, () => {
@@ -11818,6 +11829,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _AddBookmarkFromWorkThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./AddBookmarkFromWorkThumb */ "./src/ts/AddBookmarkFromWorkThumb.ts");
+/* harmony import */ var _BookmarkPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./BookmarkPanel */ "./src/ts/BookmarkPanel.ts");
+
+
 
 
 
@@ -11866,6 +11881,8 @@ class PreviewWorkDetailInfo {
     panelDetachedFromMouse = false;
     /** 当前显示的面板对应的作品缩略图。鼠标在这个缩略图上时，面板应该保持显示 */
     panelWorkEl = null;
+    /** 当前显示的面板对应的作品数据。用于收藏作品等操作 */
+    panelWorkData;
     /** 当前显示的面板元素 */
     panelEl = null;
     /** 等待预览区域出现的最长时间（毫秒）。
@@ -11934,17 +11951,47 @@ class PreviewWorkDetailInfo {
             }
             this.adjustPosition();
         });
+        // 收藏面板显示时关闭详情面板。详情面板的层级（100001）比收藏面板（3001）高，不关闭会挡住它
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.bookmarkPanelOpened, () => {
+            if (this.show) {
+                this.remove();
+            }
+        });
         window.addEventListener('keydown', (ev) => {
+            if (!this.show) {
+                return;
+            }
             // 从图片查看器打开时，Esc 留给查看器（查看器会因此关闭，面板随之关闭）。
             // 否则两个监听器都会响应同一次 Esc，导致面板和查看器一起关闭
-            if (ev.key === 'Escape' && this.show && !this.fromImageViewer) {
+            if (ev.key === 'Escape' && !this.fromImageViewer) {
                 ev.stopPropagation();
                 ev.preventDefault();
                 this.remove();
+                return;
+            }
+            // 按 B 键收藏这个作品。
+            // 预览作品模块也绑定了 B 键，但它在详情面板显示时不会处理（见 PreviewWork），
+            // 所以同一次按键只会触发一次收藏
+            if (ev.code === 'KeyB') {
+                // 收藏面板已经打开时不再响应，否则会再次弹出收藏面板
+                if (_BookmarkPanel__WEBPACK_IMPORTED_MODULE_14__.bookmarkPanel.isOpen) {
+                    return;
+                }
+                // 带修饰键时是其他快捷键（例如 Alt + B），交给它们处理
+                if (ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey) {
+                    return;
+                }
+                // 从图片查看器打开时，B 键由查看器处理
+                if (this.fromImageViewer) {
+                    return;
+                }
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.bookmark();
             }
         }, {
             capture: true,
-            passive: true,
+            passive: false,
         });
     }
     /** 由图片查看器的「作品信息」按钮调用：显示或隐藏详情面板。
@@ -12027,6 +12074,7 @@ class PreviewWorkDetailInfo {
             return;
         }
         const workData = fetchedData;
+        this.panelWorkData = workData;
         const wrap = document.createElement('div');
         // 设置文字内容
         // 生成 tag 内容
@@ -12115,6 +12163,15 @@ class PreviewWorkDetailInfo {
                 <use xlink:href="#copy"></use>
               </svg>
             </button>
+            <button
+              class="textButton"
+              id="bookmarkBtn"
+              title="${_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_收藏')}"
+            >
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#star-line"></use>
+              </svg>
+            </button>
           </p>
         </div>
       `;
@@ -12135,6 +12192,9 @@ class PreviewWorkDetailInfo {
                 type: 'illusts',
             });
         });
+        wrap.querySelector('#bookmarkBtn').addEventListener('click', () => {
+            this.bookmark();
+        });
         // 取消超链接的跳转确认，也就是把跳转链接替换为真正的链接
         const allLink = wrap.querySelectorAll('a');
         for (const a of allLink) {
@@ -12148,6 +12208,10 @@ class PreviewWorkDetailInfo {
         // 点击面板的任何位置（包括它上面的按钮）都关闭面板。
         // 按钮自己的点击处理绑在按钮上，会先执行，所以复制之类的功能不受影响
         wrap.addEventListener('click', (ev) => {
+            // 按钮的点击处理可能已经把面板关闭了（例如收藏按钮），此时不要再关闭一次
+            if (!this.show) {
+                return;
+            }
             this.remove(wrap, ev.clientX, ev.clientY);
         });
         // 由缩略图触发的面板，鼠标移出时也关闭。
@@ -12406,6 +12470,7 @@ class PreviewWorkDetailInfo {
         this.panelArea = null;
         this.panelDetachedFromMouse = false;
         this.panelWorkEl = null;
+        this.panelWorkData = undefined;
         // 清除等待中的面板（例如等待期间切换了页面）
         if (this.pendingPanel) {
             window.clearTimeout(this.pendingPanel.timer);
@@ -12417,6 +12482,16 @@ class PreviewWorkDetailInfo {
             x: mouseX,
             y: mouseY,
         });
+    }
+    /** 收藏这个作品。点击面板上的收藏按钮、或者在面板显示时按 B 键，都会调用它。
+     *
+     * 启用收藏面板时，收藏面板显示后会派发 bookmarkPanelOpened 事件，面板会在这个事件里关闭自己 */
+    bookmark() {
+        const workData = this.panelWorkData;
+        if (!workData) {
+            return;
+        }
+        _AddBookmarkFromWorkThumb__WEBPACK_IMPORTED_MODULE_13__.addBookmarkFromWorkThumb.add(workData, this.panelWorkEl || undefined);
     }
     copyTXT(workData, aiType) {
         // 组织输出的内容
