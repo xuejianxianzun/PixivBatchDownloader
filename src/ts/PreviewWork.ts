@@ -19,7 +19,7 @@ import { filter } from './filter/Filter'
 import { addBookmarkFromWorkThumb } from './AddBookmarkFromWorkThumb'
 import { bookmarkPanel } from './BookmarkPanel'
 
-// 鼠标停留在作品的缩略图上时，预览作品
+// 当鼠标停留在作品缩略图上时，预览作品
 class PreviewWork {
   constructor() {
     if (Config.mobile) {
@@ -756,6 +756,9 @@ class PreviewWork {
 
     this.wrap.setAttribute('style', styleArray.join(''))
 
+    // 预览区域的位置和尺寸发生了变化，通知其他模块（例如预览详细信息的面板需要避开预览区域）
+    EVT.fire('previewWorkWrapPositioned')
+
     // 预览动图
     if (
       this.show &&
@@ -778,6 +781,24 @@ class PreviewWork {
         // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
       }
     }
+  }
+
+  /**
+   * 获取预览区域当前的位置和尺寸（视口坐标）。
+   * 其他模块可以使用它来判断自己是否遮挡了预览区域。
+   * 预览区域没有显示时返回 null
+   */
+  public getPreviewAreaRect(): DOMRect | null {
+    // 移动端不会创建预览区域，此时 wrap 是 undefined
+    if (!this.show || !this.wrap) {
+      return null
+    }
+
+    const rect = this.wrap.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) {
+      return null
+    }
+    return rect
   }
 
   private destroyPreviewUgoira() {
@@ -855,6 +876,24 @@ class PreviewWork {
     }
   }
 
+  /**
+   * 检查这个作品是否会显示预览区域。其他模块可以使用它来判断是否需要等待预览区域出现。
+   *
+   * 这里只能根据设置和数据来判断，实际是否显示还取决于图片能否加载成功等条件
+   */
+  public canPreview(data: ArtworkData) {
+    // 移动端没有预览作品功能
+    if (
+      Config.mobile ||
+      !settings.PreviewWork ||
+      this.dontShowAfterPageSwitch
+    ) {
+      return false
+    }
+
+    return this.checkPreviewType(data)
+  }
+
   /** 检查是否应该预览这个作品 */
   private checkPreviewType(data: ArtworkData) {
     if (data.body.illustType === 2) {
@@ -869,4 +908,5 @@ class PreviewWork {
   }
 }
 
-new PreviewWork()
+/** 预览作品的实例。其他模块可以通过它获取预览区域的位置和尺寸 */
+export const previewWork = new PreviewWork()

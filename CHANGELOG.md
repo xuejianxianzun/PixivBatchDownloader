@@ -24,6 +24,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/706
 
 现在当用户未启用“预览作品”功能时，该行为不会请求作品数据。
 
+### 🔧功能优化：让详细信息面板尽量不遮挡预览图
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/701
+
 ## 19.6.1 2026-10-28
 
 ### 🐞修复问题：给未分类的作品添加标签时，总是使用原始标签

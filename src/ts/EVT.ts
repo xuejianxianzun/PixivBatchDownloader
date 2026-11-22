@@ -180,6 +180,8 @@ class EVENT {
     sendBrowserDownload: 'sendBrowserDownload',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+    /**预览作品的区域显示出来、或者切换图片之后，重新计算了位置和尺寸时触发 */
+    previewWorkWrapPositioned: 'previewWorkWrapPositioned',
     /**在图片查看器里点击「作品信息」按钮时触发，用于切换详情面板。数据是 { anchor, workData } */
     toggleImageViewerDetailInfo: 'toggleImageViewerDetailInfo',
     /**需要隐藏由图片查看器打开的详情面板时触发。点击查看器里的其他按钮、关闭查看器时都会触发 */
@@ -287,6 +289,7 @@ class EVENT {
       | 'showOriginSizeImage'
       | 'hideOriginSizeImage'
       | 'hideImageViewerDetailInfo'
+      | 'previewWorkWrapPositioned'
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'
