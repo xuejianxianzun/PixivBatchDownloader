@@ -81,7 +81,7 @@ class CheckTag {
   private check(a: HTMLAnchorElement) {
     const tag = a.innerText
     const result: CheckResult = {
-      inNotNeedTagList: settings.notNeedTagPartial.includes(tag),
+      inNotNeedTagList: settings.notNeedTagWhole.includes(tag),
       inTagRename: [],
       blockTags: false,
     }

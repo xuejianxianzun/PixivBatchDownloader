@@ -1,3 +1,10 @@
+html {
+  --text-color: rgb(31, 31, 31);
+}
+html[data-xzpagetheme='dark'] {
+  --text-color: rgb(245, 245, 245);
+}
+
 .fastScreenArea {
   text-align: center;
   background: #fff;
@@ -375,7 +382,7 @@ html[data-xzpagetheme='dark'] {
       line-height: 22px;
       font-size: 14px;
       font-weight: bold;
-      color: rgb(31, 31, 31);
+      color: var(--text-color);
       overflow: hidden;
       text-decoration: none;
       transition: color 0.2s ease 0s;
@@ -402,7 +409,7 @@ html[data-xzpagetheme='dark'] {
         max-width: 164px;
         line-height: 16px;
         font-size: 14px;
-        color: rgb(31, 31, 31);
+        color: var(--text-color);
         text-overflow: ellipsis;
         white-space: nowrap;
         text-decoration: none;

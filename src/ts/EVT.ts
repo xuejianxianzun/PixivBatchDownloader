@@ -107,6 +107,8 @@ class EVENT {
     worksUpdate: 'worksUpdate',
     /** 当需要清空收藏面板的“常用的标签”列表时触发 */
     clearBookmarkPanelCommonTags: 'clearBookmarkPanelCommonTags',
+    /** 收藏面板显示之后触发。其他模块收到后应该隐藏自己的面板，避免挡住收藏面板 */
+    bookmarkPanelOpened: 'bookmarkPanelOpened',
     /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
     clearDownloadRecord: 'clearDownloadRecord',
     /** 当需要导出下载记录时触发 */
@@ -180,6 +182,8 @@ class EVENT {
     sendBrowserDownload: 'sendBrowserDownload',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+    /**预览作品的区域显示出来、或者切换图片之后，重新计算了位置和尺寸时触发 */
+    previewWorkWrapPositioned: 'previewWorkWrapPositioned',
     /**在图片查看器里点击「作品信息」按钮时触发，用于切换详情面板。数据是 { anchor, workData } */
     toggleImageViewerDetailInfo: 'toggleImageViewerDetailInfo',
     /**需要隐藏由图片查看器打开的详情面板时触发。点击查看器里的其他按钮、关闭查看器时都会触发 */
@@ -261,6 +265,7 @@ class EVENT {
       | 'settingsPanelClosed'
       | 'worksUpdate'
       | 'clearBookmarkPanelCommonTags'
+      | 'bookmarkPanelOpened'
       | 'clearDownloadRecord'
       | 'exportDownloadRecord'
       | 'importDownloadRecord'
@@ -287,6 +292,7 @@ class EVENT {
       | 'showOriginSizeImage'
       | 'hideOriginSizeImage'
       | 'hideImageViewerDetailInfo'
+      | 'previewWorkWrapPositioned'
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'

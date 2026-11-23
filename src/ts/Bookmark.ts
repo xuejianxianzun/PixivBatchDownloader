@@ -298,6 +298,19 @@ class Bookmark {
     requestToken = token.token,
     networkRetry = 0
   ): Promise<number> {
+    // 去掉标签里的所有空白字符。因为 Pixiv 会把标签里的空格当作分隔符：
+    // 例如 `Genshin Impact` 会被添加成 2 个独立的标签。
+    // 无法通过把空格转换为 %20 绕过（%20 会被原样添加进标签里），所以只能直接去掉空格。
+    tags = tags.map((tag) => tag.replace(/\s/g, ''))
+
+    // 另一个已知限制：
+    // 添加收藏时，Pixiv 对标签的长度有限制，超过 20 个长度的字符会被截断。例如：
+    // GenshinImpact1000+bookmarks 会被截断为 GenshinImpact1000+bo
+    // 该限制无法绕过，因此不做处理。
+
+    // 另一个细节：
+    // Pixiv 添加收藏标签时不会区分大小写，因此大小写不同的两个标签会独立添加，同时存在。
+
     try {
       await API.addBookmark(id, type, tags, hide, requestToken)
       return 200

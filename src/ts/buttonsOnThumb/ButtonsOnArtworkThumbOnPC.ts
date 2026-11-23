@@ -8,6 +8,7 @@ import { likeWork } from '../LikeWork'
 import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { BtnConfig } from './ButtonsOnThumbConfig'
 import { ButtonsOnThumbOnPC } from './ButtonsOnThumbOnPC'
+import { states } from '../store/States'
 
 // 在图片作品的缩略图上显示一些按钮
 class ButtonsOnArtworkThumbOnPC extends ButtonsOnThumbOnPC {
@@ -32,6 +33,9 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsOnThumbOnPC {
     // 在多图作品的缩略图列表上触发时，通过 data-index 属性获取序号
     if (onThumbList) {
       index = Number.parseInt(this.workEL!.dataset!.index!)
+    } else {
+      // 在非多图作品的缩略图上触发时，从状态记录里获取当前作品查看的是第几张图片
+      index = states.indexRecord[this.currentId] || 0
     }
 
     const idData: IDData = {

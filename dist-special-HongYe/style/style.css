@@ -200,6 +200,12 @@ html.ppdMarqueeActive {
   outline: 3px solid #f33939;
   outline-offset: -3px;
 }
+html {
+  --text-color: #1f1f1f;
+}
+html[data-xzpagetheme='dark'] {
+  --text-color: #f5f5f5;
+}
 .fastScreenArea {
   text-align: center;
   background: #fff;
@@ -523,7 +529,7 @@ html[data-xzpagetheme='dark'] .searchResultPreviewHeader .searchResultPreviewCou
   line-height: 22px;
   font-size: 14px;
   font-weight: bold;
-  color: #1f1f1f;
+  color: var(--text-color);
   overflow: hidden;
   text-decoration: none;
   transition: color 0.2s ease 0s;
@@ -547,7 +553,7 @@ html[data-xzpagetheme='dark'] .searchResultPreviewHeader .searchResultPreviewCou
   max-width: 164px;
   line-height: 16px;
   font-size: 14px;
-  color: #1f1f1f;
+  color: var(--text-color);
   text-overflow: ellipsis;
   white-space: nowrap;
   text-decoration: none;
@@ -4581,10 +4587,12 @@ iframe[name='expandedFooter'] {
 .xz_PreviewWorkDetailPanel .content .textButton:hover {
   color: #0ea8ef;
 }
-.xz_PreviewWorkDetailPanel .content .textButton#copyBtn {
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn,
+.xz_PreviewWorkDetailPanel .content .textButton#bookmarkBtn {
   padding: 0 4px;
 }
-.xz_PreviewWorkDetailPanel .content .textButton#copyBtn svg {
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn svg,
+.xz_PreviewWorkDetailPanel .content .textButton#bookmarkBtn svg {
   width: 1.4em;
   height: 1.4em;
 }

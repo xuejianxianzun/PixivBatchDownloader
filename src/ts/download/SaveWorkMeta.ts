@@ -7,6 +7,7 @@ import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { SendDownload } from './SendDownload'
+import { fileNameNormalize } from '../FileNameNormalize'
 
 // 为每个作品创建一个单独的文件，保存这个作品的元数据
 class SaveWorkMeta {
@@ -100,10 +101,9 @@ class SaveWorkMeta {
     }
     this.savedIds.push(id)
 
-    // 生成文件名
-    // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
-
     // 生成这个数据的路径和文件名
+    // 元数据文件默认需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+    // 如果用户设置了保存到特定文件夹，则元数据文件会保存到指定的文件夹里，文件名不变
     const _fileName = fileName.createFileName(data)
     // 取出后缀名之前的部分
     const index = _fileName.lastIndexOf('.')
@@ -114,11 +114,34 @@ class SaveWorkMeta {
       // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
       part1 = part1.replace(data.id, data.idNum.toString())
     }
+
+    // 把路径拆分成文件夹和文件名两部分
+    const nameIndex = part1.lastIndexOf('/') + 1
+    const folder = this.getFolder(part1.substring(0, nameIndex))
+    const name = part1.substring(nameIndex)
     // 拼接出元数据文件的文件名，不包含后缀名
-    const metaFileName = `${part1}-meta`
+    const metaFileName = folder + name + '-meta'
 
     this.saveTXT(data, metaFileName)
     this.saveJSON(data, metaFileName)
+  }
+
+  /** 获取元数据文件应该保存到的文件夹，结尾带斜线（调用方直接把它和文件名拼接）。
+   *
+   * @param workFolder 作品文件所在的文件夹，结尾带有斜线（作品文件在下载目录的根目录里时是空字符串） */
+  private getFolder(workFolder: string) {
+    if (settings.saveMetaFolderType !== 'folder') {
+      return workFolder
+    }
+
+    // 用户输入的路径里如果没有任何有效字符（例如只输入了斜线），就当作没有设置文件夹，
+    // 此时元数据文件依然和作品文件放在同一个文件夹里
+    if (!/[^\/\s]/.test(settings.saveMetaFolder)) {
+      return workFolder
+    }
+
+    // 用户输入的路径可能包含非法字符，需要处理，否则会导致下载失败
+    return fileNameNormalize.handleNormalName(settings.saveMetaFolder) + '/'
   }
 
   private async saveTXT(data: Result, metaFileName: string) {
