@@ -67,7 +67,8 @@ function background({
   const calls = [],
     replies = [],
     revoked = [],
-    stored = {}
+    stored = {},
+    filenames = []
   const browser = {
     action: { onClicked: event() },
     runtime: { onInstalled: event(), onMessage: event() },
@@ -98,6 +99,16 @@ function background({
     {
       'webextension-polyfill': browser,
       '../Config': { Config: { downloadsAPIDisabled: false } },
+      './KeepFilename': {
+        keepFilename: {
+          add: (url, filename) => filenames.push({ url, filename }),
+          cancel: (url) =>
+            filenames.splice(
+              filenames.findIndex((item) => item.url === url),
+              1
+            ),
+        },
+      },
     },
     {
       navigator: { userAgent: firefox ? 'Firefox' : 'Chrome' },
@@ -114,6 +125,7 @@ function background({
     replies,
     revoked,
     stored,
+    filenames,
     submit: (message) =>
       browser.runtime.onMessage.fire(message, { tab: { id: 7 } }),
   }
@@ -231,8 +243,10 @@ test('rejected save reports failure, releases the ID and allows a retry', async 
   assert.equal(env.replies[0].message.data.taskBatch, 1)
   assert.equal(env.stored.idList[7].includes('42_p0'), false)
   assert.ok(env.revoked.includes('blob:front-1'))
+  assert.equal(env.filenames.length, 0, 'failed save cancels its filename')
   await env.submit(request())
   assert.equal(env.calls.length, 2)
+  assert.equal(env.filenames.length, 1, 'retry registers its filename again')
   assert.equal(
     env.replies.length,
     1,
