@@ -220,3 +220,36 @@ https://bugs.chromium.org/p/chromium/issues/detail?id=579563
 https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/downloads
 
 虽然这样就不能方便的制作“管理其他扩展程序的下载内容的扩展程序”，但我必须说这是一件好事。
+---------
+
+## 2026-11-23 更新：在不长期影响其他扩展的前提下保留文件名
+
+起因：启用 IDM Integration Module（6.43.1）后，下载器的文件名 100% 丢失。
+
+### 实测结论（Chrome 157，使用 CDP 加载扩展进行自动化测试）
+
+1. IDM 只在与 IDM 主程序连接（native messaging）时才注册 onDeterminingFilename 监听器。对于它不接管的下载（如 blob URL），它调用无参数的 `suggest()`。
+2. 无参数的 `suggest()` 并不是“不修改”。它会作为一次建议参与竞争，结果是使用默认文件名。
+3. 只要有任何扩展监听了这个事件，`downloads.download()` 里的 filename 就会丢失。即使监听器调用 `suggest({ filename: '', conflictAction: 'uniquify' })` 也一样。所以没有办法“中立地”监听这个事件：监听期间，其他扩展用 `downloads.download()` 设置的文件名都会丢失。
+4. 多个扩展给出建议时，最后安装（准确地说是 last update time 最新）的扩展胜出。见 Chromium `downloads_api.cc` 里的 `DetermineFilenameInternal`。
+5. 如果 service worker 在监听期间被回收，Chrome 仍然保留监听器的注册信息。之后的每个下载都会唤醒 service worker 并等待它的建议；如果此时没有注册监听器，所有下载都要等待 15 秒超时。
+
+### 现在的做法（src/ts/serviceWorker/KeepFilename.ts）
+
+- 调用 `downloads.download()` 前，按下载 URL 登记文件名。
+- 只在有等待确定文件名的下载时监听 onDeterminingFilename。对自己的下载（`byExtensionId` 是自己）调用 `suggest()` 提交登记的文件名；对其他下载调用无参数的 `suggest()`。空闲 3 秒后移除监听器，不再影响其他扩展。
+- service worker 启动时同步注册监听器，以便处理上面第 5 点的情况，空闲后同样会移除。
+
+### 测试结果
+
+| 场景 | 19.7.0 | 修复后 |
+| --- | --- | --- |
+| 没有冲突的扩展 | 正确 | 正确 |
+| 先安装 IDM，后安装下载器 | 文件名丢失 | 正确 |
+| 先安装 IDM 替身扩展（无参数 suggest），后安装下载器 | 文件名丢失 | 正确 |
+| 先安装下载器，后安装 IDM 替身扩展 | 文件名丢失 | 文件名丢失（Chrome 的优先级规则，无法绕过） |
+| 下载器空闲时，其他扩展的下载 | 不受影响 | 不受影响 |
+
+### 仍然存在的局限
+
+如果冲突的扩展比下载器更晚安装或更新，它的建议（即使是无参数的 `suggest()`）优先级更高，下载器仍然无法保留文件名。这是 Chrome 的设计，downloads API 无法绕过。此时前台已有的 UUID 文件名检测会提示用户。下载器每次更新后会重新获得更高的优先级。

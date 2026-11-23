@@ -7,6 +7,7 @@ import {
 } from '../download/DownloadType'
 import browser from 'webextension-polyfill'
 import { Config } from '../Config'
+import { keepFilename } from './KeepFilename'
 
 // 当点击扩展图标时，显示/隐藏下载面板
 browser.action.onClicked.addListener(function (tab) {
@@ -140,12 +141,20 @@ browser.runtime.onMessage.addListener(async function (
       try {
         const url = await getFileURL(msg)
         data.blobURLBack = url.startsWith('blob:') ? url : ''
-        const id = await browser.downloads.download({
-          url,
-          filename: msg.fileName,
-          conflictAction,
-          saveAs: false,
-        })
+        // 登记文件名，以免被其他扩展程序覆盖
+        keepFilename.add(url, msg.fileName, conflictAction)
+        let id: number
+        try {
+          id = await browser.downloads.download({
+            url,
+            filename: msg.fileName,
+            conflictAction,
+            saveAs: false,
+          })
+        } catch (error) {
+          keepFilename.cancel(url)
+          throw error
+        }
         // 建立下载项不代表保存完成，继续等待 onChanged 返回结果。
         dlData[id] = data
         await saveDLData()
@@ -181,12 +190,20 @@ browser.runtime.onMessage.addListener(async function (
     msg.msg === 'save_novel_series_file'
   ) {
     const _url = await getFileURL(msg)
-    const id = await browser.downloads.download({
-      url: _url,
-      filename: msg.fileName,
-      conflictAction,
-      saveAs: false,
-    })
+    // 登记文件名，以免被其他扩展程序覆盖
+    keepFilename.add(_url, msg.fileName, conflictAction)
+    let id: number
+    try {
+      id = await browser.downloads.download({
+        url: _url,
+        filename: msg.fileName,
+        conflictAction,
+        saveAs: false,
+      })
+    } catch (error) {
+      keepFilename.cancel(_url)
+      throw error
+    }
     dlData[id] = {
       blobURLFront: msg.blobURL,
       blobURLBack: _url.startsWith('blob:') ? _url : '',
