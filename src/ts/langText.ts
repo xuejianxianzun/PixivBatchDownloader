@@ -14362,18 +14362,48 @@ You can choose between two export strategies:<br>
     `Экспортировать сразу после каждого изменения настроек`,
   ],
   _版本更新说明: [
-    `<strong>🐞修复问题：给未分类的作品添加标签时，总是使用原始标签</strong><br>
-现在下载器在给未分类的作品添加标签时，如果用户设置了“添加翻译后的标签”，就会使用翻译后的标签。`,
-    `<strong>🐞修復問題：幫未分類的作品加入標籤時，總是使用原始標籤</strong><br>
-現在下載器在幫未分類的作品加入標籤時，如果你設定了「添加翻譯後的標籤」，就會使用翻譯後的標籤。`,
-    `<strong>🐞Fixed an issue: adding tags to uncategorized works always used the original tags</strong><br>
-Now, when the downloader adds tags to uncategorized works, if you have selected "Add the translated tags", it will use the translated tags.`,
-    `<strong>🐞問題を修正：未分類の作品にタグを追加するときに、常に元のタグが使用されていました</strong><br>
-「翻訳後のタグを追加」を設定している場合、未分類の作品にタグを追加するときに翻訳後のタグが使用されるようになりました。`,
-    `<strong>🐞문제 수정: 분류되지 않은 작품에 태그를 추가할 때 항상 원본 태그가 사용되었습니다</strong><br>
-이제 "번역된 태그 추가"가 설정되어 있으면, 분류되지 않은 작품에 태그를 추가할 때 번역된 태그가 사용됩니다.`,
-    `<strong>🐞Исправлена проблема: при добавлении меток к неклассифицированным работам всегда использовались исходные теги</strong><br>
-Теперь, если в настройках выбрано «Добавить переведённые теги», загрузчик при добавлении меток к неклассифицированным работам использует переведённые теги.`,
+    `<strong>✨在保存作品的元数据、简介文件时，可以保存到指定文件夹里</strong><br>
+之前这两种文件会和作品文件放在同一个文件夹里。现在我为它们添加了子选项，你可以让它们保存到指定的文件夹里。<br>
+<strong>🐞修复问题：添加收藏的标签时，如果标签含有空格，会被添加为 2 个标签</strong><br>
+在添加收藏的标签时，Pixiv 会根据空格来拆分标签，例如 <span class="blue">Genshin Impact</span> 会被添加成 2 个独立的标签。<br>
+现在下载器在添加收藏的标签时，会去掉标签里的所有空白字符，避免空格被当作分隔符。<br>
+<strong>🐞修复问题：点击作品缩略图上的复制按钮时，总是复制第一张图片</strong><br>
+<strong>🔧其他修复和功能优化</strong>`,
+    `<strong>✨在儲存作品的元資料、簡介檔案時，可以儲存到指定資料夾裡</strong><br>
+之前這兩種檔案會和作品檔案放在同一個資料夾裡。現在我為它們添加了子選項，你可以讓它們儲存到指定的資料夾裡。<br>
+<strong>🐞修復問題：加入收藏的標籤時，如果標籤含有空格，會被添加為 2 個標籤</strong><br>
+在加入收藏的標籤時，Pixiv 會根據空格來拆分標籤，例如 <span class="blue">Genshin Impact</span> 會被添加成 2 個獨立的標籤。<br>
+現在下載器在加入收藏的標籤時，會去掉標籤裡的所有空白字元，避免空格被當作分隔符。<br>
+<strong>🐞修復問題：點擊作品縮圖上的複製按鈕時，總是複製第一張圖片</strong><br>
+<strong>🔧其他修復和功能最佳化</strong>`,
+    `<strong>✨Metadata and description files can now be saved to a specified folder</strong><br>
+Previously, these two kinds of files were saved in the same folder as the work file. Now I've added a sub-option for them, so you can save them to the folder you specify.<br>
+<strong>🐞Fixed an issue: when adding bookmark tags, a tag containing spaces was added as 2 tags</strong><br>
+When adding bookmark tags, Pixiv splits tags by spaces, so <span class="blue">Genshin Impact</span> would be added as 2 separate tags.<br>
+Now the downloader removes all whitespace characters from bookmark tags, so spaces are no longer treated as separators.<br>
+<strong>🐞Fixed an issue: clicking the copy button on a work thumbnail always copied the first image</strong><br>
+<strong>🔧Other fixes and improvements</strong>`,
+    `<strong>✨作品のメタデータ・説明ファイルを指定したフォルダーに保存できるようになりました</strong><br>
+これまでこれらのファイルは作品ファイルと同じフォルダーに保存されていました。今回サブオプションを追加したので、指定したフォルダーに保存できるようになりました。<br>
+<strong>🐞問題を修正：ブックマークのタグを追加するとき、スペースを含むタグが 2 つのタグとして追加されていました</strong><br>
+ブックマークのタグを追加するとき、Pixiv はスペースでタグを分割するため、<span class="blue">Genshin Impact</span> は 2 つの独立したタグとして追加されます。<br>
+ダウンローダーはブックマークのタグを追加するとき、タグ内の空白文字をすべて削除するようになったため、スペースが区切り文字として扱われることはありません。<br>
+<strong>🐞問題を修正：作品サムネイルのコピーボタンをクリックすると、常に 1 枚目の画像がコピーされていました</strong><br>
+<strong>🔧その他の修正と機能改善</strong>`,
+    `<strong>✨작품 메타데이터·설명 파일을 지정한 폴더에 저장할 수 있습니다</strong><br>
+이전에는 이 두 파일이 작품 파일과 같은 폴더에 저장되었습니다. 이번에 하위 옵션을 추가해서 지정한 폴더에 저장할 수 있습니다.<br>
+<strong>🐞문제 수정: 북마크 태그를 추가할 때 공백이 포함된 태그가 2개의 태그로 추가되었습니다</strong><br>
+북마크 태그를 추가할 때 Pixiv는 공백을 기준으로 태그를 나누기 때문에 <span class="blue">Genshin Impact</span> 는 2개의 개별 태그로 추가됩니다.<br>
+이제 다운로더는 북마크 태그를 추가할 때 태그의 모든 공백 문자를 제거하므로, 공백이 구분자로 처리되지 않습니다.<br>
+<strong>🐞문제 수정: 작품 썸네일의 복사 버튼을 클릭하면 항상 첫 번째 이미지가 복사되었습니다</strong><br>
+<strong>🔧기타 수정 및 기능 개선</strong>`,
+    `<strong>✨Файлы метаданных и описаний теперь можно сохранять в указанную папку</strong><br>
+Раньше эти два типа файлов сохранялись в той же папке, что и файл работы. Теперь я добавил для них подпункт, и вы можете сохранять их в указанную папку.<br>
+<strong>🐞Исправлена проблема: при добавлении меток закладки метка с пробелами добавлялась как 2 метки</strong><br>
+При добавлении меток закладки Pixiv разделяет метки по пробелам, поэтому <span class="blue">Genshin Impact</span> добавляется как 2 отдельные метки.<br>
+Теперь при добавлении меток закладки загрузчик удаляет все пробельные символы из меток, поэтому пробел больше не считается разделителем.<br>
+<strong>🐞Исправлена проблема: при нажатии кнопки копирования на миниатюре работы всегда копировалось первое изображение</strong><br>
+<strong>🔧Прочие исправления и улучшения</strong>`,
   ],
   _用户的约稿页面: [
     `用户的约稿页面`,
