@@ -425,6 +425,10 @@ interface XzSetting {
   saveMetaType3: boolean
   saveMetaFormatTXT: boolean
   saveMetaFormatJSON: boolean
+  /** 元数据文件的保存位置。work 表示和作品文件放在同一个文件夹里；folder 表示保存到 saveMetaFolder 指定的文件夹里 */
+  saveMetaFolderType: 'work' | 'folder'
+  /** 保存到指定文件夹时使用的文件夹路径（相对于浏览器的下载目录） */
+  saveMetaFolder: string
   /** 为每个页面类型设置不同的命名规则的开关 */
   setNameRuleForEachPageType: boolean
   /** 每个页面类型所使用的命名规则 */
@@ -533,6 +537,10 @@ interface XzSetting {
   saveDescriptionType3: boolean
   saveEachDescription: boolean
   summarizeDescription: boolean
+  /** 简介文件的保存位置。work 表示和作品文件放在同一个文件夹里；folder 表示保存到 saveDescriptionFolder 指定的文件夹里 */
+  saveDescriptionFolderType: 'work' | 'folder'
+  /** 保存到指定文件夹时使用的文件夹路径（相对于浏览器的下载目录） */
+  saveDescriptionFolder: string
   /** 慢速抓取时，相邻两次请求之间等待的毫秒数。最小 1000。备注：以前叫 slowCrawlDealy（Delay 拼错了） */
   slowCrawlDelay: number
   /**设置下载一个文件后，需要等待多久才能开始下一次下载。值为 0 - 3600 秒，允许小数 */
@@ -1035,6 +1043,8 @@ class Settings {
     saveMetaType3: false,
     saveMetaFormatTXT: true,
     saveMetaFormatJSON: false,
+    saveMetaFolderType: 'work',
+    saveMetaFolder: 'pixiv/metadata',
     setNameRuleForEachPageType: false,
     nameRuleForEachPageType: {
       [PageName.Unsupported]: Config.defaultNameRuleForArtwork,
@@ -1196,6 +1206,8 @@ class Settings {
     saveDescriptionType3: false,
     saveEachDescription: true,
     summarizeDescription: false,
+    saveDescriptionFolderType: 'work',
+    saveDescriptionFolder: 'pixiv/description',
     slowCrawlDelay: 1800,
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,

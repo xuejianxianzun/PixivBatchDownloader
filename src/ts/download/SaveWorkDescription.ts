@@ -11,6 +11,7 @@ import { log } from '../Log'
 import { toast } from '../Toast'
 import { SendDownload } from './SendDownload'
 import { nameRuleManager } from '../setting/NameRuleManager'
+import { fileNameNormalize } from '../FileNameNormalize'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的简介
 class SaveWorkDescription {
@@ -105,7 +106,11 @@ class SaveWorkDescription {
     // 如果简介里含有外链，则在文件名最后添加 links 标记
     const hasLink = this.hasLinkRegexp.test(desc)
     const namePart1 = this.createFileName(data)
-    const fileName = `${namePart1}-${lang.transl('_简介')}${
+    // 把路径拆分成文件夹和文件名两部分，这样可以在需要时替换文件夹
+    const nameIndex = namePart1.lastIndexOf('/') + 1
+    const folder = this.getFolder(namePart1.substring(0, nameIndex))
+    const name = namePart1.substring(nameIndex)
+    const fileName = `${folder}${name}-${lang.transl('_简介')}${
       hasLink ? '-links' : ''
     }.txt`
 
@@ -197,6 +202,8 @@ class SaveWorkDescription {
 
     // 设置 TXT 的文件名
     let txtName = ''
+    // 作品文件所在的文件夹。结尾带有斜线，作品文件在下载目录的根目录里时是空字符串
+    let workFolder = ''
     const name = lang.transl('_简介汇总')
     const title = Utils.replaceUnsafeStr(Tools.getPageTitle())
     const time = Tools.formatDateTimeInFilename(store.crawlCompleteTime)
@@ -239,15 +246,17 @@ class SaveWorkDescription {
         // pixiv/{user}-{user_id}/{id}-{title} 会渲染为 pixiv/画师名-画师id
         const path = fileName.createFolderPath(result, folder)
         if (path) {
-          // 在 txt 文件之前添加文件夹路径
-          txtName = `${path}/${txtName}`
+          workFolder = path + '/'
         }
       }
     }
 
+    // 如果用户设置了保存到特定文件夹，则汇总文件也会保存到指定的文件夹里
+    const fileNamePath = this.getFolder(workFolder) + txtName
+
     await SendDownload.noReply(
       blob,
-      txtName,
+      fileNamePath,
       Tools.chooseDownloadMethod(!settings.rememberTheLastSaveLocation)
     )
     const msg = `✅${lang.transl('_保存作品的简介2')}: ${lang.transl(
@@ -255,6 +264,26 @@ class SaveWorkDescription {
     )}`
     log.success(msg)
     toast.success(msg)
+  }
+
+  /** 获取简介文件应该保存到的文件夹，结尾带斜线。
+   *
+   * @param workFolder 作品文件所在的文件夹，结尾带有斜线（作品文件在下载目录的根目录里时是空字符串） */
+  private getFolder(workFolder: string) {
+    if (settings.saveDescriptionFolderType !== 'folder') {
+      return workFolder
+    }
+
+    // 用户输入的路径里如果没有任何有效字符（例如只输入了斜线），就当作没有设置文件夹，
+    // 此时简介文件依然和作品文件放在同一个文件夹里
+    if (!/[^\/\s]/.test(settings.saveDescriptionFolder)) {
+      return workFolder
+    }
+
+    // 用户输入的路径可能包含非法字符，需要处理，否则会导致下载失败
+    return (
+      fileNameNormalize.handleNormalName(settings.saveDescriptionFolder) + '/'
+    )
   }
 
   /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */

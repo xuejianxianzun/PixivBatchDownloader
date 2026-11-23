@@ -28,6 +28,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/706
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/701
 
+### ✨在保存作品的元数据、简介文件时，可以保存到指定文件夹里
+
+之前这两种文件会和作品文件放在同一个文件夹里。现在我为它们添加了子选项，你可以让它们保存到指定的文件夹里。
+
 ### ✨在详细信息面板里添加了收藏按钮
 
 点击详细信息面板里的收藏按钮，或者按快捷键 B 即可收藏作品。当用户启用了收藏面板时，会显示收藏面板。

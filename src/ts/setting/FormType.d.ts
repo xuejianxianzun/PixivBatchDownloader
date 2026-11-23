@@ -127,6 +127,8 @@ export interface FormType extends HTMLFormElement {
   saveMetaType3: HTMLInputElement
   saveMetaFormatTXT: HTMLInputElement
   saveMetaFormatJSON: HTMLInputElement
+  saveMetaFolderType: RadioNodeList
+  saveMetaFolder: HTMLInputElement
   setNameRuleForEachPageType: HTMLInputElement
   showNotificationAfterDownloadComplete: HTMLInputElement
   boldKeywords: HTMLInputElement
@@ -203,6 +205,8 @@ export interface FormType extends HTMLFormElement {
   saveDescriptionType3: HTMLInputElement
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
+  saveDescriptionFolderType: RadioNodeList
+  saveDescriptionFolder: HTMLInputElement
   slowCrawlDelay: HTMLInputElement
   downloadInterval: HTMLInputElement
   downloadIntervalOnWorksNumber: HTMLInputElement

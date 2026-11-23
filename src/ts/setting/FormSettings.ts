@@ -220,6 +220,8 @@ class FormSettings {
       'epubWritingMode',
       'epubLangSource',
       'convertNovelText',
+      'saveMetaFolderType',
+      'saveDescriptionFolderType',
     ],
     text: [
       'onlyCrawlFirstFewImagesCount',
@@ -237,6 +239,8 @@ class FormSettings {
       'idRangeValueForBookmarkImageWorks',
       'idRangeValueForBookmarkNovelWorks',
       'r18FolderName',
+      'saveMetaFolder',
+      'saveDescriptionFolder',
       'sizeMin',
       'sizeMax',
       'downloadThread',

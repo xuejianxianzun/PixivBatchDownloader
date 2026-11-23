@@ -6770,7 +6770,11 @@ You can refer to the help content of the "Create a folder with the first matched
     文件格式：<br>
     - TXT：易于阅读，但只包含比较常用的数据。<br>
     - JSON：下载器的内部数据（其实就是抓取结果），保存了更多的数据。<br>
-    你可以同时选择这两种格式。`,
+    你可以同时选择这两种格式。<br>
+    <br>
+    保存位置：<br>
+    - 跟随作品文件：元数据文件会和作品的文件（图片或小说）放在一起。<br>
+    - 保存到特定文件夹里：如果你想把元数据文件保存到专用的文件夹里，可以选择该选项，并设置文件夹路径。下载器会在浏览器的下载目录里创建这个文件夹。注意：此处的文件夹路径不能使用命名规则里的标记，只能使用普通字符。默认值是 <span class="blue">pixiv/metadata</span>。<br>`,
     `把每個作品的元資料儲存到單獨的檔案裡。<br>
     下載器可以為每個作品生成一個同名檔案（但副檔名不同），儲存它的元資料。<br>
     <br>
@@ -6780,7 +6784,11 @@ You can refer to the help content of the "Create a folder with the first matched
     檔案格式：<br>
     - TXT：易於閱讀，但只包含比較常用的資料。<br>
     - JSON：下載器的內部資料（其實就是擷取結果），儲存了更多的資料。<br>
-    你可以同時選擇這兩種格式。`,
+    你可以同時選擇這兩種格式。<br>
+    <br>
+    儲存位置：<br>
+    - 跟隨作品檔案：元資料檔案會和作品的檔案（圖片或小說）放在一起。<br>
+    - 儲存到特定資料夾裡：如果你想把元資料檔案儲存到專用的資料夾裡，可以選擇該選項，並設定資料夾路徑。下載器會在瀏覽器的下載目錄裡建立這個資料夾。注意：此處的資料夾路徑不能使用命名規則裡的標記，只能使用普通字元。預設值是 <span class="blue">pixiv/metadata</span>。<br>`,
     `Save the metadata of each work to a separate file.<br>
     The downloader can generate a file with the same name (but a different extension) for each work to save its metadata.<br>
     <br>
@@ -6790,7 +6798,11 @@ You can refer to the help content of the "Create a folder with the first matched
     File format:<br>
     - TXT: easy to read, but only contains relatively common data.<br>
     - JSON: the downloader's internal data (which is actually the crawl results), which saves more information.<br>
-    You can select both formats at the same time.`,
+    You can select both formats at the same time.<br>
+    <br>
+    Save location:<br>
+    - Follow the work file: the metadata file is saved together with the work file (image or novel).<br>
+    - Save to a specific folder: if you want to save metadata files in a dedicated folder, select this option and set the folder path. The downloader creates this folder in the browser's download directory. Note: the folder path here cannot use the markers of the Naming rule; only ordinary characters are allowed. The default value is <span class="blue">pixiv/metadata</span>.<br>`,
     `各作品のメタデータを別のファイルに保存します。<br>
     ダウンローダーは、各作品に対して同名のファイル（拡張子は異なる）を生成し、そのメタデータを保存できます。<br>
     <br>
@@ -6800,7 +6812,11 @@ You can refer to the help content of the "Create a folder with the first matched
     ファイル形式：<br>
     - TXT：読みやすいですが、比較的よく使われるデータのみを含みます。<br>
     - JSON：ダウンローダーの内部データ（実はクロール結果です）で、より多くの情報を保存します。<br>
-    この 2 つの形式を同時に選択できます。`,
+    この 2 つの形式を同時に選択できます。<br>
+    <br>
+    保存場所：<br>
+    - 作品ファイルと同じ場所：メタデータファイルは作品のファイル（画像または小説）と同じ場所に保存されます。<br>
+    - 特定のフォルダーに保存する：メタデータファイルを専用のフォルダーに保存したい場合は、このオプションを選択し、フォルダーのパスを設定してください。ダウンローダーはブラウザーのダウンロードディレクトリにこのフォルダーを作成します。注意：ここでのフォルダーのパスには命名規則のマーカーを使用できません。通常の文字だけを使用できます。デフォルト値は <span class="blue">pixiv/metadata</span> です。<br>`,
     `각 작품의 메타데이터를 별도 파일로 저장합니다.<br>
     다운로더는 각 작품에 대해 같은 이름의 파일(확장자만 다름)을 생성하여 메타데이터를 저장할 수 있습니다.<br>
     <br>
@@ -6810,7 +6826,11 @@ You can refer to the help content of the "Create a folder with the first matched
     파일 형식:<br>
     - TXT: 읽기 쉽지만 비교적 일반적인 데이터만 포함합니다.<br>
     - JSON: 다운로더의 내부 데이터(실제로는 크롤링 결과입니다)로, 더 많은 정보를 저장합니다.<br>
-    두 형식을 동시에 선택할 수 있습니다.`,
+    두 형식을 동시에 선택할 수 있습니다.<br>
+    <br>
+    저장 위치:<br>
+    - 작품 파일과 함께: 메타데이터 파일이 작품 파일(이미지 또는 소설)과 같은 위치에 저장됩니다.<br>
+    - 특정 폴더에 저장: 메타데이터 파일을 전용 폴더에 저장하려면 이 옵션을 선택하고 폴더 경로를 설정하세요. 다운로더는 브라우저의 다운로드 디렉터리에 이 폴더를 만듭니다. 참고: 여기서 폴더 경로에는 명명 규칙의 마커를 사용할 수 없으며, 일반 문자만 사용할 수 있습니다. 기본값은 <span class="blue">pixiv/metadata</span>입니다.<br>`,
     `Сохранять метаданные каждой работы в отдельный файл.<br>
     Загрузчик может создать для каждой работы файл с тем же именем (но с другим расширением) и сохранить в нём её метаданные.<br>
     <br>
@@ -6820,7 +6840,35 @@ You can refer to the help content of the "Create a folder with the first matched
     Формат файла:<br>
     - TXT: легко читается, но содержит только относительно часто используемые данные.<br>
     - JSON: внутренние данные загрузчика (фактически это результаты сканирования), в которых сохраняется больше информации.<br>
-    Можно выбрать оба формата одновременно.`,
+    Можно выбрать оба формата одновременно.<br>
+    <br>
+    Расположение:<br>
+    - Вместе с файлом работы: файл метаданных сохраняется рядом с файлом работы (изображением или новеллой).<br>
+    - Сохранять в указанную папку: если вы хотите сохранять файлы метаданных в отдельной папке, выберите этот пункт и укажите путь к папке. Загрузчик создаст эту папку в каталоге загрузок браузера. Примечание: в пути к папке нельзя использовать маркеры правил названий, только обычные символы. Значение по умолчанию — <span class="blue">pixiv/metadata</span>.<br>`,
+  ],
+  _保存位置: [
+    `保存位置：`,
+    `儲存位置：`,
+    `Save location: `,
+    `保存場所：`,
+    `저장 위치: `,
+    `Расположение: `,
+  ],
+  _跟随作品文件: [
+    `跟随作品文件`,
+    `跟隨作品檔案`,
+    `Follow the work file`,
+    `作品ファイルと同じ場所`,
+    `작품 파일과 함께`,
+    `Вместе с файлом работы`,
+  ],
+  _保存到特定文件夹里: [
+    `保存到特定文件夹里`,
+    `儲存到特定資料夾裡`,
+    `Save to a specific folder`,
+    `特定のフォルダーに保存する`,
+    `특정 폴더에 저장`,
+    `Сохранять в указанную папку`,
   ],
   _在不同的页面类型中使用不同的命名规则: [
     `在不同的页面类型中使用<span class="key">不同</span>的命名规则`,
@@ -9823,7 +9871,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - 有些作品没有简介，所以下载器不会为其生成 TXT 文件。<br>
     <br>
     汇总到一个文件：<br>
-    把所有作品的简介汇总到一个 TXT 文件里。<br>`,
+    把所有作品的简介汇总到一个 TXT 文件里。<br>
+    <br>
+    保存位置：<br>
+    - 跟随作品文件：简介文件会和作品的文件（图片或小说）放在一起。<br>
+    - 保存到特定文件夹里：如果你想把简介文件保存到专用的文件夹里，可以选择该选项，并设置文件夹路径。下载器会在浏览器的下载目录里创建这个文件夹。注意：此处的文件夹路径不能使用命名规则里的标记，只能使用普通字符。默认值是 <span class="blue">pixiv/description</span>。<br>`,
     `下載器可以生成 TXT 檔案儲存作品的說明。<br>
     <br>
     作品類型：<br>
@@ -9838,7 +9890,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - 有些作品沒有說明，所以下載器不會為其生成 TXT 檔案。<br>
     <br>
     彙總到一個檔案：<br>
-    把所有作品的說明彙總到一個 TXT 檔案裡。<br>`,
+    把所有作品的說明彙總到一個 TXT 檔案裡。<br>
+    <br>
+    儲存位置：<br>
+    - 跟隨作品檔案：說明檔案會和作品的檔案（圖片或小說）放在一起。<br>
+    - 儲存到特定資料夾裡：如果你想把說明檔案儲存到專用的資料夾裡，可以選擇該選項，並設定資料夾路徑。下載器會在瀏覽器的下載目錄裡建立這個資料夾。注意：此處的資料夾路徑不能使用命名規則裡的標記，只能使用普通字元。預設值是 <span class="blue">pixiv/description</span>。<br>`,
     `The downloader can create a TXT file to save the work description.<br>
     <br>
     Type of work:<br>
@@ -9853,7 +9909,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - Some works have no description, so the downloader will not create a TXT file for them.<br>
     <br>
     Combine into one file:<br>
-    Combine the descriptions of all works into one TXT file.<br>`,
+    Combine the descriptions of all works into one TXT file.<br>
+    <br>
+    Save location:<br>
+    - Follow the work file: the description file is saved together with the work file (image or novel).<br>
+    - Save to a specific folder: if you want to save description files in a dedicated folder, select this option and set the folder path. The downloader creates this folder in the browser's download directory. Note: the folder path here cannot use the markers of the Naming rule; only ordinary characters are allowed. The default value is <span class="blue">pixiv/description</span>.<br>`,
     `ダウンローダーは TXT ファイルを生成して作品の説明を保存できます。<br>
     <br>
     作品の種類：<br>
@@ -9868,7 +9928,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - 説明がない作品もあるため、その場合は TXT ファイルを生成しません。<br>
     <br>
     1 つのファイルにまとめる：<br>
-    すべての作品の説明を 1 つの TXT ファイルにまとめます。<br>`,
+    すべての作品の説明を 1 つの TXT ファイルにまとめます。<br>
+    <br>
+    保存場所：<br>
+    - 作品ファイルと同じ場所：説明ファイルは作品のファイル（画像または小説）と同じ場所に保存されます。<br>
+    - 特定のフォルダーに保存する：説明ファイルを専用のフォルダーに保存したい場合は、このオプションを選択し、フォルダーのパスを設定してください。ダウンローダーはブラウザーのダウンロードディレクトリにこのフォルダーを作成します。注意：ここでのフォルダーのパスには命名規則のマーカーを使用できません。通常の文字だけを使用できます。デフォルト値は <span class="blue">pixiv/description</span> です。<br>`,
     `다운로더는 TXT 파일을 생성하여 작품 설명을 저장할 수 있습니다.<br>
     <br>
     작품 유형:<br>
@@ -9883,7 +9947,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - 설명이 없는 작품도 있으므로 다운로더는 그런 작품의 TXT 파일을 생성하지 않습니다.<br>
     <br>
     하나의 파일로 모으기:<br>
-    모든 작품의 설명을 하나의 TXT 파일로 모읍니다.<br>`,
+    모든 작품의 설명을 하나의 TXT 파일로 모읍니다.<br>
+    <br>
+    저장 위치:<br>
+    - 작품 파일과 함께: 설명 파일이 작품 파일(이미지 또는 소설)과 같은 위치에 저장됩니다.<br>
+    - 특정 폴더에 저장: 설명 파일을 전용 폴더에 저장하려면 이 옵션을 선택하고 폴더 경로를 설정하세요. 다운로더는 브라우저의 다운로드 디렉터리에 이 폴더를 만듭니다. 참고: 여기서 폴더 경로에는 명명 규칙의 마커를 사용할 수 없으며, 일반 문자만 사용할 수 있습니다. 기본값은 <span class="blue">pixiv/description</span>입니다.<br>`,
     `Загрузчик может создать файл TXT и сохранить в нём описание работы.<br>
     <br>
     Тип работы:<br>
@@ -9898,7 +9966,11 @@ You can view this hotkey list anytime in the "Preview works" settings`,
     - У некоторых работ нет описания, поэтому загрузчик не будет создавать для них файл TXT.<br>
     <br>
     Объединить в один файл:<br>
-    Объединить описания всех работ в один файл TXT.<br>`,
+    Объединить описания всех работ в один файл TXT.<br>
+    <br>
+    Расположение:<br>
+    - Вместе с файлом работы: файл описания сохраняется рядом с файлом работы (изображением или новеллой).<br>
+    - Сохранять в указанную папку: если вы хотите сохранять файлы описания в отдельной папке, выберите этот пункт и укажите путь к папке. Загрузчик создаст эту папку в каталоге загрузок браузера. Примечание: в пути к папке нельзя использовать маркеры правил названий, только обычные символы. Значение по умолчанию — <span class="blue">pixiv/description</span>.<br>`,
   ],
   _简介: [`简介`, `說明`, `description`, `説明`, `설명`, `описание`],
   _简介汇总: [

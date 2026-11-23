@@ -374,9 +374,6 @@ class FileName {
       result = result.substring(0, result.length - 1)
     }
 
-    // 处理连续的 /
-    result = result.replace(/\/{2,100}/g, '/')
-
     // 处理一些边界情况
     result = fileNameNormalize.handleEdgeCases(result)
 
